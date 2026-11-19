@@ -10,6 +10,7 @@ from services import intro_drill, prestudy
 from services import practice_session_service as pss
 from services.practice import session_assembly
 from services.practice_session_service import PracticeSessionService
+from tests.exercise_content_fakes import seed_content_files
 
 
 def _service(rpc_data=None):
@@ -33,8 +34,8 @@ def session_svc(monkeypatch):
     monkeypatch.setattr(session_assembly, 'plan_today_iso', lambda db, u, lang: '2026-11-14')
     monkeypatch.setattr(intro_drill, 'ENABLED', True)
     monkeypatch.setattr(intro_drill, 'block_for_session', lambda *a: None)
-    items = [{'exercise_id': f'e{i}', 'sense_id': i, 'mode': 'maintenance',
-              'exercise_type': 'definition_match'} for i in range(25)]
+    items = seed_content_files([{'exercise_id': f'e{i}', 'sense_id': i, 'mode': 'maintenance',
+                                 'exercise_type': 'definition_match'} for i in range(25)], 1)
     s = _service({'get_practice_session': {'items': items}})
     s._maybe_top_up_ladder = lambda u, lang: []
     s._order_items = lambda *a: None
@@ -110,9 +111,9 @@ def test_nomination_reads_the_calibration_ledger_once():
 
 def test_extra_round_makes_one_session_call_per_half():
     s = _service({
-        'get_practice_session': {'items': [
+        'get_practice_session': {'items': seed_content_files([
             {'exercise_id': 'a', 'sense_id': 1, 'mode': 'acquisition'},
-            {'exercise_id': 'm', 'sense_id': 2, 'mode': 'maintenance'}]},
+            {'exercise_id': 'm', 'sense_id': 2, 'mode': 'maintenance'}], 1)},
         'get_review_ahead_items': [],
     })
     s.new_word_state = lambda u, lang: {'unstarted_sense_ids': [1], 'effective': 5, 'started_today': 0}

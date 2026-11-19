@@ -139,14 +139,12 @@ class SpeedRoundComposer:
         # row whose content cannot be found is dropped by hydrate.
         picked = self._pick(candidates, size)
         try:
-            store.hydrate(picked, language_id=language_id, db=self.db)
+            store.hydrate(picked, language_id=language_id)
         except Exception as exc:
             # hydrate never raises for storage or network problems (ADR-049
-            # §9). In db / shadow mode the rows carry their content; in
-            # storage mode serve only the rows that have it.
+            # §9); serve only the rows that have content.
             logger.error('speed-round content hydration failed: %s', exc)
-            if store.read_mode() == 'storage':
-                picked = [row for row in picked if row.get('content') is not None]
+            picked = [row for row in picked if row.get('content') is not None]
         items = [_to_item(row) for row in picked]
         if len(items) < MIN_BATTERY:
             # Better no battery than a three-item "round": the format only

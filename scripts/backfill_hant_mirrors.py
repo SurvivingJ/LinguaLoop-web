@@ -16,11 +16,9 @@ mirrors (and only the `hant` key — the Simplified content is never touched).
 
 Exercise content goes through the content store (ADR-049, TASK-1014). Rows are
 read with `store.select_columns(...)` and their content filled by
-`store.hydrate(...)`, one call per at most 100 senses, so the same code works
-whether content is served from `exercises.content` or from the Storage files.
+`store.hydrate(...)` from the Storage files, one call per at most 100 senses.
 Changes are written once per sense with `store.write_sense(update_contents=...)`:
-in `EXERCISE_CONTENT_WRITE=dual` mode each touched sense gets one new content
-version, not one per row. A failed sense write counts every row it carried as
+each touched sense gets one new content version, not one per row. A failed sense write counts every row it carried as
 failed and the run goes on. Rows with no `word_sense_id` (the 10 zh collocation
 rows; never served, cannot be keyed by sense) are skipped and counted as
 `skipped_no_sense`; a row whose content the store cannot supply is counted as
@@ -56,8 +54,8 @@ for _noisy in ('httpx', 'httpcore', 'hpack'):
 ZH = 1
 PAGE_SIZE = 1000
 
-#: Exercise columns read for the mirror pass; `{content}` is filled per read mode
-#: by `store.select_columns` (ADR-049 §9).
+#: Exercise columns read for the mirror pass; `store.select_columns` turns
+#: `{content}` into `content_version` (ADR-049 §9).
 EXERCISE_COLUMNS = 'id, exercise_type, word_sense_id, language_id, {content}'
 
 #: Most senses one `store.hydrate` call may cover (one content file per sense).
@@ -109,7 +107,7 @@ def backfill_lemmas(db, conv: ScriptConverter, dry_run: bool, limit: int, force:
 
 
 def _load_exercise_rows(db, limit: int) -> list[dict]:
-    """Every ZH exercise row, paged by id exactly as before (content per read mode)."""
+    """Every ZH exercise row, paged by id exactly as before (content hydrated later)."""
     columns = store.select_columns(EXERCISE_COLUMNS)
     rows: list[dict] = list(paginate(lambda: db.table('exercises')
             .select(columns)
@@ -134,7 +132,7 @@ def _hydrated_sense_chunks(db, by_sense: dict[int, list[dict]],
         chunk_ids = sense_ids[start:start + max_senses]
         chunk = [row for sid in chunk_ids for row in by_sense[sid]]
         before = len(chunk)
-        store.hydrate(chunk, db=db, max_senses=len(chunk), deadline_s=HYDRATE_DEADLINE_S)
+        store.hydrate(chunk, max_senses=len(chunk), deadline_s=HYDRATE_DEADLINE_S)
         kept: dict[int, list[dict]] = {}
         for row in chunk:
             kept.setdefault(row['word_sense_id'], []).append(row)

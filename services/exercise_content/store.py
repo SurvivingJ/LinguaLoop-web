@@ -2,85 +2,70 @@
 
     from services.exercise_content import store
 
-Exercise ``content`` moves from ``exercises.content`` to one immutable JSON file
-per sense and version in the private Storage bucket ``exercise-content``
-(``{lang_code}/{sense_id}.v{version}.json``, ADR-049 §1-§2). Readers select
-``store.select_columns(...)`` / pass ``**store.rpc_content_args()`` and call
+Exercise ``content`` lives in one immutable JSON file per sense and version in
+the private Storage bucket ``exercise-content``
+(``{lang_code}/{sense_id}.v{version}.json``, ADR-049 §1-§2); the
+``exercises.content`` column was dropped on 2026-11-19. Readers select
+``store.select_columns(...)`` (which reads ``content_version`` where the
+template says ``{content}``) / pass ``**store.rpc_content_args()`` and call
 ``store.hydrate(items)`` just before the payload leaves the server; writers call
 ``store.write_sense(...)`` for every insert into ``exercises`` and every content
 change (ADR-049 §4).
 
-Modes are read from ``config.Config`` at call time:
+There are no modes (TASK-1031 removed the ``db`` / ``shadow`` reads, the ``db``
+writes, the DB fallback and their flags). ``hydrate`` reads the files through
+``reader.py``; ``write_sense`` writes the file first and then the rows by
+compare-and-swap through ``writer.py``. Both are imported lazily.
 
-* ``EXERCISE_CONTENT_SOURCE`` (``read_mode()``): ``db`` | ``shadow`` | ``storage``.
-* ``EXERCISE_CONTENT_WRITE`` (``write_mode()``): ``db`` | ``dual``.
-
-``db`` read and write modes are implemented here and reproduce today's
-PostgREST calls exactly; they never import ``reader`` / ``writer`` /
-``backends``, create a client or touch the network. ``shadow`` / ``storage``
-reads delegate to ``reader.py`` (TASK-1010) and ``dual`` writes to ``writer.py``
-(TASK-1011); both are imported lazily, inside the delegating branch.
+Storage credentials: the process backend is built from ``SUPABASE_URL`` and
+``SUPABASE_SERVICE_ROLE_KEY``. Without them, and without a backend installed
+with ``set_backend()`` (tests), ``hydrate`` treats every item that needs content
+as missing (one ERROR per process, no network call), ``fetch_sense`` returns
+None, and ``write_sense`` raises ``ContentStorageError`` before any call.
 
 Choices made where ADR-049 §9 is silent or ambiguous (TASK-1008)
 ----------------------------------------------------------------
-1. ``write_sense`` validation is strict in ``dual`` mode and lenient in ``db``
-   mode. Both modes reject (``ValueError``, before any call) a ``db`` of None,
-   a non-``DeleteWhere`` ``delete_where``, ``max_retries < 1``, an insert row
-   that is not a dict or whose ``word_sense_id`` differs from ``sense_id``, a
-   ``language_id`` key that differs from ``language_id``, a ``content`` key that
-   is not a dict, and an ``update_contents`` value that is not a dict. ``dual``
-   additionally requires every insert row to have ``id`` (a canonical lowercase
-   UUID string, unique in the call), ``language_id`` and ``content``; update ids
-   must be canonical UUIDs not inserted in the same call; ``sense_id`` and
-   ``language_id`` must be positive ints. In ``db`` mode a row may omit ``id``,
-   ``language_id`` or ``content`` and is sent as today: the "db mode must not
-   change behaviour" rule wins, and existing tests insert such rows through
-   the writers that TASK-1012/1013 route through this function
-   (``tests/test_generation_batch_workers.py``, ``tests/test_level_scoped_regen.py``).
-   Ids and sense/language values compare as ints when both sides are
-   int-like (``5 == '5'``); bools never match.
+1. ``write_sense`` validation (``ValueError``, before any call): ``db`` must not
+   be None; ``sense_id`` and ``language_id`` must be positive ints;
+   ``delete_where`` a ``DeleteWhere`` or None; ``max_retries >= 1``; every
+   insert row a dict with a canonical lowercase UUID ``id`` (unique in the
+   call), ``word_sense_id`` equal to ``sense_id``, ``language_id`` equal to
+   ``language_id`` and a dict ``content``; update ids canonical UUIDs not
+   inserted in the same call, with dict values. Ids and sense/language values
+   compare as ints when both sides are int-like (``5 == '5'``); bools never
+   match.
 2. A ``write_sense`` call with nothing to do (no insert rows, no
-   ``delete_where``, no updates) makes no call in any mode and returns
+   ``delete_where``, no updates) makes no call and returns
    ``WriteResult(version=None, attempts=0, ...)``.
-3. ``db`` mode sends no ``insert`` when ``insert_rows`` is empty (every caller
-   today returns before inserting zero rows). ``inserted_ids`` in ``db`` mode
-   is the rows' ``id`` values in order, ``None`` for a row without one
-   (Postgres assigns it). ``deleted_count`` is ``len(response.data)`` (0 when
-   the response has no list ``data``).
-4. ``DeleteWhere.ladder_levels`` is normalised to a sorted tuple of unique
+3. ``DeleteWhere.ladder_levels`` is normalised to a sorted tuple of unique
    ints (a list or set is accepted; a non-int level raises ``ValueError``).
-   An empty tuple is kept and means "no level" (``.in_('ladder_level', [])``).
-5. The credential check of ADR-049 §6 (a non-``db`` mode without
-   ``SUPABASE_URL`` / ``SUPABASE_SERVICE_ROLE_KEY`` behaves as ``db`` with one
-   ERROR) applies to both flags, and is skipped while a backend installed with
-   ``set_backend()`` is in place (tests run ``storage`` / ``dual`` offline that
-   way). A blank or unset flag is ``db`` without a log.
-6. ``hydrate`` resolves ``max_senses`` / ``deadline_s`` of ``None`` to
+   An empty tuple is kept and means "no level".
+4. ``hydrate`` resolves ``max_senses`` / ``deadline_s`` of ``None`` to
    ``EXERCISE_CONTENT_MAX_SENSES_PER_CALL`` / ``EXERCISE_CONTENT_DEADLINE_S``
-   before calling the reader. In ``shadow`` mode any exception from the reader
-   other than ``ValueError`` is logged at ERROR (once per exception type) and
-   swallowed: shadow must never change the response. In ``storage`` mode the
-   reader owns "never raises"; an unexpected exception propagates. A
-   ``language_id`` given as a digit string is accepted and converted.
-7. ``set_backend()`` also empties the byte and negative caches (their entries
+   before calling the reader. The reader owns "never raises"; an unexpected
+   exception propagates. A ``language_id`` given as a digit string is accepted
+   and converted. ``db`` is accepted and ignored (it fed the DB fallback,
+   removed in TASK-1031), so callers need no change.
+5. ``set_backend()`` also empties the byte and negative caches (their entries
    belong to the previous backend). ``reset_state()`` closes a backend it
    built itself (``close()`` when present), never one a test installed.
-8. ``decode_sense_file`` accepts ``bytes`` / ``bytearray`` / ``memoryview`` /
+6. ``decode_sense_file`` accepts ``bytes`` / ``bytearray`` / ``memoryview`` /
    ``str`` and also rejects (``ContentStorageError``) a document whose
    ``language_id`` is not an int or whose exercise content is not an object.
    ``encode_sense_file`` raises ``ValueError`` for a non-string or empty key,
    a non-dict content or a value ``json.dumps`` cannot encode.
 
-Internal plumbing for reader.py / writer.py / cache.py / shadow.py (not for callers)
------------------------------------------------------------------------------------
-* ``_setting_int / _setting_float / _setting_bool / _setting_str(name, default, ...)``
-  read ``Config`` at call time and fall back to the default (one ERROR) on a
-  bad value.
+Internal plumbing for reader.py / writer.py / cache.py (not for callers)
+-----------------------------------------------------------------------
+* ``_setting_int / _setting_float / _setting_str(name, default, ...)`` read
+  ``Config`` at call time and fall back to the default (one ERROR) on a bad
+  value.
 * ``_warn_once(key, level, msg, *args)``: one log line per key per process
   (cleared by ``reset_state()``).
 * ``_on_reset(key, fn)``: register (or replace) a hook ``reset_state()`` calls,
-  for state a module owns (the reader's executor and DB-fallback switch, the
-  shadow queue and worker).
+  for state a module owns (the reader's executor).
+* ``_storage_configured()``: a backend was installed with ``set_backend()``, or
+  ``SUPABASE_URL`` and ``SUPABASE_SERVICE_ROLE_KEY`` are set.
 * ``_content_cache()`` / ``_negative_cache()``: the process-wide
   ``cache.ByteLRU(EXERCISE_CONTENT_CACHE_MB MiB)`` and
   ``cache.NegativeCache(ttl_s=60.0)`` from TASK-1009, built lazily; ``None``
@@ -99,7 +84,6 @@ import json
 import logging
 import math
 import threading
-import time
 import uuid
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
@@ -112,20 +96,13 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger('services.exercise_content')
 
-READ_MODES = ('db', 'shadow', 'storage')
-WRITE_MODES = ('db', 'dual')
 LANGUAGE_CODES = {1: 'zh', 2: 'en', 3: 'ja'}   # same map as services/intro_drill.py LANG_CODE
 FILE_FORMAT = 1
 COMMIT_LOCK_NAMESPACE = 47047
 
 CONTENT_PLACEHOLDER = '{content}'
+CONTENT_COLUMNS = 'content_version'     # what select_columns puts where '{content}' was
 NEGATIVE_CACHE_TTL_S = 60.0
-
-_SELECT_REPLACEMENTS = {
-    'db': 'content',
-    'shadow': 'content, content_version',
-    'storage': 'content_version',
-}
 
 
 # ---------------------------------------------------------------------------
@@ -145,17 +122,15 @@ class AlreadyExists(ContentStorageError):
 
 
 class ContentWriteConflict(ExerciseContentError):
-    """A ``dual`` write lost the compare-and-swap ``max_retries`` times."""
+    """A write lost the compare-and-swap ``max_retries`` times, or its base was stale."""
 
 
 @dataclass
 class HydrationReport:
-    mode: str
     items: int = 0            # items with an id that were considered
     groups: int = 0           # distinct (lang, sense, version) groups
     cache_hits: int = 0
     fetched: int = 0          # groups read from the backend
-    db_fallback: int = 0      # items filled from exercises.content
     over_cap: int = 0         # groups skipped by the per-call cap or deadline
     dropped: int = 0          # items removed (drop_missing=True)
     missing_ids: list[str] = field(default_factory=list)
@@ -188,8 +163,7 @@ class DeleteWhere:
 @dataclass
 class WriteResult:
     sense_id: int
-    mode: str                 # 'db' | 'dual'
-    version: int | None       # committed content_version; None in db mode
+    version: int | None       # committed content_version; None when there was nothing to do
     inserted_ids: list[str]
     deleted_count: int
     updated_ids: list[str]
@@ -289,21 +263,6 @@ def _setting_float(name: str, default: float, *, low: float = 0.0, high: float =
     return _bad_setting(name, value, default)
 
 
-def _setting_bool(name: str, default: bool) -> bool:
-    value = getattr(Config, name, default)
-    if isinstance(value, bool):
-        return value
-    if _is_int(value) and value in (0, 1):
-        return bool(value)
-    if isinstance(value, str):
-        word = value.strip().lower()
-        if word in ('1', 'true', 'yes', 'on'):
-            return True
-        if word in ('0', 'false', 'no', 'off'):
-            return False
-    return _bad_setting(name, value, default)
-
-
 def _setting_str(name: str, default: str) -> str:
     value = getattr(Config, name, default)
     if isinstance(value, str) and value.strip():
@@ -376,7 +335,7 @@ def _negative_cache():
 
 
 # ---------------------------------------------------------------------------
-# Modes
+# Storage credentials, select list and RPC arguments
 # ---------------------------------------------------------------------------
 
 def _credentials_present() -> bool:
@@ -385,43 +344,21 @@ def _credentials_present() -> bool:
     return bool(url and str(url).strip()) and bool(key and str(key).strip())
 
 
-def _resolve_mode(flag: str, allowed: tuple[str, ...]) -> str:
-    raw = getattr(Config, flag, 'db')
-    mode = '' if raw is None else str(raw).strip().lower()
-    if not mode:
-        return 'db'
-    if mode not in allowed:
-        _warn_once(('unknown_mode', flag, mode), logging.ERROR,
-                   'exercise_content.config unknown %s=%r; using db', flag, raw)
-        return 'db'
-    if mode != 'db' and not _backend_override and not _credentials_present():
-        _warn_once(('no_credentials', flag, mode), logging.ERROR,
-                   'exercise_content.config %s=%s needs SUPABASE_URL and '
-                   'SUPABASE_SERVICE_ROLE_KEY; using db', flag, mode)
-        return 'db'
-    return mode
+def _storage_configured() -> bool:
+    """A backend installed with ``set_backend()``, or the Storage credentials."""
+    return _backend_override or _credentials_present()
 
 
-def read_mode() -> str:
-    """Normalised ``EXERCISE_CONTENT_SOURCE``: 'db' | 'shadow' | 'storage'."""
-    mode = _resolve_mode('EXERCISE_CONTENT_SOURCE', READ_MODES)
-    if mode == 'storage' and write_mode() == 'db':
-        _warn_once(('storage_with_db_writes',), logging.ERROR,
-                   'exercise_content.config EXERCISE_CONTENT_SOURCE=storage with '
-                   'EXERCISE_CONTENT_WRITE=db: new or edited content is written to the '
-                   'database only and is served only through the DB fallback')
-    return mode
-
-
-def write_mode() -> str:
-    """Normalised ``EXERCISE_CONTENT_WRITE``: 'db' | 'dual'."""
-    return _resolve_mode('EXERCISE_CONTENT_WRITE', WRITE_MODES)
+def _log_not_configured() -> None:
+    _warn_once(('no_credentials',), logging.ERROR,
+               'exercise_content.config SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are not '
+               'set: exercise content cannot be read or written (items needing content are '
+               'treated as missing)')
 
 
 def select_columns(template: str) -> str:
     """PostgREST select list. `template` contains the literal '{content}' exactly once
-    (ValueError otherwise). db -> 'content'; shadow -> 'content, content_version';
-    storage -> 'content_version'. db mode returns today's select string byte-for-byte.
+    (ValueError otherwise); it becomes 'content_version' (exercises.content is gone).
     Rows to be hydrated must also select id and word_sense_id (or the caller sets them)."""
     if not isinstance(template, str):
         raise ValueError(f'select_columns: template must be a str, got {type(template).__name__}')
@@ -430,28 +367,19 @@ def select_columns(template: str) -> str:
         raise ValueError(
             f"select_columns: template must contain '{CONTENT_PLACEHOLDER}' exactly once "
             f'(found {count}): {template!r}')
-    return template.replace(CONTENT_PLACEHOLDER, _SELECT_REPLACEMENTS[read_mode()])
+    return template.replace(CONTENT_PLACEHOLDER, CONTENT_COLUMNS)
 
 
 def rpc_content_args() -> dict:
-    """Extra args for get_practice_session / get_review_ahead_items:
-    db -> {} (today's call; works before the migration); shadow -> {'p_include_content': True};
-    storage -> {'p_include_content': False}."""
-    mode = read_mode()
-    if mode == 'shadow':
-        return {'p_include_content': True}
-    if mode == 'storage':
-        return {'p_include_content': False}
-    return {}
+    """Extra args for get_practice_session / get_review_ahead_items: always
+    {'p_include_content': False} (the live functions accept and ignore it; items carry
+    content_version and are hydrated from the files)."""
+    return {'p_include_content': False}
 
 
 # ---------------------------------------------------------------------------
 # Read path
 # ---------------------------------------------------------------------------
-
-def _count_items(items: list, id_key: str) -> int:
-    return sum(1 for item in items if isinstance(item, dict) and item.get(id_key))
-
 
 def _language_arg(language_id: Any) -> int | None:
     if language_id is None:
@@ -463,19 +391,18 @@ def _language_arg(language_id: Any) -> int | None:
 
 
 def hydrate(items: list[dict], *, language_id: int | None = None, id_key: str = 'id',
-            sense_key: str = 'word_sense_id', db=None, drop_missing: bool = True,
+            sense_key: str = 'word_sense_id', drop_missing: bool = True,
             max_senses: int | None = None, deadline_s: float | None = None) -> HydrationReport:
-    """Fill item['content'] in place.
+    """Fill item['content'] in place from the content files.
     - Considers dicts with a truthy item[id_key]; others (DT error cards, gate/stress markers) are untouched.
-    - db: no I/O, no mutation.
-    - shadow: no mutation; snapshots canonical(item['content']) per group and queues a background
-      comparison against the file (bounded queue of 256; overflow counted, not blocking).
-    - storage: items whose 'content' is already non-None are skipped; the rest are grouped by
+    - Items whose 'content' is already non-None are skipped; the rest are grouped by
       (language, item[sense_key], item['content_version']); language = language_id or item['language_id'].
       Cache -> negative cache -> parallel backend GETs (own pool, per-call cap, deadline) ->
-      DB fallback -> drop (drop_missing=True; list mutated in place, order kept) or content=None.
+      drop (drop_missing=True; list mutated in place, order kept) or content=None.
       Every item receives an object shared with nothing else (one json parse per group per call;
       a repeated id in one call gets a deepcopy).
+    - Without Storage credentials (and no set_backend() backend) every item that needs content
+      is missing; one ERROR per process.
     - Never raises for storage or network problems; raises ValueError only for a bad argument."""
     if not isinstance(items, list):
         raise ValueError(f'hydrate: items must be a list, got {type(items).__name__}')
@@ -490,40 +417,20 @@ def hydrate(items: list[dict], *, language_id: int | None = None, id_key: str = 
             or not math.isfinite(deadline_s) or deadline_s <= 0):
         raise ValueError(f'hydrate: deadline_s must be a number > 0 or None, got {deadline_s!r}')
 
-    mode = read_mode()
-    if mode == 'db':
-        return HydrationReport(mode='db', items=_count_items(items, id_key))
-
     if max_senses is None:
         max_senses = _setting_int('EXERCISE_CONTENT_MAX_SENSES_PER_CALL', 160, minimum=0)
     if deadline_s is None:
         deadline_s = _setting_float('EXERCISE_CONTENT_DEADLINE_S', 3.0, low=0.0,
                                     low_inclusive=False)
-    kwargs = dict(language_id=language_id, id_key=id_key, sense_key=sense_key, db=db,
-                  drop_missing=drop_missing, max_senses=max_senses,
-                  deadline_s=float(deadline_s), mode=mode)
-
-    if mode == 'shadow':
-        started = time.monotonic()
-        try:
-            from services.exercise_content import reader
-            return reader.hydrate(items, **kwargs)
-        except ValueError:
-            raise
-        except Exception as exc:  # shadow must never change the response
-            _warn_once(('shadow_error', type(exc).__name__), logging.ERROR,
-                       'exercise_content.shadow_error %s: %s (content still served from '
-                       'the database)', type(exc).__name__, exc)
-            return HydrationReport(mode='shadow', items=_count_items(items, id_key),
-                                   elapsed_ms=(time.monotonic() - started) * 1000.0)
-
     from services.exercise_content import reader
-    return reader.hydrate(items, **kwargs)
+    return reader.hydrate(items, language_id=language_id, id_key=id_key, sense_key=sense_key,
+                          drop_missing=drop_missing, max_senses=max_senses,
+                          deadline_s=float(deadline_s))
 
 
 def fetch_sense(language_id: int, sense_id: int, version: int) -> dict[str, dict] | None:
     """exercise_id -> content of one file (fresh objects), via the cache. None when missing,
-    unreadable or corrupt (logged). Mode-independent. Never raises."""
+    unreadable or corrupt (logged), or without Storage credentials. Never raises."""
     from services.exercise_content import reader
     return reader.fetch_sense(language_id, sense_id, version)
 
@@ -533,15 +440,12 @@ def fetch_sense(language_id: int, sense_id: int, version: int) -> dict[str, dict
 # ---------------------------------------------------------------------------
 
 def _validate_write(db, sense_id, language_id, insert_rows, delete_where, update_contents,
-                    max_retries, *, strict: bool) -> tuple[list[dict], dict[str, dict]]:
+                    max_retries) -> tuple[list[dict], dict[str, dict]]:
     if db is None:
         raise ValueError('write_sense: db is required')
     for name, value in (('sense_id', sense_id), ('language_id', language_id)):
-        if strict:
-            if not _is_int(value) or value <= 0:
-                raise ValueError(f'write_sense: {name} must be a positive int, got {value!r}')
-        elif value is None or isinstance(value, bool):
-            raise ValueError(f'write_sense: {name} is required, got {value!r}')
+        if not _is_int(value) or value <= 0:
+            raise ValueError(f'write_sense: {name} must be a positive int, got {value!r}')
     if not _is_int(max_retries) or max_retries < 1:
         raise ValueError(f'write_sense: max_retries must be an int >= 1, got {max_retries!r}')
     if delete_where is not None and not isinstance(delete_where, DeleteWhere):
@@ -562,18 +466,17 @@ def _validate_write(db, sense_id, language_id, insert_rows, delete_where, update
         if not _same_id(row.get('word_sense_id'), sense_id):
             raise ValueError(
                 f"{where}: word_sense_id {row.get('word_sense_id')!r} != sense_id {sense_id!r}")
-        if (strict or 'language_id' in row) and not _same_id(row.get('language_id'), language_id):
+        if not _same_id(row.get('language_id'), language_id):
             raise ValueError(
                 f"{where}: language_id {row.get('language_id')!r} != language_id {language_id!r}")
-        if (strict or 'content' in row) and not isinstance(row.get('content'), dict):
+        if not isinstance(row.get('content'), dict):
             raise ValueError(f"{where}: content must be a dict")
-        if strict:
-            row_id = row.get('id')
-            if not _is_canonical_uuid(row_id):
-                raise ValueError(f'{where}: id must be a canonical lowercase UUID str, got {row_id!r}')
-            if row_id in seen_ids:
-                raise ValueError(f'{where}: duplicate id {row_id}')
-            seen_ids.add(row_id)
+        row_id = row.get('id')
+        if not _is_canonical_uuid(row_id):
+            raise ValueError(f'{where}: id must be a canonical lowercase UUID str, got {row_id!r}')
+        if row_id in seen_ids:
+            raise ValueError(f'{where}: duplicate id {row_id}')
+        seen_ids.add(row_id)
 
     updates: dict[str, dict] = {}
     if update_contents is not None:
@@ -582,10 +485,10 @@ def _validate_write(db, sense_id, language_id, insert_rows, delete_where, update
         for exercise_id, content in update_contents.items():
             if not isinstance(exercise_id, str) or not exercise_id:
                 raise ValueError(f'write_sense: update id {exercise_id!r} is not a non-empty str')
-            if strict and not _is_canonical_uuid(exercise_id):
+            if not _is_canonical_uuid(exercise_id):
                 raise ValueError(
                     f'write_sense: update id {exercise_id!r} is not a canonical lowercase UUID')
-            if strict and exercise_id in seen_ids:
+            if exercise_id in seen_ids:
                 raise ValueError(
                     f'write_sense: update id {exercise_id} is also inserted in this call')
             if not isinstance(content, dict):
@@ -594,40 +497,10 @@ def _validate_write(db, sense_id, language_id, insert_rows, delete_where, update
     return rows, updates
 
 
-def _response_len(response: Any) -> int:
-    data = getattr(response, 'data', None)
-    if data is None:
-        return 0
-    try:
-        return len(data)
-    except TypeError:
-        return 0
-
-
-def _write_sense_db(db, sense_id, rows: list[dict], delete_where: DeleteWhere | None,
-                    updates: dict[str, dict]) -> WriteResult:
-    """Today's PostgREST calls, in today's order, and nothing else."""
-    deleted = 0
-    if delete_where is not None:
-        query = db.table('exercises').delete().eq('word_sense_id', sense_id)
-        if delete_where.require_word_asset:
-            query = query.not_.is_('word_asset_id', 'null')
-        if delete_where.ladder_levels is not None:
-            query = query.in_('ladder_level', sorted(delete_where.ladder_levels))
-        deleted = _response_len(query.execute())
-    if rows:
-        db.table('exercises').insert(rows).execute()
-    for exercise_id, content in updates.items():
-        db.table('exercises').update({'content': content}).eq('id', exercise_id).execute()
-    return WriteResult(sense_id=sense_id, mode='db', version=None,
-                       inserted_ids=[row.get('id') for row in rows], deleted_count=deleted,
-                       updated_ids=list(updates), attempts=1)
-
-
 def base_version(rows: Sequence[dict]) -> int | None:
     """The content version ``rows`` (one sense's rows, as read and hydrated) were read at:
-    the highest ``content_version``, or None when any row lacks one (db read mode selects no
-    version). Pass it to ``write_sense(expected_version=...)`` for a read-modify-write."""
+    the highest ``content_version``, or None when any row lacks one (the caller did not
+    select it). Pass it to ``write_sense(expected_version=...)`` for a read-modify-write."""
     versions = [_as_int(row.get('content_version')) if isinstance(row, dict) else None
                 for row in rows]
     if not versions or any(v is None or v < 0 for v in versions):
@@ -641,39 +514,39 @@ def write_sense(db, sense_id: int, language_id: int, *, insert_rows: Sequence[di
                 max_retries: int = 3, expected_version: int | None = None) -> WriteResult:
     """Validates first (ValueError, no I/O): every insert row has 'id' (uuid str),
     word_sense_id == sense_id, language_id == language_id and a dict 'content'.
-    db mode emits exactly today's calls, in this order, and nothing else:
-      delete: db.table('exercises').delete().eq('word_sense_id', sense_id)
-              [.not_.is_('word_asset_id', 'null')] [.in_('ladder_level', sorted(levels))].execute()
-      insert: db.table('exercises').insert(list(insert_rows)).execute()
-      update: per id, db.table('exercises').update({'content': c}).eq('id', id).execute()
-    dual mode: Decision 4. update ids must belong to the sense and not be deleted (ValueError).
-    expected_version (read-modify-write callers, e.g. ``base_version(rows)``): in dual mode the
-    write is refused with ContentWriteConflict, before any upload or row change and without a
-    retry, when the sense is no longer at that version, i.e. someone wrote it after the caller
-    read the content it edited. Ignored in db mode (no versions). None: no check.
+    Then ADR-049 Decision 4 (writer.py): exercise_content_begin, the new file (the surviving
+    rows' content from file V, then the updates and inserts) uploaded first, then
+    exercise_content_commit by compare-and-swap, retried up to max_retries times on a lost
+    race. update ids must belong to the sense and not be deleted (ValueError).
+    expected_version (read-modify-write callers, e.g. ``base_version(rows)``): the write is
+    refused with ContentWriteConflict, before any upload or row change and without a retry,
+    when the sense is no longer at that version, i.e. someone wrote it after the caller read
+    the content it edited. None: no check.
+    Without Storage credentials (and no set_backend() backend): ContentStorageError, no call.
     Errors: ValueError; ContentWriteConflict; ContentStorageError; PostgREST APIError propagates.
 
-    See the module docstring (choices 1-3) for what db mode accepts and returns."""
-    mode = write_mode()
+    See the module docstring (choices 1-3) for what is validated and the nothing-to-do case."""
     rows, updates = _validate_write(db, sense_id, language_id, insert_rows, delete_where,
-                                    update_contents, max_retries, strict=(mode == 'dual'))
+                                    update_contents, max_retries)
     if expected_version is not None and (not _is_int(expected_version) or expected_version < 0):
         raise ValueError(f'write_sense: expected_version must be an int >= 0 or None, '
                          f'got {expected_version!r}')
     if not rows and delete_where is None and not updates:
-        return WriteResult(sense_id=sense_id, mode=mode, version=None, inserted_ids=[],
+        return WriteResult(sense_id=sense_id, version=None, inserted_ids=[],
                            deleted_count=0, updated_ids=[], attempts=0)
-    if mode == 'dual':
-        from services.exercise_content import writer
-        extra = {} if expected_version is None else {'expected_version': expected_version}
-        return writer.write_sense_dual(db, sense_id, language_id, insert_rows=rows,
-                                       delete_where=delete_where, update_contents=updates,
-                                       max_retries=max_retries, **extra)
-    return _write_sense_db(db, sense_id, rows, delete_where, updates)
+    if not _storage_configured():
+        _log_not_configured()
+        raise ContentStorageError(
+            f'sense {sense_id}: exercise content storage needs SUPABASE_URL and '
+            f'SUPABASE_SERVICE_ROLE_KEY; nothing was written')
+    from services.exercise_content import writer
+    return writer.write_sense(db, sense_id, language_id, insert_rows=rows,
+                              delete_where=delete_where, update_contents=updates,
+                              max_retries=max_retries, expected_version=expected_version)
 
 
 # ---------------------------------------------------------------------------
-# Codec (pure; used by the backfill, sweep and tests)
+# Codec (pure; used by the sweep and tests)
 # ---------------------------------------------------------------------------
 
 def _check_non_negative_ints(where: str, **values: Any) -> None:
@@ -797,8 +670,8 @@ def set_backend(b: 'StorageBackend | None') -> None:
 
 
 def reset_state() -> None:
-    """Clears cache, negative cache, backend, warn-once flags, shadow queue (through the
-    hooks registered with ``_on_reset``: reader executor, DB-fallback switch, shadow worker)."""
+    """Clears cache, negative cache, backend, warn-once flags and, through the hooks
+    registered with ``_on_reset``, the reader's fetch pool."""
     global _backend, _backend_override, _byte_cache, _neg_cache
     with _state_lock:
         old, old_was_override = _backend, _backend_override

@@ -1,15 +1,19 @@
-"""TASK-1008 — the exercise-content store facade (ADR-049 §9), db mode and plumbing.
+"""TASK-1008 / TASK-1031 — the exercise-content store facade (ADR-049 §9) and its plumbing.
 
 Covers the public interface every other package codes against (names,
-signatures, dataclass fields, exception hierarchy), the ten config flags, mode
-resolution, the `db`-mode read and write paths (which must reproduce today's
-PostgREST calls exactly and touch nothing else), the pure codec, the
-`InMemoryBackend` every later test uses, and the backend / cache / reset
-plumbing behind `store.backend()` and `store.reset_state()`.
+signatures, dataclass fields, exception hierarchy), the tuning settings in
+``config.py``, the Storage-credential rule, ``select_columns`` /
+``rpc_content_args``, ``hydrate`` and ``write_sense`` validation and their
+delegation to ``reader.py`` / ``writer.py``, the pure codec, the
+``InMemoryBackend`` every later test uses, and the backend / cache / reset
+plumbing behind ``store.backend()`` and ``store.reset_state()``.
 
-Fully offline: no Supabase client, no network. Nothing here depends on the
-TASK-1008 stubs (`reader.py`, `writer.py`, `SupabaseStorageBackend` methods), so
-it keeps passing once TASK-1009/1010/1011 replace them.
+There are no modes since TASK-1031 (``exercises.content`` was dropped on
+2026-11-19): reads always come from the files and writes always go file first,
+then the rows by compare-and-swap. The read and write paths themselves are
+tested in ``test_exercise_content_reader.py`` and ``test_exercise_content_writer.py``.
+
+Fully offline: no Supabase client, no network.
 """
 
 from __future__ import annotations
@@ -70,12 +74,15 @@ def _run_python(code: str, **extra_env: str) -> str:
     return result.stdout.strip().splitlines()[-1]
 
 
-def _storage_ready(monkeypatch, source='storage', write='dual'):
-    """A non-db mode that survives the credential check (fake, never contacted)."""
-    monkeypatch.setattr(Config, 'SUPABASE_URL', 'https://fake.supabase.co')
-    monkeypatch.setattr(Config, 'SUPABASE_SERVICE_ROLE_KEY', 'fake-service-role-key')
-    monkeypatch.setattr(Config, 'EXERCISE_CONTENT_SOURCE', source)
-    monkeypatch.setattr(Config, 'EXERCISE_CONTENT_WRITE', write)
+def _no_credentials(monkeypatch, missing=('SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY')):
+    """No Storage credentials and no installed backend (the conftest installs one)."""
+    store.set_backend(None)
+    for name in missing:
+        monkeypatch.setattr(Config, name, None)
+
+
+def _errors(caplog):
+    return [r for r in caplog.records if r.name == LOGGER and r.levelno == logging.ERROR]
 
 
 # ---------------------------------------------------------------------------
@@ -125,7 +132,7 @@ class RecordingDB:
         return self.delete_data if op == 'delete' else []
 
     def rpc(self, *args, **kwargs):  # pragma: no cover - must never be called
-        raise AssertionError('db mode must not call an RPC')
+        raise AssertionError('the facade must not call an RPC itself')
 
 
 class ExplodingDB:
@@ -133,15 +140,6 @@ class ExplodingDB:
 
     def __getattr__(self, name):
         raise AssertionError(f'unexpected db access: {name}')
-
-
-def _delete_chain(sense_id, *, word_asset=False, levels=None):
-    steps = [('table', ('exercises',)), ('delete', ()), ('eq', ('word_sense_id', sense_id))]
-    if word_asset:
-        steps += [('not_', ()), ('is_', ('word_asset_id', 'null'))]
-    if levels is not None:
-        steps.append(('in_', ('ladder_level', levels)))
-    return steps + [('execute', ())]
 
 
 def _row(sense_id=7, language_id=1, **overrides):
@@ -157,11 +155,25 @@ def _row(sense_id=7, language_id=1, **overrides):
 # ---------------------------------------------------------------------------
 
 def test_store_exposes_the_adr_constants():
-    assert store.READ_MODES == ('db', 'shadow', 'storage')
-    assert store.WRITE_MODES == ('db', 'dual')
     assert store.LANGUAGE_CODES == {1: 'zh', 2: 'en', 3: 'ja'}
     assert store.FILE_FORMAT == 1
     assert store.COMMIT_LOCK_NAMESPACE == 47047
+    assert store.CONTENT_COLUMNS == 'content_version'
+
+
+def test_the_transition_modes_are_gone():
+    """TASK-1031: no read/write modes, no DB fallback, no shadow comparer."""
+    for name in ('READ_MODES', 'WRITE_MODES', 'read_mode', 'write_mode', '_resolve_mode',
+                 '_write_sense_db', '_setting_bool'):
+        assert not hasattr(store, name), name
+    from services.exercise_content import reader, writer
+    for name in ('_db_fallback', '_is_missing_column', '_hydrate_shadow', 'MISSING_COLUMN_CODES',
+                 'FALLBACK_CHUNK'):
+        assert not hasattr(reader, name), name
+    for name in ('_is_missing_column', 'MISSING_COLUMN_CODES', 'BASE_SELECT_CHUNK',
+                 'write_sense_dual'):
+        assert not hasattr(writer, name), name
+    assert not (REPO_ROOT / 'services' / 'exercise_content' / 'shadow.py').exists()
 
 
 def test_language_codes_match_intro_drill_and_config():
@@ -192,13 +204,12 @@ def test_dataclass_fields_and_defaults():
         return out
 
     assert shape(store.HydrationReport) == [
-        ('mode', 'REQUIRED'), ('items', 0), ('groups', 0), ('cache_hits', 0), ('fetched', 0),
-        ('db_fallback', 0), ('over_cap', 0), ('dropped', 0), ('missing_ids', []),
-        ('elapsed_ms', 0.0),
+        ('items', 0), ('groups', 0), ('cache_hits', 0), ('fetched', 0),
+        ('over_cap', 0), ('dropped', 0), ('missing_ids', []), ('elapsed_ms', 0.0),
     ]
     assert shape(store.DeleteWhere) == [('require_word_asset', False), ('ladder_levels', None)]
     assert shape(store.WriteResult) == [
-        ('sense_id', 'REQUIRED'), ('mode', 'REQUIRED'), ('version', 'REQUIRED'),
+        ('sense_id', 'REQUIRED'), ('version', 'REQUIRED'),
         ('inserted_ids', 'REQUIRED'), ('deleted_count', 'REQUIRED'),
         ('updated_ids', 'REQUIRED'), ('attempts', 'REQUIRED'),
     ]
@@ -206,17 +217,15 @@ def test_dataclass_fields_and_defaults():
         ('path', 'REQUIRED'), ('size', 'REQUIRED'), ('created_at', 'REQUIRED')]
     assert store.DeleteWhere.__dataclass_params__.frozen
     assert StoredObject.__dataclass_params__.frozen
-    assert store.HydrationReport('db').missing_ids is not store.HydrationReport('db').missing_ids
+    assert store.HydrationReport().missing_ids is not store.HydrationReport().missing_ids
 
 
 def test_function_signatures():
-    assert _params(store.read_mode) == []
-    assert _params(store.write_mode) == []
     assert _params(store.select_columns) == [('template', POS, E)]
     assert _params(store.rpc_content_args) == []
     assert _params(store.hydrate) == [
         ('items', POS, E), ('language_id', KW, None), ('id_key', KW, 'id'),
-        ('sense_key', KW, 'word_sense_id'), ('db', KW, None), ('drop_missing', KW, True),
+        ('sense_key', KW, 'word_sense_id'), ('drop_missing', KW, True),
         ('max_senses', KW, None), ('deadline_s', KW, None),
     ]
     assert _params(store.fetch_sense) == [
@@ -239,17 +248,16 @@ def test_function_signatures():
     assert _params(store.reset_state) == []
 
 
-def test_reader_and_writer_stub_signatures():
+def test_reader_and_writer_signatures():
     from services.exercise_content import reader, writer
 
     assert _params(reader.hydrate) == [
         ('items', POS, E), ('language_id', KW, E), ('id_key', KW, E), ('sense_key', KW, E),
-        ('db', KW, E), ('drop_missing', KW, E), ('max_senses', KW, E), ('deadline_s', KW, E),
-        ('mode', KW, E),
+        ('drop_missing', KW, E), ('max_senses', KW, E), ('deadline_s', KW, E),
     ]
     assert _params(reader.fetch_sense) == [
         ('language_id', POS, E), ('sense_id', POS, E), ('version', POS, E)]
-    assert _params(writer.write_sense_dual) == [
+    assert _params(writer.write_sense) == [
         ('db', POS, E), ('sense_id', POS, E), ('language_id', POS, E), ('insert_rows', KW, E),
         ('delete_where', KW, E), ('update_contents', KW, E), ('max_retries', KW, E),
         ('expected_version', KW, None),
@@ -265,175 +273,158 @@ def test_backend_protocol_shape():
 
 
 # ---------------------------------------------------------------------------
-# 2. Config flags
+# 2. Config settings
 # ---------------------------------------------------------------------------
 
-_FLAGS = ('EXERCISE_CONTENT_SOURCE', 'EXERCISE_CONTENT_WRITE', 'EXERCISE_CONTENT_BUCKET',
-          'EXERCISE_CONTENT_CACHE_MB', 'EXERCISE_CONTENT_FETCH_CONCURRENCY',
-          'EXERCISE_CONTENT_MAX_SENSES_PER_CALL', 'EXERCISE_CONTENT_DEADLINE_S',
-          'EXERCISE_CONTENT_HTTP_TIMEOUT_S', 'EXERCISE_CONTENT_DB_FALLBACK',
-          'EXERCISE_CONTENT_SHADOW_SAMPLE')
+_SETTINGS = ('EXERCISE_CONTENT_BUCKET', 'EXERCISE_CONTENT_CACHE_MB',
+             'EXERCISE_CONTENT_FETCH_CONCURRENCY', 'EXERCISE_CONTENT_MAX_SENSES_PER_CALL',
+             'EXERCISE_CONTENT_DEADLINE_S', 'EXERCISE_CONTENT_HTTP_TIMEOUT_S')
+_REMOVED = ('EXERCISE_CONTENT_SOURCE', 'EXERCISE_CONTENT_WRITE', 'EXERCISE_CONTENT_DB_FALLBACK',
+            'EXERCISE_CONTENT_SHADOW_SAMPLE')
 
-_DUMP_FLAGS = ('import json; from config import Config; '
-               f'print(json.dumps({{n: getattr(Config, n) for n in {_FLAGS!r}}}))')
+_DUMP_SETTINGS = ('import json; from config import Config; '
+                  f'print(json.dumps({{**{{n: getattr(Config, n) for n in {_SETTINGS!r}}}, '
+                  f'"removed": [n for n in {_REMOVED!r} if hasattr(Config, n)]}}))')
 
 
 def test_config_defaults_in_a_clean_interpreter():
-    values = json.loads(_run_python(_DUMP_FLAGS))
+    values = json.loads(_run_python(_DUMP_SETTINGS))
     assert values == {
-        'EXERCISE_CONTENT_SOURCE': 'db',
-        'EXERCISE_CONTENT_WRITE': 'db',
         'EXERCISE_CONTENT_BUCKET': 'exercise-content',
         'EXERCISE_CONTENT_CACHE_MB': 32,
         'EXERCISE_CONTENT_FETCH_CONCURRENCY': 16,
         'EXERCISE_CONTENT_MAX_SENSES_PER_CALL': 160,
         'EXERCISE_CONTENT_DEADLINE_S': 3.0,
         'EXERCISE_CONTENT_HTTP_TIMEOUT_S': 2.0,
-        'EXERCISE_CONTENT_DB_FALLBACK': True,
-        'EXERCISE_CONTENT_SHADOW_SAMPLE': 1.0,
+        'removed': [],
     }
-    assert all(hasattr(Config, name) for name in _FLAGS)
+    assert all(hasattr(Config, name) for name in _SETTINGS)
 
 
-def test_config_reads_the_environment():
+def test_config_reads_the_environment_and_ignores_the_removed_flags():
     values = json.loads(_run_python(
-        _DUMP_FLAGS,
-        EXERCISE_CONTENT_SOURCE='shadow', EXERCISE_CONTENT_WRITE='dual',
+        _DUMP_SETTINGS,
         EXERCISE_CONTENT_BUCKET='other-bucket', EXERCISE_CONTENT_CACHE_MB='8',
         EXERCISE_CONTENT_FETCH_CONCURRENCY='4', EXERCISE_CONTENT_MAX_SENSES_PER_CALL='50',
         EXERCISE_CONTENT_DEADLINE_S='1.5', EXERCISE_CONTENT_HTTP_TIMEOUT_S='0.5',
-        EXERCISE_CONTENT_DB_FALLBACK='0', EXERCISE_CONTENT_SHADOW_SAMPLE='0.25',
+        EXERCISE_CONTENT_SOURCE='db', EXERCISE_CONTENT_WRITE='db',
+        EXERCISE_CONTENT_DB_FALLBACK='1', EXERCISE_CONTENT_SHADOW_SAMPLE='0.25',
     ))
     assert values == {
-        'EXERCISE_CONTENT_SOURCE': 'shadow', 'EXERCISE_CONTENT_WRITE': 'dual',
         'EXERCISE_CONTENT_BUCKET': 'other-bucket', 'EXERCISE_CONTENT_CACHE_MB': 8,
         'EXERCISE_CONTENT_FETCH_CONCURRENCY': 4, 'EXERCISE_CONTENT_MAX_SENSES_PER_CALL': 50,
         'EXERCISE_CONTENT_DEADLINE_S': 1.5, 'EXERCISE_CONTENT_HTTP_TIMEOUT_S': 0.5,
-        'EXERCISE_CONTENT_DB_FALLBACK': False, 'EXERCISE_CONTENT_SHADOW_SAMPLE': 0.25,
+        'removed': [],
     }
 
 
 def test_config_bad_numbers_fall_back_to_the_defaults():
     values = json.loads(_run_python(
-        _DUMP_FLAGS, EXERCISE_CONTENT_CACHE_MB='lots', EXERCISE_CONTENT_DEADLINE_S='soon',
-        EXERCISE_CONTENT_DB_FALLBACK='maybe', EXERCISE_CONTENT_BUCKET='  ',
+        _DUMP_SETTINGS, EXERCISE_CONTENT_CACHE_MB='lots', EXERCISE_CONTENT_DEADLINE_S='soon',
+        EXERCISE_CONTENT_BUCKET='  ',
     ))
     assert values['EXERCISE_CONTENT_CACHE_MB'] == 32
     assert values['EXERCISE_CONTENT_DEADLINE_S'] == 3.0
-    assert values['EXERCISE_CONTENT_DB_FALLBACK'] is True
     assert values['EXERCISE_CONTENT_BUCKET'] == 'exercise-content'
 
 
-def test_conftest_pins_both_flags_to_db():
-    assert Config.EXERCISE_CONTENT_SOURCE == 'db'
-    assert Config.EXERCISE_CONTENT_WRITE == 'db'
+def test_conftest_installs_a_fresh_in_memory_backend():
+    backend = store.backend()
+    assert isinstance(backend, InMemoryBackend) and store._backend_override is True
+    assert backend.paths() == [] and backend.calls == []
+
+
+_LEAK: dict = {}
 
 
 def test_state_leaks_into_the_next_test_part_1_of_2():
-    store.set_backend(InMemoryBackend())
+    _LEAK['backend'] = store.backend()
+    store.backend().seed('zh/1.v0.json', b'{}')
     store._warn_once(('leak-check',), logging.INFO, 'leak check')
 
 
 def test_state_leaks_into_the_next_test_part_2_of_2():
-    assert store._backend is None and store._backend_override is False
+    assert store.backend() is not _LEAK['backend']
+    assert store.backend().paths() == []
     assert ('leak-check',) not in store._warned
 
 
 # ---------------------------------------------------------------------------
-# 3. Mode resolution
+# 3. Storage credentials
 # ---------------------------------------------------------------------------
 
-@pytest.mark.parametrize('raw, expected', [
-    ('db', 'db'), ('shadow', 'shadow'), ('storage', 'storage'),
-    (' Storage ', 'storage'), ('SHADOW\n', 'shadow'), ('', 'db'), (None, 'db'),
-])
-def test_read_mode_normalises(monkeypatch, raw, expected):
-    _storage_ready(monkeypatch, write='dual')
-    monkeypatch.setattr(Config, 'EXERCISE_CONTENT_SOURCE', raw)
-    assert store.read_mode() == expected
-
-
-@pytest.mark.parametrize('raw, expected', [
-    ('db', 'db'), ('dual', 'dual'), (' DUAL ', 'dual'), ('', 'db'), (None, 'db')])
-def test_write_mode_normalises(monkeypatch, raw, expected):
-    _storage_ready(monkeypatch)
-    monkeypatch.setattr(Config, 'EXERCISE_CONTENT_WRITE', raw)
-    assert store.write_mode() == expected
-
-
-def _errors(caplog):
-    return [r for r in caplog.records if r.name == LOGGER and r.levelno == logging.ERROR]
-
-
-def test_unknown_read_mode_is_db_with_one_error(monkeypatch, caplog):
+@pytest.mark.parametrize('missing', [('SUPABASE_URL',), ('SUPABASE_SERVICE_ROLE_KEY',),
+                                     ('SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY')])
+def test_without_credentials_hydrate_treats_every_group_as_missing_with_one_error(
+        monkeypatch, caplog, missing):
     caplog.set_level(logging.ERROR, logger=LOGGER)
-    _storage_ready(monkeypatch, source='s3')
-    assert store.read_mode() == 'db'
-    assert store.read_mode() == 'db'
-    assert len(_errors(caplog)) == 1
-    assert 'EXERCISE_CONTENT_SOURCE' in _errors(caplog)[0].getMessage()
+    _no_credentials(monkeypatch, missing)
+    has = {'id': _uuid(), 'word_sense_id': 7, 'content_version': 0, 'content': {'k': 1}}
+    needs = [{'id': _uuid(), 'word_sense_id': 7 + n, 'content_version': 0} for n in range(3)]
 
+    items = [has, *needs]
+    report = store.hydrate(items, language_id=1)
+    again = [{'id': _uuid(), 'word_sense_id': 7, 'content_version': 0}]
+    store.hydrate(again, language_id=1, drop_missing=False)
 
-def test_unknown_write_mode_is_db_with_one_error(monkeypatch, caplog):
-    caplog.set_level(logging.ERROR, logger=LOGGER)
-    _storage_ready(monkeypatch, source='db', write='triple')
-    assert store.write_mode() == 'db'
-    assert store.write_mode() == 'db'
-    assert len(_errors(caplog)) == 1
-    assert 'EXERCISE_CONTENT_WRITE' in _errors(caplog)[0].getMessage()
-
-
-@pytest.mark.parametrize('missing', ['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY'])
-@pytest.mark.parametrize('source', ['shadow', 'storage'])
-def test_non_db_read_mode_without_credentials_is_db(monkeypatch, caplog, missing, source):
-    caplog.set_level(logging.ERROR, logger=LOGGER)
-    _storage_ready(monkeypatch, source=source)
-    monkeypatch.setattr(Config, missing, None)
-    assert store.read_mode() == 'db'
-    assert store.read_mode() == 'db'
-    assert store.select_columns('{content}') == 'content'
-    assert store.rpc_content_args() == {}
-    errors = _errors(caplog)
-    assert len(errors) == 1 and 'SUPABASE_SERVICE_ROLE_KEY' in errors[0].getMessage()
-
-
-def test_dual_write_without_credentials_is_db(monkeypatch, caplog):
-    caplog.set_level(logging.ERROR, logger=LOGGER)
-    _storage_ready(monkeypatch, source='db', write='dual')
-    monkeypatch.setattr(Config, 'SUPABASE_URL', '')
-    assert store.write_mode() == 'db'
-    assert len(_errors(caplog)) == 1
-
-
-def test_installed_backend_skips_the_credential_check(monkeypatch):
-    monkeypatch.setattr(Config, 'SUPABASE_URL', None)
-    monkeypatch.setattr(Config, 'SUPABASE_SERVICE_ROLE_KEY', None)
-    monkeypatch.setattr(Config, 'EXERCISE_CONTENT_SOURCE', 'storage')
-    monkeypatch.setattr(Config, 'EXERCISE_CONTENT_WRITE', 'dual')
-    assert store.read_mode() == 'db'
-    store.set_backend(InMemoryBackend())
-    assert store.read_mode() == 'storage'
-    assert store.write_mode() == 'dual'
-    store.set_backend(None)
-    assert store.read_mode() == 'db'
-
-
-def test_storage_reads_with_db_writes_log_one_error(monkeypatch, caplog):
-    caplog.set_level(logging.ERROR, logger=LOGGER)
-    _storage_ready(monkeypatch, source='storage', write='db')
-    assert store.read_mode() == 'storage'
-    assert store.read_mode() == 'storage'
+    assert items == [has] and report.dropped == 3
+    assert report.missing_ids == [n['id'] for n in needs] and report.fetched == 0
+    assert again[0]['content'] is None
+    assert store._backend is None, 'no backend was built, so nothing was fetched'
     errors = _errors(caplog)
     assert len(errors) == 1
-    assert 'EXERCISE_CONTENT_WRITE=db' in errors[0].getMessage()
+    assert 'SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are not set' in errors[0].getMessage()
 
 
-def test_modes_are_read_at_call_time(monkeypatch):
-    _storage_ready(monkeypatch, source='db', write='db')
-    assert (store.read_mode(), store.write_mode()) == ('db', 'db')
-    monkeypatch.setattr(Config, 'EXERCISE_CONTENT_SOURCE', 'shadow')
-    monkeypatch.setattr(Config, 'EXERCISE_CONTENT_WRITE', 'dual')
-    assert (store.read_mode(), store.write_mode()) == ('shadow', 'dual')
+def test_without_credentials_fetch_sense_is_none(monkeypatch, caplog):
+    caplog.set_level(logging.ERROR, logger=LOGGER)
+    _no_credentials(monkeypatch)
+    assert store.fetch_sense(1, 5, 0) is None
+    assert store._backend is None and len(_errors(caplog)) == 1
+
+
+def test_without_credentials_write_sense_raises_before_any_call(monkeypatch, caplog):
+    caplog.set_level(logging.ERROR, logger=LOGGER)
+    _no_credentials(monkeypatch, ('SUPABASE_SERVICE_ROLE_KEY',))
+    with pytest.raises(store.ContentStorageError, match='SUPABASE_SERVICE_ROLE_KEY'):
+        store.write_sense(ExplodingDB(), 7, 1, insert_rows=[_row()])
+    with pytest.raises(store.ContentStorageError):
+        store.write_sense(ExplodingDB(), 7, 1, delete_where=store.DeleteWhere())
+    assert store._backend is None and len(_errors(caplog)) == 1
+    # Validation still comes first, and a call with nothing to do needs no storage.
+    with pytest.raises(ValueError):
+        store.write_sense(ExplodingDB(), 7, 1, insert_rows=[_row(sense_id=8)])
+    assert store.write_sense(ExplodingDB(), 7, 1).attempts == 0
+
+
+def test_an_installed_backend_needs_no_credentials(monkeypatch):
+    monkeypatch.setattr(Config, 'SUPABASE_URL', None)
+    monkeypatch.setattr(Config, 'SUPABASE_SERVICE_ROLE_KEY', None)
+    mem = InMemoryBackend()
+    item_id = _uuid()
+    mem.seed('zh/7.v0.json', store.encode_sense_file(7, 1, 0, {item_id: {'k': 1}}))
+    store.set_backend(mem)
+    items = [{'id': item_id, 'word_sense_id': 7, 'content_version': 0}]
+    store.hydrate(items, language_id=1)
+    assert items[0]['content'] == {'k': 1}
+    assert store._storage_configured()
+
+    store.set_backend(None)
+    assert not store._storage_configured()
+    items = [{'id': item_id, 'word_sense_id': 7, 'content_version': 0}]
+    store.hydrate(items, language_id=1)
+    assert items == []
+
+
+def test_credentials_are_read_at_call_time(monkeypatch):
+    _no_credentials(monkeypatch)
+    assert not store._storage_configured()
+    monkeypatch.setattr(Config, 'SUPABASE_URL', 'https://fake.supabase.co')
+    assert not store._storage_configured()
+    monkeypatch.setattr(Config, 'SUPABASE_SERVICE_ROLE_KEY', 'fake-service-role-key')
+    assert store._storage_configured()
+    monkeypatch.setattr(Config, 'SUPABASE_URL', '   ')
+    assert not store._storage_configured()
 
 
 # ---------------------------------------------------------------------------
@@ -443,21 +434,17 @@ def test_modes_are_read_at_call_time(monkeypatch):
 TEMPLATE = 'id, word_sense_id, exercise_type, {content}, ladder_level'
 
 
-@pytest.mark.parametrize('source, expected', [
-    ('db', 'id, word_sense_id, exercise_type, content, ladder_level'),
-    ('shadow', 'id, word_sense_id, exercise_type, content, content_version, ladder_level'),
-    ('storage', 'id, word_sense_id, exercise_type, content_version, ladder_level'),
-])
-def test_select_columns_per_mode(monkeypatch, source, expected):
-    _storage_ready(monkeypatch, source=source)
-    assert store.select_columns(TEMPLATE) == expected
-
-
-def test_select_columns_db_mode_is_byte_identical_to_today():
-    for today in ('id, word_sense_id, exercise_type, content, ladder_level',
-                  'exercise_type, content, language_id, word_sense_id',
-                  'id, exercise_type, content, complexity_tier, ladder_level, tags, word_sense_id'):
-        assert store.select_columns(today.replace('content,', '{content},', 1)) == today
+def test_select_columns_reads_content_version_in_place_of_content():
+    assert store.select_columns(TEMPLATE) == \
+        'id, word_sense_id, exercise_type, content_version, ladder_level'
+    for template, expected in (
+            ('exercise_type, {content}, language_id, word_sense_id',
+             'exercise_type, content_version, language_id, word_sense_id'),
+            ('id, exercise_type, {content}, complexity_tier, ladder_level, tags, word_sense_id',
+             'id, exercise_type, content_version, complexity_tier, ladder_level, tags, '
+             'word_sense_id'),
+            ('{content}', 'content_version')):
+        assert store.select_columns(template) == expected
 
 
 @pytest.mark.parametrize('bad', [
@@ -467,15 +454,11 @@ def test_select_columns_rejects_templates_without_exactly_one_placeholder(bad):
         store.select_columns(bad)
 
 
-@pytest.mark.parametrize('source, expected', [
-    ('db', {}), ('shadow', {'p_include_content': True}), ('storage', {'p_include_content': False}),
-])
-def test_rpc_content_args_per_mode(monkeypatch, source, expected):
-    _storage_ready(monkeypatch, source=source)
+def test_rpc_content_args_never_asks_for_content():
     args = store.rpc_content_args()
-    assert args == expected
+    assert args == {'p_include_content': False}
     args['mutated'] = 1
-    assert store.rpc_content_args() == expected
+    assert store.rpc_content_args() == {'p_include_content': False}
 
 
 # ---------------------------------------------------------------------------
@@ -492,25 +475,27 @@ def _items():
     ]
 
 
-def test_hydrate_db_mode_does_nothing(monkeypatch):
-    mem = InMemoryBackend()
-    store.set_backend(mem)                     # would be used by any non-db path
+def test_hydrate_leaves_items_without_an_id_or_with_content_alone():
+    mem = store.backend()
     items = _items()
+    has_content, needs_content = items[0], items[1]
+    others = items[2:]
     before = copy.deepcopy(items)
-    identities = [id(item) for item in items]
 
-    report = store.hydrate(items, language_id=1, id_key='exercise_id', sense_key='sense_id',
-                           db=ExplodingDB())
+    report = store.hydrate(items, language_id=1, id_key='exercise_id', sense_key='sense_id')
 
-    assert report == store.HydrationReport(mode='db', items=2)
-    assert items == before
-    assert [id(item) for item in items] == identities
-    assert mem.calls == []
+    assert report.items == 2
+    assert report.missing_ids == [needs_content['exercise_id']] and report.dropped == 1
+    assert items[0] is has_content and items[0] == before[0]
+    assert items[1:] == others and items[1:] == before[2:]
+    assert mem.calls == [], 'the item without a version cannot be fetched'
 
 
-def test_hydrate_db_mode_counts_default_id_key():
-    items = [{'id': 'a'}, {'id': 'b', 'content': {}}, {'id': ''}, {}]
-    assert store.hydrate(items) == store.HydrationReport(mode='db', items=2)
+def test_hydrate_default_id_key_with_nothing_to_fetch_makes_no_call():
+    items = [{'id': 'a', 'content': {}}, {'id': ''}, {}]
+    report = store.hydrate(items)
+    assert (report.items, report.groups, report.dropped) == (1, 0, 0)
+    assert store.backend().calls == []
 
 
 @pytest.mark.parametrize('kwargs', [
@@ -526,72 +511,34 @@ def test_hydrate_rejects_bad_arguments(kwargs):
         store.hydrate(items, **args)
 
 
-def test_hydrate_storage_delegates_to_the_reader_with_resolved_arguments(monkeypatch):
+def test_hydrate_delegates_to_the_reader_with_resolved_arguments(monkeypatch):
     from services.exercise_content import reader
 
-    _storage_ready(monkeypatch, source='storage')
     monkeypatch.setattr(Config, 'EXERCISE_CONTENT_MAX_SENSES_PER_CALL', 120)
     monkeypatch.setattr(Config, 'EXERCISE_CONTENT_DEADLINE_S', 2.5)
     calls = []
 
     def fake(items, **kwargs):
         calls.append((items, kwargs))
-        return store.HydrationReport(mode=kwargs['mode'], items=len(items))
+        return store.HydrationReport(items=len(items))
 
     monkeypatch.setattr(reader, 'hydrate', fake)
     items = [{'id': 'x'}]
-    db = object()
-    report = store.hydrate(items, language_id='3', db=db, drop_missing=False)
+    report = store.hydrate(items, language_id='3', drop_missing=False)
 
-    assert report.mode == 'storage'
     assert calls == [(items, {
-        'language_id': 3, 'id_key': 'id', 'sense_key': 'word_sense_id', 'db': db,
-        'drop_missing': False, 'max_senses': 120, 'deadline_s': 2.5, 'mode': 'storage',
+        'language_id': 3, 'id_key': 'id', 'sense_key': 'word_sense_id',
+        'drop_missing': False, 'max_senses': 120, 'deadline_s': 2.5,
     })]
     assert calls[0][0] is items
+    assert report == store.HydrationReport(items=1)      # the reader's report, passed through
 
     store.hydrate(items, max_senses=5, deadline_s=1)
     assert calls[1][1]['max_senses'] == 5 and calls[1][1]['deadline_s'] == 1.0
 
 
-def test_hydrate_shadow_swallows_reader_failures(monkeypatch, caplog):
+def test_hydrate_propagates_reader_bugs(monkeypatch):
     from services.exercise_content import reader
-
-    caplog.set_level(logging.ERROR, logger=LOGGER)
-    _storage_ready(monkeypatch, source='shadow')
-
-    def broken(items, **kwargs):
-        raise RuntimeError('backend exploded')
-
-    monkeypatch.setattr(reader, 'hydrate', broken)
-    items = [{'id': 'a', 'content': {'k': 1}}]
-    before = copy.deepcopy(items)
-
-    report = store.hydrate(items)
-    store.hydrate(items)
-
-    assert report.mode == 'shadow' and report.items == 1
-    assert items == before
-    assert len(_errors(caplog)) == 1
-
-
-def test_hydrate_shadow_still_raises_value_error(monkeypatch):
-    from services.exercise_content import reader
-
-    _storage_ready(monkeypatch, source='shadow')
-
-    def picky(items, **kwargs):
-        raise ValueError('bad argument')
-
-    monkeypatch.setattr(reader, 'hydrate', picky)
-    with pytest.raises(ValueError):
-        store.hydrate([{'id': 'a'}])
-
-
-def test_hydrate_storage_propagates_reader_bugs(monkeypatch):
-    from services.exercise_content import reader
-
-    _storage_ready(monkeypatch, source='storage')
 
     def broken(items, **kwargs):
         raise RuntimeError('bug')
@@ -601,7 +548,7 @@ def test_hydrate_storage_propagates_reader_bugs(monkeypatch):
         store.hydrate([{'id': 'a'}])
 
 
-def test_fetch_sense_delegates_in_every_mode(monkeypatch):
+def test_fetch_sense_delegates_to_the_reader(monkeypatch):
     from services.exercise_content import reader
 
     seen = []
@@ -613,118 +560,56 @@ def test_fetch_sense_delegates_in_every_mode(monkeypatch):
 
 
 # ---------------------------------------------------------------------------
-# 6. write_sense — db mode
+# 6. write_sense: validation and delegation to writer.write_sense
 # ---------------------------------------------------------------------------
 
-def test_write_sense_db_scoped_replace_emits_todays_chains_in_order():
-    db = RecordingDB(delete_data=[{'id': 'old-1'}, {'id': 'old-2'}, {'id': 'old-3'}])
-    rows = [_row(), _row(ladder_level=9)]
+@pytest.fixture()
+def writer_calls(monkeypatch):
+    from services.exercise_content import writer
 
-    result = store.write_sense(
-        db, 7, 1, insert_rows=rows,
-        delete_where=store.DeleteWhere(require_word_asset=True, ladder_levels=(9, 4)))
+    calls = []
 
-    assert db.chains == [
-        _delete_chain(7, word_asset=True, levels=[4, 9]),
-        [('table', ('exercises',)), ('insert', (rows,)), ('execute', ())],
-    ]
-    assert result == store.WriteResult(
-        sense_id=7, mode='db', version=None, inserted_ids=[rows[0]['id'], rows[1]['id']],
-        deleted_count=3, updated_ids=[], attempts=1)
+    def fake(db, sense_id, language_id, **kwargs):
+        calls.append((db, sense_id, language_id, kwargs))
+        return store.WriteResult(sense_id=sense_id, version=42,
+                                 inserted_ids=[r['id'] for r in kwargs['insert_rows']],
+                                 deleted_count=0, updated_ids=list(kwargs['update_contents']),
+                                 attempts=1)
 
-
-def test_write_sense_db_full_replace_matches_run_generation_batch():
-    db = RecordingDB()
-    rows = [_row()]
-    result = store.write_sense(db, 7, 1, insert_rows=rows,
-                               delete_where=store.DeleteWhere(require_word_asset=True))
-    assert db.chains[0] == _delete_chain(7, word_asset=True)
-    assert db.chains[1] == [('table', ('exercises',)), ('insert', (rows,)), ('execute', ())]
-    assert result.deleted_count == 0
+    monkeypatch.setattr(writer, 'write_sense', fake)
+    return calls
 
 
-def test_write_sense_db_plain_delete_and_level_only_delete():
-    db = RecordingDB()
-    store.write_sense(db, 7, 1, delete_where=store.DeleteWhere())
-    store.write_sense(db, 7, 1, delete_where=store.DeleteWhere(ladder_levels=[3]))
-    assert db.chains == [_delete_chain(7), _delete_chain(7, levels=[3])]
-
-
-def test_write_sense_db_insert_only_is_one_insert_call():
+def test_write_sense_delegates_with_normalised_arguments(writer_calls):
     db = RecordingDB()
     rows = (_row(), _row())
-    result = store.write_sense(db, 7, 1, insert_rows=rows)
-    assert db.chains == [[('table', ('exercises',)), ('insert', (list(rows),)), ('execute', ())]]
-    assert db.chains[0][1][1][0] == list(rows)
-    assert result.inserted_ids == [rows[0]['id'], rows[1]['id']]
-    assert result.deleted_count == 0 and result.attempts == 1 and result.version is None
+    upd = _uuid()
+    where = store.DeleteWhere(require_word_asset=True, ladder_levels=(4,))
+
+    result = store.write_sense(db, 7, 1, insert_rows=rows, delete_where=where,
+                               update_contents={upd: {'v': 1}}, max_retries=5,
+                               expected_version=3)
+
+    assert result.version == 42
+    assert db.chains == [], 'the facade makes no table call itself'
+    assert len(writer_calls) == 1
+    got_db, sense_id, language_id, kwargs = writer_calls[0]
+    assert (got_db, sense_id, language_id) == (db, 7, 1)
+    assert kwargs == {'insert_rows': list(rows), 'delete_where': where,
+                      'update_contents': {upd: {'v': 1}}, 'max_retries': 5,
+                      'expected_version': 3}
+    assert type(kwargs['insert_rows']) is list and type(kwargs['update_contents']) is dict
+
+    store.write_sense(db, 7, 1, insert_rows=[_row()])
+    assert writer_calls[1][3]['expected_version'] is None and writer_calls[1][3]['max_retries'] == 3
 
 
-def test_write_sense_db_updates_one_call_per_id_after_delete_and_insert():
-    db = RecordingDB()
-    a, b = _uuid(), _uuid()
-    rows = [_row()]
-    result = store.write_sense(db, 7, 1, insert_rows=rows,
-                               delete_where=store.DeleteWhere(ladder_levels=(2,)),
-                               update_contents={a: {'v': 1}, b: {'v': 2}})
-    assert db.chains == [
-        _delete_chain(7, levels=[2]),
-        [('table', ('exercises',)), ('insert', (rows,)), ('execute', ())],
-        [('table', ('exercises',)), ('update', ({'content': {'v': 1}},)), ('eq', ('id', a)),
-         ('execute', ())],
-        [('table', ('exercises',)), ('update', ({'content': {'v': 2}},)), ('eq', ('id', b)),
-         ('execute', ())],
-    ]
-    assert result.updated_ids == [a, b]
-
-
-def test_write_sense_nothing_to_do_makes_no_call():
+def test_write_sense_nothing_to_do_makes_no_call(writer_calls):
     result = store.write_sense(ExplodingDB(), 7, 1)
-    assert result == store.WriteResult(sense_id=7, mode='db', version=None, inserted_ids=[],
+    assert result == store.WriteResult(sense_id=7, version=None, inserted_ids=[],
                                        deleted_count=0, updated_ids=[], attempts=0)
     assert store.write_sense(ExplodingDB(), 7, 1, insert_rows=[], update_contents={}).attempts == 0
-
-
-def test_write_sense_db_accepts_the_minimal_rows_existing_tests_insert():
-    """Rows from tests/test_generation_batch_workers.py and test_level_scoped_regen.py:
-    no id, language_id or content. db mode sends them exactly as today."""
-    db = RecordingDB()
-    rows = [{'word_sense_id': 7}, {'id': 'ex-4', 'ladder_level': 4, 'word_sense_id': 7}]
-    result = store.write_sense(db, 7, 2, insert_rows=rows,
-                               delete_where=store.DeleteWhere(require_word_asset=True))
-    assert db.chains[1] == [('table', ('exercises',)), ('insert', (rows,)), ('execute', ())]
-    assert result.inserted_ids == [None, 'ex-4']
-
-
-def test_write_sense_db_tolerates_a_response_without_data():
-    class _NoData:
-        def __init__(self):
-            self.not_ = self
-
-        def __getattr__(self, name):
-            return lambda *a, **k: self
-
-    class _DB:
-        def table(self, name):
-            return _NoData()
-
-    result = store.write_sense(_DB(), 7, 1, insert_rows=[{'word_sense_id': 7}],
-                               delete_where=store.DeleteWhere(require_word_asset=True))
-    assert result.deleted_count == 0
-
-
-def test_write_sense_db_propagates_postgrest_errors():
-    class Boom(Exception):
-        pass
-
-    class _DB(RecordingDB):
-        def table(self, name):
-            chain = _Chain(self, name)
-            chain.execute = lambda: (_ for _ in ()).throw(Boom('23505'))
-            return chain
-
-    with pytest.raises(Boom):
-        store.write_sense(_DB(), 7, 1, insert_rows=[_row()])
+    assert writer_calls == []
 
 
 @pytest.mark.parametrize('rows', [
@@ -735,13 +620,19 @@ def test_write_sense_db_propagates_postgrest_errors():
     [_row(content=None)],
     [_row(), 'not-a-row'],
     [_row(word_sense_id=True)],
+    [{'word_sense_id': 7, 'language_id': 1, 'content': {}}],                      # no id
+    [_row(id='ex-1')],                                                            # not a uuid
+    [_row(id=_uuid().upper())],                                                   # not canonical
+    [_row(id=uuid.uuid4())],                                                      # UUID object
+    [{'id': _uuid(), 'word_sense_id': 7, 'content': {}}],                        # no language_id
+    [{'id': _uuid(), 'word_sense_id': 7, 'language_id': 1}],                     # no content
 ])
-def test_write_sense_db_validation_happens_before_any_call(rows):
+def test_write_sense_validation_happens_before_any_call(writer_calls, rows):
     db = RecordingDB()
     with pytest.raises(ValueError):
         store.write_sense(db, 7, 1, insert_rows=rows,
                           delete_where=store.DeleteWhere(require_word_asset=True))
-    assert db.chains == []
+    assert db.chains == [] and writer_calls == []
 
 
 @pytest.mark.parametrize('kwargs', [
@@ -753,19 +644,18 @@ def test_write_sense_db_validation_happens_before_any_call(rows):
     {'update_contents': {'': {}}},
     {'max_retries': 0}, {'max_retries': 1.5},
 ])
-def test_write_sense_rejects_bad_arguments_without_calls(kwargs):
+def test_write_sense_rejects_bad_arguments_without_calls(writer_calls, kwargs):
     db = RecordingDB()
     args = {'db': db, 'sense_id': 7, 'language_id': 1, 'insert_rows': [_row()]}
     args.update(kwargs)
     with pytest.raises(ValueError):
         store.write_sense(args.pop('db'), args.pop('sense_id'), args.pop('language_id'), **args)
-    assert db.chains == []
+    assert db.chains == [] and writer_calls == []
 
 
-def test_write_sense_compares_ids_as_ints():
-    db = RecordingDB()
-    store.write_sense(db, '7', 1, insert_rows=[_row(sense_id=7, language_id='1')])
-    assert len(db.chains) == 1
+def test_write_sense_compares_row_ids_as_ints(writer_calls):
+    store.write_sense(RecordingDB(), 7, 1, insert_rows=[_row(word_sense_id='7', language_id='1')])
+    assert len(writer_calls) == 1
 
 
 def test_delete_where_normalises_levels():
@@ -780,26 +670,12 @@ def test_delete_where_normalises_levels():
         store.DeleteWhere().require_word_asset = True
 
 
-def test_write_sense_db_empty_level_list_is_sent_as_is():
-    db = RecordingDB()
-    store.write_sense(db, 7, 1, delete_where=store.DeleteWhere(ladder_levels=()))
-    assert db.chains == [_delete_chain(7, levels=[])]
-
-
-def test_write_sense_db_mode_never_loads_the_writer_or_backend():
+def test_the_facade_loads_nothing_heavy_until_it_reads_or_writes():
     out = _run_python(
         'import json, sys\n'
         'from services.exercise_content import store\n'
-        'class Q:\n'
-        '    def __init__(self): self.not_ = self\n'
-        '    def __getattr__(self, n): return lambda *a, **k: self\n'
-        'class DB:\n'
-        '    def table(self, n): return Q()\n'
-        'store.read_mode(); store.write_mode(); store.rpc_content_args()\n'
-        'store.select_columns("id, {content}")\n'
-        'store.hydrate([{"id": "a"}], language_id=1)\n'
-        'store.write_sense(DB(), 7, 1, insert_rows=[{"word_sense_id": 7}],\n'
-        '                  delete_where=store.DeleteWhere(require_word_asset=True))\n'
+        'store.rpc_content_args(); store.select_columns("id, {content}")\n'
+        'store.DeleteWhere(ladder_levels=(4,)); store.base_version([])\n'
         'store.content_path(1, 2, 0); store.canonical({}); store.reset_state()\n'
         'names = ["services.exercise_content.reader", "services.exercise_content.writer",\n'
         '         "services.exercise_content.backends", "services.supabase_factory",\n'
@@ -813,69 +689,14 @@ def test_write_sense_db_mode_never_loads_the_writer_or_backend():
     }
 
 
-# ---------------------------------------------------------------------------
-# 7. write_sense — dual mode (delegation and strict validation only)
-# ---------------------------------------------------------------------------
-
-@pytest.fixture()
-def dual(monkeypatch):
-    from services.exercise_content import writer
-
-    monkeypatch.setattr(Config, 'EXERCISE_CONTENT_WRITE', 'dual')
-    store.set_backend(InMemoryBackend())
-    calls = []
-
-    def fake(db, sense_id, language_id, **kwargs):
-        calls.append((db, sense_id, language_id, kwargs))
-        return store.WriteResult(sense_id=sense_id, mode='dual', version=42,
-                                 inserted_ids=[r['id'] for r in kwargs['insert_rows']],
-                                 deleted_count=0, updated_ids=list(kwargs['update_contents']),
-                                 attempts=1)
-
-    monkeypatch.setattr(writer, 'write_sense_dual', fake)
-    return calls
-
-
-def test_write_sense_dual_delegates_with_normalised_arguments(dual):
-    db = RecordingDB()
-    rows = (_row(), _row())
-    upd = _uuid()
-    where = store.DeleteWhere(require_word_asset=True, ladder_levels=(4,))
-
-    result = store.write_sense(db, 7, 1, insert_rows=rows, delete_where=where,
-                               update_contents={upd: {'v': 1}}, max_retries=5)
-
-    assert result.mode == 'dual' and result.version == 42
-    assert db.chains == []
-    assert len(dual) == 1
-    got_db, sense_id, language_id, kwargs = dual[0]
-    assert (got_db, sense_id, language_id) == (db, 7, 1)
-    assert kwargs == {'insert_rows': list(rows), 'delete_where': where,
-                      'update_contents': {upd: {'v': 1}}, 'max_retries': 5}
-    assert type(kwargs['insert_rows']) is list and type(kwargs['update_contents']) is dict
-
-
-def test_write_sense_dual_nothing_to_do_skips_the_writer(dual):
-    result = store.write_sense(RecordingDB(), 7, 1)
-    assert result.mode == 'dual' and result.attempts == 0 and result.version is None
-    assert dual == []
-
-
-@pytest.mark.parametrize('rows', [
-    [{'word_sense_id': 7, 'language_id': 1, 'content': {}}],                      # no id
-    [_row(id='ex-1')],                                                            # not a uuid
-    [_row(id=_uuid().upper())],                                                   # not canonical
-    [_row(id=uuid.uuid4())],                                                      # UUID object
-    [{'id': _uuid(), 'word_sense_id': 7, 'content': {}}],                        # no language_id
-    [{'id': _uuid(), 'word_sense_id': 7, 'language_id': 1}],                     # no content
-])
-def test_write_sense_dual_validates_strictly_before_the_writer(dual, rows):
+@pytest.mark.parametrize('sense_id, language_id', [('7', 1), (7, '1'), (0, 1), (7, True)])
+def test_write_sense_needs_positive_int_sense_and_language(writer_calls, sense_id, language_id):
     with pytest.raises(ValueError):
-        store.write_sense(RecordingDB(), 7, 1, insert_rows=rows)
-    assert dual == []
+        store.write_sense(RecordingDB(), sense_id, language_id, update_contents={_uuid(): {}})
+    assert writer_calls == []
 
 
-def test_write_sense_dual_rejects_duplicates_and_bad_update_ids(dual):
+def test_write_sense_rejects_duplicates_and_bad_update_ids(writer_calls):
     row = _row()
     with pytest.raises(ValueError):
         store.write_sense(RecordingDB(), 7, 1, insert_rows=[row, dict(row)])
@@ -884,11 +705,7 @@ def test_write_sense_dual_rejects_duplicates_and_bad_update_ids(dual):
     with pytest.raises(ValueError):
         store.write_sense(RecordingDB(), 7, 1, insert_rows=[row],
                           update_contents={row['id']: {}})
-    for sense_id, language_id in (('7', 1), (7, '1'), (0, 1), (7, True)):
-        with pytest.raises(ValueError):
-            store.write_sense(RecordingDB(), sense_id, language_id,
-                              update_contents={_uuid(): {}})
-    assert dual == []
+    assert writer_calls == []
 
 
 # ---------------------------------------------------------------------------
@@ -1148,6 +965,7 @@ def test_backend_is_a_lazy_singleton_built_from_config_without_io(monkeypatch):
 
     monkeypatch.setattr(socket, 'socket', no_network)
     monkeypatch.setattr(socket, 'create_connection', no_network)
+    store.set_backend(None)
     monkeypatch.setattr(Config, 'SUPABASE_URL', 'https://abc.supabase.co/')
     monkeypatch.setattr(Config, 'SUPABASE_SERVICE_ROLE_KEY', 'super-secret-service-key')
     monkeypatch.setattr(Config, 'EXERCISE_CONTENT_BUCKET', 'my-bucket')
@@ -1160,9 +978,10 @@ def test_backend_is_a_lazy_singleton_built_from_config_without_io(monkeypatch):
 
 
 def test_backend_builds_even_without_credentials(monkeypatch):
-    monkeypatch.setattr(Config, 'SUPABASE_URL', None)
-    monkeypatch.setattr(Config, 'SUPABASE_SERVICE_ROLE_KEY', None)
-    assert isinstance(store.backend(), SupabaseStorageBackend)
+    """The sweep builds it and refuses on its own (exit 2) when base_url is None."""
+    _no_credentials(monkeypatch)
+    backend = store.backend()
+    assert isinstance(backend, SupabaseStorageBackend) and backend.base_url is None
 
 
 def test_set_backend_overrides_and_none_rebuilds(monkeypatch):
@@ -1188,15 +1007,15 @@ def test_reset_state_clears_backend_warnings_and_runs_hooks(monkeypatch, caplog)
 
     mem = InMemoryBackend()
     store.set_backend(mem)
-    _storage_ready(monkeypatch, source='bogus')
-    store.read_mode()
+    store._log_not_configured()
+    store._log_not_configured()
     store.reset_state()
 
     assert ran == ['b']
     assert store._backend is None and store._backend_override is False
-    store.read_mode()
-    unknown = [r for r in _errors(caplog) if 'unknown' in r.getMessage()]
-    assert len(unknown) == 2, 'the warn-once flag must be cleared by reset_state'
+    store._log_not_configured()
+    logged = [r for r in _errors(caplog) if 'are not set' in r.getMessage()]
+    assert len(logged) == 2, 'the warn-once flag must be cleared by reset_state'
 
 
 def test_reset_state_closes_only_a_backend_it_built(monkeypatch):
@@ -1208,6 +1027,7 @@ def test_reset_state_closes_only_a_backend_it_built(monkeypatch):
 
     built = Closable()
     monkeypatch.setattr(SupabaseStorageBackend, 'from_config', classmethod(lambda cls: built))
+    store.set_backend(None)
     assert store.backend() is built
     store.reset_state()
     assert closed == [built]
@@ -1267,13 +1087,11 @@ def test_settings_fall_back_on_bad_values(monkeypatch, caplog):
     caplog.set_level(logging.ERROR, logger=LOGGER)
     monkeypatch.setattr(Config, 'EXERCISE_CONTENT_MAX_SENSES_PER_CALL', -3)
     monkeypatch.setattr(Config, 'EXERCISE_CONTENT_DEADLINE_S', 'never')
-    monkeypatch.setattr(Config, 'EXERCISE_CONTENT_DB_FALLBACK', 'off')
-    monkeypatch.setattr(Config, 'EXERCISE_CONTENT_SHADOW_SAMPLE', 1.5)
+    monkeypatch.setattr(Config, 'EXERCISE_CONTENT_HTTP_TIMEOUT_S', 1.5)
     monkeypatch.setattr(Config, 'EXERCISE_CONTENT_BUCKET', None)
     assert store._setting_int('EXERCISE_CONTENT_MAX_SENSES_PER_CALL', 160) == 160
     assert store._setting_float('EXERCISE_CONTENT_DEADLINE_S', 3.0, low=0.0,
                                 low_inclusive=False) == 3.0
-    assert store._setting_bool('EXERCISE_CONTENT_DB_FALLBACK', True) is False
-    assert store._setting_float('EXERCISE_CONTENT_SHADOW_SAMPLE', 1.0, high=1.0) == 1.0
+    assert store._setting_float('EXERCISE_CONTENT_HTTP_TIMEOUT_S', 2.0, high=1.0) == 2.0
     assert store._setting_str('EXERCISE_CONTENT_BUCKET', 'exercise-content') == 'exercise-content'
     assert len(_errors(caplog)) == 3

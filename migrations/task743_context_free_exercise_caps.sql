@@ -28,6 +28,12 @@
 -- The cap is per (word_sense_id, exercise_type, context anchor) — NOT per
 -- word. Capping per word would delete whole skill types: 做 (zuò) carries 33
 -- exercises across 12 genuinely distinct skills.
+--
+-- TASK-1031 note (2026-11-19): uq_exercises_context_free_variant (section 2) was dropped live
+-- with exercises.content in the ADR-049 cut-over. Its replacement,
+-- uq_exercises_context_free_variant_v2 on exercises.dedupe_key (same predicate and types), is
+-- defined in migrations/exercise_content_drop_column.sql. This file stays canonical for
+-- dim_exercise_types.context_class.
 
 BEGIN;
 

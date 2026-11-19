@@ -7091,3 +7091,100 @@ Owner: "Run it. I think the fake words are a bad idea. We should test on definit
 
 ## [2026-11-18] update | Vocabulary placement — owner answers PQ2, PQ3 (zh), PQ5, PQ10; ADR-060
 Owner: "1. Yes, but only the existing tones just wrong combos 2. Approve 3. No, not at the moment 4. About 60" (answers to PQ3, PQ5, PQ2, PQ10). PQ3 read as: zh wrong options may be the right syllables with a wrong tone combination, using only syllable+tone pairs that exist in Mandarin; ja special-mora variants were not asked about and stay unscored. Read-only analyses: zh tone-variant coverage on the live pool (one SELECT; 99.1% of 3,656 pool readings have a valid variant, band 7 94.8%), a cap-60 re-run of the research simulation, and a scored-tone simulation (4 × 300 zh learners) of the item K, K′, F, F′ with estimator (pc − pkt)/n′ (bias +0.6% of the pool, 95% coverage 96–97% with pseudo-count 0.25; the ADR-058 prw/3 correction on the same items +1.9..+3.3%; partial tone memory +2.1..+2.4%). Pages created: 1 — [[decisions/ADR-060-zh-placement-scores-tones]] (proposed; supersedes ADR-057 decision 4's zh rule and ADR-058 decisions 1–3 for zh). Pages updated: [[features/vocab-placement]] and [[features/vocab-placement.tech]] (rule 4, readiness, estimators and gaps, zh word group "meaning and pinyin, not the tones", cap 60 and 9-minute time cap, schema `option_roles`/`option_texts`/`chosen_position` and `calibration_zh_tone_inventory`, two SQL functions, E31–E33, PQ table), [[decisions/ADR-057-adaptive-placement-with-conditional-reading]] and [[decisions/ADR-058-meaning-and-reading-recognition-pair-estimator]] (amendment notes), [[decisions/ADR-059-placement-evidence-kind]] (accepted), [[tasklist/vocab-placement.tasks]] (TASK-1081 unblocked; TASK-1092 rewritten as the zh tone-variant task and made a zh launch item; TASK-1090 parked; TASK-1076/1077/1078/1084/1087/1088 adjusted), [[tasklist/master]] (Not Started 104→106, Blocked 61→59), [[evaluations/vocab-placement-research-2026-11-18]] (§5.7; scripts archived under `tones/` and `synth/stop60.py`), [[features/knowledge-report]] (OQ37), index. English length was not part of PQ10 and stays at 40.
+
+## [2026-11-17] update | Exercise content to Storage — Phase-1 code merged to main; SQL test passed on production (TASK-1026)
+**Merge:** PR #36 was merged to `main` as `8e0afb6`, with both flags at their `db` default. Railway deploys from `main`; the deploy itself could not be observed here, because this environment's network does not allow the production host.
+
+**CI:**
+- vitest + eslint passed on the first run.
+- pytest failed once: `tests/test_prompt_split_l4_l8.py::test_unregistered_prompt_version_is_refused_not_guessed`, which was red on `main` too. Commit c426784 had registered `morphology_slot` prompt v2, but the test still used v2 as its "unregistered" example.
+- Fixed in `00b1673`: the test now uses the first version after the registered ones. Both CI jobs were then green.
+
+**SQL test:** the owner ran `tests/sql/test_exercise_content_storage.sql` in the SQL editor, inside its own ROLLBACK.
+- No error was raised.
+- `exercise_content_version_seq` stands at exactly 4, the four draws a complete run makes.
+- A read-only check found 0 rows left behind (no new exercises, no non-zero `content_version`, no `dedupe_key`).
+- Database size: 495,815,827 bytes.
+
+**Remaining for TASK-1026:** the owner's in-app check of Practice and the prestudy page, including on-demand exercise loading for an added word.
+Pages updated: 2 ([[tasklist/exercise-content-storage.tasks]], [[tasklist/master]]).
+
+## [2026-11-19] update | Exercise content to Storage — CUT-OVER DONE: `exercises.content` dropped, database 342 MB (TASK-1027–1030)
+The owner decided (2026-11-18) to skip the shadow week and the Railway flag steps and cut over at once.
+
+**Defaults changed in code:**
+- PR #39: Storage reads and dual writes by default; live-versions keyset fallback in the scripts.
+- PR #40: a failed Storage GET is retried once, and idle connections are kept 60 s instead of httpx's default 5 s. This came from the first Storage-mode session at 22:05 UTC: one of seven GETs (`ja/42754.v0.json`) never reached Supabase, and only the DB fallback hid it.
+- The second session at 00:43 had 0 fallbacks.
+
+**Export and checks:**
+- 11,021 files (125 MB).
+- `--verify --language all`: 0 mismatches.
+- Their `storage.objects` rows added 17 MB to the database.
+
+**Archives:**
+- semdisc leftovers (9 objects), then dropped by the owner (−20 MB);
+- the 10 sense-less rows, fetched by id;
+- `--archive-all` skipped (owner decision).
+
+**Steps 1–2:**
+- `dedupe_key` for 30,491 rows, batched, with VACUUM between batches;
+- v2 index built CONCURRENTLY.
+
+**Step 3, split:**
+1. Post-drop session RPCs applied first.
+2. The owner ran preconditions + delete 10 rows + drop old index + `DROP COLUMN content`.
+3. Post-drop `exercise_content_commit` applied straight after.
+
+Every body is md5-identical to the runbook.
+
+**Checks after the drop, using the store against production with no writes:**
+- ja 23/23 and zh 20/20 session items served from Storage, with no fallback;
+- review-ahead runs;
+- `VACUUM (FULL, ANALYZE) exercises`: database 476 → **342 MB**, `exercises` 200 → 72 MB;
+- 0 orphan files, 0 live groups without a file.
+
+Pages updated: 7 ([[decisions/ADR-049-exercise-content-in-storage]] accepted + "Cut-over completed"; [[tasklist/exercise-content-storage.tasks]] TASK-1026–1030; [[tasklist/master]]; [[database/schema.tech]]; [[features/practice-engine.tech]]; [[features/practice-extra-rounds.tech]]; index).
+
+**Next:** TASK-1031 (remove the transition code).
+
+
+## [2026-11-19] update | Exercise content to Storage — transition code removed (TASK-1031)
+Agent run, offline: no live database or Storage access. `exercises.content` was dropped earlier the same day (TASK-1030); this run removes the code that only made sense while the column existed. Production behaviour is unchanged: it already ran Storage reads and dual writes.
+
+**Code:**
+- `config.py`: `EXERCISE_CONTENT_SOURCE`, `_WRITE`, `_DB_FALLBACK`, `_SHADOW_SAMPLE` removed; the tuning settings stay.
+- `services/exercise_content/`: no `read_mode()` / `write_mode()`, no db read or write path, no shadow comparer (`shadow.py` deleted), no DB fallback. `select_columns` always reads `content_version`; `rpc_content_args()` is always `p_include_content: false`; the writer takes a sense's base content only from its current file.
+- Without Storage credentials (and no test backend), `hydrate` treats every item needing content as missing (one ERROR) and `write_sense` raises `ContentStorageError`.
+- Callers (typed re-grade, reference-set script, session assembly, speed round) no longer branch on a mode.
+- Log lines: the session INFO line lost `mode=` and `db_fallback=`; the `db_fallback*` and `shadow_*` lines are gone.
+
+**Scripts and SQL:**
+- `scripts/backfill_exercise_content.py` deleted (it only worked with the column). The sweep keeps the keyset-paging fallback for a timed-out live-versions RPC, now in the sweep script.
+- `scripts/sql/check_jumbled_and_definition_match.sql` deleted: it read the column and nothing referenced it.
+- `tests/sql/test_session_budget_settings.sql` and `tests/sql/test_exercise_content_storage.sql` no longer read or write `content`; the latter checks the post-drop state.
+
+**Migrations** (per `migrations/CLAUDE.md`; rows in `migrations/archive/README.md`):
+- Archived: `get_practice_session_language_scope.sql`, `practice_review_ahead.sql`, `exercise_content_session_rpcs.sql` and its rollback, `exercise_content_storage_rollback.sql`, `exercise_content_cutover_step3_20261118.sql`, `phase17_drop_deprecation_wrappers.sql`.
+- Markers: live `md5(prosrc)` = the `exercise_content_drop_column.sql` bodies (`e2f6089f…`, `4043b817…`, `e2199ec8…`), or the object absent live, checked 2026-11-19.
+- Kept as the only records of live objects: `phase8`, `phase9`, `phase12`, `task743`, `exercise_content_storage.sql`. `exercise_content_drop_column_rollback.sql` kept, with a header note that a rollback also needs a refill of the column from Storage and the code from before TASK-1031.
+
+**Tests:**
+- The conftest installs a fresh `InMemoryBackend` per test instead of pinning flags.
+- Tests of db mode, shadow, the fallback and the flags are deleted; the rest run against seeded files or `FakeContentDB` (post-drop table only).
+- `test_exercise_content_store_db_mode.py` renamed `test_exercise_content_store.py`; `test_exercise_content_migration_rpcs.py` deleted (pre-apply checks only).
+- Offline suite: 5,743 passed, 50 failed, 17 skipped, 1 collection error. Every failure is in the environment baseline (jieba / MeCab / ipadic / credentials). ruff clean on every changed file.
+
+**Leftover direct use of `exercises.content` in code:** none.
+
+Pages updated: 10 ([[decisions/ADR-049-exercise-content-in-storage]] §5, §6, §9 and "Transition code removed"; [[tasklist/exercise-content-storage.tasks]]; [[tasklist/master]]; [[features/practice-engine.tech]]; [[features/practice-extra-rounds.tech]]; [[features/test-prestudy.tech]]; [[database/schema.tech]]; [[database/rpcs.tech]] (dropped wrappers); [[api/rpcs.tech]]; index).
+
+## [2026-11-19] update | Exercise content store — interface tidy-up after TASK-1031
+- `store.hydrate` no longer takes `db`, which only fed the removed DB fallback. The ten callers are updated: routes (typed re-grade, admin preview), session assembly, intro drill, prestudy, ladder service, speed round, and the reference-set, audio and hant-mirror scripts.
+- `HydrationReport.mode` and `WriteResult.mode`, which never varied, are removed.
+- The test doubles now have the real signature.
+- Behaviour is unchanged.
+- Tests (offline): 5,743 passed, and the 50 failures are all on the known environment list. ruff is clean.
+
+Pages updated: 1 ([[decisions/ADR-049-exercise-content-in-storage]] "Interface tidy-up").
+

@@ -13,7 +13,9 @@ Per language (``--language all`` = en, ja, zh):
 1. list the language folder with ``store.backend().list('{lang}/')`` (one level:
    ``_archive/`` is never listed, and any path under it is never touched);
 2. read the live set with ``rpc('exercise_content_live_versions',
-   {'p_language_id': id})`` (``{sense_id: [version, ...]}``);
+   {'p_language_id': id})`` (``{sense_id: [version, ...]}``); when that one call
+   hits PostgREST's statement timeout, the same map is read in keyset pages of
+   ``exercises`` (``id``, ``word_sense_id``, ``content_version``);
 3. classify every file whose name matches ``^(\\d+)\\.v(\\d+)\\.json$``:
    (sense, version) live -> kept_live; else no ``created_at`` -> kept and
    reported; else younger than ``--grace-hours`` (default 24; protects a writer
@@ -63,6 +65,8 @@ logger = logging.getLogger('scripts.sweep_exercise_content')
 LANGUAGE_IDS = {code: language_id for language_id, code in store.LANGUAGE_CODES.items()}
 LANGUAGE_ORDER = ('en', 'ja', 'zh')
 LIVE_VERSIONS_RPC = 'exercise_content_live_versions'
+#: Rows per keyset page when the live-versions RPC times out.
+LIVE_VERSIONS_PAGE = 1000
 FILE_NAME_RE = re.compile(r'^(\d+)\.v(\d+)\.json$')
 ARCHIVE_PREFIX = '_archive/'
 DELETE_BATCH = 100
@@ -103,9 +107,59 @@ def default_report_path(language: str, moment: datetime) -> str:
     return os.path.join(DEFAULT_DIR, f'report-{language}-{stamp}.json')
 
 
+def _as_int(value: Any) -> int | None:
+    if _is_int(value):
+        return value
+    if isinstance(value, str) and value.strip().isdigit():
+        return int(value.strip())
+    return None
+
+
+def _is_statement_timeout(exc: BaseException) -> bool:
+    text = str(exc)
+    return '57014' in text or 'statement timeout' in text
+
+
+def _live_versions_paged(db, language_id: int) -> dict[int, list[int]]:
+    """The same map as the RPC, read in keyset pages (``id > last``, ordered by id).
+
+    Used when the one-call RPC exceeds PostgREST's statement timeout (8 s for the
+    API roles): zh, about 100k rows, measured 10-12 s on the Free instance on
+    2026-11-17. Each page is a short indexed query. (Moved here from the retired
+    backfill script in TASK-1031.)
+    """
+    versions: dict[int, set[int]] = {}
+    last_id = None
+    while True:
+        query = (db.table('exercises').select('id, word_sense_id, content_version')
+                 .eq('language_id', language_id).not_.is_('word_sense_id', 'null'))
+        if last_id is not None:
+            query = query.gt('id', last_id)
+        rows = query.order('id').limit(LIVE_VERSIONS_PAGE).execute().data or []
+        for row in rows:
+            sense_id, version = _as_int(row.get('word_sense_id')), _as_int(row.get('content_version'))
+            if sense_id is None or version is None or version < 0:
+                raise ValueError(f'exercises row {row.get("id")!r} has a bad sense/version: {row!r}')
+            versions.setdefault(sense_id, set()).add(version)
+        if len(rows) < LIVE_VERSIONS_PAGE:
+            return {sid: sorted(v) for sid, v in versions.items()}
+        last_id = rows[-1]['id']
+
+
 def live_versions(db, language_id: int) -> dict[int, set[int]]:
-    """``{sense_id: {version, ...}}``; raises on anything but the ADR-049 §8 shape."""
-    data = db.rpc(LIVE_VERSIONS_RPC, {'p_language_id': language_id}).execute().data
+    """``{sense_id: {version, ...}}``; raises on anything but the ADR-049 §8 shape.
+
+    On a statement timeout the map is read in keyset pages instead
+    (``_live_versions_paged``); any other error propagates.
+    """
+    try:
+        data = db.rpc(LIVE_VERSIONS_RPC, {'p_language_id': language_id}).execute().data
+    except Exception as exc:                      # noqa: BLE001 - narrowed just below
+        if not _is_statement_timeout(exc):
+            raise
+        logger.warning('%s(%s) hit the statement timeout; reading the versions in pages of %d',
+                       LIVE_VERSIONS_RPC, language_id, LIVE_VERSIONS_PAGE)
+        return {sid: set(v) for sid, v in _live_versions_paged(db, language_id).items()}
     if isinstance(data, str):
         data = json.loads(data)
     if data is None:

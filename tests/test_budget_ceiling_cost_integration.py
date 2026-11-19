@@ -16,13 +16,14 @@ front of it — that a dollar OpenRouter reports is a dollar spend_since counts.
 
 from __future__ import annotations
 
-import threading
+import uuid
 from datetime import datetime, timezone
 
 import pytest
 
 import services.llm_service as svc
 from scripts import run_generation_batch as batch
+from tests.exercise_content_fakes import FakeContentDB
 
 
 # ---------------------------------------------------------------------------
@@ -77,46 +78,20 @@ class _LLMCallsTable:
         return _Resp(list(rows))
 
 
-class _GenericTable:
-    """Swallows the exercises/word_assets chains _process_sense runs —
-    same shape as test_generation_batch_workers.py's _FakeQuery."""
-
-    def __init__(self, sink=None, rows=None):
-        self._sink = sink
-        self._rows = rows
-        self.not_ = self
-
-    def delete(self):
-        return self
-
-    def insert(self, rows):
-        return _GenericTable(self._sink, rows)
-
-    def eq(self, *_a, **_k):
-        return self
-
-    def is_(self, *_a, **_k):
-        return self
-
-    def execute(self):
-        if self._rows is not None and self._sink is not None:
-            self._sink.extend(self._rows)
-        return self
-
-
-class _CombinedDB:
-    """Routes 'llm_calls' to a real queryable store, everything else to a
-    no-op sink — exactly what run_chunk touches for a scripted-success sense.
+class _CombinedDB(FakeContentDB):
+    """Routes 'llm_calls' to a real queryable store; the exercise rows go through
+    the real ``store.write_sense`` (ADR-049) into the ``FakeContentDB`` table and
+    RPCs — exactly what run_chunk touches for a scripted-success sense.
     """
 
     def __init__(self):
+        super().__init__()
         self.llm_calls_rows: list = []
-        self.other_inserted: list = []
 
     def table(self, name):
         if name == 'llm_calls':
             return _LLMCallsTable(self.llm_calls_rows)
-        return _GenericTable(self.other_inserted)
+        return super().table(name)
 
 
 # ---------------------------------------------------------------------------
@@ -201,7 +176,9 @@ class _NoOpRenderer:
         self.last_skips: list = []
 
     def build_rows(self, sense_id, _language_id):
-        return [{'word_sense_id': sense_id}]
+        return [{'id': str(uuid.uuid4()), 'word_sense_id': sense_id, 'language_id': 1,
+                 'exercise_type': 'cloze_completion', 'source_type': 'vocabulary',
+                 'content': {'sentence': f's{sense_id}'}}]
 
 
 def _senses(n: int) -> list[dict]:
@@ -273,6 +250,7 @@ def test_ceiling_is_not_tripped_when_spend_stays_under_it(_wire_real_cost_path):
 
     assert report.aborted_reason is None
     assert report.succeeded == 12
+    assert len({r['word_sense_id'] for r in db.rows()}) == 12
 
 
 # ---------------------------------------------------------------------------

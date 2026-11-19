@@ -268,17 +268,14 @@ def _grade_typed_if_needed(exercise_id: str, data: dict):
         return None
 
     from services.exercise_content import store
-    # word_sense_id is hydrate's sense key outside db mode; db mode keeps today's select
-    # byte-for-byte (ADR-049 §6).
-    columns = 'exercise_type, {content}, language_id'
-    if store.read_mode() != 'db':
-        columns += ', word_sense_id'
+    # word_sense_id is hydrate's sense key (ADR-049 §9).
     try:
         db = get_db()
         row = (
             db
             .table('exercises')
-            .select(store.select_columns(columns))
+            .select(store.select_columns(
+                'exercise_type, {content}, language_id, word_sense_id'))
             .eq('id', exercise_id)
             .limit(1)
             .execute()
@@ -291,11 +288,11 @@ def _grade_typed_if_needed(exercise_id: str, data: dict):
     if not item or item.get('exercise_type') not in _SERVER_GRADED_TYPES:
         return None
 
-    # Content through the exercise-content store (ADR-049; a no-op in db
-    # mode). Content that cannot be found fails open, like a failed lookup.
+    # Content through the exercise-content store (ADR-049). Content that
+    # cannot be found fails open, like a failed lookup.
     item['id'] = exercise_id
     try:
-        store.hydrate([item], language_id=item.get('language_id'), drop_missing=False, db=db)
+        store.hydrate([item], language_id=item.get('language_id'), drop_missing=False)
     except Exception as exc:
         logger.warning("typed-grade content lookup failed for %s: %s", exercise_id, exc)
         return None

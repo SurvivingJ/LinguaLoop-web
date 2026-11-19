@@ -3,9 +3,9 @@
 Appendix A rows 7-8. The speed round picks its <= 20 rows first and hydrates
 only those (it used to read content for every mastered sense); the gate /
 stress-test batteries hydrate their one sense's rows before picking.
-``store.read_mode`` and ``store.hydrate`` are monkeypatched (the storage
-reader lands in TASK-1010); the fake hydrate follows the ADR-049 section 9
-contract and records its calls. No network, no Supabase.
+``store.hydrate`` is mostly monkeypatched: the fake hydrate follows the ADR-049
+section 9 contract and records its calls. The real-store tests read files
+seeded into the conftest's ``InMemoryBackend``. No network, no Supabase.
 """
 
 from __future__ import annotations
@@ -24,10 +24,8 @@ from services.vocabulary_ladder.speed_round import (
 
 LANG = 3
 
-SPEED_TEMPLATE_DB = 'id, exercise_type, content, ladder_level, word_sense_id, complexity_tier'
 SPEED_TEMPLATE_STORAGE = ('id, exercise_type, content_version, ladder_level, word_sense_id, '
                           'complexity_tier')
-BATTERY_DB = 'id, exercise_type, content, complexity_tier, ladder_level, tags, word_sense_id'
 BATTERY_STORAGE = ('id, exercise_type, content_version, complexity_tier, ladder_level, tags, '
                    'word_sense_id')
 
@@ -47,16 +45,16 @@ class FakeHydrate:
         self.calls = []
 
     def __call__(self, items, *, language_id=None, id_key='id', sense_key='word_sense_id',
-                 db=None, drop_missing=True, max_senses=None, deadline_s=None):
+                 drop_missing=True, max_senses=None, deadline_s=None):
         self.calls.append({
             'ids': [i.get(id_key) for i in items if isinstance(i, dict)],
             'senses': [i.get(sense_key) for i in items if isinstance(i, dict)],
             'language_id': language_id, 'id_key': id_key, 'sense_key': sense_key,
-            'db': db, 'drop_missing': drop_missing,
+            'drop_missing': drop_missing,
         })
         if self.raises is not None:
             raise self.raises
-        report = store.HydrationReport(mode='storage')
+        report = store.HydrationReport()
         keep = []
         for item in items:
             if not (isinstance(item, dict) and item.get(id_key)):
@@ -142,16 +140,21 @@ def _speed_db(rows):
     return FakeDB({'user_word_ladder': [{'sense_id': s} for s in senses], 'exercises': rows})
 
 
-@pytest.fixture
-def storage(monkeypatch):
-    monkeypatch.setattr(store, 'read_mode', lambda: 'storage')
+def _seed_files(rows, contents):
+    """Put ``contents[row id]`` in each row's (sense, version) file."""
+    files: dict = {}
+    for r in rows:
+        files.setdefault((r['word_sense_id'], r['content_version']), {})[r['id']] = contents[r['id']]
+    for (sense, version), exercises in files.items():
+        store.backend().seed(store.content_path(LANG, sense, version),
+                             store.encode_sense_file(sense, LANG, version, exercises))
 
 
 # ---------------------------------------------------------------------------
 # Speed round
 # ---------------------------------------------------------------------------
 
-def test_storage_mode_hydrates_only_the_picked_rows(storage, monkeypatch):
+def test_storage_mode_hydrates_only_the_picked_rows(monkeypatch):
     fake = FakeHydrate()
     monkeypatch.setattr(store, 'hydrate', fake)
     rows = _speed_rows(30, per_sense=3)                 # 90 candidates over 30 senses
@@ -165,15 +168,15 @@ def test_storage_mode_hydrates_only_the_picked_rows(storage, monkeypatch):
     assert len(call['ids']) == MAX_BATTERY < len(rows)
     assert len(set(call['senses'])) == MAX_BATTERY       # one row per sense
     assert set(call['ids']) <= {r['id'] for r in rows}
-    assert (call['language_id'], call['id_key'], call['sense_key'], call['db']) == \
-        (LANG, 'id', 'word_sense_id', db)
+    assert (call['language_id'], call['id_key'], call['sense_key']) == \
+        (LANG, 'id', 'word_sense_id')
     assert call['drop_missing'] is True
     assert [i['exercise_id'] for i in battery.items] == call['ids']
     assert all(i['content'] == {'hydrated': i['exercise_id']} for i in battery.items)
     assert battery.reason is None and battery.mastered_sense_count == 30
 
 
-def test_a_smaller_size_hydrates_fewer_rows(storage, monkeypatch):
+def test_a_smaller_size_hydrates_fewer_rows(monkeypatch):
     fake = FakeHydrate()
     monkeypatch.setattr(store, 'hydrate', fake)
     battery = SpeedRoundComposer(_speed_db(_speed_rows(30, per_sense=2))).compose(
@@ -181,7 +184,7 @@ def test_a_smaller_size_hydrates_fewer_rows(storage, monkeypatch):
     assert len(fake.calls[0]['ids']) == MIN_BATTERY == len(battery.items)
 
 
-def test_dropped_rows_leave_a_smaller_battery(storage, monkeypatch):
+def test_dropped_rows_leave_a_smaller_battery(monkeypatch):
     rows = _speed_rows(15)
     fake = FakeHydrate(missing={'ex-100-0', 'ex-105-0', 'ex-110-0'})
     monkeypatch.setattr(store, 'hydrate', fake)
@@ -192,7 +195,7 @@ def test_dropped_rows_leave_a_smaller_battery(storage, monkeypatch):
     assert all(i['content'] is not None for i in battery.items)
 
 
-def test_too_few_rows_after_hydration_is_no_battery(storage, monkeypatch):
+def test_too_few_rows_after_hydration_is_no_battery(monkeypatch):
     rows = _speed_rows(12)
     monkeypatch.setattr(store, 'hydrate', FakeHydrate(
         missing={f'ex-{s}-0' for s in range(100, 105)}))
@@ -203,13 +206,13 @@ def test_too_few_rows_after_hydration_is_no_battery(storage, monkeypatch):
     assert battery.to_payload()['no_content_reason'] == 'too_few_items_for_a_battery'
 
 
-def test_a_failing_hydrate_in_storage_mode_serves_only_rows_with_content(storage, monkeypatch):
+def test_a_failing_hydrate_serves_only_rows_with_content(monkeypatch):
     monkeypatch.setattr(store, 'hydrate', FakeHydrate(raises=RuntimeError('reader bug')))
     battery = SpeedRoundComposer(_speed_db(_speed_rows(15))).compose('u', LANG)
     assert battery.items == [] and battery.reason == 'too_few_items_for_a_battery'
 
 
-def test_a_failing_hydrate_in_db_mode_changes_nothing(monkeypatch):
+def test_a_failing_hydrate_keeps_rows_that_already_carry_content(monkeypatch):
     monkeypatch.setattr(store, 'hydrate', FakeHydrate(raises=ValueError('bad argument')))
     battery = SpeedRoundComposer(_speed_db(_speed_rows(15, with_content=True))).compose('u', LANG)
     assert len(battery.items) == 15 and all(i['content'] for i in battery.items)
@@ -242,16 +245,21 @@ def test_pick_keeps_todays_sampling(seed):
     assert SpeedRoundComposer._select(candidates, MAX_BATTERY) == today
 
 
-def test_db_mode_speed_round_is_todays(monkeypatch):
-    """The real store in db mode: today's select string, content straight from the rows."""
-    rows = _speed_rows(22, per_sense=2, with_content=True)
+def test_real_store_speed_round_serves_the_picked_files(monkeypatch):
+    """The real store: the storage select, today's sampling, and content from the files
+    of the picked senses only."""
+    rows = _speed_rows(22, per_sense=2)
+    with_content = _speed_rows(22, per_sense=2, with_content=True)
+    _seed_files(rows, {r['id']: r['content'] for r in with_content})
     db = _speed_db(rows)
     random.seed(5)
     battery = SpeedRoundComposer(db).compose('u', LANG)
     random.seed(5)
-    assert battery.items == _todays_select(rows, MAX_BATTERY)
-    assert db.selects('exercises') == [SPEED_TEMPLATE_DB]
+    assert battery.items == _todays_select(with_content, MAX_BATTERY)
+    assert db.selects('exercises') == [SPEED_TEMPLATE_STORAGE]
     assert ('not',) in db.log['exercises'] and ('is', 'word_asset_id', 'null') in db.log['exercises']
+    assert sorted(store.backend().calls_for('get')) == sorted(
+        store.content_path(LANG, i['sense_id'], 7) for i in battery.items)
 
 
 # ---------------------------------------------------------------------------
@@ -284,7 +292,7 @@ def _ladder(rows):
     return LadderService(FakeDB({'exercises': rows}))
 
 
-def test_battery_rows_are_hydrated_before_picking(storage, monkeypatch):
+def test_battery_rows_are_hydrated_before_picking(monkeypatch):
     fake = FakeHydrate()
     monkeypatch.setattr(store, 'hydrate', fake)
     svc = _ladder(_battery_rows(with_content=False))
@@ -294,28 +302,28 @@ def test_battery_rows_are_hydrated_before_picking(storage, monkeypatch):
     assert len(fake.calls) == 1
     call = fake.calls[0]
     assert call['ids'] == ['l3a', 'l3b', 'l5a', 'l5b']
-    assert (call['language_id'], call['id_key'], call['sense_key'], call['db']) == \
-        (LANG, 'id', 'word_sense_id', svc.db)
+    assert (call['language_id'], call['id_key'], call['sense_key']) == \
+        (LANG, 'id', 'word_sense_id')
     # variant diversity unchanged: A at level 3, then B at level 5
     assert [(e['exercise_id'], e['content']) for e in out] == \
         [('l3a', {'hydrated': 'l3a'}), ('l5b', {'hydrated': 'l5b'})]
     assert out[0]['ladder_name'] and out[0]['sense_id'] == SENSE
 
 
-def test_a_dropped_row_is_never_picked(storage, monkeypatch):
+def test_a_dropped_row_is_never_picked(monkeypatch):
     monkeypatch.setattr(store, 'hydrate', FakeHydrate(missing={'l3a', 'l5a', 'l5b'}))
     out = _ladder(_battery_rows(with_content=False))._fetch_exercises_for_levels(
         SENSE, LANG, [3, 5], 2)
     assert [(e['exercise_id'], e['content']) for e in out] == [('l3b', {'hydrated': 'l3b'})]
 
 
-def test_every_row_dropped_is_an_empty_battery(storage, monkeypatch):
+def test_every_row_dropped_is_an_empty_battery(monkeypatch):
     monkeypatch.setattr(store, 'hydrate', FakeHydrate(missing={'l3a', 'l3b', 'l5a', 'l5b'}))
     assert _ladder(_battery_rows(with_content=False))._fetch_exercises_for_levels(
         SENSE, LANG, [3, 5], 2) == []
 
 
-def test_stress_test_battery_hydrates_its_sense_once(storage, monkeypatch):
+def test_stress_test_battery_hydrates_its_sense_once(monkeypatch):
     fake = FakeHydrate()
     monkeypatch.setattr(store, 'hydrate', fake)
     svc = _ladder(_battery_rows(with_content=False))
@@ -325,7 +333,7 @@ def test_stress_test_battery_hydrates_its_sense_once(storage, monkeypatch):
     assert out and all(e['content'] == {'hydrated': e['exercise_id']} for e in out)
 
 
-def test_gate_battery_hydrates_its_sense_once(storage, monkeypatch):
+def test_gate_battery_hydrates_its_sense_once(monkeypatch):
     fake = FakeHydrate(missing={'g6a'})
     monkeypatch.setattr(store, 'hydrate', fake)
     rows = [{'id': gid, 'exercise_type': 'semantic_discrimination', 'complexity_tier': 'T2',
@@ -340,13 +348,16 @@ def test_gate_battery_hydrates_its_sense_once(storage, monkeypatch):
         ('g6b', {'hydrated': 'g6b'}), ('g7a', {'hydrated': 'g7a'})]
 
 
-def test_db_mode_battery_is_todays():
-    """The real store in db mode: today's select string and today's output."""
-    svc = _ladder(_battery_rows(with_content=True))
+def test_real_store_battery():
+    """The real store: the storage select, content from the sense's file, today's output."""
+    rows = _battery_rows(with_content=False)
+    _seed_files(rows, {r['id']: {'file': r['id']} for r in rows})
+    svc = _ladder(rows)
     out = svc._fetch_exercises_for_levels(SENSE, LANG, [3, 5, 3], 3)
-    assert svc.db.selects('exercises') == [BATTERY_DB]
+    assert svc.db.selects('exercises') == [BATTERY_STORAGE]
+    assert store.backend().calls_for('get') == [store.content_path(LANG, SENSE, 12)]
     assert [(e['exercise_id'], e['content'], e['ladder_level']) for e in out] == [
-        ('l3a', {'db': 'l3a'}, 3), ('l5b', {'db': 'l5b'}, 5), ('l3a', {'db': 'l3a'}, 3)]
+        ('l3a', {'file': 'l3a'}, 3), ('l5b', {'file': 'l5b'}, 5), ('l3a', {'file': 'l3a'}, 3)]
     assert set(out[0]) == {'exercise_id', 'exercise_type', 'source_type', 'content',
                            'complexity_tier', 'ladder_level', 'ladder_name', 'family',
                            'sense_id'}

@@ -1,10 +1,11 @@
-"""``dual`` write path behind ``store.write_sense`` (ADR-049 §4, §8, §9). TASK-1011.
+"""Write path behind ``store.write_sense`` (ADR-049 §4, §8, §9). TASK-1011.
 
-``store`` imports this module lazily, only when ``write_mode() == 'dual'``.
+``store`` imports this module lazily. Since TASK-1031 it is the only write path
+(the ``db`` writes are gone with ``exercises.content``).
 
 Contract with ``store``: ``store.write_sense`` has already
 
-* validated the arguments without I/O in strict mode: ``sense_id`` and
+* validated the arguments without I/O: ``sense_id`` and
   ``language_id`` are positive ints; every insert row is a dict with a
   canonical lowercase UUID ``id`` (unique in the call), ``word_sense_id`` equal
   to ``sense_id`` (int-like), ``language_id`` equal to ``language_id`` and a
@@ -13,7 +14,9 @@ Contract with ``store``: ``store.write_sense`` has already
 * normalised the arguments: ``insert_rows`` is a ``list``, ``delete_where`` a
   ``store.DeleteWhere`` (levels a sorted tuple of unique ints) or None,
   ``update_contents`` a ``dict`` (possibly empty);
-* returned early, without calling this module, when there is nothing to do.
+* returned early, without calling this module, when there is nothing to do;
+* raised ``ContentStorageError`` when there are no Storage credentials (and no
+  ``set_backend()`` backend).
 
 One attempt (ADR-049 §4), repeated up to ``max_retries`` times:
 
@@ -24,17 +27,16 @@ One attempt (ADR-049 §4), repeated up to ``max_retries`` times:
    is already a surviving row of the sense; every row's ``language_id`` equals
    ``language_id`` (the file folder is chosen from it).
 3. The new file: the content of every surviving row that is not updated, read
-   from file ``V`` (``store.backend().get`` + ``store.decode_sense_file``);
-   ids missing from it (or every id, when there is no file ``V``) come from one
-   ``select('id, content').in_('id', ...)`` per 200 ids on ``exercises``; an id
-   still missing raises ``ContentStorageError`` (no upload, no commit). Then
-   the updates and the inserted rows' content.
+   from file ``V`` (``store.backend().get`` + ``store.decode_sense_file``), the
+   only source since the column drop; an id missing from it (or every id, when
+   there is no file ``V``) raises ``ContentStorageError`` (no upload, no
+   commit). Then the updates and the inserted rows' content.
 4. Upload ``{lang}/{sense}.v{N}.json`` (never overwrites). ``AlreadyExists`` ->
    ``ContentStorageError`` (unique sequence numbers make it impossible); any
    other backend failure -> ``ContentStorageError``.
 5. ``exercise_content_commit(...)`` with sorted id arrays, the insert rows as
-   given (JSON-safe; content included, so the column is still written before
-   the drop and the RPC computes ``dedupe_key`` from it) and the updates
+   given (JSON-safe; content included: the RPC validates it and computes
+   ``dedupe_key`` from it, but stores no content) and the updates
    ``{id: content}``. ``ok`` -> the file's bytes go into the read cache (when
    ``cache.py`` is present) and one INFO
    ``exercise_content.write sense=… version=… attempts=… inserted=… deleted=… updated=…``.
@@ -77,8 +79,6 @@ logger = logging.getLogger('services.exercise_content')
 BEGIN_RPC = 'exercise_content_begin'
 COMMIT_RPC = 'exercise_content_commit'
 CONFLICT_REASONS = ('version_conflict', 'rows_changed')
-BASE_SELECT_CHUNK = 200
-MISSING_COLUMN_CODES = ('42703', 'PGRST204')
 RETRY_BACKOFF_S = 0.02        # upper bound of the jittered pause per attempt number
 
 
@@ -126,7 +126,7 @@ def _begin(db, sense_id: int) -> tuple[int, int, list[dict]]:
 
 
 def _matching_ids(rows: list[dict], where: DeleteWhere | None) -> list[str]:
-    """Ids of ``rows`` the db-mode delete chain would remove (ADR-049 §9 ``DeleteWhere``)."""
+    """Ids of ``rows`` that ``where`` selects for deletion (ADR-049 §9 ``DeleteWhere``)."""
     if where is None:
         return []
     levels = where.ladder_levels
@@ -159,14 +159,6 @@ def _check_against_rows(sense_id: int, language_id: int, rows: list[dict], delet
                              f'not {language_id}')
 
 
-def _is_missing_column(exc: BaseException) -> bool:
-    codes = set(MISSING_COLUMN_CODES)
-    if str(getattr(exc, 'code', '')) in codes:
-        return True
-    return any(isinstance(arg, dict) and str(arg.get('code', '')) in codes
-               for arg in getattr(exc, 'args', ()))
-
-
 def _read_base_file(backend, sense_id: int, language_id: int, version: int) -> dict[str, dict]:
     path = store.content_path(language_id, sense_id, version)
     try:
@@ -181,31 +173,18 @@ def _read_base_file(backend, sense_id: int, language_id: int, version: int) -> d
     return store.decode_sense_file(data, sense_id=sense_id, version=version)
 
 
-def _base_contents(db, backend, sense_id: int, language_id: int, version: int,
+def _base_contents(backend, sense_id: int, language_id: int, version: int,
                    needed: list[str]) -> dict[str, dict]:
-    """Current content of ``needed`` ids: file ``version``, then ``exercises.content``."""
+    """Current content of ``needed`` ids, from file ``version`` (the only source)."""
     if not needed:
         return {}
     in_file = _read_base_file(backend, sense_id, language_id, version)
-    found = {exercise_id: in_file[exercise_id] for exercise_id in needed if exercise_id in in_file}
-    missing = [exercise_id for exercise_id in needed if exercise_id not in found]
-    for start in range(0, len(missing), BASE_SELECT_CHUNK):
-        chunk = missing[start:start + BASE_SELECT_CHUNK]
-        try:
-            response = db.table('exercises').select('id, content').in_('id', chunk).execute()
-        except Exception as exc:
-            if _is_missing_column(exc):
-                break                  # after the column drop the file is the only source
-            raise
-        for row in getattr(response, 'data', None) or []:
-            if isinstance(row, dict) and isinstance(row.get('content'), dict):
-                found[str(row.get('id'))] = row['content']
-    still = [exercise_id for exercise_id in needed if exercise_id not in found]
+    still = [exercise_id for exercise_id in needed if exercise_id not in in_file]
     if still:
         raise ContentStorageError(
             f'sense {sense_id}: no content for {len(still)} surviving exercise(s) in file '
-            f'v{version} or exercises.content (first: {still[0]}); nothing was written')
-    return found
+            f'v{version} (first: {still[0]}); nothing was written')
+    return {exercise_id: in_file[exercise_id] for exercise_id in needed}
 
 
 def _upload(backend, path: str, data: bytes) -> None:
@@ -242,7 +221,7 @@ def _warm_cache(language_id: int, sense_id: int, version: int, data: bytes) -> N
 # entry point
 # ---------------------------------------------------------------------------
 
-def write_sense_dual(db, sense_id: int, language_id: int, *, insert_rows: Sequence[dict],
+def write_sense(db, sense_id: int, language_id: int, *, insert_rows: Sequence[dict],
                      delete_where: DeleteWhere | None, update_contents: Mapping[str, dict],
                      max_retries: int, expected_version: int | None = None) -> WriteResult:
     """File first, then the rows by compare-and-swap (ADR-049 §4).
@@ -280,13 +259,13 @@ def write_sense_dual(db, sense_id: int, language_id: int, *, insert_rows: Sequen
             logger.info('exercise_content.write sense=%s version=%s attempts=%d inserted=0 '
                         'deleted=0 updated=0 (nothing matched; no new version)',
                         sense_id, current, attempts)
-            return WriteResult(sense_id=sense_id, mode='dual', version=current, inserted_ids=[],
+            return WriteResult(sense_id=sense_id, version=current, inserted_ids=[],
                                deleted_count=0, updated_ids=[], attempts=attempts)
 
         deleted = set(delete_ids)
         needed = [exercise_id for exercise_id in current_ids
                   if exercise_id not in deleted and exercise_id not in updates]
-        exercises = _base_contents(db, backend, sense_id, language_id, current, needed)
+        exercises = _base_contents(backend, sense_id, language_id, current, needed)
         exercises.update(updates)
         exercises.update(insert_contents)
         data = store.encode_sense_file(sense_id, language_id, new, exercises)
@@ -321,7 +300,7 @@ def write_sense_dual(db, sense_id: int, language_id: int, *, insert_rows: Sequen
             logger.info('exercise_content.write sense=%s version=%s attempts=%d inserted=%d '
                         'deleted=%d updated=%d', sense_id, new, attempts, len(rows),
                         deleted_count, len(updates))
-            return WriteResult(sense_id=sense_id, mode='dual', version=new,
+            return WriteResult(sense_id=sense_id, version=new,
                                inserted_ids=insert_ids, deleted_count=deleted_count,
                                updated_ids=list(updates), attempts=attempts)
 

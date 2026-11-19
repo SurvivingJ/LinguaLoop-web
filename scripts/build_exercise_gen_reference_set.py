@@ -293,23 +293,19 @@ def fetch_word_asset_snapshot(db, sense_id: int, language_id: int) -> list[dict]
 
 
 def fetch_exercise_snapshot(db, sense_id: int) -> list[dict]:
-    # Content through the exercise-content store (ADR-049): in storage mode the
-    # rows carry content_version and hydrate fills content from the sense's
-    # file (each row's own language_id); rows whose content is missing are dropped.
-    # db mode keeps today's select byte-for-byte (ADR-049 §6); outside it hydrate needs each
-    # row's id, sense and language.
-    if store.read_mode() == 'db':
-        columns = 'exercise_type,ladder_level,complexity_tier,tags,content'
-    else:
-        columns = store.select_columns(
-            'id, word_sense_id, language_id, exercise_type, ladder_level, complexity_tier, tags, {content}')
+    # Content through the exercise-content store (ADR-049): the rows carry
+    # content_version and hydrate fills content from the sense's file (each
+    # row's own language_id; hydrate needs each row's id, sense and language).
+    # Rows whose content is missing are dropped.
+    columns = store.select_columns(
+        'id, word_sense_id, language_id, exercise_type, ladder_level, complexity_tier, tags, {content}')
     resp = (db.table('exercises')
             .select(columns)
             .eq('word_sense_id', sense_id)
             .order('ladder_level')
             .execute())
     data = resp.data or []
-    store.hydrate(data, db=db)
+    store.hydrate(data)
     rows = []
     for row in data:
         tags = row.get('tags') or {}

@@ -4,8 +4,8 @@
 ``scripts/run_generation_batch.py`` (row 16) used to delete a sense's
 asset-linked ladder rows (optionally only some levels) and insert the new
 set with two direct PostgREST calls. Both are now one ``store.write_sense``
-call with a ``store.DeleteWhere``, so in ``dual`` write mode a regen produces
-one new content version for the sense.
+call with a ``store.DeleteWhere``, so a regen produces one new content version
+for the sense.
 
 Pinned here:
 
@@ -17,11 +17,11 @@ Pinned here:
   runs only after a successful write;
 * generation batch: a write error fails the sense with the error in the log
   and is queued for regen exactly as an insert error was;
-* ``db`` write mode (the conftest default) still emits today's chains, delete
-  before insert.
+* through the real store (``FakeContentDB`` + the conftest's
+  ``InMemoryBackend``), the commit deletes exactly the scoped asset-linked rows
+  and inserts the new set.
 
-The store is monkeypatched where the call shape is asserted; the db-mode tests
-run the real TASK-1008 facade against a recording fake. Fully offline.
+The store is monkeypatched where the call shape is asserted. Fully offline.
 """
 
 from __future__ import annotations
@@ -34,6 +34,7 @@ from postgrest.exceptions import APIError
 import services.vocabulary_ladder.queue_drain as qd
 from scripts import run_generation_batch as batch
 from services.exercise_content import store
+from tests.exercise_content_fakes import FakeContentDB
 
 LANG_EN = 2
 
@@ -42,45 +43,20 @@ LANG_EN = 2
 # Local fakes
 # ---------------------------------------------------------------------------
 
-class _Resp:
-    def __init__(self, data=None):
-        self.data = data
-
-
-class _Chain:
-    def __init__(self, db, table):
-        self._db = db
-        self._table = table
-        self._steps: list[tuple] = []
-
-    def __getattr__(self, name):
-        if name.startswith('__'):
-            raise AttributeError(name)
-        if name == 'not_':
-            self._steps.append(('not_',))
-            return self
-
-        def step(*args, **kwargs):
-            self._steps.append((name, args, kwargs))
-            return self
-        return step
-
-    def execute(self):
-        self._db.calls.append((self._table, list(self._steps)))
-        ops = [s[0] for s in self._steps]
-        if 'insert' in ops:
-            return _Resp(data=list(self._steps[ops.index('insert')][1][0]))
-        if 'delete' in ops:
-            return _Resp(data=[{'id': 'old-1'}, {'id': 'old-2'}])
-        return _Resp(data=[])
-
-
-class _RecordingDB:
-    def __init__(self):
-        self.calls: list[tuple[str, list[tuple]]] = []
-
-    def table(self, name):
-        return _Chain(self, name)
+def _seeded_db(sense_id, language_id, levels):
+    """Asset-linked rows at ``levels`` plus one asset-less row, at version 0, with
+    their v0 content file: the state of every live sense since the cut-over."""
+    rows = [{'id': f'00000000-0000-4000-a000-{sense_id:06d}{lv:06d}', 'word_sense_id': sense_id,
+             'language_id': language_id, 'exercise_type': 'cloze_completion',
+             'source_type': 'vocabulary', 'ladder_level': lv, 'word_asset_id': 5,
+             'content': {'old': lv}} for lv in levels]
+    rows.append({**rows[0], 'id': f'00000000-0000-4000-b000-{sense_id:012d}',
+                 'word_asset_id': None, 'content': {'old': 'no asset'}})
+    db = FakeContentDB()
+    db.seed(rows)
+    store.backend().seed(store.content_path(language_id, sense_id, 0), store.encode_sense_file(
+        sense_id, language_id, 0, {r['id']: r['content'] for r in rows}))
+    return db, rows
 
 
 class _WriteRecorder:
@@ -99,7 +75,7 @@ class _WriteRecorder:
         if exc is not None:
             raise exc
         rows = list(kwargs.get('insert_rows') or ())
-        return store.WriteResult(sense_id=sense_id, mode='dual', version=77,
+        return store.WriteResult(sense_id=sense_id, version=77,
                                  inserted_ids=[r.get('id') for r in rows], deleted_count=3,
                                  updated_ids=[], attempts=1)
 
@@ -121,6 +97,7 @@ class _FakePipeline:
 def _rows_for(sense_id, levels):
     return [{'id': f'00000000-0000-4000-8000-00000000000{lv}', 'ladder_level': lv,
              'word_sense_id': sense_id, 'language_id': LANG_EN,
+             'exercise_type': 'cloze_completion', 'source_type': 'vocabulary',
              'content': {'level': lv}, 'word_asset_id': 5}
             for lv in sorted(levels)]
 
@@ -263,32 +240,31 @@ def test_gap_still_open_after_a_successful_write(drain, monkeypatch):
     assert detail['still_missing'] == ['form_production']
 
 
-def test_db_mode_scoped_regen_emits_todays_delete_then_insert(drain):
-    assert store.write_mode() == 'db'
-    db = _RecordingDB()
+def test_real_store_scoped_regen_commits_the_scoped_delete_and_insert(drain):
+    db, old = _seeded_db(42, LANG_EN, (1, 2, 4, 9))
 
     ok, detail = qd._regenerate(db, _gap_row())
 
-    assert ok is True
-    assert db.calls == [
-        ('exercises', [('delete', (), {}), ('eq', ('word_sense_id', 42), {}), ('not_',),
-                       ('is_', ('word_asset_id', 'null'), {}),
-                       ('in_', ('ladder_level', [2, 4, 9]), {})]),
-        ('exercises', [('insert', (drain['built'],), {})]),
-    ]
+    assert ok is True and detail['rendered'] == 3
+    (commit,) = db.rpc_calls('exercise_content_commit')
+    assert commit['p_delete_ids'] == sorted(
+        r['id'] for r in old if r['word_asset_id'] and r['ladder_level'] in (2, 4, 9))
+    assert commit['p_insert_rows'] == drain['built']
+    assert sorted(r['id'] for r in db.rows(42)) == sorted(
+        [old[0]['id'], old[-1]['id']] + [r['id'] for r in drain['built']])
+    assert db.table_calls() == [], 'no direct exercises delete or insert'
 
 
-def test_db_mode_unscoped_regen_emits_todays_delete_then_insert(drain):
-    db = _RecordingDB()
+def test_real_store_unscoped_regen_deletes_every_asset_linked_row(drain):
+    db, old = _seeded_db(43, LANG_EN, (1, 2, 4, 9))
 
     ok, _ = qd._regenerate(db, _regen_row())
 
     assert ok is True
-    assert db.calls == [
-        ('exercises', [('delete', (), {}), ('eq', ('word_sense_id', 43), {}), ('not_',),
-                       ('is_', ('word_asset_id', 'null'), {})]),
-        ('exercises', [('insert', (drain['built'],), {})]),
-    ]
+    (commit,) = db.rpc_calls('exercise_content_commit')
+    assert commit['p_delete_ids'] == sorted(r['id'] for r in old if r['word_asset_id'])
+    assert commit['p_insert_rows'] == drain['built']
+    assert db.table_calls() == []
 
 
 # ---------------------------------------------------------------------------
@@ -310,9 +286,11 @@ class _BatchRenderer:
     def build_rows(self, sense_id, language_id):
         return [{'id': f'00000000-0000-4000-8000-0000000000{sense_id:02d}',
                  'word_sense_id': sense_id, 'language_id': language_id,
+                 'exercise_type': 'cloze_completion', 'source_type': 'vocabulary',
                  'content': {'n': 1}, 'word_asset_id': 9, 'ladder_level': 1},
                 {'id': f'00000000-0000-4000-9000-0000000000{sense_id:02d}',
                  'word_sense_id': sense_id, 'language_id': language_id,
+                 'exercise_type': 'cloze_completion', 'source_type': 'vocabulary',
                  'content': {'n': 2}, 'word_asset_id': 9, 'ladder_level': 3}]
 
 
@@ -400,20 +378,19 @@ def test_batch_no_rows_makes_no_write(monkeypatch, enqueued):
     assert enqueued[0][3]['error'] == 'render produced no rows'
 
 
-def test_batch_db_mode_emits_todays_delete_then_insert(enqueued):
-    assert store.write_mode() == 'db'
-    db = _RecordingDB()
+def test_batch_writes_through_the_real_store(enqueued):
+    db, old = _seeded_db(7, 1, (1, 3))
     renderer = _BatchRenderer()
 
     outcome = batch._process_sense(db, 1, _sense(7), _BatchPipeline(), renderer)
 
-    assert outcome.status == 'success'
+    assert outcome.status == 'success' and outcome.exercises == 2
     rows = renderer.build_rows(7, 1)
-    assert db.calls == [
-        ('exercises', [('delete', (), {}), ('eq', ('word_sense_id', 7), {}), ('not_',),
-                       ('is_', ('word_asset_id', 'null'), {})]),
-        ('exercises', [('insert', (rows,), {})]),
-    ]
+    (commit,) = db.rpc_calls('exercise_content_commit')
+    assert commit['p_delete_ids'] == sorted(r['id'] for r in old if r['word_asset_id'])
+    assert commit['p_insert_rows'] == rows
+    assert sorted(r['id'] for r in db.rows(7)) == sorted([old[-1]['id']] + [r['id'] for r in rows])
+    assert db.table_calls() == [] and enqueued == []
 
 
 def test_run_chunk_counts_a_write_failure_once(monkeypatch, enqueued):

@@ -3,7 +3,7 @@ title: Test Prestudy — Technical Specification
 type: feature-tech
 status: in-progress
 prose_page: ./test-prestudy.md
-last_updated: 2026-11-17
+last_updated: 2026-11-19
 dependencies:
   - "services/prestudy.py (payload, drill rule, on-demand exercises, evidence, follow-ups, daily-session plan)"
   - "routes/tests/prestudy.py (GET payload, GET exercises on demand, POST session / evidence / admit-overflow / produce)"
@@ -33,8 +33,9 @@ GET /test/<slug>/prestudy                       templates/test_prestudy.html + p
 ```
 
 Exercise content is loaded **only for the senses the word prime drills** (owner decision
-2026-11-17, ADR-049 open question 1). This is a product change and applies in every
-`EXERCISE_CONTENT_SOURCE` mode, `db` included. It cuts the request's content fan-out from every
+2026-11-17, ADR-049 open question 1). This is a product change (it applied in every
+read mode while those existed; since TASK-1031 content is only read from the files). It cuts
+the request's content fan-out from every
 linked sense (zh p90 126, max 306) to the drill set, which stays under the store's 160-sense
 per-call cap.
 
@@ -45,9 +46,11 @@ Reads only (see [[database/schema.tech]]):
 - `exercises`: `has_exercises` reads `word_sense_id` of active rows of the prime-renderable
   types (`EXERCISE_FIELDS`) for the linked senses, paged (`fetch_all`, 200 senses per `in_`).
   Drill content: `store.select_columns('id, word_sense_id, exercise_type, {content},
-  ladder_level')` — exactly `'id, word_sense_id, exercise_type, content, ladder_level'` in `db`
-  mode, `content_version` instead of `content` in `storage` mode — for the drill senses only,
-  then one `store.hydrate(rows, language_id=<test language>, db=db)` before `group_exercises`.
+  ladder_level')` — i.e. `'id, word_sense_id, exercise_type, content_version, ladder_level'`
+  (`exercises.content` was dropped on 2026-11-19) — for the drill senses only, then one
+  `store.hydrate(rows, language_id=<test language>, db=db)` before `group_exercises`. The rows
+  carry no `language_id`, so the test's language must be passed: `_load_exercises(db, ids)`
+  without it serves nothing (both callers pass it).
 - `tests`, `questions`, `dim_word_senses` (+ `dim_vocabulary`), `user_vocabulary_knowledge`,
   `user_calibration_state`: unchanged.
 
@@ -162,16 +165,16 @@ See [[decisions/ADR-049-exercise-content-in-storage]] (open question 1).
 
 - `tests/test_exercise_content_prestudy_reader.py`: drill-rule boundaries, payload holds content
   for drill senses only and `has_exercises` for all, endpoint filters foreign ids and caps at 20,
-  storage mode hydrates once with the language, `db` select string unchanged, generation never
-  queued from a hydration miss.
+  one hydrate with the language (the real store reading seeded files, and a fake), the select
+  string, generation never queued from a hydration miss.
 - `tests/unit/prestudy-ondemand.test.js` (vitest): loader batching, dedupe, failure path; the
   shared drill-rule fixture.
-- `tests/test_exercise_content_integration.py`: the payload and the on-demand endpoint in
-  db / shadow / storage mode equal the `db` payload; in storage mode only the drill senses'
-  files are read.
+- `tests/test_exercise_content_integration.py`: the payload and the on-demand endpoint served
+  from the files, cold and warm; only the drill senses' files are read.
 - Existing: `tests/test_prestudy.py`, `test_prestudy_session.py`, `test_pagination.py`,
   `test_latency_caching.py` (unchanged).
-- TASK-1029 measures the prestudy latency (a zh test with ≥ 100 linked senses) on `storage`.
+- TASK-1029 measured Storage-read latency during the cut-over (see
+  [[decisions/ADR-049-exercise-content-in-storage]] "Cut-over completed").
 
 ## Related Pages
 

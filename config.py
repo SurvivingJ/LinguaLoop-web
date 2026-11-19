@@ -14,9 +14,6 @@ load_dotenv()
 
 _config_logger = logging.getLogger('config')
 
-_TRUE_WORDS = frozenset({'1', 'true', 'yes', 'on'})
-_FALSE_WORDS = frozenset({'0', 'false', 'no', 'off'})
-
 
 def _env_int(name: str, default: int) -> int:
     """Integer env var; unset or blank -> default; unparseable -> default + ERROR."""
@@ -40,20 +37,6 @@ def _env_float(name: str, default: float) -> float:
     except ValueError:
         _config_logger.error('%s=%r is not a number; using %r', name, raw, default)
         return default
-
-
-def _env_bool(name: str, default: bool) -> bool:
-    """Boolean env var: 1/true/yes/on or 0/false/no/off (any case); else default."""
-    raw = os.environ.get(name)
-    if raw is None or not raw.strip():
-        return default
-    word = raw.strip().lower()
-    if word in _TRUE_WORDS:
-        return True
-    if word in _FALSE_WORDS:
-        return False
-    _config_logger.error('%s=%r is not a boolean; using %r', name, raw, default)
-    return default
 
 
 class Config:
@@ -159,25 +142,13 @@ class Config:
     # ==========================================================================
     # EXERCISE CONTENT STORAGE (ADR-049)
     # ==========================================================================
-    # Exercise `content` moves from exercises.content to one immutable JSON file
-    # per sense and version in the private Storage bucket below. Read only
-    # through services.exercise_content.store (read_mode() / write_mode() and the
-    # store internals), at call time, so tests and operators can flip them.
-    #
-    # Read path: 'db' (default; today's behaviour, byte-identical calls, works
-    # before the Phase-1 migrations) | 'shadow' (serve DB content, compare the
-    # files in the background, log mismatches) | 'storage' (serve the files).
-    # Unknown values are treated as 'db' with one ERROR log; so is a non-'db'
-    # mode without SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY. `SOURCE=db` is the
-    # instant rollback until the column drop (ADR-049 §10).
-    EXERCISE_CONTENT_SOURCE = os.environ.get('EXERCISE_CONTENT_SOURCE', 'db')
-    # Write path: 'db' (default; today's PostgREST calls) | 'dual' (file first,
-    # then the rows through exercise_content_commit, content still written to
-    # the column). 'dual' requires migrations/exercise_content_storage.sql and
-    # must be set in EVERY environment that writes exercises (web workers and
-    # the shells running upload / fat-seed / generation scripts) before the
-    # backfill.
-    EXERCISE_CONTENT_WRITE = os.environ.get('EXERCISE_CONTENT_WRITE', 'db')
+    # Exercise `content` lives only in one immutable JSON file per sense and
+    # version in the private Storage bucket below (exercises.content was dropped
+    # on 2026-11-19). Reads hydrate from the files and writes go file first,
+    # then the rows through exercise_content_commit; there are no modes
+    # (TASK-1031). Every process that reads or writes exercise content needs
+    # SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY. These tuning settings are read
+    # only through services.exercise_content.store internals, at call time.
     EXERCISE_CONTENT_BUCKET = (os.environ.get('EXERCISE_CONTENT_BUCKET') or '').strip() or 'exercise-content'
     # Process-wide LRU of raw file bytes, per process (2 gunicorn workers -> 2x).
     EXERCISE_CONTENT_CACHE_MB = _env_int('EXERCISE_CONTENT_CACHE_MB', 32)
@@ -188,12 +159,6 @@ class Config:
     # Wall-clock budget of one hydrate call, and of one Storage GET.
     EXERCISE_CONTENT_DEADLINE_S = _env_float('EXERCISE_CONTENT_DEADLINE_S', 3.0)
     EXERCISE_CONTENT_HTTP_TIMEOUT_S = _env_float('EXERCISE_CONTENT_HTTP_TIMEOUT_S', 2.0)
-    # Fill items whose file is missing from exercises.content while the column
-    # exists (turned off automatically on a "column does not exist" error).
-    # Set to 0 right after the cut-over migration drops the column.
-    EXERCISE_CONTENT_DB_FALLBACK = _env_bool('EXERCISE_CONTENT_DB_FALLBACK', True)
-    # Share (0-1) of (sense, version) groups compared in shadow mode.
-    EXERCISE_CONTENT_SHADOW_SAMPLE = _env_float('EXERCISE_CONTENT_SHADOW_SAMPLE', 1.0)
 
     # ==========================================================================
     # LANGUAGE CONFIGURATION - Single source of truth

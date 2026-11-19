@@ -2,7 +2,7 @@
 """Shared fixtures for the LinguaDojo test suite."""
 
 import pytest
-from unittest.mock import MagicMock, patch, PropertyMock
+from unittest.mock import MagicMock, patch
 from types import SimpleNamespace
 
 from config import Config
@@ -36,21 +36,21 @@ def _dt_single_call_off(monkeypatch):
 
 
 @pytest.fixture(autouse=True)
-def _exercise_content_db_mode(monkeypatch):
-    """Pin both ADR-049 exercise-content flags to 'db' and reset the store.
+def _exercise_content_store():
+    """A fresh ADR-049 exercise-content store per test, backed by an empty InMemoryBackend.
 
-    With EXERCISE_CONTENT_SOURCE / EXERCISE_CONTENT_WRITE at 'db' every reader
-    and writer issues exactly today's PostgREST calls, whatever the shell
-    exports. A test that needs another mode sets it on ``Config`` (and usually
-    ``store.set_backend(InMemoryBackend())``). ``store.reset_state()`` drops
-    the backend, the caches, the warn-once flags and the reader/shadow state
-    after every test so nothing leaks between tests.
+    ``store.reset_state()`` drops the backend, the caches, the warn-once flags and
+    the reader's fetch pool before and after every test, so nothing leaks between
+    tests and nothing reaches the network. A test that needs content seeds files
+    into ``store.backend()`` (``store.encode_sense_file``) or installs its own
+    backend with ``store.set_backend(...)``; ``store.set_backend(None)`` brings
+    back the Config-built backend (e.g. to test missing credentials).
     """
     from services.exercise_content import store
+    from services.exercise_content.backends import InMemoryBackend
 
-    monkeypatch.setattr(Config, 'EXERCISE_CONTENT_SOURCE', 'db')
-    monkeypatch.setattr(Config, 'EXERCISE_CONTENT_WRITE', 'db')
     store.reset_state()
+    store.set_backend(InMemoryBackend())
     yield
     store.reset_state()
 

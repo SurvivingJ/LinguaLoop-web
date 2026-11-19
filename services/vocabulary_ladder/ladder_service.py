@@ -27,7 +27,7 @@ from services.supabase_factory import get_supabase_admin
 from services.vocabulary_ladder.config import (
     LADDER_LEVELS, GATES, STRESS_TEST, RINGS,
     bkt_to_starting_level, compute_active_levels,
-    get_family_for_level, get_levels_for_family,
+    get_levels_for_family,
 )
 
 logger = logging.getLogger(__name__)
@@ -396,9 +396,9 @@ class LadderService:
             )
             rows = list(resp.data or [])
             # ADR-049: fill content from the exercise-content store before
-            # picking (no-op in db mode). A row whose content cannot be found
+            # picking. A row whose content cannot be found
             # is dropped, so the battery picks among the rows it can serve.
-            store.hydrate(rows, language_id=language_id, db=self.db)
+            store.hydrate(rows, language_id=language_id)
 
             # Group by level, pick exercises respecting variant diversity
             by_level: dict[int, list[dict]] = {}

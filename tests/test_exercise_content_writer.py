@@ -1,8 +1,10 @@
-"""TASK-1011 — the ``dual`` write path (ADR-049 §4, §8, §9) and the shared FakeContentDB.
+"""TASK-1011 — the write path (ADR-049 §4, §8, §9) and the shared FakeContentDB.
 
-Runs ``store.write_sense`` in ``dual`` mode against ``FakeContentDB`` (the
-§8 RPCs + an in-memory ``exercises`` table) and an ``InMemoryBackend``.
-Fully offline.
+Runs ``store.write_sense`` against ``FakeContentDB`` (the §8 RPCs + an
+in-memory ``exercises`` table without the dropped ``content`` column) and an
+``InMemoryBackend``. Fully offline. Since TASK-1031 the file at the sense's
+current version is the only content source, so "what is stored" is read back
+with ``_served`` (file v(current) for each live row of the sense).
 """
 
 from __future__ import annotations
@@ -16,7 +18,6 @@ import uuid
 import pytest
 from postgrest.exceptions import APIError
 
-from config import Config
 from services.exercise_content import store, writer
 from services.exercise_content.store import (
     AlreadyExists, ContentStorageError, ContentWriteConflict, DeleteWhere, ExerciseContentError,
@@ -37,9 +38,6 @@ def _uuid() -> str:
 
 @pytest.fixture
 def mem(monkeypatch) -> InMemoryBackend:
-    monkeypatch.setattr(Config, 'SUPABASE_URL', 'https://fake.supabase.co')
-    monkeypatch.setattr(Config, 'SUPABASE_SERVICE_ROLE_KEY', 'fake-service-role-key')
-    monkeypatch.setattr(Config, 'EXERCISE_CONTENT_WRITE', 'dual')
     monkeypatch.setattr(writer, 'RETRY_BACKOFF_S', 0.0)
     backend = InMemoryBackend()
     store.set_backend(backend)
@@ -61,9 +59,21 @@ def _row(*, sense=SENSE, lang=1, level=3, asset=99, kind='cloze_completion', tag
     return row
 
 
+def _bare(row: dict, **extra) -> dict:
+    """``row`` as a direct table insert would send it: no ``content`` column any more."""
+    return {**{k: v for k, v in row.items() if k != 'content'}, **extra}
+
+
 def _file(mem, version, sense=SENSE, lang=1) -> dict:
     data = mem.objects()[store.content_path(lang, sense, version)]
     return store.decode_sense_file(data, sense_id=sense, version=version)
+
+
+def _served(db, mem, sense=SENSE, lang=1) -> dict:
+    """What a reader gets now: file v(current) for each live row of the sense."""
+    (version,) = db.versions(sense)
+    content = _file(mem, version, sense, lang)
+    return {r['id']: content[r['id']] for r in db.rows(sense)}
 
 
 def _seed_sense(db, mem, rows, *, version=0, lang=1, file_contents=None):
@@ -78,7 +88,7 @@ def _seed_sense(db, mem, rows, *, version=0, lang=1, file_contents=None):
 
 
 # ---------------------------------------------------------------------------
-# dual writes
+# writes
 # ---------------------------------------------------------------------------
 
 def test_new_sense_one_begin_one_file_one_commit(mem, caplog):
@@ -95,12 +105,12 @@ def test_new_sense_one_begin_one_file_one_commit(mem, caplog):
     assert mem.calls_for('get') == [] and mem.calls_for('put') == ['zh/5.v1.json']
     assert mem.objects()['zh/5.v1.json'] == store.encode_sense_file(
         SENSE, 1, 1, {r['id']: r['content'] for r in rows})
-    assert result == WriteResult(sense_id=SENSE, mode='dual', version=1,
+    assert result == WriteResult(sense_id=SENSE, version=1,
                                  inserted_ids=[r['id'] for r in rows], deleted_count=0,
                                  updated_ids=[], attempts=1)
     stored = {r['id']: r for r in db.rows(SENSE)}
     assert all(stored[r['id']]['content_version'] == 1 for r in rows)
-    assert all(stored[r['id']]['content'] == r['content'] for r in rows)
+    assert all('content' not in stored[r['id']] for r in rows), 'no content column'
     assert stored[rows[0]['id']]['dedupe_key'] is None
     assert stored[rows[1]['id']]['dedupe_key'] == dedupe_key_for('tone_id_word', rows[1]['content'])
     lines = [r.getMessage() for r in caplog.records if r.getMessage().startswith(
@@ -115,7 +125,7 @@ def test_scoped_replace_keeps_untouched_content_from_file_v(mem):
                                   _row(level=5))
     rows = [keep3, old4, plain4, keep5]
     file_v = {r['id']: _content('from-file-' + r['id'][:4]) for r in rows}
-    _seed_sense(db, mem, rows, version=7, file_contents=file_v)   # column content is stale
+    _seed_sense(db, mem, rows, version=7, file_contents=file_v)
     db.next_version = 20
     new4 = [_row(level=4, tag='new-a'), _row(level=4, tag='new-b')]
     mem.clear_calls()
@@ -177,7 +187,7 @@ def test_reinserting_a_deleted_id_is_allowed(mem):
     again = {**row, 'content': _content('replacement')}
     store.write_sense(db, SENSE, 1, insert_rows=[again],
                       delete_where=DeleteWhere(ladder_levels=(4,)))
-    assert db.row(row['id'])['content'] == _content('replacement')
+    assert db.row(row['id'])['content_version'] == 1
     assert _file(mem, 1) == {row['id']: _content('replacement')}
 
 
@@ -189,7 +199,7 @@ def test_update_writes_one_new_version(mem):
     result = store.write_sense(db, SENSE, 1, update_contents={b['id']: new_b})
     assert result.updated_ids == [b['id']] and result.version == 1
     assert _file(mem, 1) == {a['id']: a['content'], b['id']: new_b}
-    assert db.row(b['id'])['content'] == new_b
+    assert _served(db, mem) == {a['id']: a['content'], b['id']: new_b}
     assert db.row(b['id'])['dedupe_key'] == dedupe_key_for('hanzi_to_pinyin', new_b)
     (commit,) = db.rpc_calls('exercise_content_commit')
     assert commit['p_update_contents'] == {b['id']: new_b}
@@ -199,62 +209,41 @@ def test_update_writes_one_new_version(mem):
 # base content
 # ---------------------------------------------------------------------------
 
-def test_without_file_v_the_base_comes_from_one_select(mem):
+def test_rows_at_mixed_versions_are_reunified(mem):
+    """The commit stamps every row of the sense, so a row left at an older version moves
+    to the new version with the rest (its content comes from file v(current))."""
     db = FakeContentDB()
-    a, b = _row(level=1), _row(level=2)
-    _seed_sense(db, mem, [a, b], file_contents=False)
-    new = _row(level=3)
-    store.write_sense(db, SENSE, 1, insert_rows=[new])
-    (select,) = db.table_calls('select')
-    assert select.columns == 'id, content'
-    assert select.filters == [('in', 'id', sorted([a['id'], b['id']]), False)]
-    assert _file(mem, 1) == {a['id']: a['content'], b['id']: b['content'],
-                             new['id']: new['content']}
-
-
-def test_ids_missing_from_file_v_are_read_from_the_column(mem):
-    db = FakeContentDB()
-    a, b = _row(level=1), _row(level=2)
-    _seed_sense(db, mem, [a, b], file_contents={a['id']: a['content']})
-    store.write_sense(db, SENSE, 1, update_contents={a['id']: _content('a2')})
-    (select,) = db.table_calls('select')
-    assert select.filters == [('in', 'id', [b['id']], False)]
-    assert _file(mem, 1) == {a['id']: _content('a2'), b['id']: b['content']}
-
-
-def test_mixed_versions_are_reunified(mem):
-    db = FakeContentDB()
-    a = _row(level=1)
-    _seed_sense(db, mem, [a], version=4)
+    a, late = _row(level=1), _row(level=2)
+    _seed_sense(db, mem, [a, late], version=4)
+    db.table('exercises').update({'content_version': 0}).eq('id', late['id']).execute()
     db.next_version = 10
-    late = _row(level=2)                          # inserted with WRITE=db: version 0, column only
-    db.seed([late])
     assert db.versions(SENSE) == [0, 4]
     result = store.write_sense(db, SENSE, 1, update_contents={a['id']: _content('a2')})
     assert result.version == 10 and db.versions(SENSE) == [10]
-    (select,) = db.table_calls('select')
-    assert select.filters == [('in', 'id', [late['id']], False)]
+    assert mem.calls_for('get') == ['zh/5.v4.json']
     assert _file(mem, 10) == {a['id']: _content('a2'), late['id']: late['content']}
 
 
-def test_content_missing_everywhere_raises_before_upload(mem):
+def test_without_file_v_the_write_raises_before_upload(mem):
     db = FakeContentDB()
     a = _row(level=1)
-    _seed_sense(db, mem, [{**a, 'content': None}], file_contents=False)
-    with pytest.raises(ContentStorageError):
+    _seed_sense(db, mem, [a], file_contents=False)
+    with pytest.raises(ContentStorageError, match='in file v0'):
         store.write_sense(db, SENSE, 1, insert_rows=[_row(level=2)])
+    assert mem.calls_for('get') == ['zh/5.v0.json']
+    assert db.table_calls() == [], 'no table read: the file is the only source'
     assert mem.calls_for('put') == [] and db.rpc_calls('exercise_content_commit') == []
 
 
 def test_after_the_column_drop_the_file_is_the_only_source(mem):
-    db = FakeContentDB(has_content_column=False)
+    db = FakeContentDB()
     a, b = _row(level=1), _row(level=2)
     _seed_sense(db, mem, [a, b], file_contents={a['id']: a['content']})
-    with pytest.raises(ContentStorageError):
+    with pytest.raises(ContentStorageError, match=f"1 surviving exercise.*first: {b['id']}"):
         store.write_sense(db, SENSE, 1, insert_rows=[_row(level=3)])
-    assert mem.calls_for('put') == []
+    assert mem.calls_for('put') == [] and db.table_calls() == []
 
-    db2 = FakeContentDB(has_content_column=False)
+    db2 = FakeContentDB()
     _seed_sense(db2, mem, [a, b], version=2)
     new = _row(level=3, kind='tone_id_word')
     store.write_sense(db2, SENSE, 1, insert_rows=[new])
@@ -301,7 +290,7 @@ def test_a_commit_between_begin_and_commit_is_retried_and_preserved(mem):
     assert mem.calls_for('delete') == ['zh/5.v1.json']
     assert not mem.exists('zh/5.v1.json')
     assert _file(mem, 3) == {a['id']: _content('mine'), b['id']: _content('other')}
-    assert db.content_of(SENSE) == {a['id']: _content('mine'), b['id']: _content('other')}
+    assert _served(db, mem) == {a['id']: _content('mine'), b['id']: _content('other')}
     assert db.versions(SENSE) == [3]
 
 
@@ -326,9 +315,11 @@ def test_max_retries_conflicts_raise_and_change_nothing(mem):
     a = _row(level=1)
     _seed_sense(db, mem, [a])
 
-    def bump(db_, params):
+    def bump(db_, params):                       # another writer commits file + rows first
         version = db_.next_version
         db_.next_version += 1
+        mem.seed(store.content_path(1, SENSE, version),
+                 store.encode_sense_file(SENSE, 1, version, {a['id']: a['content']}))
         db_.table('exercises').update({'content_version': version}).eq(
             'word_sense_id', SENSE).execute()
 
@@ -340,7 +331,8 @@ def test_max_retries_conflicts_raise_and_change_nothing(mem):
     assert len(db.rpc_calls('exercise_content_begin')) == 3
     assert len(db.rpc_calls('exercise_content_commit')) == 3
     assert db.row(new['id']) is None
-    assert db.content_of(SENSE) == {a['id']: a['content']}
+    assert [r['id'] for r in db.rows(SENSE)] == [a['id']]
+    assert _file(mem, 0) == {a['id']: a['content']}
     puts = mem.calls_for('put')
     assert len(puts) == 3 and mem.calls_for('delete') == puts
     assert all(not mem.exists(p) for p in puts)
@@ -361,8 +353,7 @@ def test_expected_version_matching_writes_normally(mem):
 
 def test_a_stale_read_modify_write_is_refused_before_any_upload(mem, caplog):
     """The fix scripts read content at version N, edit it for a while, then write it back.
-    If another writer committed N+1 meanwhile, writing would silently drop that edit, and
-    file and column would still agree (neither --verify nor shadow would notice)."""
+    If another writer committed N+1 meanwhile, writing would silently drop that edit."""
     caplog.set_level(logging.INFO, logger=LOGGER)
     db = FakeContentDB()
     a, b = _row(level=1), _row(level=2)
@@ -381,7 +372,7 @@ def test_a_stale_read_modify_write_is_refused_before_any_upload(mem, caplog):
     assert len(db.rpc_calls('exercise_content_begin')) == 1, 'no retry: the base is stale'
     assert db.rpc_calls('exercise_content_commit') == []
     assert mem.calls_for('put') == []
-    assert db.content_of(SENSE)[a['id']] == _content('mirror')
+    assert _served(db, mem)[a['id']] == _content('mirror')
     assert db.versions(SENSE) == [other.version]
     assert any('write_stale' in r.getMessage() for r in caplog.records)
 
@@ -398,7 +389,7 @@ def test_a_commit_racing_a_read_modify_write_is_not_retried_over(mem):
     with pytest.raises(ContentWriteConflict, match='now at 2'):
         store.write_sense(db, SENSE, 1, update_contents={a['id']: _content('mine')},
                           expected_version=0)
-    assert db.content_of(SENSE) == {a['id']: a['content'], b['id']: _content('other')}
+    assert _served(db, mem) == {a['id']: a['content'], b['id']: _content('other')}
     assert not mem.exists('zh/5.v1.json'), 'the lost attempt\'s file is removed'
 
 
@@ -411,20 +402,10 @@ def test_expected_version_must_be_a_non_negative_int(mem, bad):
     assert db.calls == []
 
 
-def test_expected_version_is_ignored_in_db_mode(monkeypatch):
-    monkeypatch.setattr(Config, 'EXERCISE_CONTENT_WRITE', 'db')
-    db = FakeContentDB()
-    a = _row(level=1)
-    db.seed([a])
-    store.write_sense(db, SENSE, 1, update_contents={a['id']: _content('db')},
-                      expected_version=12)
-    assert db.rpc_calls() == [] and db.row(a['id'])['content'] == _content('db')
-
-
 @pytest.mark.parametrize('rows, expected', [
     ([{'content_version': 3}, {'content_version': '5'}], 5),
     ([{'content_version': 0}], 0),
-    ([{'content_version': 3}, {}], None),          # db read mode selects no version
+    ([{'content_version': 3}, {}], None),          # a select without content_version
     ([{'content_version': None}], None),
     ([], None),
     ([{'content_version': -1}], None),
@@ -470,7 +451,7 @@ def test_two_threads_updating_different_exercises_lose_nothing(mem):
     final = max(r.version for r in results.values())
     assert db.versions(SENSE) == [final]
     assert _file(mem, final) == {a['id']: _content('A'), b['id']: _content('B')}
-    assert db.content_of(SENSE) == {a['id']: _content('A'), b['id']: _content('B')}
+    assert _served(db, mem) == {a['id']: _content('A'), b['id']: _content('B')}
 
 
 # ---------------------------------------------------------------------------
@@ -580,7 +561,7 @@ def test_a_delete_that_matches_nothing_commits_nothing(mem):
     _seed_sense(db, mem, [_row(level=1)], version=6)
     db.next_version = 9
     result = store.write_sense(db, SENSE, 1, delete_where=DeleteWhere(ladder_levels=(8,)))
-    assert result == WriteResult(sense_id=SENSE, mode='dual', version=6, inserted_ids=[],
+    assert result == WriteResult(sense_id=SENSE, version=6, inserted_ids=[],
                                  deleted_count=0, updated_ids=[], attempts=1)
     assert db.rpc_calls('exercise_content_commit') == [] and mem.calls_for('put') == []
 
@@ -589,14 +570,13 @@ def test_a_delete_that_matches_nothing_commits_nothing(mem):
 # read cache
 # ---------------------------------------------------------------------------
 
-def test_success_warms_the_read_cache(mem, monkeypatch):
+def test_success_warms_the_read_cache(mem):
     db = FakeContentDB()
     row = _row()
     store.write_sense(db, SENSE, 1, insert_rows=[row])
     cached = store._content_cache().get(store._cache_key(1, SENSE, 1))
     assert cached == mem.objects()['zh/5.v1.json']
 
-    monkeypatch.setattr(Config, 'EXERCISE_CONTENT_SOURCE', 'storage')
     mem.clear_calls()
     items = [{'id': row['id'], 'word_sense_id': SENSE, 'content_version': 1, 'language_id': 1}]
     store.hydrate(items)
@@ -609,30 +589,6 @@ def test_writes_work_without_the_cache_module(mem, monkeypatch):
     assert store._content_cache() is None
     db = FakeContentDB()
     assert store.write_sense(db, SENSE, 1, insert_rows=[_row()]).version == 1
-
-
-# ---------------------------------------------------------------------------
-# db mode against the same fake (today's chains still work on FakeContentDB)
-# ---------------------------------------------------------------------------
-
-def test_db_mode_on_the_fake_is_todays_calls(monkeypatch):
-    db = FakeContentDB()
-    old = [_row(level=4), _row(level=4, asset=None), _row(level=2)]
-    db.seed(old)
-    new = [_row(level=4)]
-    result = store.write_sense(db, SENSE, 1, insert_rows=new,
-                               delete_where=DeleteWhere(require_word_asset=True,
-                                                        ladder_levels=[4]))
-    assert result.mode == 'db' and result.deleted_count == 1
-    assert db.rpc_calls() == []
-    delete, insert = db.table_calls()
-    assert delete.op == 'delete' and delete.filters == [
-        ('eq', 'word_sense_id', SENSE, False), ('is', 'word_asset_id', 'null', True),
-        ('in', 'ladder_level', [4], False)]
-    assert insert.op == 'insert' and insert.params == new
-    assert sorted(r['id'] for r in db.rows(SENSE)) == sorted(
-        [old[1]['id'], old[2]['id'], new[0]['id']])
-    assert db.row(new[0]['id'])['content_version'] == 0
 
 
 # ---------------------------------------------------------------------------
@@ -691,24 +647,34 @@ def test_fake_dedupe_key_unique_index_and_dropped_column():
                                                                  {'context_sentence': None})
 
     db = FakeContentDB()
-    first = _row(kind='tone_id_word', content={'context_sentence': 'a'})
+    key = dedupe_key_for('tone_id_word', {'context_sentence': 'a'})
+    first = _bare(_row(kind='tone_id_word'), dedupe_key=key)
     db.table('exercises').insert(first).execute()
     with pytest.raises(FakeDBError) as info:
-        db.table('exercises').insert(_row(kind='tone_id_word',
-                                          content={'context_sentence': 'a'})).execute()
+        db.table('exercises').insert(_bare(_row(kind='tone_id_word'), dedupe_key=key)).execute()
     assert info.value.code == '23505'
-    db.table('exercises').insert(_row(kind='tone_id_word', content={'context_sentence': 'a'},
-                                      is_active=False)).execute()
+    assert 'uq_exercises_context_free_variant_v2' in str(info.value)
+    db.table('exercises').insert(_bare(_row(kind='tone_id_word'), dedupe_key=key,
+                                       is_active=False)).execute()
     with pytest.raises(FakeDBError):
         db.table('exercises').insert({'id': first['id'], 'word_sense_id': 1}).execute()
 
-    db.has_content_column = False
+    # seed: a content key only fills dedupe_key, as the cut-over backfill did live
+    seeded = _row(kind='tone_id_word', content={'context_sentence': 'b'})
+    db.seed([seeded])
+    assert db.row(seeded['id'])['dedupe_key'] == dedupe_key_for('tone_id_word',
+                                                                {'context_sentence': 'b'})
+
+    # exercises.content is gone
     assert all('content' not in r for r in db.rows())
     with pytest.raises(FakeDBError) as info:
         db.table('exercises').select('id, content').execute()
     assert info.value.code == '42703'
     with pytest.raises(FakeDBError) as info:
         db.table('exercises').update({'content': {}}).eq('id', first['id']).execute()
+    assert info.value.code == 'PGRST204'
+    with pytest.raises(FakeDBError) as info:
+        db.table('exercises').insert(_row()).execute()
     assert info.value.code == 'PGRST204'
     assert 'content' not in db.table('exercises').select('*').execute().data[0]
 
@@ -749,8 +715,8 @@ def test_fake_hooks_once_and_persistent():
     db.on('before:exercises.insert', lambda db_, q: seen.append(('once', q.op)))
     db.on('after:exercise_content_begin', lambda db_, payload: seen.append(
         ('after', payload[1]['new_version'])), once=False)
-    db.table('exercises').insert(_row()).execute()
-    db.table('exercises').insert(_row()).execute()
+    db.table('exercises').insert(_bare(_row())).execute()
+    db.table('exercises').insert(_bare(_row())).execute()
     db.rpc('exercise_content_begin', {'p_sense_id': 1}).execute()
     db.rpc('exercise_content_begin', {'p_sense_id': 1}).execute()
     assert seen == [('once', 'insert'), ('after', 1), ('after', 2)]

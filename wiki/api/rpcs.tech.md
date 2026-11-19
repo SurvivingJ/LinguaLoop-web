@@ -3,7 +3,7 @@ title: API — Technical Specification
 type: api-tech
 status: complete
 prose_page: ./rpcs.md
-last_updated: 2026-11-17
+last_updated: 2026-11-19
 dependencies:
   - "Flask Blueprints (15 in `routes/`)"
   - "Supabase JWT middleware (`middleware/auth.py`)"
@@ -485,16 +485,16 @@ Every Supabase RPC currently invoked from Python, with its caller. See [database
 | `get_recommended_mysteries` | `routes/mystery.py:get_recommended` | DEFINER. |
 | `get_packs_with_user_selection` | `services/corpus/pack_service.py` | INVOKER. |
 | `get_vocab_recommendations` | `services/test_service.py` | DEFINER. Vocab-aware test matching. |
-| `get_ladder_session` | `routes/vocab_dojo.py:get_dojo_session` | INVOKER. Phase 8. |
+| ~~`get_ladder_session`~~ | — | **Dropped live 2026-11-17** (ADR-049, TASK-1017; no caller left); absent, checked 2026-11-19. Phase 8. |
 | `ladder_record_attempt` | `services/vocabulary_ladder/ladder_service.py` | INVOKER. Phase 8 + Phase 10. |
 | `ladder_pass_gate` | `LadderService.pass_gate` | INVOKER. |
 | `ladder_graduate` | `LadderService.graduate` | INVOKER. FSRS handoff. |
 | `ladder_compute_p_known` | (helper, inlined into other RPCs) | IMMUTABLE. |
 | `fsrs_schedule_review` | Pure-SQL FSRS scheduler used inside `ladder_*` and `services/vocabulary/fsrs.py` mirror | STABLE. |
-| `exercise_content_begin` / `exercise_content_commit` | `services/exercise_content/writer.py` (`store.write_sense`, `EXERCISE_CONTENT_WRITE=dual`) | INVOKER, service_role only. ADR-049 §8; `migrations/exercise_content_storage.sql`, applied live 2026-11-17 (TASK-1026). Compare-and-swap per sense under `pg_advisory_xact_lock(47047, sense)`. See [[database/schema.tech]] "Exercise content in Storage". |
-| `exercise_content_live_versions` | `scripts/backfill_exercise_content.py`, `scripts/sweep_exercise_content.py` | INVOKER, service_role only. ADR-049; applied live 2026-11-17. `{sense: [versions]}` per language. |
-| `get_practice_session` / `get_review_ahead_items` (ADR-049 change) | `services/practice/session_assembly.py` | Callers pass `**store.rpc_content_args()`: nothing in `db` mode (today's call), `p_include_content` true/false in shadow/storage; the 6-argument functions (`migrations/exercise_content_session_rpcs.sql`) are live since 2026-11-17; the 5-argument ones are gone. |
-| `get_exercise_session` | `services/exercise_session_service.py:_compute_session` | INVOKER. Phase 9 + Phase 11. Two overloads: 3-arg legacy and 4-arg with `p_user_theta`. |
+| `exercise_content_begin` / `exercise_content_commit` | `services/exercise_content/writer.py` (every `store.write_sense`: file first, then this commit) | INVOKER, service_role only. ADR-049 §8; begin in `migrations/exercise_content_storage.sql` (applied live 2026-11-17, TASK-1026); the live commit is the post-drop body of `migrations/exercise_content_drop_column.sql` step 3d (no `content` column; md5 checked 2026-11-19). Compare-and-swap per sense under `pg_advisory_xact_lock(47047, sense)`. See [[database/schema.tech]] "Exercise content in Storage". |
+| `exercise_content_live_versions` | `scripts/sweep_exercise_content.py` | INVOKER, service_role only. ADR-049; applied live 2026-11-17. `{sense: [versions]}` per language; the sweep reads keyset pages of `exercises` instead when it times out. |
+| `get_practice_session` / `get_review_ahead_items` (ADR-049 change) | `services/practice/session_assembly.py` | Callers pass `**store.rpc_content_args()`, always `p_include_content: false`; the live 6-argument functions accept and ignore it and never return `content` (canonical: `migrations/exercise_content_drop_column.sql` step 3e, live since 2026-11-19). The 5-argument overloads are gone; their files and the pre-drop 6-argument file are in `migrations/archive/` (TASK-1031). |
+| ~~`get_exercise_session`~~ | — | **Dropped live 2026-11-17** (both overloads; ADR-049, TASK-1017); absent, checked 2026-11-19. Phase 9 + Phase 11. |
 | `get_session_senses` | Inlined into `get_exercise_session` CTE | INVOKER. |
 | `bkt_update_comprehension` | `VocabularyKnowledgeService.update_from_comprehension` | IMMUTABLE. |
 | `bkt_update_word_test` | `VocabularyKnowledgeService.update_from_word_test` | IMMUTABLE. |

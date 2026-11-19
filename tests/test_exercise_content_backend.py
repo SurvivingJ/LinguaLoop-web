@@ -93,6 +93,7 @@ def test_from_config_reads_config_and_does_no_io(monkeypatch):
     assert backend.bucket == 'other-bucket'
     assert backend.http_timeout_s == 1.5 and backend.concurrency == 8
     assert backends._clients == {}, 'construction must not build a client'
+    store.set_backend(None)                  # drop the conftest's InMemoryBackend
     assert store.backend().base_url == BASE
 
 
@@ -388,7 +389,8 @@ def test_shared_client_is_module_level_lazy_and_shared(monkeypatch):
     assert len(built) == 1
     kwargs = built[0]
     assert kwargs['timeout'] == 2.0
-    assert kwargs['limits'] == httpx.Limits(max_connections=20, max_keepalive_connections=16)
+    assert kwargs['limits'] == httpx.Limits(max_connections=20, max_keepalive_connections=16,
+                                            keepalive_expiry=60.0)   # not httpx's 5 s
     assert kwargs.get('transport') is None
     assert 'http2' not in kwargs and 'trust_env' not in kwargs   # httpx defaults: trust_env on
     assert client.trust_env is True

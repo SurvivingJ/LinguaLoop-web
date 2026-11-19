@@ -4,7 +4,14 @@
 -- Date: 2026-11-17   Task: TASK-1018 (written now; run by the operator in TASK-1030)
 -- Spec: wiki/decisions/ADR-049-exercise-content-in-storage.md (§7 cut-over, §10 roll-out)
 --
--- STATUS: NOT applied. A RUNBOOK, not a single script: run the steps IN ORDER, each on its
+-- STATUS: applied live 2026-11-18/19 (TASK-1030; step 3 ran in three parts, see
+-- wiki/tasklist/exercise-content-storage.tasks.md). Was "NOT applied" when written. Canonical
+-- for exercise_content_commit, get_practice_session and get_review_ahead_items: the live
+-- prosrc md5 equals the bodies below (e2199ec8e7eef96c3599c69b5f46b986,
+-- e2f6089f9a57a18fe57be5729aad0658, 4043b817a4f4ca8c70e45a1453bde729; checked 2026-11-19),
+-- and for uq_exercises_context_free_variant_v2. TASK-1031 removed the EXERCISE_CONTENT_* flags
+-- and scripts/backfill_exercise_content.py that this runbook names; the steps are history.
+-- A RUNBOOK, not a single script: run the steps IN ORDER, each on its
 -- own in the SQL editor (or psql). Steps 1 (the VACUUM), 2 and 4 cannot run inside a
 -- transaction block, so never run this whole file at once.
 --

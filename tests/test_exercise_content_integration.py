@@ -1,34 +1,30 @@
-"""TASK-1025 (ADR-049): the exercise-content store end to end, offline.
+"""TASK-1025 / TASK-1031 (ADR-049): the exercise-content store end to end, offline.
 
-The real store, reader, writer, shadow comparer, backfill and sweep run
-together over ``FakeContentDB`` (the ``exercises`` table and the ADR-049 §8
-RPCs, tests/exercise_content_fakes.py) and an ``InMemoryBackend``. Nothing
-here touches the network: every non-db mode runs with
-``store.set_backend(InMemoryBackend())`` installed, which is also what lets a
-non-db mode resolve without Supabase credentials.
+The real store, reader, writer and sweep run together over ``FakeContentDB``
+(the ``exercises`` table after the 2026-11-19 column drop and the ADR-049 §8
+RPCs, tests/exercise_content_fakes.py) and the ``InMemoryBackend`` the
+conftest installs. Nothing here touches the network. Since TASK-1031 there are
+no modes: content is written file first and served from the files only.
 
 Scenarios (wiki/tasklist/exercise-content-storage.tasks.md, TASK-1025):
 
-1. ``WRITE=dual``: ``render_all`` on a new sense writes one file; the rows sit
-   at that version; the column content equals the file.
-2. Backfill export over legacy version-0 rows writes v0 files; ``--verify``
-   passes.
-3. ``queue_drain`` scoped regen (level 4) in dual mode: a new version; the other
-   levels' content is byte-identical; the sweep (grace 0) deletes exactly the
-   superseded file.
-4. / 8. For each flag combination (db/db, shadow/dual, storage/dual): a sense
-   is written through ``store.write_sense`` and served through ``get_session``,
-   ``get_extra_round`` (fake ``get_practice_session`` / ``get_review_ahead_items``
-   that honour ``p_include_content``), the prestudy payload and on-demand
-   endpoint, and the speed round. Every payload equals the ``db``-mode payload
-   on the same data, and ``db`` mode issues exactly the pre-ADR-049 calls.
-5. ``SOURCE=shadow`` with one tampered file: exactly one ``content_diff``
-   WARNING; the payload equals ``db`` mode.
+1. ``render_all`` on a new sense writes one file; the rows sit at that version.
+3. ``queue_drain`` scoped regen (level 4) over v0 rows and their v0 file: a new
+   version; the other levels' content is byte-identical; the sweep (grace 0)
+   deletes exactly the superseded file.
+4. / 8. A sense is written through ``store.write_sense`` and served through
+   ``get_session``, ``get_extra_round`` (fake ``get_practice_session`` /
+   ``get_review_ahead_items`` that return ``content_version`` and no content,
+   like the live functions), the prestudy payload and on-demand endpoint, and
+   the speed round: cold (a restarted worker), then warm with no Storage I/O.
+   No call asks for or reads ``exercises.content``.
 6. Two threads updating different exercises of one sense: the final file holds
    both edits.
-7. A missing file in ``storage``: fallback on, served from the column with a
-   WARNING; fallback off, the item is dropped and an emptied session says
-   ``content_unavailable``; after the column drop the fallback switches off.
+7. A missing file: its items are dropped with a WARNING; an emptied session
+   says ``content_unavailable``.
+
+(Scenario 2, the v0 backfill, and scenario 5, shadow mode, were retired with
+their code in TASK-1031.)
 """
 
 from __future__ import annotations
@@ -44,11 +40,9 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 
-from config import Config
-from scripts import backfill_exercise_content as bf
 from scripts import sweep_exercise_content as sweep
 from services import intro_drill, prestudy
-from services.exercise_content import shadow, store
+from services.exercise_content import store
 from services.practice import session_assembly
 from services.practice_session_service import PracticeSessionService
 from services.vocabulary_ladder import queue_drain as qd
@@ -58,10 +52,6 @@ from tests.exercise_content_fakes import FakeContentDB, InMemoryBackend
 
 ZH = 1
 USER = 'user-1'
-NOW = datetime(2026, 11, 17, 12, 0, tzinfo=timezone.utc)
-
-# The flag combinations TASK-1025 runs: (EXERCISE_CONTENT_SOURCE, EXERCISE_CONTENT_WRITE).
-COMBOS = [('db', 'db'), ('shadow', 'dual'), ('storage', 'dual')]
 
 # Senses of the serving fixture.
 SESSION_SENSES = (101, 102)      # get_practice_session items
@@ -69,14 +59,14 @@ FOLLOWUP_SENSE = 103             # prestudy next-day review (injected follow-up)
 AHEAD_SENSE = 104                # get_review_ahead_items
 SPEED_SENSES = tuple(range(401, 413))   # 12 mastered senses, one L1 row each
 
-# Pre-ADR-049 calls (c3cb106 and before), which db mode must keep issuing.
-TODAYS_SESSION_PARAMS = {'p_user_id', 'p_language_id', 'p_mode', 'p_target_minutes',
-                         'p_user_theta'}
-TODAYS_AHEAD_PARAMS = {'p_user_id', 'p_language_id', 'p_limit', 'p_exclude_recent_minutes',
-                       'p_exclude_sense_ids'}
-TODAYS_EXERCISE_SELECTS = {
-    'id, word_sense_id, exercise_type, content, ladder_level',          # follow-ups, prestudy
-    'id, exercise_type, content, ladder_level, word_sense_id, complexity_tier',   # speed round
+# The session RPC arguments: the pre-ADR-049 ones plus p_include_content (always false).
+SESSION_PARAMS = {'p_user_id', 'p_language_id', 'p_mode', 'p_target_minutes',
+                  'p_user_theta', 'p_include_content'}
+AHEAD_PARAMS = {'p_user_id', 'p_language_id', 'p_limit', 'p_exclude_recent_minutes',
+                'p_exclude_sense_ids', 'p_include_content'}
+EXERCISE_SELECTS = {
+    'id, word_sense_id, exercise_type, content_version, ladder_level',   # follow-ups, prestudy
+    'id, exercise_type, content_version, ladder_level, word_sense_id, complexity_tier',  # speed
     'word_sense_id',                                                     # senses_with_exercises
 }
 
@@ -135,18 +125,15 @@ def serving_rows() -> dict[int, list[dict]]:
 
 
 # ---------------------------------------------------------------------------
-# Fake session RPCs (the TASK-1017 shape: content_version always, content only
-# when p_include_content, which defaults to true)
+# Fake session RPCs (the post-drop shape of migrations/exercise_content_drop_column.sql:
+# content_version always, never content; p_include_content accepted and ignored)
 # ---------------------------------------------------------------------------
 
-def _rpc_item(row: dict, include: bool, mode: str) -> dict:
-    item = {'exercise_id': row['id'], 'sense_id': row['word_sense_id'],
+def _rpc_item(row: dict, mode: str) -> dict:
+    return {'exercise_id': row['id'], 'sense_id': row['word_sense_id'],
             'exercise_type': row['exercise_type'], 'family': None,
             'ladder_level': row['ladder_level'], 'p_known': 0.6, 'expected_seconds': 20,
             'mode': mode, 'content_version': row['content_version']}
-    if include and 'content' in row:
-        item['content'] = row['content']
-    return item
 
 
 def _rows_of(db: FakeContentDB, senses, language_id) -> list[dict]:
@@ -156,18 +143,15 @@ def _rows_of(db: FakeContentDB, senses, language_id) -> list[dict]:
 
 
 def fake_get_practice_session(db: FakeContentDB, params: dict) -> dict:
-    include = params.get('p_include_content', True)
     rows = _rows_of(db, SESSION_SENSES, params['p_language_id'])
-    return {'items': [_rpc_item(r, include, 'maintenance') for r in rows],
-            'mode': params['p_mode']}
+    return {'items': [_rpc_item(r, 'maintenance') for r in rows], 'mode': params['p_mode']}
 
 
 def fake_get_review_ahead_items(db: FakeContentDB, params: dict) -> list[dict]:
-    include = params.get('p_include_content', True)
     excluded = set(params.get('p_exclude_sense_ids') or [])
     rows = [r for r in _rows_of(db, (AHEAD_SENSE,), params['p_language_id'])
             if r['word_sense_id'] not in excluded]
-    return [_rpc_item(r, include, 'review_ahead') for r in rows][:params['p_limit']]
+    return [_rpc_item(r, 'review_ahead') for r in rows][:params['p_limit']]
 
 
 def make_db(**kwargs) -> FakeContentDB:
@@ -187,16 +171,6 @@ def backend():
     mem = InMemoryBackend()
     store.set_backend(mem)
     return mem
-
-
-@pytest.fixture
-def modes(monkeypatch):
-    def set_modes(source: str | None = None, write: str | None = None) -> None:
-        if source is not None:
-            monkeypatch.setattr(Config, 'EXERCISE_CONTENT_SOURCE', source)
-        if write is not None:
-            monkeypatch.setattr(Config, 'EXERCISE_CONTENT_WRITE', write)
-    return set_modes
 
 
 @pytest.fixture
@@ -284,15 +258,30 @@ def file_of(mem: InMemoryBackend, sense: int, version: int) -> dict[str, dict]:
                                    sense_id=sense, version=version)
 
 
-def assert_column_matches_file(db: FakeContentDB, mem: InMemoryBackend, sense: int) -> int:
+def assert_rows_match_file(db: FakeContentDB, mem: InMemoryBackend, sense: int,
+                           expected: dict[str, dict] | None = None) -> int:
+    """The sense's rows share one version whose file holds exactly their ids (and, when
+    given, exactly ``expected``'s content). Returns the version."""
     versions = db.versions(sense)
     assert len(versions) == 1, versions
     (version,) = versions
     exercises = file_of(mem, sense, version)
     assert set(exercises) == {r['id'] for r in db.rows(sense)}
-    for exercise_id, content in db.content_of(sense).items():
-        assert store.canonical(exercises[exercise_id]) == store.canonical(content)
+    assert all('content' not in r for r in db.rows(sense))
+    if expected is not None:
+        assert {k: store.canonical(v) for k, v in exercises.items()} == \
+            {k: store.canonical(v) for k, v in expected.items()}
     return version
+
+
+def seed_v0(db: FakeContentDB, mem: InMemoryBackend, rows: list[dict]) -> None:
+    """Rows at version 0 and their v0 files, as the 2026-11-18 backfill left them."""
+    db.seed(copy.deepcopy(rows))
+    by_sense: dict[int, dict[str, dict]] = {}
+    for row in rows:
+        by_sense.setdefault(row['word_sense_id'], {})[row['id']] = row['content']
+    for sense, exercises in by_sense.items():
+        mem.seed(store.content_path(ZH, sense, 0), store.encode_sense_file(sense, ZH, 0, exercises))
 
 
 def differences(got, want, path: str = '') -> list[str]:
@@ -314,132 +303,80 @@ def differences(got, want, path: str = '') -> list[str]:
     return [] if got == want else [f'{path}: {got!r} != {want!r}']
 
 
-def without_followup_versions(served: dict) -> dict:
-    """``served`` with ``content_version`` removed from prestudy follow-up items.
-
-    The one intended difference between modes: a follow-up item is built from an
-    ``exercises`` select, and only the shadow / storage select reads
-    ``content_version`` (db mode keeps today's select string), so only those
-    modes copy it onto the item (TASK-1019). Session RPC items carry it in every
-    mode once TASK-1017's migration is applied.
-    """
-    served = copy.deepcopy(served)
-    for key in ('session', 'extra'):
-        for item in (served.get(key) or {}).get('items') or []:
-            if item.get('prestudy_followup'):
-                item.pop('content_version', None)
-    return served
-
-
 def warnings_with(caplog, text: str) -> list[str]:
     return [r.getMessage() for r in caplog.records
             if r.levelno == logging.WARNING and text in r.getMessage()]
 
 
 # ---------------------------------------------------------------------------
-# 4 / 8. Write through the store, serve in every flag combination
+# 4 / 8. Write through the store, serve cold and warm
 # ---------------------------------------------------------------------------
 
-@pytest.mark.parametrize('source, write', COMBOS, ids=[f'{s}-{w}' for s, w in COMBOS])
-def test_written_senses_serve_the_same_payloads_in_every_mode(source, write, backend, modes,
-                                                              serve_env, caplog):
-    modes(source='db', write=write)
+def test_written_senses_are_served_from_the_files_cold_and_warm(backend, serve_env):
     db = make_db()
-    results = write_all(db, serving_rows())
+    rows_by_sense = serving_rows()
+    results = write_all(db, rows_by_sense)
+    for sense, result in results.items():
+        assert result.version is not None
+        expected = {r['id']: r['content'] for r in rows_by_sense[sense]}
+        assert assert_rows_match_file(db, backend, sense, expected) == result.version
 
-    if write == 'dual':
-        for sense, result in results.items():
-            assert result.mode == 'dual' and result.version is not None
-            assert assert_column_matches_file(db, backend, sense) == result.version
-    else:
-        assert backend.paths() == []                       # db writes touch no file
-        assert all(r.mode == 'db' and r.version is None for r in results.values())
-
-    # The db-mode reference, on the same data: exactly today's calls, no file I/O.
-    cold(backend)
-    mark = len(db.calls)
-    reference = serve_all(db)
-    assert backend.calls == []
-    assert exercise_selects(db, mark) <= TODAYS_EXERCISE_SELECTS
-    assert {frozenset(p) for p in rpc_params(db, 'get_practice_session', mark)} == \
-        {frozenset(TODAYS_SESSION_PARAMS)}
-    assert [set(p) for p in rpc_params(db, 'get_review_ahead_items', mark)] == \
-        [TODAYS_AHEAD_PARAMS]
-
-    # The reference itself is the content that was written (and was rewritten in place
-    # by the script swap / jumbled prep, so a shared object would show up below).
-    session = reference['session']
-    assert sorted(i['exercise_id'] for i in session['items']) == \
-        [eid(1), eid(2), eid(3), eid(4), eid(5)]
-    assert session['script_variant'] == 'traditional'
-    by_id = {i['exercise_id']: i for i in session['items']}
-    assert by_id[eid(1)]['content']['word'] == '這個'
-    assert by_id[eid(3)]['content']['chunks'] == ['我們', '一起', '去']
-    assert by_id[eid(5)]['prestudy_followup'] is True
-    assert {i['exercise_id'] for i in reference['extra']['items']} == \
-        {eid(1), eid(4), eid(5), eid(6)}
-    assert sorted(reference['prestudy']['exercises']) == ['101', '103']      # drill only
-    assert reference['prestudy']['has_exercises'] == [101, 102, 103, 104]
-    assert reference['on_demand']['sense_ids'] == [102]
-    assert sorted(reference['on_demand']['exercises']) == ['102']
-    assert len(reference['speed_round']['items']) == 10
-
-    # The flag combination under test: cold (a restarted worker), then warm.
-    modes(source=source)
-    cold(backend)
+    cold(backend)                              # a restarted worker: empty caches
     mark = len(db.calls)
     first = serve_all(db)
     first_gets = list(backend.calls_for('get'))
     warm_mark = len(backend.calls)
     second = serve_all(db)
 
-    assert differences(without_followup_versions(first), reference) == []
-    assert differences(without_followup_versions(second), reference) == []
+    # What is served is the content that was written (and was rewritten in place by the
+    # script swap / jumbled prep, so a shared object would show up below).
+    session = first['session']
+    assert sorted(i['exercise_id'] for i in session['items']) == \
+        [eid(1), eid(2), eid(3), eid(4), eid(5)]
+    assert session['script_variant'] == 'traditional'
+    by_id = {i['exercise_id']: i for i in session['items']}
+    assert by_id[eid(1)]['content']['word'] == '這個'
+    assert by_id[eid(2)]['content']['options'] == ['要', '會', '能']
+    assert by_id[eid(3)]['content']['chunks'] == ['我們', '一起', '去']
+    assert by_id[eid(5)]['prestudy_followup'] is True
+    assert {i['exercise_id'] for i in first['extra']['items']} == \
+        {eid(1), eid(4), eid(5), eid(6)}
+    assert sorted(first['prestudy']['exercises']) == ['101', '103']      # drill only
+    assert first['prestudy']['has_exercises'] == [101, 102, 103, 104]
+    assert first['on_demand']['sense_ids'] == [102]
+    assert sorted(first['on_demand']['exercises']) == ['102']
+    assert len(first['speed_round']['items']) == 10
+    assert differences(second, first) == [], 'a warm worker serves the same payloads'
+
     followups = [i for key in ('session', 'extra') for i in first[key]['items']
                  if i.get('prestudy_followup')]
     assert len(followups) == 2
-    for item in followups:
-        if source == 'db':
-            assert 'content_version' not in item
-        else:
-            assert item['content_version'] == db.versions(FOLLOWUP_SENSE)[0]
-    assert not [c for c in db.calls[mark:] if c.kind == 'table' and c.columns == 'id, content'], \
-        'no DB fallback read when every file is present'
+    assert all(i['content_version'] == db.versions(FOLLOWUP_SENSE)[0] for i in followups)
 
-    if source == 'db':
-        assert backend.calls == []
-        return
+    # The calls: no content asked for, none read.
+    assert exercise_selects(db, mark) <= EXERCISE_SELECTS
+    session_calls = rpc_params(db, 'get_practice_session', mark)
+    ahead_calls = rpc_params(db, 'get_review_ahead_items', mark)
+    assert session_calls and ahead_calls
+    assert {frozenset(p) for p in session_calls} == {frozenset(SESSION_PARAMS)}
+    assert {frozenset(p) for p in ahead_calls} == {frozenset(AHEAD_PARAMS)}
+    assert all(p['p_include_content'] is False for p in session_calls + ahead_calls)
 
-    expected_flag = source == 'shadow'
-    for params in rpc_params(db, 'get_practice_session', mark):
-        assert params['p_include_content'] is expected_flag
-    for params in rpc_params(db, 'get_review_ahead_items', mark):
-        assert params['p_include_content'] is expected_flag
-
-    if source == 'storage':
-        assert first_gets, 'storage mode reads the files'
-        assert backend.calls[warm_mark:] == [], 'a warm worker does no Storage I/O'
-        # The speed round picks before it hydrates: 10 of the 12 mastered senses' files.
-        speed_paths = {p for p in first_gets if int(p.split('/')[1].split('.')[0]) in SPEED_SENSES}
-        assert len(speed_paths) == 10
-        # Prestudy reads the drill senses' files only (ADR-049 open question 1);
-        # the on-demand endpoint reads the one it was asked for.
-        version = {s: db.versions(s)[0] for s in (101, 102, 103, 104)}
-        assert store.content_path(ZH, 104, version[104]) in first_gets      # review-ahead item
-        assert {store.content_path(ZH, s, version[s]) for s in (101, 102, 103)} <= set(first_gets)
-    else:
-        assert shadow.drain(5.0)
-        stats = shadow.stats()
-        assert stats['compared'] > 0
-        assert stats['compared'] == stats['ok']
-        assert not warnings_with(caplog, 'shadow_mismatch')
+    assert first_gets, 'content comes from the files'
+    assert backend.calls[warm_mark:] == [], 'a warm worker does no Storage I/O'
+    # The speed round picks before it hydrates: 10 of the 12 mastered senses' files.
+    speed_paths = {p for p in first_gets if int(p.split('/')[1].split('.')[0]) in SPEED_SENSES}
+    assert len(speed_paths) == 10
+    # Prestudy reads the drill senses' files only (ADR-049 open question 1);
+    # the on-demand endpoint reads the one it was asked for.
+    version = {s: db.versions(s)[0] for s in (101, 102, 103, 104)}
+    assert store.content_path(ZH, 104, version[104]) in first_gets      # review-ahead item
+    assert {store.content_path(ZH, s, version[s]) for s in (101, 102, 103)} <= set(first_gets)
 
 
-def test_prestudy_storage_mode_fetches_only_the_drill_senses(backend, modes, serve_env):
-    modes(source='db', write='dual')
+def test_prestudy_fetches_only_the_drill_senses(backend, serve_env):
     db = make_db()
     write_all(db, {s: r for s, r in serving_rows().items() if s in (101, 102, 103, 104)})
-    modes(source='storage')
     cold(backend)
     payload = prestudy.build_prestudy_payload(db, dict(TEST_ROW), USER, None)
     assert sorted(payload['exercises']) == ['101', '103']
@@ -453,11 +390,10 @@ def test_prestudy_storage_mode_fetches_only_the_drill_senses(backend, modes, ser
 
 
 # ---------------------------------------------------------------------------
-# 1. render_all in dual mode
+# 1. render_all
 # ---------------------------------------------------------------------------
 
-def test_render_all_on_a_new_sense_writes_one_file_and_stamps_the_rows(backend, modes):
-    modes(write='dual')
+def test_render_all_on_a_new_sense_writes_one_file_and_stamps_the_rows(backend):
     db = make_db()
     rows = [ex_row(11, 301, 'definition_match', 1, definition('这', '這')),
             ex_row(12, 301, 'cloze_completion', 3, cloze(12)),
@@ -469,7 +405,7 @@ def test_render_all_on_a_new_sense_writes_one_file_and_stamps_the_rows(backend, 
 
     assert len(backend.calls_for('put')) == 1
     (path,) = backend.paths()
-    version = assert_column_matches_file(db, backend, 301)
+    version = assert_rows_match_file(db, backend, 301, {r['id']: r['content'] for r in rows})
     assert path == store.content_path(ZH, 301, version) == f'zh/301.v{version}.json'
     assert backend.objects()[path] == store.encode_sense_file(
         301, ZH, version, {r['id']: r['content'] for r in rows})
@@ -477,7 +413,7 @@ def test_render_all_on_a_new_sense_writes_one_file_and_stamps_the_rows(backend, 
 
 
 # ---------------------------------------------------------------------------
-# 2. Backfill export of legacy rows, then verify
+# 3. Scoped regeneration over v0 rows, then the sweep
 # ---------------------------------------------------------------------------
 
 def _legacy_rows() -> list[dict]:
@@ -490,41 +426,6 @@ def _legacy_rows() -> list[dict]:
             ex_row(27, 202, 'definition_match', 1, definition('二', '二'))]
 
 
-def _backfill(db, tmp_path, *extra: str) -> tuple[int, dict]:
-    report = tmp_path / f'report-{len(list(tmp_path.iterdir()))}.json'
-    code = bf.main(['--language', 'zh', '--state-file', str(tmp_path / 'state.json'),
-                    '--report', str(report), *extra], db=db, now=lambda: NOW)
-    return code, json.loads(report.read_text(encoding='utf-8'))
-
-
-def test_backfill_exports_legacy_rows_as_v0_files_and_verify_passes(backend, modes, tmp_path):
-    modes(write='dual')
-    db = make_db(rows=_legacy_rows())
-    db.seed([{'id': eid(29), 'language_id': ZH, 'exercise_type': 'collocation_gap',
-              'source_type': 'collocation', 'word_sense_id': None, 'content': {'x': 1}}])
-
-    code, report = _backfill(db, tmp_path)
-    assert code == 0 and report['files_written'] == 2
-    assert backend.paths() == ['zh/201.v0.json', 'zh/202.v0.json']
-    for sense in (201, 202):
-        assert backend.objects()[f'zh/{sense}.v0.json'] == store.encode_sense_file(
-            sense, ZH, 0, db.content_of(sense))
-        assert store.fetch_sense(ZH, sense, 0) == db.content_of(sense)
-    assert eid(29) not in json.dumps({p: b.decode() for p, b in backend.objects().items()})
-
-    code, report = _backfill(db, tmp_path, '--verify')
-    assert code == 0 and report['mismatches'] == []
-
-    # A re-run writes nothing (state file + existing v0 files).
-    backend.clear_calls()
-    code, report = _backfill(db, tmp_path)
-    assert code == 0 and backend.calls_for('put') == []
-
-
-# ---------------------------------------------------------------------------
-# 3. Scoped regeneration in dual mode, then the sweep
-# ---------------------------------------------------------------------------
-
 class _Pipeline:
     def __init__(self, db):
         self.db = db
@@ -534,14 +435,13 @@ class _Pipeline:
 
 
 def test_scoped_regen_writes_a_new_version_and_the_sweep_removes_the_old_file(
-        backend, modes, monkeypatch, tmp_path):
+        backend, monkeypatch, tmp_path):
     import services.vocabulary_ladder.asset_pipeline as pipeline_mod
     import services.vocabulary_ladder.config as config_mod
     import services.vocabulary_ladder.exercise_renderer as renderer_mod
 
-    modes(write='dual')
-    db = make_db(rows=[r for r in _legacy_rows() if r['word_sense_id'] == 201])
-    assert _backfill(db, tmp_path)[0] == 0
+    db = make_db()
+    seed_v0(db, backend, [r for r in _legacy_rows() if r['word_sense_id'] == 201])
     v0 = file_of(backend, 201, 0)
 
     new_rows = [ex_row(31, 201, 'cloze_completion', 4, cloze(31)),
@@ -567,7 +467,7 @@ def test_scoped_regen_writes_a_new_version_and_the_sweep_removes_the_old_file(
     assert ok, detail
     assert detail['rendered'] == 2 and detail['scoped_levels'] == [4]
 
-    version = assert_column_matches_file(db, backend, 201)
+    version = assert_rows_match_file(db, backend, 201)
     assert version > 0
     new_file = file_of(backend, 201, version)
     # The asset-linked level-4 row is gone; the asset-less level-4 row and every other
@@ -588,43 +488,10 @@ def test_scoped_regen_writes_a_new_version_and_the_sweep_removes_the_old_file(
 
 
 # ---------------------------------------------------------------------------
-# 5. Shadow mode with one tampered file
-# ---------------------------------------------------------------------------
-
-def test_shadow_reports_exactly_one_content_diff_and_serves_the_db_payload(
-        backend, modes, serve_env, caplog):
-    modes(source='db', write='dual')
-    db = make_db()
-    write_all(db, {s: r for s, r in serving_rows().items() if s in (101, 102, 103)})
-    reference = serve_session(db)
-
-    version = db.versions(101)[0]
-    exercises = file_of(backend, 101, version)
-    exercises[eid(2)] = {**exercises[eid(2)], 'correct_answer': '会'}       # the tamper
-    backend.seed(store.content_path(ZH, 101, version),
-                 store.encode_sense_file(101, ZH, version, exercises))
-
-    modes(source='shadow')
-    cold(backend)
-    with caplog.at_level(logging.WARNING, logger='services.exercise_content'):
-        payload = serve_session(db)
-        assert shadow.drain(5.0)
-
-    assert differences(without_followup_versions({'session': payload}),
-                       {'session': reference}) == []
-    diffs = warnings_with(caplog, 'kind=content_diff')
-    assert len(diffs) == 1
-    assert f'sense=101 version={version} exercise={eid(2)}' in diffs[0]
-    assert not warnings_with(caplog, 'kind=missing')
-    assert shadow.stats()['content_diff'] == 1
-
-
-# ---------------------------------------------------------------------------
 # 6. Two writers, one sense
 # ---------------------------------------------------------------------------
 
-def test_two_threads_updating_different_exercises_keep_both_edits(backend, modes):
-    modes(write='dual')
+def test_two_threads_updating_different_exercises_keep_both_edits(backend):
     db = make_db()
     rows = [ex_row(41, 501, 'cloze_completion', 3, cloze(41)),
             ex_row(42, 501, 'cloze_completion', 4, cloze(42))]
@@ -658,7 +525,7 @@ def test_two_threads_updating_different_exercises_keep_both_edits(backend, modes
     assert errors == []
     assert sorted(r.attempts for r in results.values()) == [1, 2]   # one lost the race once
 
-    version = assert_column_matches_file(db, backend, 501)
+    version = assert_rows_match_file(db, backend, 501)
     final = file_of(backend, 501, version)
     assert final[eid(41)]['explanation'] == 'first edit'
     assert final[eid(42)]['explanation'] == 'second edit'
@@ -670,34 +537,29 @@ def test_two_threads_updating_different_exercises_keep_both_edits(backend, modes
 
 
 # ---------------------------------------------------------------------------
-# 7. A missing file in storage mode
+# 7. A missing file
 # ---------------------------------------------------------------------------
 
-def test_missing_file_falls_back_to_the_column_then_drops(backend, modes, serve_env,
-                                                          monkeypatch, caplog):
-    modes(source='db', write='dual')
+def test_a_missing_file_drops_its_items_then_the_session_says_why(backend, serve_env, caplog):
     db = make_db()
     write_all(db, {s: r for s, r in serving_rows().items() if s in (101, 102, 103)})
     reference = serve_session(db)
+    assert {i['sense_id'] for i in reference['items']} == {101, 102, 103}
     backend.delete([store.content_path(ZH, 101, db.versions(101)[0])])
 
-    # Fallback on: served from exercises.content, with one WARNING.
-    modes(source='storage')
+    # The two items of sense 101 are dropped with a WARNING; the rest is served as before.
     cold(backend)
+    mark = len(db.calls)
     with caplog.at_level(logging.WARNING, logger='services.exercise_content'):
         payload = serve_session(db)
-    assert differences(without_followup_versions({'session': payload}),
-                       {'session': reference}) == []
-    fallback = warnings_with(caplog, 'exercise_content.db_fallback')
-    assert len(fallback) == 1 and 'n=2' in fallback[0]
-
-    # Fallback off: the two items of sense 101 are dropped, the rest is served.
-    monkeypatch.setattr(Config, 'EXERCISE_CONTENT_DB_FALLBACK', False)
-    cold(backend)
-    payload = serve_session(db)
     assert [i['exercise_id'] for i in payload['items']] == \
         [i['exercise_id'] for i in reference['items'] if i['sense_id'] != 101]
-    assert 'no_content_reason' not in payload or payload['no_content_reason'] is None
+    assert differences([i for i in payload['items']],
+                       [i for i in reference['items'] if i['sense_id'] != 101]) == []
+    assert payload.get('no_content_reason') is None
+    missing = warnings_with(caplog, 'exercise_content.missing ')
+    assert len(missing) == 1 and 'n=2' in missing[0]
+    assert exercise_selects(db, mark) <= EXERCISE_SELECTS, 'no read of exercises.content'
 
     # Nothing left: the session says why.
     for sense in (102, 103):
@@ -706,24 +568,3 @@ def test_missing_file_falls_back_to_the_column_then_drops(backend, modes, serve_
     payload = serve_session(db)
     assert payload['items'] == []
     assert payload['no_content_reason'] == 'content_unavailable'
-
-
-def test_after_the_column_drop_the_fallback_switches_itself_off(backend, modes, serve_env,
-                                                                caplog):
-    modes(source='db', write='dual')
-    db = make_db()
-    write_all(db, {s: r for s, r in serving_rows().items() if s in (101, 102, 103)})
-    backend.delete([store.content_path(ZH, 101, db.versions(101)[0])])
-    db.has_content_column = False
-
-    modes(source='storage')
-    cold(backend)
-    with caplog.at_level(logging.ERROR, logger='services.exercise_content'):
-        payload = serve_session(db)
-        again = serve_session(db)
-    assert {i['sense_id'] for i in payload['items']} == {102, 103}
-    assert again == payload
-    disabled = [r for r in caplog.records if 'db_fallback_disabled' in r.getMessage()]
-    assert len(disabled) == 1 and disabled[0].levelno == logging.ERROR
-    # Only the first call tried the column.
-    assert len([c for c in db.calls if c.kind == 'table' and c.columns == 'id, content']) == 1
