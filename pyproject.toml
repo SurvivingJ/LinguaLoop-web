@@ -2,6 +2,7 @@
 testpaths = ["tests"]
 # tests/e2e is the Playwright suite (npm run test:e2e), not pytest.
 addopts = "--ignore=tests/e2e"
+markers = ["slow: long-running statistical tests (run with -m slow)"]
 
 [tool.ruff]
 extend-exclude = [
