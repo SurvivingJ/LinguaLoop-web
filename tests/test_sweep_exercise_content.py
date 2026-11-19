@@ -2,7 +2,9 @@
 
 Fully offline: ``InMemoryBackend`` (settable ``created_at``) installed with
 ``store.set_backend`` and a fake client that only answers
-``rpc('exercise_content_live_versions')``.
+``rpc('exercise_content_live_versions')``. The keyset-paging fallback for a
+timed-out RPC (moved here from the retired backfill script in TASK-1031) runs
+against ``tests/exercise_content_fakes.FakeContentDB``.
 """
 
 from __future__ import annotations
@@ -11,6 +13,7 @@ import json
 import os
 import subprocess
 import sys
+import uuid
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -20,6 +23,7 @@ from config import Config
 from scripts import sweep_exercise_content as sweep
 from services.exercise_content import store
 from services.exercise_content.backends import InMemoryBackend, StoredObject
+from tests.exercise_content_fakes import FakeContentDB, FakeDBError
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 NOW = datetime(2026, 12, 1, 12, 0, tzinfo=timezone.utc)
@@ -263,6 +267,7 @@ def test_a_recursive_listing_never_touches_archive_paths():
 
 
 def test_refuses_without_storage_credentials(monkeypatch, report_path):
+    store.set_backend(None)            # the Config-built backend, not the conftest's InMemoryBackend
     monkeypatch.setattr(Config, 'SUPABASE_URL', None)
     db = FakeDB({ZH: {}})
     assert run(db, report_path, '--language', 'zh', '--apply') == 2
@@ -272,3 +277,45 @@ def test_refuses_without_storage_credentials(monkeypatch, report_path):
 def test_default_report_path():
     assert sweep.default_report_path('zh', NOW).endswith(
         os.path.join('data', 'exercise_content_sweep', 'report-zh-20261201T120000Z.json'))
+
+
+# ---------------------------------------------------------------------------
+# live set: keyset pages when the RPC hits the statement timeout
+# ---------------------------------------------------------------------------
+
+def _exercise_row(sense, *, lang=ZH, version=0):
+    return {'id': str(uuid.uuid4()), 'word_sense_id': sense, 'language_id': lang,
+            'exercise_type': 'cloze_completion', 'source_type': 'vocabulary',
+            'content_version': version}
+
+
+def test_live_versions_falls_back_to_keyset_pages_on_a_statement_timeout(monkeypatch):
+    rows = ([_exercise_row(101), _exercise_row(101, version=4), _exercise_row(102),
+             _exercise_row(201, lang=EN)] + [_exercise_row(300 + i) for i in range(5)])
+    db = FakeContentDB(rows)
+    monkeypatch.setattr(sweep, 'LIVE_VERSIONS_PAGE', 2)
+
+    def timed_out(name, params):
+        raise FakeDBError('57014', 'canceling statement due to statement timeout')
+    monkeypatch.setattr(db, 'rpc', timed_out)
+
+    got = sweep.live_versions(db, ZH)
+    assert got == {101: {0, 4}, 102: {0}, **{300 + i: {0} for i in range(5)}}
+    pages = db.table_calls('select')
+    assert len(pages) == 5                                   # 8 zh rows, 2 per page, last page short
+    assert all(page.columns == 'id, word_sense_id, content_version' for page in pages)
+    assert all(('is', 'word_sense_id', 'null', True) in page.filters
+               and ('eq', 'language_id', ZH, False) in page.filters for page in pages)
+    zh_ids = sorted(r['id'] for r in rows if r['language_id'] == ZH)
+    assert ('gt', 'id', zh_ids[1], False) in pages[1].filters
+
+
+def test_live_versions_other_errors_propagate(monkeypatch):
+    db = FakeContentDB([_exercise_row(101)])
+
+    def denied(name, params):
+        raise FakeDBError('42501', 'permission denied')
+    monkeypatch.setattr(db, 'rpc', denied)
+    with pytest.raises(FakeDBError, match='permission denied'):
+        sweep.live_versions(db, ZH)
+    assert db.table_calls() == []

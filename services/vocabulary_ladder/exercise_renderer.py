@@ -59,10 +59,9 @@ class LadderExerciseRenderer:
 
         Builds the rows in memory (see :meth:`build_rows`) then inserts them
         with one ``store.write_sense`` call (ADR-049 §4: every insert into
-        ``exercises`` goes through the content store). With
-        ``EXERCISE_CONTENT_WRITE=db`` that is exactly the old single
-        ``exercises`` insert; with ``dual`` the rows' content is merged into a
-        new version of the sense's content file first.
+        ``exercises`` goes through the content store): the rows' content is
+        merged into a new version of the sense's content file first, then the
+        rows are committed.
 
         Returns the list of inserted exercise IDs, or ``[]`` when nothing
         rendered or the write failed (logged). Note: this is a plain insert
@@ -78,8 +77,8 @@ class LadderExerciseRenderer:
             result = store.write_sense(self.db, sense_id, language_id, insert_rows=rows)
             logger.info("Rendered %d ladder exercises for sense %s", len(rows), sense_id)
         except Exception as e:
-            # ContentWriteConflict / ContentStorageError (dual mode) and
-            # PostgREST errors alike: nothing usable was written for this call.
+            # ContentWriteConflict / ContentStorageError and PostgREST errors
+            # alike: nothing usable was written for this call.
             logger.error("Failed to insert ladder exercises for sense %s: %s", sense_id, e)
             return []
         return list(result.inserted_ids)

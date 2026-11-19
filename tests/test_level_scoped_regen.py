@@ -13,13 +13,19 @@ Two halves, tested separately:
      delete/insert to exactly those levels. A `regen`/`subscribe_topup` row
      (no family hint) still does a full, unscoped regen.
 
-LLM-free and DB-free throughout — the renderer's asset loaders and the
-queue_drain module's DB calls are all stubbed.
+LLM-free and DB-free throughout — the renderer's asset loaders are stubbed,
+and `_regenerate` writes through the real `store.write_sense` (ADR-049) into
+`FakeContentDB` and the conftest's `InMemoryBackend`, so the scoping is read
+off the commit's delete ids and the new content file.
 """
 
+import uuid
+
 import services.vocabulary_ladder.queue_drain as qd
+from services.exercise_content import store
 from services.vocabulary_ladder import exercise_renderer as rendermod
 from services.vocabulary_ladder.config import families_to_levels
+from tests.exercise_content_fakes import FakeContentDB
 
 LANG_ZH, LANG_EN = 1, 2
 
@@ -126,75 +132,28 @@ def test_build_rows_levels_none_is_unchanged(monkeypatch):
 # 2. queue_drain._regenerate
 # ---------------------------------------------------------------------------
 
-class _Result:
-    def __init__(self, data):
-        self.data = data
+def _ex(sense_id, level, *, asset=900, tag='old'):
+    return {'id': str(uuid.uuid4()), 'word_sense_id': sense_id, 'language_id': LANG_EN,
+            'exercise_type': 'cloze_completion', 'source_type': 'vocabulary',
+            'word_asset_id': asset, 'ladder_level': level, 'is_active': True,
+            'content': {'tag': tag, 'level': level}}
 
 
-class _RecordingQuery:
-    """Minimal chainable query double that records the call it was asked to
-    make; enough surface for `_regenerate`'s delete/insert calls."""
-
-    def __init__(self, db, table_name):
-        self.db = db
-        self.table_name = table_name
-        self.filters: dict[str, list] = {}
-        self._op = None
-        self._payload = None
-
-    def select(self, *_a, **_kw):
-        self._op = self._op or 'select'
-        return self
-
-    def delete(self):
-        self._op = 'delete'
-        return self
-
-    def insert(self, rows):
-        self._op = 'insert'
-        self._payload = rows
-        return self
-
-    def eq(self, col, val):
-        self.filters.setdefault('eq', []).append((col, val))
-        return self
-
-    def in_(self, col, vals):
-        self.filters.setdefault('in_', []).append((col, list(vals)))
-        return self
-
-    def gt(self, *_a, **_kw):
-        return self
-
-    def limit(self, *_a, **_kw):
-        return self
-
-    def single(self):
-        return self
-
-    @property
-    def not_(self):
-        return self
-
-    def is_(self, col, val):
-        self.filters.setdefault('is_', []).append((col, val))
-        return self
-
-    def execute(self):
-        self.db.calls.append({
-            'table': self.table_name, 'op': self._op,
-            'filters': {k: list(v) for k, v in self.filters.items()},
-            'payload': self._payload,
-        })
-        return _Result(self._payload if self._op == 'insert' else [])
+def _seeded_db(sense_id, levels=(1, 3, 4, 6, 7, 9)):
+    """One asset-linked row per level plus an asset-less row at level 4, all at
+    version 0, with their v0 content file (as every live sense has one)."""
+    rows = [_ex(sense_id, lv) for lv in levels] + [_ex(sense_id, 4, asset=None)]
+    db = FakeContentDB()
+    db.seed(rows)
+    store.backend().seed(
+        store.content_path(LANG_EN, sense_id, 0),
+        store.encode_sense_file(sense_id, LANG_EN, 0, {r['id']: r['content'] for r in rows}))
+    return db, rows
 
 
-class _FakeDB:
-    def __init__(self):
-        self.calls = []
-
-    def table(self, name):
-        return _RecordingQuery(self, name)
+def _commit(db):
+    (commit,) = db.rpc_calls('exercise_content_commit')
+    return commit
 
 
 class _FakePipeline:
@@ -219,8 +178,7 @@ def _make_fake_renderer(rows_for_levels):
         def build_rows(self, sense_id, language_id, levels=None):
             type(self).last_levels = levels
             wanted = rows_for_levels if levels is None else levels
-            return [{'id': f'ex-{lv}', 'ladder_level': lv, 'word_sense_id': sense_id}
-                    for lv in sorted(wanted)]
+            return [_ex(sense_id, lv, tag='new') for lv in sorted(wanted)]
 
     return _FakeRenderer
 
@@ -246,7 +204,7 @@ def test_regenerate_scoped_delete_leaves_other_levels_untouched(monkeypatch):
     fake_pipeline_cls, fake_renderer_cls = _patch_regenerate_deps(
         monkeypatch, semantic_class='action', rows_for_levels={4, 9},
     )
-    db = _FakeDB()
+    db, seeded = _seeded_db(42)
     row = {
         'sense_id': 42, 'language_id': LANG_EN, 'reason': qd.REASON_COVERAGE_GAP,
         'detail': {'missing_families': ['form_production']},
@@ -259,15 +217,20 @@ def test_regenerate_scoped_delete_leaves_other_levels_untouched(monkeypatch):
     assert fake_renderer_cls.last_levels == {4, 9}
     assert detail['scoped_levels'] == [4, 9]
 
-    delete_calls = [c for c in db.calls if c['table'] == 'exercises' and c['op'] == 'delete']
-    assert len(delete_calls) == 1
-    assert delete_calls[0]['filters']['in_'] == [('ladder_level', [4, 9])], (
+    commit = _commit(db)
+    assert commit['p_delete_ids'] == sorted(
+        r['id'] for r in seeded if r['ladder_level'] in (4, 9) and r['word_asset_id']), (
         'a scoped regen must delete only the requested level(s)'
     )
-
-    insert_calls = [c for c in db.calls if c['table'] == 'exercises' and c['op'] == 'insert']
-    assert len(insert_calls) == 1
-    assert {row['ladder_level'] for row in insert_calls[0]['payload']} == {4, 9}
+    assert {r['ladder_level'] for r in commit['p_insert_rows']} == {4, 9}
+    (version,) = db.versions(42)
+    new_file = store.decode_sense_file(
+        store.backend().objects()[store.content_path(LANG_EN, 42, version)],
+        sense_id=42, version=version)
+    kept = [r for r in seeded if r['ladder_level'] not in (4, 9) or not r['word_asset_id']]
+    assert all(new_file[r['id']] == r['content'] for r in kept), 'other levels untouched'
+    assert sorted(new_file) == sorted([r['id'] for r in kept]
+                                      + [r['id'] for r in commit['p_insert_rows']])
 
 
 def test_regenerate_full_regen_still_full(monkeypatch):
@@ -276,7 +239,7 @@ def test_regenerate_full_regen_still_full(monkeypatch):
     fake_pipeline_cls, fake_renderer_cls = _patch_regenerate_deps(
         monkeypatch, semantic_class='action', rows_for_levels={1, 3, 4, 6, 7},
     )
-    db = _FakeDB()
+    db, seeded = _seeded_db(43)
     row = {
         'sense_id': 43, 'language_id': LANG_EN, 'reason': qd.REASON_REGEN,
         'detail': {},
@@ -289,9 +252,7 @@ def test_regenerate_full_regen_still_full(monkeypatch):
     assert fake_renderer_cls.last_levels is None
     assert 'scoped_levels' not in detail
 
-    delete_calls = [c for c in db.calls if c['table'] == 'exercises' and c['op'] == 'delete']
-    assert len(delete_calls) == 1
-    assert 'in_' not in delete_calls[0]['filters'], (
+    assert _commit(db)['p_delete_ids'] == sorted(r['id'] for r in seeded if r['word_asset_id']), (
         'an unscoped regen must not narrow the delete by ladder_level'
     )
 
@@ -303,7 +264,7 @@ def test_regenerate_coverage_gap_with_unmappable_family_falls_back_to_full(monke
     fake_pipeline_cls, fake_renderer_cls = _patch_regenerate_deps(
         monkeypatch, semantic_class='action', rows_for_levels={1, 3, 4, 6, 7},
     )
-    db = _FakeDB()
+    db, seeded = _seeded_db(44)
     row = {
         'sense_id': 44, 'language_id': LANG_EN, 'reason': qd.REASON_COVERAGE_GAP,
         'detail': {'missing_families': ['not_a_real_family']},
@@ -314,3 +275,4 @@ def test_regenerate_coverage_gap_with_unmappable_family_falls_back_to_full(monke
     assert ok is True
     assert fake_pipeline_cls.last_levels is None
     assert fake_renderer_cls.last_levels is None
+    assert _commit(db)['p_delete_ids'] == sorted(r['id'] for r in seeded if r['word_asset_id'])

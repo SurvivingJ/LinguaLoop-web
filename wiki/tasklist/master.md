@@ -1,6 +1,6 @@
 ---
 title: Master Task List
-last_updated: 2026-11-17
+last_updated: 2026-11-19
 ---
 
 # Master Task List
@@ -19,12 +19,25 @@ below.
 
 | Status | Count |
 |--------|-------|
-| Not Started | 52 |
-| In Progress (`[~]`) | 16 |
+| Not Started | 47 |
+| In Progress (`[~]`) | 15 |
 | Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 30 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
-| Won't Do (obsolete) | 2 |
-| Done (cumulative, not listed here) | 277 |
+| Won't Do (obsolete) | 3 |
+| Done (cumulative, not listed here) | 282 |
+
+*2026-11-19 (Exercise Content in Storage — TRANSITION CODE REMOVED, TASK-1031):*
+- No read/write modes, no DB fallback, no shadow comparer and no `EXERCISE_CONTENT_SOURCE` / `_WRITE` / `_DB_FALLBACK` / `_SHADOW_SAMPLE` flags: content is read only from the files and written file first. Production behaviour unchanged (it already ran Storage reads and dual writes).
+- `scripts/backfill_exercise_content.py` and `scripts/sql/check_jumbled_and_definition_match.sql` deleted; the sweep keeps its keyset-paging fallback.
+- 7 superseded migration files archived (rows in `migrations/archive/README.md`); `exercise_content_drop_column.sql` is canonical for the commit and session RPCs.
+- Offline suite: only the environment-baseline failures. See [[decisions/ADR-049-exercise-content-in-storage]] "Transition code removed".
+- Counts: Not Started 48→47, Done 281→282.
+
+*2026-11-19 (Exercise Content in Storage — CUT-OVER DONE, TASK-1026–1030):*
+- `exercises.content` is dropped and exercise content is served only from the private Storage bucket `exercise-content`. The defaults are Storage reads and dual writes (PR #39), with a GET retry and a 60 s keepalive (PR #40).
+- Database 523 MB (2026-11-17) → **342 MB**; `exercises` 200 → 72 MB.
+- The shadow week (TASK-1028) and the archive-all copy were skipped by owner decision; a clean full verify and checks against real sessions stood in for them.
+- Next: TASK-1031, removing the transition code. Counts: Not Started 52→48, In Progress 16→15, Won't Do 2→3, Done 277→281.
 
 *2026-11-17 (Exercise Content in Storage Phase 1 built and integrated, TASK-1008–1025):* the six work-package branches (a store, b writers, c SQL, d1 session readers, d2 prestudy + route readers, e backfill + sweep) were merged into `claude/dreamy-brahmagupta-40a4gq` without conflicts; TASK-1025 aligned `FakeContentDB` with the commit SQL, added `tests/test_exercise_content_integration.py` (scenarios 1–8 in db/db, shadow/dual, storage/dual) and checked that `db` mode issues exactly the pre-ADR calls. Prestudy now loads exercise content only for the words it drills, with an on-demand endpoint for words the learner adds (owner decision). Migrations are written, **not applied**; flags stay `db`. Offline suite: same 48 environmental failures + 1 collection error as the foundation commit. Next: operator tasks TASK-1026–1030. Counts: Not Started 55→37, Done 250→268. See [[tasklist/exercise-content-storage.tasks]], [[decisions/ADR-049-exercise-content-in-storage]] "Implementation status".
 
@@ -1285,12 +1298,12 @@ Full spec: [[tasklist/exercise-content-storage.tasks]] · [[decisions/ADR-049-ex
 | TASK-1023 | exercise-content-storage | Backfill, verify and archive script | Done | M | TASK-1008 |
 | TASK-1024 | exercise-content-storage | Orphan-file sweep script | Done | S | TASK-1008 |
 | TASK-1025 | exercise-content-storage | Phase-1 integration run (offline) and wiki update | Done | M | TASK-1009..1024 |
-| TASK-1026 | exercise-content-storage | OPERATOR: apply Phase-1 migrations, deploy with flags `db` (LIVE-DB, approval) — migrations live, SQL test passed, code merged to `main` (PR #36) 2026-11-17; in-app check pending | [~] | S | TASK-1016, TASK-1017, TASK-1025 |
-| TASK-1027 | exercise-content-storage | OPERATOR: dual writes on, backfill and verify | [ ] | M | TASK-1026 |
-| TASK-1028 | exercise-content-storage | OPERATOR: shadow reads ≥ 7 days | [ ] | S | TASK-1027 |
-| TASK-1029 | exercise-content-storage | OPERATOR: serve from Storage, latency within +10% warm | [ ] | S | TASK-1028 |
-| TASK-1030 | exercise-content-storage | OPERATOR: cut-over — archive, drop column, VACUUM FULL, sweep (LIVE-DB, approval) | [ ] | M | TASK-1029, TASK-1018 |
-| TASK-1031 | exercise-content-storage | Post-cut-over clean-up (remove transition code, archive superseded migrations) | [ ] | M | TASK-1030 |
+| TASK-1026 | exercise-content-storage | OPERATOR: apply Phase-1 migrations, deploy with flags `db` (LIVE-DB, approval) — migrations live, SQL test passed, code merged to `main` (PR #36) 2026-11-17; in-app check pending | Done (2026-11-18) | S | TASK-1016, TASK-1017, TASK-1025 |
+| TASK-1027 | exercise-content-storage | OPERATOR: dual writes on, backfill and verify | Done (2026-11-18) | M | TASK-1026 |
+| TASK-1028 | exercise-content-storage | OPERATOR: shadow reads ≥ 7 days | Won't Do (owner: shadow week skipped) | S | TASK-1027 |
+| TASK-1029 | exercise-content-storage | OPERATOR: serve from Storage, latency within +10% warm | Done (2026-11-18) | S | TASK-1028 |
+| TASK-1030 | exercise-content-storage | OPERATOR: cut-over — archive, drop column, VACUUM FULL, sweep (LIVE-DB, approval) | Done (2026-11-19) | M | TASK-1029, TASK-1018 |
+| TASK-1031 | exercise-content-storage | Post-cut-over clean-up (remove transition code, archive superseded migrations) | Done (2026-11-19) | M | TASK-1030 |
 
 ### Mobile Redesign — App Shell and Design System (ADR-048) — NEW 2026-11-16
 Full spec: [[tasklist/mobile-redesign.tasks]] · [[pages/app-shell.tech]] · [[decisions/ADR-048-mobile-app-shell]]. Built in the working tree; not committed, not deployed.

@@ -28,11 +28,10 @@ reached rather than dying mid-item.
 
 **Content goes through the content store (ADR-049, TASK-1014).** Rows are read
 with ``store.select_columns(...)`` (paged as before) and their content filled
-by ``store.hydrate(...)``, one call per at most 100 senses, so the sweep works
-whether content is served from ``exercises.content`` or from the Storage
-files. New audio URLs are written once per sense with
-``store.write_sense(update_contents=...)``: in ``EXERCISE_CONTENT_WRITE=dual``
-mode each touched sense gets one new content version, not one per row. A
+by ``store.hydrate(...)`` from the Storage files, one call per at most 100
+senses. New audio URLs are written once per sense with
+``store.write_sense(update_contents=...)``: each touched sense gets one new
+content version, not one per row. A
 failed sense write counts every row it carried as failed (the audio is in R2
 but no row points at it) and the run goes on. Rows with no ``word_sense_id``
 (the 10 zh collocation rows; never served, cannot be keyed by sense) are
@@ -115,8 +114,8 @@ COVERAGE_TARGET = 0.95
 
 _PAGE = 500
 
-#: Columns read for every pass; ``{content}`` is filled per read mode by
-#: ``store.select_columns`` (ADR-049 §9).
+#: Columns read for every pass; ``store.select_columns`` turns ``{content}`` into
+#: ``content_version`` (ADR-049 §9).
 EXERCISE_COLUMNS = 'id, exercise_type, word_sense_id, language_id, {content}'
 
 #: Most senses one ``store.hydrate`` call may cover (one content file per sense).
@@ -275,7 +274,7 @@ class AudioBackfillRun:
         """Active audio-bearing rows of the language, paged as before.
 
         Returns the rows read and the error that stopped the paging, if any.
-        Content is per read mode (``store.select_columns``); callers hydrate.
+        Rows carry ``content_version`` (``store.select_columns``); callers hydrate.
         """
         columns = store.select_columns(EXERCISE_COLUMNS)
         out: list[dict] = []

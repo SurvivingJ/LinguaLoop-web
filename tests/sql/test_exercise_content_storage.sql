@@ -3,8 +3,12 @@
 -- =============================================================================
 -- Rollback-only SQL test, same harness as tests/sql/test_session_budget_settings.sql:
 -- assertions RAISE EXCEPTION, a clean run prints PASS notices, everything is rolled back.
--- Requires migrations/exercise_content_storage.sql applied. Run by the operator on staging
--- (TASK-1026), or on production only because it ends in ROLLBACK:
+-- Requires migrations/exercise_content_storage.sql and the post-drop function bodies of
+-- migrations/exercise_content_drop_column.sql (the live state since the 2026-11-19 cut-over:
+-- exercises.content is gone; the commit RPC validates the 'content' JSON it is sent and
+-- computes dedupe_key from it, but stores no content). Updated for the dropped column in
+-- TASK-1031. Run by the operator on staging, or on production only because it ends in
+-- ROLLBACK:
 --
 --   psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f tests/sql/test_exercise_content_storage.sql
 --
@@ -30,6 +34,13 @@ BEGIN
                   WHERE table_schema = 'public' AND table_name = 'exercises'
                     AND column_name = 'dedupe_key' AND data_type = 'text' AND is_nullable = 'YES') THEN
     RAISE EXCEPTION 'FAIL exercises.dedupe_key must be a nullable text column'; END IF;
+  IF EXISTS (SELECT 1 FROM information_schema.columns
+              WHERE table_schema = 'public' AND table_name = 'exercises'
+                AND column_name = 'content') THEN
+    RAISE EXCEPTION 'FAIL exercises.content must be gone (dropped 2026-11-19, ADR-049)'; END IF;
+  IF to_regclass('public.uq_exercises_context_free_variant_v2') IS NULL
+     OR to_regclass('public.uq_exercises_context_free_variant') IS NOT NULL THEN
+    RAISE EXCEPTION 'FAIL the dedupe_key index _v2 must exist and the content-expression index must be gone'; END IF;
 
   FOREACH v_fn IN ARRAY ARRAY[
       'public.exercise_content_begin(integer)',
@@ -120,13 +131,12 @@ BEGIN
     RAISE EXCEPTION 'FAIL commit must take pg_advisory_xact_lock(47047, sense)'; END IF;
   SELECT * INTO r FROM public.exercises WHERE id = v_tone;
   IF r.content_version <> v_n1 OR r.dedupe_key IS DISTINCT FROM md5('')
-     OR r.tags <> '{}'::jsonb OR r.is_active IS NOT TRUE
-     OR r.content <> jsonb_build_object('prompt', 'p1') THEN
-    RAISE EXCEPTION 'FAIL inserted context-free row: version % dedupe % tags % active % content %',
-      r.content_version, r.dedupe_key, r.tags, r.is_active, r.content; END IF;
+     OR r.tags <> '{}'::jsonb OR r.is_active IS NOT TRUE THEN
+    RAISE EXCEPTION 'FAIL inserted context-free row: version % dedupe % tags % active %',
+      r.content_version, r.dedupe_key, r.tags, r.is_active; END IF;
   SELECT * INTO r FROM public.exercises WHERE id = v_cloze;
   IF r.content_version <> v_n1 OR r.dedupe_key IS NOT NULL OR r.tags <> '{"variant": "A"}'::jsonb
-     OR r.complexity_tier <> 'T2' OR r.content->>'context_sentence' <> 'S1' THEN
+     OR r.complexity_tier <> 'T2' THEN
     RAISE EXCEPTION 'FAIL inserted context-bearing row: version % dedupe % tags %',
       r.content_version, r.dedupe_key, r.tags; END IF;
 
@@ -153,15 +163,17 @@ BEGIN
   -- 2e. a row deleted between begin and commit -> rows_changed, nothing changed
   DELETE FROM public.exercises WHERE id = v_cloze;
   c := public.exercise_content_commit(v_sense, v_n1, v_ids, v_n2, '{}', '[]',
-                                      jsonb_build_object(v_tone::text, jsonb_build_object('prompt', 'p2')));
+                                      jsonb_build_object(v_tone::text,
+                                        jsonb_build_object('prompt', 'p2', 'context_sentence', 'S9')));
   IF c <> jsonb_build_object('ok', false, 'reason', 'rows_changed', 'current_version', v_n1) THEN
     RAISE EXCEPTION 'FAIL deleted row must give rows_changed: %', c; END IF;
-  IF (SELECT content FROM public.exercises WHERE id = v_tone) <> jsonb_build_object('prompt', 'p1') THEN
+  IF (SELECT content_version FROM public.exercises WHERE id = v_tone) <> v_n1
+     OR (SELECT dedupe_key FROM public.exercises WHERE id = v_tone) IS DISTINCT FROM md5('') THEN
     RAISE EXCEPTION 'FAIL rows_changed must change nothing'; END IF;
 
   -- 2f. a row inserted outside the store between begin and commit -> rows_changed too
-  INSERT INTO public.exercises (id, language_id, exercise_type, source_type, word_sense_id, content)
-  VALUES (v_rogue, v_lang, 'text_flashcard', 'vocabulary', v_sense, '{"front": "x"}');
+  INSERT INTO public.exercises (id, language_id, exercise_type, source_type, word_sense_id)
+  VALUES (v_rogue, v_lang, 'text_flashcard', 'vocabulary', v_sense);
   c := public.exercise_content_commit(v_sense, v_n1, ARRAY[v_tone], v_n2, '{}', '[]', '{}');
   IF c->>'reason' IS DISTINCT FROM 'rows_changed' THEN
     RAISE EXCEPTION 'FAIL inserted row must give rows_changed: %', c; END IF;
@@ -206,9 +218,8 @@ BEGIN
   IF c <> jsonb_build_object('ok', true, 'version', v_n2, 'deleted', 0, 'inserted', 1, 'updated', 1) THEN
     RAISE EXCEPTION 'FAIL second commit result: %', c; END IF;
   IF (SELECT dedupe_key FROM public.exercises WHERE id = v_tone) IS DISTINCT FROM md5('S2')
-     OR (SELECT content->>'prompt' FROM public.exercises WHERE id = v_tone) <> 'p2'
      OR (SELECT dedupe_key FROM public.exercises WHERE id = v_third) IS DISTINCT FROM md5('S3') THEN
-    RAISE EXCEPTION 'FAIL update must rewrite content and recompute dedupe_key'; END IF;
+    RAISE EXCEPTION 'FAIL update and insert must compute dedupe_key from the content sent'; END IF;
   IF EXISTS (SELECT 1 FROM public.exercises WHERE word_sense_id = v_sense AND content_version <> v_n2) THEN
     RAISE EXCEPTION 'FAIL every row of the sense must carry the committed version'; END IF;
 
@@ -222,8 +233,8 @@ BEGIN
     RAISE EXCEPTION 'FAIL delete commit: %', c; END IF;
 
   -- 2j. live_versions: {"<sense>": [versions ascending]}, mixed versions included
-  INSERT INTO public.exercises (id, language_id, exercise_type, source_type, word_sense_id, content)
-  VALUES (v_rogue, v_lang, 'text_flashcard', 'vocabulary', v_sense, '{"front": "x"}');   -- version 0
+  INSERT INTO public.exercises (id, language_id, exercise_type, source_type, word_sense_id)
+  VALUES (v_rogue, v_lang, 'text_flashcard', 'vocabulary', v_sense);   -- version 0
   b := public.exercise_content_live_versions(v_lang);
   IF jsonb_typeof(b) <> 'object' OR b->(v_sense::text) <> jsonb_build_array(0, v_n3) THEN
     RAISE EXCEPTION 'FAIL live_versions for sense %: %', v_sense, b->(v_sense::text); END IF;

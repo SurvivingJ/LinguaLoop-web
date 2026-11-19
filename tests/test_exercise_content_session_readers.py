@@ -2,11 +2,11 @@
 
 Appendix A rows 3-6: ``get_practice_session`` / ``get_review_ahead_items``
 callers, the prestudy follow-up select, the serve-time content rewrites and
-the intro-drill block. ``store.read_mode`` and ``store.hydrate`` are
-monkeypatched (the real storage reader lands in TASK-1010): the fake hydrate
-follows the ADR-049 section 9 contract (only dicts with a truthy ``id_key``,
-content already present is kept, a missing one is dropped in place) and
-records every call. No network, no Supabase.
+the intro-drill block. ``store.hydrate`` is mostly monkeypatched: the fake
+hydrate follows the ADR-049 section 9 contract (only dicts with a truthy
+``id_key``, content already present is kept, a missing one is dropped in place)
+and records every call. A few tests run the real store over the conftest's
+``InMemoryBackend``. No network, no Supabase.
 """
 
 from __future__ import annotations
@@ -23,8 +23,7 @@ from services.exercise_content import store
 from services.practice import session_assembly
 from services.practice_session_service import PracticeSessionService
 
-STORAGE_SELECT_FOLLOWUP = 'id, word_sense_id, exercise_type, content_version, ladder_level'
-DB_SELECT_FOLLOWUP = 'id, word_sense_id, exercise_type, content, ladder_level'
+SELECT_FOLLOWUP = 'id, word_sense_id, exercise_type, content_version, ladder_level'
 
 
 # ---------------------------------------------------------------------------
@@ -136,11 +135,6 @@ def _item(eid, sid, exercise_type='definition_match', mode='maintenance', **extr
 
 
 @pytest.fixture
-def storage(monkeypatch):
-    monkeypatch.setattr(store, 'read_mode', lambda: 'storage')
-
-
-@pytest.fixture
 def quiet_session(monkeypatch):
     """get_session's side reads switched off: no follow-ups, no intro words, no DT cards."""
     monkeypatch.setattr(session_assembly, 'plan_today_iso', lambda db, u, lang: '2026-11-17')
@@ -158,38 +152,23 @@ def quiet_session(monkeypatch):
 # RPC arguments
 # ---------------------------------------------------------------------------
 
-TODAYS_SESSION_PARAMS = {'p_user_id', 'p_language_id', 'p_mode', 'p_target_minutes', 'p_user_theta'}
-TODAYS_AHEAD_PARAMS = {'p_user_id', 'p_language_id', 'p_limit', 'p_exclude_recent_minutes',
-                       'p_exclude_sense_ids'}
+SESSION_PARAMS = {'p_user_id', 'p_language_id', 'p_mode', 'p_target_minutes', 'p_user_theta',
+                  'p_include_content'}
+AHEAD_PARAMS = {'p_user_id', 'p_language_id', 'p_limit', 'p_exclude_recent_minutes',
+                'p_exclude_sense_ids', 'p_include_content'}
 
 
-@pytest.mark.parametrize('mode, extra', [
-    ('db', {}),
-    ('shadow', {'p_include_content': True}),
-    ('storage', {'p_include_content': False}),
-])
-def test_session_rpc_asks_for_content_by_read_mode(monkeypatch, mode, extra):
-    monkeypatch.setattr(store, 'read_mode', lambda: mode)
-    db = FakeDB()
+def test_session_rpc_never_asks_for_content():
+    db = FakeDB()                      # the real store
     _service(db)._practice_session_rpc('u', 1, 'auto', 15, 0.5)
     assert db.rpc_calls == [('get_practice_session', {
         'p_user_id': 'u', 'p_language_id': 1, 'p_mode': 'auto',
-        'p_target_minutes': 15, 'p_user_theta': 0.5, **extra})]
-
-
-def test_db_mode_session_rpc_parameters_are_exactly_todays():
-    db = FakeDB()                      # the real store, pinned to db by conftest
+        'p_target_minutes': 15, 'p_user_theta': 0.5, 'p_include_content': False})]
     _service(db)._practice_session_rpc('u', 3, 'maintenance', 20)
-    assert set(db.rpc_calls[0][1]) == TODAYS_SESSION_PARAMS
+    assert set(db.rpc_calls[1][1]) == SESSION_PARAMS
 
 
-@pytest.mark.parametrize('mode, extra', [
-    ('db', {}),
-    ('shadow', {'p_include_content': True}),
-    ('storage', {'p_include_content': False}),
-])
-def test_review_ahead_call_asks_for_content_by_read_mode(monkeypatch, mode, extra):
-    monkeypatch.setattr(store, 'read_mode', lambda: mode)
+def test_review_ahead_call_never_asks_for_content(monkeypatch):
     monkeypatch.setattr(prestudy, 'mark_followups', lambda *a, **k: None)
     db = FakeDB(rpc_data={'get_practice_session': {'items': []},
                           'get_review_ahead_items': []})
@@ -198,17 +177,16 @@ def test_review_ahead_call_asks_for_content_by_read_mode(monkeypatch, mode, extr
     s._extra_review_items('u', 1, {9})
     ahead = [p for n, p in db.rpc_calls if n == 'get_review_ahead_items']
     assert len(ahead) == 1
-    assert set(ahead[0]) == TODAYS_AHEAD_PARAMS | set(extra)
-    assert {k: ahead[0][k] for k in extra} == extra
+    assert set(ahead[0]) == AHEAD_PARAMS and ahead[0]['p_include_content'] is False
     session = [p for n, p in db.rpc_calls if n == 'get_practice_session']
-    assert {k: session[0][k] for k in extra} == extra
+    assert session[0]['p_include_content'] is False
 
 
 # ---------------------------------------------------------------------------
 # get_session: one hydrate call, before the content rewrites
 # ---------------------------------------------------------------------------
 
-def test_items_are_hydrated_once_before_script_variant_and_jumbled_prep(storage, quiet_session,
+def test_items_are_hydrated_once_before_script_variant_and_jumbled_prep(quiet_session,
                                                                          monkeypatch):
     order = []
     fake = FakeHydrate({'e1': {'q': 'one'}, 'e2': {'q': 'two'}}, order=order)
@@ -242,7 +220,7 @@ def test_items_are_hydrated_once_before_script_variant_and_jumbled_prep(storage,
     assert 'no_content_reason' not in payload
 
 
-def test_hydrated_content_is_what_the_script_swap_and_jumbled_prep_rewrite(storage, quiet_session,
+def test_hydrated_content_is_what_the_script_swap_and_jumbled_prep_rewrite(quiet_session,
                                                                             monkeypatch):
     contents = {
         'j1': {'chunks': ['我们', '一起', '去'], 'hant': {'chunks': ['我們', '一起', '去']}},
@@ -265,7 +243,7 @@ def test_hydrated_content_is_what_the_script_swap_and_jumbled_prep_rewrite(stora
                               'hant': {'chunks': ['我們', '一起', '去']}}
 
 
-def test_markers_and_error_cards_are_left_alone(storage, quiet_session, monkeypatch):
+def test_markers_and_error_cards_are_left_alone(quiet_session, monkeypatch):
     fake = FakeHydrate({'e1': {'q': 'one'}})
     monkeypatch.setattr(store, 'hydrate', fake)
     gate = {'is_gate_marker': True, 'gate_name': 'gate_a', 'sense_id': 31,
@@ -290,7 +268,7 @@ def test_markers_and_error_cards_are_left_alone(storage, quiet_session, monkeypa
         {'q': 'one'}
 
 
-def test_all_items_dropped_reports_content_unavailable(storage, quiet_session, monkeypatch,
+def test_all_items_dropped_reports_content_unavailable(quiet_session, monkeypatch,
                                                        caplog):
     monkeypatch.setattr(store, 'hydrate', FakeHydrate({}))
     db = FakeDB(rpc_data={'get_practice_session': {'items': [_item('e1', 11), _item('e2', 12)]}})
@@ -305,7 +283,7 @@ def test_all_items_dropped_reports_content_unavailable(storage, quiet_session, m
     assert len(infos) == 1 and 'dropped=2' in infos[0].getMessage()
 
 
-def test_a_partial_drop_keeps_the_rest_and_logs_one_info_line(storage, quiet_session,
+def test_a_partial_drop_keeps_the_rest_and_logs_one_info_line(quiet_session,
                                                               monkeypatch, caplog):
     monkeypatch.setattr(store, 'hydrate', FakeHydrate({'e2': {'q': 'two'}}))
     db = FakeDB(rpc_data={'get_practice_session': {'items': [_item('e1', 11), _item('e2', 12)]}})
@@ -318,7 +296,7 @@ def test_a_partial_drop_keeps_the_rest_and_logs_one_info_line(storage, quiet_ses
     assert len(infos) == 1 and 'dropped=1' in infos[0] and 'fetched=2' in infos[0]
 
 
-def test_an_empty_session_is_not_called_content_unavailable(storage, quiet_session, monkeypatch):
+def test_an_empty_session_is_not_called_content_unavailable(quiet_session, monkeypatch):
     fake = FakeHydrate({})
     monkeypatch.setattr(store, 'hydrate', fake)
     db = FakeDB(rpc_data={'get_practice_session': {'items': [],
@@ -328,7 +306,7 @@ def test_an_empty_session_is_not_called_content_unavailable(storage, quiet_sessi
     assert payload['no_content_reason'] == 'all_complete'
 
 
-def test_a_failing_hydrate_serves_only_items_with_content(storage, quiet_session, monkeypatch):
+def test_a_failing_hydrate_serves_only_items_with_content(quiet_session, monkeypatch):
     monkeypatch.setattr(store, 'hydrate', FakeHydrate(raises=RuntimeError('reader bug')))
     db = FakeDB(rpc_data={'get_practice_session': {'items': [
         _item('e1', 11), _item('e2', 12, content={'q': 'kept'}),
@@ -337,16 +315,10 @@ def test_a_failing_hydrate_serves_only_items_with_content(storage, quiet_session
     assert [i.get('exercise_id') for i in payload['items']] == ['e2', None]
 
 
-def test_a_failing_hydrate_in_db_mode_changes_nothing(quiet_session, monkeypatch):
-    monkeypatch.setattr(store, 'hydrate', FakeHydrate(raises=ValueError('bad argument')))
-    items = [_item('e1', 11, content={'q': 'one'}), _item('e2', 12, content=None)]
-    db = FakeDB(rpc_data={'get_practice_session': {'items': items}})
-    payload = _service(db).get_session('u', 3, mode='maintenance')
-    assert payload['items'] == items
-
-
-def test_db_mode_payload_is_todays(quiet_session, monkeypatch, caplog):
-    """The real store in db mode: no I/O, the RPC payload passes through unchanged."""
+def test_items_that_carry_content_pass_through_the_real_store(quiet_session, monkeypatch,
+                                                               caplog):
+    """The real store: items that already carry content need no file, so no Storage call;
+    the RPC payload passes through unchanged."""
     calls = []
     real = store.hydrate
 
@@ -358,14 +330,13 @@ def test_db_mode_payload_is_todays(quiet_session, monkeypatch, caplog):
     monkeypatch.setattr(store, 'hydrate', spy)
     items = [_item('e1', 11, content={'q': 'one'}), _item('e2', 12, content={'q': 'two'}),
              {'is_gate_marker': True, 'sense_id': 13, 'mode': 'maintenance'}]
-    for item in items:
-        item.pop('content_version', None)          # db mode: today's RPC has no version
     db = FakeDB(rpc_data={'get_practice_session': {'items': items}})
     with caplog.at_level(logging.INFO, logger=session_assembly.__name__):
         payload = _service(db).get_session('u', 3, mode='maintenance')
     assert payload == {'items': items}
-    assert set(db.rpc_calls[0][1]) == TODAYS_SESSION_PARAMS
-    assert [c.mode for c in calls] == ['db'] and calls[0].items == 2
+    assert set(db.rpc_calls[0][1]) == SESSION_PARAMS
+    assert [(c.mode, c.items, c.groups, c.dropped) for c in calls] == [('storage', 2, 0, 0)]
+    assert store.backend().calls == []
     assert not [r for r in caplog.records if 'exercise content' in r.getMessage()]
 
 
@@ -373,51 +344,39 @@ def test_db_mode_payload_is_todays(quiet_session, monkeypatch, caplog):
 # Prestudy follow-ups
 # ---------------------------------------------------------------------------
 
-def _followup_db(with_version):
+def _followup_db():
     rows = [
         {'id': 'f5', 'word_sense_id': 5, 'exercise_type': 'definition_match', 'ladder_level': 2},
         {'id': 'f5b', 'word_sense_id': 5, 'exercise_type': 'cloze_completion', 'ladder_level': 3},
         {'id': 'f6', 'word_sense_id': 6, 'exercise_type': 'definition_match', 'ladder_level': 2},
     ]
     for r in rows:
-        if with_version:
-            r['content_version'] = 40 + r['word_sense_id']
-        else:
-            r['content'] = {'q': r['id']}
+        r['content_version'] = 40 + r['word_sense_id']
     return FakeDB(tables={'exercises': rows})
 
 
-def test_followup_items_carry_content_version_in_storage_mode(storage, monkeypatch):
+def test_followup_items_carry_content_version(monkeypatch):
     monkeypatch.setattr(prestudy, 'mark_followups', lambda *a, **k: None)
-    db = _followup_db(with_version=True)
+    db = _followup_db()
     payload = {'items': [_item('e1', 1)]}
     assert _service(db)._inject_prestudy_followups(payload, 'u', 1, due=[5, 6]) == 2
-    assert db.selects('exercises') == [STORAGE_SELECT_FOLLOWUP]
+    assert db.selects('exercises') == [SELECT_FOLLOWUP]
     extras = [i for i in payload['items'] if i.get('prestudy_followup')]
     assert [(i['exercise_id'], i['content_version'], i['content']) for i in extras] == \
         [('f5', 45, None), ('f6', 46, None)]
-
-
-def test_followup_items_in_db_mode_are_todays(monkeypatch):
-    monkeypatch.setattr(prestudy, 'mark_followups', lambda *a, **k: None)
-    db = _followup_db(with_version=False)
-    payload = {'items': []}
-    _service(db)._inject_prestudy_followups(payload, 'u', 1, due=[5, 6])
-    assert db.selects('exercises') == [DB_SELECT_FOLLOWUP]
-    assert payload['items'][0] == {
+    assert extras[0] == {
         'exercise_id': 'f5', 'sense_id': 5, 'exercise_type': 'definition_match',
-        'family': None, 'content': {'q': 'f5'}, 'ladder_level': 2, 'p_known': None,
+        'family': None, 'content': None, 'ladder_level': 2, 'p_known': None,
         'expected_seconds': session_assembly.PRESTUDY_FOLLOWUP_EXPECTED_SECONDS,
-        'mode': 'maintenance', 'prestudy_followup': True,
+        'mode': 'maintenance', 'prestudy_followup': True, 'content_version': 45,
     }
-    assert all('content_version' not in i for i in payload['items'])
 
 
-def test_followups_are_hydrated_with_the_session_items(storage, quiet_session, monkeypatch):
+def test_followups_are_hydrated_with_the_session_items(quiet_session, monkeypatch):
     fake = FakeHydrate({'e1': {'q': 'one'}, 'f5': {'q': 'five'}})
     monkeypatch.setattr(store, 'hydrate', fake)
     monkeypatch.setattr(prestudy, 'due_followup_senses', lambda *a, **k: [5])
-    db = _followup_db(with_version=True)
+    db = _followup_db()
     db.rpc_data = {'get_practice_session': {'items': [_item('e1', 1)]}}
     payload = _service(db).get_session('u', 1, mode='maintenance')
     assert len(fake.calls) == 1
@@ -431,7 +390,7 @@ def test_followups_are_hydrated_with_the_session_items(storage, quiet_session, m
 # Extra rounds
 # ---------------------------------------------------------------------------
 
-def test_extra_round_asks_without_content_and_hydrates_once(storage, monkeypatch):
+def test_extra_round_asks_without_content_and_hydrates_once(monkeypatch):
     monkeypatch.setattr(intro_drill, 'ENABLED', False)
     monkeypatch.setattr(session_assembly, 'plan_today_iso', lambda db, u, lang: '2026-11-17')
     monkeypatch.setattr(prestudy, 'due_followup_senses', lambda *a, **k: [5])
@@ -440,7 +399,7 @@ def test_extra_round_asks_without_content_and_hydrates_once(storage, monkeypatch
     fake = FakeHydrate({'f5': {'q': 'five'}, 'm1': {'q': 'm'}, 'r1': {'q': 'ahead'}},
                        order=order)
     monkeypatch.setattr(store, 'hydrate', fake)
-    db = _followup_db(with_version=True)
+    db = _followup_db()
     db.rpc_data = {
         'get_practice_session': {'items': [_item('m1', 7)]},
         'get_review_ahead_items': [_item('r1', 8), _item('gone', 9)],
@@ -464,7 +423,7 @@ def test_extra_round_asks_without_content_and_hydrates_once(storage, monkeypatch
     assert payload['no_content_reason'] is None
 
 
-def test_extra_round_with_every_item_dropped_says_so(storage, monkeypatch):
+def test_extra_round_with_every_item_dropped_says_so(monkeypatch):
     monkeypatch.setattr(intro_drill, 'ENABLED', False)
     monkeypatch.setattr(store, 'hydrate', FakeHydrate({}))
     db = FakeDB(rpc_data={'get_practice_session': {'items': [_item('m1', 7)]},
@@ -501,7 +460,7 @@ def _ladder_rows(*sids):
     return [{'sense_id': s, 'intro_stage': 2} for s in sids]
 
 
-def test_intro_block_is_hydrated_once_in_storage_mode(storage, monkeypatch):
+def test_intro_block_is_hydrated_once(monkeypatch):
     rows = _intro_setup(monkeypatch)
     for r in rows:
         r['content_version'] = 3
@@ -525,14 +484,17 @@ def test_intro_block_is_hydrated_once_in_storage_mode(storage, monkeypatch):
     assert words[42]['exercises']['use'][0]['content'] == {'q': 'three'}
 
 
-def test_intro_block_in_db_mode_is_todays(monkeypatch):
+def test_intro_block_with_the_real_store(monkeypatch):
     rows = _intro_setup(monkeypatch)
     for r in rows:
-        r['content'] = {'q': r['id']}
+        r['content_version'] = 0
+    store.backend().seed(store.content_path(2, 41, 0), store.encode_sense_file(
+        41, 2, 0, {r['id']: {'q': r['id']} for r in rows if r['word_sense_id'] == 41}))
     db = FakeDB(tables={'exercises': rows})
     block = intro_drill.build_block(db, 'u', 2, _ladder_rows(41))
     assert db.selects('exercises') == [
-        'id, word_sense_id, exercise_type, content, ladder_level']
+        'id, word_sense_id, exercise_type, content_version, ladder_level']
+    assert 'en/41.v0.json' in store.backend().calls_for('get')
     assert [w['sense_id'] for w in block['words']] == [41]
     assert block['words'][0]['exercises'] == {
         'use': [{'exercise_id': 'x1', 'sense_id': 41, 'exercise_type': 'cloze_completion',
@@ -543,7 +505,7 @@ def test_intro_block_in_db_mode_is_todays(monkeypatch):
     }
 
 
-def test_a_session_request_makes_at_most_two_hydrate_calls(storage, monkeypatch):
+def test_a_session_request_makes_at_most_two_hydrate_calls(monkeypatch):
     """The intro block's rows and the final item list: two calls, never more."""
     rows = _intro_setup(monkeypatch)
     for r in rows:

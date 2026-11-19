@@ -4,10 +4,12 @@ the words it will drill, plus an on-demand endpoint for words added later.
 Covers the server drill rule (shared fixture with the page's JS twin), the
 payload (content for drill senses only, ``has_exercises`` for every linked
 sense with exercises), the ``GET /api/tests/<id>/prestudy/exercises`` endpoint,
-the exercise-content store calls (select string per mode, one ``hydrate`` with
-the test's language) and that a hydration miss or an unloaded sense never
-queues generation. ``store.read_mode`` / ``store.hydrate`` are monkeypatched
-(the storage reader is TASK-1010); no network, no Supabase.
+the exercise-content store calls (the select string, one ``hydrate`` with the
+test's language) and that a hydration miss or an unloaded sense never queues
+generation. ``_tables()`` puts every exercise's content in its sense's file in
+the conftest's ``InMemoryBackend`` (the rows carry no content, as live);
+``store.hydrate`` is monkeypatched where the call shape is asserted. No network,
+no Supabase.
 """
 
 from __future__ import annotations
@@ -29,7 +31,6 @@ DRILL_FIXTURE = json.loads((ROOT / 'tests/unit/fixtures/prestudy-drill-rule.json
 PRESTUDY_JS = (ROOT / 'static/js/prestudy/prestudy.js').read_text(encoding='utf-8')
 
 LANG = 3
-SELECT_DB = 'id, word_sense_id, exercise_type, content, ladder_level'
 SELECT_STORAGE = 'id, word_sense_id, exercise_type, content_version, ladder_level'
 
 
@@ -194,12 +195,20 @@ def _sense(sid, lemma, freq):
                                'reading': lemma}}
 
 
+def _content_of(exercise_id):
+    return copy.deepcopy(CONTENT.get(exercise_id, {'k': exercise_id}))
+
+
 def _tables(rows=None):
-    exercises = []
+    """The fixture tables; each exercise's content goes into its sense's v0 file."""
+    exercises, files = [], {}
     for r in (EXERCISE_ROWS if rows is None else rows):
         row = {'is_active': True, 'language_id': LANG, 'content_version': 0, **r}
-        row['content'] = copy.deepcopy(CONTENT.get(r['id'], {'k': r['id']}))
         exercises.append(row)
+        files.setdefault(row['word_sense_id'], {})[row['id']] = _content_of(row['id'])
+    for sense, contents in files.items():
+        store.backend().seed(store.content_path(LANG, sense, 0),
+                             store.encode_sense_file(sense, LANG, 0, contents))
     return {
         'questions': [{'test_id': 't1', 'sense_ids': [11, 15], 'question_text': 'LEAK?'}],
         'dim_word_senses': [_sense(11, '猫', 4.0), _sense(12, '犬', 3.0), _sense(13, 'いる', None),
@@ -213,11 +222,6 @@ def _tables(rows=None):
         'user_calibration_state': [{'user_id': 'u1', 'language_id': LANG, 'ability_zipf': 5.0}],
         'exercises': exercises,
     }
-
-
-@pytest.fixture
-def storage_mode(monkeypatch):
-    monkeypatch.setattr(store, 'read_mode', lambda: 'storage')
 
 
 # ---------------------------------------------------------------------------
@@ -303,7 +307,7 @@ class TestPayload:
         assert '犬!' not in blob and 'internal_notes' not in blob and 'LEAK?' not in blob
         # one content read, for the drill senses that have exercises only
         (content_q,) = db.content_queries()
-        assert content_q['columns'] == SELECT_DB
+        assert content_q['columns'] == SELECT_STORAGE
         assert FakeDB.filter_value(content_q, 'word_sense_id') == (11,)
         assert FakeDB.filter_value(content_q, 'exercise_type') == tuple(prestudy.EXERCISE_FIELDS)
         # has_exercises reads row ids only, for every linked sense, renderable types only
@@ -318,17 +322,18 @@ class TestPayload:
         assert '15' not in out['exercises'] and 15 not in out['has_exercises']
         assert set(out['senses']) == {'11', '12', '13', '14', '15', '16'}
 
-    def test_db_mode_select_string_unchanged_and_hydrate_called_once(self, monkeypatch):
+    def test_real_store_hydrates_once_from_the_files(self, monkeypatch):
         calls = []
         real = store.hydrate
         monkeypatch.setattr(store, 'hydrate', lambda items, **kw: calls.append((list(items), kw)) or real(items, **kw))
         db = FakeDB(_tables())
         out = prestudy.build_prestudy_payload(db, TEST_ROW, 'u1', 2)
-        assert [q['columns'] for q in db.content_queries()] == [SELECT_DB]
+        assert [q['columns'] for q in db.content_queries()] == [SELECT_STORAGE]
         assert len(calls) == 1 and calls[0][1] == {'language_id': LANG, 'db': db}
-        assert out['exercises']['11'][0]['c']   # db mode: content straight from the rows
+        assert out['exercises']['11'][0]['c']   # content from the sense's file
+        assert store.backend().calls_for('get') == ['ja/11.v0.json']
 
-    def test_storage_mode_hydrates_once_with_the_language(self, monkeypatch, storage_mode):
+    def test_hydrates_once_with_the_language(self, monkeypatch):
         fake = FakeHydrate(CONTENT)
         monkeypatch.setattr(store, 'hydrate', fake)
         db = FakeDB(_tables())
@@ -344,7 +349,7 @@ class TestPayload:
         assert 'internal_notes' not in by_id['e11a']['c']
         assert by_id['e11b']['type'] == 'definition_match' and by_id['e11b']['group'] == 'use'
 
-    def test_hydration_miss_drops_content_keeps_has_exercises_and_queues_nothing(self, monkeypatch, storage_mode):
+    def test_hydration_miss_drops_content_keeps_has_exercises_and_queues_nothing(self, monkeypatch):
         fake = FakeHydrate(CONTENT, missing={'e11a', 'e11b'})
         monkeypatch.setattr(store, 'hydrate', fake)
         queued = []
@@ -368,9 +373,12 @@ class TestPayload:
 
     def test_load_exercises_keeps_its_two_argument_form(self):
         db = FakeDB(_tables())
-        out = prestudy._load_exercises(db, [11, 12])
+        # Without a language the rows (no language_id in the select) name no file, so
+        # nothing is served; every caller passes the test's language.
+        assert prestudy._load_exercises(db, [11, 12]) == {}
+        assert [q['columns'] for q in db.content_queries()] == [SELECT_STORAGE]
+        out = prestudy._load_exercises(db, [11, 12], language_id=LANG)
         assert set(out) == {'11', '12'}
-        assert [q['columns'] for q in db.content_queries()] == [SELECT_DB]
 
 
 # ---------------------------------------------------------------------------
@@ -430,14 +438,15 @@ class TestOnDemandEndpoint:
     def test_same_shape_as_the_payload(self, client, auth_headers, monkeypatch):
         self._wire(monkeypatch)
         data = resp_json(client.get(self.URL + '?sense_ids=12', headers=auth_headers))
-        rows = [{k: r[k] for k in ('id', 'word_sense_id', 'exercise_type', 'content', 'ladder_level')}
+        rows = [{**{k: r[k] for k in ('id', 'word_sense_id', 'exercise_type', 'ladder_level')},
+                 'content': _content_of(r['id'])}
                 for r in _tables()['exercises'] if r['word_sense_id'] == 12]
         assert data['exercises'] == prestudy.group_exercises(rows)
         assert data['exercises']['12'][0] == {
             'id': 'e12a', 'type': 'cloze_completion', 'group': 'use', 'level': 3,
             'c': {k: CONTENT['e12a'][k] for k in prestudy.EXERCISE_FIELDS['cloze_completion']}}
 
-    def test_storage_mode_hydrates_once_with_the_language(self, client, auth_headers, monkeypatch, storage_mode):
+    def test_hydrates_once_with_the_language(self, client, auth_headers, monkeypatch):
         fake = FakeHydrate(CONTENT)
         monkeypatch.setattr(store, 'hydrate', fake)
         db = self._wire(monkeypatch)
@@ -446,8 +455,7 @@ class TestOnDemandEndpoint:
         assert len(fake.calls) == 1 and fake.calls[0]['language_id'] == LANG and fake.calls[0]['db'] is db
         assert data['exercises']['16'][0]['c']['correct_definition'] == 'a'
 
-    def test_storage_miss_returns_no_exercises_and_queues_nothing(self, client, auth_headers, monkeypatch,
-                                                                  storage_mode):
+    def test_a_miss_returns_no_exercises_and_queues_nothing(self, client, auth_headers, monkeypatch):
         monkeypatch.setattr(store, 'hydrate', FakeHydrate({}))
         queued = []
         monkeypatch.setattr('services.vocabulary_ladder.queue_drain.enqueue', lambda *a, **k: queued.append(a) or True)
@@ -496,8 +504,7 @@ class TestGenerationUsesRowIds:
         assert resp.status_code == 200
         return resp_json(resp), queued
 
-    def test_hydration_miss_and_unloaded_senses_never_queue_generation(self, client, auth_headers, monkeypatch,
-                                                                       storage_mode):
+    def test_hydration_miss_and_unloaded_senses_never_queue_generation(self, client, auth_headers, monkeypatch):
         # 11 is a drill sense whose files are missing, 12 and 16 were never loaded
         # on the page; all have exercise rows, so none is queued.
         monkeypatch.setattr(store, 'hydrate', FakeHydrate({}))

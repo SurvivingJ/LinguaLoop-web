@@ -7,8 +7,14 @@
 --
 -- The cut-over deleted data from the database; SQL alone cannot bring it back. This file
 -- restores the SCHEMA and the pre-drop RPCs; the data comes back in step R2 from Storage.
--- Keep EXERCISE_CONTENT_SOURCE=storage (it passes p_include_content = false and hydrates from
--- the files) until step R4 has run; only then is EXERCISE_CONTENT_SOURCE=db possible again.
+-- A rollback therefore ALSO NEEDS A REFILL OF exercises.content FROM STORAGE (step R2), for
+-- which no script exists.
+-- Note (TASK-1031, 2026-11-19): the code no longer has the EXERCISE_CONTENT_SOURCE /
+-- EXERCISE_CONTENT_WRITE flags. It always passes p_include_content = false, hydrates from the
+-- files and writes the files first, whatever this rollback restores; serving or writing
+-- exercises.content again would also need the code from before TASK-1031. The pre-drop
+-- bodies restored in R1 are those of migrations/exercise_content_storage.sql and
+-- migrations/archive/exercise_content_session_rpcs.sql.
 -- Space: the refilled column costs ~119 MB again (~470 MB database); check the cap first.
 --
 -- What is NOT restored by SQL (restore from exercise-content/_archive/ if wanted):
@@ -745,8 +751,10 @@ COMMIT;
 -- For every row: content = the entry for its id in the file of its (word_sense_id,
 -- content_version) — store.fetch_sense(language_id, word_sense_id, content_version) — which
 -- includes every write made after the cut-over; rows whose file is missing come from the
--- _archive/exercises-content-<TAG>/ export taken on cut-over day. No script does this yet
--- (TASK-1023's backfill only exports and verifies): write one before relying on this rollback.
+-- _archive/exercises-content-<TAG>/ export taken on cut-over day (not taken: TASK-1030 skipped
+-- --archive-all, every row had a verified file). No script does this yet (TASK-1023's backfill
+-- only exported and verified, and was retired in TASK-1031): write one before relying on this
+-- rollback.
 -- It must update in batches of <= 2,000 rows with a plain VACUUM public.exercises between
 -- batches (the same reasoning as step 1 of the cut-over).
 

@@ -1,87 +1,68 @@
-"""``storage`` / ``shadow`` read path behind ``store.hydrate`` and ``store.fetch_sense``.
+"""Read path behind ``store.hydrate`` and ``store.fetch_sense`` (ADR-049 §5, §9).
 
-TASK-1010 (ADR-049 §5 and §9). ``store`` imports this module lazily, only in a
-non-``db`` read mode or from ``fetch_sense``.
+TASK-1010; the ``shadow`` comparison and the DB fallback were removed in
+TASK-1031 (``exercises.content`` was dropped on 2026-11-19). ``store`` imports
+this module lazily.
 
-Contract with ``store``:
+Contract with ``store``: ``store.hydrate`` validates the arguments and calls
+``hydrate(items, ...)`` with ``language_id`` already an int or None,
+``max_senses`` an int >= 0 and ``deadline_s`` a float > 0 (``None`` resolved
+from ``EXERCISE_CONTENT_MAX_SENSES_PER_CALL`` / ``EXERCISE_CONTENT_DEADLINE_S``).
+A direct call may still pass ``None`` for either; it is treated the same way.
+Exceptions propagate, so ``hydrate`` does not raise for storage, network or
+data problems.
 
-* ``store.hydrate`` validates the arguments, returns early in ``db`` mode and
-  calls ``hydrate(items, ..., mode=<'storage'|'shadow'>)`` with ``language_id``
-  already an int or None, ``max_senses`` an int >= 0 and ``deadline_s`` a float
-  > 0 (``None`` resolved from ``EXERCISE_CONTENT_MAX_SENSES_PER_CALL`` /
-  ``EXERCISE_CONTENT_DEADLINE_S``). A direct call may still pass ``None`` for
-  either; it is treated the same way.
-* In ``shadow`` mode ``store.hydrate`` swallows (and logs) any exception other
-  than ``ValueError``; in ``storage`` mode exceptions propagate, so ``hydrate``
-  does not raise for storage, network or data problems.
-
-``storage`` hydration, per call:
+Hydration, per call:
 
 1. Items considered: dicts with a truthy ``item[id_key]`` (``report.items``
    counts all of them). Items whose ``content`` is already non-None are left
    alone. The rest are grouped by ``(language, sense, version)``: language is
    the ``language_id`` argument, else ``item['language_id']``; sense is
    ``item[sense_key]``; version is ``item['content_version']``. An item without
-   a usable int for any of the three cannot be grouped and goes straight to
-   the DB fallback.
+   a usable int for any of the three cannot be grouped and is missing.
 2. Per-call cap: the first ``max_senses`` groups (in item order) are served;
    the rest count in ``over_cap`` and are treated as missing.
-3. Byte LRU (``cache_hits``) -> negative cache (a file known to be missing in
-   the last 60 s is not fetched) -> parallel ``backend.get`` on this module's
-   own ``ThreadPoolExecutor`` (``thread_name_prefix='exc-fetch'``, never
-   ``services.concurrency``'s pool, ADR-049 Context finding 7). The call waits
-   at most until ``deadline_s`` after it started; groups still in flight count
-   in ``over_cap`` and are treated as missing (the fetch keeps running and
+3. Without Storage credentials (``store._storage_configured()`` false) every
+   group is missing, with one ERROR per process and no network call.
+   Otherwise: byte LRU (``cache_hits``) -> negative cache (a file known to be
+   missing in the last 60 s is not fetched) -> parallel ``backend.get`` on this
+   module's own ``ThreadPoolExecutor`` (``thread_name_prefix='exc-fetch'``,
+   never ``services.concurrency``'s pool, ADR-049 Context finding 7). The call
+   waits at most until ``deadline_s`` after it started; groups still in flight
+   count in ``over_cap`` and are treated as missing (the fetch keeps running and
    warms the cache for the next call). ``fetched`` counts GETs that returned a
    file; a GET that finds nothing adds the key to the negative cache; a GET
-   that fails is logged (one WARNING per call) and retried by the next call.
+   that fails is retried once, then logged (one WARNING per call) and retried
+   by the next call.
 4. Each file is parsed once per call (``store.decode_sense_file``); a corrupt
    file is logged at ERROR, dropped from the byte cache, negative-cached and
    treated as missing. Every item receives an object shared with nothing else:
    a repeated id in one call gets a ``deepcopy``.
-5. DB fallback (``EXERCISE_CONTENT_DB_FALLBACK``, default on): the missing ids
-   are read with ``db.table('exercises').select('id, content').in_('id', chunk)``
-   per 200 ids (``db=None`` -> ``get_supabase_admin()``, only when needed), with
-   one WARNING ``exercise_content.db_fallback n=<ids> senses=<senses>``. An
-   error with code ``42703`` / ``PGRST204`` (the column is gone) turns the
-   fallback off for the process (one ERROR; ``store.reset_state()`` turns it
-   back on) and the items count as missing.
-6. Still missing: removed from ``items`` in place, order kept
-   (``drop_missing=True``, counted in ``dropped``) or given ``content=None``;
-   either way listed in ``missing_ids`` (unique, in item order) and logged
-   with one WARNING per call.
-
-``shadow`` hydration never mutates ``items``: per ``(language, sense,
-version)`` group of items that carry content, a snapshot of
-``store.canonical(content)`` per exercise is handed to ``shadow.submit`` for
-a sampled share of groups (``EXERCISE_CONTENT_SHADOW_SAMPLE``); the
-comparison happens on the shadow worker thread (see ``shadow.py``).
+5. Missing: removed from ``items`` in place, order kept (``drop_missing=True``,
+   counted in ``dropped``) or given ``content=None``; either way listed in
+   ``missing_ids`` (unique, in item order) and logged with one WARNING per call.
 """
 
 from __future__ import annotations
 
 import copy
 import logging
-import random
 import threading
 import time
 from concurrent.futures import Future, ThreadPoolExecutor, wait
 from dataclasses import dataclass, field
 from typing import Any
 
-from services.exercise_content import shadow, store
+from services.exercise_content import store
 from services.exercise_content.store import ContentStorageError, HydrationReport
 
 logger = logging.getLogger('services.exercise_content')
 
 FETCH_THREAD_PREFIX = 'exc-fetch'
-FALLBACK_CHUNK = 200
-MISSING_COLUMN_CODES = ('42703', 'PGRST204')
 _LOG_IDS = 10            # ids quoted in a WARNING line
 
 _executor_lock = threading.Lock()
 _executor: ThreadPoolExecutor | None = None
-_fallback_disabled = False
 
 
 def _fetch_executor() -> ThreadPoolExecutor:
@@ -96,11 +77,10 @@ def _fetch_executor() -> ThreadPoolExecutor:
 
 
 def _reset() -> None:
-    """``store.reset_state()`` hook: drop the pool and re-enable the DB fallback."""
-    global _executor, _fallback_disabled
+    """``store.reset_state()`` hook: drop the pool."""
+    global _executor
     with _executor_lock:
         old, _executor = _executor, None
-        _fallback_disabled = False
     if old is not None:
         old.shutdown(wait=False, cancel_futures=True)
 
@@ -157,29 +137,27 @@ def _resolve_limits(max_senses: Any, deadline_s: Any) -> tuple[int, float]:
 # ---------------------------------------------------------------------------
 
 def hydrate(items: list[dict], *, language_id: int | None, id_key: str, sense_key: str,
-            db, drop_missing: bool, max_senses: int | None, deadline_s: float | None,
-            mode: str) -> HydrationReport:
-    """``storage`` / ``shadow`` hydration of ``items`` in place (ADR-049 §9 ``hydrate``)."""
+            drop_missing: bool, max_senses: int | None,
+            deadline_s: float | None) -> HydrationReport:
+    """Hydration of ``items`` in place from the content files (ADR-049 §9 ``hydrate``)."""
     if not isinstance(items, list):
         raise ValueError(f'hydrate: items must be a list, got {type(items).__name__}')
     if language_id is not None and store._as_int(language_id) is None:
         raise ValueError(f'hydrate: language_id must be an int or None, got {language_id!r}')
     language_id = store._as_int(language_id) if language_id is not None else None
     max_senses, deadline_s = _resolve_limits(max_senses, deadline_s)
-    if mode == 'storage':
-        return _hydrate_storage(items, language_id=language_id, id_key=id_key,
-                                sense_key=sense_key, db=db, drop_missing=drop_missing,
-                                max_senses=max_senses, deadline_s=deadline_s)
-    if mode == 'shadow':
-        return _hydrate_shadow(items, language_id=language_id, id_key=id_key,
-                               sense_key=sense_key)
-    raise ValueError(f"hydrate: mode must be 'storage' or 'shadow', got {mode!r}")
+    return _hydrate_storage(items, language_id=language_id, id_key=id_key,
+                            sense_key=sense_key, drop_missing=drop_missing,
+                            max_senses=max_senses, deadline_s=deadline_s)
 
 
 def fetch_sense(language_id: int, sense_id: int, version: int) -> dict[str, dict] | None:
     """exercise_id -> content of one file (fresh objects), via the cache; None when
-    missing, unreadable or corrupt (logged). Never raises."""
+    missing, unreadable or corrupt (logged), or without Storage credentials. Never raises."""
     try:
+        if not store._storage_configured():
+            store._log_not_configured()
+            return None
         language = _non_negative_int(language_id)
         sense = _non_negative_int(sense_id)
         ver = _non_negative_int(version)
@@ -215,7 +193,7 @@ def fetch_sense(language_id: int, sense_id: int, version: int) -> dict[str, dict
 
 
 # ---------------------------------------------------------------------------
-# storage mode
+# hydration
 # ---------------------------------------------------------------------------
 
 def _forget_corrupt(key: tuple, path: str, exc: Exception, lru, neg) -> None:
@@ -233,7 +211,7 @@ def _fetch_one(backend, key: tuple, path: str, lru, neg) -> bytes | None:
     A failed GET (timeout, connection error, 5xx: ``ContentStorageError``) is
     retried once. A not-found answer is not an error and is never retried.
     Production 2026-11-18: one of seven cold GETs from Railway never reached
-    Supabase, and only the DB fallback (gone after the cut-over) hid it.
+    Supabase, and only the DB fallback (since removed) hid it.
     """
     try:
         data = backend.get(path)
@@ -301,72 +279,8 @@ def _assign(item: dict, content: Any, id_key: str, used: set[str]) -> None:
     used.add(exercise_id)
 
 
-def _is_missing_column(exc: BaseException) -> bool:
-    codes = set(MISSING_COLUMN_CODES)
-    if str(getattr(exc, 'code', '')) in codes:
-        return True
-    for arg in getattr(exc, 'args', ()):
-        if isinstance(arg, dict) and str(arg.get('code', '')) in codes:
-            return True
-    text = str(exc)
-    return any(code in text for code in codes)
-
-
-def _db_fallback(items: list, indexes: list[int], *, id_key: str, sense_key: str, db,
-                 report: HydrationReport) -> set[int]:
-    """Fill ``items[i]['content']`` from ``exercises.content``; returns the filled indexes."""
-    global _fallback_disabled
-    if not indexes or _fallback_disabled:
-        return set()
-    if not store._setting_bool('EXERCISE_CONTENT_DB_FALLBACK', True):
-        return set()
-    ids = list(dict.fromkeys(str(items[i][id_key]) for i in indexes))
-    senses = {str(items[i].get(sense_key)) for i in indexes}
-    if db is None:
-        try:
-            from services.supabase_factory import get_supabase_admin
-            db = get_supabase_admin()
-        except Exception as exc:
-            logger.warning('exercise_content.db_fallback_unavailable %s: %s',
-                           type(exc).__name__, exc)
-            return set()
-        if db is None:
-            logger.warning('exercise_content.db_fallback_unavailable no service client')
-            return set()
-    logger.warning('exercise_content.db_fallback n=%d senses=%d', len(ids), len(senses))
-    found: dict[str, Any] = {}
-    for start in range(0, len(ids), FALLBACK_CHUNK):
-        chunk = ids[start:start + FALLBACK_CHUNK]
-        try:
-            response = db.table('exercises').select('id, content').in_('id', chunk).execute()
-        except Exception as exc:
-            if _is_missing_column(exc):
-                _fallback_disabled = True
-                store._warn_once(('db_fallback_disabled',), logging.ERROR,
-                                 'exercise_content.db_fallback_disabled exercises.content is '
-                                 'gone (%s: %s); the DB fallback is off for this process',
-                                 type(exc).__name__, exc)
-                return set()
-            logger.warning('exercise_content.db_fallback_error %s: %s', type(exc).__name__, exc)
-            break
-        for row in getattr(response, 'data', None) or []:
-            if isinstance(row, dict) and row.get('id') is not None \
-                    and row.get('content') is not None:
-                found[str(row['id'])] = row['content']
-    filled: set[int] = set()
-    used: set[str] = set()
-    for index in indexes:
-        item = items[index]
-        content = found.get(str(item[id_key]))
-        if content is not None:
-            _assign(item, content, id_key, used)
-            filled.add(index)
-    report.db_fallback += len(filled)
-    return filled
-
-
 def _hydrate_storage(items: list, *, language_id: int | None, id_key: str, sense_key: str,
-                     db, drop_missing: bool, max_senses: int,
+                     drop_missing: bool, max_senses: int,
                      deadline_s: float) -> HydrationReport:
     started = time.monotonic()
     deadline_at = started + deadline_s
@@ -399,6 +313,11 @@ def _hydrate_storage(items: list, *, language_id: int | None, id_key: str, sense
 
     lru, neg = store._content_cache(), store._negative_cache()
     to_fetch: list[_Group] = []
+    if served and not store._storage_configured():
+        store._log_not_configured()
+        for group in served:
+            group.state = 'missing'
+        served = []
     for group in served:
         data = lru.get(group.key) if lru is not None else None
         if data is not None:
@@ -439,60 +358,17 @@ def _hydrate_storage(items: list, *, language_id: int | None, id_key: str, sense
                 _assign(item, content, id_key, used)
 
     missing.sort()
-    filled = _db_fallback(items, missing, id_key=id_key, sense_key=sense_key, db=db,
-                          report=report)
-    still_missing = [index for index in missing if index not in filled]
-    if still_missing:
-        report.missing_ids = list(dict.fromkeys(str(items[i][id_key]) for i in still_missing))
+    if missing:
+        report.missing_ids = list(dict.fromkeys(str(items[i][id_key]) for i in missing))
         if drop_missing:
-            drop = set(still_missing)
+            drop = set(missing)
             items[:] = [item for index, item in enumerate(items) if index not in drop]
             report.dropped = len(drop)
         else:
-            for index in still_missing:
+            for index in missing:
                 items[index]['content'] = None
         logger.warning('exercise_content.missing n=%d dropped=%d ids=%s',
                        len(report.missing_ids), report.dropped,
                        ','.join(report.missing_ids[:_LOG_IDS]))
-    report.elapsed_ms = (time.monotonic() - started) * 1000.0
-    return report
-
-
-# ---------------------------------------------------------------------------
-# shadow mode
-# ---------------------------------------------------------------------------
-
-def _hydrate_shadow(items: list, *, language_id: int | None, id_key: str,
-                    sense_key: str) -> HydrationReport:
-    started = time.monotonic()
-    report = HydrationReport(mode='shadow')
-    snapshots: dict[tuple, tuple[tuple[int, int, int], dict[str, str]]] = {}
-    for item in items:
-        if not isinstance(item, dict) or not item.get(id_key):
-            continue
-        report.items += 1
-        content = item.get('content')
-        if content is None:
-            continue
-        route = _route(item, language_id, sense_key)
-        if route is None:
-            continue
-        try:
-            text = store.canonical(content)
-        except (TypeError, ValueError):
-            continue
-        key = store._cache_key(*route)
-        snapshots.setdefault(key, (route, {}))[1][str(item[id_key])] = text
-    report.groups = len(snapshots)
-
-    sample = store._setting_float('EXERCISE_CONTENT_SHADOW_SAMPLE', 1.0, low=0.0, high=1.0)
-    if snapshots and sample > 0:
-        backend = store.backend()
-        lru, neg = store._content_cache(), store._negative_cache()
-        for (language, sense, version), snapshot in snapshots.values():
-            if sample >= 1.0 or random.random() < sample:
-                shadow.submit(shadow.ShadowJob(
-                    language_id=language, sense_id=sense, version=version, snapshot=snapshot,
-                    backend=backend, lru=lru, neg=neg))
     report.elapsed_ms = (time.monotonic() - started) * 1000.0
     return report

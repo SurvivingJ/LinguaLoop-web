@@ -4,7 +4,7 @@ feature: exercise-content-storage
 prose_page: ../decisions/ADR-049-exercise-content-in-storage.md  # no feature page; the ADR is the spec
 tech_page: ../decisions/ADR-049-exercise-content-in-storage.md
 total_tasks: 24
-done: 18
+done: 23
 ---
 
 # Exercise Content in Storage — Task Breakdown
@@ -732,7 +732,7 @@ Run the real store, writers, readers, backfill and sweep together over `FakeCont
 
 ## TASK-1026: Apply the Phase-1 migrations and deploy with both flags at `db` (OPERATOR)
 
-**Status:** [~] In Progress (migrations live, SQL test passed, code merged to `main` 2026-11-17 via PR #36; only the in-app walkthrough remains)
+**Status:** [x] Done (2026-11-18). Migrations live, SQL test passed, PR #36 deployed. The owner ran Practice sessions on 2026-11-18, and the logs show the intro block reading its files from Storage.
 **Feature:** exercise-content-storage
 **Type:** infra
 **Complexity:** S (1-3h)
@@ -782,7 +782,14 @@ The catalog queries above, a practice session in the app, `SELECT pg_size_pretty
 
 ## TASK-1027: Turn on dual writes, backfill and verify (OPERATOR)
 
-**Status:** [ ] Not Started
+**Status:** [x] Done (2026-11-17/18, owner decision: no Railway flag steps).
+- Dual writes come from the code defaults, not Railway variables: PR #39 changed the defaults to `EXERCISE_CONTENT_WRITE=dual` and `EXERCISE_CONTENT_SOURCE=storage`.
+- Export, run from the agent environment: en 196 senses / 1,829 rows, ja 3,041 / 41,506, zh 7,784 / 101,029. 11,021 files, 125 MB.
+- Two script fixes were needed:
+  - `exercise_content_live_versions` hit the 8 s PostgREST timeout for zh/ja, so the scripts fall back to keyset paging (PR #39);
+  - the upload/GET timeout was raised to 15–30 s for the scripts only.
+- `--verify --language all`: 11,021 files, 0 mismatches, marker `_archive/verify-ok/20261118T214626Z.json`.
+- The `exercise_content.*` rows of `storage.objects` take 17 MB of the database (the ADR estimated about 6.5 MB).
 **Feature:** exercise-content-storage
 **Type:** infra
 **Complexity:** M (3-8h)
@@ -805,7 +812,10 @@ The verify report; `SELECT count(*), pg_size_pretty(pg_total_relation_size('stor
 
 ## TASK-1028: Shadow reads for at least 7 days (OPERATOR)
 
-**Status:** [ ] Not Started
+**Status:** Won't Do (owner decision 2026-11-18: skip the shadow week). Replaced by:
+- the clean full `--verify`;
+- real Storage-mode sessions with the DB fallback still on. The first one surfaced one failed GET, which PR #40 fixed with a retry and a 60 s keepalive; the second had 0 fallbacks;
+- a no-write check of the session read path against production (23/23 ja items served, identical to the column).
 **Feature:** exercise-content-storage
 **Type:** infra
 **Complexity:** S (1-3h, spread over ≥ 7 days)
@@ -827,7 +837,12 @@ Railway logs filtered on `exercise_content.shadow_`; the verify report.
 
 ## TASK-1029: Serve from Storage and measure latency (OPERATOR)
 
-**Status:** [ ] Not Started
+**Status:** [x] Done (2026-11-18): Storage became the default read path through PR #39 / #40, not a Railway variable. Latency, measured from the agent environment, not from Railway:
+- single GET: median 0.18 s, p90 0.24 s, max 0.69 s;
+- a session's hydrate, cold: 468–592 ms for 2–3 files;
+- intro block in production: 10 files in about 0.3 s.
+
+The +10 % warm comparison against the DB path was not measured.
 **Feature:** exercise-content-storage
 **Type:** infra
 **Complexity:** S (1-3h)
@@ -848,7 +863,22 @@ The bench output and the evaluation page.
 
 ## TASK-1030: Cut-over — archive, drop the column, VACUUM FULL, sweep (OPERATOR)
 
-**Status:** [ ] Not Started
+**Status:** [x] Done (2026-11-18/19). Deviations from the runbook:
+- **Archives:**
+  - `--archive-all` was skipped (owner decision): every row already had a verified Storage file, and the whole-table reads exceed the 8 s PostgREST timeout on the Free instance.
+  - The sense-less rows were archived by id (`_archive/exercises-no-sense-20261118.json`, 10 rows).
+  - The semdisc leftovers were archived (`_archive/semdisc-20261115/`, 9 objects); the owner then dropped them early to make room (−20 MB).
+- **Steps 1–2:** `dedupe_key` filled for 30,491 rows in batches of 3,000–5,000 with VACUUM between; v2 index built CONCURRENTLY and valid.
+- **Step 3 was split** so the owner's block stayed short. In order:
+  1. The post-drop session RPCs were applied first. Safe before the drop: they don't read the column.
+  2. The owner ran preconditions + `DELETE` sense-less rows + `DROP INDEX` old + `DROP COLUMN content`.
+  3. The post-drop `exercise_content_commit` was applied straight after.
+  All function bodies are md5-identical to `migrations/exercise_content_drop_column.sql`.
+- **Step 4:** `VACUUM (FULL, ANALYZE) exercises`.
+  - Database 476 → **342 MB**; `exercises` 200 → 72 MB (55 MB heap, 16 MB indexes).
+  - Before the cut-over work the database was 523 MB (2026-11-17), and 494 MB after the Storage index rows were added.
+- **Step 5:** 0 orphan files, 0 live (sense, version) groups without a file. The sweep had nothing to do.
+- **Post-drop reads:** ja 23/23 and zh 20/20 items served from Storage with no fallback; review-ahead runs.
 **Feature:** exercise-content-storage
 **Type:** infra
 **Complexity:** M (3-8h)
@@ -875,7 +905,43 @@ Size queries in step 5; an app walkthrough; `wiki/log.md` entry.
 
 ## TASK-1031: Post-cut-over clean-up
 
-**Status:** [ ] Not Started
+**Status:** [x] Done (2026-11-19, agent; offline, no live-database or Storage access). Notes:
+- **Deviation from the criteria below:** `read_mode()` / `write_mode()` were removed outright
+  rather than kept accepting only `storage` (the brief for this run). `select_columns` always
+  reads `content_version`, `rpc_content_args()` is always `{'p_include_content': False}`,
+  `hydrate` always reads the files (`db=` accepted and ignored), `write_sense` always runs the
+  writer (`writer.write_sense`, was `write_sense_dual`). Without Storage credentials and no
+  `set_backend()` backend, `hydrate` treats every item needing content as missing (one ERROR)
+  and `write_sense` raises `ContentStorageError`.
+- **Removed:** the four flags in `config.py` (and the now-unused `_env_bool`), db mode, shadow
+  (`shadow.py` deleted), the DB fallback, `HydrationReport.db_fallback`, the writer's column
+  fallback. `scripts/backfill_exercise_content.py` and `tests/test_backfill_exercise_content.py`
+  deleted; the sweep's keyset-paging fallback and its two tests moved into
+  `scripts/sweep_exercise_content.py` / `tests/test_sweep_exercise_content.py`.
+- **SQL:** `tests/sql/test_session_budget_settings.sql` inserts no `content`;
+  `tests/sql/test_exercise_content_storage.sql` checks the post-drop state and reads/writes no
+  `content`; `scripts/sql/check_jumbled_and_definition_match.sql` deleted (nothing referenced
+  it; no Python replacement written).
+- **Migrations:** 7 files archived with README rows (see [[decisions/ADR-049-exercise-content-in-storage]]
+  "Transition code removed"); `phase8` / `phase9` / `phase12` / `task743` / `exercise_content_storage.sql`
+  kept as the only records of live objects; header notes on the kept ADR-049 files.
+- **Tests:** conftest fixture `_exercise_content_store` installs a fresh `InMemoryBackend` per
+  test. `test_exercise_content_store_db_mode.py` → `test_exercise_content_store.py`;
+  `test_exercise_content_migration_rpcs.py` deleted (pre-apply checks only); `FakeContentDB`
+  models the post-drop table only; the static write guard scans `services/exercise_content/`
+  too. Offline suite: 5,743 passed, 50 failed, 17 skipped, 1 collection error — every failure
+  is in the environment baseline (jieba / MeCab / ipadic / credentials); the run before the
+  change gave 5,887 passed with the same 50 failures (net 144 fewer tests: tests of removed
+  behaviour deleted, a few added).
+  ruff clean on all 42 changed Python files. No JS touched.
+- **Leftover direct use of `exercises.content`:** none found in `services/`, `routes/`,
+  `scripts/`, `utils/`, `web/`, `static/js`, `templates` (the remaining `content` selects are
+  on `word_assets`).
+- **Behaviour found while converting tests:** `prestudy._load_exercises(db, ids)` without a
+  `language_id` serves nothing (the select has no `language_id`, so no file can be named). Both
+  callers pass the test's language; a test whose row has no `language_id` would get no drill
+  content. Unchanged here.
+
 **Feature:** exercise-content-storage
 **Type:** refactor
 **Complexity:** M (3-8h)

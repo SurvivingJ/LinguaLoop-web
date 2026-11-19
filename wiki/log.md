@@ -7052,3 +7052,72 @@ Pages: [[features/dual-translation.tech]], [[index]].
 **Remaining for TASK-1026:** the owner's in-app check of Practice and the prestudy page, including on-demand exercise loading for an added word.
 Pages updated: 2 ([[tasklist/exercise-content-storage.tasks]], [[tasklist/master]]).
 
+## [2026-11-19] update | Exercise content to Storage — CUT-OVER DONE: `exercises.content` dropped, database 342 MB (TASK-1027–1030)
+The owner decided (2026-11-18) to skip the shadow week and the Railway flag steps and cut over at once.
+
+**Defaults changed in code:**
+- PR #39: Storage reads and dual writes by default; live-versions keyset fallback in the scripts.
+- PR #40: a failed Storage GET is retried once, and idle connections are kept 60 s instead of httpx's default 5 s. This came from the first Storage-mode session at 22:05 UTC: one of seven GETs (`ja/42754.v0.json`) never reached Supabase, and only the DB fallback hid it.
+- The second session at 00:43 had 0 fallbacks.
+
+**Export and checks:**
+- 11,021 files (125 MB).
+- `--verify --language all`: 0 mismatches.
+- Their `storage.objects` rows added 17 MB to the database.
+
+**Archives:**
+- semdisc leftovers (9 objects), then dropped by the owner (−20 MB);
+- the 10 sense-less rows, fetched by id;
+- `--archive-all` skipped (owner decision).
+
+**Steps 1–2:**
+- `dedupe_key` for 30,491 rows, batched, with VACUUM between batches;
+- v2 index built CONCURRENTLY.
+
+**Step 3, split:**
+1. Post-drop session RPCs applied first.
+2. The owner ran preconditions + delete 10 rows + drop old index + `DROP COLUMN content`.
+3. Post-drop `exercise_content_commit` applied straight after.
+
+Every body is md5-identical to the runbook.
+
+**Checks after the drop, using the store against production with no writes:**
+- ja 23/23 and zh 20/20 session items served from Storage, with no fallback;
+- review-ahead runs;
+- `VACUUM (FULL, ANALYZE) exercises`: database 476 → **342 MB**, `exercises` 200 → 72 MB;
+- 0 orphan files, 0 live groups without a file.
+
+Pages updated: 7 ([[decisions/ADR-049-exercise-content-in-storage]] accepted + "Cut-over completed"; [[tasklist/exercise-content-storage.tasks]] TASK-1026–1030; [[tasklist/master]]; [[database/schema.tech]]; [[features/practice-engine.tech]]; [[features/practice-extra-rounds.tech]]; index).
+
+**Next:** TASK-1031 (remove the transition code).
+
+
+## [2026-11-19] update | Exercise content to Storage — transition code removed (TASK-1031)
+Agent run, offline: no live database or Storage access. `exercises.content` was dropped earlier the same day (TASK-1030); this run removes the code that only made sense while the column existed. Production behaviour is unchanged: it already ran Storage reads and dual writes.
+
+**Code:**
+- `config.py`: `EXERCISE_CONTENT_SOURCE`, `_WRITE`, `_DB_FALLBACK`, `_SHADOW_SAMPLE` removed; the tuning settings stay.
+- `services/exercise_content/`: no `read_mode()` / `write_mode()`, no db read or write path, no shadow comparer (`shadow.py` deleted), no DB fallback. `select_columns` always reads `content_version`; `rpc_content_args()` is always `p_include_content: false`; the writer takes a sense's base content only from its current file.
+- Without Storage credentials (and no test backend), `hydrate` treats every item needing content as missing (one ERROR) and `write_sense` raises `ContentStorageError`.
+- Callers (typed re-grade, reference-set script, session assembly, speed round) no longer branch on a mode.
+- Log lines: the session INFO line lost `mode=` and `db_fallback=`; the `db_fallback*` and `shadow_*` lines are gone.
+
+**Scripts and SQL:**
+- `scripts/backfill_exercise_content.py` deleted (it only worked with the column). The sweep keeps the keyset-paging fallback for a timed-out live-versions RPC, now in the sweep script.
+- `scripts/sql/check_jumbled_and_definition_match.sql` deleted: it read the column and nothing referenced it.
+- `tests/sql/test_session_budget_settings.sql` and `tests/sql/test_exercise_content_storage.sql` no longer read or write `content`; the latter checks the post-drop state.
+
+**Migrations** (per `migrations/CLAUDE.md`; rows in `migrations/archive/README.md`):
+- Archived: `get_practice_session_language_scope.sql`, `practice_review_ahead.sql`, `exercise_content_session_rpcs.sql` and its rollback, `exercise_content_storage_rollback.sql`, `exercise_content_cutover_step3_20261118.sql`, `phase17_drop_deprecation_wrappers.sql`.
+- Markers: live `md5(prosrc)` = the `exercise_content_drop_column.sql` bodies (`e2f6089f…`, `4043b817…`, `e2199ec8…`), or the object absent live, checked 2026-11-19.
+- Kept as the only records of live objects: `phase8`, `phase9`, `phase12`, `task743`, `exercise_content_storage.sql`. `exercise_content_drop_column_rollback.sql` kept, with a header note that a rollback also needs a refill of the column from Storage and the code from before TASK-1031.
+
+**Tests:**
+- The conftest installs a fresh `InMemoryBackend` per test instead of pinning flags.
+- Tests of db mode, shadow, the fallback and the flags are deleted; the rest run against seeded files or `FakeContentDB` (post-drop table only).
+- `test_exercise_content_store_db_mode.py` renamed `test_exercise_content_store.py`; `test_exercise_content_migration_rpcs.py` deleted (pre-apply checks only).
+- Offline suite: 5,743 passed, 50 failed, 17 skipped, 1 collection error. Every failure is in the environment baseline (jieba / MeCab / ipadic / credentials). ruff clean on every changed file.
+
+**Leftover direct use of `exercises.content` in code:** none.
+
+Pages updated: 10 ([[decisions/ADR-049-exercise-content-in-storage]] §5, §6, §9 and "Transition code removed"; [[tasklist/exercise-content-storage.tasks]]; [[tasklist/master]]; [[features/practice-engine.tech]]; [[features/practice-extra-rounds.tech]]; [[features/test-prestudy.tech]]; [[database/schema.tech]]; [[database/rpcs.tech]] (dropped wrappers); [[api/rpcs.tech]]; index).

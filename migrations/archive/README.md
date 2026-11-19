@@ -179,3 +179,37 @@ and the older ones carry the NULL-permissive `p_user_id != auth.uid()` gate.
 | `bkt_vocabulary_tracking.sql` | `get_distractors` (3-arg, dropped by `get_distractors_drop_ambiguous_overload.sql`) | tables `user_vocabulary_knowledge`, `user_flashcards` and the `bkt_*` functions |
 | `daily_session_one_topic_per_day.sql` | `build_daily_session(uuid,smallint,date)` → canonical `build_daily_session_dt_windows.sql` (2026-11-17; since superseded by `build_daily_session_dt_agreed.sql`) | Fully superseded: its only object. Marker checked on live: `md5(prosrc)` = `2e1c3732cfe5c311d1588623e6ed9154`, body contains `usable AS (` and no `dt_passage_reference`. |
 | `build_daily_session_dt_windows.sql` | `build_daily_session(uuid,smallint,date)` → canonical `build_daily_session_dt_agreed.sql` (2026-11-17, ADR-050) | Fully superseded: its only object. Marker checked on live: `md5(prosrc)` = `43a6350874936f833042b7cef0dfe742` (the new body), body contains `AS agreed`. |
+
+## 2026-11-19 — TASK-1031 (ADR-049 post-cut-over clean-up)
+
+`exercises.content` was dropped live on 2026-11-19 (TASK-1030). The live
+`get_practice_session` / `get_review_ahead_items` (6 arguments; `p_include_content` accepted
+and ignored) and `exercise_content_commit` (no content column) were checked byte-identical to
+`exercise_content_drop_column.sql` step 3: live `md5(prosrc)` `e2f6089f9a57a18fe57be5729aad0658`,
+`4043b817a4f4ca8c70e45a1453bde729` and `e2199ec8e7eef96c3599c69b5f46b986`, the md5 of the
+bodies in that file. `get_exercise_session` (both overloads), `get_ladder_session`,
+`apply_semdisc_notes(jsonb)`, `backup_semdisc_content_20261115`, `semdisc_rewrite_work` and
+`uq_exercises_context_free_variant` were checked absent live the same day.
+
+| Archived file | Object | New canonical file | Live marker checked |
+|---|---|---|---|
+| `get_practice_session_language_scope.sql` | `get_practice_session(uuid,smallint,text,smallint,numeric)` | `exercise_content_drop_column.sql` (step 3e; signature `…, numeric, boolean`) | live prosrc md5 = drop_column.sql body (`e2f6089f…`), checked 2026-11-19; the 5-argument overload this file defines is absent live (cut-over step 3a refused to run while it existed) |
+| `practice_review_ahead.sql` | `get_review_ahead_items(uuid,smallint,integer,integer,integer[])` | `exercise_content_drop_column.sql` (step 3e; signature `…, integer[], boolean`) | live prosrc md5 = drop_column.sql body (`4043b817…`), checked 2026-11-19; the 5-argument overload is absent live (step 3a) |
+| `exercise_content_session_rpcs.sql` | 6-argument `get_practice_session` / `get_review_ahead_items` (pre-drop bodies, return `content` when asked); DROPs of the 5-argument overloads, `get_exercise_session` ×2, `get_ladder_session` | `exercise_content_drop_column.sql` (step 3e) for the two RPCs; the dropped functions have none | live prosrc md5 = drop_column.sql body (`e2f6089f…`, `4043b817…`), checked 2026-11-19; dropped functions: object dropped live, checked absent 2026-11-19 |
+| `exercise_content_session_rpcs_rollback.sql` | the 5-argument `get_practice_session` / `get_review_ahead_items` (recreated) | *(rollback of the file above; invalid after the column drop — its guard refuses without `exercises.content`)* | object dropped live: both 5-argument overloads absent, checked 2026-11-19 |
+| `exercise_content_storage_rollback.sql` | DROPs of `exercise_content_begin/commit/live_versions`, `exercise_content_version_seq`, `exercises.content_version`, `exercises.dedupe_key` | *(rollback of `exercise_content_storage.sql`, which stays canonical for those objects; the commit body is `exercise_content_drop_column.sql`)* | invalid after dual writes and the drop: the files are the only copy of the content, and dropping `content_version` would cut every row from its file; live commit prosrc md5 = drop_column.sql body (`e2199ec8…`), checked 2026-11-19 |
+| `exercise_content_cutover_step3_20261118.sql` | cut-over step 3 as one file: DELETE of the sense-less rows, DROPs of `apply_semdisc_notes(jsonb)`, `backup_semdisc_content_20261115`, `semdisc_rewrite_work`, `uq_exercises_context_free_variant`, `exercises.content`; `exercise_content_commit`, `get_practice_session`, `get_review_ahead_items` | `exercise_content_drop_column.sql` (step 3; the same function bodies byte for byte) | one-off, applied 2026-11-18/19 in three parts (TASK-1030); live prosrc md5 = drop_column.sql body (all three), checked 2026-11-19; dropped objects: object dropped live 2026-11-19 |
+| `phase17_drop_deprecation_wrappers.sql` | DROPs of `get_exercise_session(uuid,smallint,integer,numeric)`, `get_ladder_session(uuid,smallint,integer)` | *(dropped — no canonical)* | object dropped live: both absent, checked 2026-11-19 (the drops were repeated by `exercise_content_session_rpcs.sql`) |
+
+**Not archived, deliberately** (rule #4 — each is still the only repo record of a live
+object, although one of its objects is now stale or dropped):
+
+| Kept file | Stale or dropped object in it | Why it stays |
+|---|---|---|
+| `phase12_get_practice_session.sql` | `get_practice_session` (5-argument body; canonical: `exercise_content_drop_column.sql`) | only record of `ladder_compute_priority(...)`, which the live `get_practice_session` calls |
+| `phase9_get_exercise_session.sql` | `get_exercise_session(uuid,smallint,integer)` (dropped live) | only record of `exercise_type_phase_weight`, `tier_window_for_p_known`, `tier_to_phase` |
+| `phase8_momentum_bands.sql` | `get_ladder_session(uuid,smallint,integer)` (dropped live) | only record of `ladder_get_family`, `ladder_get_ring`, `ladder_ring_families`, `ladder_compute_p_known`, `fsrs_schedule_review`, the `user_word_ladder` columns `family_confidence`, `gates_passed`, `current_ring` and more |
+| `task743_context_free_exercise_caps.sql` | `uq_exercises_context_free_variant` (dropped live 2026-11-19; replaced by `uq_exercises_context_free_variant_v2` in `exercise_content_drop_column.sql`) | only record of `dim_exercise_types.context_class` |
+| `exercise_content_storage.sql` | `exercise_content_commit` (pre-drop body; canonical: `exercise_content_drop_column.sql`) | only record of `exercises.content_version`, `exercises.dedupe_key`, `exercise_content_version_seq`, `exercise_content_begin`, `exercise_content_live_versions` and the bucket row |
+| `exercise_content_drop_column.sql` | — | canonical for `exercise_content_commit`, the two session RPCs and `uq_exercises_context_free_variant_v2` |
+| `exercise_content_drop_column_rollback.sql` | the pre-drop RPC bodies (a rollback) | the only rollback of the cut-over; its header now says a rollback also needs a refill of `exercises.content` from Storage, and the code before TASK-1031 |

@@ -13,9 +13,9 @@ from unittest.mock import MagicMock
 import pytest
 
 from config import Config
-from services import practice_session_service as pss
 from services.practice_session_service import PracticeSessionService
 from services.vocabulary.knowledge_service import VocabularyKnowledgeService
+from tests.exercise_content_fakes import seed_content_files
 
 
 class _Q:
@@ -150,7 +150,7 @@ def test_maintenance_is_served_most_overdue_first():
 def test_ordering_failure_is_non_fatal_in_get_session(monkeypatch):
     s = PracticeSessionService.__new__(PracticeSessionService)
     s.db = MagicMock()
-    s.db.rpc.return_value.execute.return_value.data = {'items': _acq(1, 2)}
+    s.db.rpc.return_value.execute.return_value.data = {'items': seed_content_files(_acq(1, 2), 1)}
     s._maybe_top_up_ladder = lambda u, l: []
     s._apply_session_floor = lambda *a, **k: None
     s._apply_script_variant = lambda *a, **k: None

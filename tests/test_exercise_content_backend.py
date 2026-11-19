@@ -93,6 +93,7 @@ def test_from_config_reads_config_and_does_no_io(monkeypatch):
     assert backend.bucket == 'other-bucket'
     assert backend.http_timeout_s == 1.5 and backend.concurrency == 8
     assert backends._clients == {}, 'construction must not build a client'
+    store.set_backend(None)                  # drop the conftest's InMemoryBackend
     assert store.backend().base_url == BASE
 
 

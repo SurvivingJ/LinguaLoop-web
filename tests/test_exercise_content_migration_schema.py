@@ -1,11 +1,15 @@
-"""Static checks for migrations/exercise_content_storage.sql and its rollback (TASK-1016).
+"""Static checks for migrations/exercise_content_storage.sql (TASK-1016).
 
-ADR-049 §7 (schema changes) and §8 (the RPC contract the dual writer codes against). No
+ADR-049 §7 (schema changes) and §8 (the RPC contract the writer codes against). No
 database: the SQL is parsed. The behaviour itself is covered by
 tests/sql/test_exercise_content_storage.sql, which the operator runs on staging (TASK-1026).
+The file stays canonical for the columns, the sequence, begin and live_versions; its commit
+body is the pre-drop one (the live body is exercise_content_drop_column.sql, checked in
+test_exercise_content_migration_cutover.py). Its rollback was archived in TASK-1031: it is no
+longer valid once the files are the only copy of the content.
 
 The SQL helpers at the top (statements, function_defs, body_lines, code_without_strings) are
-also used by test_exercise_content_migration_rpcs.py and test_exercise_content_migration_cutover.py.
+also used by test_exercise_content_migration_cutover.py.
 """
 from __future__ import annotations
 
@@ -21,7 +25,6 @@ from tests.test_migration_security_lint import _split_statements, _strip_comment
 ROOT = Path(__file__).resolve().parent.parent
 MIGRATIONS = ROOT / 'migrations'
 STORAGE = 'exercise_content_storage.sql'
-STORAGE_ROLLBACK = 'exercise_content_storage_rollback.sql'
 SQL_TEST = ROOT / 'tests' / 'sql' / 'test_exercise_content_storage.sql'
 
 
@@ -465,42 +468,9 @@ def test_reloads_postgrest_schema(sql):
     assert has_statement(sql, r"NOTIFY pgrst, 'reload schema'")
 
 
-def test_security_lint_is_clean_for_both_files():
-    for name in (STORAGE, STORAGE_ROLLBACK):
-        problems = scan_file(MIGRATIONS / name)
-        assert not any(problems.values()), (name, problems)
-
-
-# --------------------------------------------------------------------------------------
-# The rollback file
-# --------------------------------------------------------------------------------------
-def test_rollback_drops_functions_sequence_and_columns():
-    rb = read(STORAGE_ROLLBACK)
-    stmts = [norm(s) for s in statements(rb)]
-    assert stmts[0] == 'BEGIN' and stmts[-1] == 'COMMIT'
-    for name, params in ADR_FUNCTIONS.items():
-        types = ', '.join(t for _n, t, _d in params)
-        assert f'DROP FUNCTION IF EXISTS public.{name}({types})' in stmts, name
-    assert 'DROP SEQUENCE IF EXISTS public.exercise_content_version_seq' in stmts
-    assert ('ALTER TABLE public.exercises DROP COLUMN IF EXISTS dedupe_key, '
-            'DROP COLUMN IF EXISTS content_version') in stmts
-
-
-def test_rollback_never_touches_bucket_objects_and_says_so():
-    rb = read(STORAGE_ROLLBACK)
-    code = ' '.join(bare_statements(rb))
-    assert 'storage.' not in code, 'the rollback must not delete bucket objects or the bucket'
-    header = rb[:rb.index('BEGIN;')]
-    assert re.search(r'never deletes bucket objects', header)
-    assert 'EXERCISE_CONTENT_WRITE=dual' in header
-
-
-def test_rollback_guards_against_dual_writes_and_the_session_rpcs():
-    rb = norm(read(STORAGE_ROLLBACK))
-    assert "to_regprocedure('public.get_practice_session(uuid, smallint, text, smallint, numeric, boolean)')" in rb
-    assert "to_regprocedure('public.get_review_ahead_items(uuid, smallint, integer, integer, integer[], boolean)')" in rb
-    assert 'SELECT 1 FROM public.exercises WHERE content_version <> 0' in rb
-    assert rb.index('DO $guard$') < rb.index('DROP FUNCTION IF EXISTS')
+def test_security_lint_is_clean():
+    problems = scan_file(MIGRATIONS / STORAGE)
+    assert not any(problems.values()), problems
 
 
 # --------------------------------------------------------------------------------------

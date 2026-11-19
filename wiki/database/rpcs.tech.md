@@ -39,7 +39,7 @@ breaking_change_risk: high
 > **Submission RPCs (`process_test_submission` + variants): unchanged.** Body-of-RPC modification was deferred in favor of the `apply_attempt_timing_and_progress` hook called by the route handler after the submission returns. Timing has no influence on ELO calculation so isolating it as a hook avoids duplicating ~250 lines × 4 RPCs.
 >
 > **Deprecation wrappers — REMOVED 2026-07-14 (TASK-220):**
-> - `get_exercise_session`, `get_ladder_session` — **dropped** by `migrations/phase17_drop_deprecation_wrappers.sql`. They had been thin wrappers delegating to `get_practice_session('auto', size·0.6 min)` and `get_practice_session('acquisition', count·0.5 min)`. `/api/exercises/session` and `/api/vocab-dojo/session` now 302 to `/api/practice/session`; the standalone pages were retired. The full-spec sections for both RPCs below are retained as historical record only.
+> - `get_exercise_session`, `get_ladder_session` — **dropped** by `migrations/phase17_drop_deprecation_wrappers.sql` (now in `migrations/archive/`). The drop did not take effect live; ADR-049 dropped them on 2026-11-17 and they were checked absent on 2026-11-19 (TASK-1031). They had been thin wrappers delegating to `get_practice_session('auto', size·0.6 min)` and `get_practice_session('acquisition', count·0.5 min)`. `/api/exercises/session` and `/api/vocab-dojo/session` now 302 to `/api/practice/session`; the standalone pages were retired. The full-spec sections for both RPCs below are retained as historical record only.
 >
 > **Cron:**
 > - New job `study_plan_weekly_recompute` — Sundays at 23:00 UTC; iterates `user_study_plans`, calls `compute_weekly_plan` per row under an advisory lock (same pattern as `irt_calibration_nightly`).
