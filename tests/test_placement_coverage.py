@@ -7,7 +7,6 @@ from statistics import mean
 
 import pytest
 
-from services import placement_design as pd
 from tests import placement_sim_model as sm
 
 N_PER_CELL = 600          # per IDK level: the bias SE is then ≈ 0.25% of the pool
