@@ -153,10 +153,10 @@ leaves the server.
   the zh prestudy p90 of 126) and a **per-call deadline** `EXERCISE_CONTENT_DEADLINE_S` (default
   3.0 s) with a per-GET timeout of 2.0 s. Senses over the cap or past the deadline are treated as
   missing.
-- Missing or unreadable file → `exercises.content` for those ids (one batched select per 200 ids)
+- ~~Missing or unreadable file → `exercises.content` for those ids (one batched select per 200 ids)
   with a WARNING, while the column exists (`EXERCISE_CONTENT_DB_FALLBACK`, default on; turned
-  off automatically on a "column does not exist" error). Still missing → the item is dropped
-  (default) and logged.
+  off automatically on a "column does not exist" error).~~ The DB fallback was removed with the
+  column (TASK-1031). A missing or unreadable file → the item is dropped (default) and logged.
 - **A session request makes at most two hydrate calls**: the intro-drill block (≤ 40 senses)
   and the final item list (≤ ~30 senses). Cold, each call costs ⌈senses / 16⌉ GET round trips
   run 16 at a time (40 intro senses ≈ 3, 30 item senses ≈ 2), all inside the 3 s deadline; a
@@ -171,20 +171,34 @@ leaves the server.
 
 ### 6. Flags
 
-| Flag (`config.py`, read at call time) | Values | Default | Meaning |
+**Since TASK-1031 (2026-11-19) there are no mode flags.** Reads always come from the files and
+writes always go file first, then the rows by compare-and-swap. The settings that remain
+(`config.py`, read at call time through the store):
+
+| Setting | Values | Default | Meaning |
 |---|---|---|---|
-| `EXERCISE_CONTENT_SOURCE` | `db` \| `shadow` \| `storage` | `db` | Read path. `db`: today's behaviour, byte-identical (no extra query, RPCs called with today's arguments, works before the migration). `shadow`: content still served from the DB; files are fetched and compared on a background executor (does not add request latency) and mismatches logged. `storage`: content from files. |
-| `EXERCISE_CONTENT_WRITE` | `db` \| `dual` | `db` | Write path. `db`: exactly today's PostgREST calls. `dual`: file first, then rows via the commit RPC, with content still written to the column. Requires the Phase-1 migration. Must be `dual` in **every** environment that writes (web workers and the shells that run upload/fat-seed scripts) before the backfill. |
 | `EXERCISE_CONTENT_BUCKET` | text | `exercise-content` | |
 | `EXERCISE_CONTENT_CACHE_MB` | int | 32 | per process (2 gunicorn workers → 64 MB) |
 | `EXERCISE_CONTENT_FETCH_CONCURRENCY` | int | 16 | |
 | `EXERCISE_CONTENT_MAX_SENSES_PER_CALL` | int | 160 | |
 | `EXERCISE_CONTENT_DEADLINE_S` / `EXERCISE_CONTENT_HTTP_TIMEOUT_S` | float | 3.0 / 2.0 | |
-| `EXERCISE_CONTENT_DB_FALLBACK` | bool | true | |
-| `EXERCISE_CONTENT_SHADOW_SAMPLE` | float 0–1 | 1.0 | share of groups compared in shadow |
 
-Unknown values fall back to `db` with one ERROR log. `storage` with `WRITE=db`, or a non-`db`
-mode without `SUPABASE_URL` / service key, logs one ERROR (the latter behaves as `db`).
+The negative-cache TTL (60 s) is a constant in `store.py`, not a setting. Without `SUPABASE_URL` /
+`SUPABASE_SERVICE_ROLE_KEY` (and no backend installed with `store.set_backend`), `hydrate`
+treats every item that needs content as missing and logs one ERROR per process, `fetch_sense`
+returns None, and `write_sense` raises `ContentStorageError`.
+
+Removed in TASK-1031 (they steered the transition and are no longer read):
+
+| Flag | Values | Last default | Meaning while it existed |
+|---|---|---|---|
+| ~~`EXERCISE_CONTENT_SOURCE`~~ | `db` \| `shadow` \| `storage` | `storage` (since 2026-11-18; `db` before) | Read path. `db`: the pre-ADR reads of `exercises.content`. `shadow`: content served from the DB, files compared in the background. `storage`: content from files. |
+| ~~`EXERCISE_CONTENT_WRITE`~~ | `db` \| `dual` | `dual` (since 2026-11-18; `db` before) | Write path. `db`: the pre-ADR PostgREST writes. `dual`: file first, then rows via the commit RPC, content still written to the column before the drop. |
+| ~~`EXERCISE_CONTENT_DB_FALLBACK`~~ | bool | true | Fill items whose file was missing from `exercises.content`. |
+| ~~`EXERCISE_CONTENT_SHADOW_SAMPLE`~~ | float 0–1 | 1.0 | Share of groups compared in shadow. |
+
+While the flags existed, unknown values fell back to `db` with one ERROR log, and so did a
+non-`db` mode without `SUPABASE_URL` / service key.
 
 ### 7. Schema changes
 
@@ -251,6 +265,14 @@ backfill and the sweep; one value, so PostgREST's 1,000-row cap does not apply).
 `b`, `c`, `d` and `e` code against this before `a` exists; TASK-1008 lands it first with the
 `db`-mode behaviour fully working and the `storage` / `shadow` / `dual` branches delegating to
 `reader.py` / `writer.py`.
+
+> **TASK-1031 (2026-11-19):** the modes are gone. `READ_MODES`, `WRITE_MODES`, `read_mode()` and
+> `write_mode()` no longer exist; `select_columns` always reads `content_version`;
+> `rpc_content_args()` is always `{'p_include_content': False}`; `hydrate` always reads the files
+> (`db` is accepted and ignored; `HydrationReport` has no `db_fallback`, `mode` is always
+> `storage`); `write_sense` always runs the file-first compare-and-swap writer
+> (`writer.write_sense`, formerly `write_sense_dual`; `WriteResult.mode` is always `dual`). See
+> "Transition code removed" below. The block keeps the text the packages coded against.
 
 ```python
 from services.exercise_content import store   # the only import callers use
@@ -441,7 +463,7 @@ prestudy payload differs only by the owner's drill-only change).
 | b writers | 1012–1015 | `render_all`, `exercise_stage_runner cmd_render`, `queue_drain._regenerate`, `run_generation_batch`, `backfill_exercise_audio.py`, `backfill_hant_mirrors.py` write through `store.write_sense`; static guard `tests/test_exercise_content_write_paths.py` |
 | c SQL | 1016–1018 | `migrations/exercise_content_storage.sql`, `…_session_rpcs.sql`, `…_drop_column.sql` (runbook, steps 0–5), each with a `_rollback.sql`; `tests/sql/test_exercise_content_storage.sql`; static tests |
 | d readers | 1019–1022 | session, extra round, prestudy follow-ups, intro block, speed round, gate/stress, prestudy (drill-only + on-demand endpoint), typed re-grade, admin preview, reference-set script |
-| e scripts | 1023–1024 | `scripts/backfill_exercise_content.py` (export / verify / repair / archive), `scripts/sweep_exercise_content.py` |
+| e scripts | 1023–1024 | `scripts/backfill_exercise_content.py` (export / verify / repair / archive; deleted in TASK-1031), `scripts/sweep_exercise_content.py` |
 | integration | 1025 | `tests/test_exercise_content_integration.py` (scenarios 1–8 of TASK-1025, three flag combinations) |
 
 ### Implementation notes on §8 / §9 (where the contract was silent or was tightened)
@@ -545,7 +567,38 @@ prestudy payload differs only by the owner's drill-only change).
 
 The step-by-step record is in [[tasklist/exercise-content-storage.tasks]] (TASK-1027–1030).
 
-**Remaining:** TASK-1031 removes the transition code: db mode, the fallback, the read/write flags and the pre-drop migration files.
+**Remaining:** none. TASK-1031 removed the transition code (next section).
+
+### Transition code removed (2026-11-19, TASK-1031)
+
+The repo now matches the live database: there is no `exercises.content` anywhere in the code.
+
+- **Code.** `config.py` lost `EXERCISE_CONTENT_SOURCE`, `_WRITE`, `_DB_FALLBACK` and
+  `_SHADOW_SAMPLE` (§6). `store.py` has no modes (§9 note). `reader.py` has no DB fallback and no
+  shadow comparison (`shadow.py` deleted); `writer.py` takes a sense's base content only from
+  file v, and raises `ContentStorageError` when the file is missing or lacks a surviving id.
+  Callers no longer branch on a mode. Production behaviour is unchanged: it already ran
+  `storage` / `dual`. The only visible differences are log lines: the session INFO line lost
+  `mode=` and `db_fallback=`, and the `db_fallback*` and `shadow_*` lines are gone.
+- **Scripts.** `scripts/backfill_exercise_content.py` (export / verify / repair / archive) is
+  deleted: it only worked with `exercises.content`, and its jobs are done. The sweep keeps the
+  keyset-paging fallback for a timed-out `exercise_content_live_versions`, now in the sweep
+  script itself. `scripts/sql/check_jumbled_and_definition_match.sql` is deleted (it read the
+  column; such audits are Python over `store.fetch_sense` now).
+- **Migrations** (per `migrations/CLAUDE.md`, rows in `migrations/archive/README.md`): archived
+  `get_practice_session_language_scope.sql`, `practice_review_ahead.sql`,
+  `exercise_content_session_rpcs.sql` and its rollback, `exercise_content_storage_rollback.sql`,
+  `exercise_content_cutover_step3_20261118.sql`, `phase17_drop_deprecation_wrappers.sql`.
+  `exercise_content_drop_column.sql` is canonical for `exercise_content_commit` and the session
+  RPCs (live md5 = its bodies, checked 2026-11-19). Kept: `exercise_content_storage.sql`
+  (columns, sequence, begin, live_versions, bucket), `exercise_content_drop_column_rollback.sql`
+  (header: a rollback also needs a refill of the column from Storage, and the code from before
+  TASK-1031), and the multi-object `phase8` / `phase9` / `phase12` / `task743` files.
+- **Tests.** The conftest installs a fresh `InMemoryBackend` per test instead of pinning the
+  flags; tests of db mode, shadow, the fallback and the flags are deleted, and the rest run
+  against seeded files or `FakeContentDB` (which now models the post-drop table only).
+  `tests/sql/test_exercise_content_storage.sql` checks the post-drop state. The static write
+  guard now scans `services/exercise_content/` too.
 
 ### Live status (2026-11-17, TASK-1026)
 
@@ -705,7 +758,7 @@ operator step, **—** no change.
 | 10 | `routes/practice.py:273` `_grade_typed_if_needed` | R | serve (POST attempt) | inspects `answer.accepted` to re-grade `cloze_typed` | d |
 | 11 | `routes/vocab_admin.py:314` `preview_word` | R | admin | returns one sense's content (+ jumbled prep) | d |
 | 12 | `scripts/build_exercise_gen_reference_set.py:295` `fetch_exercise_snapshot` | R | offline eval | snapshots content as `payload` | d |
-| 13 | `scripts/sql/check_jumbled_and_definition_match.sql` | R | offline audit (SQL) | inspects `chunks` / `original_sentence` | retire at clean-up (TASK-1031) |
+| 13 | `scripts/sql/check_jumbled_and_definition_match.sql` | R | offline audit (SQL) | inspects `chunks` / `original_sentence` | **deleted in TASK-1031** (nothing referenced it) |
 | 14 | `services/vocabulary_ladder/exercise_renderer.py:70` `render_all` (callers: `routes/vocab_admin.py` upload-words + render-exercises, `services/word_list_import/upload_handler.py`, `services/exercise_generation/run_exercise_generation.py`, `scripts/upload_exercises.py`, `scripts/run_content_build.py`, `scripts/render_existing_assets.py`) | W insert | offline/admin | inserts rendered rows | b (callers unchanged) |
 | 15 | `services/vocabulary_ladder/queue_drain.py:342` `_regenerate` | W delete+insert | offline (scheduler) | scoped regen: replaces rows at some levels | b |
 | 16 | `scripts/run_generation_batch.py:334` | W delete+insert | offline | replaces a sense's ladder rows | b |

@@ -7091,3 +7091,33 @@ Pages updated: 7 ([[decisions/ADR-049-exercise-content-in-storage]] accepted + "
 
 **Next:** TASK-1031 (remove the transition code).
 
+
+## [2026-11-19] update | Exercise content to Storage — transition code removed (TASK-1031)
+Agent run, offline: no live database or Storage access. `exercises.content` was dropped earlier the same day (TASK-1030); this run removes the code that only made sense while the column existed. Production behaviour is unchanged: it already ran Storage reads and dual writes.
+
+**Code:**
+- `config.py`: `EXERCISE_CONTENT_SOURCE`, `_WRITE`, `_DB_FALLBACK`, `_SHADOW_SAMPLE` removed; the tuning settings stay.
+- `services/exercise_content/`: no `read_mode()` / `write_mode()`, no db read or write path, no shadow comparer (`shadow.py` deleted), no DB fallback. `select_columns` always reads `content_version`; `rpc_content_args()` is always `p_include_content: false`; the writer takes a sense's base content only from its current file.
+- Without Storage credentials (and no test backend), `hydrate` treats every item needing content as missing (one ERROR) and `write_sense` raises `ContentStorageError`.
+- Callers (typed re-grade, reference-set script, session assembly, speed round) no longer branch on a mode.
+- Log lines: the session INFO line lost `mode=` and `db_fallback=`; the `db_fallback*` and `shadow_*` lines are gone.
+
+**Scripts and SQL:**
+- `scripts/backfill_exercise_content.py` deleted (it only worked with the column). The sweep keeps the keyset-paging fallback for a timed-out live-versions RPC, now in the sweep script.
+- `scripts/sql/check_jumbled_and_definition_match.sql` deleted: it read the column and nothing referenced it.
+- `tests/sql/test_session_budget_settings.sql` and `tests/sql/test_exercise_content_storage.sql` no longer read or write `content`; the latter checks the post-drop state.
+
+**Migrations** (per `migrations/CLAUDE.md`; rows in `migrations/archive/README.md`):
+- Archived: `get_practice_session_language_scope.sql`, `practice_review_ahead.sql`, `exercise_content_session_rpcs.sql` and its rollback, `exercise_content_storage_rollback.sql`, `exercise_content_cutover_step3_20261118.sql`, `phase17_drop_deprecation_wrappers.sql`.
+- Markers: live `md5(prosrc)` = the `exercise_content_drop_column.sql` bodies (`e2f6089f…`, `4043b817…`, `e2199ec8…`), or the object absent live, checked 2026-11-19.
+- Kept as the only records of live objects: `phase8`, `phase9`, `phase12`, `task743`, `exercise_content_storage.sql`. `exercise_content_drop_column_rollback.sql` kept, with a header note that a rollback also needs a refill of the column from Storage and the code from before TASK-1031.
+
+**Tests:**
+- The conftest installs a fresh `InMemoryBackend` per test instead of pinning flags.
+- Tests of db mode, shadow, the fallback and the flags are deleted; the rest run against seeded files or `FakeContentDB` (post-drop table only).
+- `test_exercise_content_store_db_mode.py` renamed `test_exercise_content_store.py`; `test_exercise_content_migration_rpcs.py` deleted (pre-apply checks only).
+- Offline suite: 5,743 passed, 50 failed, 17 skipped, 1 collection error. Every failure is in the environment baseline (jieba / MeCab / ipadic / credentials). ruff clean on every changed file.
+
+**Leftover direct use of `exercises.content` in code:** none.
+
+Pages updated: 10 ([[decisions/ADR-049-exercise-content-in-storage]] §5, §6, §9 and "Transition code removed"; [[tasklist/exercise-content-storage.tasks]]; [[tasklist/master]]; [[features/practice-engine.tech]]; [[features/practice-extra-rounds.tech]]; [[features/test-prestudy.tech]]; [[database/schema.tech]]; [[database/rpcs.tech]] (dropped wrappers); [[api/rpcs.tech]]; index).

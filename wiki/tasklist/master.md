@@ -1,6 +1,6 @@
 ---
 title: Master Task List
-last_updated: 2026-11-17
+last_updated: 2026-11-19
 ---
 
 # Master Task List
@@ -19,12 +19,19 @@ below.
 
 | Status | Count |
 |--------|-------|
-| Not Started | 48 |
+| Not Started | 47 |
 | In Progress (`[~]`) | 15 |
 | Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 30 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
 | Won't Do (obsolete) | 3 |
-| Done (cumulative, not listed here) | 281 |
+| Done (cumulative, not listed here) | 282 |
+
+*2026-11-19 (Exercise Content in Storage — TRANSITION CODE REMOVED, TASK-1031):*
+- No read/write modes, no DB fallback, no shadow comparer and no `EXERCISE_CONTENT_SOURCE` / `_WRITE` / `_DB_FALLBACK` / `_SHADOW_SAMPLE` flags: content is read only from the files and written file first. Production behaviour unchanged (it already ran Storage reads and dual writes).
+- `scripts/backfill_exercise_content.py` and `scripts/sql/check_jumbled_and_definition_match.sql` deleted; the sweep keeps its keyset-paging fallback.
+- 7 superseded migration files archived (rows in `migrations/archive/README.md`); `exercise_content_drop_column.sql` is canonical for the commit and session RPCs.
+- Offline suite: only the environment-baseline failures. See [[decisions/ADR-049-exercise-content-in-storage]] "Transition code removed".
+- Counts: Not Started 48→47, Done 281→282.
 
 *2026-11-19 (Exercise Content in Storage — CUT-OVER DONE, TASK-1026–1030):*
 - `exercises.content` is dropped and exercise content is served only from the private Storage bucket `exercise-content`. The defaults are Storage reads and dual writes (PR #39), with a GET retry and a 60 s keepalive (PR #40).
@@ -1296,7 +1303,7 @@ Full spec: [[tasklist/exercise-content-storage.tasks]] · [[decisions/ADR-049-ex
 | TASK-1028 | exercise-content-storage | OPERATOR: shadow reads ≥ 7 days | Won't Do (owner: shadow week skipped) | S | TASK-1027 |
 | TASK-1029 | exercise-content-storage | OPERATOR: serve from Storage, latency within +10% warm | Done (2026-11-18) | S | TASK-1028 |
 | TASK-1030 | exercise-content-storage | OPERATOR: cut-over — archive, drop column, VACUUM FULL, sweep (LIVE-DB, approval) | Done (2026-11-19) | M | TASK-1029, TASK-1018 |
-| TASK-1031 | exercise-content-storage | Post-cut-over clean-up (remove transition code, archive superseded migrations) | [ ] | M | TASK-1030 |
+| TASK-1031 | exercise-content-storage | Post-cut-over clean-up (remove transition code, archive superseded migrations) | Done (2026-11-19) | M | TASK-1030 |
 
 ### Mobile Redesign — App Shell and Design System (ADR-048) — NEW 2026-11-16
 Full spec: [[tasklist/mobile-redesign.tasks]] · [[pages/app-shell.tech]] · [[decisions/ADR-048-mobile-app-shell]]. Built in the working tree; not committed, not deployed.

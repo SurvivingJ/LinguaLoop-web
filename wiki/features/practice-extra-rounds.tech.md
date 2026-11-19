@@ -3,7 +3,7 @@ title: Practice Extra Rounds — Technical Specification
 type: feature-tech
 status: in-progress
 prose_page: practice-extra-rounds.md
-last_updated: 2026-11-17
+last_updated: 2026-11-19
 dependencies:
   - "get_practice_session (RPC)"
   - "get_review_ahead_items (RPC, new)"
@@ -27,7 +27,9 @@ Practice mode summary → "Keep practising" panel (controller.js)
 ```
 
 ## Database Impact
-- New RPC `get_review_ahead_items` (`migrations/practice_review_ahead.sql`), service_role only.
+- New RPC `get_review_ahead_items` (originally `migrations/practice_review_ahead.sql`, now in
+  `migrations/archive/`; canonical body since 2026-11-19: `migrations/exercise_content_drop_column.sql`
+  step 3e), service_role only.
   Pool: `user_flashcards` rows for the language with `reps > 0`, excluding senses attempted in
   the last `p_exclude_recent_minutes` and `p_exclude_sense_ids`. Order: `bkt_effective_p_known`
   ascending, then `due_date` ascending. One active exercise per sense, least recently attempted
@@ -57,19 +59,21 @@ daily session). `scope=practice` is still sent by the Practice-mode client but n
 the response. The queue, `progress` and `next_index` are unchanged: tests stay required.
 
 ### `get_review_ahead_items(p_user_id uuid, p_language_id smallint, p_limit int=10, p_exclude_recent_minutes int=10, p_exclude_sense_ids int[]='{}') → jsonb`
-Array of items `{exercise_id, sense_id, exercise_type, family, content, ladder_level, p_known,
-expected_seconds, mode:'maintenance', review_ahead:true}`. `p_limit` is clamped to 0..50.
+Array of items `{exercise_id, sense_id, exercise_type, family, content_version, ladder_level,
+p_known, expected_seconds, mode:'maintenance', review_ahead:true}` (no `content` since the
+2026-11-19 cut-over; Python fills it from the files). `p_limit` is clamped to 0..50.
 
-**ADR-049 (applied live 2026-11-17; post-drop versions live 2026-11-19, items never carry content; TASK-1017 / TASK-1030):**
-`migrations/exercise_content_session_rpcs.sql` replaces it with a 6th argument
-`p_include_content boolean DEFAULT true` (`LANGUAGE sql VOLATILE`, as live; service_role only;
-the 5-argument function is dropped in the same transaction, so today's calls resolve to the new
-one). Every item gains `content_version`; `content` is present only when `p_include_content`.
-`_extra_review_items` passes `**store.rpc_content_args()` (db: nothing; shadow: true; storage:
-false) and `get_extra_round` fills content with one `store.hydrate` call just before the script
-variant (see [[features/practice-engine.tech]] "Exercise content hydration"). After the cut-over
-content is never returned. In `storage` mode `extra.reviews_served` / `new_words_served` are
-counted before hydration, so they can overstate when an item is dropped (no client reads them).
+**ADR-049 (TASK-1017 / TASK-1030 / TASK-1031):** the live function has a 6th argument
+`p_include_content boolean DEFAULT true` (`LANGUAGE sql VOLATILE`; service_role only; the
+5-argument function is gone). Since the cut-over (2026-11-19) the argument is accepted and
+ignored: items carry `content_version` and never `content`. Canonical body:
+`migrations/exercise_content_drop_column.sql` step 3e (live md5 `4043b817…`, checked 2026-11-19);
+the pre-drop `exercise_content_session_rpcs.sql` is archived. `_extra_review_items` passes
+`**store.rpc_content_args()` (always `p_include_content: false`) and `get_extra_round` fills
+content with one `store.hydrate` call just before the script variant (see
+[[features/practice-engine.tech]] "Exercise content hydration"). `extra.reviews_served` /
+`new_words_served` are counted before hydration, so they can overstate when an item is dropped
+(no client reads them).
 
 ## Service
 `PracticeSessionService.get_extra_round(user_id, language_id, reviews, new_words, exclude_sense_ids)`

@@ -4,7 +4,7 @@ feature: exercise-content-storage
 prose_page: ../decisions/ADR-049-exercise-content-in-storage.md  # no feature page; the ADR is the spec
 tech_page: ../decisions/ADR-049-exercise-content-in-storage.md
 total_tasks: 24
-done: 18
+done: 23
 ---
 
 # Exercise Content in Storage — Task Breakdown
@@ -905,7 +905,43 @@ Size queries in step 5; an app walkthrough; `wiki/log.md` entry.
 
 ## TASK-1031: Post-cut-over clean-up
 
-**Status:** [ ] Not Started
+**Status:** [x] Done (2026-11-19, agent; offline, no live-database or Storage access). Notes:
+- **Deviation from the criteria below:** `read_mode()` / `write_mode()` were removed outright
+  rather than kept accepting only `storage` (the brief for this run). `select_columns` always
+  reads `content_version`, `rpc_content_args()` is always `{'p_include_content': False}`,
+  `hydrate` always reads the files (`db=` accepted and ignored), `write_sense` always runs the
+  writer (`writer.write_sense`, was `write_sense_dual`). Without Storage credentials and no
+  `set_backend()` backend, `hydrate` treats every item needing content as missing (one ERROR)
+  and `write_sense` raises `ContentStorageError`.
+- **Removed:** the four flags in `config.py` (and the now-unused `_env_bool`), db mode, shadow
+  (`shadow.py` deleted), the DB fallback, `HydrationReport.db_fallback`, the writer's column
+  fallback. `scripts/backfill_exercise_content.py` and `tests/test_backfill_exercise_content.py`
+  deleted; the sweep's keyset-paging fallback and its two tests moved into
+  `scripts/sweep_exercise_content.py` / `tests/test_sweep_exercise_content.py`.
+- **SQL:** `tests/sql/test_session_budget_settings.sql` inserts no `content`;
+  `tests/sql/test_exercise_content_storage.sql` checks the post-drop state and reads/writes no
+  `content`; `scripts/sql/check_jumbled_and_definition_match.sql` deleted (nothing referenced
+  it; no Python replacement written).
+- **Migrations:** 7 files archived with README rows (see [[decisions/ADR-049-exercise-content-in-storage]]
+  "Transition code removed"); `phase8` / `phase9` / `phase12` / `task743` / `exercise_content_storage.sql`
+  kept as the only records of live objects; header notes on the kept ADR-049 files.
+- **Tests:** conftest fixture `_exercise_content_store` installs a fresh `InMemoryBackend` per
+  test. `test_exercise_content_store_db_mode.py` → `test_exercise_content_store.py`;
+  `test_exercise_content_migration_rpcs.py` deleted (pre-apply checks only); `FakeContentDB`
+  models the post-drop table only; the static write guard scans `services/exercise_content/`
+  too. Offline suite: 5,743 passed, 50 failed, 17 skipped, 1 collection error — every failure
+  is in the environment baseline (jieba / MeCab / ipadic / credentials); the run before the
+  change gave 5,887 passed with the same 50 failures (net 144 fewer tests: tests of removed
+  behaviour deleted, a few added).
+  ruff clean on all 42 changed Python files. No JS touched.
+- **Leftover direct use of `exercises.content`:** none found in `services/`, `routes/`,
+  `scripts/`, `utils/`, `web/`, `static/js`, `templates` (the remaining `content` selects are
+  on `word_assets`).
+- **Behaviour found while converting tests:** `prestudy._load_exercises(db, ids)` without a
+  `language_id` serves nothing (the select has no `language_id`, so no file can be named). Both
+  callers pass the test's language; a test whose row has no `language_id` would get no drill
+  content. Unchanged here.
+
 **Feature:** exercise-content-storage
 **Type:** refactor
 **Complexity:** M (3-8h)
