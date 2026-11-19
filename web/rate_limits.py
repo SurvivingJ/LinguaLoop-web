@@ -70,6 +70,11 @@ ENDPOINT_LIMITS = {
     'vocab_admin.generate_assets': (('30 per hour', user_or_ip),),
     'vocab_admin.render_exercises': (('30 per hour', user_or_ip),),
     'vocab_admin.upload_words': (('30 per hour', user_or_ip),),
+
+    # Knowledge Report (wiki/features/knowledge-report.tech.md §6.5). The Pro
+    # routes (words, word_detail, list_words, export) are added with their routes.
+    'knowledge.summary': (('30 per minute; 600 per hour', user_or_ip),),
+    'knowledge.prestudy_suggestion': (('30 per minute; 300 per hour', user_or_ip),),
 }
 
 EXEMPT_ENDPOINTS = ('health_check',)
