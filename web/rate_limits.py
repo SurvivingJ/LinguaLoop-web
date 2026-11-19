@@ -70,6 +70,11 @@ ENDPOINT_LIMITS = {
     'vocab_admin.generate_assets': (('30 per hour', user_or_ip),),
     'vocab_admin.render_exercises': (('30 per hour', user_or_ip),),
     'vocab_admin.upload_words': (('30 per hour', user_or_ip),),
+
+    # Vocabulary placement (vocab-placement tech §14). The per-language cap of
+    # 3 starts a day is enforced in services/calibration_placement.start().
+    'calibration.placement_start': (('10 per day', user_or_ip),),
+    'calibration.placement_answer': (('120 per minute', user_or_ip),),
 }
 
 EXEMPT_ENDPOINTS = ('health_check',)

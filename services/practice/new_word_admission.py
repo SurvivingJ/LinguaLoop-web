@@ -441,16 +441,18 @@ class NewWordAdmissionMixin:
         admitted: List[int] = []
         taken = set(exclude)
 
-        recent, wrong_by_question, ledger, rows = run_parallel(
+        recent, wrong_by_question, ledger, rows, pledger = run_parallel(
             lambda: self._recent_test_sense_ids(user_id, language_id),
             lambda: self._wrong_answer_sense_counts(user_id),
             lambda: self._calibration_ledger(user_id, language_id),
             lambda: self._evidence_rows(user_id, language_id),
+            lambda: self._placement_ledger(user_id, language_id),
         )
         a1 = [
             c for c in self._evidence_candidates(
                 user_id, language_id, recency_first=True,
-                wrong_by_question=wrong_by_question, ledger=ledger, rows=rows)
+                wrong_by_question=wrong_by_question, ledger=ledger, rows=rows,
+                placement_written=pledger['written'])
             if c['sense_id'] in recent and c['sense_id'] not in taken
         ]
         admitted += self._gate_and_admit(
@@ -460,8 +462,14 @@ class NewWordAdmissionMixin:
         if len(admitted) < want:
             a2 = self._calibration_wrong_candidates(
                 user_id, language_id, taken, ledger=ledger)
+            # Vocabulary placement (ADR-059): missed meanings join A2; words with
+            # the meaning but not the reading (zh: also not the tones) form A2r.
+            # A2r alternates with A2 in one ranked list.
+            p_a2, p_a2r = self._placement_candidates(
+                user_id, language_id, taken | set(a2), pledger)
+            ranked = _interleave(a2 + [s for s in p_a2 if s not in a2], p_a2r)
             got = self._gate_and_admit(
-                a2, want - len(admitted), language_id)
+                ranked, want - len(admitted), language_id)
             admitted += got
             taken.update(got)
 
@@ -680,6 +688,124 @@ class NewWordAdmissionMixin:
         remaining.sort(key=lambda s: frequency.get(s, 0.0), reverse=True)
         return remaining
 
+    # -- vocabulary placement evidence (TASK-1081, ADR-059) -----------------
+
+    def _placement_ledger(self, user_id: str, language_id: int) -> Dict[str, Dict[int, Any]]:
+        """What applied placements showed, from ``calibration_responses`` of sessions with mode
+        'placement', this word language and ``bkt_applied_at`` set (scored items only).
+
+        Returns ``{'a2': {vocab_id: last_at}, 'a2r': {vocab_id: last_at}, 'written': {sense_id: n}}``:
+        the latest meaning outcome per word decides A2 (meaning missed or "I don't know") versus
+        A2r (meaning right, reading not right — for zh any answer but the key, tone misses
+        included); ``written`` counts the evidence writes per anchor sense (one per word and
+        session, except meaning ✓ / reading ✗, which writes nothing). Fails soft to empty dicts,
+        which also covers a database without the placement columns yet.
+        """
+        empty = {'a2': {}, 'a2r': {}, 'written': {}}
+        try:
+            resp = (
+                self.db.table('calibration_responses')
+                .select(
+                    'id, anchor_sense_id, anchor_vocab_id, item_kind, is_correct, answered_at, '
+                    'pair_response_id, session_id, '
+                    'calibration_sessions!inner(mode, word_language_id, bkt_applied_at)'
+                )
+                .eq('user_id', user_id)
+                .eq('calibration_sessions.mode', 'placement')
+                .eq('calibration_sessions.word_language_id', language_id)
+                .is_('probe_kind', 'null')
+                .not_.is_('answered_at', 'null')
+                .limit(CALIBRATION_ROW_LIMIT * 4)
+                .execute()
+            )
+        except Exception as e:
+            logger.warning('placement ledger read failed for user=%s lang=%s: %s', user_id, language_id, e)
+            return empty
+        rows = [r for r in (resp.data or [])
+                if (r.get('calibration_sessions') or {}).get('bkt_applied_at') is not None]
+        reading_ok = {r['pair_response_id']: bool(r.get('is_correct'))
+                      for r in rows if r.get('item_kind') == 'reading' and r.get('pair_response_id')}
+        latest: Dict[int, tuple] = {}
+        written: Dict[int, int] = {}
+        for r in rows:
+            if r.get('item_kind') != 'meaning' or r.get('anchor_vocab_id') is None:
+                continue
+            at = str(r['answered_at'])
+            if not r.get('is_correct'):
+                kind = 'a2'
+            elif r['id'] in reading_ok and not reading_ok[r['id']]:
+                kind = 'a2r'
+            else:
+                kind = None                     # meaning and reading (or exempt): probably known
+            if kind != 'a2r' and r.get('anchor_sense_id') is not None:
+                written[r['anchor_sense_id']] = written.get(r['anchor_sense_id'], 0) + 1
+            vid = int(r['anchor_vocab_id'])
+            if vid not in latest or at > latest[vid][0]:
+                latest[vid] = (at, kind)
+        out = {'a2': {}, 'a2r': {}, 'written': written}
+        for vid, (at, kind) in latest.items():
+            if kind:
+                out[kind][vid] = at
+        return out
+
+    def _native_rank1_senses(self, vocab_ids: List[int], language_id: int) -> Dict[int, int]:
+        """vocab_id → its own-language rank-1 standard sense (where its exercises live, E16)."""
+        out: Dict[int, int] = {}
+        try:
+            for start in range(0, len(vocab_ids), SUPPLY_GATE_CHUNK):
+                chunk = vocab_ids[start:start + SUPPLY_GATE_CHUNK]
+                resp = (self.db.table('dim_word_senses').select('id, vocab_id')
+                        .in_('vocab_id', chunk).eq('definition_language_id', language_id)
+                        .eq('definition_level', 'standard').eq('sense_rank', 1).execute())
+                for r in (resp.data or []):
+                    out[int(r['vocab_id'])] = int(r['id'])
+        except Exception as e:
+            logger.warning('native sense lookup failed: %s', e)
+        return out
+
+    def _placement_candidates(
+        self, user_id: str, language_id: int, exclude: set, pledger: Dict[str, Dict[int, Any]],
+    ) -> tuple:
+        """(A2 placement senses, A2r senses): native rank-1 senses within
+        CALIBRATION_EVIDENCE_MAX_AGE_DAYS, not excluded, not 'known' / 'probably_known'; each queue
+        ranked by Zipf then recency. Fails closed (empty) when the status veto cannot be read."""
+        cutoff = (datetime.now(timezone.utc)
+                  - timedelta(days=CALIBRATION_EVIDENCE_MAX_AGE_DAYS)).isoformat()
+        fresh = {k: {v: at for v, at in pledger.get(k, {}).items() if at >= cutoff} for k in ('a2', 'a2r')}
+        vids = sorted(set(fresh['a2']) | set(fresh['a2r']))
+        if not vids:
+            return [], []
+        native = self._native_rank1_senses(vids, language_id)
+        missing = [v for v in vids if v not in native]
+        if missing:
+            logger.info('placement admission: %d words have no native rank-1 sense', len(missing))
+        sense_at: Dict[str, Dict[int, str]] = {'a2': {}, 'a2r': {}}
+        for k in ('a2', 'a2r'):
+            for v, at in fresh[k].items():
+                sid = native.get(v)
+                if sid is not None and sid not in exclude:
+                    sense_at[k][sid] = at
+        allsids = list(set(sense_at['a2']) | set(sense_at['a2r']))
+        vetoed: set = set()
+        try:
+            for start in range(0, len(allsids), SUPPLY_GATE_CHUNK):
+                chunk = allsids[start:start + SUPPLY_GATE_CHUNK]
+                resp = (self.db.table('user_vocabulary_knowledge').select('sense_id, status')
+                        .eq('user_id', user_id).in_('sense_id', chunk).execute())
+                vetoed.update(r['sense_id'] for r in (resp.data or [])
+                              if r.get('status') in ('known', 'probably_known'))
+        except Exception as e:
+            logger.warning('placement status veto read failed: %s', e)
+            return [], []
+        frequency = self._sense_frequency(allsids)
+        out = []
+        for k in ('a2', 'a2r'):
+            lst = [s for s in sense_at[k] if s not in vetoed]
+            lst.sort(key=lambda s: sense_at[k][s], reverse=True)
+            lst.sort(key=lambda s: frequency.get(s, 0.0), reverse=True)
+            out.append(lst)
+        return out[0], out[1]
+
     # -- pool state ----------------------------------------------------
 
     def _eligible_ladder_count(self, user_id: str, language_id: int) -> int:
@@ -890,6 +1016,7 @@ class NewWordAdmissionMixin:
         wrong_by_question: Optional[Dict[int, int]] = None,
         ledger: Optional[Dict[int, Dict[str, Any]]] = None,
         rows: Optional[List[Dict[str, Any]]] = None,
+        placement_written: Optional[Dict[int, int]] = None,
     ) -> List[Dict[str, Any]]:
         """Ranked test / word-quiz evidence nominations (Queue A1), best first.
 
@@ -909,6 +1036,8 @@ class NewWordAdmissionMixin:
             ledger = self._calibration_ledger(user_id, language_id)
         if rows is None:
             rows = self._evidence_rows(user_id, language_id)
+        if placement_written is None:
+            placement_written = self._placement_ledger(user_id, language_id)['written']
 
         candidates: Dict[int, Dict[str, Any]] = {}
         for row in rows:
@@ -916,10 +1045,13 @@ class NewWordAdmissionMixin:
             if sid is None:
                 continue
             cal = ledger.get(sid) or {}
-            evidence = (row.get('evidence_count') or 0) - cal.get('cal_n', 0)
+            # Placement writes raise evidence_count on the anchor row (ADR-059) but
+            # are not test or word-quiz evidence either: subtract them too.
+            evidence = ((row.get('evidence_count') or 0) - cal.get('cal_n', 0)
+                        - placement_written.get(sid, 0))
             word_test_wrong = max(
                 0, (row.get('word_test_wrong') or 0) - cal.get('cal_wrong', 0))
-            if cal and evidence <= 0:
+            if (cal or placement_written.get(sid)) and evidence <= 0:
                 continue          # calibration-only evidence: Queue A2's job
             p_known = row.get('p_known')
             # One wrong answer is a careless click or a bad distractor, not a
@@ -1077,3 +1209,15 @@ class NewWordAdmissionMixin:
             from services.request_cache import invalidate
             invalidate('new_word_state', str(user_id))
         return True
+
+
+def _interleave(first: List[int], second: List[int]) -> List[int]:
+    """first[0], second[0], first[1], second[1], …, then the rest of the longer list (no duplicates)."""
+    out: List[int] = []
+    seen: set = set()
+    for i in range(max(len(first), len(second))):
+        for lst in (first, second):
+            if i < len(lst) and lst[i] not in seen:
+                seen.add(lst[i])
+                out.append(lst[i])
+    return out

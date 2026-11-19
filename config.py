@@ -149,6 +149,9 @@ class Config:
     # (TASK-1031). Every process that reads or writes exercise content needs
     # SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY. These tuning settings are read
     # only through services.exercise_content.store internals, at call time.
+    # Vocabulary placement (vocab-placement tech §14, TASK-1088): comma-separated dim_languages ids for
+    # which the placement is enabled, e.g. "1,2". Empty = off everywhere (the API answers 404).
+    PLACEMENT_ENABLED_LANGS = (os.environ.get('PLACEMENT_ENABLED_LANGS') or '').strip()
     EXERCISE_CONTENT_BUCKET = (os.environ.get('EXERCISE_CONTENT_BUCKET') or '').strip() or 'exercise-content'
     # Process-wide LRU of raw file bytes, per process (2 gunicorn workers -> 2x).
     EXERCISE_CONTENT_CACHE_MB = _env_int('EXERCISE_CONTENT_CACHE_MB', 32)
