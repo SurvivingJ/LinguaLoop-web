@@ -19,12 +19,14 @@ below.
 
 | Status | Count |
 |--------|-------|
-| Not Started | 101 |
-| In Progress (`[~]`) | 15 |
-| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 59 |
+| Not Started | 78 |
+| In Progress (`[~]`) | 16 |
+| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 69 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
 | Won't Do (obsolete) | 5 |
-| Done (cumulative, not listed here) | 283 |
+| Done (cumulative, not listed here) | 296 |
+
+*2026-11-19 (Knowledge Report + Vocabulary placement BUILT, nothing applied live):* re-review after main's exercise cut-over: every cited code location still holds, frames unchanged (3:2 = 3,175, 1:2 = 3,623, 2:2 = 3,754), database 358 MB so the size gate (report OQ13, placement PQ15) no longer binds. Built on `claude/beautiful-planck-0fftk4` (orchestrator + 5 parallel workers): report TASK-1035, 1037–1043 Done (repo); TASK-1034, 1036, 1044 awaiting live apply; placement TASK-1078, 1080, 1082, 1084, 1087 Done (repo); TASK-1074, 1075 (code), 1076, 1077, 1079, 1081, 1092 awaiting live apply; TASK-1088 in progress (owner launch steps). All migrations applied in order to one local PostgreSQL 16 copy of the live schema with real pool data: SQL suites 13 + 5 + 94 checks green; the placement service driven end to end against the real SQL. Full suite 6,242 passed (1 pre-existing order-dependent failure), vitest 838 passed. New TASK-1096 (heteronym seed). Apply order and launch steps: [[tasklist/report-and-placement-apply-runbook]]. Counts: Not Started 101→78, In Progress 15→16, Blocked/awaiting 59→69, Done 283→296.
 
 *2026-11-19 (main merged into the Knowledge Report / placement branch):* main's exercise-content cut-over (TASK-1026–1031) merged into `claude/beautiful-planck-0fftk4`. Counts = merge base (52 / 16 / 30 / 2 / 277) + this branch's changes (+54 / 0 / +29 / +2 / +1: billing, Knowledge Report, placement) + main's changes (−5 / −1 / 0 / +1 / +5).
 
@@ -1399,17 +1401,17 @@ Full spec: [[tasklist/knowledge-report.tasks]] · [[features/knowledge-report]] 
 
 | ID | Feature | Title | Status | Complexity | Depends On |
 |----|---------|-------|--------|------------|------------|
-| TASK-1034 | knowledge-report | Foundation migration — snapshot table, frame, pairs and prune functions, `reference-data` bucket (LIVE-DB) | [ ] | M | none |
-| TASK-1035 | knowledge-report | Pure estimator and rules module (`knowledge_estimate.py`) | [ ] | M | none |
-| TASK-1036 | knowledge-report | Summary RPC `knowledge_report_summary` (LIVE-DB) | [ ] | L | TASK-1034 |
-| TASK-1037 | knowledge-report | Nightly snapshot job | [ ] | M | TASK-1034, TASK-1035, TASK-1036 |
-| TASK-1038 | knowledge-report | Entitlement seam, shared 402 helper, feature flags and intent logging | [ ] | S | none |
-| TASK-1039 | knowledge-report | `GET /api/knowledge/summary` and the summary service | [ ] | M | TASK-1035, TASK-1036, TASK-1038 |
-| TASK-1040 | knowledge-report | `/knowledge` page — summary cards, states, Me row, i18n | [ ] | L | TASK-1039 |
-| TASK-1041 | knowledge-report | Prestudy next step (`GET /api/knowledge/prestudy-suggestion`) | [ ] | S | TASK-1039, TASK-1040 |
-| TASK-1042 | knowledge-report | Calibration result shows the same vocabulary range | [ ] | S | TASK-1039 |
-| TASK-1043 | knowledge-report | Practice deep link `?mode=practice&extra=reviews` | [ ] | XS | TASK-1040 |
-| TASK-1044 | knowledge-report | Words RPC `knowledge_report_words` (LIVE-DB) | [ ] | M | TASK-1034 |
+| TASK-1034 | knowledge-report | Foundation migration — snapshot table, frame, pairs and prune functions, `reference-data` bucket (LIVE-DB) | Done (repo), awaiting live apply | M | none |
+| TASK-1035 | knowledge-report | Pure estimator and rules module (`knowledge_estimate.py`) | Done (repo) | M | none |
+| TASK-1036 | knowledge-report | Summary RPC `knowledge_report_summary` (LIVE-DB) | Done (repo), awaiting live apply (after TASK-1079) | L | TASK-1034, TASK-1079 |
+| TASK-1037 | knowledge-report | Nightly snapshot job | Done (repo) | M | TASK-1034, TASK-1035, TASK-1036 |
+| TASK-1038 | knowledge-report | Entitlement seam, shared 402 helper, feature flags and intent logging | Done (repo) | S | none |
+| TASK-1039 | knowledge-report | `GET /api/knowledge/summary` and the summary service | Done (repo) | M | TASK-1035, TASK-1036, TASK-1038 |
+| TASK-1040 | knowledge-report | `/knowledge` page — summary cards, states, Me row, i18n | Done (repo) | L | TASK-1039 |
+| TASK-1041 | knowledge-report | Prestudy next step (`GET /api/knowledge/prestudy-suggestion`) | Done (repo) | S | TASK-1039, TASK-1040 |
+| TASK-1042 | knowledge-report | Calibration result shows the same vocabulary range | Done (repo) | S | TASK-1039 |
+| TASK-1043 | knowledge-report | Practice deep link `?mode=practice&extra=reviews` | Done (repo) | XS | TASK-1040 |
+| TASK-1044 | knowledge-report | Words RPC `knowledge_report_words` (LIVE-DB) | Done (repo), awaiting live apply | M | TASK-1034 |
 | TASK-1045 | knowledge-report | `GET /api/knowledge/words` (Pro) with validation, gate and intent log | [ ] | M | TASK-1044, TASK-1038, TASK-1039 |
 | TASK-1046 | knowledge-report | Pro UI — All words and Missed recently tabs, filters, sorts, search | [ ] | L | TASK-1045, TASK-1040 |
 | TASK-1047 | knowledge-report | Word sheet — detail RPC, route and UI (LIVE-DB) | [ ] | M | TASK-1044, TASK-1046 |
@@ -1445,28 +1447,29 @@ Full spec: [[tasklist/vocab-placement.tasks]] · [[features/vocab-placement]] ·
 
 | ID | Feature | Title | Status | Complexity | Depends On |
 |----|---------|-------|--------|------------|------------|
-| TASK-1074 | vocab-placement | Fix the zh reading normaliser and syllable count (LIVE-DB, owner) | [ ] | S | — |
-| TASK-1075 | vocab-placement | ja reading readiness: katakana, kana-consistent foils, ja-only refresh, refill (LIVE-DB, owner) | [ ] | M | TASK-1077 (gate) |
-| TASK-1076 | vocab-placement | Placement schema migration (LIVE-DB, owner) | [ ] | M | — |
-| TASK-1077 | vocab-placement | Placement SQL functions (LIVE-DB, owner) | [ ] | L | TASK-1076; TASK-1092 (zh) |
-| TASK-1078 | vocab-placement | Pure placement design and estimator functions | [ ] | M | TASK-1035 |
-| TASK-1079 | vocab-placement | `knowledge_calibration_inputs` (LIVE-DB, owner) | [ ] | M | TASK-1076, TASK-1034 |
-| TASK-1080 | vocab-placement | Placement service and routes | [ ] | L | TASK-1077, TASK-1078, TASK-1079 |
-| TASK-1081 | vocab-placement | Placement evidence: pair-based BKT, A2/A2r on the native sense (LIVE-DB, owner) | [ ] | L | TASK-1076, TASK-1080 |
-| TASK-1082 | vocab-placement | Intro drill shows zh pinyin for diacritic-only readings | [ ] | S | — |
+| TASK-1074 | vocab-placement | Fix the zh reading normaliser and syllable count (LIVE-DB, owner) | Done (repo), awaiting live apply | S | — |
+| TASK-1075 | vocab-placement | ja reading readiness: katakana, kana-consistent foils, ja-only refresh, refill (LIVE-DB, owner) | [~] code done; owner refresh/refill/gate | M | TASK-1077 (gate) |
+| TASK-1076 | vocab-placement | Placement schema migration (LIVE-DB, owner) | Done (repo), awaiting live apply | M | — |
+| TASK-1077 | vocab-placement | Placement SQL functions (LIVE-DB, owner) | Done (repo), awaiting live apply | L | TASK-1076; TASK-1092 (zh) |
+| TASK-1078 | vocab-placement | Pure placement design and estimator functions | Done (repo) | M | TASK-1035 |
+| TASK-1079 | vocab-placement | `knowledge_calibration_inputs` (LIVE-DB, owner) | Done (repo), awaiting live apply | M | TASK-1076, TASK-1034 |
+| TASK-1080 | vocab-placement | Placement service and routes | Done (repo) | L | TASK-1077, TASK-1078, TASK-1079 |
+| TASK-1081 | vocab-placement | Placement evidence: pair-based BKT, A2/A2r on the native sense (LIVE-DB, owner) | Done (repo), awaiting live apply | L | TASK-1076, TASK-1080 |
+| TASK-1082 | vocab-placement | Intro drill (and prestudy) show zh pinyin for diacritic-only readings | Done (repo) | S | — |
 | TASK-1083 | vocab-placement | Placement feeds test selection and the rating writer | [?] OQ33 | M | TASK-1080 |
-| TASK-1084 | vocab-placement | Placement page and i18n | [ ] | L | TASK-1080 |
+| TASK-1084 | vocab-placement | Placement page and i18n | Done (repo) | L | TASK-1080 |
 | TASK-1085 | vocab-placement | Entry points incl. onboarding gate | [?] PQ7 | S | TASK-1084, TASK-1040 |
 | TASK-1086 | vocab-placement | Report integration (LIVE-DB, owner) | [ ] | L | TASK-1078, TASK-1079, TASK-1081, TASK-1036, TASK-1039, TASK-1040, TASK-1044 |
-| TASK-1087 | vocab-placement | Simulation regression harness (V0) | [ ] | M | TASK-1078 |
-| TASK-1088 | vocab-placement | Launch per language (LIVE env, owner) | [ ] | S | TASK-1080, TASK-1081, TASK-1082, TASK-1084, TASK-1087, TASK-1092 (zh) (ja: TASK-1075) |
+| TASK-1087 | vocab-placement | Simulation regression harness (V0) | Done (repo) | M | TASK-1078 |
+| TASK-1088 | vocab-placement | Launch per language (LIVE env, owner) | [~] code done (nightly close, gate script); owner steps | S | TASK-1080, TASK-1081, TASK-1082, TASK-1084, TASK-1087, TASK-1092 (zh) (ja: TASK-1075) |
 | TASK-1089 | vocab-placement | Validation study V1–V10 | [?] learners | M | TASK-1088 |
 | TASK-1090 | vocab-placement | Exam-level output — redesign and gate | [?] parked (owner PQ2: not now), V5 | L | TASK-1089, TASK-1049 |
 | TASK-1091 | vocab-placement | Check meaning items become the bare instrument (LIVE-DB, owner) | [?] PQ11 | M | TASK-1076, TASK-1077 |
-| TASK-1092 | vocab-placement | zh tone variants: inventory, generator, readiness (LIVE-DB, owner; zh launch item) | [ ] | M | — |
+| TASK-1092 | vocab-placement | zh tone variants: inventory, generator, readiness (LIVE-DB, owner; zh launch item) | Done (repo), awaiting live apply | M | — |
 | TASK-1093 | vocab-placement | IRT scoring v2 | [?] data | XL | TASK-1089 |
 | TASK-1094 | vocab-placement | Goal-path placement segment and hero copy | [?] TASK-1072 | S | TASK-1081, TASK-1086, TASK-1072 |
 | TASK-1095 | vocab-placement | Documentation reconciliation | [ ] | S | TASK-1086 |
+| TASK-1096 | vocab-placement | zh tone variants: heteronym list for single-character lemmas | [ ] | S | TASK-1092 |
 
 ### Language Packs (existing — unchanged)
 

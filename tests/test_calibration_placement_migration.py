@@ -259,7 +259,7 @@ def test_item_rules_in_sql():
     assert r"'^\s*[^；;—]{1,12}\s*(；|;|——|—)\s*'" in strip           # tech §2 rule 5
     assert '((1, 3), (3, 1))' in strip                                   # cross-CJK pairs only
     units = norm(function_def(sql, 'calibration_placement_units').body)
-    assert "'[ゃゅょぁぃぅぇぉっャュョァィゥェォッ]'" in units               # rule 3 (ja, display form)
+    assert "'[ゃゅょぁぃぅぇぉャュョァィゥェォ]'" in units               # rule 3 (ja, display form)
     assert r"regexp_split_to_array(btrim(p_text), '\s+')" in units      # rule 3 (zh, display form)
     kana = norm(function_def(sql, 'calibration_placement_kana_pattern').body)
     assert "'^' || regexp_replace(p_lemma, '[^ぁ-ゟー]+', '.+', 'g') || '$'" in kana  # rule 3b

@@ -107,7 +107,8 @@ AS $$
 $$;
 
 -- Rule 3 length on the DISPLAY form: zh = space-separated syllables; ja = kana minus
--- small kana (ゃゅょぁぃぅぇぉっ and katakana equivalents, as tech §2 lists them).
+-- small kana that do not make a mora of their own (ゃゅょぁぃぅぇぉ and katakana equivalents). っ/ッ is a
+-- mora (きって has 3) and is counted (2026-11-19 correction of tech §2 rule 3).
 CREATE OR REPLACE FUNCTION public.calibration_placement_units(
     p_text text, p_word_language_id smallint)
 RETURNS integer
@@ -118,7 +119,7 @@ AS $$
         WHEN p_text IS NULL OR btrim(p_text) = '' THEN 0
         WHEN p_word_language_id = 1 THEN cardinality(regexp_split_to_array(btrim(p_text), '\s+'))
         WHEN p_word_language_id = 3 THEN
-            char_length(regexp_replace(btrim(p_text), '[ゃゅょぁぃぅぇぉっャュョァィゥェォッ]', '', 'g'))
+            char_length(regexp_replace(btrim(p_text), '[ゃゅょぁぃぅぇぉャュョァィゥェォ]', '', 'g'))
         ELSE char_length(btrim(p_text))
     END;
 $$;

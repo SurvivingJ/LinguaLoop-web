@@ -1647,6 +1647,40 @@ Each row gives the default this spec uses, so nothing is blocked except tasks ma
 
 ---
 
+## 17. Build notes (2026-11-19) — where the code differs from or fills gaps in this page
+
+Built on `claude/beautiful-planck-0fftk4`; nothing applied live. Apply order:
+[[tasklist/report-and-placement-apply-runbook]].
+- **Re-review after the exercise-content cut-over (ADR-049):** every cited code location still holds; frames are
+  unchanged (§2.1); the database is 358 MB, so OQ13 no longer gates anything. Nothing here reads `exercises.content`.
+- **Tied latest outcomes (OQ38).** The intro drill writes all formats of a word with one `created_at`; 15 of
+  de6fd05b's meanings have tied latest outcomes (11 mixed). The SQL counts a wrong outcome as latest on a tie
+  (`ORDER BY at DESC, is_correct, src, oid`): 19 "missed last time" for de6fd05b instead of 8 with the opposite rule.
+- **Calibration block.** It embeds `knowledge_calibration_inputs` (vocab-placement §14) and adds `window_days`,
+  `answers`, `first_answer_at`/`last_answer_at` (copies of `first_at`/`last_at`) and `since`. The "since" sets
+  are computed in the summary from legacy rows; TASK-1086 moves them onto the instrument rule. The estimate
+  comparison also requires the anchor's `cal_definition_language_id` to equal today's D*.
+- **TASK-1036 depends on TASK-1079** (the summary refuses to load without `knowledge_calibration_inputs`).
+- **`knowledge_report_words`** has an extra `missed` sort (§2.12's tab order); TASK-1045 must accept it. Filters: a
+  boolean filter applies only when true; an empty `states`/`bands` list means no filter; a present `vocab_ids` key
+  filters even when empty; an unknown sort falls back to `useful`; a malformed cursor raises 22P02.
+- **NULL handling.** Primary row by `last_evidence_at DESC NULLS LAST`; NULL counters count as 0 (no NULLs live).
+- **Snapshots.** `checked_meanings` is not in the summary output; the job uses missed + rated known + checked (109
+  for de6fd05b, = K3). `computed_at` is set explicitly; upper-only estimates store `est_lo = 0`. Prune uses the UTC
+  date.
+- **Summary response extras:** `language {id, code, name}`, `method_version`, `state`, `stale_days`, `few_tracked`,
+  `estimate.have`, `estimate.rated_known_in_frame`, `groups[].bands`; `estimate.lo` is null when upper-only.
+- **Entitlement seam.** Calls TASK-980's `entitlements.limit(key)` and `usage_this_week('prestudy_per_week')` as
+  written; `knowledge_pro_intent` precedence: cursor (`load_more`), then search, filter, non-default sort. Before
+  TASK-1046 a "Word by word" preview card shows the learner's own counts.
+- **Lists seam.** `knowledge_report.list_coverage()` returns `([], False)` (E4) until TASK-1049.
+- **de6fd05b/ja moved since 11-17** (practice on 11-18/19): rated known 76, states 19 / 68 / 22 / 142, missed recently
+  19; the calibration fixture (§2.6) is unchanged. Re-run K3/K4 on the day the migrations are applied.
+- **Performance (read-only indicators, live data):** summary 20–26 ms warm for 110fb390/zh, default words page 13 ms;
+  `knowledge_frame_bands` 136 ms warm (cached in-process).
+
+---
+
 ## Appendix A — Review outcomes
 
 Two independent reviews (a statistician, S1–S13; a product reviewer who is also a serious learner,

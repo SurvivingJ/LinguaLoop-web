@@ -1,7 +1,7 @@
 ---
 title: Vocabulary placement
 type: feature
-status: planned
+status: in-progress
 tech_page: ./vocab-placement.tech.md
 last_updated: 2026-11-18
 open_questions:
@@ -26,6 +26,7 @@ open_questions:
   - "PQ19 OPEN: May a placement move the learner's test level? Default: not until the report's OQ33 (how 'I don't know' is scored there) is answered."
   - "PQ20 OPEN: 'Practise these readings' for every tier in v1? Default: yes."
   - "PQ21 OPEN: Which of a word's dictionary rows a placement answer updates (the same row as the check, or the word's own-language row where its exercises live)? Default: the same row as the check; admission to practice uses the own-language row."
+  - "PQ22 OPEN: 14 real readings of single-character words (e.g. 强 qiǎng, 数 shǔ, 可 kè) can still appear as wrong tone options because no dictionary word shows that reading. Fix with a reviewed heteronym seed list (TASK-1096)? Default: yes, before the zh launch."
 ---
 
 # Vocabulary placement

@@ -92,6 +92,7 @@ synthesis-stage re-runs. All are filed in [[evaluations/vocab-placement-research
 | E31 | **Length at the owner's 60** (cap 60, precision exit from 40 checked at 40/45/50, D3S, pace E13): zh·en 56.7 items, 22% stop early (beginners 56%), 6.5 min (p95 7.1); zh·ja 60.4, 0%, 7.0 (7.1); ja·en 56.8, 21% (beginners 52%), 6.4 (7.0); ja·zh 60.2, 0%, 6.9 (7.0). 95% half-widths meaning / m+r (syllables-only reading items): zh·en ±15.5 / ±13.4%, zh·ja ±17.0 / ±15.3%, ja·en ±15.0 / ±13.8%, ja·zh ±16.0 / ±15.3% of the pool. 90% coverage 87–92%. | ESTIMATE [SYN `stop60.py`] |
 | E32 | **zh tone variants under the owner's rule** (a syllable+tone counts as existing if it occurs in any zh dictionary reading; only full tones 1–4 change; no change on 一/不; a 3→2 change before a tone-3 syllable alone is a sandhi form and excluded; never equal to a reading of the same lemma): 382 syllable bases with on average 2.47 attested full tones. Of 3,656 pool readings, **3,622 (99.1%) have ≥ 1 valid variant**, 96.5% ≥ 2, 89.0% ≥ 3; band 7 94.8% / 70.3% (≥ 1 / ≥ 3), bands 1–6 98.6–99.8% ≥ 1. 7,754 of 7,855 zh dictionary readings (98.7%) have one (proxy for segmental foils). | MEASURED (read-only SELECT 2026-11-18; `tones/tone_cover.py`) |
 | E33 | **Scored-tone item simulation** (item K, K′, F, F′ of rule 4; tone known given reading known with p = θ + (1 − θ)·σ(a(z − τ) − 1.5), θ ~ U(0.5, 0.95), ASSUMPTION; 4 × 300 zh learners; cap 60): the full-reading estimator (pc − pkt)/n′ has bias +0.6..+0.7% of the pool; with pseudo-count 0.25 per category its 95% coverage is 96–97% (0.5, ADR-051's value: 98–99%, too wide; 0.1: 93–94%). 95% half-width ±15.2% (zh·en) / ±17.5% (zh·ja) of the pool, ≈ ±550 / ±630 words; 56.4 / 60.4 items; 29% / 0% stop early; 6.4 / 7.0 min. The ADR-058 pair estimator (prw/3) on the same items over-states by +1.9..+3.3%, because it credits a third of the words whose syllables are known without their tones. The syllables estimator (pc + pkt − pf)/n′ has bias −0.1%, coverage 96%. Sensitivity: weaker tone knowledge (θ ~ U(0.3, 0.8)) stays unbiased (+0.6%); partial tone memory (65% right tone when the syllables are known) biases +2.1..+2.4% with coverage 95–96%. | ESTIMATE [SYN `tones/tone_sim.py`] |
+| E34 | **V0 on the production code** (TASK-1087, `tests/test_placement_coverage.py`, 5 populations × 2 IDK levels × 600 synthetic learners, a reduced port of the research model with the E33 tone state): 95% coverage 0.92–0.97 for meaning and meaning-and-reading, bias within ±1.3% of the pool, gap ranges 0.95–0.99; zh/ja 55–60 scored items and 6.2–7.0 min, en 38.5 items / 4.2 min; End now at 20/30 items ≥ 0.88. The meaning estimate runs about −1% for English-L1 learners whether or not the precision exit is used: response-adaptive allocation, the same −1.1% the psychometric review found. The ja·en reading gap reads −2.6% (no V0 threshold on gap bias). | ESTIMATE |
 | E30 | Literature: four-option meaning tests measure recognition and over-estimate usable knowledge. Meaning and reading of kanji/hanzi words are separable dimensions. Showing a reading in a meaning item changes what it measures. A sequential (steps) model fits "reading only after a right meaning". The guessing floor must be fixed at small n. An IDK option suppresses partial knowledge, and IDK use differs between learners (bilingual + IDK r = .77 vs .88–.91, N = 200). | MEASURED in other populations [LIT B1–B5, A2-13, A2-15]; abstracts only |
 
 ## 1. Architecture Overview
@@ -144,7 +145,7 @@ integers). Word choice, item building and grading run in SQL, in **one round tri
 2. **No reading on meaning items** (fixes E3 for this mode).
 3. **Same syllable (zh) or mora (ja) count** for all 3 served reading foils, counted on the
    **display** form: zh = number of space-separated syllables; ja = kana count minus small kana
-   (ゃゅょぁぃぅぇぉっ and katakana equivalents). This does not use the broken zh normaliser (E7). Pleco does
+   (ゃゅょぁぃぅぇぉ and katakana equivalents; っ is a mora and counts — corrected 2026-11-19, the first version dropped it, so きって counted 2). This does not use the broken zh normaliser (E7). Pleco does
    the same [PROD P3].
    - **3b (ja).** Every served foil must match the lemma's visible-kana pattern
      `'^' || regexp_replace(lemma, '[^ぁ-ゟー]+', '.+', 'g') || '$'` (E10).
@@ -1148,6 +1149,54 @@ and results are filed under `wiki/evaluations/`.
 | PQ19 | May a placement move the learner's test level (ELO)? | The ability fit scores IDK as a wrong guess (PSY M16). | **Not until OQ33**; then via a skip-aware likelihood (TASK-1083). |
 | PQ20 | "Practise these readings" for every tier? | It is the owner's target case. | **Yes**, all tiers, in v1. |
 | PQ21 | Which sense row placement BKT writes, and which row admission uses | ADR-047 problem 3: one meaning has several rows; exercises live on the native row (E16). | **BKT on the anchor row (as the check); admission on the native rank-1 row.** |
+| PQ22 | Seed a reviewed heteronym list for single-character zh lemmas? | 14 real readings (强 qiǎng, 数 shǔ, 可 kè, …) are not attested by any dictionary word, so they can appear as wrong tone options (§23). | **Yes, before the zh launch** (TASK-1096). |
+
+## 23. Build notes (2026-11-19) — where the code differs from or fills gaps in this page
+
+Built on `claude/beautiful-planck-0fftk4`; nothing applied live. Apply order: [[tasklist/report-and-placement-apply-runbook]].
+- **Answer round trip (§1, §14).** The previous call's tallies live in a process-local cache; with several gunicorn
+  workers a request can find it cold. The service then sends `p_next_band = NULL`, computes the band from the
+  returned tallies and builds the next item with `calibration_placement_next_item`: one extra round trip, on a
+  cache miss only.
+- **`next_item` re-sends a pending item** (`"resent": true`) instead of drawing a second one; this is how resume
+  works. `recheck` probes are served at session start. `close` returns the tallies merged with
+  `session_id, stop_reason, ended_at, already_closed, deleted`; `close_stale` sets `ended_at` to the session's
+  last activity. When the requested band is empty, the item comes from the nearest band (ties → the commoner).
+- **Probe draw.** The branches share one `u_probe`: after IDK on a reading-ready word, `forced_guess` fires at
+  0.15 and `reading_after_miss` at 0.10 (not 0.25). V4's sample-size estimate must use 0.10.
+- **`update_vocabulary_from_placement_batch(p_user_id, p_language_id, p_items)`** takes the language (needed for
+  inserted rows), unlike §14's two-argument signature.
+- **Gap guard (new).** Neither end of the reading gap or the tone gap may exceed the meaning range's upper end
+  (`knowledge_estimate.cap_gap`). Driving the service against the real SQL showed why: a learner who consistently
+  picks the same wrong tones (K′ every time) is outside the ADR-060 model; (pc − pkt) goes below zero and the raw
+  tone gap doubles. The per-word group ("meaning and pinyin, not the tones") is right for such a learner.
+- **Combined line** is shown only when the inputs are the placement instrument: for an abandoned first placement
+  the inputs are read before its result is frozen and fall back to legacy rows.
+- **Pinyin.** Numbered pinyin keeps ü (`lü4`), as the stored numbered parts do (rule-4 text said v). A token with
+  two marks (`yíhuìr`) is two syllables. The tone inventory has 381 syllables (not 382). A second table,
+  `calibration_zh_char_readings` (2,379 rows), stops a single-character lemma getting a tone variant that its
+  character has anywhere in the dictionary: 15 of 48 polyphone cases fixed; the 33 left (14 real readings) are
+  TASK-1096.
+- **Mora count (rule 3) corrected:** っ/ッ is a mora and is counted (きって = 3); only ゃゅょぁぃぅぇぉ and their
+  katakana forms are not.
+- **Rule 5.** A second pass strips a dash-ended equivalent (226 ja/zh keys look like `X；Y —— …`). The residual before
+  exclusion is 1/3,623 (zh/ja) and 50/3,175 = 1.57% (ja/zh, above the 1% criterion; mostly genuine shared words such
+  as 心理 in 心理学); after exclusion 0. zh/zh (16 keys) and ja/en (17) keep a lemma-containing prefix: rule 5 only
+  covers cross-CJK pairs.
+- **`calibration_placement_ready_counts` for zh takes about 30 s** (two variant calls per lemma), over PostgREST's 8 s
+  timeout: the gate runs through psql (`scripts/placement_readiness_gate.py --psql`) or the SQL editor.
+- **Result payloads** also carry `word_lists` (group → words) on `/answer` (done), `/end`, `/result` and `/latest`.
+  The page's intro says "If you think you recognise it, answer" (copy rule: never "know" alone).
+- **`knowledge_calibration_inputs` choices:** an eligible placement is one ended in the window, not abandoned unless
+  its result is frozen; `placement_eligible` is eligibility rule (b)'s precondition; the gap uses the combined
+  placement pair sample; dates fall back to all-time answers when the window is empty. `sound_pair` rows have
+  `instrument` NULL.
+- **Japanese readiness (TASK-1075).** `calibration_refresh_anchor_pool(p_word_language_id)` and the kana-pattern
+  filter in `pronunciation_distractors` are built from the live definitions. On the local sample the old picker had
+  138 of 218 foils inconsistent with the visible kana, the new one 0 of 1,827. Live (read-only): 277 of 567 ja
+  kanji+kana anchors have fewer than 3 consistent cached foils (estimate was ≈ 199).
+- **Prestudy** shared the E17 gap: `prestudy._load_senses` now appends the numbered part to tone-marked-only zh
+  readings, so the prestudy page and the intro drill both get it.
 
 ---
 

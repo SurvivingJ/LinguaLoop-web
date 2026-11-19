@@ -4,7 +4,7 @@ feature: knowledge-report
 prose_page: ../features/knowledge-report.md
 tech_page: ../features/knowledge-report.tech.md
 total_tasks: 40
-done: 1
+done: 9
 ---
 
 # Knowledge Report — Task Breakdown
@@ -86,7 +86,7 @@ TASK-1051, TASK-1048. The database size question (OQ13) is not on this path.
 
 ## TASK-1034: Foundation migration — snapshot table, frame, pairs and prune functions, `reference-data` bucket (LIVE-DB)
 
-**Status:** [ ] Not Started
+**Status:** [~] Done (repo), awaiting live apply (2026-11-19) — `migrations/knowledge_report_foundation.sql`, `reference_data_bucket.sql` (+ rollbacks); 94-check SQL suite green on the local harness
 **Feature:** knowledge-report
 **Type:** infra
 **Complexity:** M (3-8h)
@@ -131,7 +131,7 @@ After apply: run `tests/sql/check_function_acls.sql`, `SELECT knowledge_frame_ba
 
 ## TASK-1035: Pure estimator and rules module (`knowledge_estimate.py`)
 
-**Status:** [ ] Not Started
+**Status:** [x] Done (repo) (2026-11-19) — `services/vocabulary/knowledge_estimate.py`; every spec fixture reproduced; slow coverage grid ≥ 0.93
 **Feature:** knowledge-report
 **Type:** feature
 **Complexity:** M (3-8h)
@@ -168,11 +168,11 @@ home of the estimator (ADR-051).
 
 ## TASK-1036: Summary RPC `knowledge_report_summary` (LIVE-DB)
 
-**Status:** [ ] Not Started
+**Status:** [~] Done (repo), awaiting live apply (2026-11-19) — `migrations/knowledge_report_summary.sql`; apply after TASK-1079 (it refuses without `knowledge_calibration_inputs`)
 **Feature:** knowledge-report
 **Type:** feature
 **Complexity:** L (1-2d)
-**Depends On:** TASK-1034
+**Depends On:** TASK-1034, TASK-1079 (placement: `knowledge_calibration_inputs`, which needs TASK-1076)
 
 **Note (2026-11-18):** the calibration block should come from `knowledge_calibration_inputs` (TASK-1079, [[tasklist/vocab-placement.tasks]]) rather than its own query, so the placement result and the report always agree.
 
@@ -210,7 +210,7 @@ here (ADR-054, revised 2026-11-18): `knowledge_list_buckets` (TASK-1049) counts 
 
 ## TASK-1037: Nightly snapshot job
 
-**Status:** [ ] Not Started
+**Status:** [x] Done (repo) (2026-11-19) — `services/knowledge_snapshots.py`, job 04:25 UTC; logs "skipped" until TASK-1034/1036 are applied
 **Feature:** knowledge-report
 **Type:** feature
 **Complexity:** M (3-8h)
@@ -245,7 +245,7 @@ before the page ships (ADR-053, tech §7). It stores the estimator's inputs, not
 
 ## TASK-1038: Entitlement seam, shared 402 helper, feature flags and intent logging
 
-**Status:** [ ] Not Started
+**Status:** [x] Done (repo) (2026-11-19)
 **Feature:** knowledge-report
 **Type:** feature
 **Complexity:** S (1-3h)
@@ -277,7 +277,7 @@ Implement ADR-055: `report_detail_level()`, `payment_required()` in the app enve
 
 ## TASK-1039: `GET /api/knowledge/summary` and the summary service
 
-**Status:** [ ] Not Started
+**Status:** [x] Done (repo) (2026-11-19) — answers 503 until TASK-1034/1036 are applied
 **Feature:** knowledge-report
 **Type:** feature
 **Complexity:** M (3-8h)
@@ -312,7 +312,7 @@ locally with the flag on, `curl -H "Authorization: Bearer <token>" "localhost:50
 
 ## TASK-1040: `/knowledge` page — summary cards, states, Me row, i18n
 
-**Status:** [ ] Not Started
+**Status:** [x] Done (repo) (2026-11-19) — behind `KNOWLEDGE_REPORT_ENABLED` (off)
 **Feature:** knowledge-report
 **Type:** feature
 **Complexity:** L (1-2d)
@@ -347,7 +347,7 @@ section in TASK-1046.
 
 ## TASK-1041: Prestudy next step (`GET /api/knowledge/prestudy-suggestion`)
 
-**Status:** [ ] Not Started
+**Status:** [x] Done (repo) (2026-11-19)
 **Feature:** knowledge-report
 **Type:** feature
 **Complexity:** S (1-3h)
@@ -378,7 +378,7 @@ key words are new to you" → `/test/<slug>/prestudy` when the share exceeds the
 
 ## TASK-1042: Calibration result shows the same vocabulary range
 
-**Status:** [ ] Not Started
+**Status:** [x] Done (repo) (2026-11-19)
 **Feature:** knowledge-report
 **Type:** feature
 **Complexity:** S (1-3h)
@@ -407,7 +407,7 @@ labels its own frequency-level figure with what it measures (OQ33).
 
 ## TASK-1043: Practice deep link `?mode=practice&extra=reviews`
 
-**Status:** [ ] Not Started
+**Status:** [x] Done (repo) (2026-11-19)
 **Feature:** knowledge-report
 **Type:** feature
 **Complexity:** XS (<1h)
@@ -436,7 +436,7 @@ extra-round panel with reviews preselected when the queue is empty (`static/js/s
 
 ## TASK-1044: Words RPC `knowledge_report_words` (LIVE-DB)
 
-**Status:** [ ] Not Started
+**Status:** [~] Done (repo), awaiting live apply (2026-11-19) — `migrations/knowledge_report_words.sql` (adds a `missed` sort; TASK-1045 must accept it)
 **Feature:** knowledge-report
 **Type:** feature
 **Complexity:** M (3-8h)
@@ -472,6 +472,8 @@ filters, search, the sorts, the 5-tuple keyset and page-only joins for gloss, pr
 **Type:** feature
 **Complexity:** M (3-8h)
 **Depends On:** TASK-1044, TASK-1038, TASK-1039
+
+**Note (2026-11-19):** `knowledge_report_words` (TASK-1044) also accepts a `missed` sort (misses in 90 days, then the latest outcome — the Missed recently tab order of §2.12); this route must accept it.
 
 **Description:**
 Add the Pro words route: parameter validation (tech §6.2), base64url cursor, LIKE escaping, the entitlement

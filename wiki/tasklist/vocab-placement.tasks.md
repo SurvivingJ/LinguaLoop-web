@@ -3,8 +3,8 @@ title: "Vocabulary placement — Task Breakdown"
 feature: vocab-placement
 prose_page: ../features/vocab-placement.md
 tech_page: ../features/vocab-placement.tech.md
-total_tasks: 22
-done: 0
+total_tasks: 23
+done: 5
 ---
 
 # Vocabulary placement — Task Breakdown
@@ -47,7 +47,7 @@ files; **the owner applies them**. Checks after apply are read-only.
 
 ## TASK-1074: Fix the zh reading normaliser and syllable count (LIVE-DB, owner-applied)
 
-**Status:** [ ] Not Started
+**Status:** [~] Done (repo), awaiting live apply (2026-11-19) — `migrations/calibration_zh_normaliser_fix.sql`; suffixed readings byte-identical, 0 rows with syllable count 0
 **Feature:** vocab-placement
 **Type:** bug
 **Complexity:** S (1-3h)
@@ -91,7 +91,7 @@ Run `python -m pytest tests/test_calibration_normaliser_migration.py tests/test_
 
 ## TASK-1075: Japanese reading readiness — katakana exclusion, kana-consistent foils, ja-only pool refresh and cache refill (LIVE-DB, owner-applied)
 
-**Status:** [ ] Not Started
+**Status:** [~] Code done (2026-11-19) — two migrations + gate script; owner: apply, ja-only pool refresh, cache delete/refill, gate (runbook Phase 2)
 **Feature:** vocab-placement
 **Type:** infra
 **Complexity:** M (3-8h)
@@ -150,7 +150,7 @@ runs the refresh and fill; it prints PASS for every (3, D). Run
 
 ## TASK-1076: Placement schema migration (LIVE-DB, owner-applied)
 
-**Status:** [ ] Not Started
+**Status:** [~] Done (repo), awaiting live apply (2026-11-19) — `migrations/calibration_placement.sql`
 **Feature:** vocab-placement
 **Type:** infra
 **Complexity:** M (3-8h)
@@ -192,7 +192,7 @@ the read-only column and index query after the owner applies the migration.
 
 ## TASK-1077: Placement SQL functions — ready counts, next item, answer, close, close stale (LIVE-DB, owner-applied)
 
-**Status:** [ ] Not Started
+**Status:** [~] Done (repo), awaiting live apply (2026-11-19) — `migrations/calibration_placement_rpcs.sql` (31 functions); scripted sessions green on the harness
 **Feature:** vocab-placement
 **Type:** feature
 **Complexity:** L (1-2d)
@@ -264,7 +264,7 @@ applies the migration; `python -m pytest tests/test_calibration_placement_migrat
 
 ## TASK-1078: Pure placement design and estimator functions
 
-**Status:** [ ] Not Started
+**Status:** [x] Done (repo) (2026-11-19) — `services/placement_design.py`
 **Feature:** vocab-placement
 **Type:** feature
 **Complexity:** M (3-8h)
@@ -310,7 +310,7 @@ tone gap), `apply_guard` (M8 direction), the eligibility amendment, and `compare
 
 ## TASK-1079: `knowledge_calibration_inputs` SQL function (LIVE-DB, owner-applied)
 
-**Status:** [ ] Not Started
+**Status:** [~] Done (repo), awaiting live apply (2026-11-19) — `migrations/knowledge_calibration_inputs.sql`
 **Feature:** vocab-placement
 **Type:** feature
 **Complexity:** M (3-8h)
@@ -345,7 +345,7 @@ fixture after the owner applies the function.
 
 ## TASK-1080: Placement service and routes
 
-**Status:** [ ] Not Started
+**Status:** [x] Done (repo) (2026-11-19) — service + routes; driven end to end against the real SQL on the harness. The production latency check moves to TASK-1088
 **Feature:** vocab-placement
 **Type:** feature
 **Complexity:** L (1-2d)
@@ -398,7 +398,7 @@ tests; launch requires the real writer (TASK-1088).
 
 ## TASK-1081: Placement evidence — UVK counters, pair-based BKT batch, A2 and A2r admission on the native sense (LIVE-DB, owner-applied)
 
-**Status:** [ ] Not Started — unblocked: the owner approved PQ5 on 2026-11-18 (ADR-059 accepted)
+**Status:** [~] Done (repo), awaiting live apply (2026-11-19) — `migrations/placement_evidence_kind.sql` + admission queues; the end-to-end intro-drill check runs after apply
 **Feature:** vocab-placement
 **Type:** feature
 **Complexity:** L (1-2d)
@@ -455,7 +455,7 @@ check for the test account after a live run.
 
 ## TASK-1082: Intro drill shows zh pinyin for diacritic-only readings (zh launch dependency)
 
-**Status:** [ ] Not Started
+**Status:** [x] Done (repo) (2026-11-19) — `intro_drill._reading`; also `prestudy._load_senses` (the prestudy page had the same gap)
 **Feature:** vocab-placement
 **Type:** bug
 **Complexity:** S (1-3h)
@@ -531,7 +531,7 @@ If OQ33 chooses "label each", close this task as won't-do.
 
 ## TASK-1084: Placement page and i18n
 
-**Status:** [ ] Not Started
+**Status:** [x] Done (repo) (2026-11-19) — `/placement`, 48 vitest cases, Playwright smoke at 390 px
 **Feature:** vocab-placement
 **Type:** feature
 **Complexity:** L (1-2d)
@@ -617,6 +617,14 @@ A manual walk-through of each entry point per language; `python -m pytest tests/
 **Complexity:** L (1-2d)
 **Depends On:** TASK-1078, TASK-1079, TASK-1081, TASK-1036, TASK-1039, TASK-1040, TASK-1044
 
+**Notes from the build (2026-11-19):**
+- `knowledge_report_summary` computes its growth "since" sets from legacy definition-mode rows (no instrument
+  filter); once placements exist they must follow the instrument and D rule. Add a `p_since` parameter to
+  `knowledge_calibration_inputs` and use it from the summary.
+- Unify the calibration block's date names (`first_at`/`last_at` from §14 vs `first_answer_at`/`last_answer_at`
+  in report §6.1); the summary currently returns both and the service accepts both.
+- Have the summary return `checked_meanings` (the snapshot job falls back to missed + rated known + checked).
+
 **Description:**
 - `knowledge_report_summary` embeds `knowledge_calibration_inputs`.
 - The summary service computes `estimate_m`, `estimate_mr` and the gap, and applies the eligibility amendment
@@ -651,7 +659,7 @@ the owner applies the SQL.
 
 ## TASK-1087: Simulation regression harness for the production code (V0)
 
-**Status:** [ ] Not Started
+**Status:** [x] Done (repo) (2026-11-19) — `tests/test_placement_coverage.py` (-m slow); results in the tech spec E34
 **Feature:** vocab-placement
 **Type:** test
 **Complexity:** M (3-8h)
@@ -699,7 +707,7 @@ learners carry the tone state of `wiki/evaluations/vocab-placement-research-2026
 
 ## TASK-1088: Launch per language — readiness gate, nightly close, flag (LIVE environment change, owner)
 
-**Status:** [ ] Not Started
+**Status:** [~] In Progress (2026-11-19) — code part done (nightly close job, `scripts/placement_readiness_gate.py`); owner launch steps remain (runbook Phase 3)
 **Feature:** vocab-placement
 **Type:** infra
 **Complexity:** S (1-3h)
@@ -829,7 +837,7 @@ A read-only sample query after apply; a local check session showing no reading u
 
 ## TASK-1092: zh tone variants — inventory, variant generator, readiness (LIVE-DB, owner-applied; zh launch item)
 
-**Status:** [ ] Not Started — unblocked: the owner answered PQ3 for Chinese on 2026-11-18 ("only the existing tones, just wrong combos"; ADR-060)
+**Status:** [~] Done (repo), awaiting live apply (2026-11-19) — `migrations/calibration_zh_tones.sql` (+ character-reading table); SQL = Python on 10,390 readings
 **Feature:** vocab-placement
 **Type:** feature
 **Complexity:** M (3-8h)
@@ -964,29 +972,63 @@ A lint pass (CLAUDE.md §5e) shows no contradiction on these topics.
 
 ---
 
+## TASK-1096: zh tone variants — heteronym list for single-character lemmas
+
+**Status:** [ ] Not Started
+**Feature:** vocab-placement
+**Type:** feature
+**Complexity:** S (1-3h)
+**Depends On:** TASK-1092
+
+**Description:**
+A tone variant must never be a real reading of the prompt word (ADR-060). TASK-1092 checks a single-character
+lemma against every reading its character has in the zh dictionary (`calibration_zh_char_readings`), which removed
+15 of the 48 cases a pypinyin heteronym check flagged on 2026-11-19. 33 remain because no dictionary word attests
+the reading; 14 of them are real, common readings that would be shown as "wrong": 强 qiǎng, 数 shǔ, 正 zhēng,
+累 léi, 观 guàn, 钻 zuàn, 占 zhān, 扎 zhá, 喝 hè, 泥 nì, 可 kè, 打 dá, 轴 zhòu, 仅 jìn. This task adds a small
+curated seed of heteronym readings for single-character pool lemmas (from pypinyin's MIT-licensed data, reviewed,
+committed as a migration's INSERT list into `calibration_zh_char_readings`, kept by the refresh), so those variants
+are excluded too.
+
+**Acceptance Criteria:**
+- [ ] The 14 real readings above are never returned by `calibration_zh_tone_variants` for their lemma; SQL and
+  `services/placement_tones.variants` still agree on every pool reading.
+- [ ] Coverage stays ≥ 98% of pool readings with ≥ 1 variant (99.0% before) and ≥ 90% in band 7.
+- [ ] The seed's source and licence are recorded in the migration header.
+
+**Files to Create / Modify:**
+- `migrations/calibration_zh_char_readings_seed.sql` (+ rollback); `services/placement_tones.py`;
+  `scripts/verify_zh_tone_variants.py`; `tests/test_placement_tones.py`.
+
+**Verification:**
+`python scripts/verify_zh_tone_variants.py` after apply: 0 mismatches; the 14 readings absent.
+
+---
+
 **Master list rows (for the orchestrator):**
 
 | ID | Feature | Title | Status | Complexity | Depends On |
 |----|---------|-------|--------|------------|------------|
-| TASK-1074 | vocab-placement | Fix the zh reading normaliser and syllable count (LIVE-DB, owner) | [ ] | S | — |
-| TASK-1075 | vocab-placement | ja reading readiness: katakana, kana-consistent foils, ja-only refresh, refill (LIVE-DB, owner) | [ ] | M | TASK-1077 (gate) |
-| TASK-1076 | vocab-placement | Placement schema migration (LIVE-DB, owner) | [ ] | M | — |
-| TASK-1077 | vocab-placement | Placement SQL functions (LIVE-DB, owner) | [ ] | L | TASK-1076; TASK-1092 (zh) |
-| TASK-1078 | vocab-placement | Pure placement design and estimator functions | [ ] | M | TASK-1035 |
-| TASK-1079 | vocab-placement | `knowledge_calibration_inputs` (LIVE-DB, owner) | [ ] | M | TASK-1076, TASK-1034 |
-| TASK-1080 | vocab-placement | Placement service and routes | [ ] | L | TASK-1077, TASK-1078, TASK-1079 |
-| TASK-1081 | vocab-placement | Placement evidence: pair-based BKT, A2/A2r on the native sense (LIVE-DB, owner) | [ ] | L | TASK-1076, TASK-1080 |
-| TASK-1082 | vocab-placement | Intro drill shows zh pinyin for diacritic-only readings | [ ] | S | — |
+| TASK-1074 | vocab-placement | Fix the zh reading normaliser and syllable count (LIVE-DB, owner) | Done (repo), awaiting live apply | S | — |
+| TASK-1075 | vocab-placement | ja reading readiness: katakana, kana-consistent foils, ja-only refresh, refill (LIVE-DB, owner) | [~] code done; owner refresh/refill/gate | M | TASK-1077 (gate) |
+| TASK-1076 | vocab-placement | Placement schema migration (LIVE-DB, owner) | Done (repo), awaiting live apply | M | — |
+| TASK-1077 | vocab-placement | Placement SQL functions (LIVE-DB, owner) | Done (repo), awaiting live apply | L | TASK-1076; TASK-1092 (zh) |
+| TASK-1078 | vocab-placement | Pure placement design and estimator functions | Done (repo) | M | TASK-1035 |
+| TASK-1079 | vocab-placement | `knowledge_calibration_inputs` (LIVE-DB, owner) | Done (repo), awaiting live apply | M | TASK-1076, TASK-1034 |
+| TASK-1080 | vocab-placement | Placement service and routes | Done (repo) | L | TASK-1077, TASK-1078, TASK-1079 |
+| TASK-1081 | vocab-placement | Placement evidence: pair-based BKT, A2/A2r on the native sense (LIVE-DB, owner) | Done (repo), awaiting live apply | L | TASK-1076, TASK-1080 |
+| TASK-1082 | vocab-placement | Intro drill (and prestudy) show zh pinyin for diacritic-only readings | Done (repo) | S | — |
 | TASK-1083 | vocab-placement | Placement feeds test selection and the rating writer | [?] OQ33 | M | TASK-1080 |
-| TASK-1084 | vocab-placement | Placement page and i18n | [ ] | L | TASK-1080 |
+| TASK-1084 | vocab-placement | Placement page and i18n | Done (repo) | L | TASK-1080 |
 | TASK-1085 | vocab-placement | Entry points incl. onboarding gate | [?] PQ7 | S | TASK-1084, TASK-1040 |
 | TASK-1086 | vocab-placement | Report integration (LIVE-DB, owner) | [ ] | L | TASK-1078, TASK-1079, TASK-1081, TASK-1036, TASK-1039, TASK-1040, TASK-1044 |
-| TASK-1087 | vocab-placement | Simulation regression harness (V0) | [ ] | M | TASK-1078 |
-| TASK-1088 | vocab-placement | Launch per language (LIVE env, owner) | [ ] | S | TASK-1080, TASK-1081, TASK-1082, TASK-1084, TASK-1087, TASK-1092 (zh) (ja: TASK-1075) |
+| TASK-1087 | vocab-placement | Simulation regression harness (V0) | Done (repo) | M | TASK-1078 |
+| TASK-1088 | vocab-placement | Launch per language (LIVE env, owner) | [~] code done (nightly close, gate script); owner steps | S | TASK-1080, TASK-1081, TASK-1082, TASK-1084, TASK-1087, TASK-1092 (zh) (ja: TASK-1075) |
 | TASK-1089 | vocab-placement | Validation study V1–V10 | [?] learners | M | TASK-1088 |
 | TASK-1090 | vocab-placement | Exam-level output — redesign and gate | [?] parked (owner PQ2: not now), V5 | L | TASK-1089, TASK-1049 |
 | TASK-1091 | vocab-placement | Check meaning items become the bare instrument (LIVE-DB, owner) | [?] PQ11 | M | TASK-1076, TASK-1077 |
-| TASK-1092 | vocab-placement | zh tone variants: inventory, generator, readiness (LIVE-DB, owner; zh launch item) | [ ] | M | — |
+| TASK-1092 | vocab-placement | zh tone variants: inventory, generator, readiness (LIVE-DB, owner; zh launch item) | Done (repo), awaiting live apply | M | — |
 | TASK-1093 | vocab-placement | IRT scoring v2 | [?] data | XL | TASK-1089 |
 | TASK-1094 | vocab-placement | Goal-path placement segment and hero copy | [?] TASK-1072 | S | TASK-1081, TASK-1086, TASK-1072 |
 | TASK-1095 | vocab-placement | Documentation reconciliation | [ ] | S | TASK-1086 |
+| TASK-1096 | vocab-placement | zh tone variants: heteronym list for single-character lemmas | [ ] | S | TASK-1092 |

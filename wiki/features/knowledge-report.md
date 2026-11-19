@@ -1,7 +1,7 @@
 ---
 title: Knowledge Report ("My vocabulary")
 type: feature
-status: planned
+status: in-progress
 tech_page: ./knowledge-report.tech.md
 last_updated: 2026-11-18
 open_questions:
@@ -17,7 +17,7 @@ open_questions:
   - "OQ10 OPEN: Snapshot day: UTC date (default) or the learner's local day?"
   - "OQ11 OPEN: Confirm how drill (intro) exercise formats are labelled when shown on a missed word."
   - "OQ12 OPEN: Is a word's first-ranked meaning reliably its most common meaning? Default: yes for v1."
-  - "OQ13 OPEN: Is the database cap 500 MiB or 500,000,000 bytes? Since 2026-11-18 the exam lists do not depend on it (they are files in Storage, ADR-054). It still decides when the Chinese word-pool refresh (OQ29), seeding missing JLPT words (OQ31) and database growth from 'Add these words' (OQ30) may go ahead. Default: those wait until the database is at or below 490,000,000 bytes (or a 500 MiB cap is confirmed)."
+  - "OQ13 ANSWERED by events (2026-11-19): the exercise-content cut-over (ADR-049) took the database to 358 MB, under the 500 MB Free cap however it is counted, so no task waits on the size gate any more. OQ29/OQ31 still need owner answers but no longer wait for the gate."
   - "OQ14 OPEN: Approve the clean-up of the decay functions (wrong volatility, broken two-argument version)? Not needed by the report."
   - "OQ15 OPEN: Build targeted practice of a chosen word set? Default: deferred; v1 uses word-list import."
   - "OQ16 OPEN: Add evidence-kind counters or an evidence log to the knowledge writers? Default: deferred."
@@ -42,6 +42,7 @@ open_questions:
   - "OQ35 OPEN: The goal-path layout needs a stored goal per study language (exam level, optional exam date). Where is it stored (user_languages columns or a small settings row), and is it shared with the study plan? Default: two nullable columns on user_languages."
   - "OQ36 OPEN: Show '+N rated known in the last 30 days' per exam level? It needs per-level counts in the nightly snapshot (ADR-053), a few bytes per list level per row. Default: yes, once 30 days of snapshots exist."
   - "OQ37 ANSWERED (owner, 2026-11-18): build the placement test as an adaptive version of the vocabulary check; no fake words or Yes/No self-report; for Chinese and Japanese test both the meaning and the pronunciation. Design filed as features/vocab-placement (ADR-057, ADR-058, ADR-060 proposed; ADR-059 accepted; tasks TASK-1074–1095); its own owner questions are PQ1–PQ21 there (PQ2, PQ3 for zh, PQ5 and PQ10 answered 2026-11-18: no level output for now, zh tones scored, evidence rules approved, about 60 questions)."
+  - "OQ38 OPEN: When the intro drill logs several first-try outcomes for a word at the same instant (mixed right and wrong), which is the latest? Built: the wrong one (conservative; de6fd05b has 19 missed last time this way, 8 the other way). Changing it is a one-line SQL edit in two files."
 ---
 
 # Knowledge Report ("My vocabulary")
