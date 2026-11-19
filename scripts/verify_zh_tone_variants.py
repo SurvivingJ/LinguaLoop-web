@@ -2,10 +2,10 @@
 """Check calibration_zh_tone_variants() against services/placement_tones (TASK-1092). Read-only.
 
 For every zh pool reading it calls the SQL function and the Python reference with the same
-inventory and the same lemma readings, and compares the two lists (set, then order). It also
-rebuilds the inventory in Python from the native zh readings and compares it with
-calibration_zh_tone_inventory, checks that no SQL variant uses a syllable+tone the inventory
-does not list, and prints the tone-variant coverage per Zipf band (ADR-060, tech §2 rule 4;
+inventory, character readings and lemma readings, and compares the two lists (set, then
+order). It also rebuilds calibration_zh_tone_inventory and calibration_zh_char_readings in
+Python from the native zh readings and compares them with the tables, checks that no SQL
+variant uses a syllable+tone the inventory does not list, and prints the tone-variant coverage per Zipf band (ADR-060, tech §2 rule 4;
 the research measure is 3,622 of 3,656 pool readings with ≥ 1 variant, band 7 94.8%).
 
 Readings checked:
@@ -15,7 +15,7 @@ Readings checked:
   * with --all-readings, every native zh reading in dim_word_senses (stress test).
 Coverage is reported on the keys.
 
-Exit status 1 when any list differs or a variant uses an unattested syllable+tone.
+Exit status 1 when a table or a list differs, or a variant uses an unattested syllable+tone.
 
 Usage::
 
@@ -60,6 +60,10 @@ class SupabaseSource:
         return list(paginate(lambda: self.db.table('calibration_zh_tone_inventory')
                              .select('base, tones').order('base')))
 
+    def char_readings(self) -> List[dict]:
+        return list(paginate(lambda: self.db.table('calibration_zh_char_readings')
+                             .select('hanzi, base, tone').order('hanzi').order('base').order('tone')))
+
     def native_readings(self) -> List[dict]:
         return list(paginate(lambda: self.db.table('dim_word_senses')
                              .select('id, vocab_id, pronunciation, definition_level, sense_rank')
@@ -102,6 +106,10 @@ class PsqlSource:
 
     def inventory(self) -> List[dict]:
         return self._json('SELECT base, tones FROM calibration_zh_tone_inventory ORDER BY base')
+
+    def char_readings(self) -> List[dict]:
+        return self._json('SELECT hanzi, base, tone FROM calibration_zh_char_readings'
+                          ' ORDER BY hanzi, base, tone')
 
     def native_readings(self) -> List[dict]:
         return self._json(
@@ -146,6 +154,25 @@ def compare_inventory(db_rows: List[dict], native: List[dict]) -> Tuple[Dict[str
     for b in diff[:SHOW]:
         print(f'  {b}: db={sorted(db_inv.get(b, []))} python={sorted(py_inv.get(b, []))}')
     return db_inv, len(diff)
+
+
+def compare_char_readings(db_rows: List[dict], native: List[dict], lemma_of: Dict[int, str]
+                          ) -> Tuple[Dict[str, frozenset], int]:
+    grouped: Dict[str, set] = collections.defaultdict(set)
+    for r in db_rows:
+        grouped[r['hanzi']].add((r['base'], int(r['tone'])))
+    db_chars = {c: frozenset(v) for c, v in grouped.items()}
+    py_chars = pt.build_char_readings(
+        (lemma_of.get(int(r['vocab_id'])), r['pronunciation']) for r in native)
+    diff = sorted(c for c in set(db_chars) | set(py_chars) if db_chars.get(c) != py_chars.get(c))
+    print('--- character readings ---')
+    print(f'calibration_zh_char_readings: {len(db_rows)} rows, {len(db_chars)} characters, '
+          f'{sum(len(v) > 1 for v in db_chars.values())} with more than one reading; '
+          f'Python rebuild: {sum(len(v) for v in py_chars.values())} rows; '
+          f'differing characters: {len(diff)}')
+    for c in diff[:SHOW]:
+        print(f'  {c}: db={sorted(db_chars.get(c, []))} python={sorted(py_chars.get(c, []))}')
+    return db_chars, len(diff)
 
 
 def unattested(variant: str, inv: Dict[str, frozenset]) -> List[str]:
@@ -207,14 +234,15 @@ def main(argv: Optional[Iterable[str]] = None) -> int:
     src = PsqlSource(args.psql) if args.psql else SupabaseSource(args.workers)
     native = src.native_readings()
     db_inv, inv_diff = compare_inventory(src.inventory(), native)
+    lemma_of = src.lemmas()
+    db_chars, char_diff = compare_char_readings(src.char_readings(), native, lemma_of)
     pool = src.pool()
     keys = keys_per_lemma(pool, native)
 
-    lemma_of = {int(p['vocab_id']): p['lemma'] for p in pool}
+    lemma_of.update({int(p['vocab_id']): p['lemma'] for p in pool})
     items = {(k['reading'], v) for v, k in keys.items()}
     items |= {(p['pronunciation'], int(p['vocab_id'])) for p in pool if p['pronunciation']}
     if args.all_readings:
-        lemma_of.update(src.lemmas())
         items |= {(r['pronunciation'], int(r['vocab_id'])) for r in native}
     items_l = sorted(items, key=lambda x: (x[1], x[0]))
     own: Dict[int, List[str]] = collections.defaultdict(list)
@@ -227,7 +255,8 @@ def main(argv: Optional[Iterable[str]] = None) -> int:
     results = dict(zip(items_l, sql_out))
     set_diff, order_diff, bad_pairs, n_variants = [], 0, [], 0
     for (reading, v), got in results.items():
-        want = pt.variants(reading, lemma_of.get(v), db_inv, own.get(v, ()))
+        want = pt.variants(reading, lemma_of.get(v), db_inv, own.get(v, ()),
+                           char_readings=db_chars)
         n_variants += len(got)
         if set(got) != set(want) or len(got) != len(want):
             set_diff.append((lemma_of.get(v), reading, sorted(set(got) - set(want)),
@@ -245,7 +274,7 @@ def main(argv: Optional[Iterable[str]] = None) -> int:
     for b in bad_pairs[:SHOW]:
         print('  unattested:', b)
     coverage(keys, results)
-    return 1 if (set_diff or order_diff or bad_pairs or inv_diff) else 0
+    return 1 if (set_diff or order_diff or bad_pairs or inv_diff or char_diff) else 0
 
 
 if __name__ == '__main__':
