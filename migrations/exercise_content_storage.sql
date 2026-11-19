@@ -32,6 +32,15 @@
 -- EXERCISE_CONTENT_WRITE=dual was ever set in any environment: after that, rows carry versions
 -- whose files exist only in Storage. Roll back exercise_content_session_rpcs.sql first (its
 -- functions read exercises.content_version).
+--
+-- TASK-1031 (2026-11-19, after the cut-over): this file stays canonical for
+-- exercises.content_version, exercises.dedupe_key, exercise_content_version_seq,
+-- exercise_content_begin, exercise_content_live_versions and the bucket row. Its
+-- exercise_content_commit body is the PRE-drop one: the live, canonical body is
+-- migrations/exercise_content_drop_column.sql step 3d. exercise_content_session_rpcs.sql and
+-- both rollbacks named above are in migrations/archive/ (the storage rollback is no longer
+-- valid: the files are the only copy of the content). The EXERCISE_CONTENT_* flags named
+-- here were removed from the code.
 -- Renumbered 2026-11-17 when merged with main: ADR-047 -> ADR-049 and TASK-976..999 ->
 -- TASK-1008..1031 (main already used those ids). Function bodies and COMMENT strings keep
 -- the old ids: they are (or will be) the live text, md5-compared against the database.

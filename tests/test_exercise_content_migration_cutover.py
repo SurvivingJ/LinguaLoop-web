@@ -1,9 +1,12 @@
 """Static checks for the ADR-049 cut-over runbook (TASK-1018).
 
-migrations/exercise_content_drop_column.sql is run step by step by the operator (TASK-1030);
+migrations/exercise_content_drop_column.sql was run step by step by the operator (TASK-1030,
+2026-11-18/19) and is the canonical definition of exercise_content_commit and the two session
+RPCs (live md5 = these bodies, checked 2026-11-19);
 migrations/exercise_content_drop_column_rollback.sql undoes its schema part. No database: the
-SQL is parsed. The step-3 functions are checked against the pre-drop versions of
-exercise_content_storage.sql (TASK-1016) and exercise_content_session_rpcs.sql (TASK-1017).
+SQL is parsed. The step-3 functions are checked against the pre-drop versions in
+exercise_content_storage.sql (TASK-1016) and archive/exercise_content_session_rpcs.sql
+(TASK-1017, archived in TASK-1031), so a later edit of the canonical bodies has to be deliberate.
 """
 from __future__ import annotations
 
@@ -19,6 +22,7 @@ from tests.test_exercise_content_migration_schema import (
 
 CUTOVER = 'exercise_content_drop_column.sql'
 CUTOVER_ROLLBACK = 'exercise_content_drop_column_rollback.sql'
+SESSION_RPCS = 'archive/exercise_content_session_rpcs.sql'      # the pre-drop session RPCs
 STEP_RE = re.compile(r'^-- STEP (\w+) —', re.M)
 FUNCTIONS = ('exercise_content_commit', 'get_practice_session', 'get_review_ahead_items')
 
@@ -99,8 +103,8 @@ def old_types() -> list[str]:
 def predecessors() -> dict[str, object]:
     return {
         'exercise_content_commit': function_def(read('exercise_content_storage.sql'), 'exercise_content_commit'),
-        'get_practice_session': function_def(read('exercise_content_session_rpcs.sql'), 'get_practice_session'),
-        'get_review_ahead_items': function_def(read('exercise_content_session_rpcs.sql'), 'get_review_ahead_items'),
+        'get_practice_session': function_def(read(SESSION_RPCS), 'get_practice_session'),
+        'get_review_ahead_items': function_def(read(SESSION_RPCS), 'get_review_ahead_items'),
     }
 
 
@@ -109,7 +113,8 @@ def predecessors() -> dict[str, object]:
 # --------------------------------------------------------------------------------------
 def test_header(text):
     header = text[:STEP_RE.search(text).start()]
-    assert 'NOT applied' in header and 'TASK-1030' in header and 'ADR-049' in header
+    assert 'STATUS: applied live 2026-11-18/19' in header
+    assert 'TASK-1030' in header and 'ADR-049' in header and 'TASK-1031' in header
     assert 'never run this whole file at once' in header
     assert 'EXERCISE_CONTENT_DB_FALLBACK=0' in header
     assert 'exercise_content_drop_column_rollback.sql' in header
@@ -339,7 +344,8 @@ def test_rollback_steps_and_header(rollback):
     assert list(steps(rollback)) == ['R1', 'R2', 'R3', 'R4', 'R5']
     header = rollback[:STEP_RE.search(rollback).start()]
     assert 'NOT applied' in header and 'R2' in header
-    assert 'EXERCISE_CONTENT_SOURCE=storage' in header
+    assert 'ALSO NEEDS A REFILL OF exercises.content FROM STORAGE' in header
+    assert 'TASK-1031' in header and SESSION_RPCS in header
     assert 'exercises-no-sense' in header and 'semdisc-20261115' in header
 
 
@@ -390,8 +396,13 @@ def test_rollback_never_deletes_data_or_objects(rollback):
     assert 'storage.' not in code
 
 
-def test_every_adr047_migration_ships_with_a_rollback():
-    for name in ('exercise_content_storage', 'exercise_content_session_rpcs',
-                 'exercise_content_drop_column'):
-        assert (MIGRATIONS / f'{name}.sql').exists(), name
-        assert (MIGRATIONS / f'{name}_rollback.sql').exists(), f'{name}_rollback.sql'
+def test_canonical_and_archived_adr049_migrations():
+    """TASK-1031: the canonical files stay; the superseded ones are in archive/."""
+    for name in ('exercise_content_storage.sql', 'exercise_content_drop_column.sql',
+                 'exercise_content_drop_column_rollback.sql'):
+        assert (MIGRATIONS / name).exists() and not (MIGRATIONS / 'archive' / name).exists(), name
+    for name in ('exercise_content_session_rpcs.sql', 'exercise_content_session_rpcs_rollback.sql',
+                 'exercise_content_storage_rollback.sql',
+                 'exercise_content_cutover_step3_20261118.sql',
+                 'get_practice_session_language_scope.sql', 'practice_review_ahead.sql'):
+        assert (MIGRATIONS / 'archive' / name).exists() and not (MIGRATIONS / name).exists(), name
