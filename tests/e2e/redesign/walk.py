@@ -46,8 +46,9 @@ ITEMS={
  'dt_repair':{'kind':'dt_repair','id':'r1'},
 }
 def pagefx(name,lang):
-    d=merge(*base,FX+'/tests.json',FX+'/trainers.json',FX+'/settings.json',FX+'/prestudy.json',FX+'/flashcards.json',FX+'/dual-translation.json',FX+'/dt-profile.json',sess)
+    d=merge(*base,FX+'/tests.json',FX+'/trainers.json',FX+'/settings.json',FX+'/prestudy.json',FX+'/flashcards.json',FX+'/dual-translation.json',FX+'/dt-profile.json',FX+'/placement.json',sess)
     if lang=='3': d.update(merge(FX+'/tests-ja.json',FX+'/prestudy-ja.json'))
+    if name=='placement-result': d.update(load(FX+'/placement-result.json'))
     d['GET /api/study-session']=load(FX+'/session-daily.json')['GET /api/study-session*']
     return d
 PAGES={ # name: (path, lang filter, extra args)
@@ -57,7 +58,8 @@ PAGES={ # name: (path, lang filter, extra args)
  'prestudy':('/test/zh-weekend-hike/prestudy',None,[]),'test':('/test/zh-weekend-hike',None,[]),
  'dictation':('/test/zh-weekend-hike/dictation',None,[]),'pinyin':('/test/pz/pinyin','1',[]),
  'pitch':('/test/pj/pitch-accent','3',[]),'classifier':('/classifier-drill','1',[]),'counter':('/counter-drill','3',[]),
- 'calibration':('/calibration',None,[]),'dt':('/dual-translation',None,[]),'dtprofile':('/dual-translation/profile',None,[]),
+ 'calibration':('/calibration',None,[]),
+ 'placement':('/placement',None,['--click','#plcStartBtn']),'placement-result':('/placement','1',[]),'dt':('/dual-translation',None,[]),'dtprofile':('/dual-translation/profile',None,[]),
  'flashcards':('/flashcards',None,[]),'me':('/profile',None,[]),'studyplan':('/study-plan',None,[]),'wordlist':('/word-list',None,[]),
 }
 def run(case):
