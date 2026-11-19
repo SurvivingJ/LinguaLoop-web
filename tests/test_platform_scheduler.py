@@ -16,6 +16,7 @@ EXPECTED = {
     'slug_health_nightly': ('*', 4, 10),
     'generation_queue_drain_nightly': ('*', 4, 15),
     'word_upload_watchlist_sweep_nightly': ('*', 4, 20),
+    'placement_close_stale_nightly': ('*', 4, 30),
     'study_plan_weekly_recompute': ('sun', 23, 0),
 }
 
