@@ -44,6 +44,17 @@ def test_table_is_locked_down():
     assert "CREATE POLICY" not in CODE
 
 
+def test_char_readings_table_is_locked_down():
+    assert "CREATE TABLE IF NOT EXISTS public.calibration_zh_char_readings (" in CODE
+    assert "ALTER TABLE public.calibration_zh_char_readings ENABLE ROW LEVEL SECURITY;" in CODE
+    assert "REVOKE ALL ON public.calibration_zh_char_readings FROM PUBLIC, anon, authenticated;" in CODE
+    table = re.search(r"CREATE TABLE IF NOT EXISTS public\.calibration_zh_char_readings \((.*?)\n\);",
+                      CODE, re.S).group(1)
+    assert re.search(r"hanzi text\s+NOT NULL", table) and re.search(r"base\s+text\s+NOT NULL", table)
+    assert "tone  smallint NOT NULL CHECK (tone BETWEEN 1 AND 5)" in table
+    assert "PRIMARY KEY (hanzi, base, tone)" in table
+
+
 def test_table_columns_match_tech_13():
     table = re.search(r"CREATE TABLE IF NOT EXISTS public\.calibration_zh_tone_inventory \((.*?)\n\);",
                       CODE, re.S).group(1)
@@ -79,6 +90,11 @@ def test_refresh_is_idempotent_rebuild_from_native_zh_readings():
     assert "s.word_language_id = 1" in fn and "s.definition_language_id = 1" in fn
     assert "FILTER (WHERE p.tone BETWEEN 1 AND 4)" in fn
     assert "GET DIAGNOSTICS v_rows = ROW_COUNT;" in fn and "RETURN v_rows;" in fn
+    # the character readings are rebuilt in the same call, from aligned readings only
+    assert "DELETE FROM calibration_zh_char_readings WHERE true;" in fn
+    assert "INSERT INTO calibration_zh_char_readings (hanzi, base, tone)" in fn
+    assert "t.n = char_length(v.lemma)" in fn and "v.language_id = 1" in fn
+    assert "substr(v.lemma, t.k::integer, 1)" in fn
     # the migration fills the table once
     assert CODE.rstrip().endswith("SELECT public.calibration_refresh_zh_tone_inventory();")
 
@@ -91,6 +107,10 @@ def test_variant_rules_present():
     assert "WHERE syl.tone BETWEEN 1 AND 4" in fn and "a.t BETWEEN 1 AND 4" in fn
     assert "s.vocab_id = p_vocab_id" in fn
     assert "md5(array_to_string(c.tones, ''))" in fn
+    # single-character lemma: no reading its character has anywhere in the dictionary
+    assert ("JOIN calibration_zh_char_readings cr ON cr.hanzi = hdr.lemma AND cr.base = syl.base"
+            in fn)
+    assert "char_length(hdr.lemma) = 1" in fn and "hdr.n = 1" in fn
 
 
 def test_parse_and_mark_share_pythons_constants():
@@ -112,6 +132,7 @@ def test_rollback_drops_everything_this_file_creates():
     for name, (args, *_rest) in FUNCTIONS.items():
         assert f"DROP FUNCTION IF EXISTS public.{name}({args});" in code
     assert "DROP TABLE IF EXISTS public.calibration_zh_tone_inventory;" in code
+    assert "DROP TABLE IF EXISTS public.calibration_zh_char_readings;" in code
     # variants first: it is the only one nothing else here depends on
     assert code.index("calibration_zh_tone_variants") < code.index("calibration_zh_parse_pinyin")
     assert code.index("DROP FUNCTION IF EXISTS public.calibration_zh_parse_pinyin") < code.index("DROP TABLE")

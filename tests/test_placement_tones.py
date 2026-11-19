@@ -204,6 +204,41 @@ def test_polyphones_never_return_another_reading_of_the_lemma():
     assert set(out) == {'chāng', 'chǎng'}
 
 
+# Character readings (calibration_zh_char_readings): 好 is listed only as hǎo, but 爱好 ài hào
+# attests 好 hào; 因为 yīn wèi attests 为 wèi; 只是 zhǐ shì attests 只 zhǐ.
+DICT = [('好', 'hǎo'), ('爱好', 'ài hào (ai4 hao4)'), ('为', 'wéi'), ('因为', 'yīn wèi'),
+        ('只', 'zhī'), ('只是', 'zhǐ shì'), ('长', 'cháng'), ('长大', 'zhǎng dà'),
+        ('一会儿', 'yíhuìr'), ('啤酒', 'pí jiǔ ba'), ('东西', 'dōng xi')]
+CHARS = pt.build_char_readings(DICT)
+
+
+def test_build_char_readings_maps_aligned_characters_to_their_syllables():
+    assert CHARS['好'] == {('hao', 3), ('hao', 4)}
+    assert CHARS['为'] == {('wei', 2), ('wei', 4)}
+    assert CHARS['只'] == {('zhi', 1), ('zhi', 3)}
+    assert CHARS['长'] == {('chang', 2), ('zhang', 3)}
+    assert CHARS['西'] == {('xi', 5)}                       # neutral readings are listed too
+    assert '会' not in CHARS and '儿' not in CHARS           # 一会儿 / yíhuìr: not aligned
+    assert '啤' not in CHARS and '酒' not in CHARS           # 2 characters, 3 syllables
+    assert pt.build_char_readings([(None, 'hǎo'), ('好', None), ('好', '')]) == {}
+
+
+def test_single_character_lemma_never_yields_a_reading_its_character_has():
+    assert set(pt.variants('hǎo', '好', INV, ['hǎo'])) == {'háo', 'hào'}
+    assert pt.variants('hǎo', '好', INV, ['hǎo'], char_readings=CHARS) == ['háo']
+    assert 'wèi' not in pt.variants('wéi', '为', {'wei': {1, 2, 3, 4}}, ['wéi'], char_readings=CHARS)
+    assert 'zhǐ' not in pt.variants('zhī', '只', INV | {'zhi': {1, 2, 3, 4}}, ['zhī'],
+                                    char_readings=CHARS)
+    # another base of the same character changes nothing (zhǎng is never a variant of cháng)
+    assert set(pt.variants('cháng', '长', INV, ['cháng'], char_readings=CHARS)) == {
+        'chāng', 'chǎng', 'chàng'}
+
+
+def test_character_readings_do_not_restrict_multi_character_lemmas():
+    out = pt.variants('hǎo rén', '好人', INV, ['hǎo rén'], char_readings=CHARS)
+    assert 'hào rén' in out
+
+
 def test_u_umlaut_syllables_keep_the_umlaut_and_re_mark():
     assert pt.variants('lǜ', '绿', INV, ['lǜ']) == ['lǚ']
     assert pt.variants('nǚ ér', '女儿', INV, ['nǚ ér']) == sorted(

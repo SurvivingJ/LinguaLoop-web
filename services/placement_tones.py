@@ -10,7 +10,9 @@ Two SQL functions mirror this module and must agree with it exactly:
 * ``to_numbered`` with spaces removed equals ``calibration_normalise_pronunciation(r, 1)`` for
   a reading with no ``(…)`` numbered part (migrations/calibration_zh_normaliser_fix.sql);
 * ``variants`` returns the same list as ``calibration_zh_tone_variants``
-  (migrations/calibration_zh_tones.sql), checked by scripts/verify_zh_tone_variants.py.
+  (migrations/calibration_zh_tones.sql), checked by scripts/verify_zh_tone_variants.py;
+  ``build_inventory`` and ``build_char_readings`` build what
+  ``calibration_refresh_zh_tone_inventory`` stores.
 
 Terms:
 
@@ -182,6 +184,25 @@ def build_inventory(readings: Iterable[Optional[str]]) -> Dict[str, FrozenSet[in
     return {b: frozenset(t) for b, t in inv.items()}
 
 
+def build_char_readings(rows: Iterable[Tuple[Optional[str], Optional[str]]]
+                        ) -> Dict[str, FrozenSet[Tuple[str, int]]]:
+    """character -> the (base, tone) readings it has in zh dictionary readings.
+
+    ``rows`` are (lemma, reading) pairs. Only aligned readings count (the lemma's character
+    count equals the reading's token count): character i takes token i, when that token is a
+    syllable ('好奇', 'hào qí' -> 好: ('hao', 4)). As calibration_zh_char_readings stores it.
+    """
+    out: Dict[str, set] = {}
+    for lemma, reading in rows:
+        syls = parse(reading)
+        if not lemma or len(lemma) != len(syls):
+            continue
+        for ch, s in zip(lemma, syls):
+            if s.base is not None:
+                out.setdefault(ch, set()).add((s.base, s.tone))
+    return {ch: frozenset(r) for ch, r in out.items()}
+
+
 def _combo_digest(tones: Sequence[int]) -> Tuple[str, str]:
     digits = ''.join(str(t) for t in tones)
     return hashlib.md5(digits.encode('ascii')).hexdigest(), digits
@@ -190,7 +211,8 @@ def _combo_digest(tones: Sequence[int]) -> Tuple[str, str]:
 def variants(display: Optional[str], lemma: Optional[str],
              inventory: Mapping[str, Iterable[int]],
              own_readings: Iterable[Optional[str]] = (),
-             cap: int = VARIANT_CAP) -> List[str]:
+             cap: int = VARIANT_CAP,
+             char_readings: Optional[Mapping[str, Iterable[Tuple[str, int]]]] = None) -> List[str]:
     """Every valid tone variant of a zh reading under rule 4 (ADR-060), at most ``cap``.
 
     * Only full-tone syllables change, and only to full tones the inventory lists for their
@@ -200,6 +222,9 @@ def variants(display: Optional[str], lemma: Optional[str],
     * A combination whose only changes are tone 3 -> 2 before an original tone-3 syllable is
       a sandhi form and is dropped, as is the original itself.
     * A variant never equals any of ``own_readings`` (the lemma's readings: polyphones).
+    * A single-character lemma's variant is never a reading that character has anywhere in
+      the dictionary (``char_readings``, from ``build_char_readings``: 好 hǎo never yields hào,
+      which 好奇 hào qí attests, though 好 itself is only listed as hǎo).
     * Order: md5 of the tone digits (a fixed pseudo-random order, so the first ``cap`` are a
       uniform-looking sample), then the digits. The display keeps every separator and
       unchanged token as written; changed syllables are re-marked (``mark_syllable``).
@@ -220,6 +245,8 @@ def variants(display: Optional[str], lemma: Optional[str],
     original = tuple(s.tone for s in syls)
     frame = ' '.join(s.frame for s in syls)
     own = {tones for f, tones in map(reading_key, own_readings) if f == frame}
+    if char_readings and lemma is not None and len(lemma) == 1 and n == 1:
+        own |= {(t,) for b, t in char_readings.get(lemma, ()) if b == syls[0].base}
 
     def real_change(combo: Tuple[int, ...]) -> bool:
         return any(

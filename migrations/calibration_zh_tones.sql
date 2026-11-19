@@ -9,10 +9,14 @@
 --   file adds what the item builder (TASK-1077) needs for that:
 --
 --   * calibration_zh_tone_inventory: toneless syllable -> the full tones (1-4) it
---     carries anywhere in the native zh readings of dim_word_senses (≈ 382 rows,
---     ≈ 15 KB). A syllable only ever seen neutral is listed with no tones.
---   * calibration_refresh_zh_tone_inventory(): rebuilds it; returns the row count.
---     Run it with every zh pool refresh (TASK-1063) and after any zh sense backfill.
+--     carries anywhere in the native zh readings of dim_word_senses (381 rows on
+--     2026-11-19). A syllable only ever seen neutral is listed with no tones.
+--   * calibration_zh_char_readings: character -> the (syllable, tone) readings it has
+--     in aligned native zh readings (lemma character count = syllable count; 好奇
+--     hào qí gives 好 hào). ≈ 2,400 rows over ≈ 2,200 characters.
+--   * calibration_refresh_zh_tone_inventory(): rebuilds both; returns the inventory
+--     row count (both counts in a NOTICE). Run it with every zh pool refresh
+--     (TASK-1063) and after any zh sense backfill.
 --   * calibration_zh_tone_variants(p_pronunciation, p_vocab_id): every valid tone
 --     variant of a reading, in display (tone-marked) form, at most 16.
 --   * two helpers both of the above use, so the parse and the re-marking exist once:
@@ -34,8 +38,13 @@
 --     lemma's character count equals the syllable count.
 --   * A combination whose only changes are tone 3 -> 2 before an (original) tone-3
 --     syllable is a sandhi realisation and is excluded; so is the original.
---   * A variant never equals any reading of the same lemma (polyphones: 长 cháng
---     never yields zhǎng), compared on syllables and tones.
+--   * A variant never equals any reading of the same lemma (polyphones: 种 zhòng
+--     never yields zhǒng), compared on syllables and tones.
+--   * A single-character lemma's variant is never a reading its character has
+--     anywhere in the dictionary (calibration_zh_char_readings). The dictionary often
+--     lists only one reading of a polyphone (好 only hǎo, 为 only wéi, 将 only jiāng),
+--     but its words attest the others (好奇 hào qí, 因为 yīn wèi, 将才 jiàng cái);
+--     without this rule hào, wèi, jiàng were served as "wrong" tones.
 --   * Changed syllables are re-marked: the mark goes on a, else e, else the o of
 --     "ou", else the last vowel (ü included); unchanged tokens and separators keep
 --     their text. Cap 16, in the order md5(tone digits) then the digits: a fixed
@@ -48,23 +57,35 @@
 --   it also listed 'yihuir', a two-syllable token this parse keeps as a non-syllable);
 --   scripts/verify_zh_tone_variants.py --all-readings: 10,390 readings, 94,712
 --   variants, 0 mismatches with the Python reference, 0 unattested syllable+tone.
---   Live pool (read-only export, Python reference): 3,620 of 3,656 keys (99.0%) have
---   ≥ 1 variant, band 7 94.8%, bands 1-6 ≥ 98.4% (with the pool rows' own readings:
---   3,622, 99.1%, as tones/tone_cover_out.txt). Typical call 2-7 ms; the longest
---   reading (9 syllables, 62k combinations) about 0.3 s.
+--   Character readings: 2,379 rows, 2,200 characters, 164 with more than one
+--   reading; Python rebuild identical. With the character rule: 94,664 variants,
+--   0 mismatches.
+--   Live pool (read-only export, Python reference, with the character rule): 3,620
+--   of 3,656 keys (99.0%) have ≥ 1 variant, ≥ 2 96.1%, ≥ 3 88.6%; band 7 94.8%,
+--   bands 1-6 ≥ 98.4% (with the pool rows' own readings: 3,622, 99.1%, as
+--   tones/tone_cover_out.txt). The character rule takes no key's last variant.
+--   Single-character pool keys with a variant that pypinyin lists as a reading of
+--   the character: 48 without the rule, 33 with it (the rest have no dictionary
+--   word attesting that reading, e.g. 强 qiǎng, 数 shǔ, 钻 zuàn).
+--   Typical call 2-7 ms; the longest reading (9 syllables, 62k combinations) 0.3 s.
 --
 -- SECURITY
 --   Table: RLS on, no policy, no client privilege. Functions: SET search_path,
 --   EXECUTE for service_role only. The refresh is SECURITY DEFINER (it writes the
 --   table); the rest are SECURITY INVOKER.
 --
--- SIZE: ≈ 382 rows, ≈ 15 KB (tech §13).
+-- SIZE: inventory 381 rows (≈ 80 KB with its index); character readings ≈ 2,400
+-- rows (≈ 0.22 MB with its primary key index).
 --
 -- VERIFY (read-only, after apply)
 --   SELECT count(*), round(avg(cardinality(tones)), 2) FROM calibration_zh_tone_inventory;
---   -- ≈ 382 rows, ≈ 2.47 tones per base
+--   -- ≈ 381 rows, ≈ 2.47 tones per base
+--   SELECT count(*), count(DISTINCT hanzi) FROM calibration_zh_char_readings;
+--   -- ≈ 2,379 rows, ≈ 2,200 characters
 --   SELECT calibration_zh_tone_variants('hěn hǎo', v.id) FROM dim_vocabulary v
 --    WHERE v.lemma = '很好' AND v.language_id = 1;   -- never 'hén hǎo'
+--   SELECT calibration_zh_tone_variants('hǎo', v.id) FROM dim_vocabulary v
+--    WHERE v.lemma = '好' AND v.language_id = 1;     -- {háo}: never 'hào'
 --   python scripts/verify_zh_tone_variants.py           -- 0 mismatches, coverage per band
 --
 -- ROLLBACK: calibration_zh_tones_rollback.sql
@@ -82,6 +103,20 @@ REVOKE ALL ON public.calibration_zh_tone_inventory FROM PUBLIC, anon, authentica
 
 COMMENT ON TABLE public.calibration_zh_tone_inventory IS
   'TASK-1092 / ADR-060: toneless pinyin syllable (ü as u:) -> the full tones 1-4 it carries in native zh dim_word_senses readings. A tone variant may only use a syllable+tone listed here. Rebuilt by calibration_refresh_zh_tone_inventory().';
+
+
+CREATE TABLE IF NOT EXISTS public.calibration_zh_char_readings (
+    hanzi text     NOT NULL,                 -- one character of a zh lemma
+    base  text     NOT NULL,                 -- toneless syllable, lower case, ü as 'u:'
+    tone  smallint NOT NULL CHECK (tone BETWEEN 1 AND 5),
+    PRIMARY KEY (hanzi, base, tone)
+);
+
+ALTER TABLE public.calibration_zh_char_readings ENABLE ROW LEVEL SECURITY;
+REVOKE ALL ON public.calibration_zh_char_readings FROM PUBLIC, anon, authenticated;
+
+COMMENT ON TABLE public.calibration_zh_char_readings IS
+  'TASK-1092 / ADR-060: the readings each zh character has in aligned native zh dim_word_senses readings (lemma character count = syllable count; character i -> syllable i, e.g. 好奇 hào qí -> 好 hao 4). A single-character lemma''s tone variant may not be one of its character''s readings. Rebuilt by calibration_refresh_zh_tone_inventory().';
 
 
 -- -----------------------------------------------------------------------------
@@ -181,7 +216,8 @@ SECURITY DEFINER
 SET search_path = public, pg_temp
 AS $function$
 DECLARE
-    v_rows integer;
+    v_rows       integer;
+    v_char_rows  integer;
 BEGIN
     -- One rebuild at a time (a second caller waits, then rebuilds again). Readers
     -- see the previous rows until this transaction commits.
@@ -204,14 +240,39 @@ BEGIN
        AND s.pronunciation IS NOT NULL
        AND p.base IS NOT NULL
      GROUP BY p.base;
-
     GET DIAGNOSTICS v_rows = ROW_COUNT;
+
+    -- The readings each character has: aligned readings only (the lemma's character
+    -- count equals the token count), character i -> token i when it is a syllable.
+    DELETE FROM calibration_zh_char_readings WHERE true;
+
+    INSERT INTO calibration_zh_char_readings (hanzi, base, tone)
+    SELECT DISTINCT substr(v.lemma, t.k::integer, 1), t.base, t.tone
+      FROM dim_word_senses s
+      JOIN dim_vocabulary v ON v.id = s.vocab_id
+     CROSS JOIN LATERAL (
+        SELECT row_number() OVER (ORDER BY p.ord) AS k,
+               count(*) OVER () AS n,
+               p.base, p.tone
+          FROM calibration_zh_parse_pinyin(s.pronunciation) p
+         WHERE NOT p.is_sep
+     ) t
+     WHERE s.word_language_id = 1
+       AND s.definition_language_id = 1
+       AND s.pronunciation IS NOT NULL
+       AND v.language_id = 1
+       AND t.n = char_length(v.lemma)
+       AND t.base IS NOT NULL;
+    GET DIAGNOSTICS v_char_rows = ROW_COUNT;
+
+    RAISE NOTICE 'calibration_zh_tone_inventory: % rows; calibration_zh_char_readings: % rows',
+        v_rows, v_char_rows;
     RETURN v_rows;
 END;
 $function$;
 
 COMMENT ON FUNCTION public.calibration_refresh_zh_tone_inventory() IS
-  'TASK-1092: rebuild calibration_zh_tone_inventory from the native zh readings of dim_word_senses (all levels and ranks); returns the row count. Idempotent. Run with every zh pool refresh (TASK-1063) and after a zh sense backfill.';
+  'TASK-1092: rebuild calibration_zh_tone_inventory and calibration_zh_char_readings from the native zh readings of dim_word_senses (all levels and ranks); returns the inventory row count (both counts in a NOTICE). Idempotent. Run with every zh pool refresh (TASK-1063) and after a zh sense backfill.';
 
 REVOKE ALL ON FUNCTION public.calibration_refresh_zh_tone_inventory() FROM PUBLIC, anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.calibration_refresh_zh_tone_inventory() TO service_role;
@@ -292,6 +353,15 @@ own AS (                      -- tone sequences of this lemma's readings on the 
      WHERE s.vocab_id = p_vocab_id
        AND s.pronunciation IS NOT NULL
        AND o.frame = (SELECT hdr.frame FROM hdr)
+    UNION ALL
+    -- a single-character lemma: also every reading its character has anywhere in the
+    -- dictionary (好奇 hào qí attests 好 hào, though 好 itself is listed only as hǎo)
+    SELECT ARRAY[cr.tone]
+      FROM hdr
+      JOIN syl ON syl.k = 1
+      JOIN calibration_zh_char_readings cr ON cr.hanzi = hdr.lemma AND cr.base = syl.base
+     WHERE hdr.n = 1
+       AND char_length(hdr.lemma) = 1
 ),
 pick AS (
     SELECT c.tones,
@@ -321,7 +391,7 @@ SELECT coalesce(array_agg(r.txt ORDER BY r.rk), ARRAY[]::text[])
 $function$;
 
 COMMENT ON FUNCTION public.calibration_zh_tone_variants(text, integer) IS
-  'TASK-1092 / ADR-060 rule 4: every valid tone variant of a zh reading in display form (same syllables, other attested full tones; neutral and 一/不 syllables kept; 3->2-before-3-only sandhi forms and readings of p_vocab_id excluded), at most 16, ordered by md5 of the tone digits. Must equal services/placement_tones.variants (scripts/verify_zh_tone_variants.py).';
+  'TASK-1092 / ADR-060 rule 4: every valid tone variant of a zh reading in display form (same syllables, other attested full tones; neutral and 一/不 syllables kept; 3->2-before-3-only sandhi forms, readings of p_vocab_id and, for a single-character lemma, readings of that character in calibration_zh_char_readings excluded), at most 16, ordered by md5 of the tone digits. Must equal services/placement_tones.variants (scripts/verify_zh_tone_variants.py).';
 
 REVOKE ALL ON FUNCTION public.calibration_zh_tone_variants(text, integer) FROM PUBLIC, anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.calibration_zh_tone_variants(text, integer) TO service_role;
