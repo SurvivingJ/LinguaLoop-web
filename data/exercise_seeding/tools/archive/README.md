@@ -7,9 +7,11 @@ container-local staging output (data/exercise_seeding/ is gitignored, so they ar
 |---|---|
 | ja/archive/upload_2026-11-17.tar.gz | Staged ja upload package: 3,298 senses, 23,086 word_assets rows, 7,100 UPDATEs, 38 SQL chunks, verify.sql, overwrites_live_values.csv, README with staging notes |
 | ja/archive/payload_all_writes.tar.gz | ja writes.jsonl (restored + new runs) the package was built from |
-| zh/archive/payload_restored_writes.tar.gz | zh writes.jsonl re-assembled from restored runs r0000–r0900 |
+| zh/archive/upload_2026-11-19.tar.gz | Staged zh upload package: 15,624 senses, 109,368 word_assets rows, 31,248 UPDATEs, 179 SQL chunks, verify.sql, overwrites_live_values.csv, README with staging notes. `apply_all.sql` (186 MB) is left out to stay under GitHub's file-size limit — run the chunks in order, or rebuild it with `scratch_offline/package_upload.py` from payload_all |
+| zh/archive/payload_all_writes.tar.gz | zh writes.jsonl (restored + all 989 new runs) the package was built from |
+| zh/archive/payload_restored_writes.tar.gz | zh writes.jsonl re-assembled from restored runs r0000–r0900 (subset of payload_all) |
 | ja/archive/new_rNNNN-rNNNN.tar.gz | New ja run records (r0506–r0539) |
-| zh/archive/new_rNNNN-rNNNN.tar.gz | New zh run records (r0902–r1890), added hourly while the pipeline runs |
+| zh/archive/new_rNNNN-rNNNN.tar.gz | New zh run records (r0902–r1890), all 989 finished 2026-11-19 |
 | tools/archive/staging_tools.tar.gz | Snapshot/assembly/overwrite-report scripts, exclude CSVs (senses already live), run lists |
 
 Restore: `tar -xzf <archive> -C data/exercise_seeding/<lang>/`.
