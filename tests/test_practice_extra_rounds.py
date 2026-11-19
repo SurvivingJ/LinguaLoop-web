@@ -10,6 +10,7 @@ import pytest
 from flask import Flask
 
 from services import practice_session_service as pss
+from services.exercise_content import store
 from services.practice import new_word_admission
 from services.practice_session_service import (
     EXTRA_NEW_WORDS_MAX, EXTRA_REVIEW_ITEMS, PracticeSessionService,
@@ -76,7 +77,15 @@ def test_extra_requires_language(client_and_service):
 # ---------------------------------------------------------------------------
 
 def _item(sid, mode, eid=None):
-    return {'exercise_id': eid or f'e{sid}-{mode}', 'sense_id': sid, 'mode': mode}
+    """A session RPC item (``content_version``, no content, ADR-049) whose content file
+    exists in the conftest's InMemoryBackend, so hydration serves it."""
+    eid = eid or f'e{sid}-{mode}'
+    mem, path = store.backend(), store.content_path(1, sid, 0)
+    data = mem.objects().get(path)
+    exercises = store.decode_sense_file(data, sense_id=sid, version=0) if data else {}
+    exercises[eid] = {'prompt': eid}
+    mem.seed(path, store.encode_sense_file(sid, 1, 0, exercises))
+    return {'exercise_id': eid, 'sense_id': sid, 'mode': mode, 'content_version': 0}
 
 
 def _svc(state, rpc_data, admitted=()):

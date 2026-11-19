@@ -425,10 +425,9 @@ def cmd_render(args) -> int:
     miss means `prepare --stage 8` again. A sense that already has exercise
     rows is refused — render has no de-duplication.
 
-    The insert is one `store.write_sense` call per sense (ADR-049 §4): with
-    EXERCISE_CONTENT_WRITE=db exactly the old `exercises` insert, with `dual`
-    the content file first. A write error blocks that sense and the run goes
-    on with the next one.
+    The insert is one `store.write_sense` call per sense (ADR-049 §4): the
+    content file first, then the rows. A write error blocks that sense and the
+    run goes on with the next one.
     """
     from services.exercise_content import store
     from services.vocabulary_ladder.exercise_renderer import LadderExerciseRenderer

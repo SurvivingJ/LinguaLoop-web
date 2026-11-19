@@ -13,22 +13,26 @@ it. They now:
 * make no write call in ``--dry-run`` (both) or ``report_coverage`` (audio);
 * skip rows with no ``word_sense_id`` and count them as ``skipped_no_sense``.
 
-The store is monkeypatched with fakes that behave like ``storage`` mode (the
-select has no content; ``hydrate`` fills it from "files" and drops what is
-missing). The db-mode tests run the real TASK-1008 facade and pin today's
-PostgREST calls. Fully offline: no Supabase, no TTS, no OpenCC overrides table.
+The store is mostly monkeypatched with fakes that behave like the real one
+(the select has no content; ``hydrate`` fills it from "files" and drops what
+is missing). Two tests run the real store over ``FakeContentDB`` and the
+conftest's ``InMemoryBackend``: no direct ``exercises`` update, one new version
+per touched sense. Fully offline: no Supabase, no TTS, no OpenCC overrides
+table.
 """
 
 from __future__ import annotations
 
 import copy
 import logging
+import uuid
 
 import pytest
 
 from scripts import backfill_exercise_audio as audio
 from scripts import backfill_hant_mirrors as hant
 from services.exercise_content import store
+from tests.exercise_content_fakes import FakeContentDB
 
 ZH = 1
 TEMPLATE = 'id, exercise_type, word_sense_id, language_id, {content}'
@@ -139,6 +143,33 @@ class _FakeStore:
         monkeypatch.setattr(store, 'hydrate', self.hydrate)
         monkeypatch.setattr(store, 'write_sense', self.write_sense)
         return self
+
+
+def _real_store_db(rows, files, language_id):
+    """``rows`` (short ids) in a FakeContentDB under uuids, at version 0, with each
+    sense's v0 file holding ``files``; returns ``(db, ids)`` (short id -> uuid)."""
+    ids = {r['id']: str(uuid.UUID(int=n + 1)) for n, r in enumerate(rows)}
+    # The audio fixture has two context-free rows of one sense without a context
+    # sentence, which uq_exercises_context_free_variant_v2 would refuse; that index is
+    # not what these tests are about.
+    db = FakeContentDB(enforce_unique=False)
+    db.seed([{**r, 'id': ids[r['id']], 'source_type': 'vocabulary'} for r in rows])
+    for sense in {r['word_sense_id'] for r in rows if r['word_sense_id'] is not None}:
+        exercises = {ids[r['id']]: files[r['id']] for r in rows if r['word_sense_id'] == sense}
+        store.backend().seed(store.content_path(language_id, sense, 0),
+                             store.encode_sense_file(sense, language_id, 0, exercises))
+    return db, ids
+
+
+def _committed_updates(db) -> dict:
+    return {k: v for c in db.rpc_calls('exercise_content_commit')
+            for k, v in c['p_update_contents'].items()}
+
+
+def _current_file(db, sense, language_id) -> dict:
+    (version,) = db.versions(sense)
+    data = store.backend().objects()[store.content_path(language_id, sense, version)]
+    return store.decode_sense_file(data, sense_id=sense, version=version)
 
 
 # ---------------------------------------------------------------------------
@@ -313,28 +344,24 @@ def test_hant_force_and_limit(monkeypatch):
     assert [sorted(w['update_contents']) for w in fake.writes] == [['a1', 'a2'], ['b1']]
 
 
-def test_hant_db_mode_reads_and_writes_todays_calls():
-    """Real store, both flags db: today's select string with content, per-row update chains."""
-    assert (store.read_mode(), store.write_mode()) == ('db', 'db')
+def test_hant_real_store_reads_the_files_and_commits_one_version_per_sense():
+    """Real store: the storage select, content from the files, one commit per sense."""
     rows, files = _hant_fixture()
-    for row in rows:
-        row['content'] = copy.deepcopy(files[row['id']])
-    db = _FakeDB(rows)
+    db, ids = _real_store_db(rows, files, ZH)
 
     stats = hant.backfill_exercises(db, _FakeConverter(), False, 0, False)
 
-    assert db.selects()[0][0] == (
-        'select', ('id, exercise_type, word_sense_id, language_id, content',), {})
-    assert db.writes() == [
-        ('exercises', [('update', ({'content': {'s': '书', 'hant': {'s': 'T(书)'}}},), {}),
-                       ('eq', ('id', 'a1'), {})]),
-        ('exercises', [('update', ({'content': {'s': '本', 'hant': {'s': 'T(本)'}}},), {}),
-                       ('eq', ('id', 'a2'), {})]),
-        ('exercises', [('update', ({'content': {'s': '学', 'hant': {'s': 'T(学)'}}},), {}),
-                       ('eq', ('id', 'b1'), {})]),
-        ('exercises', [('update', ({'content': {'s': '习', 'hant': {'s': 'T(习)'}}},), {}),
-                       ('eq', ('id', 'b2'), {})]),
-    ]
+    assert db.table_calls('select')[0].columns == \
+        'id, exercise_type, word_sense_id, language_id, content_version'
+    assert [c for c in db.table_calls() if c.op != 'select'] == [], 'no direct update'
+    assert sorted(c['p_sense_id'] for c in db.rpc_calls('exercise_content_commit')) == [1, 2]
+    assert _committed_updates(db) == {
+        ids['a1']: {'s': '书', 'hant': {'s': 'T(书)'}},
+        ids['a2']: {'s': '本', 'hant': {'s': 'T(本)'}},
+        ids['b1']: {'s': '学', 'hant': {'s': 'T(学)'}},
+        ids['b2']: {'s': '习', 'hant': {'s': 'T(习)'}},
+    }
+    assert _current_file(db, 1, ZH)[ids['a3']] == files['a3'], 'the mirrored row is kept'
     assert stats['updated'] == 4 and stats['skipped_no_sense'] == 1
 
 
@@ -543,24 +570,22 @@ def test_audio_read_error_keeps_the_partial_read(monkeypatch, audio_env, caplog)
     assert any('coverage query failed: timeout' in m for m in messages)
 
 
-def test_audio_db_mode_reads_and_writes_todays_calls(audio_env):
-    """Real store, both flags db: content in the select, one update chain per row."""
-    assert (store.read_mode(), store.write_mode()) == ('db', 'db')
+def test_audio_real_store_reads_the_files_and_commits_one_version_per_sense(audio_env):
+    """Real store: the storage select, content from the files, one commit per sense."""
     rows, files = _audio_fixture()
-    for row in rows:
-        row['content'] = copy.deepcopy(files[row['id']])
-    db = _FakeDB(rows)
+    db, ids = _real_store_db(rows, files, 3)
     run = _run(db)
     run.report_coverage = lambda: None
 
     run.run()
 
-    assert db.selects()[0][0] == (
-        'select', ('id, exercise_type, word_sense_id, language_id, content',), {})
-    updates = db.writes()
-    assert [steps[1] for _, steps in updates] == [
-        ('eq', ('id', 'p10a'), {}), ('eq', ('id', 'f10'), {}), ('eq', ('id', 'p10b'), {}),
-        ('eq', ('id', 'p12'), {})]
-    assert updates[0][1][0] == ('update', ({'content': {
-        'word': 'ねこ', 'audio_url': 'https://r2.example/l1_10_3/ねこ.mp3'}},), {})
+    assert db.table_calls('select')[0].columns == \
+        'id, exercise_type, word_sense_id, language_id, content_version'
+    assert [c for c in db.table_calls() if c.op != 'select'] == [], 'no direct update'
+    assert sorted(c['p_sense_id'] for c in db.rpc_calls('exercise_content_commit')) == [10, 12]
+    updates = _committed_updates(db)
+    assert sorted(updates) == sorted(ids[k] for k in ('p10a', 'f10', 'p10b', 'p12'))
+    assert updates[ids['p10a']] == {
+        'word': 'ねこ', 'audio_url': 'https://r2.example/l1_10_3/ねこ.mp3'}
+    assert _current_file(db, 10, 3)[ids['p10a']] == updates[ids['p10a']]
     assert run.stats['synthesised'] == 4

@@ -15,18 +15,22 @@ tests hold the three things that are easy to get silently wrong:
     per-call state in ``last_skips``, so one shared instance would let two
     senses trade deterministic-skip tallies.
 
-Everything is faked: no database, no LLM calls, no money.
+Everything is faked: no database, no LLM calls, no money. The exercise rows go
+through the real ``store.write_sense`` (ADR-049) into ``FakeContentDB`` and the
+conftest's ``InMemoryBackend``.
 """
 
 from __future__ import annotations
 
 import threading
 import time
+import uuid
 from collections import namedtuple
 
 import pytest
 
 from scripts import run_generation_batch as batch
+from tests.exercise_content_fakes import FakeContentDB
 
 Skip = namedtuple('Skip', 'type_code')
 
@@ -35,39 +39,19 @@ Skip = namedtuple('Skip', 'type_code')
 # Fakes
 # ---------------------------------------------------------------------------
 
-class _FakeQuery:
-    """Swallows the ``.delete().eq().not_.is_().execute()`` and
-    ``.insert().execute()`` chains run_chunk runs against ``exercises``."""
+class _FakeDB(FakeContentDB):
+    """The ``exercises`` table and the ADR-049 write RPCs run_chunk's
+    ``store.write_sense`` calls go to; ``inserted`` is the committed rows."""
 
-    def __init__(self, sink=None, rows=None):
-        self._sink = sink
-        self._rows = rows
-        self.not_ = self
-
-    def delete(self):
-        return self
-
-    def insert(self, rows):
-        return _FakeQuery(self._sink, rows)
-
-    def eq(self, *_a, **_k):
-        return self
-
-    def is_(self, *_a, **_k):
-        return self
-
-    def execute(self):
-        if self._rows is not None and self._sink is not None:
-            self._sink.extend(self._rows)
-        return self
+    @property
+    def inserted(self) -> list:
+        return self.rows()
 
 
-class _FakeDB:
-    def __init__(self):
-        self.inserted: list = []
-
-    def table(self, _name):
-        return _FakeQuery(self.inserted)
+def _row(sense_id: int) -> dict:
+    return {'id': str(uuid.uuid4()), 'word_sense_id': sense_id, 'language_id': 1,
+            'exercise_type': 'cloze_completion', 'source_type': 'vocabulary',
+            'word_asset_id': 7, 'ladder_level': 3, 'content': {'sentence': f's{sense_id}'}}
 
 
 class _FakePipeline:
@@ -101,7 +85,7 @@ class _FakeRenderer:
     def build_rows(self, sense_id, _language_id):
         self.last_skips = [Skip(type_code=f'skip_{sense_id}')]
         time.sleep(0.01)          # let a sibling worker clobber a shared tally
-        return [{'word_sense_id': sense_id}, {'word_sense_id': sense_id}]
+        return [_row(sense_id), _row(sense_id)]
 
 
 @pytest.fixture(autouse=True)
@@ -145,6 +129,7 @@ def test_report_arithmetic_is_independent_of_worker_count(workers):
 
     # 10 senses: 1 skipped, 1 failed, 1 partial, 7 success -> 8 rendered x 2 rows
     assert _totals(report) == (7, 1, 1, 1, 16, 1)
+    assert len(db.inserted) == 16
     assert report.attempted == 10
     assert report.aborted_reason is None
 

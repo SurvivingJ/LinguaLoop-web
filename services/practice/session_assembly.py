@@ -221,7 +221,7 @@ class SessionAssemblyMixin:
         # hydrate call for the final item list, after every step that picks,
         # drops or orders items (none of them reads content, so fewer files
         # are fetched) and before the steps that rewrite content in place
-        # (script variant, jumbled preparation). No-op in db mode.
+        # (script variant, jumbled preparation).
         self._hydrate_items(payload, language_id)
 
         # TASK-526: serve the Traditional mirror to learners who asked for it.
@@ -334,11 +334,9 @@ class SessionAssemblyMixin:
                     'expected_seconds': PRESTUDY_FOLLOWUP_EXPECTED_SECONDS,
                     'mode':             'maintenance',
                     'prestudy_followup': True,
+                    # ADR-049: the version the content is hydrated from.
+                    'content_version':  r.get('content_version'),
                 }
-                # ADR-049: the version the content is hydrated from (absent in
-                # db mode, where the row carries its content).
-                if 'content_version' in r:
-                    picked[sid]['content_version'] = r['content_version']
             extras = [picked[s] for s in need if s in picked]
         if extras:
             payload['items'] = self._interleave_extras(items, extras)
@@ -758,11 +756,9 @@ class SessionAssemblyMixin:
     ) -> Optional[store.HydrationReport]:
         """Fill ``payload['items']`` content from the exercise-content store, in place.
 
-        ADR-049 §5: with ``EXERCISE_CONTENT_SOURCE=storage`` the session RPCs
-        return items without content; this is the one hydrate call for a
-        session's item list (the intro block hydrates its own rows in
-        ``intro_drill.build_block``). ``db`` mode: no I/O and no change.
-        Items without an ``exercise_id`` (gate / stress-test markers) are left
+        ADR-049 §5: the session RPCs return items without content; this is
+        the one hydrate call for a session's item list (the intro block
+        hydrates its own rows in ``intro_drill.build_block``). Items without an ``exercise_id`` (gate / stress-test markers) are left
         alone; an item whose content cannot be found is dropped, order kept.
 
         When that empties a non-empty list the payload says so
@@ -782,19 +778,17 @@ class SessionAssemblyMixin:
         except Exception:
             # hydrate never raises for storage or network problems (ADR-049
             # §9), so this is a bug. Serve what has content rather than fail
-            # the session; in db / shadow mode the items carry their content.
+            # the session.
             logger.exception(
                 'exercise content hydration failed (lang=%s, %d item(s))',
                 language_id, before)
-            if store.read_mode() == 'storage':
-                items[:] = [i for i in items if not _lacks_content(i)]
-        if report is not None and (report.fetched or report.db_fallback or report.dropped):
+            items[:] = [i for i in items if not _lacks_content(i)]
+        if report is not None and (report.fetched or report.dropped):
             logger.info(
-                'exercise content hydrated (lang=%s mode=%s): items=%d groups=%d '
-                'cache_hits=%d fetched=%d db_fallback=%d over_cap=%d dropped=%d '
-                'elapsed_ms=%.1f',
-                language_id, report.mode, report.items, report.groups,
-                report.cache_hits, report.fetched, report.db_fallback,
+                'exercise content hydrated (lang=%s): items=%d groups=%d '
+                'cache_hits=%d fetched=%d over_cap=%d dropped=%d elapsed_ms=%.1f',
+                language_id, report.items, report.groups,
+                report.cache_hits, report.fetched,
                 report.over_cap, report.dropped, report.elapsed_ms)
         if not items:
             payload['no_content_reason'] = 'content_unavailable'

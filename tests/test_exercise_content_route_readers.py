@@ -4,17 +4,16 @@ exercise content through the store.
 Appendix A rows 10-12: the server-side ``cloze_typed`` re-grade on
 ``POST /api/practice/attempt`` (``_grade_typed_if_needed``), the admin word
 preview (``preview_word``) and the offline reference-set snapshot
-(``scripts/build_exercise_gen_reference_set.fetch_exercise_snapshot``), each in
-``db`` and ``storage`` mode. ``store.read_mode`` / ``store.hydrate`` are
-monkeypatched (the storage reader is TASK-1010); no network, no Supabase.
+(``scripts/build_exercise_gen_reference_set.fetch_exercise_snapshot``).
+``store.hydrate`` is monkeypatched where the call shape is asserted; the
+real-store tests read files seeded into the conftest's ``InMemoryBackend``.
+No network, no Supabase.
 """
 
 from __future__ import annotations
 
 import copy
 from types import SimpleNamespace
-
-import pytest
 
 import routes.practice as practice_routes
 import routes.vocab_admin as vocab_admin_routes
@@ -30,8 +29,8 @@ LANG_EN, LANG_JA = 2, 3
 
 class _Query:
     """Builder stand-in: eq / is_ / not_.is_ filters, order, limit, single;
-    ``exercises`` rows are projected onto the selected columns (so storage
-    mode really has no content until hydrated); every select is recorded."""
+    ``exercises`` rows are projected onto the selected columns (so a row really
+    has no content until hydrated); every select is recorded."""
 
     def __init__(self, db, table):
         self.db, self.table = db, table
@@ -124,7 +123,7 @@ class FakeHydrate:
 
 
 class RecordingHydrate:
-    """Wraps the real ``store.hydrate`` (db mode: no I/O, no mutation)."""
+    """Wraps the real ``store.hydrate`` (which reads the conftest's InMemoryBackend)."""
 
     def __init__(self):
         self.calls, self._real = [], store.hydrate
@@ -134,9 +133,9 @@ class RecordingHydrate:
         return self._real(items, **kw)
 
 
-@pytest.fixture
-def storage_mode(monkeypatch):
-    monkeypatch.setattr(store, 'read_mode', lambda: 'storage')
+def _seed_file(language_id, sense_id, version, contents):
+    store.backend().seed(store.content_path(language_id, sense_id, version),
+                         store.encode_sense_file(sense_id, language_id, version, contents))
 
 
 # ---------------------------------------------------------------------------
@@ -161,17 +160,18 @@ class TestTypedRegrade:
         monkeypatch.setattr(practice_routes, 'get_db', lambda: db)
         return db
 
-    def test_db_mode_select_and_grade(self, monkeypatch):
+    def test_real_store_reads_the_file_and_grades(self, monkeypatch):
         db = self._db(monkeypatch)
+        _seed_file(LANG_EN, 7, 4, {'ex-typed': TYPED_CONTENT})
         rec = RecordingHydrate()
         monkeypatch.setattr(store, 'hydrate', rec)
         out = practice_routes._grade_typed_if_needed('ex-typed', TYPED_DATA)
-        # db mode: today's select string byte-for-byte (review finding 2026-11-17).
-        assert db.exercise_selects() == ['exercise_type, content, language_id']
+        assert db.exercise_selects() == ['exercise_type, content_version, language_id, word_sense_id']
         assert out['is_correct'] is True and out['graded_by'] == 'server'
         assert rec.calls == [{'ids': ['ex-typed'], 'language_id': LANG_EN, 'drop_missing': False, 'db': db}]
+        assert store.backend().calls_for('get') == ['en/7.v4.json']
 
-    def test_storage_mode_hydrates_the_row(self, monkeypatch, storage_mode):
+    def test_hydrates_the_row(self, monkeypatch):
         db = self._db(monkeypatch)
         fake = FakeHydrate({'ex-typed': TYPED_CONTENT})
         monkeypatch.setattr(store, 'hydrate', fake)
@@ -184,7 +184,7 @@ class TestTypedRegrade:
             'ex-typed', {'language_id': LANG_EN, 'user_response': {'typed': 'running'}})
         assert wrong['is_correct'] is False
 
-    def test_storage_miss_fails_open(self, monkeypatch, storage_mode):
+    def test_a_miss_fails_open(self, monkeypatch):
         self._db(monkeypatch)
         monkeypatch.setattr(store, 'hydrate', FakeHydrate({}))
         graded = []
@@ -193,14 +193,12 @@ class TestTypedRegrade:
         assert practice_routes._grade_typed_if_needed('ex-typed', TYPED_DATA) is None
         assert graded == []
 
-    def test_hydrate_error_fails_open(self, monkeypatch, storage_mode):
+    def test_hydrate_error_fails_open(self, monkeypatch):
         self._db(monkeypatch)
         monkeypatch.setattr(store, 'hydrate', FakeHydrate({}, raises=ValueError('bad language')))
         assert practice_routes._grade_typed_if_needed('ex-typed', TYPED_DATA) is None
 
-    @pytest.mark.parametrize('mode', ['db', 'storage'])
-    def test_other_types_and_untyped_answers_never_hydrate(self, monkeypatch, mode):
-        monkeypatch.setattr(store, 'read_mode', lambda: mode)
+    def test_other_types_and_untyped_answers_never_hydrate(self, monkeypatch):
         db = self._db(monkeypatch)
         fake = FakeHydrate({})
         monkeypatch.setattr(store, 'hydrate', fake)
@@ -261,14 +259,16 @@ class TestAdminPreview:
         monkeypatch.setattr('middleware.auth._user_has_tier', lambda *_a: False)
         assert client.get(PREVIEW_URL, headers=auth_headers).status_code == 403
 
-    def test_db_mode(self, client, auth_headers, monkeypatch):
+    def test_real_store(self, client, auth_headers, monkeypatch):
         db, prepared = self._wire(monkeypatch)
+        _seed_file(LANG_EN, 5, 9, PREVIEW_CONTENT)
         rec = RecordingHydrate()
         monkeypatch.setattr(store, 'hydrate', rec)
         resp = client.get(PREVIEW_URL, headers=auth_headers)
         assert resp.status_code == 200
         exercises = resp.get_json()['exercises']
-        assert db.exercise_selects() == ['id, exercise_type, content, complexity_tier, ladder_level, word_sense_id']
+        assert db.exercise_selects() == [
+            'id, exercise_type, content_version, complexity_tier, ladder_level, word_sense_id']
         assert [e['id'] for e in exercises] == ['pv-1', 'pv-2']
         assert all(e['word_sense_id'] == 5 for e in exercises)
         assert exercises[0]['content'] == PREVIEW_CONTENT['pv-1']
@@ -276,8 +276,7 @@ class TestAdminPreview:
         assert prepared == [JUMBLED_STORED]
         assert rec.calls == [{'ids': ['pv-1', 'pv-2'], 'language_id': LANG_EN, 'db': db}]
 
-    def test_storage_mode_hydrates_before_the_jumbled_preparation(self, client, auth_headers, monkeypatch,
-                                                                   storage_mode):
+    def test_hydrates_before_the_jumbled_preparation(self, client, auth_headers, monkeypatch):
         db, prepared = self._wire(monkeypatch)
         fake = FakeHydrate(PREVIEW_CONTENT)
         monkeypatch.setattr(store, 'hydrate', fake)
@@ -293,7 +292,7 @@ class TestAdminPreview:
         assert exercises[0]['content'] == PREVIEW_CONTENT['pv-1'] and exercises[0]['word_sense_id'] == 5
         assert exercises[1]['content']['correct_ordering'] == [0, 1]
 
-    def test_storage_miss_drops_the_exercise(self, client, auth_headers, monkeypatch, storage_mode):
+    def test_a_miss_drops_the_exercise(self, client, auth_headers, monkeypatch):
         self._wire(monkeypatch)
         monkeypatch.setattr(store, 'hydrate', FakeHydrate({'pv-1': PREVIEW_CONTENT['pv-1']}))
         exercises = client.get(PREVIEW_URL, headers=auth_headers).get_json()['exercises']
@@ -326,16 +325,17 @@ SNAP_TEMPLATE = 'id, word_sense_id, language_id, exercise_type, ladder_level, co
 
 class TestReferenceSetSnapshot:
 
-    def test_db_mode_output_unchanged(self, monkeypatch):
+    def test_real_store_output(self, monkeypatch):
+        _seed_file(LANG_JA, 9, 2, SNAP_CONTENT)
         rec = RecordingHydrate()
         monkeypatch.setattr(store, 'hydrate', rec)
         db = FakeDB({'exercises': SNAP_ROWS})
         assert refset.fetch_exercise_snapshot(db, 9) == SNAP_EXPECTED
-        # db mode: today's select string byte-for-byte (review finding 2026-11-17).
-        assert db.exercise_selects() == ['exercise_type,ladder_level,complexity_tier,tags,content']
+        assert db.exercise_selects() == [SNAP_TEMPLATE.replace('{content}', 'content_version')]
         assert len(rec.calls) == 1 and rec.calls[0]['db'] is db
+        assert store.backend().calls_for('get') == ['ja/9.v2.json']
 
-    def test_storage_mode_hydrates_with_each_rows_language(self, monkeypatch, storage_mode):
+    def test_hydrates_with_each_rows_language(self, monkeypatch):
         fake = FakeHydrate(SNAP_CONTENT)
         monkeypatch.setattr(store, 'hydrate', fake)
         db = FakeDB({'exercises': SNAP_ROWS})
@@ -345,6 +345,6 @@ class TestReferenceSetSnapshot:
         assert fake.calls[0]['language_id'] is None and fake.calls[0]['db'] is db
         assert fake.calls[0]['had_content'] == [False, False]
 
-    def test_storage_miss_leaves_the_exercise_out(self, monkeypatch, storage_mode):
+    def test_a_miss_leaves_the_exercise_out(self, monkeypatch):
         monkeypatch.setattr(store, 'hydrate', FakeHydrate({'s-2': SNAP_CONTENT['s-2']}))
         assert refset.fetch_exercise_snapshot(FakeDB({'exercises': SNAP_ROWS}), 9) == SNAP_EXPECTED[1:]

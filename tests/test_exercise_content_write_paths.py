@@ -1,14 +1,16 @@
 """TASK-1015 — static guard: no exercise insert or content change outside the store.
 
 ADR-049 §4: **all INSERTs into ``exercises`` and all changes to ``content`` go
-through ``store.write_sense``** (in ``dual`` mode it writes the content file
-first and commits the rows by compare-and-swap; a direct write would leave rows
-whose content no file holds). DELETEs and metadata-only UPDATEs (``is_active``,
-``irt_*``, counts, ``tags``) may stay direct.
+through ``store.write_sense``** (it writes the content file first and commits
+the rows by compare-and-swap; a direct write would leave rows whose content no
+file holds, and ``exercises.content`` no longer exists). DELETEs and
+metadata-only UPDATEs (``is_active``, ``irt_*``, counts, ``tags``) may stay
+direct.
 
 The scanner reads every ``*.py`` under ``services/``, ``routes/``,
-``scripts/``, ``utils/`` and ``web/`` except ``services/exercise_content/``
-(the store itself) and flags:
+``scripts/``, ``utils/`` and ``web/``, the store package included (since
+TASK-1031 it has no direct write path either: rows change only through the
+``exercise_content_commit`` RPC), and flags:
 
 * a ``table('exercises')`` / ``table("exercises")`` (or ``from_(...)``) chain,
   up to its ``.execute()`` and across lines, that calls ``.insert(`` or
@@ -38,7 +40,6 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 SCAN_DIRS = ('services', 'routes', 'scripts', 'utils', 'web')
-EXCLUDED_PREFIXES = ('services/exercise_content/',)
 
 #: path (repo-relative, POSIX) -> why that file may write content directly.
 ALLOWLIST: dict[str, str] = {}
@@ -254,7 +255,7 @@ def iter_scanned_files(root: Path = ROOT):
             continue
         for file in sorted(base.rglob('*.py')):
             rel = file.relative_to(root).as_posix()
-            if '__pycache__' in file.parts or rel.startswith(EXCLUDED_PREFIXES):
+            if '__pycache__' in file.parts:
                 continue
             yield rel, file
 
@@ -287,23 +288,16 @@ def test_allowlist_entries_are_justified_and_still_needed():
         assert path in findings_by_path, f'{path}: allowlisted but no longer flagged; remove it'
 
 
-def test_the_scan_covers_the_writers_and_skips_only_the_store():
+def test_the_scan_covers_the_writers_and_the_store():
     scanned = {rel for rel, _ in iter_scanned_files()}
     assert len(scanned) > 100
     for writer in ('services/vocabulary_ladder/exercise_renderer.py',
                    'services/vocabulary_ladder/queue_drain.py',
                    'scripts/run_generation_batch.py', 'scripts/exercise_stage_runner.py',
                    'scripts/backfill_exercise_audio.py', 'scripts/backfill_hant_mirrors.py',
-                   'routes/vocab_admin.py'):
+                   'routes/vocab_admin.py', 'services/exercise_content/store.py',
+                   'services/exercise_content/writer.py'):
         assert writer in scanned
-    assert not any(rel.startswith('services/exercise_content/') for rel in scanned)
-
-
-def test_the_store_itself_would_be_flagged():
-    """Proves the exclusion matters: the db-mode write path is the very pattern guarded."""
-    source = (ROOT / 'services/exercise_content/store.py').read_text(encoding='utf-8')
-    kinds = {f.kind for f in scan_source(source, 'services/exercise_content/store.py')}
-    assert {'insert', 'update-content'} <= kinds
 
 
 # ---------------------------------------------------------------------------

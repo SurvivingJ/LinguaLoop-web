@@ -14,13 +14,15 @@ Pinned here:
   write error (content conflict, storage error, PostgREST error) is logged
   and gives ``[]``, as an insert error did before.
 * ``build_rows`` stays pure: no store call, no database write.
-* In ``db`` write mode (the default the conftest pins) the database sees
-  exactly today's single ``table('exercises').insert(rows).execute()``.
+* Through the real store (``FakeContentDB`` and the conftest's
+  ``InMemoryBackend``) the database sees no direct ``exercises`` insert: one
+  commit per sense carrying exactly the rows ``build_rows`` built, whose
+  content is in the new file.
 * ``cmd_render`` keeps its existing-rows refusal, makes no write in
   ``--dry-run``, and blocks a sense whose write fails, then carries on.
 
-The store is monkeypatched (package a is not needed); the db-mode tests run
-the real TASK-1008 facade against a recording fake. Fully offline.
+The store is monkeypatched where the call shape is asserted; the real-store
+tests run against ``FakeContentDB``. Fully offline.
 """
 
 from __future__ import annotations
@@ -36,6 +38,7 @@ from postgrest.exceptions import APIError
 from services.exercise_content import store
 from services.vocabulary_ladder import exercise_renderer as rendermod
 from services.vocabulary_ladder import stage_runner as sr
+from tests.exercise_content_fakes import FakeContentDB
 
 LANG_ZH = 1
 
@@ -76,10 +79,9 @@ class _Chain:
 
 
 class _RecordingDB:
-    def __init__(self, existing_counts: dict | None = None, fail_insert_for: set | None = None):
+    def __init__(self, existing_counts: dict | None = None):
         self.calls: list[tuple[str, list[tuple]]] = []
         self.existing_counts = existing_counts or {}
-        self.fail_insert_for = fail_insert_for or set()
 
     def table(self, name):
         return _Chain(self, name)
@@ -91,8 +93,6 @@ class _RecordingDB:
             return _Resp(data=[], count=self.existing_counts.get(sense, 0))
         if table == 'exercises' and 'insert' in ops:
             rows = next(s[1][0] for s in steps if s[0] == 'insert')
-            if any(r.get('word_sense_id') in self.fail_insert_for for r in rows):
-                raise APIError({'message': 'insert failed', 'code': '23505'})
             return _Resp(data=list(rows))
         return _Resp(data=[])
 
@@ -189,24 +189,43 @@ def test_render_all_with_no_rows_makes_no_write(monkeypatch):
     assert recorder.calls == []
 
 
-def test_render_all_db_mode_emits_exactly_todays_insert():
-    """Real store, EXERCISE_CONTENT_WRITE=db (conftest): one insert(rows).execute(), nothing else."""
-    assert store.write_mode() == 'db'
+def _file(sense_id: int, version: int) -> dict:
+    data = store.backend().objects()[store.content_path(LANG_ZH, sense_id, version)]
+    return store.decode_sense_file(data, sense_id=sense_id, version=version)
+
+
+def _commit_failing_for(db: FakeContentDB, senses: set) -> None:
+    real = db.rpc_handlers['exercise_content_commit']
+
+    def commit(db_, params):
+        if params['p_sense_id'] in senses:
+            raise APIError({'message': 'insert failed', 'code': '23505'})
+        return real(db_, params)
+    db.rpc_handlers['exercise_content_commit'] = commit
+
+
+def test_render_all_with_the_real_store_writes_one_file_and_commits_the_rows():
     rows = [_row(7, 1), _row(7, 3), _row(7, 5)]
-    db = _RecordingDB()
+    db = FakeContentDB()
 
     ids = _renderer(db, rows).render_all(7, LANG_ZH)
 
     assert ids == [r['id'] for r in rows]
-    assert db.calls == [('exercises', [('insert', (rows,), {})])]
+    assert db.table_calls() == [], 'no direct exercises insert'
+    (commit,) = db.rpc_calls('exercise_content_commit')
+    assert commit['p_insert_rows'] == rows and commit['p_delete_ids'] == []
+    assert _file(7, commit['p_new_version']) == {r['id']: r['content'] for r in rows}
+    assert store.backend().calls_for('put') == [store.content_path(LANG_ZH, 7, 1)]
 
 
-def test_render_all_db_mode_insert_error_still_returns_empty(caplog):
-    db = _RecordingDB(fail_insert_for={7})
+def test_render_all_real_store_commit_error_still_returns_empty(caplog):
+    db = FakeContentDB()
+    _commit_failing_for(db, {7})
 
     with caplog.at_level(logging.ERROR, logger=rendermod.logger.name):
         assert _renderer(db, [_row(7)]).render_all(7, LANG_ZH) == []
     assert any('Failed to insert ladder exercises' in r.getMessage() for r in caplog.records)
+    assert db.rows() == []
 
 
 # ---------------------------------------------------------------------------
@@ -259,7 +278,7 @@ def _asset_renderer(monkeypatch, db):
 
 # reset_state is left alone: the conftest fixture calls it at teardown.
 _STORE_API = ('write_sense', 'hydrate', 'fetch_sense', 'select_columns', 'rpc_content_args',
-              'read_mode', 'write_mode', 'backend', 'set_backend')
+              'backend', 'set_backend')
 
 
 def _record_store_calls(monkeypatch) -> list:
@@ -284,8 +303,8 @@ def test_build_rows_makes_no_store_call_and_no_write(monkeypatch):
     assert db.exercise_writes() == []
 
 
-def test_render_all_end_to_end_db_mode_inserts_exactly_what_build_rows_built(monkeypatch):
-    db = _RecordingDB()
+def test_render_all_end_to_end_commits_exactly_what_build_rows_built(monkeypatch):
+    db = FakeContentDB()
     r = _asset_renderer(monkeypatch, db)
     built: list = []
     original = r.build_rows
@@ -300,8 +319,10 @@ def test_render_all_end_to_end_db_mode_inserts_exactly_what_build_rows_built(mon
 
     assert len(built) == 1 and built[0]
     assert ids == [row['id'] for row in built[0]]
-    writes = db.exercise_writes()
-    assert writes == [('exercises', [('insert', (built[0],), {})])]
+    assert [c for c in db.table_calls() if c.op != 'select'] == [], 'no direct exercises write'
+    (commit,) = db.rpc_calls('exercise_content_commit')
+    assert commit['p_insert_rows'] == built[0]
+    assert _file(10, commit['p_new_version']) == {row['id']: row['content'] for row in built[0]}
 
 
 # ---------------------------------------------------------------------------
@@ -444,31 +465,32 @@ def test_cmd_render_senses_flag_limits_the_run(stage_runner, monkeypatch):
     assert [c['sense_id'] for c in recorder.calls] == [3]
 
 
-def test_cmd_render_db_mode_emits_todays_insert_chain(stage_runner):
-    """Real store in db write mode: per sense, the refusal select then insert(rows).execute()."""
+def test_cmd_render_with_the_real_store_commits_each_sense(stage_runner):
+    """Real store: per sense, the refusal select, then one commit with the rows."""
     esr, state = stage_runner
+    db = state['db'] = FakeContentDB()
     state['rows'] = {1: [_row(1), _row(1, 4)], 2: [], 3: [_row(3)]}
 
     assert esr.cmd_render(_args()) == 0
 
-    assert state['db'].calls == [
-        ('exercises', [('select', ('id',), {'count': 'exact'}),
-                       ('eq', ('word_sense_id', 1), {}), ('limit', (1,), {})]),
-        ('exercises', [('insert', (state['rows'][1],), {})]),
-        ('exercises', [('select', ('id',), {'count': 'exact'}),
-                       ('eq', ('word_sense_id', 2), {}), ('limit', (1,), {})]),
-        ('exercises', [('select', ('id',), {'count': 'exact'}),
-                       ('eq', ('word_sense_id', 3), {}), ('limit', (1,), {})]),
-        ('exercises', [('insert', (state['rows'][3],), {})]),
-    ]
+    selects = db.table_calls('select')
+    assert [(c.columns, c.filters) for c in selects] == [
+        ('id', [('eq', 'word_sense_id', sense, False)]) for sense in (1, 2, 3)]
+    assert [c for c in db.table_calls() if c.op != 'select'] == [], 'no direct insert'
+    commits = db.rpc_calls('exercise_content_commit')
+    assert [(c['p_sense_id'], c['p_insert_rows']) for c in commits] == [
+        (1, state['rows'][1]), (3, state['rows'][3])]
+    assert _file(1, commits[0]['p_new_version']) == {r['id']: r['content']
+                                                     for r in state['rows'][1]}
 
 
-def test_cmd_render_db_mode_insert_error_blocks_and_continues(stage_runner):
+def test_cmd_render_real_store_commit_error_blocks_and_continues(stage_runner):
     esr, state = stage_runner
-    state['db'].fail_insert_for = {1}
+    db = state['db'] = FakeContentDB()
+    _commit_failing_for(db, {1})
     state['rows'] = {1: [_row(1)], 2: [_row(2)], 3: []}
 
     assert esr.cmd_render(_args()) == 1
-    inserts = [steps for t, steps in state['db'].calls if steps[0][0] == 'insert']
-    assert len(inserts) == 2, 'sense 1 failed, sense 2 still inserted'
-    assert inserts[1] == [('insert', (state['rows'][2],), {})]
+    commits = db.rpc_calls('exercise_content_commit')
+    assert [c['p_sense_id'] for c in commits] == [1, 2], 'sense 1 failed, sense 2 still written'
+    assert [r['id'] for r in db.rows()] == [state['rows'][2][0]['id']]

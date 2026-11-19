@@ -13,17 +13,19 @@ content store talks to:
   filters ``eq / neq / in_ / is_ / gt / gte / lt / lte`` (``not_`` negates the
   next one), ``order / range / limit``, ``execute()``. Other table names are
   schemaless lists of dicts (``db.tables[name]``) for integration fixtures.
-* ``has_content_column``: ``False`` emulates the database after the cut-over
-  migration (``exercises.content`` dropped): selecting ``content`` raises
-  code ``42703``, writing it raises ``PGRST204``, ``*`` omits it, and the
-  commit RPC no longer stores content (``dedupe_key`` is still computed from
-  the JSON passed in).
+
+The table is the live one after the 2026-11-19 cut-over (TASK-1030):
+``exercises.content`` is gone. Selecting ``content`` raises code ``42703`` and
+writing it raises ``PGRST204``; a ``content`` key in a row given to ``seed`` is
+dropped. The commit RPC validates the insert rows' and updates' content and
+computes ``dedupe_key`` from it, but stores no content.
 
 Errors are raised as ``FakeDBError`` (a ``ValueError`` carrying a PostgreSQL /
 PostgREST ``code``): ``22023`` for bad commit input (ADR-049 §8), ``23505`` for
 a duplicate id or a duplicate context-free variant
-(``uq_exercises_context_free_variant``; ``enforce_unique=False`` turns that
-check off), ``42703`` / ``PGRST204`` for the dropped column.
+(``uq_exercises_context_free_variant_v2`` on ``dedupe_key``;
+``enforce_unique=False`` turns that check off), ``42703`` / ``PGRST204`` for an
+unknown column (``content`` included).
 
 Concurrency: every call runs under one lock (the advisory lock of the real
 commit serialises per sense; a global lock is stricter and enough here).
@@ -52,35 +54,67 @@ from typing import Any
 from services.exercise_content.backends import InMemoryBackend
 
 __all__ = ['FakeContentDB', 'FakeDBError', 'FakeCall', 'FakeResponse', 'InMemoryBackend',
-           'CONTEXT_FREE_TYPES', 'dedupe_key_for', 'EXERCISE_COLUMNS']
+           'CONTEXT_FREE_TYPES', 'dedupe_key_for', 'EXERCISE_COLUMNS', 'seed_content_files']
 
-# The 8 types of uq_exercises_context_free_variant (migrations/task743_context_free_exercise_caps.sql)
+# The 8 types of uq_exercises_context_free_variant_v2 (migrations/exercise_content_drop_column.sql)
 CONTEXT_FREE_TYPES = frozenset({
     'tone_id_word', 'hanzi_to_pinyin', 'pinyin_to_hanzi',
     'kanji_to_reading', 'reading_to_kanji', 'phonetic_recognition',
     'classifier_match', 'counter_match',
 })
 
-# Columns and defaults of public.exercises (wiki/database/schema.tech.md + ADR-049 §7).
+# Columns and defaults of public.exercises (wiki/database/schema.tech.md + ADR-049 §7;
+# no `content` since the cut-over).
 EXERCISE_COLUMNS: dict[str, Any] = {
     'id': None, 'language_id': None, 'exercise_type': None, 'source_type': None,
     'word_sense_id': None, 'corpus_collocation_id': None, 'word_asset_id': None,
-    'content': None, 'tags': {}, 'difficulty_static': None, 'irt_difficulty': 0.0,
+    'tags': {}, 'difficulty_static': None, 'irt_difficulty': 0.0,
     'irt_discrimination': 1.0, 'irt_n_attempts': 0, 'irt_calibrated_at': None,
     'irt_se_difficulty': None, 'complexity_tier': None, 'ladder_level': None,
     'pattern_code': None, 'attempt_count': 0, 'correct_count': 0, 'is_active': True,
     'generation_batch_id': None, 'created_at': None, 'content_version': 0, 'dedupe_key': None,
 }
 
-# exercise_content_commit insert column list (ADR-049 §8); everything else takes its default.
+# exercise_content_commit insert column list (ADR-049 §8, post-drop); everything else takes
+# its default.
 COMMIT_INSERT_COLUMNS = (
     'id', 'language_id', 'exercise_type', 'source_type', 'word_sense_id',
-    'corpus_collocation_id', 'word_asset_id', 'content', 'tags', 'difficulty_static',
+    'corpus_collocation_id', 'word_asset_id', 'tags', 'difficulty_static',
     'complexity_tier', 'ladder_level', 'pattern_code', 'is_active', 'generation_batch_id',
 )
 
 BEGIN_ROW_COLUMNS = ('id', 'language_id', 'exercise_type', 'ladder_level', 'word_asset_id',
                      'is_active', 'content_version')
+
+
+def seed_content_files(items: Iterable[Any], language_id: int, *, id_key: str = 'exercise_id',
+                       sense_key: str = 'sense_id', backend: Any = None) -> list:
+    """Make ``items`` servable by ``store.hydrate``, as every live row is since the cut-over.
+
+    Each dict item with a truthy ``id_key`` and no ``content`` gets ``content_version`` 0
+    (unless it has one) and its content (``{'prompt': <id>}``) is added to the file of its
+    ``(language_id, sense, version)`` in ``backend`` (default ``store.backend()``, the
+    conftest's ``InMemoryBackend``). Returns the items as a list.
+    """
+    from services.exercise_content import store
+
+    mem = backend if backend is not None else store.backend()
+    items = list(items)
+    files: dict[tuple[int, int], dict[str, dict]] = {}
+    for item in items:
+        if not isinstance(item, dict) or not item.get(id_key) or item.get('content') is not None:
+            continue
+        item.setdefault('content_version', 0)
+        key = (int(item[sense_key]), int(item['content_version']))
+        if key not in files:
+            existing = mem.objects().get(store.content_path(language_id, *key))
+            files[key] = (store.decode_sense_file(existing, sense_id=key[0], version=key[1])
+                          if existing else {})
+        files[key][str(item[id_key])] = {'prompt': str(item[id_key])}
+    for (sense, version), exercises in files.items():
+        mem.seed(store.content_path(language_id, sense, version),
+                 store.encode_sense_file(sense, language_id, version, exercises))
+    return items
 
 
 class FakeDBError(ValueError):
@@ -290,12 +324,11 @@ class _RpcCall:
 class FakeContentDB:
     """In-memory ``exercises`` table + the ADR-049 §8 RPCs (see the module docstring)."""
 
-    def __init__(self, rows: Iterable[Mapping] = (), *, has_content_column: bool = True,
-                 enforce_unique: bool = True, next_version: int = 1):
+    def __init__(self, rows: Iterable[Mapping] = (), *, enforce_unique: bool = True,
+                 next_version: int = 1):
         self.lock = threading.RLock()
         self._exercises: dict[str, dict] = {}
         self.tables: dict[str, list[dict]] = {}
-        self._has_content_column = has_content_column
         self.enforce_unique = enforce_unique
         self.next_version = next_version
         self.calls: list[FakeCall] = []
@@ -310,27 +343,19 @@ class FakeContentDB:
 
     # -- test helpers -------------------------------------------------------
 
-    @property
-    def has_content_column(self) -> bool:
-        return self._has_content_column
-
-    @has_content_column.setter
-    def has_content_column(self, value: bool) -> None:
-        with self.lock:
-            self._has_content_column = bool(value)
-            for row in self._exercises.values():
-                if value:
-                    row.setdefault('content', None)
-                else:
-                    row.pop('content', None)
-
     def seed(self, rows: Iterable[Mapping], **defaults: Any) -> list[str]:
         """Insert rows directly (no hooks, no call record, no checks); returns their ids.
-        A row without ``id`` gets a uuid4; missing columns take their defaults."""
+        A row without ``id`` gets a uuid4; missing columns take their defaults. A
+        ``content`` key only fills a missing ``dedupe_key`` (as the cut-over backfill
+        did live) and is then dropped (the column is gone)."""
         ids = []
         with self.lock:
             for source in rows:
-                row = self._new_row({**defaults, **copy.deepcopy(dict(source))})
+                values = {**defaults, **copy.deepcopy(dict(source))}
+                if values.get('dedupe_key') is None and isinstance(values.get('content'), Mapping):
+                    values['dedupe_key'] = dedupe_key_for(values.get('exercise_type'),
+                                                          values['content'])
+                row = self._new_row(values)
                 self._exercises[row['id']] = row
                 ids.append(row['id'])
         return ids
@@ -345,10 +370,6 @@ class FakeContentDB:
         with self.lock:
             found = self._exercises.get(str(exercise_id))
             return copy.deepcopy(found) if found is not None else None
-
-    def content_of(self, sense_id: Any) -> dict[str, Any]:
-        """``{id: content}`` of a sense's rows (column content; pre-drop only)."""
-        return {r['id']: r.get('content') for r in self.rows(sense_id)}
 
     def versions(self, sense_id: Any) -> list[int]:
         return sorted({r['content_version'] for r in self.rows(sense_id)})
@@ -431,17 +452,11 @@ class FakeContentDB:
         row['id'] = str(row['id'])
         if row.get('tags') is None:
             row['tags'] = {}
-        if not self._has_content_column:
-            row.pop('content', None)
+        row.pop('content', None)
         return row
 
     def _check_columns(self, names: Iterable[str], *, writing: bool) -> None:
         for name in names:
-            if name == 'content' and not self._has_content_column:
-                if writing:
-                    raise FakeDBError('PGRST204', "Could not find the 'content' column of "
-                                                  "'exercises' in the schema cache")
-                raise FakeDBError('42703', 'column exercises.content does not exist')
             if name not in EXERCISE_COLUMNS:
                 if writing:
                     raise FakeDBError('PGRST204', f"Could not find the '{name}' column of "
@@ -481,12 +496,9 @@ class FakeContentDB:
         if not (row.get('is_active') and row.get('word_sense_id') is not None
                 and row.get('exercise_type') in CONTEXT_FREE_TYPES):
             return None
-        if self._has_content_column:
-            key = dedupe_key_for(row.get('exercise_type'), row.get('content') or {})
-        else:
-            key = row.get('dedupe_key')
-            if key is None:
-                return None
+        key = row.get('dedupe_key')
+        if key is None:
+            return None
         return (_norm(row['word_sense_id']), row['exercise_type'], key)
 
     def _check_unique(self, table: Mapping[str, dict]) -> None:
@@ -499,7 +511,7 @@ class FakeContentDB:
                 continue
             if key in seen:
                 raise FakeDBError('23505', 'duplicate key value violates unique constraint '
-                                           '"uq_exercises_context_free_variant"')
+                                           '"uq_exercises_context_free_variant_v2"')
             seen.add(key)
 
     def _exercises_select(self, query: _Query) -> list[dict]:
@@ -597,7 +609,7 @@ class FakeContentDB:
         if not isinstance(insert_rows, list) or not isinstance(updates, Mapping):
             raise FakeDBError('22023', 'p_insert_rows must be an array, p_update_contents an object')
         # Static input checks, before the compare-and-swap, as in
-        # migrations/exercise_content_storage.sql (TASK-1025 alignment): bad input
+        # migrations/exercise_content_drop_column.sql (TASK-1025 alignment): bad input
         # raises 22023 whatever the table holds; a missing source_type is the
         # NOT NULL violation (23502) the real INSERT raises.
         for row in insert_rows:
@@ -642,8 +654,6 @@ class FakeContentDB:
         for source in insert_rows:
             values = {name: copy.deepcopy(source[name]) for name in COMMIT_INSERT_COLUMNS
                       if name in source and source[name] is not None}
-            if not self._has_content_column:
-                values.pop('content', None)
             values.setdefault('tags', {})
             values.setdefault('is_active', True)
             values['content_version'] = new
@@ -659,8 +669,6 @@ class FakeContentDB:
             row = staged.get(str(exercise_id))
             if row is None:
                 continue
-            if self._has_content_column:
-                row['content'] = copy.deepcopy(content)
             row['dedupe_key'] = dedupe_key_for(row.get('exercise_type'), content)
             updated += 1
         for row in staged.values():
