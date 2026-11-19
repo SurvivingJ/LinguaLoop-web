@@ -91,10 +91,11 @@ RETURNS jsonb LANGUAGE sql AS $f$
 
 -- Review fix: ladder_new_word_state only counts servable words (>= 3 active exercises in the
 -- language, mirroring LADDER_MIN_EXERCISES_PER_SENSE), so fixtures must give their words supply.
+-- (No content: exercises.content was dropped on 2026-11-19, ADR-049; the rows only need to exist.)
 CREATE FUNCTION pg_temp.sbs_supply(p_lang smallint, p_sense int, p_n int DEFAULT 3) RETURNS void
 LANGUAGE sql AS $f$
-  INSERT INTO public.exercises(language_id, exercise_type, source_type, word_sense_id, content)
-  SELECT p_lang, 'definition_match', 'vocabulary', p_sense, '{}'::jsonb FROM generate_series(1, p_n) $f$;
+  INSERT INTO public.exercises(language_id, exercise_type, source_type, word_sense_id)
+  SELECT p_lang, 'definition_match', 'vocabulary', p_sense FROM generate_series(1, p_n) $f$;
 
 CREATE FUNCTION pg_temp.sbs_approx(a numeric, b numeric) RETURNS boolean LANGUAGE sql AS
   $f$ SELECT abs(a - b) < 0.001 $f$;
