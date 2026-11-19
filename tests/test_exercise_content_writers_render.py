@@ -128,7 +128,7 @@ class _WriteRecorder:
             raise exc
         rows = list(kwargs.get('insert_rows') or ())
         ids = self.inserted_ids if self.inserted_ids is not None else [r['id'] for r in rows]
-        return store.WriteResult(sense_id=sense_id, mode='dual', version=4711,
+        return store.WriteResult(sense_id=sense_id, version=4711,
                                  inserted_ids=list(ids), deleted_count=0, updated_ids=[],
                                  attempts=1)
 

@@ -45,16 +45,16 @@ class FakeHydrate:
         self.calls = []
 
     def __call__(self, items, *, language_id=None, id_key='id', sense_key='word_sense_id',
-                 db=None, drop_missing=True, max_senses=None, deadline_s=None):
+                 drop_missing=True, max_senses=None, deadline_s=None):
         self.calls.append({
             'ids': [i.get(id_key) for i in items if isinstance(i, dict)],
             'senses': [i.get(sense_key) for i in items if isinstance(i, dict)],
             'language_id': language_id, 'id_key': id_key, 'sense_key': sense_key,
-            'db': db, 'drop_missing': drop_missing,
+            'drop_missing': drop_missing,
         })
         if self.raises is not None:
             raise self.raises
-        report = store.HydrationReport(mode='storage')
+        report = store.HydrationReport()
         keep = []
         for item in items:
             if not (isinstance(item, dict) and item.get(id_key)):
@@ -168,8 +168,8 @@ def test_storage_mode_hydrates_only_the_picked_rows(monkeypatch):
     assert len(call['ids']) == MAX_BATTERY < len(rows)
     assert len(set(call['senses'])) == MAX_BATTERY       # one row per sense
     assert set(call['ids']) <= {r['id'] for r in rows}
-    assert (call['language_id'], call['id_key'], call['sense_key'], call['db']) == \
-        (LANG, 'id', 'word_sense_id', db)
+    assert (call['language_id'], call['id_key'], call['sense_key']) == \
+        (LANG, 'id', 'word_sense_id')
     assert call['drop_missing'] is True
     assert [i['exercise_id'] for i in battery.items] == call['ids']
     assert all(i['content'] == {'hydrated': i['exercise_id']} for i in battery.items)
@@ -302,8 +302,8 @@ def test_battery_rows_are_hydrated_before_picking(monkeypatch):
     assert len(fake.calls) == 1
     call = fake.calls[0]
     assert call['ids'] == ['l3a', 'l3b', 'l5a', 'l5b']
-    assert (call['language_id'], call['id_key'], call['sense_key'], call['db']) == \
-        (LANG, 'id', 'word_sense_id', svc.db)
+    assert (call['language_id'], call['id_key'], call['sense_key']) == \
+        (LANG, 'id', 'word_sense_id')
     # variant diversity unchanged: A at level 3, then B at level 5
     assert [(e['exercise_id'], e['content']) for e in out] == \
         [('l3a', {'hydrated': 'l3a'}), ('l5b', {'hydrated': 'l5b'})]

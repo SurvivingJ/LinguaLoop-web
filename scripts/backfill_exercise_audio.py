@@ -182,7 +182,7 @@ def hydrate_by_sense(db, rows: list[dict], max_senses: int = HYDRATE_MAX_SENSES
         chunk_ids = sense_ids[start:start + max_senses]
         chunk = [row for sid in chunk_ids for row in groups[sid]]
         before = len(chunk)
-        store.hydrate(chunk, db=db, max_senses=len(chunk), deadline_s=HYDRATE_DEADLINE_S)
+        store.hydrate(chunk, max_senses=len(chunk), deadline_s=HYDRATE_DEADLINE_S)
         unavailable += before - len(chunk)
         kept = {id(row) for row in chunk}
         for sid in chunk_ids:

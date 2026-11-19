@@ -284,7 +284,7 @@ def _hydrate_storage(items: list, *, language_id: int | None, id_key: str, sense
                      deadline_s: float) -> HydrationReport:
     started = time.monotonic()
     deadline_at = started + deadline_s
-    report = HydrationReport(mode='storage')
+    report = HydrationReport()
 
     groups: dict[tuple, _Group] = {}
     missing: list[int] = []                       # item indexes still without content

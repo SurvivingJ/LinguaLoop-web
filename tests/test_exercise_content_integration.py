@@ -317,7 +317,7 @@ def test_written_senses_are_served_from_the_files_cold_and_warm(backend, serve_e
     rows_by_sense = serving_rows()
     results = write_all(db, rows_by_sense)
     for sense, result in results.items():
-        assert result.mode == 'dual' and result.version is not None
+        assert result.version is not None
         expected = {r['id']: r['content'] for r in rows_by_sense[sense]}
         assert assert_rows_match_file(db, backend, sense, expected) == result.version
 

@@ -102,9 +102,9 @@ class FakeHydrate:
         self.contents, self.raises, self.calls = contents, raises, []
 
     def __call__(self, items, *, language_id=None, id_key='id', sense_key='word_sense_id',
-                 db=None, drop_missing=True, max_senses=None, deadline_s=None):
+                 drop_missing=True, max_senses=None, deadline_s=None):
         self.calls.append({'ids': [i.get(id_key) for i in items], 'language_id': language_id,
-                           'db': db, 'drop_missing': drop_missing,
+                           'drop_missing': drop_missing,
                            'had_content': [i.get('content') is not None for i in items]})
         if self.raises is not None:
             raise self.raises
@@ -119,7 +119,7 @@ class FakeHydrate:
                     item['content'] = None
             keep.append(item)
         items[:] = keep
-        return store.HydrationReport(mode='storage')
+        return store.HydrationReport()
 
 
 class RecordingHydrate:
@@ -168,7 +168,7 @@ class TestTypedRegrade:
         out = practice_routes._grade_typed_if_needed('ex-typed', TYPED_DATA)
         assert db.exercise_selects() == ['exercise_type, content_version, language_id, word_sense_id']
         assert out['is_correct'] is True and out['graded_by'] == 'server'
-        assert rec.calls == [{'ids': ['ex-typed'], 'language_id': LANG_EN, 'drop_missing': False, 'db': db}]
+        assert rec.calls == [{'ids': ['ex-typed'], 'language_id': LANG_EN, 'drop_missing': False}]
         assert store.backend().calls_for('get') == ['en/7.v4.json']
 
     def test_hydrates_the_row(self, monkeypatch):
@@ -177,7 +177,7 @@ class TestTypedRegrade:
         monkeypatch.setattr(store, 'hydrate', fake)
         out = practice_routes._grade_typed_if_needed('ex-typed', TYPED_DATA)
         assert db.exercise_selects() == ['exercise_type, content_version, language_id, word_sense_id']
-        assert fake.calls == [{'ids': ['ex-typed'], 'language_id': LANG_EN, 'db': db,
+        assert fake.calls == [{'ids': ['ex-typed'], 'language_id': LANG_EN,
                                'drop_missing': False, 'had_content': [False]}]
         assert out['is_correct'] is True and out['accepted'] == ['walking']
         wrong = practice_routes._grade_typed_if_needed(
@@ -274,7 +274,7 @@ class TestAdminPreview:
         assert exercises[0]['content'] == PREVIEW_CONTENT['pv-1']
         assert exercises[1]['content']['chunks'] == ['The cat', 'sleeps.']
         assert prepared == [JUMBLED_STORED]
-        assert rec.calls == [{'ids': ['pv-1', 'pv-2'], 'language_id': LANG_EN, 'db': db}]
+        assert rec.calls == [{'ids': ['pv-1', 'pv-2'], 'language_id': LANG_EN}]
 
     def test_hydrates_before_the_jumbled_preparation(self, client, auth_headers, monkeypatch):
         db, prepared = self._wire(monkeypatch)
@@ -287,7 +287,7 @@ class TestAdminPreview:
             'id, exercise_type, content_version, complexity_tier, ladder_level, word_sense_id']
         assert len(fake.calls) == 1
         assert fake.calls[0]['ids'] == ['pv-1', 'pv-2'] and fake.calls[0]['language_id'] == LANG_EN
-        assert fake.calls[0]['had_content'] == [False, False] and fake.calls[0]['db'] is db
+        assert fake.calls[0]['had_content'] == [False, False]
         assert prepared == [JUMBLED_STORED]          # prep saw the hydrated content
         assert exercises[0]['content'] == PREVIEW_CONTENT['pv-1'] and exercises[0]['word_sense_id'] == 5
         assert exercises[1]['content']['correct_ordering'] == [0, 1]
@@ -332,7 +332,7 @@ class TestReferenceSetSnapshot:
         db = FakeDB({'exercises': SNAP_ROWS})
         assert refset.fetch_exercise_snapshot(db, 9) == SNAP_EXPECTED
         assert db.exercise_selects() == [SNAP_TEMPLATE.replace('{content}', 'content_version')]
-        assert len(rec.calls) == 1 and rec.calls[0]['db'] is db
+        assert len(rec.calls) == 1
         assert store.backend().calls_for('get') == ['ja/9.v2.json']
 
     def test_hydrates_with_each_rows_language(self, monkeypatch):
@@ -342,7 +342,7 @@ class TestReferenceSetSnapshot:
         assert refset.fetch_exercise_snapshot(db, 9) == SNAP_EXPECTED
         assert db.exercise_selects() == [SNAP_TEMPLATE.replace('{content}', 'content_version')]
         assert len(fake.calls) == 1
-        assert fake.calls[0]['language_id'] is None and fake.calls[0]['db'] is db
+        assert fake.calls[0]['language_id'] is None
         assert fake.calls[0]['had_content'] == [False, False]
 
     def test_a_miss_leaves_the_exercise_out(self, monkeypatch):

@@ -132,7 +132,7 @@ def _hydrated_sense_chunks(db, by_sense: dict[int, list[dict]],
         chunk_ids = sense_ids[start:start + max_senses]
         chunk = [row for sid in chunk_ids for row in by_sense[sid]]
         before = len(chunk)
-        store.hydrate(chunk, db=db, max_senses=len(chunk), deadline_s=HYDRATE_DEADLINE_S)
+        store.hydrate(chunk, max_senses=len(chunk), deadline_s=HYDRATE_DEADLINE_S)
         kept: dict[int, list[dict]] = {}
         for row in chunk:
             kept.setdefault(row['word_sense_id'], []).append(row)

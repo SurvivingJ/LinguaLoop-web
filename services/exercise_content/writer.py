@@ -259,7 +259,7 @@ def write_sense(db, sense_id: int, language_id: int, *, insert_rows: Sequence[di
             logger.info('exercise_content.write sense=%s version=%s attempts=%d inserted=0 '
                         'deleted=0 updated=0 (nothing matched; no new version)',
                         sense_id, current, attempts)
-            return WriteResult(sense_id=sense_id, mode='dual', version=current, inserted_ids=[],
+            return WriteResult(sense_id=sense_id, version=current, inserted_ids=[],
                                deleted_count=0, updated_ids=[], attempts=attempts)
 
         deleted = set(delete_ids)
@@ -300,7 +300,7 @@ def write_sense(db, sense_id: int, language_id: int, *, insert_rows: Sequence[di
             logger.info('exercise_content.write sense=%s version=%s attempts=%d inserted=%d '
                         'deleted=%d updated=%d', sense_id, new, attempts, len(rows),
                         deleted_count, len(updates))
-            return WriteResult(sense_id=sense_id, mode='dual', version=new,
+            return WriteResult(sense_id=sense_id, version=new,
                                inserted_ids=insert_ids, deleted_count=deleted_count,
                                updated_ids=list(updates), attempts=attempts)
 

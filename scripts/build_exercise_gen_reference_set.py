@@ -305,7 +305,7 @@ def fetch_exercise_snapshot(db, sense_id: int) -> list[dict]:
             .order('ladder_level')
             .execute())
     data = resp.data or []
-    store.hydrate(data, db=db)
+    store.hydrate(data)
     rows = []
     for row in data:
         tags = row.get('tags') or {}

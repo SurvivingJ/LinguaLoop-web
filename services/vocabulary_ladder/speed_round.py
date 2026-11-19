@@ -139,7 +139,7 @@ class SpeedRoundComposer:
         # row whose content cannot be found is dropped by hydrate.
         picked = self._pick(candidates, size)
         try:
-            store.hydrate(picked, language_id=language_id, db=self.db)
+            store.hydrate(picked, language_id=language_id)
         except Exception as exc:
             # hydrate never raises for storage or network problems (ADR-049
             # §9); serve only the rows that have content.

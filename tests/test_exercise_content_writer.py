@@ -105,7 +105,7 @@ def test_new_sense_one_begin_one_file_one_commit(mem, caplog):
     assert mem.calls_for('get') == [] and mem.calls_for('put') == ['zh/5.v1.json']
     assert mem.objects()['zh/5.v1.json'] == store.encode_sense_file(
         SENSE, 1, 1, {r['id']: r['content'] for r in rows})
-    assert result == WriteResult(sense_id=SENSE, mode='dual', version=1,
+    assert result == WriteResult(sense_id=SENSE, version=1,
                                  inserted_ids=[r['id'] for r in rows], deleted_count=0,
                                  updated_ids=[], attempts=1)
     stored = {r['id']: r for r in db.rows(SENSE)}
@@ -561,7 +561,7 @@ def test_a_delete_that_matches_nothing_commits_nothing(mem):
     _seed_sense(db, mem, [_row(level=1)], version=6)
     db.next_version = 9
     result = store.write_sense(db, SENSE, 1, delete_where=DeleteWhere(ladder_levels=(8,)))
-    assert result == WriteResult(sense_id=SENSE, mode='dual', version=6, inserted_ids=[],
+    assert result == WriteResult(sense_id=SENSE, version=6, inserted_ids=[],
                                  deleted_count=0, updated_ids=[], attempts=1)
     assert db.rpc_calls('exercise_content_commit') == [] and mem.calls_for('put') == []
 

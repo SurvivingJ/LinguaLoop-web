@@ -126,7 +126,7 @@ class _FakeStore:
             if item.get('content') is not None:
                 kept.append(item)
         items[:] = kept
-        return store.HydrationReport(mode='storage', items=len(kept))
+        return store.HydrationReport(items=len(kept))
 
     def write_sense(self, db, sense_id, language_id, **kwargs):
         self.writes.append({'db': db, 'sense_id': sense_id, 'language_id': language_id,
@@ -135,7 +135,7 @@ class _FakeStore:
         if exc is not None:
             raise exc
         updates = kwargs.get('update_contents') or {}
-        return store.WriteResult(sense_id=sense_id, mode='dual', version=9, inserted_ids=[],
+        return store.WriteResult(sense_id=sense_id, version=9, inserted_ids=[],
                                  deleted_count=0, updated_ids=list(updates), attempts=1)
 
     def install(self, monkeypatch):
@@ -254,10 +254,9 @@ def test_hant_hydrates_at_most_100_senses_per_call(monkeypatch):
     stats = hant.backfill_exercises(db, _FakeConverter(), False, 0, False)
 
     assert [len(c['senses']) for c in fake.hydrate_calls] == [100, 100, 50]
-    assert all(c['db'] is db for c in fake.hydrate_calls)
-    assert all(set(c) == {'senses', 'ids', 'db', 'max_senses', 'deadline_s'}
+    assert all(set(c) == {'senses', 'ids', 'max_senses', 'deadline_s'}
                for c in fake.hydrate_calls), (
-        'store.hydrate(rows, db=db, ...): language comes from each row')
+        'store.hydrate(rows, ...): language comes from each row')
     # Offline limits, not the request path's 3 s / 160 senses (review finding 2026-11-17).
     assert all(c['max_senses'] == len(c['ids']) and c['deadline_s'] == hant.HYDRATE_DEADLINE_S
                for c in fake.hydrate_calls)
@@ -463,7 +462,7 @@ def test_audio_hydrates_at_most_100_senses_per_call(monkeypatch, audio_env):
 
     assert len(pending) == 230
     assert [len(c['senses']) for c in fake.hydrate_calls] == [100, 100, 30]
-    assert all(c['db'] is db and set(c) == {'senses', 'ids', 'db', 'max_senses', 'deadline_s'}
+    assert all(set(c) == {'senses', 'ids', 'max_senses', 'deadline_s'}
                for c in fake.hydrate_calls)
     assert all(c['max_senses'] == len(c['ids']) and c['deadline_s'] == audio.HYDRATE_DEADLINE_S
                for c in fake.hydrate_calls)

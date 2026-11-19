@@ -7121,3 +7121,13 @@ Agent run, offline: no live database or Storage access. `exercises.content` was 
 **Leftover direct use of `exercises.content` in code:** none.
 
 Pages updated: 10 ([[decisions/ADR-049-exercise-content-in-storage]] §5, §6, §9 and "Transition code removed"; [[tasklist/exercise-content-storage.tasks]]; [[tasklist/master]]; [[features/practice-engine.tech]]; [[features/practice-extra-rounds.tech]]; [[features/test-prestudy.tech]]; [[database/schema.tech]]; [[database/rpcs.tech]] (dropped wrappers); [[api/rpcs.tech]]; index).
+
+## [2026-11-19] update | Exercise content store — interface tidy-up after TASK-1031
+- `store.hydrate` no longer takes `db`, which only fed the removed DB fallback. The ten callers are updated: routes (typed re-grade, admin preview), session assembly, intro drill, prestudy, ladder service, speed round, and the reference-set, audio and hant-mirror scripts.
+- `HydrationReport.mode` and `WriteResult.mode`, which never varied, are removed.
+- The test doubles now have the real signature.
+- Behaviour is unchanged.
+- Tests (offline): 5,743 passed, and the 50 failures are all on the known environment list. ruff is clean.
+
+Pages updated: 1 ([[decisions/ADR-049-exercise-content-in-storage]] "Interface tidy-up").
+

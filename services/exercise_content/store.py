@@ -127,7 +127,6 @@ class ContentWriteConflict(ExerciseContentError):
 
 @dataclass
 class HydrationReport:
-    mode: str = 'storage'     # the only read path since TASK-1031
     items: int = 0            # items with an id that were considered
     groups: int = 0           # distinct (lang, sense, version) groups
     cache_hits: int = 0
@@ -164,7 +163,6 @@ class DeleteWhere:
 @dataclass
 class WriteResult:
     sense_id: int
-    mode: str                 # always 'dual': the file, then the rows by compare-and-swap
     version: int | None       # committed content_version; None when there was nothing to do
     inserted_ids: list[str]
     deleted_count: int
@@ -393,7 +391,7 @@ def _language_arg(language_id: Any) -> int | None:
 
 
 def hydrate(items: list[dict], *, language_id: int | None = None, id_key: str = 'id',
-            sense_key: str = 'word_sense_id', db=None, drop_missing: bool = True,
+            sense_key: str = 'word_sense_id', drop_missing: bool = True,
             max_senses: int | None = None, deadline_s: float | None = None) -> HydrationReport:
     """Fill item['content'] in place from the content files.
     - Considers dicts with a truthy item[id_key]; others (DT error cards, gate/stress markers) are untouched.
@@ -405,7 +403,6 @@ def hydrate(items: list[dict], *, language_id: int | None = None, id_key: str = 
       a repeated id in one call gets a deepcopy).
     - Without Storage credentials (and no set_backend() backend) every item that needs content
       is missing; one ERROR per process.
-    - db is accepted and ignored (it fed the DB fallback, removed in TASK-1031).
     - Never raises for storage or network problems; raises ValueError only for a bad argument."""
     if not isinstance(items, list):
         raise ValueError(f'hydrate: items must be a list, got {type(items).__name__}')
@@ -535,7 +532,7 @@ def write_sense(db, sense_id: int, language_id: int, *, insert_rows: Sequence[di
         raise ValueError(f'write_sense: expected_version must be an int >= 0 or None, '
                          f'got {expected_version!r}')
     if not rows and delete_where is None and not updates:
-        return WriteResult(sense_id=sense_id, mode='dual', version=None, inserted_ids=[],
+        return WriteResult(sense_id=sense_id, version=None, inserted_ids=[],
                            deleted_count=0, updated_ids=[], attempts=0)
     if not _storage_configured():
         _log_not_configured()

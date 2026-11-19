@@ -325,7 +325,7 @@ def preview_word(sense_id: int, language_id: int) -> ApiResponse:
         .execute()
     )
     exercises = ex_resp.data or []
-    store.hydrate(exercises, language_id=language_id, db=db)
+    store.hydrate(exercises, language_id=language_id)
 
     # Prepare jumbled content
     from services.exercise_generation.language_processor import (
