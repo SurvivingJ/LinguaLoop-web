@@ -122,10 +122,10 @@ class FakeHydrate:
         self.contents, self.missing, self.calls = contents, set(missing), []
 
     def __call__(self, items, *, language_id=None, id_key='id', sense_key='word_sense_id',
-                 db=None, drop_missing=True, max_senses=None, deadline_s=None):
+                 drop_missing=True, max_senses=None, deadline_s=None):
         self.calls.append({'ids': [i.get(id_key) for i in items], 'senses': [i.get(sense_key) for i in items],
-                           'language_id': language_id, 'db': db, 'drop_missing': drop_missing})
-        report = store.HydrationReport(mode='storage')
+                           'language_id': language_id, 'drop_missing': drop_missing})
+        report = store.HydrationReport()
         keep = []
         for item in items:
             if not (isinstance(item, dict) and item.get(id_key)):
@@ -329,7 +329,7 @@ class TestPayload:
         db = FakeDB(_tables())
         out = prestudy.build_prestudy_payload(db, TEST_ROW, 'u1', 2)
         assert [q['columns'] for q in db.content_queries()] == [SELECT_STORAGE]
-        assert len(calls) == 1 and calls[0][1] == {'language_id': LANG, 'db': db}
+        assert len(calls) == 1 and calls[0][1] == {'language_id': LANG}
         assert out['exercises']['11'][0]['c']   # content from the sense's file
         assert store.backend().calls_for('get') == ['ja/11.v0.json']
 
@@ -342,7 +342,7 @@ class TestPayload:
         assert content_q['columns'] == SELECT_STORAGE
         assert len(fake.calls) == 1
         call = fake.calls[0]
-        assert call['language_id'] == LANG and call['db'] is db and call['drop_missing'] is True
+        assert call['language_id'] == LANG and call['drop_missing'] is True
         assert sorted(call['ids']) == ['e11a', 'e11b'] and set(call['senses']) == {11}
         by_id = {e['id']: e for e in out['exercises']['11']}
         assert by_id['e11a']['c']['correct_answer'] == '猫'
@@ -452,7 +452,7 @@ class TestOnDemandEndpoint:
         db = self._wire(monkeypatch)
         data = resp_json(client.get(self.URL + '?sense_ids=12,16', headers=auth_headers))
         assert [q['columns'] for q in db.content_queries()] == [SELECT_STORAGE]
-        assert len(fake.calls) == 1 and fake.calls[0]['language_id'] == LANG and fake.calls[0]['db'] is db
+        assert len(fake.calls) == 1 and fake.calls[0]['language_id'] == LANG
         assert data['exercises']['16'][0]['c']['correct_definition'] == 'a'
 
     def test_a_miss_returns_no_exercises_and_queues_nothing(self, client, auth_headers, monkeypatch):

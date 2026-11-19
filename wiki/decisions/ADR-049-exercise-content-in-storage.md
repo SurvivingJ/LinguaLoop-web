@@ -569,6 +569,14 @@ The step-by-step record is in [[tasklist/exercise-content-storage.tasks]] (TASK-
 
 **Remaining:** none. TASK-1031 removed the transition code (next section).
 
+### Interface tidy-up (2026-11-19, after TASK-1031)
+
+These changes apply to the interface in §9:
+- `store.hydrate` no longer takes `db`. It only fed the DB fallback, and that was removed in TASK-1031. The ten callers no longer pass it.
+- `HydrationReport.mode` (always `'storage'`) and `WriteResult.mode` (always `'dual'`) are gone.
+
+Behaviour is unchanged. The test doubles now have the real signature, so a caller that still passes `db=` fails the tests.
+
 ### Transition code removed (2026-11-19, TASK-1031)
 
 The repo now matches the live database: there is no `exercises.content` anywhere in the code.

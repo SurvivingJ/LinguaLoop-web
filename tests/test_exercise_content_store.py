@@ -204,12 +204,12 @@ def test_dataclass_fields_and_defaults():
         return out
 
     assert shape(store.HydrationReport) == [
-        ('mode', 'storage'), ('items', 0), ('groups', 0), ('cache_hits', 0), ('fetched', 0),
+        ('items', 0), ('groups', 0), ('cache_hits', 0), ('fetched', 0),
         ('over_cap', 0), ('dropped', 0), ('missing_ids', []), ('elapsed_ms', 0.0),
     ]
     assert shape(store.DeleteWhere) == [('require_word_asset', False), ('ladder_levels', None)]
     assert shape(store.WriteResult) == [
-        ('sense_id', 'REQUIRED'), ('mode', 'REQUIRED'), ('version', 'REQUIRED'),
+        ('sense_id', 'REQUIRED'), ('version', 'REQUIRED'),
         ('inserted_ids', 'REQUIRED'), ('deleted_count', 'REQUIRED'),
         ('updated_ids', 'REQUIRED'), ('attempts', 'REQUIRED'),
     ]
@@ -225,7 +225,7 @@ def test_function_signatures():
     assert _params(store.rpc_content_args) == []
     assert _params(store.hydrate) == [
         ('items', POS, E), ('language_id', KW, None), ('id_key', KW, 'id'),
-        ('sense_key', KW, 'word_sense_id'), ('db', KW, None), ('drop_missing', KW, True),
+        ('sense_key', KW, 'word_sense_id'), ('drop_missing', KW, True),
         ('max_senses', KW, None), ('deadline_s', KW, None),
     ]
     assert _params(store.fetch_sense) == [
@@ -482,10 +482,9 @@ def test_hydrate_leaves_items_without_an_id_or_with_content_alone():
     others = items[2:]
     before = copy.deepcopy(items)
 
-    report = store.hydrate(items, language_id=1, id_key='exercise_id', sense_key='sense_id',
-                           db=ExplodingDB())         # db is accepted and ignored
+    report = store.hydrate(items, language_id=1, id_key='exercise_id', sense_key='sense_id')
 
-    assert report.mode == 'storage' and report.items == 2
+    assert report.items == 2
     assert report.missing_ids == [needs_content['exercise_id']] and report.dropped == 1
     assert items[0] is has_content and items[0] == before[0]
     assert items[1:] == others and items[1:] == before[2:]
@@ -525,15 +524,14 @@ def test_hydrate_delegates_to_the_reader_with_resolved_arguments(monkeypatch):
 
     monkeypatch.setattr(reader, 'hydrate', fake)
     items = [{'id': 'x'}]
-    db = object()
-    report = store.hydrate(items, language_id='3', db=db, drop_missing=False)
+    report = store.hydrate(items, language_id='3', drop_missing=False)
 
-    assert report.mode == 'storage'
     assert calls == [(items, {
         'language_id': 3, 'id_key': 'id', 'sense_key': 'word_sense_id',
         'drop_missing': False, 'max_senses': 120, 'deadline_s': 2.5,
     })]
     assert calls[0][0] is items
+    assert report == store.HydrationReport(items=1)      # the reader's report, passed through
 
     store.hydrate(items, max_senses=5, deadline_s=1)
     assert calls[1][1]['max_senses'] == 5 and calls[1][1]['deadline_s'] == 1.0
@@ -573,7 +571,7 @@ def writer_calls(monkeypatch):
 
     def fake(db, sense_id, language_id, **kwargs):
         calls.append((db, sense_id, language_id, kwargs))
-        return store.WriteResult(sense_id=sense_id, mode='dual', version=42,
+        return store.WriteResult(sense_id=sense_id, version=42,
                                  inserted_ids=[r['id'] for r in kwargs['insert_rows']],
                                  deleted_count=0, updated_ids=list(kwargs['update_contents']),
                                  attempts=1)
@@ -592,7 +590,7 @@ def test_write_sense_delegates_with_normalised_arguments(writer_calls):
                                update_contents={upd: {'v': 1}}, max_retries=5,
                                expected_version=3)
 
-    assert result.mode == 'dual' and result.version == 42
+    assert result.version == 42
     assert db.chains == [], 'the facade makes no table call itself'
     assert len(writer_calls) == 1
     got_db, sense_id, language_id, kwargs = writer_calls[0]
@@ -608,7 +606,7 @@ def test_write_sense_delegates_with_normalised_arguments(writer_calls):
 
 def test_write_sense_nothing_to_do_makes_no_call(writer_calls):
     result = store.write_sense(ExplodingDB(), 7, 1)
-    assert result == store.WriteResult(sense_id=7, mode='dual', version=None, inserted_ids=[],
+    assert result == store.WriteResult(sense_id=7, version=None, inserted_ids=[],
                                        deleted_count=0, updated_ids=[], attempts=0)
     assert store.write_sense(ExplodingDB(), 7, 1, insert_rows=[], update_contents={}).attempts == 0
     assert writer_calls == []

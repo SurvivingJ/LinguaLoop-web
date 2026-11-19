@@ -774,7 +774,7 @@ class SessionAssemblyMixin:
         try:
             report = store.hydrate(
                 items, language_id=language_id, id_key='exercise_id',
-                sense_key='sense_id', db=self.db)
+                sense_key='sense_id')
         except Exception:
             # hydrate never raises for storage or network problems (ADR-049
             # §9), so this is a bug. Serve what has content rather than fail

@@ -292,7 +292,7 @@ def _grade_typed_if_needed(exercise_id: str, data: dict):
     # cannot be found fails open, like a failed lookup.
     item['id'] = exercise_id
     try:
-        store.hydrate([item], language_id=item.get('language_id'), drop_missing=False, db=db)
+        store.hydrate([item], language_id=item.get('language_id'), drop_missing=False)
     except Exception as exc:
         logger.warning("typed-grade content lookup failed for %s: %s", exercise_id, exc)
         return None

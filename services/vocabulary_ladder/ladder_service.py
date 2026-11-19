@@ -398,7 +398,7 @@ class LadderService:
             # ADR-049: fill content from the exercise-content store before
             # picking. A row whose content cannot be found
             # is dropped, so the battery picks among the rows it can serve.
-            store.hydrate(rows, language_id=language_id, db=self.db)
+            store.hydrate(rows, language_id=language_id)
 
             # Group by level, pick exercises respecting variant diversity
             by_level: dict[int, list[dict]] = {}

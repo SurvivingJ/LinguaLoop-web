@@ -70,10 +70,6 @@ def _errors(caplog, prefix: str = '') -> list[logging.LogRecord]:
             and r.getMessage().startswith(prefix)]
 
 
-class ExplodingDB:
-    def __getattr__(self, name):
-        raise AssertionError(f'unexpected db access: {name}')
-
 
 # ---------------------------------------------------------------------------
 # storage: basic hydration
@@ -98,7 +94,6 @@ def test_storage_fills_content_and_leaves_other_items_alone(monkeypatch):
     assert items[4]['content'] == _content(2)
     assert items[1] is marker and marker == before_marker
     assert items[5] == 'not a dict' and items[6] == {'id': None, 'word_sense_id': 10}
-    assert report.mode == 'storage'
     assert (report.items, report.groups, report.fetched, report.cache_hits) == (4, 2, 2, 0)
     assert (report.over_cap, report.dropped) == (0, 0)
     assert report.missing_ids == [] and report.elapsed_ms > 0
@@ -181,7 +176,7 @@ def test_items_without_a_valid_version_are_missing_without_a_fetch(monkeypatch, 
     _seed(mem, 10, {eid: _content(1)})
     items = [_item(eid, 10, version=bad)]
 
-    report = store.hydrate(items, db=ExplodingDB())
+    report = store.hydrate(items)
 
     assert items == [] and report.dropped == 1 and report.missing_ids == [eid]
     assert mem.calls == []
@@ -467,7 +462,7 @@ def test_report_counters_in_a_mixed_scenario(monkeypatch):
     report = store.hydrate(items, max_senses=4)
 
     assert report == store.HydrationReport(
-        mode='storage', items=6, groups=5, cache_hits=1, fetched=1,
+        items=6, groups=5, cache_hits=1, fetched=1,
         over_cap=1, dropped=3, missing_ids=[no_file, gone, over], elapsed_ms=report.elapsed_ms)
     assert report.elapsed_ms > 0
     assert [i['content'] for i in items] == [_content(1), _content(2), {'kept': True}]
@@ -477,7 +472,7 @@ def test_report_counters_in_a_mixed_scenario(monkeypatch):
 def test_storage_hydrate_with_nothing_to_do_makes_no_call(monkeypatch):
     mem = _mem()
     items = [_item(_uuid(), 1, content={'x': 1}), {'kind': 'marker'}]
-    report = store.hydrate(items, db=ExplodingDB())
+    report = store.hydrate(items)
     assert mem.calls == [] and report.items == 1 and report.groups == 0
 
 

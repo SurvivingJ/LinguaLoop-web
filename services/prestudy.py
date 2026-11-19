@@ -239,7 +239,7 @@ def _load_exercises(db, sense_ids: list[int], *, language_id: Optional[int] = No
         rows += fetch_all(lambda part=part: db.table('exercises').select(columns)
                           .eq('is_active', True).in_('word_sense_id', part)
                           .in_('exercise_type', list(EXERCISE_FIELDS)).order('id'))
-    store.hydrate(rows, language_id=language_id, db=db)
+    store.hydrate(rows, language_id=language_id)
     return group_exercises(rows)
 
 

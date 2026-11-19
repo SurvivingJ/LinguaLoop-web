@@ -40,17 +40,17 @@ class FakeHydrate:
         self.calls = []
 
     def __call__(self, items, *, language_id=None, id_key='id', sense_key='word_sense_id',
-                 db=None, drop_missing=True, max_senses=None, deadline_s=None):
+                 drop_missing=True, max_senses=None, deadline_s=None):
         self.calls.append({
             'items': [dict(i) if isinstance(i, dict) else i for i in items],
             'language_id': language_id, 'id_key': id_key, 'sense_key': sense_key,
-            'db': db, 'drop_missing': drop_missing,
+            'drop_missing': drop_missing,
         })
         if self.order is not None:
             self.order.append('hydrate')
         if self.raises is not None:
             raise self.raises
-        report = store.HydrationReport(mode='storage')
+        report = store.HydrationReport()
         groups = set()
         keep = []
         for item in items:
@@ -210,8 +210,8 @@ def test_items_are_hydrated_once_before_script_variant_and_jumbled_prep(quiet_se
     assert order == ['hydrate', 'script_variant', 'jumbled']
     assert len(fake.calls) == 1
     call = fake.calls[0]
-    assert (call['id_key'], call['sense_key'], call['language_id'], call['db']) == \
-        ('exercise_id', 'sense_id', 3, db)
+    assert (call['id_key'], call['sense_key'], call['language_id']) == \
+        ('exercise_id', 'sense_id', 3)
     assert call['drop_missing'] is True
     assert [i['exercise_id'] for i in call['items']] == ['e1', 'e2']
     assert seen['script'] == seen['jumbled'] == [{'q': 'one'}, {'q': 'two'}]
@@ -335,7 +335,7 @@ def test_items_that_carry_content_pass_through_the_real_store(quiet_session, mon
         payload = _service(db).get_session('u', 3, mode='maintenance')
     assert payload == {'items': items}
     assert set(db.rpc_calls[0][1]) == SESSION_PARAMS
-    assert [(c.mode, c.items, c.groups, c.dropped) for c in calls] == [('storage', 2, 0, 0)]
+    assert [(c.items, c.groups, c.dropped) for c in calls] == [(2, 0, 0)]
     assert store.backend().calls == []
     assert not [r for r in caplog.records if 'exercise content' in r.getMessage()]
 
@@ -473,8 +473,8 @@ def test_intro_block_is_hydrated_once(monkeypatch):
         'id, word_sense_id, exercise_type, content_version, ladder_level']
     assert len(fake.calls) == 1
     call = fake.calls[0]
-    assert (call['id_key'], call['sense_key'], call['language_id'], call['db']) == \
-        ('id', 'word_sense_id', 2, db)
+    assert (call['id_key'], call['sense_key'], call['language_id']) == \
+        ('id', 'word_sense_id', 2)
     assert [r['id'] for r in call['items']] == ['x1', 'x2', 'x3']
     words = {w['sense_id']: w for w in block['words']}
     assert words[41]['exercises'] == {'use': [{
