@@ -1798,6 +1798,35 @@
   display: none;
 }
 
+/* The Knowledge Report's range on the result screen (TASK-1042). */
+.cal-page .cal-headline .cal-measure[hidden],
+.cal-page .cal-knowledge[hidden] {
+  display: none;
+}
+
+.cal-page .cal-headline .cal-measure {
+  font-size: 0.8rem;
+}
+
+.cal-page .cal-knowledge {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cal-page .cal-knowledge__line {
+  margin: 0;
+}
+
+.cal-page .cal-knowledge__link {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  min-height: 44px;
+  color: var(--brand);
+  font-weight: 600;
+}
+
 @media (width >= 768px) {
   .cal-page .cal-prompt {
     font-size: 3rem;

@@ -19,6 +19,8 @@
     resultLevel: document.getElementById('calResultLevel'),
     resultSub: document.getElementById('calResultSub'),
     resultNote: document.getElementById('calResultNote'),
+    resultMeasure: document.getElementById('calResultMeasure'),
+    knowledge: document.getElementById('calKnowledge'),
     curve: document.getElementById('calCurve'),
     rating: document.getElementById('calRating'),
     empty: document.getElementById('calEmpty'),
@@ -418,6 +420,9 @@
         : '—';
       el.resultSub.textContent = tr('calibration.result_not_enough');
     }
+    // The frequency level is this check's own measure; the report's word range (below) is a
+    // different one, so the figure says which it is (OQ33).
+    if (el.resultMeasure) el.resultMeasure.hidden = z85 == null;
 
     // The curve is the evidence. Showing it beside the headline number is the
     // point: a single figure derived from four answers should not look like a
@@ -460,6 +465,109 @@
 
     el.header.style.display = 'none';
     show(el.results);
+    showKnowledgeRange();
+  }
+
+  // ---- My vocabulary range (Knowledge Report, TASK-1042, P16) ----------------
+  // The same range, label and answer dates as /knowledge (same estimator and gate), or the
+  // reason none is shown yet, plus a link. Nothing at all when the report is switched off (404),
+  // not deployed (503) or the request fails.
+  const LANGUAGE_CODES = { 1: 'zh', 2: 'en', 3: 'ja' };
+  const INTL_LOCALES = { en: 'en-GB', es: 'es', ja: 'ja', zh: 'zh-CN' };
+  let knowledgeRequest = 0;
+
+  function intlLocale() {
+    const lang =
+      window.LinguaI18n && window.LinguaI18n.currentLanguage
+        ? window.LinguaI18n.currentLanguage()
+        : 'en';
+    return INTL_LOCALES[lang] || 'en-GB';
+  }
+
+  function fmtNumber(n) {
+    try {
+      return new Intl.NumberFormat(intlLocale()).format(n);
+    } catch {
+      return String(n);
+    }
+  }
+
+  function fmtDay(iso) {
+    const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso || ''));
+    if (!m) return '';
+    const d = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3]));
+    const opts = { day: 'numeric', month: 'short', timeZone: 'UTC' };
+    if (d.getUTCFullYear() !== new Date().getUTCFullYear()) opts.year = 'numeric';
+    try {
+      return new Intl.DateTimeFormat(intlLocale(), opts).format(d);
+    } catch {
+      return String(iso).slice(0, 10);
+    }
+  }
+
+  function knowledgeLines(est) {
+    const code = LANGUAGE_CODES[wordLanguageId()];
+    const nameKey = 'lang_select.name_' + code;
+    const language = tr(nameKey) === nameKey ? code : tr(nameKey);
+    if (est.shown) {
+      const params = {
+        lo: fmtNumber(est.lo),
+        hi: fmtNumber(est.hi),
+        n: fmtNumber(est.universe_words),
+        language: language,
+      };
+      return [
+        tr(
+          est.kind === 'range' ? 'knowledge.estimate.headline' : 'knowledge.estimate.upper_only',
+          params
+        ),
+        tr('knowledge.estimate.basis', {
+          answers: fmtNumber(est.answers),
+          first: fmtDay(est.first_answer_at),
+          last: fmtDay(est.last_answer_at),
+        }) +
+          ' · ' +
+          tr('knowledge.confidence.' + est.label),
+      ];
+    }
+    if (est.reason === 'out_of_date') {
+      return [tr('knowledge.estimate.out_of_date', { date: fmtDay(est.last_answer_at) })];
+    }
+    if (est.reason === 'too_uncertain') {
+      return [tr('knowledge.estimate.too_uncertain', { k: fmtNumber(est.answers_needed || 0) })];
+    }
+    return [tr('calibration.knowledge_have', { have: fmtNumber(est.have || 0) })];
+  }
+
+  async function showKnowledgeRange() {
+    const box = el.knowledge;
+    if (!box) return;
+    box.hidden = true;
+    box.textContent = '';
+    const request = ++knowledgeRequest;
+    let body = null;
+    try {
+      const resp = await window.authFetch('/api/knowledge/summary?language_id=' + wordLanguageId());
+      if (!resp || resp.status !== 200) return;
+      body = await resp.json();
+    } catch {
+      return;
+    }
+    // A restart may have replaced these results while the request was in flight.
+    if (request !== knowledgeRequest || !body || body.status !== 'success' || !body.estimate)
+      return;
+    knowledgeLines(body.estimate).forEach(function (line, i) {
+      const p = document.createElement('p');
+      p.className = i === 0 ? 'cal-knowledge__line' : 'cal-knowledge__line ld-small ld-muted';
+      p.textContent = line;
+      box.appendChild(p);
+    });
+    const link = document.createElement('a');
+    link.href = '/knowledge';
+    link.className = 'cal-knowledge__link';
+    link.textContent = tr('calibration.knowledge_link');
+    box.appendChild(link);
+    box.hidden = false;
   }
 
   // A translated string, or `fallback` when the key is missing (tr returns the
