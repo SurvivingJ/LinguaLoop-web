@@ -545,7 +545,9 @@ def build_result(user_id: str, session: dict, reason: str, tallies: dict, inputs
         'p_user_id': user_id, 'p_language_id': lang, 'p_definition_language_id': dlang}) or {}
     combined_min = ke.PLACEMENT_MIN_PER_BAND if reason in pd.COMPLETE_REASONS else ke.MIN_PER_BAND
     combined = None
-    if combined_inputs.get('bands'):
+    # Only same-instrument answers combine (PSY M5). For an abandoned FIRST placement the inputs, read
+    # before its result is frozen, fall back to the legacy instrument: then combined = this (not shown).
+    if combined_inputs.get('bands') and combined_inputs.get('instrument') == 'meaning_bare_v1':
         comb = pd.estimates(combined_inputs, frame, lang, min_per_band=combined_min)
         if comb['display'] != this['display']:
             combined = comb['display']

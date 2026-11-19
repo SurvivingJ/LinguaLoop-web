@@ -181,3 +181,12 @@ def test_probe_rules_and_budgets():
 def test_config_values():
     assert pd.CONFIG['cap'] == {'cjk': 60, 'en': 40} and pd.CONFIG['time_cap_s'] == 540
     assert pd.CONFIG['version'] == 1 and ke.TONE_PSEUDO_COUNT == 0.25
+
+
+def test_gaps_never_exceed_the_meaning_range():
+    # a learner who always picks the wrong tones on known meanings: K_mr < 0 and the raw tone gap = 2/word
+    bands = [[20, 0, 20]] * 7
+    est = pd.estimates(dict(bands=bands, pairs=[[20, 0, 20, 0]] * 7, gap=[[20, 0, 0, 0, 20]] * 7),
+                       FRAME_ZH, ZH, min_per_band=2)
+    assert est['tone_gap']['hi'] <= est['m']['hi'] and est['tone_gap']['lo'] <= est['tone_gap']['hi']
+    assert est['mr']['kind'] == 'upper_only'

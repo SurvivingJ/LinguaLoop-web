@@ -229,6 +229,20 @@ def gap_range(band_counts: Sequence[tuple[int, Sequence[int]]], xs: Sequence[flo
                 lo_disp=floor2(lo) if shown else None, hi_disp=ceil2(hi) if shown else None)
 
 
+def cap_gap(g: dict, hi_cap: float, N: int) -> dict:
+    """Gap guard: a gap counts words whose meaning is recognised, so neither end may exceed the meaning
+    range's upper end. Needed when the model's assumptions fail, e.g. a learner who consistently picks
+    the same wrong tones (K′ every time) drives (pc − pkt) below zero and doubles the tone gap."""
+    g = dict(g)
+    g['hi'] = min(g['hi'], hi_cap)
+    g['lo'] = min(g['lo'], g['hi'])
+    threshold = max(GAP_MIN_SHARE * N, step(max(g['lo'], 1.0)))
+    g['shown'] = g['lo'] >= threshold
+    g['lo_disp'] = floor2(g['lo']) if g['shown'] else None
+    g['hi_disp'] = ceil2(g['hi']) if g['shown'] else None
+    return g
+
+
 JA_GAP_XS = (4.0 / 3.0, 1.0, -1.0 / 3.0)          # reading wrong, reading IDK, meaning wrong
 ZH_READING_GAP_XS = (2.0, 1.0, -1.0 / 3.0)        # F or F′, reading IDK, meaning wrong
 ZH_TONE_GAP_XS = (2.0, -1.0)                      # K′, F or F′

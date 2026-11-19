@@ -329,6 +329,10 @@ def estimates(inputs: dict, frame: Sequence[int], language_id: int, *, min_per_b
             else:
                 out['reading_gap'] = ke.gap_range([(int(r[0]), [int(r[1]), int(r[2]), int(r[3])]) for r in gap],
                                                   ke.JA_GAP_XS, frame)
+    if out['m'].get('shown'):
+        for key in ('reading_gap', 'tone_gap'):
+            if out[key]:
+                out[key] = ke.cap_gap(out[key], out['m']['hi'], int(sum(frame)))
     display = {'m': _rounded(out['m']), 'mr': _rounded(out['mr']), 'gap': None, 'tone_gap': None}
     for key, src in (('gap', 'reading_gap'), ('tone_gap', 'tone_gap')):
         g = out[src]

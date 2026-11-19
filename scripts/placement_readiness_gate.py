@@ -47,14 +47,28 @@ def main(argv=None) -> int:
     ap.add_argument('--word-language', type=int, required=True)
     ap.add_argument('--definition-language', type=int, default=None)
     ap.add_argument('--json', action='store_true')
+    ap.add_argument('--psql', metavar='DSN', default=None,
+                    help='read through psql instead of the API: zh takes ~30 s, over the 8 s PostgREST timeout')
     args = ap.parse_args(argv)
-    from services.supabase_factory import get_supabase_admin
-    db = get_supabase_admin()
     dls = [args.definition_language] if args.definition_language else [1, 2, 3]
+    if args.psql:
+        import subprocess
+
+        def ready_counts(lang, d):
+            sql = f'SELECT calibration_placement_ready_counts({int(lang)}::smallint, {int(d)}::smallint)'
+            out = subprocess.run(['psql', args.psql, '-v', 'ON_ERROR_STOP=1', '-tAc', sql],
+                                 capture_output=True, text=True, check=True).stdout.strip()
+            return json.loads(out) if out else {}
+    else:
+        from services.supabase_factory import get_supabase_admin
+        db = get_supabase_admin()
+
+        def ready_counts(lang, d):
+            return db.rpc('calibration_placement_ready_counts', {
+                'p_word_language_id': lang, 'p_definition_language_id': d}).execute().data or {}
     all_ok = True
     for d in dls:
-        counts = db.rpc('calibration_placement_ready_counts', {
-            'p_word_language_id': args.word_language, 'p_definition_language_id': d}).execute().data or {}
+        counts = ready_counts(args.word_language, d)
         if not counts.get('frame'):
             continue
         verdict = evaluate(counts)
