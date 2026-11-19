@@ -20,10 +20,12 @@ from __future__ import annotations
 import logging
 import math
 import random
+import re
 from datetime import date, datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional
 
 from config import Config
+from services import placement_tones
 from services.exercise_content import store
 
 logger = logging.getLogger(__name__)
@@ -239,7 +241,6 @@ def _reading(sense: dict, lang: str) -> Optional[dict]:
     r = sense.get('reading')
     if not r or lang == 'en':
         return None
-    import re
     m = re.match(r'^(.*?)\s*\((.*)\)\s*$', r)
     shown = (m.group(1) if m else r).strip()
     if lang == 'ja':
@@ -247,8 +248,25 @@ def _reading(sense: dict, lang: str) -> Optional[dict]:
         shown = re.sub(r'-[A-Za-z][A-Za-z-]*(?:（[^）]*）|\([^)]*\))?', '', shown).strip()
     numbered = m.group(2).strip() if m else None
     if lang == 'zh' and not numbered:
-        return None
+        # Most zh readings are tone-marked only ('yuán xíng', no '(yuan2 xing2)'):
+        # derive the numbered form the grader needs from the marks (TASK-1082).
+        numbered = _zh_numbered(shown)
+        if not numbered:
+            return None
     return {'shown': shown, 'numbered': numbered}
+
+
+_NUMBERED_SYLLABLE = re.compile(r'[a-zü]+[1-5]')
+
+
+def _zh_numbered(shown: str) -> Optional[str]:
+    """'yuán xíng' -> 'yuan2 xing2' (placement_tones.to_numbered, the mapping of the SQL
+    normaliser, TASK-1074), or None when the text is not pinyin."""
+    numbered = placement_tones.to_numbered(shown)
+    syllables = numbered.split()
+    if not syllables or not all(_NUMBERED_SYLLABLE.fullmatch(s) for s in syllables):
+        return None
+    return numbered
 
 
 def _blank(sentence: str, lemma: str) -> Optional[str]:
