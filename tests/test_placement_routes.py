@@ -85,7 +85,8 @@ def test_tone_misses_form_their_own_group(fake):
     sid, last = _play(fake, 1, 2, tone_trouble)
     words = last['result']['words']
     assert words['tones_not_yet'] > 0 and words['both'] == 0
-    lists = cp.result(USER, sid)['words']
+    lists = cp.result(USER, sid)['word_lists']
+    assert last['word_lists']['tones_not_yet'] == lists['tones_not_yet']
     assert len(lists['tones_not_yet']) == words['tones_not_yet']
 
 

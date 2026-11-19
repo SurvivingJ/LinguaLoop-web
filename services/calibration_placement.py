@@ -425,9 +425,12 @@ def answer(user_id: str, session_id: str, response_id: int, position: Optional[i
         if reason is not None:
             result = finish(user_id, session, reason, tallies=tallies)
             next_item, done = None, True
-    return {'answer': out.get('answer'), 'reveal': reveal, 'next_item': next_item, 'done': done,
+    body = {'answer': out.get('answer'), 'reveal': reveal, 'next_item': next_item, 'done': done,
             'result': result, 'can_stop': (not done) and pd.can_end_now(tallies),
             'needed': pd.needed_for_result(tallies), 'progress': _progress(tallies, lang)}
+    if result:
+        body['word_lists'] = _lists_for(session_id, lang)
+    return body
 
 
 def end(user_id: str, session_id: str) -> dict:
@@ -440,15 +443,18 @@ def end(user_id: str, session_id: str) -> dict:
     tallies = _cache_get(session_id) or _tallies_from_inputs(_session_inputs(user_id, session), lang)
     if not pd.can_end_now(tallies):
         return {'not_enough': True, 'needed': pd.needed_for_result(tallies)}
-    return {'result': finish(user_id, session, 'learner', tallies=tallies)}
+    res = finish(user_id, session, 'learner', tallies=tallies)
+    return {'result': res, 'word_lists': _lists_for(session_id, lang) if res else None}
 
 
 def result(user_id: str, session_id: str) -> dict:
     session = _session_row(user_id, session_id)
     if not session:
         raise PlacementError('Placement session not found', 404, 'NOT_FOUND')
-    words = _word_outcomes(session_id, int(session['word_language_id']))
-    return {'result': session.get('result'), 'words': _word_lists(words, int(session['word_language_id']))}
+    out = {'result': session.get('result')}
+    if session.get('result'):
+        out['word_lists'] = _lists_for(session_id, int(session['word_language_id']))
+    return out
 
 
 def latest(user_id: str, language_id: int) -> dict:
@@ -462,7 +468,8 @@ def latest(user_id: str, language_id: int) -> dict:
     if unseen:
         res['seen'] = True
         _save_result(row['id'], res)
-    return {'result': res, 'unseen': unseen, 'session_id': str(row['id'])}
+    return {'result': res, 'unseen': unseen, 'session_id': str(row['id']),
+            'word_lists': _lists_for(row['id'], int(language_id))}
 
 
 def close_stale_for(user_id: Optional[str]) -> list[str]:
@@ -483,6 +490,11 @@ def close_stale_for(user_id: Optional[str]) -> list[str]:
 
 
 # ---------------------------------------------------------------- finish and the frozen result (§8)
+
+def _lists_for(session_id: str, language_id: int) -> dict:
+    """``word_lists`` for the result page: group → [{vocab_id, lemma}] (the page also accepts plain lemmas)."""
+    return _word_lists(_word_outcomes(session_id, language_id), language_id)
+
 
 def _word_lists(words: list[dict], language_id: int) -> dict:
     groups = pd.word_groups(words, language_id)
