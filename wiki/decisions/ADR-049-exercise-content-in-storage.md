@@ -1,6 +1,6 @@
 ---
 title: "ADR-049: Exercise content moves from Postgres to Supabase Storage (one immutable file per sense)"
-status: proposed
+status: accepted
 date: 2026-11-17
 ---
 
@@ -518,6 +518,34 @@ prestudy payload differs only by the owner's drill-only change).
   (INFO), `.commit_failed … (file left for the sweep)` (ERROR), `.orphan_file` (WARNING).
 - Config: `.config unknown …`, `.config … needs SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY; using
   db`, storage-with-db-writes (ERROR, once per process).
+
+### Cut-over completed (2026-11-19, TASK-1027–1030)
+
+`exercises.content` is gone. Exercise content lives only in the private Storage bucket `exercise-content`, one immutable file per sense and version (11,021 v0 files, 125 MB).
+
+**Defaults now in code:**
+- `EXERCISE_CONTENT_SOURCE=storage` and `EXERCISE_CONTENT_WRITE=dual` (PR #39).
+- A failed GET is retried once, and pooled connections are kept 60 s (PR #40).
+- The DB fallback turns itself off on the first "column does not exist".
+
+**Measured:**
+
+| | Before | After |
+|---|---|---|
+| Database | 523 MB (2026-11-17; 494 MB at the peak, with the 17 MB of Storage-index rows) | **342 MB** |
+| `exercises` | 200 MB | 72 MB |
+
+- Storage GET, measured from the agent environment: median 0.18 s, p90 0.24 s.
+- Session hydrate: 0.47–0.59 s cold.
+
+**Deviations from §10 (owner decisions 2026-11-18):**
+- No 7-day shadow week.
+- No Railway flag changes; the defaults changed instead.
+- No `--archive-all` gzip copy: every row already had a verified file, and whole-table reads exceed PostgREST's 8 s timeout on the Free instance.
+
+The step-by-step record is in [[tasklist/exercise-content-storage.tasks]] (TASK-1027–1030).
+
+**Remaining:** TASK-1031 removes the transition code: db mode, the fallback, the read/write flags and the pre-drop migration files.
 
 ### Live status (2026-11-17, TASK-1026)
 

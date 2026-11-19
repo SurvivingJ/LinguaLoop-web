@@ -7052,3 +7052,42 @@ Pages: [[features/dual-translation.tech]], [[index]].
 **Remaining for TASK-1026:** the owner's in-app check of Practice and the prestudy page, including on-demand exercise loading for an added word.
 Pages updated: 2 ([[tasklist/exercise-content-storage.tasks]], [[tasklist/master]]).
 
+## [2026-11-19] update | Exercise content to Storage — CUT-OVER DONE: `exercises.content` dropped, database 342 MB (TASK-1027–1030)
+The owner decided (2026-11-18) to skip the shadow week and the Railway flag steps and cut over at once.
+
+**Defaults changed in code:**
+- PR #39: Storage reads and dual writes by default; live-versions keyset fallback in the scripts.
+- PR #40: a failed Storage GET is retried once, and idle connections are kept 60 s instead of httpx's default 5 s. This came from the first Storage-mode session at 22:05 UTC: one of seven GETs (`ja/42754.v0.json`) never reached Supabase, and only the DB fallback hid it.
+- The second session at 00:43 had 0 fallbacks.
+
+**Export and checks:**
+- 11,021 files (125 MB).
+- `--verify --language all`: 0 mismatches.
+- Their `storage.objects` rows added 17 MB to the database.
+
+**Archives:**
+- semdisc leftovers (9 objects), then dropped by the owner (−20 MB);
+- the 10 sense-less rows, fetched by id;
+- `--archive-all` skipped (owner decision).
+
+**Steps 1–2:**
+- `dedupe_key` for 30,491 rows, batched, with VACUUM between batches;
+- v2 index built CONCURRENTLY.
+
+**Step 3, split:**
+1. Post-drop session RPCs applied first.
+2. The owner ran preconditions + delete 10 rows + drop old index + `DROP COLUMN content`.
+3. Post-drop `exercise_content_commit` applied straight after.
+
+Every body is md5-identical to the runbook.
+
+**Checks after the drop, using the store against production with no writes:**
+- ja 23/23 and zh 20/20 session items served from Storage, with no fallback;
+- review-ahead runs;
+- `VACUUM (FULL, ANALYZE) exercises`: database 476 → **342 MB**, `exercises` 200 → 72 MB;
+- 0 orphan files, 0 live groups without a file.
+
+Pages updated: 7 ([[decisions/ADR-049-exercise-content-in-storage]] accepted + "Cut-over completed"; [[tasklist/exercise-content-storage.tasks]] TASK-1026–1030; [[tasklist/master]]; [[database/schema.tech]]; [[features/practice-engine.tech]]; [[features/practice-extra-rounds.tech]]; index).
+
+**Next:** TASK-1031 (remove the transition code).
+

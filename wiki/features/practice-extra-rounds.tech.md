@@ -60,7 +60,7 @@ the response. The queue, `progress` and `next_index` are unchanged: tests stay r
 Array of items `{exercise_id, sense_id, exercise_type, family, content, ladder_level, p_known,
 expected_seconds, mode:'maintenance', review_ahead:true}`. `p_limit` is clamped to 0..50.
 
-**ADR-049 (applied live 2026-11-17; TASK-1017 / TASK-1026):**
+**ADR-049 (applied live 2026-11-17; post-drop versions live 2026-11-19, items never carry content; TASK-1017 / TASK-1030):**
 `migrations/exercise_content_session_rpcs.sql` replaces it with a 6th argument
 `p_include_content boolean DEFAULT true` (`LANGUAGE sql VOLATILE`, as live; service_role only;
 the 5-argument function is dropped in the same transaction, so today's calls resolve to the new

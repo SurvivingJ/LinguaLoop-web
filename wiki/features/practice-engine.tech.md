@@ -68,7 +68,7 @@ CREATE OR REPLACE FUNCTION public.get_practice_session(
 ) RETURNS jsonb
 ```
 
-> **ADR-049 (applied live 2026-11-17; TASK-1017 / TASK-1026).**
+> **ADR-049 (applied live 2026-11-17; post-drop versions live 2026-11-19, items never carry content; TASK-1017 / TASK-1030).**
 > `migrations/exercise_content_session_rpcs.sql` drops the 5-argument function and creates
 > `get_practice_session(p_user_id uuid, p_language_id smallint, p_mode text DEFAULT 'auto',
 > p_target_minutes smallint DEFAULT 15, p_user_theta numeric DEFAULT NULL, p_include_content
