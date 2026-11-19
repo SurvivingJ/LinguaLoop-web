@@ -28,6 +28,8 @@ PAGES = (
     ('/counter-drill', 'counter_drill_page', 'counter_drill.html'),
     ('/dual-translation', 'dual_translation_page', 'dual_translation.html'),
     ('/dual-translation/profile', 'dual_translation_profile_page', 'dual_translation_profile.html'),
+    # Knowledge Report; the page shows "not available yet" while its API answers 404 (flag off).
+    ('/knowledge', 'knowledge_page', 'knowledge.html'),
     ('/admin/vocab-preview', 'admin_vocab_preview', 'admin_vocab_preview.html'),
 )
 

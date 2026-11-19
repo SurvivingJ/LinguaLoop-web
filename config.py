@@ -39,6 +39,25 @@ def _env_float(name: str, default: float) -> float:
         return default
 
 
+_TRUE_WORDS = ('1', 'true', 'yes', 'on')
+_FALSE_WORDS = ('0', 'false', 'no', 'off')
+
+
+def _env_bool(name: str, default: bool) -> bool:
+    """Boolean env var (1/true/yes/on, 0/false/no/off, any case); unset or blank ->
+    default; anything else -> default + ERROR."""
+    raw = os.environ.get(name)
+    if raw is None or not raw.strip():
+        return default
+    word = raw.strip().lower()
+    if word in _TRUE_WORDS:
+        return True
+    if word in _FALSE_WORDS:
+        return False
+    _config_logger.error('%s=%r is not a boolean; using %r', name, raw, default)
+    return default
+
+
 class Config:
     """Application configuration class"""
 
@@ -310,6 +329,19 @@ class Config:
     # _asset_columns_usable) — but those fields are then not stored. Export
     # DT_GRADING_ASSET_COLUMNS=false to skip them outright.
     DT_GRADING_ASSET_COLUMNS = os.environ.get('DT_GRADING_ASSET_COLUMNS', 'True').lower() == 'true'
+
+    # Knowledge Report ("My vocabulary", wiki/features/knowledge-report.tech.md,
+    # TASK-1038). Off: the /knowledge page has no Me row and every
+    # /api/knowledge route answers 404. The nightly snapshot job is NOT gated by
+    # it (history must accrue while the page is hidden, ADR-053). Turned on in
+    # production by TASK-1058.
+    KNOWLEDGE_REPORT_ENABLED = _env_bool('KNOWLEDGE_REPORT_ENABLED', False)
+
+    # Billing enforcement (billing TASK-980/997, ADR-055). Off: gated features
+    # log `entitlement_shadow_deny` and serve. Flipped by billing's rollout only,
+    # and not for the knowledge report's word-by-word view before its Pro launch
+    # gate (TASK-1059). The report's stub seam ignores it (it can never deny).
+    ENTITLEMENTS_ENFORCED = _env_bool('ENTITLEMENTS_ENFORCED', False)
 
     # ==========================================================================
     # ELO & GAME CONSTANTS
