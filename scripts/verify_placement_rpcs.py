@@ -48,7 +48,9 @@ from datetime import datetime, timedelta, timezone
 
 PAYLOAD_KEYS = {'response_id', 'vocab_id', 'lemma', 'band', 'kind', 'probe_kind', 'options',
                 'idk_allowed', 'resent'}
-SMALL_KANA = re.compile('[ゃゅょぁぃぅぇぉっャュョァィゥェォッ]')
+# っ/ッ are morae of their own (いっかん = 4), so they are counted, as in
+# calibration_placement_units; only the glide/vowel small kana are dropped.
+SMALL_KANA = re.compile('[ゃゅょぁぃぅぇぉャュョァィゥェォ]')
 KANA_ONLY = re.compile('^[ぁ-ゟァ-ヿー・]+$')
 TONELESS = str.maketrans('āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜü', 'aaaaeeeeiiiioooouuuuvvvvv')
 ROW_COLS = ('id, session_id, user_id, anchor_sense_id, anchor_vocab_id, zipf_band, item_kind, probe_kind, '
@@ -83,17 +85,30 @@ class SupabaseBackend:
         except APIError as exc:
             raise RpcError(exc.code, exc.message or str(exc)) from None
 
+    @staticmethod
+    def _read(build, attempts: int = 4):
+        """Run a read-only query, retrying a dropped connection (never used for writes)."""
+        import httpx
+        for i in range(attempts):
+            try:
+                return build().execute().data or []
+            except (httpx.ReadError, httpx.RemoteProtocolError, httpx.ConnectError):
+                if i == attempts - 1:
+                    raise
+                time.sleep(0.5 * 2 ** i)
+
     def rows(self, table: str, cols: str, **eq):
-        q = self.db.table(table).select(cols)
-        for k, v in eq.items():
-            q = q.eq(k, v)
-        return q.limit(5000).execute().data or []
+        def build():
+            q = self.db.table(table).select(cols)
+            for k, v in eq.items():
+                q = q.eq(k, v)
+            return q.limit(5000)
+        return self._read(build)
 
     def answered_elsewhere(self, user: str, vocab: int, session: str, since: str) -> int:
-        data = (self.db.table('calibration_responses').select('id').eq('user_id', user)
-                .eq('anchor_vocab_id', vocab).neq('session_id', session).gt('answered_at', since)
-                .limit(5).execute().data) or []
-        return len(data)
+        return len(self._read(lambda: self.db.table('calibration_responses').select('id').eq('user_id', user)
+                              .eq('anchor_vocab_id', vocab).neq('session_id', session)
+                              .gt('answered_at', since).limit(5)))
 
     def create_session(self, user: str, lang: int, defn: int) -> str:
         return self.db.table('calibration_sessions').insert({
