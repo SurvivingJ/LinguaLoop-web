@@ -2,13 +2,14 @@
 title: Knowledge Report and Vocabulary placement — apply and launch runbook
 type: overview
 status: in-progress
-last_updated: 2026-11-19
+last_updated: 2026-11-22
 ---
 
 # Knowledge Report and Vocabulary placement — apply and launch runbook
 
-The code and migration files are built on branch `claude/beautiful-planck-0fftk4` (2026-11-19). **Nothing has
-been applied to the live database.** This page is the owner's ordered checklist: what to apply, what each step
+The code and migration files are built on branch `claude/beautiful-planck-0fftk4` (2026-11-19). **Phases 0, 1 and
+the Phase 2 migrations were applied live on 2026-11-22** (see "Applied 2026-11-22" below); the Phase 2 data steps, the
+owner smoke test and Phase 3 remain. This page is the owner's ordered checklist: what to apply, what each step
 should print, and when to turn the features on. Specs: [[features/knowledge-report.tech]],
 [[features/vocab-placement.tech]]. Tasks: [[tasklist/knowledge-report.tasks]], [[tasklist/vocab-placement.tasks]].
 
@@ -20,6 +21,34 @@ end against that database (zh, ja, en, a learner with tone trouble, End now, aba
 
 Record `SELECT pg_database_size(current_database())` before Phase 1 and after Phase 2 (358.4 MB on 2026-11-19;
 expected growth well under 1 MB).
+
+## Applied 2026-11-22
+
+- 0.1, 1.1, 1.2 and 1.3 parts 1–3 by the agent (Supabase MCP); 1.3 part 4 (`_answer`, `_close`, `_close_stale`,
+  the lock-down block) and 1.4–1.9, 2.1, 2.2 by the owner in the SQL editor (the MCP's destructive-statement
+  prompt timed out on the `DELETE`s inside function bodies).
+- 1.2 needed one change: live has the `intarray` extension, which makes `smallint[] <@ smallint[]` ambiguous
+  (42725); the CHECK now says `OPERATOR(pg_catalog.<@)`.
+- All 46 functions the 12 files define compare equal to the local harness that passed the SQL suites (md5 of body,
+  config, security, volatility and result type; the editor's CRLF line endings ignored). Two zh helpers
+  (`calibration_normalise_pronunciation`, `calibration_zh_parse_pinyin`) hold the tone marks as literal characters
+  where the files write `\uXXXX` regex escapes: the MCP turns `\u` sequences into characters before the SQL reaches
+  the database. Same results (checked on 20,000 zh readings); re-paste those two from the files in the SQL editor if
+  byte equality matters.
+- Security checks: no violation from any new object; every new function is service role only. **Pre-existing,
+  not from these migrations:** check 5 of `tests/sql/check_function_acls.sql` lists `anon` SELECT on 28 public
+  tables (among them `users`, `user_tokens`, `token_transactions`, `trusted_devices`, `app_error_logs`); RLS is on
+  for all of them. Needs its own look.
+- Checks: normaliser fixtures `yuan2xing2`, `nü3er2`, `ying4yong4`, `いんく`; tones 381 inventory rows, 2,379
+  character readings, 好 → `{háo}`; `relfilenode` 179439 / 179461 unchanged; `knowledge_frame_bands()->'3:2'` =
+  `[577,425,621,655,537,283,77]`; 5 active pairs; de6fd05b/ja words `matching` = 251 and the summary returns;
+  `reference-data` bucket private, 5 MB, JSON; new tables ≈ 0.35 MB. Ready counts: en (2, 2) 3,753 / 3,754;
+  ja (3, 2) 2,099 / 3,175 = 66% (expected before the Phase 2 data steps); zh (1, 2) over the MCP timeout (SQL editor).
+- Database 361.9 MB after (358.4 MB on 2026-11-19; the new objects account for ≈ 0.35 MB, the rest is three days of
+  other activity).
+
+Still to do: `python scripts/verify_placement_rpcs.py --user <test account>` (no test account identified), the zh
+gate, Phase 2 steps 2–5, Phase 3.
 
 ## Phase 0 — bug fix, independent (any time)
 

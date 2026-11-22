@@ -4,7 +4,7 @@ feature: knowledge-report
 prose_page: ../features/knowledge-report.md
 tech_page: ../features/knowledge-report.tech.md
 total_tasks: 40
-done: 9
+done: 12
 ---
 
 # Knowledge Report — Task Breakdown
@@ -86,7 +86,7 @@ TASK-1051, TASK-1048. The database size question (OQ13) is not on this path.
 
 ## TASK-1034: Foundation migration — snapshot table, frame, pairs and prune functions, `reference-data` bucket (LIVE-DB)
 
-**Status:** [~] Done (repo), awaiting live apply (2026-11-19) — `migrations/knowledge_report_foundation.sql`, `reference_data_bucket.sql` (+ rollbacks); 94-check SQL suite green on the local harness
+**Status:** [x] Done — applied live 2026-11-22 (frame 3:2 and active pairs as expected; bucket private, 5 MB, JSON) — `migrations/knowledge_report_foundation.sql`, `reference_data_bucket.sql` (+ rollbacks); 94-check SQL suite green on the local harness
 **Feature:** knowledge-report
 **Type:** infra
 **Complexity:** M (3-8h)
@@ -168,7 +168,7 @@ home of the estimator (ADR-051).
 
 ## TASK-1036: Summary RPC `knowledge_report_summary` (LIVE-DB)
 
-**Status:** [~] Done (repo), awaiting live apply (2026-11-19) — `migrations/knowledge_report_summary.sql`; apply after TASK-1079 (it refuses without `knowledge_calibration_inputs`)
+**Status:** [x] Done — applied live 2026-11-22 (de6fd05b/ja summary returns; tracked 251) — `migrations/knowledge_report_summary.sql`; apply after TASK-1079 (it refuses without `knowledge_calibration_inputs`)
 **Feature:** knowledge-report
 **Type:** feature
 **Complexity:** L (1-2d)
@@ -436,7 +436,7 @@ extra-round panel with reviews preselected when the queue is empty (`static/js/s
 
 ## TASK-1044: Words RPC `knowledge_report_words` (LIVE-DB)
 
-**Status:** [~] Done (repo), awaiting live apply (2026-11-19) — `migrations/knowledge_report_words.sql` (adds a `missed` sort; TASK-1045 must accept it)
+**Status:** [x] Done — applied live 2026-11-22 (de6fd05b/ja `matching` = 251) — `migrations/knowledge_report_words.sql` (adds a `missed` sort; TASK-1045 must accept it)
 **Feature:** knowledge-report
 **Type:** feature
 **Complexity:** M (3-8h)

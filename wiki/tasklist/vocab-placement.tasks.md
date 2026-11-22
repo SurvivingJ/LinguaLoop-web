@@ -4,7 +4,7 @@ feature: vocab-placement
 prose_page: ../features/vocab-placement.md
 tech_page: ../features/vocab-placement.tech.md
 total_tasks: 23
-done: 5
+done: 9
 ---
 
 # Vocabulary placement — Task Breakdown
@@ -47,7 +47,7 @@ files; **the owner applies them**. Checks after apply are read-only.
 
 ## TASK-1074: Fix the zh reading normaliser and syllable count (LIVE-DB, owner-applied)
 
-**Status:** [~] Done (repo), awaiting live apply (2026-11-19) — `migrations/calibration_zh_normaliser_fix.sql`; suffixed readings byte-identical, 0 rows with syllable count 0
+**Status:** [x] Done — applied live 2026-11-22 (VERIFY clean; fixtures yuan2xing2, nü3er2, ying4yong4) — `migrations/calibration_zh_normaliser_fix.sql`; suffixed readings byte-identical, 0 rows with syllable count 0
 **Feature:** vocab-placement
 **Type:** bug
 **Complexity:** S (1-3h)
@@ -91,7 +91,7 @@ Run `python -m pytest tests/test_calibration_normaliser_migration.py tests/test_
 
 ## TASK-1075: Japanese reading readiness — katakana exclusion, kana-consistent foils, ja-only pool refresh and cache refill (LIVE-DB, owner-applied)
 
-**Status:** [~] Code done (2026-11-19) — two migrations + gate script; owner: apply, ja-only pool refresh, cache delete/refill, gate (runbook Phase 2)
+**Status:** [~] Code done (2026-11-19); both migrations applied live 2026-11-22 (ja (3, 2) ready 2,099 / 3,175 = 66% before the data steps); owner: apply, ja-only pool refresh, cache delete/refill, gate (runbook Phase 2)
 **Feature:** vocab-placement
 **Type:** infra
 **Complexity:** M (3-8h)
@@ -150,7 +150,7 @@ runs the refresh and fill; it prints PASS for every (3, D). Run
 
 ## TASK-1076: Placement schema migration (LIVE-DB, owner-applied)
 
-**Status:** [~] Done (repo), awaiting live apply (2026-11-19) — `migrations/calibration_placement.sql`
+**Status:** [x] Done — applied live 2026-11-22 (additive; relfilenode 179439 / 179461 unchanged) — `migrations/calibration_placement.sql`
 **Feature:** vocab-placement
 **Type:** infra
 **Complexity:** M (3-8h)
@@ -192,7 +192,7 @@ the read-only column and index query after the owner applies the migration.
 
 ## TASK-1077: Placement SQL functions — ready counts, next item, answer, close, close stale (LIVE-DB, owner-applied)
 
-**Status:** [~] Done (repo), awaiting live apply (2026-11-19) — `migrations/calibration_placement_rpcs.sql` (31 functions); scripted sessions green on the harness
+**Status:** [~] Applied live 2026-11-22 (31 functions, identical to the harness; service role only; en (2, 2) ready 3,753 / 3,754); owner smoke test `scripts/verify_placement_rpcs.py --user <test account>` outstanding — `migrations/calibration_placement_rpcs.sql` (31 functions); scripted sessions green on the harness
 **Feature:** vocab-placement
 **Type:** feature
 **Complexity:** L (1-2d)
@@ -310,7 +310,7 @@ tone gap), `apply_guard` (M8 direction), the eligibility amendment, and `compare
 
 ## TASK-1079: `knowledge_calibration_inputs` SQL function (LIVE-DB, owner-applied)
 
-**Status:** [~] Done (repo), awaiting live apply (2026-11-19) — `migrations/knowledge_calibration_inputs.sql`
+**Status:** [x] Done — applied live 2026-11-22 — `migrations/knowledge_calibration_inputs.sql`
 **Feature:** vocab-placement
 **Type:** feature
 **Complexity:** M (3-8h)
@@ -398,7 +398,7 @@ tests; launch requires the real writer (TASK-1088).
 
 ## TASK-1081: Placement evidence — UVK counters, pair-based BKT batch, A2 and A2r admission on the native sense (LIVE-DB, owner-applied)
 
-**Status:** [~] Done (repo), awaiting live apply (2026-11-19) — `migrations/placement_evidence_kind.sql` + admission queues; the end-to-end intro-drill check runs after apply
+**Status:** [~] Applied live 2026-11-22 (columns present; function service role only); end-to-end intro-drill check after deploy — `migrations/placement_evidence_kind.sql` + admission queues; the end-to-end intro-drill check runs after apply
 **Feature:** vocab-placement
 **Type:** feature
 **Complexity:** L (1-2d)
@@ -837,7 +837,7 @@ A read-only sample query after apply; a local check session showing no reading u
 
 ## TASK-1092: zh tone variants — inventory, variant generator, readiness (LIVE-DB, owner-applied; zh launch item)
 
-**Status:** [~] Done (repo), awaiting live apply (2026-11-19) — `migrations/calibration_zh_tones.sql` (+ character-reading table); SQL = Python on 10,390 readings
+**Status:** [x] Done — applied live 2026-11-22 (381 inventory rows, 2,379 character readings; 好 gives {háo}; `<@` written as `OPERATOR(pg_catalog.<@)` because live has intarray) — `migrations/calibration_zh_tones.sql` (+ character-reading table); SQL = Python on 10,390 readings
 **Feature:** vocab-placement
 **Type:** feature
 **Complexity:** M (3-8h)

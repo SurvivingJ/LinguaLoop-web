@@ -20,11 +20,13 @@ below.
 | Status | Count |
 |--------|-------|
 | Not Started | 78 |
-| In Progress (`[~]`) | 16 |
-| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 69 |
+| In Progress (`[~]`) | 18 |
+| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 60 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
 | Won't Do (obsolete) | 5 |
-| Done (cumulative, not listed here) | 296 |
+| Done (cumulative, not listed here) | 303 |
+
+*2026-11-22 (Knowledge Report + Vocabulary placement migrations APPLIED LIVE):* all 12 migrations applied in runbook order (1.3 in four parts by the agent; 1.3 part 4 – 2.2 pasted by the owner in the SQL editor). All 46 functions identical to the verified local copy (ignoring the editor's CRLF; two zh helpers hold the tone marks as characters rather than `\uXXXX` regex escapes, same results on 20,000 readings). Security checks clean for every new object. TASK-1034, 1036, 1044, 1074, 1076, 1079, 1092 Done; TASK-1077 (owner smoke test) and TASK-1081 (intro-drill check after deploy) in progress; TASK-1075 data steps remain. Counts: In Progress 16→18, Blocked/awaiting 69→60, Done 296→303.
 
 *2026-11-19 (Knowledge Report + Vocabulary placement BUILT, nothing applied live):* re-review after main's exercise cut-over: every cited code location still holds, frames unchanged (3:2 = 3,175, 1:2 = 3,623, 2:2 = 3,754), database 358 MB so the size gate (report OQ13, placement PQ15) no longer binds. Built on `claude/beautiful-planck-0fftk4` (orchestrator + 5 parallel workers): report TASK-1035, 1037–1043 Done (repo); TASK-1034, 1036, 1044 awaiting live apply; placement TASK-1078, 1080, 1082, 1084, 1087 Done (repo); TASK-1074, 1075 (code), 1076, 1077, 1079, 1081, 1092 awaiting live apply; TASK-1088 in progress (owner launch steps). All migrations applied in order to one local PostgreSQL 16 copy of the live schema with real pool data: SQL suites 13 + 5 + 94 checks green; the placement service driven end to end against the real SQL. Full suite 6,242 passed (1 pre-existing order-dependent failure), vitest 838 passed. New TASK-1096 (heteronym seed). Apply order and launch steps: [[tasklist/report-and-placement-apply-runbook]]. Counts: Not Started 101→78, In Progress 15→16, Blocked/awaiting 59→69, Done 283→296.
 
@@ -1401,9 +1403,9 @@ Full spec: [[tasklist/knowledge-report.tasks]] · [[features/knowledge-report]] 
 
 | ID | Feature | Title | Status | Complexity | Depends On |
 |----|---------|-------|--------|------------|------------|
-| TASK-1034 | knowledge-report | Foundation migration — snapshot table, frame, pairs and prune functions, `reference-data` bucket (LIVE-DB) | Done (repo), awaiting live apply | M | none |
+| TASK-1034 | knowledge-report | Foundation migration — snapshot table, frame, pairs and prune functions, `reference-data` bucket (LIVE-DB) | Done — applied live 2026-11-22 | M | none |
 | TASK-1035 | knowledge-report | Pure estimator and rules module (`knowledge_estimate.py`) | Done (repo) | M | none |
-| TASK-1036 | knowledge-report | Summary RPC `knowledge_report_summary` (LIVE-DB) | Done (repo), awaiting live apply (after TASK-1079) | L | TASK-1034, TASK-1079 |
+| TASK-1036 | knowledge-report | Summary RPC `knowledge_report_summary` (LIVE-DB) | Done — applied live 2026-11-22 | L | TASK-1034, TASK-1079 |
 | TASK-1037 | knowledge-report | Nightly snapshot job | Done (repo) | M | TASK-1034, TASK-1035, TASK-1036 |
 | TASK-1038 | knowledge-report | Entitlement seam, shared 402 helper, feature flags and intent logging | Done (repo) | S | none |
 | TASK-1039 | knowledge-report | `GET /api/knowledge/summary` and the summary service | Done (repo) | M | TASK-1035, TASK-1036, TASK-1038 |
@@ -1411,7 +1413,7 @@ Full spec: [[tasklist/knowledge-report.tasks]] · [[features/knowledge-report]] 
 | TASK-1041 | knowledge-report | Prestudy next step (`GET /api/knowledge/prestudy-suggestion`) | Done (repo) | S | TASK-1039, TASK-1040 |
 | TASK-1042 | knowledge-report | Calibration result shows the same vocabulary range | Done (repo) | S | TASK-1039 |
 | TASK-1043 | knowledge-report | Practice deep link `?mode=practice&extra=reviews` | Done (repo) | XS | TASK-1040 |
-| TASK-1044 | knowledge-report | Words RPC `knowledge_report_words` (LIVE-DB) | Done (repo), awaiting live apply | M | TASK-1034 |
+| TASK-1044 | knowledge-report | Words RPC `knowledge_report_words` (LIVE-DB) | Done — applied live 2026-11-22 | M | TASK-1034 |
 | TASK-1045 | knowledge-report | `GET /api/knowledge/words` (Pro) with validation, gate and intent log | [ ] | M | TASK-1044, TASK-1038, TASK-1039 |
 | TASK-1046 | knowledge-report | Pro UI — All words and Missed recently tabs, filters, sorts, search | [ ] | L | TASK-1045, TASK-1040 |
 | TASK-1047 | knowledge-report | Word sheet — detail RPC, route and UI (LIVE-DB) | [ ] | M | TASK-1044, TASK-1046 |
@@ -1447,14 +1449,14 @@ Full spec: [[tasklist/vocab-placement.tasks]] · [[features/vocab-placement]] ·
 
 | ID | Feature | Title | Status | Complexity | Depends On |
 |----|---------|-------|--------|------------|------------|
-| TASK-1074 | vocab-placement | Fix the zh reading normaliser and syllable count (LIVE-DB, owner) | Done (repo), awaiting live apply | S | — |
-| TASK-1075 | vocab-placement | ja reading readiness: katakana, kana-consistent foils, ja-only refresh, refill (LIVE-DB, owner) | [~] code done; owner refresh/refill/gate | M | TASK-1077 (gate) |
-| TASK-1076 | vocab-placement | Placement schema migration (LIVE-DB, owner) | Done (repo), awaiting live apply | M | — |
-| TASK-1077 | vocab-placement | Placement SQL functions (LIVE-DB, owner) | Done (repo), awaiting live apply | L | TASK-1076; TASK-1092 (zh) |
+| TASK-1074 | vocab-placement | Fix the zh reading normaliser and syllable count (LIVE-DB, owner) | Done — applied live 2026-11-22 | S | — |
+| TASK-1075 | vocab-placement | ja reading readiness: katakana, kana-consistent foils, ja-only refresh, refill (LIVE-DB, owner) | [~] code done, migrations applied live 2026-11-22; owner refresh/refill/gate | M | TASK-1077 (gate) |
+| TASK-1076 | vocab-placement | Placement schema migration (LIVE-DB, owner) | Done — applied live 2026-11-22 | M | — |
+| TASK-1077 | vocab-placement | Placement SQL functions (LIVE-DB, owner) | [~] applied live 2026-11-22; owner smoke test outstanding | L | TASK-1076; TASK-1092 (zh) |
 | TASK-1078 | vocab-placement | Pure placement design and estimator functions | Done (repo) | M | TASK-1035 |
-| TASK-1079 | vocab-placement | `knowledge_calibration_inputs` (LIVE-DB, owner) | Done (repo), awaiting live apply | M | TASK-1076, TASK-1034 |
+| TASK-1079 | vocab-placement | `knowledge_calibration_inputs` (LIVE-DB, owner) | Done — applied live 2026-11-22 | M | TASK-1076, TASK-1034 |
 | TASK-1080 | vocab-placement | Placement service and routes | Done (repo) | L | TASK-1077, TASK-1078, TASK-1079 |
-| TASK-1081 | vocab-placement | Placement evidence: pair-based BKT, A2/A2r on the native sense (LIVE-DB, owner) | Done (repo), awaiting live apply | L | TASK-1076, TASK-1080 |
+| TASK-1081 | vocab-placement | Placement evidence: pair-based BKT, A2/A2r on the native sense (LIVE-DB, owner) | [~] applied live 2026-11-22; intro-drill check after deploy | L | TASK-1076, TASK-1080 |
 | TASK-1082 | vocab-placement | Intro drill (and prestudy) show zh pinyin for diacritic-only readings | Done (repo) | S | — |
 | TASK-1083 | vocab-placement | Placement feeds test selection and the rating writer | [?] OQ33 | M | TASK-1080 |
 | TASK-1084 | vocab-placement | Placement page and i18n | Done (repo) | L | TASK-1080 |
@@ -1465,7 +1467,7 @@ Full spec: [[tasklist/vocab-placement.tasks]] · [[features/vocab-placement]] ·
 | TASK-1089 | vocab-placement | Validation study V1–V10 | [?] learners | M | TASK-1088 |
 | TASK-1090 | vocab-placement | Exam-level output — redesign and gate | [?] parked (owner PQ2: not now), V5 | L | TASK-1089, TASK-1049 |
 | TASK-1091 | vocab-placement | Check meaning items become the bare instrument (LIVE-DB, owner) | [?] PQ11 | M | TASK-1076, TASK-1077 |
-| TASK-1092 | vocab-placement | zh tone variants: inventory, generator, readiness (LIVE-DB, owner; zh launch item) | Done (repo), awaiting live apply | M | — |
+| TASK-1092 | vocab-placement | zh tone variants: inventory, generator, readiness (LIVE-DB, owner; zh launch item) | Done — applied live 2026-11-22 | M | — |
 | TASK-1093 | vocab-placement | IRT scoring v2 | [?] data | XL | TASK-1089 |
 | TASK-1094 | vocab-placement | Goal-path placement segment and hero copy | [?] TASK-1072 | S | TASK-1081, TASK-1086, TASK-1072 |
 | TASK-1095 | vocab-placement | Documentation reconciliation | [ ] | S | TASK-1086 |
