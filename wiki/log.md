@@ -7131,3 +7131,22 @@ Pages updated: 10 ([[decisions/ADR-049-exercise-content-in-storage]] §5, §6, �
 
 Pages updated: 1 ([[decisions/ADR-049-exercise-content-in-storage]] "Interface tidy-up").
 
+
+## [2026-11-22] apply | Part of speech standardised live (`standardise_part_of_speech.sql`)
+Developer: "apply the part of speech label migration" (written 2026-11-11, never applied: the Supabase migration tool's confirmation prompt timed out on 2026-11-12 and twice more on 2026-11-22). The owner ran the repo file unchanged in the SQL editor.
+
+**Checked before applying (read-only):**
+- No reader breaks on the standard labels: the live `pos_class()` (used by `get_quiz_distractors` / `_batch`) and `static/js/session/lexicon.js` already map `noun`/`名词`/`NOUN` to one class; Python readers that hint authoring prompts read `part_of_speech_raw` first (`services/vocabulary/pos.py` `pos_hint`; `prompt1_core.py` and `export_exercise_worklist.py` select `dim_vocabulary(*)` for this).
+- Preview of the backfill matched the result below exactly.
+
+**Verified after applying:**
+- 15,039 of 20,613 rows normalised, original tag kept in `part_of_speech_raw`: zh 7,811 (mostly `名词` → noun, `动词` → verb), en 3,776 (spaCy `NOUN`/`ADJ`/`VERB`), ja 3,452 (UniDic `名詞`/`動詞`/`形状詞`).
+- 0 non-standard labels left; for every row `normalize_pos(part_of_speech_raw) = part_of_speech`.
+- 19 rows became `other`: zh 3 (`方向补语` ×2, `结果补语`), ja 16 (`接尾辞` ×10, `接頭辞` ×6).
+- `dim_vocabulary_part_of_speech_check` validated; trigger `trg_dim_vocabulary_normalize_pos` (BEFORE INSERT OR UPDATE OF part_of_speech) live; `pos_tag_lookup`, `normalize_pos`, the trigger function: `search_path` pinned, EXECUTE for `service_role` only.
+- Spot checks: `名词`, `名詞-普通名詞-一般`, `NOUN` → noun; `量词` → measure_word; `成语` → idiom; blank/NULL → NULL.
+- Database 358.4 → 361.8 MB.
+
+**Effect on the staged fat-seed packages** (`data/exercise_seeding/{ja,zh}/upload_*`, not applied): their `part_of_speech` UPDATEs (`名词`, `动词`, …) now land as the standard label with the original kept, so the 4,879 zh "overwrites" in `overwrites_live_values.csv` are no longer a format change. The 68 ja POS overwrites still contradict the 2026-11-12 decision (ja keeps the tagger's tag) and should be dropped before that package is applied.
+
+Pages updated: 3 ([[database/schema.tech]] `dim_vocabulary` columns, check, triggers; index; this log). Migration header status updated.
