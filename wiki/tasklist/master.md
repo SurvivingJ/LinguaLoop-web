@@ -20,13 +20,13 @@ below.
 | Status | Count |
 |--------|-------|
 | Not Started | 78 |
-| In Progress (`[~]`) | 18 |
+| In Progress (`[~]`) | 17 |
 | Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 60 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
 | Won't Do (obsolete) | 5 |
-| Done (cumulative, not listed here) | 303 |
+| Done (cumulative, not listed here) | 304 |
 
-*2026-11-22 (Knowledge Report + Vocabulary placement migrations APPLIED LIVE):* all 12 migrations applied in runbook order (1.3 in four parts by the agent; 1.3 part 4 – 2.2 pasted by the owner in the SQL editor). All 46 functions identical to the verified local copy (ignoring the editor's CRLF; two zh helpers hold the tone marks as characters rather than `\uXXXX` regex escapes, same results on 20,000 readings). Security checks clean for every new object. TASK-1034, 1036, 1044, 1074, 1076, 1079, 1092 Done; TASK-1077 (owner smoke test) and TASK-1081 (intro-drill check after deploy) in progress; TASK-1075 data steps remain. Counts: In Progress 16→18, Blocked/awaiting 69→60, Done 296→303.
+*2026-11-22 (Knowledge Report + Vocabulary placement migrations APPLIED LIVE):* all 12 migrations applied in runbook order (1.3 in four parts by the agent; 1.3 part 4 – 2.2 pasted by the owner in the SQL editor). All 46 functions identical to the verified local copy (ignoring the editor's CRLF; two zh helpers hold the tone marks as characters rather than `\uXXXX` regex escapes, same results on 20,000 readings). Security checks clean for every new object. TASK-1034, 1036, 1044, 1074, 1076, 1079, 1092 Done; TASK-1077 Done after the live smoke test (all five pairs pass; In Progress 18→17, Done 303→304); TASK-1081 (intro-drill check after deploy) in progress; TASK-1075 data steps remain. Counts: In Progress 16→18, Blocked/awaiting 69→60, Done 296→303.
 
 *2026-11-19 (Knowledge Report + Vocabulary placement BUILT, nothing applied live):* re-review after main's exercise cut-over: every cited code location still holds, frames unchanged (3:2 = 3,175, 1:2 = 3,623, 2:2 = 3,754), database 358 MB so the size gate (report OQ13, placement PQ15) no longer binds. Built on `claude/beautiful-planck-0fftk4` (orchestrator + 5 parallel workers): report TASK-1035, 1037–1043 Done (repo); TASK-1034, 1036, 1044 awaiting live apply; placement TASK-1078, 1080, 1082, 1084, 1087 Done (repo); TASK-1074, 1075 (code), 1076, 1077, 1079, 1081, 1092 awaiting live apply; TASK-1088 in progress (owner launch steps). All migrations applied in order to one local PostgreSQL 16 copy of the live schema with real pool data: SQL suites 13 + 5 + 94 checks green; the placement service driven end to end against the real SQL. Full suite 6,242 passed (1 pre-existing order-dependent failure), vitest 838 passed. New TASK-1096 (heteronym seed). Apply order and launch steps: [[tasklist/report-and-placement-apply-runbook]]. Counts: Not Started 101→78, In Progress 15→16, Blocked/awaiting 59→69, Done 283→296.
 
@@ -1452,7 +1452,7 @@ Full spec: [[tasklist/vocab-placement.tasks]] · [[features/vocab-placement]] ·
 | TASK-1074 | vocab-placement | Fix the zh reading normaliser and syllable count (LIVE-DB, owner) | Done — applied live 2026-11-22 | S | — |
 | TASK-1075 | vocab-placement | ja reading readiness: katakana, kana-consistent foils, ja-only refresh, refill (LIVE-DB, owner) | [~] code done, migrations applied live 2026-11-22; owner refresh/refill/gate | M | TASK-1077 (gate) |
 | TASK-1076 | vocab-placement | Placement schema migration (LIVE-DB, owner) | Done — applied live 2026-11-22 | M | — |
-| TASK-1077 | vocab-placement | Placement SQL functions (LIVE-DB, owner) | [~] applied live 2026-11-22; owner smoke test outstanding | L | TASK-1076; TASK-1092 (zh) |
+| TASK-1077 | vocab-placement | Placement SQL functions (LIVE-DB, owner) | Done — applied live 2026-11-22, live smoke test passed | L | TASK-1076; TASK-1092 (zh) |
 | TASK-1078 | vocab-placement | Pure placement design and estimator functions | Done (repo) | M | TASK-1035 |
 | TASK-1079 | vocab-placement | `knowledge_calibration_inputs` (LIVE-DB, owner) | Done — applied live 2026-11-22 | M | TASK-1076, TASK-1034 |
 | TASK-1080 | vocab-placement | Placement service and routes | Done (repo) | L | TASK-1077, TASK-1078, TASK-1079 |

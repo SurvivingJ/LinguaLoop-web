@@ -4,7 +4,7 @@ feature: vocab-placement
 prose_page: ../features/vocab-placement.md
 tech_page: ../features/vocab-placement.tech.md
 total_tasks: 23
-done: 9
+done: 10
 ---
 
 # Vocabulary placement — Task Breakdown
@@ -192,7 +192,7 @@ the read-only column and index query after the owner applies the migration.
 
 ## TASK-1077: Placement SQL functions — ready counts, next item, answer, close, close stale (LIVE-DB, owner-applied)
 
-**Status:** [~] Applied live 2026-11-22 (31 functions, identical to the harness; service role only; en (2, 2) ready 3,753 / 3,754); owner smoke test `scripts/verify_placement_rpcs.py --user <test account>` outstanding — `migrations/calibration_placement_rpcs.sql` (31 functions); scripted sessions green on the harness
+**Status:** [x] Done — applied live 2026-11-22 (31 functions, identical to the harness; service role only; en (2, 2) ready 3,753 / 3,754). Live smoke test on the test account, all five pairs × 200 draws: 1,000 words, 1,470 answers, every check passed; RPC round trip p50 274 ms, p95 317 ms over 818 calls; test sessions deleted — `migrations/calibration_placement_rpcs.sql` (31 functions); scripted sessions green on the harness
 **Feature:** vocab-placement
 **Type:** feature
 **Complexity:** L (1-2d)

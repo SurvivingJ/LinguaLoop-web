@@ -47,8 +47,15 @@ expected growth well under 1 MB).
 - Database 361.9 MB after (358.4 MB on 2026-11-19; the new objects account for ≈ 0.35 MB, the rest is three days of
   other activity).
 
-Still to do: `python scripts/verify_placement_rpcs.py --user <test account>` (no test account identified), the zh
-gate, Phase 2 steps 2–5, Phase 3.
+- Smoke test on the test account (`TEST_USER_EMAIL`, 110fb390): `verify_placement_rpcs.py`, pairs 1:2, 1:3, 3:1, 3:2,
+  2:2 × 200 draws — every check passed (1,000 words, 1,470 answers; reading, forced-guess, reading-after-miss and
+  sound-pair items); RPC round trip p50 274 ms, p95 317 ms; its sessions deleted. Two checker fixes on the way: it
+  counted っ as no mora (5 false failures on ja; the SQL is right), and it now retries dropped connections on reads.
+- Gates: en (2, 2) **PASS** (100%); `placement_readiness_gate.py` now initialises its client without `--psql`. ja and
+  zh ready counts exceed PostgREST's 8 s timeout: run them with `--psql` or `tests/sql/check_calibration_placement.sql`
+  in the SQL editor.
+
+Still to do: the zh gate (SQL editor or `--psql`), Phase 2 steps 2–5, Phase 3.
 
 ## Phase 0 — bug fix, independent (any time)
 
