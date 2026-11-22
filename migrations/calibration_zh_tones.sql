@@ -94,7 +94,9 @@
 CREATE TABLE IF NOT EXISTS public.calibration_zh_tone_inventory (
     base     text PRIMARY KEY,               -- toneless syllable, lower case, ü as 'u:'
     tones    smallint[] NOT NULL
-             CHECK (tones <@ ARRAY[1, 2, 3, 4]::smallint[]),   -- attested full tones
+             -- pg_catalog.<@ named explicitly: live has intarray, whose int[] <@ int[]
+             -- makes a bare smallint[] <@ smallint[] ambiguous (42725).
+             CHECK (tones OPERATOR(pg_catalog.<@) ARRAY[1, 2, 3, 4]::smallint[]),   -- attested full tones
     built_at timestamptz NOT NULL DEFAULT now()
 );
 

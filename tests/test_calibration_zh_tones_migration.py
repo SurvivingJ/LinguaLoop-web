@@ -60,7 +60,7 @@ def test_table_columns_match_tech_13():
                       CODE, re.S).group(1)
     assert re.search(r"base\s+text PRIMARY KEY", table)
     assert re.search(r"tones\s+smallint\[\] NOT NULL", table)
-    assert "CHECK (tones <@ ARRAY[1, 2, 3, 4]::smallint[])" in table
+    assert "CHECK (tones OPERATOR(pg_catalog.<@) ARRAY[1, 2, 3, 4]::smallint[])" in table
     assert re.search(r"built_at timestamptz NOT NULL DEFAULT now\(\)", table)
 
 
