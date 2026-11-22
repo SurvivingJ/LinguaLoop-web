@@ -60,8 +60,12 @@ def main(argv=None) -> int:
                                  capture_output=True, text=True, check=True).stdout.strip()
             return json.loads(out) if out else {}
     else:
-        from services.supabase_factory import get_supabase_admin
-        db = get_supabase_admin()
+        try:
+            from _common import admin_db, bootstrap
+        except ImportError:
+            from scripts._common import admin_db, bootstrap
+        bootstrap(log_level=None)
+        db = admin_db()   # initialises SupabaseFactory (get_supabase_admin alone raised "not initialized")
 
         def ready_counts(lang, d):
             return db.rpc('calibration_placement_ready_counts', {
