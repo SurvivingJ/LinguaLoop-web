@@ -3,7 +3,7 @@ title: Practice Engine — Technical Specification
 type: feature-tech
 status: planned
 prose_page: ./practice-engine.md
-last_updated: 2026-09-22
+last_updated: 2026-11-19
 dependencies:
   - "migrations/study_plans_v1/002_dim_practice_modes.sql — dim_practice_modes seed"
   - "migrations/study_plans_v1/007_alter_user_exercise_sessions_mode.sql — adds mode + target_minutes columns"
@@ -15,6 +15,8 @@ dependencies:
   - "user_vocabulary_knowledge, user_flashcards tables"
   - "exercises table (sense_id, irt_difficulty, irt_discrimination, irt_n_attempts)"
   - "dim_practice_modes, dim_exercise_types (new dim tables)"
+  - "services/exercise_content/store.py (ADR-049: rpc_content_args, select_columns, hydrate)"
+  - "migrations/exercise_content_drop_column.sql (ADR-049 step 3e: canonical get_practice_session / get_review_ahead_items, live since 2026-11-19; the TASK-1017 pre-drop file is in migrations/archive/)"
 breaking_change_risk: medium
 ---
 
@@ -65,6 +67,19 @@ CREATE OR REPLACE FUNCTION public.get_practice_session(
     p_user_theta     numeric  DEFAULT NULL
 ) RETURNS jsonb
 ```
+
+> **ADR-049 (TASK-1017 / TASK-1030 / TASK-1031).** The live function is
+> `get_practice_session(p_user_id uuid, p_language_id smallint, p_mode text DEFAULT 'auto',
+> p_target_minutes smallint DEFAULT 15, p_user_theta numeric DEFAULT NULL, p_include_content
+> boolean DEFAULT true) RETURNS jsonb LANGUAGE plpgsql STABLE SET search_path = public, pg_temp`,
+> service_role only. Since the cut-over (2026-11-19) it never returns `content`:
+> `p_include_content` is accepted and ignored, and every exercise item carries `content_version`
+> instead (gate / stress markers are unchanged). Python always passes `p_include_content = false`
+> and fills the content from the files. Canonical body: `migrations/exercise_content_drop_column.sql`
+> step 3e (live md5 `e2f6089f…` = that body, checked 2026-11-19). The 5-argument
+> `get_practice_session_language_scope.sql` and the pre-drop 6-argument
+> `exercise_content_session_rpcs.sql` are in `migrations/archive/` (TASK-1031). The
+> canonical-file location above is historical.
 
 ### Input validation
 
@@ -285,7 +300,8 @@ Python wraps this and accumulates items until `elapsed_seconds >= target_minutes
       "sense_id": 1234,
       "exercise_type": "mcq_meaning",
       "family": "form_recognition",
-      "content": { "...": "..." },
+      "content": { "...": "..." },   // never from the RPC (ADR-049); filled in Python from the content file
+      "content_version": 0,          // ADR-049: the version of the sense's content file
       "ladder_level": 3,
       "p_known": 0.42,
       "expected_seconds": 40,
@@ -378,11 +394,17 @@ Service-layer `expected_seconds(exercise_type)` returns `det.expected_seconds_p5
 ## Deprecation wrappers
 
 > **REMOVED 2026-07-14 (TASK-220).** Both wrappers were dropped by
-> `migrations/phase17_drop_deprecation_wrappers.sql` after the one-release
+> `migrations/phase17_drop_deprecation_wrappers.sql` (archived in TASK-1031) after the one-release
 > deprecation window elapsed. `/api/exercises/session` and
 > `/api/vocab-dojo/session` now 302 to `/api/practice/session`, and the two
 > standalone pages were retired. The SQL below is kept as historical record of
 > the wrapper bodies (see `migrations/archive/phase12_deprecation_wrappers.sql`).
+>
+> **Drift found 2026-11-17 (ADR-049 Context finding 6):** the drop never took effect live.
+> `get_exercise_session(uuid,smallint,integer)`, `get_exercise_session(uuid,smallint,integer,numeric)`
+> and `get_ladder_session(uuid,smallint,integer)` existed live (service_role only, no Python
+> caller) until `migrations/exercise_content_session_rpcs.sql` (TASK-1017, now in
+> `migrations/archive/`) dropped all three on 2026-11-17; checked absent live 2026-11-19.
 
 ```sql
 -- get_exercise_session — wraps get_practice_session('auto', ...)
@@ -432,6 +454,44 @@ Equivalent wrapper for `get_ladder_session` calls `get_practice_session('acquisi
 | `routes/practice.py` (NEW) | Canonical `/api/practice/session?mode=...&minutes=...`. Also `POST /api/practice/attempt`. |
 | `services/irt/calibrator.py` | Nightly `_refresh_exercise_time_estimates` step added (04:05 UTC). |
 | `app.py:227-251` | Add `exercise_time_estimate_refresh` cron entry. |
+
+## Exercise content hydration (ADR-049, TASK-1019; modes removed in TASK-1031)
+
+Exercise content lives only in one immutable file per sense and version in the private Storage
+bucket `exercise-content` ([[decisions/ADR-049-exercise-content-in-storage]]); `exercises.content`
+was dropped on 2026-11-19. The session code reads it through `services/exercise_content/store.py`.
+There are no read or write modes any more (TASK-1031 removed the `db` / `shadow` paths, the DB
+fallback and the `EXERCISE_CONTENT_SOURCE` / `_WRITE` / `_DB_FALLBACK` / `_SHADOW_SAMPLE` flags).
+
+- `_practice_session_rpc` and the `get_review_ahead_items` call pass `**store.rpc_content_args()`,
+  which is always `{'p_include_content': False}`.
+- `_inject_prestudy_followups` selects `store.select_columns('id, word_sense_id, exercise_type,
+  {content}, ladder_level')` (`{content}` becomes `content_version`) and copies
+  `content_version` onto the follow-up item.
+- `SessionAssemblyMixin._hydrate_items(payload, language_id)` makes **one**
+  `store.hydrate(payload['items'], language_id=…, id_key='exercise_id', sense_key='sense_id',
+  db=self.db)` call per request, in `get_session` and in `get_extra_round` (`db` is accepted and
+  ignored): after the floor, follow-ups, intro routing/filtering, `_order_items` and the
+  `score_breakdown` strip, and immediately before `_apply_script_variant` and
+  `_prepare_jumbled_items` (which rewrite content in place; hydrate hands every item a fresh
+  object). DT error cards are injected afterwards and never hydrated; gate / stress markers have
+  no `exercise_id` and pass through.
+- An item whose content cannot be found (no file, a corrupt file, past the per-call cap or
+  deadline) is dropped, order kept. When that empties a non-empty list:
+  `no_content_reason = 'content_unavailable'` and one ERROR log. One INFO line
+  `exercise content hydrated (lang=..): items= groups= cache_hits= fetched= over_cap= dropped=
+  elapsed_ms=` when anything was fetched or dropped. An unexpected exception from `hydrate` (a
+  contract breach) is logged and the items without content are dropped. Without
+  `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` every item needing content is missing (one ERROR
+  per process).
+- The intro-drill block hydrates its own rows in `intro_drill.build_block` (≤ 40 senses), so a
+  session request makes at most two hydrate calls. The speed round picks its ≤ 20 rows first and
+  hydrates only those; gate/stress batteries (`LadderService._fetch_exercises_for_levels`) hydrate
+  the sense's rows before picking by `tags.variant`.
+- `POST /api/practice/attempt`: the server-side `cloze_typed` re-grade (`_grade_typed_if_needed`)
+  selects `'exercise_type, {content}, language_id, word_sense_id'` and hydrates with
+  `drop_missing=False`; missing content keeps the client's verdict (fails open, as a failed
+  lookup did).
 
 ## Post-RPC error-card injection (Dual Translation, TASK-618)
 

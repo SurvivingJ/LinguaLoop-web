@@ -1,0 +1,70 @@
+{
+  "test_id": "da9862e8-0351-4799-94e6-f1829e9913a2",
+  "l1": "en",
+  "reviewer_model": "claude-sonnet-5-5",
+  "sentences": [
+    {
+      "idx": 0,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.9394,
+      "back_translation": "在信息爆炸的时代,企业每天都在积累海量数据,这些数据通常存储在数据库中。"
+    },
+    {
+      "idx": 1,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.9286,
+      "back_translation": "要从中准确地提取所需信息,就必须依靠SQL,即结构化查询语言。"
+    },
+    {
+      "idx": 2,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.9111,
+      "back_translation": "它的核心功能是查询:用户只需用简洁的语句说明想要哪些数据、必须满足什么条件,系统就会返回相应的结果。"
+    },
+    {
+      "idx": 3,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.9216,
+      "back_translation": "数据库中的信息一般以表格形式组织,每张表由若干行记录和列构成,每一列称为一个字段,例如“姓名”“订单金额”或“订单日期”。"
+    },
+    {
+      "idx": 4,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.975,
+      "back_translation": "通过SELECT语句,我们可以指定所需的字段,再用WHERE子句筛选出符合条件的记录。"
+    },
+    {
+      "idx": 5,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8,
+      "back_translation": "然而在现实中,信息往往分散在不同的表里,例如客户资料和订单明细是分开存放的。"
+    },
+    {
+      "idx": 6,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8989,
+      "back_translation": "这时就需要表连接,它根据两张表共有的字段,比如客户编号,把相关的记录匹配起来,从而得到完整的分析视图。"
+    }
+  ]
+}

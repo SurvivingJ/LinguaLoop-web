@@ -1,0 +1,17 @@
+{
+  "_comment": "Shared fixtures for tests/e2e/redesign/preview.cjs. Add area files next to this one (e.g. session.json) and pass them with --fixtures; later files win. Keys: 'METHOD /api/path', '/api/path' or a '/api/prefix*'. Values: the JSON body, or {status, body, delay}.",
+  "GET /api/users/native-language": { "status": "success", "data": { "native_language_id": 2 } },
+  "GET /api/metadata": {
+    "status": "success",
+    "languages": [
+      { "id": 1, "language_code": "zh", "language_name": "Chinese", "native_name": "中文" },
+      { "id": 2, "language_code": "en", "language_name": "English", "native_name": "English" },
+      { "id": 3, "language_code": "ja", "language_name": "Japanese", "native_name": "日本語" }
+    ],
+    "test_types": [
+      { "id": 1, "type_code": "reading", "type_name": "Reading" },
+      { "id": 2, "type_code": "listening", "type_name": "Listening" },
+      { "id": 3, "type_code": "dictation", "type_name": "Dictation" }
+    ]
+  }
+}

@@ -122,7 +122,6 @@ from __future__ import annotations
 
 import difflib
 import hashlib
-import json
 import logging
 import re
 import time
@@ -130,8 +129,9 @@ import unicodedata
 from typing import Optional
 
 from config import Config
-from services.llm_output_cleaner import clean_json_response
-from services.dual_translation import explainer, prompts, scoring, word_choice_variant
+from services.dual_translation import (
+    explainer, output_sanitizer, prompts, provider_errors, scoring, word_choice_variant,
+)
 from services.dual_translation import single_call_prompts as sc_prompts
 from services.dual_translation.sentence_pairs import SentencePair, build_sentence_pairs
 
@@ -150,11 +150,21 @@ SEVERITY_RULES: dict[str, dict[str, str]] = {
 }
 DEFAULT_SEVERITY_RULE = "model"
 
+# The models the single-call prompt was validated on (ADR-044). Any other slug
+# (the free-tier stand-ins in config.py) gets the data-boundary guard variant of
+# the prompt (single_call_prompts.DATA_BOUNDARY_PARAGRAPH); these get the
+# validated prompt byte for byte.
+VALIDATED_MODELS: frozenset = frozenset(SEVERITY_RULES)
+
 # Per-model request extras the validated runs sent (reasoning off). A slug not
 # listed sends no `reasoning` key at all.
 REQUEST_EXTRAS: dict[str, dict] = {
     "openai/gpt-6-luna": {"reasoning": {"effort": "none"}},
     "deepseek/deepseek-v4.1-flash": {"reasoning": {"enabled": False}},
+    # Free-tier stand-ins (unvalidated): they reason by default and spend the
+    # whole completion budget on it, returning an empty answer.
+    "particle-ai/particle-1:free": {"reasoning": {"enabled": False}},
+    "nvidia/nemotron-3.5-super-vl:free": {"reasoning": {"enabled": False}},
 }
 
 CALL_TIMEOUT_S = 30
@@ -417,16 +427,14 @@ def _grade(
         slugs.append(("fallback", fallback))
 
     free_translation = bool(Config.DT_SINGLE_CALL_FREE_TRANSLATION)
-    variant = sc_prompts.prompt_variant(free_translation)
     alignment = build_sentence_pairs(gold_l2, reproduction)
     pairs = alignment.pairs
     descriptors = _band_descriptors(rubric_cfg, age_tier, l2_code)
-    system_prompt = sc_prompts.build_system_prompt(
-        l2_code, free_translation=free_translation, band_descriptors=descriptors,
-    )
-    user_prompt = sc_prompts.build_user_prompt(pairs, l1_code, l2_code)
     schema = sc_prompts.response_schema(l2_code, l1_code)
-    prompt_hash = hashlib.sha256((system_prompt + "\n\x00\n" + user_prompt).encode("utf-8")).digest()
+    subtype_meta = (taxonomy_cfg or {}).get("subtype_meta", {}) or {}
+    # Instruction-like text in the learner's translation (2026-11-17): data,
+    # graded as an addition when the model did not flag it, never evidence.
+    injected = output_sanitizer.injection_segments(reproduction, gold_l2)
 
     taxonomy_version = gc.get_active_taxonomy_version(db)
     rubric_version = gc.get_active_rubric_version(db)
@@ -435,13 +443,46 @@ def _grade(
     assets: list[dict] = []
     payload: Optional[dict] = None
     used: Optional[dict] = None
+    decoded: Optional[tuple] = None
+    variant = sc_prompts.prompt_variant(free_translation)
     for role, slug in slugs:
+        guard = slug not in VALIDATED_MODELS
+        variant = sc_prompts.prompt_variant(free_translation, guard=guard)
+        system_prompt = sc_prompts.build_system_prompt(
+            l2_code, free_translation=free_translation, band_descriptors=descriptors, guard=guard,
+        )
+        user_prompt = sc_prompts.build_user_prompt(pairs, l1_code, l2_code, guard=guard)
+        prompt_hash = hashlib.sha256((system_prompt + "\n\x00\n" + user_prompt).encode("utf-8")).digest()
         attempt, raw_text, parsed = _attempt(role, slug, system_prompt, user_prompt, schema)
         attempts.append(attempt)
+        if attempt["status"] == STATUS_OK:
+            # Decode inside the loop: an answer that parses but is mostly not
+            # valid entries is malformed, and the next model gets its turn (then
+            # the configured flow) instead of storing a half-valid grade.
+            severity_rule = SEVERITY_RULES.get(slug, {}).get(l2_code, DEFAULT_SEVERITY_RULE)
+            result = _decode(
+                gc, parsed["errors"], pairs=pairs, type_ids=type_ids, subtypes=subtypes,
+                taxonomy_cfg=taxonomy_cfg, subtype_meta=subtype_meta, severity_rule=severity_rule,
+                l1_code=l1_code, l2_code=l2_code, gold_l2=gold_l2, reproduction=reproduction,
+            )
+            unusable = _unusable_answer(parsed["errors"], result[2])
+            if unusable:
+                attempt["status"] = STATUS_MALFORMED_SHAPE
+                attempt["error"] = unusable[:ERROR_TEXT_CAP]
+                logger.warning("dual_translation.single_call_grader: answer from %r unusable: %s", slug, unusable)
+            else:
+                decoded = (severity_rule, result)
         asset = _asset_record(
-            attempt, raw_text, parsed, l2_code=l2_code, variant=variant,
+            attempt, raw_text, parsed if attempt["status"] == STATUS_OK else None,
+            l2_code=l2_code, variant=variant,
             taxonomy_version=taxonomy_version, rubric_version=rubric_version,
         )
+        if attempt["status"] != STATUS_OK and parsed is not None and isinstance(parsed.get("errors"), list):
+            # Parsed but unusable: keep the parsed answer and what decoding dropped.
+            asset["response"] = _capped_response(parsed)
+            asset["errors_raw"] = len(parsed["errors"])
+            asset["errors_kept"] = 0
+            asset["dropped"] = dict(result[2]["dropped"])
         assets.append(asset)
         _log_call(attempt, l2_code=l2_code, prompt_hash=prompt_hash,
                   raw_response=asset.get("raw_response"))
@@ -449,22 +490,21 @@ def _grade(
             payload, used = parsed, attempt
             break
 
-    if payload is None:
+    if payload is None or decoded is None:
         reason = "; ".join(f"{a['role']} {a['slug']} {a['status']}" for a in attempts)
         return None, _failure(reason, attempts, assets)
 
     # ── Decode ──────────────────────────────────────────────────────────
     slug = used["slug"]
-    severity_rule = SEVERITY_RULES.get(slug, {}).get(l2_code, DEFAULT_SEVERITY_RULE)
-    subtype_meta = (taxonomy_cfg or {}).get("subtype_meta", {}) or {}
-    errors, per_error, counts = _decode(
-        gc, payload["errors"], pairs=pairs, type_ids=type_ids, subtypes=subtypes,
+    severity_rule, (errors, per_error, counts) = decoded
+    added = _add_injection_errors(
+        gc, injected, errors, per_error, counts, pairs=pairs, type_ids=type_ids, subtypes=subtypes,
         taxonomy_cfg=taxonomy_cfg, subtype_meta=subtype_meta, severity_rule=severity_rule,
         l1_code=l1_code, l2_code=l2_code, gold_l2=gold_l2, reproduction=reproduction,
     )
     dropped = counts["dropped"]
     judged_bands, judgment_trace = _decode_judgments(
-        payload, reproduction, l2_code, errors=errors, subtype_meta=subtype_meta)
+        payload, reproduction, l2_code, errors=errors, subtype_meta=subtype_meta, excluded=injected)
     assets[-1]["severity_rule"] = severity_rule
     assets[-1]["errors_kept"] = len(errors)
     assets[-1]["dropped"] = dict(dropped)
@@ -545,6 +585,8 @@ def _grade(
         "errors_kept": len(errors),
         "dropped": dict(dropped),
         "dropped_total": sum(dropped.values()),
+        "duplicates_dropped": counts["duplicates"],
+        "over_cap_dropped": counts["over_cap"],
         "withheld_low_confidence": counts["withheld"],
         "type_aliased": counts["type_aliased"],
         "defaulted": dict(counts["defaulted"]),
@@ -555,6 +597,8 @@ def _grade(
         "explanation_rejections": dict(counts["explanation_rejections"]),
         "sentence_pairs": {"n": len(pairs), "aligned_ok": bool(alignment.ok)},
         "judgments": judgment_trace,
+        "injection_segments": [list(seg) for seg in injected],
+        "injection_errors_added": added,
         "unscored_dimensions": unscored,
         "band_descriptors": bool(descriptors),
         "confidence_scale": dict(sc_prompts.CONFIDENCE_VALUES),
@@ -628,8 +672,10 @@ def _attempt(role: str, slug: str, system_prompt: str, user_prompt: str, schema:
         )
     except Exception as exc:  # noqa: BLE001 — network/API errors fail this attempt
         logger.warning("dual_translation.single_call_grader: call to %r failed: %s", slug, exc)
-        attempt["error"] = f"{type(exc).__name__}: {exc}"[:ERROR_TEXT_CAP]
+        attempt["error"] = provider_errors.failure_text(exc)[:ERROR_TEXT_CAP]
+        provider_errors.note_failure(exc, slug=slug, role=role)
         return attempt, None, None
+    provider_errors.note_answer(slug=slug, role=role)
 
     latency = result.get("latency_s")
     attempt.update({
@@ -646,7 +692,7 @@ def _attempt(role: str, slug: str, system_prompt: str, user_prompt: str, schema:
     })
     raw_text = result.get("content") or ""
     try:
-        payload = json.loads(clean_json_response(raw_text))
+        payload = output_sanitizer.extract_json_object(raw_text, prefer_key="errors")
     except (ValueError, TypeError) as exc:
         logger.warning(
             "dual_translation.single_call_grader: response from %r was not valid JSON (%s): %.200r",
@@ -768,6 +814,8 @@ def _decode(
     counts = {
         "dropped": {"invalid_entry": 0, "unknown_type": 0, "low_confidence": 0,
                     "span_unlocatable": 0, "decode_rejected": 0},
+        "duplicates": 0,
+        "over_cap": 0,
         "withheld": [],
         "type_aliased": 0,
         "defaulted": {"confidence": 0, "source": 0},
@@ -778,7 +826,9 @@ def _decode(
     }
     dropped = counts["dropped"]
 
+    seen: set = set()
     for entry in raw_errors:
+        entry = _normalise_entry(entry)
         if not isinstance(entry, dict) or entry.get("severity") not in sc_prompts.SEVERITIES:
             dropped["invalid_entry"] += 1
             logger.warning("dual_translation.single_call_grader: dropping invalid entry: %.200r", entry)
@@ -867,6 +917,16 @@ def _decode(
                 "dual_translation.single_call_grader: entry rejected by the shared decode: %.200r", entry)
             continue
 
+        # 2026-11-17: one error per (type, learner span); at most MAX_ERRORS.
+        key = (decoded.get("subtype"), tuple(decoded.get("span_reproduction") or ()))
+        if key in seen:
+            counts["duplicates"] += 1
+            continue
+        if len(errors) >= output_sanitizer.MAX_ERRORS:
+            counts["over_cap"] += 1
+            continue
+        seen.add(key)
+
         explanation = entry.get("explanation")
         shown, rejection = _validate_explanation(
             explanation, decoded["learner_form"], decoded["corrected_form"], l1_code)
@@ -900,6 +960,78 @@ def _decode(
     return errors, per_error, counts
 
 
+_ENUM_FIELDS = ("severity", "type", "confidence", "source")
+_QUOTE_FIELDS = ("learner_quote", "reference_quote")
+
+
+def _normalise_entry(entry):
+    """Repairable model sloppiness, before validation: enum values with
+    stray case/whitespace/invisible characters ("Major " -> "major"), a sentence
+    number sent as a string ("2" -> 2), quotes with invisible characters. What
+    still does not fit the enums is dropped by the caller as before."""
+    if not isinstance(entry, dict):
+        return entry
+    out = dict(entry)
+    for key in _ENUM_FIELDS:
+        value = out.get(key)
+        if isinstance(value, str):
+            out[key] = output_sanitizer.strip_invisible(value).strip().lower().replace(" ", "_") \
+                if key == "type" else output_sanitizer.strip_invisible(value).strip().lower()
+    number = out.get("sentence")
+    if isinstance(number, str) and number.strip().isdigit():
+        out["sentence"] = int(number.strip())
+    elif isinstance(number, float) and number.is_integer():
+        out["sentence"] = int(number)
+    for key in _QUOTE_FIELDS:
+        if isinstance(out.get(key), str):
+            out[key] = output_sanitizer.strip_invisible(out[key])
+    return out
+
+
+def _unusable_answer(raw_errors: list, counts: dict) -> Optional[str]:
+    """Why a parsed answer cannot be used, or None. Unusable = more than half of
+    its entries are invalid (not an object / bad severity, unknown type, a
+    learner quote that is nowhere in the learner text, rejected by the shared
+    decode): such an answer is not a grade of this translation, and keeping the
+    few valid entries would store a half-valid (too good) grade."""
+    n = len(raw_errors or [])
+    if n == 0:
+        return None
+    d = counts["dropped"]
+    bad = d["invalid_entry"] + d["unknown_type"] + d["span_unlocatable"] + d["decode_rejected"]
+    if bad * 2 > n:
+        return f"unusable answer: {bad} of {n} entries invalid ({dict(d)})"
+    return None
+
+
+def _add_injection_errors(gc, injected, errors, per_error, counts, **decode_kwargs) -> int:
+    """An instruction to the grader inside the learner's translation that the
+    model did not flag is scored as an ``addition`` error on that segment (it is
+    text the reference does not have), through the same decode as a model
+    entry. Returns how many were added."""
+    if not injected or "addition" not in decode_kwargs["type_ids"]:
+        return 0
+    reproduction = decode_kwargs["reproduction"]
+    added = 0
+    for lo, hi in injected:
+        if any(_overlaps(e.get("span_reproduction"), (lo, hi)) for e in errors):
+            continue
+        entry = {
+            "learner_quote": reproduction[lo:hi], "reference_quote": "",
+            "type": "addition", "severity": "major", "confidence": "high",
+            "source": "intralingual", "explanation": None,
+        }
+        new_errors, new_rows, new_counts = _decode(gc, [entry], **decode_kwargs)
+        for err, row in zip(new_errors, new_rows):
+            row["injection"] = True
+            errors.append(err)
+            per_error.append(row)
+            counts["span"][err["span_source"]] += 1
+            counts["correction"][err["correction_source"]] += 1
+            added += 1
+    return added
+
+
 def _resolve_type(value, type_ids, subtypes, taxonomy_cfg) -> tuple[Optional[str], Optional[str]]:
     """-> (subtype, aliased_from). A type in the hardcoded list is returned as is.
     Otherwise a slug that the taxonomy's ``legacy_aliases`` maps onto an allowed
@@ -931,6 +1063,7 @@ def _confidence(value) -> tuple[Optional[float], Optional[str]]:
 
 def _decode_judgments(
     payload: dict, reproduction: str, l2_code: str, *, errors: list = (), subtype_meta: dict = None,
+    excluded: list = (),
 ) -> tuple[dict, dict]:
     """The model's naturalness / range judgments -> ({dim: band}, trace).
 
@@ -966,7 +1099,8 @@ def _decode_judgments(
         evidence = judgment.get("evidence")
         quote = evidence.strip() if isinstance(evidence, str) else ""
         hit = _find_quote(gc, reproduction, 0, len(reproduction), quote, l2_code) if quote else None
-        if hit is None:
+        if hit is None or any(_overlaps([lo, hi], hit) for lo, hi in (excluded or ())):
+            # No evidence, or "evidence" that is an instruction to the grader.
             trace[dim] = {"status": JUDGMENT_NO_EVIDENCE, "band": band}
             continue
         if dim == "naturalness" and band < max(sc_prompts.BANDS):
@@ -1226,7 +1360,15 @@ def _validate_explanation(text, learner_form: str, corrected_form: str, l1_code:
     first guard that fails; ``missing`` = the model sent no text."""
     if not isinstance(text, str) or not text.strip():
         return None, "missing"
-    trimmed = text.strip()
+    if "\n" in text.strip() or "\r" in text.strip():
+        return None, "multi_paragraph"
+    # Plain text only (2026-11-17): HTML / markdown / invisible characters are
+    # removed before the guards run, so what is shown is what was checked.
+    trimmed = output_sanitizer.clean_model_text(text, 10 ** 5)
+    if not trimmed:
+        return None, "missing"
+    if output_sanitizer.mentions_grading_instruction(trimmed):
+        return None, "instruction_echo"
     if len(trimmed) > explainer.MAX_APPLICATION_CHARS:
         return None, "too_long"
     if "\n" in trimmed or "\r" in trimmed:

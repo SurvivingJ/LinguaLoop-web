@@ -2,7 +2,15 @@
 
 {% block title %}Daily Session | LinguaDojo{% endblock %}
 
-{% block body_class %}bg-slate-50 study-session-page{% endblock %}
+{% block body_class %}study-session-page{% endblock %}
+
+{# The Today / Practice card and the summary are ordinary tab pages; while an
+   item runs, controller.js switches the page into task mode
+   (LinguaShell.setTaskMode) so the player gets the Back-pill header, the
+   progress strip and a one-viewport stage + dock. Contract for players:
+   session-frame (see the redesign hand-off) — #sessionStage is a flex column
+   that fills what is left under the strip. #}
+{% block main_class %}container session-main{% endblock %}
 
 {# Phase 13 — single-page daily study-session runner. Backed by
    /api/study-session (queue) + the existing per-test submit endpoints.
@@ -42,148 +50,129 @@
         } catch (e) { /* storage unavailable: the controller loads the session itself */ }
     })();
 </script>
-<style>
-    .session-progress {
-        position: sticky; top: 0; z-index: 30;
-        background: var(--surface, #fff);
-        border-bottom: 1px solid var(--border-default, #e2e8f0);
-        padding: .6rem 1rem;
-    }
-    .session-progress .bar { height: 6px; background: var(--border-default, #e2e8f0); border-radius: 999px; overflow: hidden; }
-    .session-progress .bar > span { display: block; height: 100%; width: 0; background: var(--primary, #4f46e5); transition: width .3s; }
-    .session-dots { display: flex; gap: .35rem; flex-wrap: wrap; }
-    .session-dot { width: .7rem; height: .7rem; border-radius: 50%; background: var(--border-default, #cbd5e1); }
-    .session-dot.done { background: var(--success, #16a34a); }
-    .session-dot.current { background: var(--primary, #4f46e5); box-shadow: 0 0 0 3px rgba(79, 70, 229, .2); }
-    .session-dot.skipped { background: var(--warning, #f59e0b); opacity: .55; }
-    .session-stage { min-height: 50vh; }
-    /* Emptied between items and on the summary/start screens: take no space,
-       or the card below sits half a screen down on phones. */
-    .session-stage:empty { min-height: 0; }
-    .session-card { max-width: 680px; margin: 2rem auto; }
-    .session-results { list-style: none; margin: 1rem 0 0; padding: 0; text-align: left; }
-    .session-results li {
-        display: flex; align-items: center; gap: .6rem;
-        padding: .55rem .25rem; border-bottom: 1px solid var(--border-default, #e2e8f0);
-    }
-    .session-results li:last-child { border-bottom: 0; }
-    .session-results .ico { width: 1.25rem; text-align: center; flex-shrink: 0; }
-    .session-results .meta { flex-grow: 1; min-width: 0; }
-    .session-results .r-title { font-weight: 600; }
-    .session-results .r-type { font-size: .8rem; color: var(--text-muted, #64748b); }
-    .session-results .r-state { font-size: .8rem; font-weight: 600; flex-shrink: 0; }
-    .session-results li.is-done .ico { color: var(--success, #16a34a); }
-    .session-results li.is-skipped { opacity: .65; }
-    .session-results li.is-skipped .r-title { font-weight: 500; text-decoration: line-through; }
-    .session-results li.is-skipped .ico,
-    .session-results li.is-skipped .r-state { color: var(--warning, #b45309); }
-</style>
+{# Page styles: static/css/redesign/session.css (.study-session-page). #}
 {% endblock %}
 
 {% block content %}
 
-<div id="sessionLoading" class="text-center py-5">
-    <div class="spinner-border text-primary" role="status"></div>
-    <p class="mt-3 text-muted" data-i18n="session.loading">Loading your session…</p>
+<div id="sessionLoading" class="session-loading" role="status">
+    <div class="spinner-border text-primary" aria-hidden="true"></div>
+    <p class="ld-muted mb-0" data-i18n="session.loading">Loading your session…</p>
 </div>
 
-<div id="sessionError" class="alert alert-danger m-4 d-none" role="alert">
-    <i class="fas fa-exclamation-triangle me-2"></i><span id="sessionErrorMsg"></span>
-    <div class="mt-3">
-        <button type="button" class="btn btn-sm btn-outline-danger" id="sessionErrorRetry">
-            <i class="fas fa-rotate-right me-1"></i><span data-i18n="session.retry">Retry</span>
+<div id="sessionError" class="ld-note ld-note--bad session-error d-none" role="alert">
+    <p class="mb-2"><i class="fas fa-exclamation-triangle me-2" aria-hidden="true"></i><span id="sessionErrorMsg"></span></p>
+    <button type="button" class="ld-btn ld-btn--sm ld-btn--ghost" id="sessionErrorRetry">
+        <i class="fas fa-rotate-right" aria-hidden="true"></i><span data-i18n="session.retry">Retry</span>
+    </button>
+</div>
+
+<!-- Today / Practice: start or resume card (hero), what comes next, shortcuts -->
+<section id="sessionStart" class="session-today d-none" aria-labelledby="sessionStartTitle">
+    <div class="ld-hero session-hero">
+        <span class="ld-hero__wm" id="sessionStartWm" aria-hidden="true"></span>
+        <div class="session-hero__head">
+            <h1 class="ld-eyebrow" id="sessionStartTitle" data-i18n="session.start_title">Today's Study Session</h1>
+            <p class="session-hero__title" id="sessionStartSummary"></p>
+        </div>
+        <div class="session-hero__seals" id="sessionStartItems" aria-hidden="true"></div>
+        <p class="session-hero__count d-none" id="sessionStartCount" aria-live="polite"></p>
+        <button type="button" class="ld-btn ld-btn--block" id="sessionStartBtn">
+            <i class="fas fa-play" aria-hidden="true"></i><span id="sessionStartBtnLabel" data-i18n="session.start_button">Start session</span>
         </button>
+        <a href="/tests" class="ld-link" id="sessionBrowseInsteadLink" data-i18n="session.browse_instead">Browse tests instead</a>
     </div>
-</div>
 
-<!-- Start / Resume screen -->
-<div id="sessionStart" class="session-card d-none">
-    <div class="card">
-        <div class="card-body p-4 text-center">
-            <div class="display-6 mb-2">📚</div>
-            <h1 class="h4 mb-2" id="sessionStartTitle" data-i18n="session.start_title">Today's Study Session</h1>
-            <p class="text-muted mb-1" id="sessionStartSummary"></p>
-            <p class="fw-semibold mb-2 d-none" id="sessionStartCount" aria-live="polite"></p>
-            <button class="btn btn-primary btn-lg mt-2" id="sessionStartBtn">
-                <i class="fas fa-play me-2"></i><span id="sessionStartBtnLabel" data-i18n="session.start_button">Start session</span>
-            </button>
-            <div class="mt-3"><a href="/tests" class="small text-muted" id="sessionBrowseInsteadLink" data-i18n="session.browse_instead">Browse tests instead</a></div>
+    <div id="sessionUpNext" class="session-upnext d-none">
+        <div class="ld-sech"><h2 class="ld-h2" data-ld-i18n="session.up_next">Up next</h2></div>
+        <div class="ld-trow">
+            <span class="ld-trow__glyph" id="sessionUpNextGlyph" aria-hidden="true"></span>
+            <span class="ld-trow__mid"><b id="sessionUpNextTitle"></b><small id="sessionUpNextType"></small></span>
         </div>
     </div>
-</div>
 
-<!-- Progress header (during the session) -->
-<div id="sessionProgress" class="session-progress d-none" role="group" aria-live="polite"
+    <nav class="session-quick" aria-labelledby="sessionQuickTitle">
+        <div class="ld-sech"><h2 class="ld-h2" id="sessionQuickTitle" data-ld-i18n="session.quick_access">Quick access</h2></div>
+        <div class="ld-chips">
+            <a class="ld-chip" href="{{ url_for('flashcards') }}"><i class="fas fa-layer-group" aria-hidden="true"></i><span data-i18n="common.nav.flashcards">Flashcards</span></a>
+            <a class="ld-chip" href="{{ url_for('dual_translation_page') }}"><i class="fas fa-right-left" aria-hidden="true"></i><span data-i18n="session.dt_heading">Dual Translation</span></a>
+            <a class="ld-chip lang-gate d-none" data-lang-gate="zh" href="{{ url_for('classifier_drill_page') }}"><i class="fas fa-ruler" aria-hidden="true"></i><span data-i18n="common.nav.classifier_drill">Measure Words</span></a>
+            <a class="ld-chip lang-gate d-none" data-lang-gate="ja" href="{{ url_for('counter_drill_page') }}"><i class="fas fa-ruler" aria-hidden="true"></i><span data-i18n="common.nav.counter_drill">Counters</span></a>
+            <a class="ld-chip" href="{{ url_for('calibration_page') }}"><i class="fas fa-gauge-high" aria-hidden="true"></i><span data-i18n="common.nav.calibration">Calibration</span></a>
+        </div>
+    </nav>
+</section>
+
+<!-- Progress strip (during the session, under the task header) -->
+<div id="sessionProgress" class="ld-strip session-strip d-none" role="group" aria-live="polite"
      aria-label="Session progress" data-i18n-aria="session.progress_label">
-    <div class="d-flex align-items-center justify-content-between mb-2">
-        <span class="fw-semibold"><i class="fas fa-calendar-day me-2"></i><span id="sessionHeaderLabel" data-i18n="session.header">Daily Session</span></span>
-        <span class="text-muted small" id="sessionProgressCount">0/0</span>
-    </div>
-    <div class="d-flex align-items-center gap-3">
-        <div class="session-dots" id="sessionDots" role="list"></div>
-        <div class="bar flex-grow-1"><span id="sessionProgressFill"></span></div>
-    </div>
+    <span class="session-strip__label" id="sessionHeaderLabel" data-i18n="session.header">Daily Session</span>
+    <div class="ld-dots session-dots" id="sessionDots" role="list"></div>
+    <span class="session-strip__count ld-num" id="sessionProgressCount">0/0</span>
+    <span class="session-strip__bar" hidden><span id="sessionProgressFill"></span></span>
 </div>
 
 <!-- Shown by controller.js while a completed item could not be saved; never blocks the session -->
-<div id="sessionSaveStatus" class="alert alert-warning d-none align-items-center justify-content-between gap-3 mx-3 mt-3 mb-0" role="status" aria-live="polite">
-    <span><i class="fas fa-cloud-arrow-up me-2"></i><span data-i18n="session.save_failed">Couldn’t save your progress — check your connection.</span></span>
-    <button type="button" class="btn btn-sm btn-outline-dark flex-shrink-0" id="sessionSaveRetry" data-i18n="session.retry">Retry</button>
+<div id="sessionSaveStatus" class="ld-note ld-note--warn session-save d-none align-items-center justify-content-between gap-2" role="status" aria-live="polite">
+    <span><i class="fas fa-cloud-arrow-up me-2" aria-hidden="true"></i><span data-i18n="session.save_failed">Couldn’t save your progress — check your connection.</span></span>
+    <button type="button" class="ld-btn ld-btn--sm ld-btn--ghost flex-shrink-0" id="sessionSaveRetry" data-i18n="session.retry">Retry</button>
 </div>
 
-<!-- Player mount point -->
+<!-- Player mount point: fills the space under the strip (see session-frame) -->
 <div id="sessionStage" class="session-stage"></div>
 
 <!-- Summary screen -->
-<div id="sessionSummary" class="session-card d-none">
-    <div class="card">
-        <div class="card-body p-4 text-center">
-            <div class="display-6 mb-2">🎉</div>
-            <h1 class="h4 mb-3" id="sessionDoneTitle" data-i18n="session.done_title">Session complete!</h1>
-            <div id="sessionSummaryBody"></div>
-            <!-- Optional tail: shown by controller.js when reviews / new words are left today -->
-            <div id="sessionTailPrompt" class="alert alert-info text-start mt-3 mb-0 d-none" role="status">
-                <p class="mb-1 fw-semibold" id="sessionTailMessage"></p>
-                <p class="small mb-2 d-none" id="sessionTailGovernor"></p>
-                <div class="d-flex gap-2 flex-wrap">
-                    <button type="button" class="btn btn-primary btn-sm" id="sessionTailKeepGoing" data-i18n="session.tail.keep_going">Keep going</button>
-                    <button type="button" class="btn btn-outline-secondary btn-sm" id="sessionTailDone" data-i18n="session.tail.done">Done for today</button>
-                </div>
-            </div>
-            <!-- Learn new words (practice mode only): today's new-word chunks, offered once the exercises are done -->
-            <div id="sessionNewWordsPrompt" class="alert alert-info text-start mt-3 mb-0 d-none" role="status">
-                <p class="mb-2 fw-semibold" data-i18n="session.new_words.prompt">Exercises done — want to learn some new words?</p>
-                <div class="d-flex gap-2 flex-wrap">
-                    <button type="button" class="btn btn-primary btn-sm" id="sessionNewWordsStart" data-i18n="session.new_words.start">Learn new words</button>
-                    <button type="button" class="btn btn-outline-secondary btn-sm" id="sessionNewWordsLater" data-i18n="session.new_words.later">Not now</button>
-                </div>
-            </div>
-            <!-- Practice extra rounds (practice mode only): open-ended reviews / new words past today's budget -->
-            <div id="sessionExtraPanel" class="alert alert-secondary text-start mt-3 mb-0 d-none">
-                <p class="mb-2 fw-semibold" data-i18n="session.extra.title">Keep practising</p>
-                <div class="form-check mb-2">
-                    <input class="form-check-input" type="checkbox" id="sessionExtraReviews" checked>
-                    <label class="form-check-label" for="sessionExtraReviews" data-i18n="session.extra.reviews">Reviews (no limit — due first, then ahead of schedule)</label>
-                </div>
-                <div class="d-flex align-items-center gap-2 mb-2">
-                    <label for="sessionExtraNewWords" class="mb-0" data-i18n="session.extra.new_words">New words this round</label>
-                    <select id="sessionExtraNewWords" class="form-select form-select-sm w-auto">
-                        <option value="0">0</option>
-                        <option value="3">3</option>
-                        <option value="5">5</option>
-                        <option value="10">10</option>
-                    </select>
-                </div>
-                <p class="small text-warning mb-2 d-none" id="sessionExtraWarning" role="status"></p>
-                <div class="d-flex gap-2 flex-wrap">
-                    <button type="button" class="btn btn-primary btn-sm" id="sessionExtraStart" data-i18n="session.extra.start">Start round</button>
-                    <button type="button" class="btn btn-outline-secondary btn-sm" id="sessionExtraDone" data-i18n="session.extra.done">Done</button>
-                </div>
-            </div>
-            <a href="/tests" class="btn btn-primary mt-3" id="sessionDoneBrowseLink" data-i18n="session.done_browse">Back to tests</a>
+<section id="sessionSummary" class="session-summary d-none" aria-labelledby="sessionDoneHeading">
+    <span class="session-summary__wm" id="sessionDoneWm" aria-hidden="true"></span>
+    <h1 class="ld-eyebrow" id="sessionDoneHeading"><span aria-hidden="true">🎉 </span><span id="sessionDoneTitle" data-i18n="session.done_title">Session complete!</span></h1>
+    <div id="sessionSummaryBody" class="session-summary__body"></div>
+    <!-- Optional tail: shown by controller.js when reviews / new words are left today -->
+    <div id="sessionTailPrompt" class="ld-note ld-col session-prompt d-none" role="status">
+        <p class="mb-0 fw-bold" id="sessionTailMessage"></p>
+        <p class="ld-small mb-0 d-none" id="sessionTailGovernor"></p>
+        <div class="ld-row">
+            <button type="button" class="ld-btn ld-btn--sm ld-grow" id="sessionTailKeepGoing" data-i18n="session.tail.keep_going">Keep going</button>
+            <button type="button" class="ld-btn ld-btn--sm ld-btn--ghost ld-grow" id="sessionTailDone" data-i18n="session.tail.done">Done for today</button>
         </div>
     </div>
-</div>
+    <!-- Learn new words (practice mode only): today's new-word chunks, offered once the exercises are done -->
+    <div id="sessionNewWordsPrompt" class="ld-note ld-col session-prompt d-none" role="status">
+        <p class="mb-0 fw-bold" data-i18n="session.new_words.prompt">Exercises done — want to learn some new words?</p>
+        <div class="ld-row">
+            <button type="button" class="ld-btn ld-btn--sm ld-grow" id="sessionNewWordsStart" data-i18n="session.new_words.start">Learn new words</button>
+            <button type="button" class="ld-btn ld-btn--sm ld-btn--ghost ld-grow" id="sessionNewWordsLater" data-i18n="session.new_words.later">Not now</button>
+        </div>
+    </div>
+    <!-- Practice extra rounds (practice mode only): open-ended reviews / new words past today's budget -->
+    <div id="sessionExtraPanel" class="ld-card ld-col session-extra d-none">
+        <p class="mb-0 fw-bold" data-i18n="session.extra.title">Keep practising</p>
+        <div class="form-check form-switch session-extra__switch">
+            <input class="form-check-input" type="checkbox" role="switch" id="sessionExtraReviews" checked>
+            <label class="form-check-label" for="sessionExtraReviews" data-i18n="session.extra.reviews">Reviews (no limit — due first, then ahead of schedule)</label>
+        </div>
+        <div class="ld-row ld-between">
+            <label for="sessionExtraNewWords" class="mb-0 ld-small" data-i18n="session.extra.new_words">New words this round</label>
+            <select id="sessionExtraNewWords" class="form-select w-auto">
+                <option value="0">0</option>
+                <option value="3">3</option>
+                <option value="5">5</option>
+                <option value="10">10</option>
+            </select>
+        </div>
+        <p class="ld-small text-warning mb-0 d-none" id="sessionExtraWarning" role="status"></p>
+        <div class="ld-row">
+            <button type="button" class="ld-btn ld-btn--sm ld-grow" id="sessionExtraStart" data-i18n="session.extra.start">Start round</button>
+            <button type="button" class="ld-btn ld-btn--sm ld-btn--ghost" id="sessionExtraDone" data-i18n="session.extra.done">Done</button>
+        </div>
+    </div>
+    <div id="sessionResultsWrap" class="session-results-wrap d-none">
+        <p class="ld-eyebrow" data-i18n="session.results_title">Your results</p>
+        <ul id="sessionResults" class="session-results"></ul>
+    </div>
+    <div class="ld-dock ld-dock--sticky session-summary__dock">
+        <a href="/tests" class="ld-btn ld-btn--block" id="sessionDoneBrowseLink" data-i18n="session.done_browse">Back to tests</a>
+    </div>
+</section>
 
 {% endblock %}
 

@@ -371,7 +371,7 @@ class TestService:
             # columns: `tests` also carries the passage embedding and the
             # token/pinyin/pitch payloads, none of which this shape uses.
             t_res = self.admin.table('tests').select(
-                'id, slug, language_id, difficulty, transcript, created_at'
+                'id, slug, title, language_id, difficulty, transcript, created_at'
             ).eq('slug', slug).eq('is_active', True).limit(1).execute()
             if not t_res.data:
                 return None
@@ -414,7 +414,7 @@ class TestService:
                 'language_id': language_id,
                 'language': language_name,
                 'topic': t.get('topic') or '',
-                'title': t.get('topic') or f"{language_name.capitalize()} Test (Level {difficulty_value})",
+                'title': t.get('title') or t.get('topic') or f"{language_name.capitalize()} Test (Level {difficulty_value})",
                 'difficulty': difficulty_value,
                 'transcript': t.get('transcript') or '',
                 'questions': questions,

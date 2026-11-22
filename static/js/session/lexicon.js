@@ -4,7 +4,23 @@
 // SQL by public.pos_class(); tests/fixtures/lexicon/cases.json pins all three.
 
 const POS_CLASSES = {
-  noun: ['noun', 'n', 'nr', 'ns', 'nt', 'nz', 'nw', 'ng', 'nrt', 'nrfg', 'vn', 'an', 'propn', '名词', '名詞'],
+  noun: [
+    'noun',
+    'n',
+    'nr',
+    'ns',
+    'nt',
+    'nz',
+    'nw',
+    'ng',
+    'nrt',
+    'nrfg',
+    'vn',
+    'an',
+    'propn',
+    '名词',
+    '名詞',
+  ],
   verb: ['verb', 'v', 'vd', 'vg', 'vi', 'aux', '动词', '動詞'],
   adj: ['adjective', 'adj', 'a', 'ag', '形容词', '形容詞', '形状詞'],
   adv: ['adverb', 'adv', 'd', 'ad', '副词', '副詞'],
@@ -20,7 +36,9 @@ for (const [cls, tags] of Object.entries(POS_CLASSES)) for (const t of tags) POS
  * class appears as "noun", "n", "名词", "NOUN", "名詞" and fine tags like "nr".
  */
 export function posClass(pos) {
-  const t = String(pos == null ? '' : pos).trim().toLowerCase();
+  const t = String(pos == null ? '' : pos)
+    .trim()
+    .toLowerCase();
   return POS_LOOKUP.get(t) || t;
 }
 
@@ -36,5 +54,8 @@ export function maskHeadword(text, lemma) {
   if (!text || !lemma) return text;
   if (CJK.test(lemma)) return String(text).split(lemma).join('～');
   const esc = String(lemma).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  return String(text).replace(new RegExp(`(?<![\\p{L}\\p{N}_])${esc}(?![\\p{L}\\p{N}_])`, 'giu'), '～');
+  return String(text).replace(
+    new RegExp(`(?<![\\p{L}\\p{N}_])${esc}(?![\\p{L}\\p{N}_])`, 'giu'),
+    '～'
+  );
 }

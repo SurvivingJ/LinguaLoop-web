@@ -6,7 +6,8 @@ per supported L1 (!= the passage's L2). Nothing here touches the DB directly:
 the only network-touching function (`generate_l1_reference`) takes its router
 resolver and model caller as injectable arguments so the whole module is
 unit-testable with everything mocked. The batch runner that wires this to a
-live Supabase + OpenRouter is `scripts/build_dt_passages.py`.
+live Supabase + OpenRouter was `scripts/build_dt_passages.py`, removed 2026-11-17
+with the whole-passage pool it built; passages are now sentence windows (ADR-037).
 
 Design decisions (confirmed 2026-06-29, see wiki/tasklist/dual-translation.tasks.md
 TASK-603 notes):
@@ -19,7 +20,7 @@ TASK-603 notes):
     is left NULL (matches the migration's nullable default).
 
   * **source_ref_id = str(tests.id)** (a uuid) so `routes/dual_translation.py::
-    _select_next_passage` (which filters `dt_passage.source_ref_id IN
+    _choose_next` (which filters `dt_passage.source_ref_id IN
     test_attempts.test_id`) can serve the row. `source_kind` is locked to
     'test_transcript'; mystery scenes are a separate table and simply not
     sourced here.
@@ -207,6 +208,25 @@ def _sentence_chars(sentence: dict) -> int:
     return 0
 
 
+def window_meets_floor(idxs, tightness: dict[int, float], floor: float,
+                       agreed: frozenset = frozenset()) -> bool:
+    """The tightness gate for one window (shared by both selectors).
+
+    Mean tightness of the window's references must be at least ``floor``.
+    Sentences in ``agreed`` (two independent reviews passed the exact text,
+    ADR-050) and sentences with no score are left out of the mean. A window
+    with nothing left to average passes when every sentence is agreed, else
+    only a ``floor`` of 0.
+    """
+    idxs = list(idxs)
+    vals = [tightness[i] for i in idxs if i not in agreed and tightness.get(i) is not None]
+    if vals:
+        return sum(vals) / len(vals) >= floor
+    if idxs and all(i in agreed for i in idxs):
+        return True
+    return floor <= 0
+
+
 def select_window_for_primed(
     sentences: list[dict],
     primed_sense_ids,
@@ -217,6 +237,7 @@ def select_window_for_primed(
     min_size: int = MIN_WINDOW,
     max_size: int = MAX_WINDOW,
     token_map: Optional[list] = None,
+    agreed: frozenset = frozenset(),
 ) -> Optional[tuple[int, int]]:
     """Pick the Produce window for a prestudied test (TASK-909).
 
@@ -230,10 +251,10 @@ def select_window_for_primed(
     because lengths are tried ascending and starts ascending — means the
     shorter, then the earlier, window. A range is only eligible when every
     sentence index is in ``refs_ok`` (has an active ``pass``/``rewritten``
-    reference for the learner's L1) and the mean ``tightness`` of its
-    references is at least ``floor``; sentences with no recorded tightness are
-    left out of the mean, and a range with no recorded tightness at all only
-    passes a ``floor`` of 0.
+    reference for the learner's L1) and it passes ``window_meets_floor``: the
+    mean ``tightness`` of its references is at least ``floor``, leaving out
+    sentences in ``agreed`` (ADR-050) and sentences with no recorded
+    tightness.
 
     Args:
         sentences: ``test_sentences`` rows (``idx``, ``l2_text`` or
@@ -265,12 +286,7 @@ def select_window_for_primed(
             window = range(a, a + length)
             if any(idxs[k] not in refs_ok for k in window):
                 continue
-            vals = [tightness[idxs[k]] for k in window
-                    if tightness.get(idxs[k]) is not None]
-            if vals:
-                if sum(vals) / len(vals) < floor:
-                    continue
-            elif floor > 0:
+            if not window_meets_floor([idxs[k] for k in window], tightness, floor, agreed):
                 continue
             senses: set[int] = set()
             for k in window:

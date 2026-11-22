@@ -1,0 +1,61 @@
+{
+  "test_id": "efcd3571-8119-4e84-a28d-ac6cd7de1e7a",
+  "l1": "en",
+  "reviewer_model": "claude-sonnet-5-5",
+  "sentences": [
+    {
+      "idx": 0,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.9677,
+      "back_translation": "平均数只能告诉我们一组数据的中心位置，却无法揭示它们之间的差异。"
+    },
+    {
+      "idx": 1,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.6122,
+      "back_translation": "如果两组成绩的平均数相同，其中一组集中在平均数附近，另一组则从高到低变化很大，那么仅凭平均数很难判断哪一组更好。"
+    },
+    {
+      "idx": 2,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.7723,
+      "back_translation": "方差正是为了弥补这一缺陷而诞生的：它把每个数据与平均数的偏差先平方再求平均，从而把整体的离散程度浓缩成一个数字。"
+    },
+    {
+      "idx": 3,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.9412,
+      "back_translation": "由于方差的单位是原单位的平方，不便于直观理解，人们对它开平方，得到与原数据量纲相同的标准差。"
+    },
+    {
+      "idx": 4,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8958,
+      "back_translation": "标准差越小，数据分布越紧凑，波动越平缓；标准差越大，则意味着分布越分散，个别数值偏离中心的可能性越高。"
+    },
+    {
+      "idx": 5,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8421,
+      "back_translation": "无论是评估投资风险、检验产品质量，还是考察实验结果的稳定性，这个指标都在默默地告诉我们数据背后的真相。"
+    }
+  ]
+}

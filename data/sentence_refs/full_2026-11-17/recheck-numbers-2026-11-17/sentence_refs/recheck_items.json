@@ -1,0 +1,79 @@
+{
+  "items": [
+    {
+      "key": "3574dd04-2-en",
+      "test_id": "3574dd04-7689-439c-9b7c-3278c15e82bb",
+      "idx": 2,
+      "sentence_id": 987,
+      "ref_id": 1278,
+      "l2": "zh",
+      "l1": "en",
+      "l1_language_id": 2,
+      "l2_text": "这个标志的历史可以追溯到20世纪70年代。",
+      "l1_text": "The history of this symbol can be traced back to the 1970s of the 20th century.",
+      "old_tightness": 0.8,
+      "floor": 0.7,
+      "author_model": "claude-sonnet-5-5",
+      "prompt_version": "sr-1.0",
+      "arm": "sentencewise",
+      "prev": {
+        "l2": "它的设计像一个绿色的箭头圆圈，表示废物可以被重复利用。",
+        "l1": "Its design is like a circle of green arrows, indicating that waste can be reused."
+      },
+      "next": {
+        "l2": "当时，人们开始关心环境污染问题。",
+        "l1": "At that time, people began to care about the problem of environmental pollution."
+      }
+    },
+    {
+      "key": "61f4125b-1-en",
+      "test_id": "61f4125b-e49b-4315-9aed-9bf32a9331f7",
+      "idx": 1,
+      "sentence_id": 5888,
+      "ref_id": 4548,
+      "l2": "zh",
+      "l1": "en",
+      "l1_language_id": 2,
+      "l2_text": "设想某公司公布两年的销售额：去年为98万元，今年为102万元，实际仅增长约4%。",
+      "l1_text": "Suppose a company announces its sales for two years: last year was 980000 yuan and this year is 1020000 yuan, an actual increase of only about 4%.",
+      "old_tightness": 0.8267,
+      "floor": 0.7,
+      "author_model": "claude-sonnet-5-5",
+      "prompt_version": "sr-1.0",
+      "arm": "sentencewise",
+      "prev": {
+        "l2": "在商业汇报和新闻报道中，误导性图表屡见不鲜，其中最常见的手法便是截断纵轴。",
+        "l1": "In business reports and news coverage, misleading charts are a common sight, and the most common technique among them is truncating the vertical axis."
+      },
+      "next": {
+        "l2": "然而，若制图者不让纵轴从零开始，而是从97万元起标，两根柱子的高度便会悬殊，今年的柱子看上去约是去年的五倍，微小的波动由此被夸大成惊人的飞跃。",
+        "l1": "However, if the chart maker does not let the vertical axis start from zero but starts marking from 970000 yuan, the heights of the two bars will differ greatly, this year's bar will look about five times last year's, and a tiny fluctuation is thereby exaggerated into a startling leap."
+      }
+    },
+    {
+      "key": "61f4125b-2-en",
+      "test_id": "61f4125b-e49b-4315-9aed-9bf32a9331f7",
+      "idx": 2,
+      "sentence_id": 5889,
+      "ref_id": 4549,
+      "l2": "zh",
+      "l1": "en",
+      "l1_language_id": 2,
+      "l2_text": "然而，若制图者不让纵轴从零开始，而是从97万元起标，两根柱子的高度便会悬殊，今年的柱子看上去约是去年的五倍，微小的波动由此被夸大成惊人的飞跃。",
+      "l1_text": "However, if the chart maker does not let the vertical axis start from zero but starts marking from 970000 yuan, the heights of the two bars will differ greatly, this year's bar will look about five times last year's, and a tiny fluctuation is thereby exaggerated into a startling leap.",
+      "old_tightness": 0.7914,
+      "floor": 0.7,
+      "author_model": "claude-sonnet-5-5",
+      "prompt_version": "sr-1.0",
+      "arm": "sentencewise",
+      "prev": {
+        "l2": "设想某公司公布两年的销售额：去年为98万元，今年为102万元，实际仅增长约4%。",
+        "l1": "Suppose a company announces its sales for two years: last year was 980000 yuan and this year is 1020000 yuan, an actual increase of only about 4%."
+      },
+      "next": {
+        "l2": "问题的根源在于，柱状图依靠柱子的长度传达数量，长度本应与数值成正比；纵轴一旦被截断，视觉比例与真实比例便彻底脱节，读者的直觉也随之被误导。",
+        "l1": "The root of the problem is that a bar chart relies on the length of the bars to convey quantity, and length should be proportional to value; once the vertical axis is truncated, the visual proportion and the true proportion are completely disconnected, and the reader's intuition is misled along with it."
+      }
+    }
+  ]
+}

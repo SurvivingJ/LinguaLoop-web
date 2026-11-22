@@ -19,14 +19,16 @@
 import { T, escapeHtml, nowMs as now, toastSaveFailed } from '../dom.js';
 import { prefetchJson, takePrefetch } from '../prefetch.js';
 import {
-  EXERCISE_BASE_STYLES,
-  sessionHeadHtml,
+  exerciseScreenHtml,
+  useFrame,
   accuracyPct,
   bindRenderers,
   renderProgress,
+  progressEndText,
   renderFeedback,
   exerciseIdBadge,
   renderErrorHtml,
+  messageHtml,
   nextButtonHtml,
   appendNextButton,
   statHtml,
@@ -71,11 +73,19 @@ export function mount(container, ctx) {
 
   const q = (id) => container.querySelector('#' + id);
   container.innerHTML = MARKUP;
+  const frame = useFrame(container, ctx);
+  if (frame) frame.setHeader({ end: '' });
 
   const ER = window.ExRenderers;
   const escHtml = ER && ER.escHtml ? ER.escHtml : escapeHtml;
 
-  bindRenderers(ER, q('exerciseCard'), state, { showFeedback, submitAttempt, nextExercise });
+  bindRenderers(
+    ER,
+    q('exerciseCard'),
+    state,
+    { showFeedback, submitAttempt, nextExercise },
+    q('exerciseDock')
+  );
 
   load();
 
@@ -164,6 +174,8 @@ export function mount(container, ctx) {
     }
 
     const ex = state.items[state.currentIndex];
+    q('exerciseDock').innerHTML = '';
+    q('exerciseStage').scrollTop = 0;
     state.renderedAt = now();
 
     // Surfaced on every render (including the error fallback below) so a
@@ -280,6 +292,16 @@ export function mount(container, ctx) {
       state.correctCount,
       state.totalAnswered
     );
+    if (frame && state.currentIndex < state.items.length) {
+      frame.setHeader({
+        end: progressEndText(
+          state.currentIndex,
+          state.items.length,
+          state.correctCount,
+          state.totalAnswered
+        ),
+      });
+    }
   }
 
   function showComplete() {
@@ -288,18 +310,18 @@ export function mount(container, ctx) {
     const timerWrap = q('speedTimer');
     if (timerWrap) timerWrap.style.display = 'none';
 
+    if (frame) frame.setHeader({ end: '' });
     const acc = accuracyPct(state.correctCount, state.totalAnswered);
     q('exerciseCard').innerHTML = `
-            <div style="text-align:center;padding:24px">
-                <div style="font-size:2.5rem">⚡</div>
-                <h2 class="h4 mb-3">${T('session.speed_done', null, 'Speed round complete!')}</h2>
-                <div class="d-flex gap-4 justify-content-center mb-3">
+            <div class="ex-done">
+                <h2 class="ld-h1"><span aria-hidden="true">⚡ </span>${T('session.speed_done', null, 'Speed round complete!')}</h2>
+                <div class="ld-stats">
                     ${statHtml(`${state.correctCount}/${state.totalAnswered}`, T('session.correct_label', null, 'Correct'))}
                     ${statHtml(`${acc}%`, T('session.accuracy', null, 'Accuracy'))}
-                    ${statHtml(state.timedOutCount, T('session.speed_timeouts', null, 'Ran out'), 'var(--text-secondary)')}
+                    ${statHtml(state.timedOutCount, T('session.speed_timeouts', null, 'Ran out'))}
                 </div>
-                ${nextButtonHtml()}
             </div>`;
+    q('exerciseDock').innerHTML = nextButtonHtml();
     wireNext();
   }
 
@@ -308,9 +330,10 @@ export function mount(container, ctx) {
     q('progressArea').style.display = 'none';
     const timerWrap = q('speedTimer');
     if (timerWrap) timerWrap.style.display = 'none';
-    q('exerciseCard').innerHTML =
-      `<p style="text-align:center;color:var(--text-secondary);padding:32px">${escHtml(text)}</p>`;
-    appendNextButton(q('exerciseCard'), 'btn btn-primary mt-2 d-block mx-auto');
+    if (frame) frame.setHeader({ end: '' });
+    q('exerciseCard').innerHTML = messageHtml(escHtml(text));
+    q('exerciseDock').innerHTML = '';
+    appendNextButton(q('exerciseDock'));
     wireNext();
   }
 
@@ -324,22 +347,15 @@ export function mount(container, ctx) {
 }
 
 // ========================================================================
-// MARKUP — the practice card styles plus the countdown bar.
+// MARKUP — the shared exercise screen plus the countdown bar
+// (styles: static/css/redesign/session.css).
 // ========================================================================
-const MARKUP = `
-<style>${EXERCISE_BASE_STYLES}
-    .speed-timer { max-width: 680px; margin: 12px auto 0; display: flex; align-items: center; gap: 12px; }
-    .speed-timer-bar { flex: 1; height: 8px; background: var(--border-default); border-radius: 4px; overflow: hidden; }
-    .speed-timer-fill { height: 100%; width: 100%; background: linear-gradient(90deg, var(--primary), #6366f1); border-radius: 4px; transition: width .1s linear; }
-    .speed-timer-fill.urgent { background: linear-gradient(90deg, var(--danger, #dc2626), #f97316); }
-    .speed-timer-text { font-size: 14px; font-weight: 700; color: var(--text-secondary); min-width: 34px; text-align: right; font-variant-numeric: tabular-nums; }
-</style>
-${sessionHeadHtml('fa-bolt', 'session.speed_heading', 'Speed Round')}
-
-<div class="speed-timer" id="speedTimer" role="timer" aria-live="off">
-    <div class="speed-timer-bar"><div class="speed-timer-fill" id="speedTimerFill"></div></div>
-    <span class="speed-timer-text" id="speedTimerText"></span>
-</div>
-
-<div class="exercise-card-area" id="exerciseCard"></div>
-`;
+const MARKUP = exerciseScreenHtml(
+  'fa-bolt',
+  'session.speed_heading',
+  'Speed Round',
+  `<div class="speed-timer" id="speedTimer" role="timer" aria-live="off">
+    <div class="speed-timer-bar ld-bar"><div class="speed-timer-fill" id="speedTimerFill"></div></div>
+    <span class="speed-timer-text ld-num" id="speedTimerText"></span>
+</div>`
+);

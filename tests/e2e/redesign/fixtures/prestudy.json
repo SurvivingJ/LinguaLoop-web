@@ -1,0 +1,1686 @@
+{
+ "POST /api/tests/*": {
+  "status": "success",
+  "session_id": "ps-1"
+ },
+ "POST /api/tests/zh-weekend-hike/prestudy/session": {
+  "status": "success",
+  "session_id": "ps-1"
+ },
+ "POST /api/tests/zh-weekend-hike/prestudy/evidence": {
+  "status": "success",
+  "intro": {
+   "overflow": {
+    "fits": 2,
+    "over": 3,
+    "extra_minutes_per_day": 2,
+    "sense_ids": [
+     101,
+     102,
+     103
+    ]
+   }
+  }
+ },
+ "POST /api/tests/ja-station/prestudy/session": {
+  "status": "success",
+  "session_id": "ps-2"
+ },
+ "POST /api/tests/ja-station/prestudy/evidence": {
+  "status": "success",
+  "intro": {
+   "overflow": {
+    "fits": 2,
+    "over": 1,
+    "extra_minutes_per_day": 2,
+    "sense_ids": [
+     201
+    ]
+   }
+  }
+ },
+ "_comment": "Test prestudy (zh). Pass after default.json.",
+ "GET /api/tests/zh-weekend-hike/prestudy": {
+  "test": {
+   "id": "t-zh-1",
+   "slug": "zh-weekend-hike",
+   "title": "周末去爬山",
+   "language_id": 1,
+   "transcript": "周末我们去爬山。山上的风景很美丽，空气也很新鲜。我们在山顶休息了一会儿，然后慢慢下山。天气很好，我们有点累，但是很开心。",
+   "audio_url": null,
+   "difficulty": 4,
+   "target_age_tier": "adult",
+   "vocab_sense_ids": [
+    101,
+    102,
+    103,
+    104,
+    105,
+    106,
+    107,
+    108,
+    109,
+    110
+   ],
+   "vocab_token_map": [
+    [
+     "周末",
+     null
+    ],
+    [
+     "我们",
+     null
+    ],
+    [
+     "去",
+     null
+    ],
+    [
+     "爬山",
+     101
+    ],
+    [
+     "。",
+     null
+    ],
+    [
+     "山上",
+     null
+    ],
+    [
+     "的",
+     null
+    ],
+    [
+     "风景",
+     102
+    ],
+    [
+     "很",
+     null
+    ],
+    [
+     "美丽",
+     103
+    ],
+    [
+     "，",
+     null
+    ],
+    [
+     "空气",
+     104
+    ],
+    [
+     "也",
+     null
+    ],
+    [
+     "很",
+     null
+    ],
+    [
+     "新鲜",
+     105
+    ],
+    [
+     "。",
+     null
+    ],
+    [
+     "我们",
+     null
+    ],
+    [
+     "在",
+     null
+    ],
+    [
+     "山顶",
+     106
+    ],
+    [
+     "休息",
+     107
+    ],
+    [
+     "了",
+     null
+    ],
+    [
+     "一会儿",
+     null
+    ],
+    [
+     "，",
+     null
+    ],
+    [
+     "然后",
+     null
+    ],
+    [
+     "慢慢",
+     108
+    ],
+    [
+     "下山",
+     null
+    ],
+    [
+     "。",
+     null
+    ],
+    [
+     "天气",
+     null
+    ],
+    [
+     "很",
+     null
+    ],
+    [
+     "好",
+     null
+    ],
+    [
+     "，",
+     null
+    ],
+    [
+     "我们",
+     null
+    ],
+    [
+     "有点",
+     null
+    ],
+    [
+     "累",
+     109
+    ],
+    [
+     "，",
+     null
+    ],
+    [
+     "但是",
+     null
+    ],
+    [
+     "很",
+     null
+    ],
+    [
+     "开心",
+     110
+    ],
+    [
+     "。",
+     null
+    ]
+   ],
+   "furigana_payload": null,
+   "pinyin_payload": [
+    {
+     "char": "周",
+     "pinyin_text": "zhou",
+     "base_tone": 1,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "末",
+     "pinyin_text": "mo",
+     "base_tone": 4,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "我",
+     "pinyin_text": "wo",
+     "base_tone": 3,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "们",
+     "pinyin_text": "men",
+     "base_tone": 5,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "去",
+     "pinyin_text": "qu",
+     "base_tone": 4,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "爬",
+     "pinyin_text": "pa",
+     "base_tone": 2,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "山",
+     "pinyin_text": "shan",
+     "base_tone": 1,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "。",
+     "is_punctuation": true
+    },
+    {
+     "char": "山",
+     "pinyin_text": "shan",
+     "base_tone": 1,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "上",
+     "pinyin_text": "shang",
+     "base_tone": 4,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "的",
+     "pinyin_text": "de",
+     "base_tone": 5,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "风",
+     "pinyin_text": "feng",
+     "base_tone": 1,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "景",
+     "pinyin_text": "jing",
+     "base_tone": 3,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "很",
+     "pinyin_text": "hen",
+     "base_tone": 3,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "美",
+     "pinyin_text": "mei",
+     "base_tone": 3,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "丽",
+     "pinyin_text": "li",
+     "base_tone": 4,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "，",
+     "is_punctuation": true
+    },
+    {
+     "char": "空",
+     "pinyin_text": "kong",
+     "base_tone": 1,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "气",
+     "pinyin_text": "qi",
+     "base_tone": 4,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "也",
+     "pinyin_text": "ye",
+     "base_tone": 3,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "很",
+     "pinyin_text": "hen",
+     "base_tone": 3,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "新",
+     "pinyin_text": "xin",
+     "base_tone": 1,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "鲜",
+     "pinyin_text": "xian",
+     "base_tone": 1,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "。",
+     "is_punctuation": true
+    },
+    {
+     "char": "我",
+     "pinyin_text": "wo",
+     "base_tone": 3,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "们",
+     "pinyin_text": "men",
+     "base_tone": 5,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "在",
+     "pinyin_text": "zai",
+     "base_tone": 4,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "山",
+     "pinyin_text": "shan",
+     "base_tone": 1,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "顶",
+     "pinyin_text": "ding",
+     "base_tone": 3,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "休",
+     "pinyin_text": "xiu",
+     "base_tone": 1,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "息",
+     "pinyin_text": "xi",
+     "base_tone": 5,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "了",
+     "pinyin_text": "le",
+     "base_tone": 5,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "一",
+     "pinyin_text": "yi",
+     "base_tone": 1,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "会",
+     "pinyin_text": "hui",
+     "base_tone": 4,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "儿",
+     "pinyin_text": "er",
+     "base_tone": 5,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "，",
+     "is_punctuation": true
+    },
+    {
+     "char": "然",
+     "pinyin_text": "ran",
+     "base_tone": 2,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "后",
+     "pinyin_text": "hou",
+     "base_tone": 4,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "慢",
+     "pinyin_text": "man",
+     "base_tone": 4,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "慢",
+     "pinyin_text": "man",
+     "base_tone": 4,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "下",
+     "pinyin_text": "xia",
+     "base_tone": 4,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "山",
+     "pinyin_text": "shan",
+     "base_tone": 1,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "。",
+     "is_punctuation": true
+    },
+    {
+     "char": "天",
+     "pinyin_text": "tian",
+     "base_tone": 1,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "气",
+     "pinyin_text": "qi",
+     "base_tone": 4,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "很",
+     "pinyin_text": "hen",
+     "base_tone": 3,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "好",
+     "pinyin_text": "hao",
+     "base_tone": 3,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "，",
+     "is_punctuation": true
+    },
+    {
+     "char": "我",
+     "pinyin_text": "wo",
+     "base_tone": 3,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "们",
+     "pinyin_text": "men",
+     "base_tone": 5,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "有",
+     "pinyin_text": "you",
+     "base_tone": 3,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "点",
+     "pinyin_text": "dian",
+     "base_tone": 3,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "累",
+     "pinyin_text": "lei",
+     "base_tone": 4,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "，",
+     "is_punctuation": true
+    },
+    {
+     "char": "但",
+     "pinyin_text": "dan",
+     "base_tone": 4,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "是",
+     "pinyin_text": "shi",
+     "base_tone": 4,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "很",
+     "pinyin_text": "hen",
+     "base_tone": 3,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "开",
+     "pinyin_text": "kai",
+     "base_tone": 1,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "心",
+     "pinyin_text": "xin",
+     "base_tone": 1,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "。",
+     "is_punctuation": true
+    }
+   ]
+  },
+  "questions": [
+   {
+    "sense_ids": [
+     102,
+     106
+    ]
+   },
+   {
+    "sense_ids": [
+     101
+    ]
+   }
+  ],
+  "senses": {
+   "101": {
+    "lemma": "爬山",
+    "pos": "verb",
+    "freq": 3.2,
+    "reading": "pá shān (pa2 shan1)",
+    "glosses": {
+     "2": {
+      "def": "to climb a mountain; to go hiking",
+      "ex": "周末我们去爬山。"
+     }
+    }
+   },
+   "102": {
+    "lemma": "风景",
+    "pos": "noun",
+    "freq": 3.6,
+    "reading": "fēng jǐng (feng1 jing3)",
+    "glosses": {
+     "2": {
+      "def": "scenery; landscape",
+      "ex": "这里的风景很美。"
+     }
+    }
+   },
+   "103": {
+    "lemma": "美丽",
+    "pos": "adjective",
+    "freq": 3.9,
+    "reading": "měi lì (mei3 li4)",
+    "glosses": {
+     "2": {
+      "def": "beautiful",
+      "ex": "她是一个美丽的女孩。"
+     }
+    }
+   },
+   "104": {
+    "lemma": "空气",
+    "pos": "noun",
+    "freq": 4.2,
+    "reading": "kōng qì (kong1 qi4)",
+    "glosses": {
+     "2": {
+      "def": "air; atmosphere",
+      "ex": "山上的空气很好。"
+     }
+    }
+   },
+   "105": {
+    "lemma": "新鲜",
+    "pos": "adjective",
+    "freq": 4.0,
+    "reading": "xīn xiān (xin1 xian1)",
+    "glosses": {
+     "2": {
+      "def": "fresh (food, air); new",
+      "ex": "这些水果很新鲜。"
+     }
+    }
+   },
+   "106": {
+    "lemma": "山顶",
+    "pos": "noun",
+    "freq": 2.8,
+    "reading": "shān dǐng (shan1 ding3)",
+    "glosses": {
+     "2": {
+      "def": "mountain top; summit",
+      "ex": "我们终于到了山顶。"
+     }
+    }
+   },
+   "107": {
+    "lemma": "休息",
+    "pos": "verb",
+    "freq": 4.6,
+    "reading": "xiū xi (xiu1 xi5)",
+    "glosses": {
+     "2": {
+      "def": "to rest; to take a break",
+      "ex": "累了就休息一下。"
+     }
+    }
+   },
+   "108": {
+    "lemma": "慢慢",
+    "pos": "adverb",
+    "freq": 4.3,
+    "reading": "màn màn (man4 man4)",
+    "glosses": {
+     "2": {
+      "def": "slowly; gradually",
+      "ex": "你慢慢说。"
+     }
+    }
+   },
+   "109": {
+    "lemma": "累",
+    "pos": "adjective",
+    "freq": 4.8,
+    "reading": "lèi (lei4)",
+    "glosses": {
+     "2": {
+      "def": "tired; weary",
+      "ex": "我今天很累。"
+     }
+    }
+   },
+   "110": {
+    "lemma": "开心",
+    "pos": "adjective",
+    "freq": 4.7,
+    "reading": "kāi xīn (kai1 xin1)",
+    "glosses": {
+     "2": {
+      "def": "happy; joyful",
+      "ex": "见到你我很开心。"
+     }
+    }
+   }
+  },
+  "knowledge": {
+   "101": {
+    "p": 0.1
+   },
+   "102": {
+    "p": 0.15
+   },
+   "103": {
+    "p": 0.3
+   },
+   "104": {
+    "p": 0.6
+   },
+   "106": {
+    "p": 0.05
+   },
+   "107": {
+    "p": 0.95
+   },
+   "108": {
+    "p": 0.4
+   },
+   "109": {
+    "p": 0.97
+   },
+   "110": {
+    "p": 0.92
+   },
+   "105": {
+    "p": 0.8
+   }
+  },
+  "exercises": {
+   "102": [
+    {
+     "id": 9001,
+     "type": "cloze_completion",
+     "group": "use",
+     "level": 3,
+     "c": {
+      "sentence_with_blank": "这里的___很美，我们拍了很多照片。",
+      "options": [
+       "风景",
+       "空气",
+       "山顶",
+       "休息"
+      ],
+      "correct_answer": "风景",
+      "explanation": "风景 is the view you take photos of.",
+      "original_sentence": "这里的风景很美，我们拍了很多照片。"
+     }
+    },
+    {
+     "id": 9002,
+     "type": "jumbled_sentence",
+     "group": "judge",
+     "level": 4,
+     "c": {
+      "chunks": [
+       "这里的",
+       "风景",
+       "非常",
+       "漂亮"
+      ],
+      "correct_ordering": [
+       0,
+       1,
+       2,
+       3
+      ],
+      "original_sentence": "这里的风景非常漂亮。"
+     }
+    }
+   ],
+   "101": [
+    {
+     "id": 9003,
+     "type": "semantic_discrimination",
+     "group": "judge",
+     "level": 4,
+     "c": {
+      "sentences": [
+       {
+        "text": "我们周末去爬山。",
+        "is_correct": true
+       },
+       {
+        "text": "我爬山了一杯茶。",
+        "is_correct": false
+       },
+       {
+        "text": "他在爬山书。",
+        "is_correct": false
+       }
+      ],
+      "explanation": "爬山 is an activity you go and do."
+     }
+    }
+   ]
+  },
+  "gloss_language_id": 2,
+  "ability_zipf": 4.5,
+  "status": "success"
+ },
+ "GET /api/tests/zh-weekend-hike/prestudy?mode=followup": {
+  "test": {
+   "id": "t-zh-1",
+   "slug": "zh-weekend-hike",
+   "title": "周末去爬山",
+   "language_id": 1,
+   "transcript": "周末我们去爬山。山上的风景很美丽，空气也很新鲜。我们在山顶休息了一会儿，然后慢慢下山。天气很好，我们有点累，但是很开心。",
+   "audio_url": null,
+   "difficulty": 4,
+   "target_age_tier": "adult",
+   "vocab_sense_ids": [
+    101,
+    102,
+    103,
+    104,
+    105,
+    106,
+    107,
+    108,
+    109,
+    110
+   ],
+   "vocab_token_map": [
+    [
+     "周末",
+     null
+    ],
+    [
+     "我们",
+     null
+    ],
+    [
+     "去",
+     null
+    ],
+    [
+     "爬山",
+     101
+    ],
+    [
+     "。",
+     null
+    ],
+    [
+     "山上",
+     null
+    ],
+    [
+     "的",
+     null
+    ],
+    [
+     "风景",
+     102
+    ],
+    [
+     "很",
+     null
+    ],
+    [
+     "美丽",
+     103
+    ],
+    [
+     "，",
+     null
+    ],
+    [
+     "空气",
+     104
+    ],
+    [
+     "也",
+     null
+    ],
+    [
+     "很",
+     null
+    ],
+    [
+     "新鲜",
+     105
+    ],
+    [
+     "。",
+     null
+    ],
+    [
+     "我们",
+     null
+    ],
+    [
+     "在",
+     null
+    ],
+    [
+     "山顶",
+     106
+    ],
+    [
+     "休息",
+     107
+    ],
+    [
+     "了",
+     null
+    ],
+    [
+     "一会儿",
+     null
+    ],
+    [
+     "，",
+     null
+    ],
+    [
+     "然后",
+     null
+    ],
+    [
+     "慢慢",
+     108
+    ],
+    [
+     "下山",
+     null
+    ],
+    [
+     "。",
+     null
+    ],
+    [
+     "天气",
+     null
+    ],
+    [
+     "很",
+     null
+    ],
+    [
+     "好",
+     null
+    ],
+    [
+     "，",
+     null
+    ],
+    [
+     "我们",
+     null
+    ],
+    [
+     "有点",
+     null
+    ],
+    [
+     "累",
+     109
+    ],
+    [
+     "，",
+     null
+    ],
+    [
+     "但是",
+     null
+    ],
+    [
+     "很",
+     null
+    ],
+    [
+     "开心",
+     110
+    ],
+    [
+     "。",
+     null
+    ]
+   ],
+   "furigana_payload": null,
+   "pinyin_payload": [
+    {
+     "char": "周",
+     "pinyin_text": "zhou",
+     "base_tone": 1,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "末",
+     "pinyin_text": "mo",
+     "base_tone": 4,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "我",
+     "pinyin_text": "wo",
+     "base_tone": 3,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "们",
+     "pinyin_text": "men",
+     "base_tone": 5,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "去",
+     "pinyin_text": "qu",
+     "base_tone": 4,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "爬",
+     "pinyin_text": "pa",
+     "base_tone": 2,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "山",
+     "pinyin_text": "shan",
+     "base_tone": 1,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "。",
+     "is_punctuation": true
+    },
+    {
+     "char": "山",
+     "pinyin_text": "shan",
+     "base_tone": 1,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "上",
+     "pinyin_text": "shang",
+     "base_tone": 4,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "的",
+     "pinyin_text": "de",
+     "base_tone": 5,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "风",
+     "pinyin_text": "feng",
+     "base_tone": 1,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "景",
+     "pinyin_text": "jing",
+     "base_tone": 3,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "很",
+     "pinyin_text": "hen",
+     "base_tone": 3,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "美",
+     "pinyin_text": "mei",
+     "base_tone": 3,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "丽",
+     "pinyin_text": "li",
+     "base_tone": 4,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "，",
+     "is_punctuation": true
+    },
+    {
+     "char": "空",
+     "pinyin_text": "kong",
+     "base_tone": 1,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "气",
+     "pinyin_text": "qi",
+     "base_tone": 4,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "也",
+     "pinyin_text": "ye",
+     "base_tone": 3,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "很",
+     "pinyin_text": "hen",
+     "base_tone": 3,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "新",
+     "pinyin_text": "xin",
+     "base_tone": 1,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "鲜",
+     "pinyin_text": "xian",
+     "base_tone": 1,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "。",
+     "is_punctuation": true
+    },
+    {
+     "char": "我",
+     "pinyin_text": "wo",
+     "base_tone": 3,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "们",
+     "pinyin_text": "men",
+     "base_tone": 5,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "在",
+     "pinyin_text": "zai",
+     "base_tone": 4,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "山",
+     "pinyin_text": "shan",
+     "base_tone": 1,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "顶",
+     "pinyin_text": "ding",
+     "base_tone": 3,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "休",
+     "pinyin_text": "xiu",
+     "base_tone": 1,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "息",
+     "pinyin_text": "xi",
+     "base_tone": 5,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "了",
+     "pinyin_text": "le",
+     "base_tone": 5,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "一",
+     "pinyin_text": "yi",
+     "base_tone": 1,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "会",
+     "pinyin_text": "hui",
+     "base_tone": 4,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "儿",
+     "pinyin_text": "er",
+     "base_tone": 5,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "，",
+     "is_punctuation": true
+    },
+    {
+     "char": "然",
+     "pinyin_text": "ran",
+     "base_tone": 2,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "后",
+     "pinyin_text": "hou",
+     "base_tone": 4,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "慢",
+     "pinyin_text": "man",
+     "base_tone": 4,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "慢",
+     "pinyin_text": "man",
+     "base_tone": 4,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "下",
+     "pinyin_text": "xia",
+     "base_tone": 4,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "山",
+     "pinyin_text": "shan",
+     "base_tone": 1,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "。",
+     "is_punctuation": true
+    },
+    {
+     "char": "天",
+     "pinyin_text": "tian",
+     "base_tone": 1,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "气",
+     "pinyin_text": "qi",
+     "base_tone": 4,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "很",
+     "pinyin_text": "hen",
+     "base_tone": 3,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "好",
+     "pinyin_text": "hao",
+     "base_tone": 3,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "，",
+     "is_punctuation": true
+    },
+    {
+     "char": "我",
+     "pinyin_text": "wo",
+     "base_tone": 3,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "们",
+     "pinyin_text": "men",
+     "base_tone": 5,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "有",
+     "pinyin_text": "you",
+     "base_tone": 3,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "点",
+     "pinyin_text": "dian",
+     "base_tone": 3,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "累",
+     "pinyin_text": "lei",
+     "base_tone": 4,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "，",
+     "is_punctuation": true
+    },
+    {
+     "char": "但",
+     "pinyin_text": "dan",
+     "base_tone": 4,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "是",
+     "pinyin_text": "shi",
+     "base_tone": 4,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "很",
+     "pinyin_text": "hen",
+     "base_tone": 3,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "开",
+     "pinyin_text": "kai",
+     "base_tone": 1,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "心",
+     "pinyin_text": "xin",
+     "base_tone": 1,
+     "context_tone": null,
+     "is_punctuation": false
+    },
+    {
+     "char": "。",
+     "is_punctuation": true
+    }
+   ]
+  },
+  "questions": [
+   {
+    "sense_ids": [
+     102,
+     106
+    ]
+   },
+   {
+    "sense_ids": [
+     101
+    ]
+   }
+  ],
+  "senses": {
+   "101": {
+    "lemma": "爬山",
+    "pos": "verb",
+    "freq": 3.2,
+    "reading": "pá shān (pa2 shan1)",
+    "glosses": {
+     "2": {
+      "def": "to climb a mountain; to go hiking",
+      "ex": "周末我们去爬山。"
+     }
+    }
+   },
+   "102": {
+    "lemma": "风景",
+    "pos": "noun",
+    "freq": 3.6,
+    "reading": "fēng jǐng (feng1 jing3)",
+    "glosses": {
+     "2": {
+      "def": "scenery; landscape",
+      "ex": "这里的风景很美。"
+     }
+    }
+   },
+   "103": {
+    "lemma": "美丽",
+    "pos": "adjective",
+    "freq": 3.9,
+    "reading": "měi lì (mei3 li4)",
+    "glosses": {
+     "2": {
+      "def": "beautiful",
+      "ex": "她是一个美丽的女孩。"
+     }
+    }
+   },
+   "104": {
+    "lemma": "空气",
+    "pos": "noun",
+    "freq": 4.2,
+    "reading": "kōng qì (kong1 qi4)",
+    "glosses": {
+     "2": {
+      "def": "air; atmosphere",
+      "ex": "山上的空气很好。"
+     }
+    }
+   },
+   "105": {
+    "lemma": "新鲜",
+    "pos": "adjective",
+    "freq": 4.0,
+    "reading": "xīn xiān (xin1 xian1)",
+    "glosses": {
+     "2": {
+      "def": "fresh (food, air); new",
+      "ex": "这些水果很新鲜。"
+     }
+    }
+   },
+   "106": {
+    "lemma": "山顶",
+    "pos": "noun",
+    "freq": 2.8,
+    "reading": "shān dǐng (shan1 ding3)",
+    "glosses": {
+     "2": {
+      "def": "mountain top; summit",
+      "ex": "我们终于到了山顶。"
+     }
+    }
+   },
+   "107": {
+    "lemma": "休息",
+    "pos": "verb",
+    "freq": 4.6,
+    "reading": "xiū xi (xiu1 xi5)",
+    "glosses": {
+     "2": {
+      "def": "to rest; to take a break",
+      "ex": "累了就休息一下。"
+     }
+    }
+   },
+   "108": {
+    "lemma": "慢慢",
+    "pos": "adverb",
+    "freq": 4.3,
+    "reading": "màn màn (man4 man4)",
+    "glosses": {
+     "2": {
+      "def": "slowly; gradually",
+      "ex": "你慢慢说。"
+     }
+    }
+   },
+   "109": {
+    "lemma": "累",
+    "pos": "adjective",
+    "freq": 4.8,
+    "reading": "lèi (lei4)",
+    "glosses": {
+     "2": {
+      "def": "tired; weary",
+      "ex": "我今天很累。"
+     }
+    }
+   },
+   "110": {
+    "lemma": "开心",
+    "pos": "adjective",
+    "freq": 4.7,
+    "reading": "kāi xīn (kai1 xin1)",
+    "glosses": {
+     "2": {
+      "def": "happy; joyful",
+      "ex": "见到你我很开心。"
+     }
+    }
+   }
+  },
+  "knowledge": {
+   "101": {
+    "p": 0.1
+   },
+   "102": {
+    "p": 0.15
+   },
+   "103": {
+    "p": 0.3
+   },
+   "104": {
+    "p": 0.6
+   },
+   "106": {
+    "p": 0.05
+   },
+   "107": {
+    "p": 0.95
+   },
+   "108": {
+    "p": 0.4
+   },
+   "109": {
+    "p": 0.97
+   },
+   "110": {
+    "p": 0.92
+   },
+   "105": {
+    "p": 0.8
+   }
+  },
+  "exercises": {
+   "102": [
+    {
+     "id": 9001,
+     "type": "cloze_completion",
+     "group": "use",
+     "level": 3,
+     "c": {
+      "sentence_with_blank": "这里的___很美，我们拍了很多照片。",
+      "options": [
+       "风景",
+       "空气",
+       "山顶",
+       "休息"
+      ],
+      "correct_answer": "风景",
+      "explanation": "风景 is the view you take photos of.",
+      "original_sentence": "这里的风景很美，我们拍了很多照片。"
+     }
+    },
+    {
+     "id": 9002,
+     "type": "jumbled_sentence",
+     "group": "judge",
+     "level": 4,
+     "c": {
+      "chunks": [
+       "这里的",
+       "风景",
+       "非常",
+       "漂亮"
+      ],
+      "correct_ordering": [
+       0,
+       1,
+       2,
+       3
+      ],
+      "original_sentence": "这里的风景非常漂亮。"
+     }
+    }
+   ],
+   "101": [
+    {
+     "id": 9003,
+     "type": "semantic_discrimination",
+     "group": "judge",
+     "level": 4,
+     "c": {
+      "sentences": [
+       {
+        "text": "我们周末去爬山。",
+        "is_correct": true
+       },
+       {
+        "text": "我爬山了一杯茶。",
+        "is_correct": false
+       },
+       {
+        "text": "他在爬山书。",
+        "is_correct": false
+       }
+      ],
+      "explanation": "爬山 is an activity you go and do."
+     }
+    }
+   ]
+  },
+  "gloss_language_id": 2,
+  "ability_zipf": 4.5,
+  "status": "success",
+  "followup_sense_ids": [
+   101,
+   102,
+   106
+  ]
+ }
+}

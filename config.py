@@ -5,11 +5,38 @@ All configuration should be accessed via this module.
 """
 
 import hashlib
+import logging
 import os
 from datetime import timedelta
 from dotenv import load_dotenv
 
 load_dotenv()
+
+_config_logger = logging.getLogger('config')
+
+
+def _env_int(name: str, default: int) -> int:
+    """Integer env var; unset or blank -> default; unparseable -> default + ERROR."""
+    raw = os.environ.get(name)
+    if raw is None or not raw.strip():
+        return default
+    try:
+        return int(raw.strip())
+    except ValueError:
+        _config_logger.error('%s=%r is not an integer; using %r', name, raw, default)
+        return default
+
+
+def _env_float(name: str, default: float) -> float:
+    """Float env var; unset or blank -> default; unparseable -> default + ERROR."""
+    raw = os.environ.get(name)
+    if raw is None or not raw.strip():
+        return default
+    try:
+        return float(raw.strip())
+    except ValueError:
+        _config_logger.error('%s=%r is not a number; using %r', name, raw, default)
+        return default
 
 
 class Config:
@@ -113,6 +140,27 @@ class Config:
     SUPABASE_JOB_TIMEOUT = float(os.environ.get('SUPABASE_JOB_TIMEOUT', '120'))
 
     # ==========================================================================
+    # EXERCISE CONTENT STORAGE (ADR-049)
+    # ==========================================================================
+    # Exercise `content` lives only in one immutable JSON file per sense and
+    # version in the private Storage bucket below (exercises.content was dropped
+    # on 2026-11-19). Reads hydrate from the files and writes go file first,
+    # then the rows through exercise_content_commit; there are no modes
+    # (TASK-1031). Every process that reads or writes exercise content needs
+    # SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY. These tuning settings are read
+    # only through services.exercise_content.store internals, at call time.
+    EXERCISE_CONTENT_BUCKET = (os.environ.get('EXERCISE_CONTENT_BUCKET') or '').strip() or 'exercise-content'
+    # Process-wide LRU of raw file bytes, per process (2 gunicorn workers -> 2x).
+    EXERCISE_CONTENT_CACHE_MB = _env_int('EXERCISE_CONTENT_CACHE_MB', 32)
+    # Size of the store's own fetch pool (never services.concurrency's pool).
+    EXERCISE_CONTENT_FETCH_CONCURRENCY = _env_int('EXERCISE_CONTENT_FETCH_CONCURRENCY', 16)
+    # Distinct senses one hydrate call may fetch; the rest count as missing.
+    EXERCISE_CONTENT_MAX_SENSES_PER_CALL = _env_int('EXERCISE_CONTENT_MAX_SENSES_PER_CALL', 160)
+    # Wall-clock budget of one hydrate call, and of one Storage GET.
+    EXERCISE_CONTENT_DEADLINE_S = _env_float('EXERCISE_CONTENT_DEADLINE_S', 3.0)
+    EXERCISE_CONTENT_HTTP_TIMEOUT_S = _env_float('EXERCISE_CONTENT_HTTP_TIMEOUT_S', 2.0)
+
+    # ==========================================================================
     # LANGUAGE CONFIGURATION - Single source of truth
     # ==========================================================================
     # Language codes are ISO 639-1 (zh, en, ja). Single source of truth.
@@ -213,10 +261,16 @@ class Config:
     # config; under any other taxonomy the single call is skipped and the
     # configured flow grades (grader_trace.single_call.reason says why).
     DT_SINGLE_CALL_GRADER = os.environ.get('DT_SINGLE_CALL_GRADER', 'True').lower() == 'true'
-    DT_SINGLE_CALL_MODEL = os.environ.get('DT_SINGLE_CALL_MODEL', 'openai/gpt-6-luna')
+    # TEMPORARY (2026-11-16): the defaults are free-tier OpenRouter models because
+    # the API key reached its spending limit and every paid call was refused, so
+    # nothing could be graded. They are NOT validated against the gold set. Once
+    # the key is funded, set DT_SINGLE_CALL_MODEL=openai/gpt-6-luna and
+    # DT_SINGLE_CALL_FALLBACK_MODEL=deepseek/deepseek-v4.1-flash (the validated
+    # pair, ADR-044), or restore them as the defaults here.
+    DT_SINGLE_CALL_MODEL = os.environ.get('DT_SINGLE_CALL_MODEL', 'particle-ai/particle-1:free')
     # Tried once when the primary call fails. Blank disables the model fallback.
     DT_SINGLE_CALL_FALLBACK_MODEL = os.environ.get(
-        'DT_SINGLE_CALL_FALLBACK_MODEL', 'deepseek/deepseek-v4.1-flash')
+        'DT_SINGLE_CALL_FALLBACK_MODEL', 'nvidia/nemotron-3.5-super-vl:free')
     # Track E's "free translations are expected" prompt paragraph. Default OFF:
     # with prompt v1 it removed false flags on rephrased sentences but lowered
     # recall on near-verbatim answers (gpt-6-luna .88 -> .80). Not re-measured

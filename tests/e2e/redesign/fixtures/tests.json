@@ -1,0 +1,130 @@
+{
+  "_comment": "Tests area (Browse Tests, preview, reading/listening player, dictation). Pass after default.json: --fixtures tests/e2e/redesign/fixtures/default.json --fixtures tests/e2e/redesign/fixtures/tests.json. Content is Chinese (study language 1); tests-ja.json overrides the test payloads for Japanese.",
+  "GET /api/test-intros/seen": { "status": "success", "seen": ["reading", "listening", "dictation"] },
+  "GET /api/tests": {
+    "status": "success",
+    "tests": [
+      { "slug": "zh-weekend-hike", "title": "周末去爬山", "topic": "Outdoor activities", "language_id": 1, "listening_rating": 1180, "reading_rating": 1220, "dictation_rating": 1300, "total_attempts": 42, "is_featured": true },
+      { "slug": "zh-new-cafe", "title": "新开的咖啡馆", "topic": "Food and drink", "language_id": 1, "listening_rating": 1420, "reading_rating": 1460, "dictation_rating": 1500, "total_attempts": 17 },
+      { "slug": "zh-moving-house", "title": "搬家的那一天", "topic": "Daily life", "language_id": 1, "listening_rating": 1610, "reading_rating": 1650, "dictation_rating": 1700, "total_attempts": 5, "is_custom": true },
+      { "slug": "zh-city-library", "title": "城市图书馆的新规定", "topic": "Public services", "language_id": 1, "listening_rating": 1820, "reading_rating": 1880, "dictation_rating": 1900, "total_attempts": 0 }
+    ]
+  },
+  "GET /api/tests/recommended": {
+    "status": "success",
+    "recommended_tests": [
+      { "slug": "zh-new-cafe", "title": "新开的咖啡馆", "test_type": "listening", "elo_rating": 1420, "tier": "free-tier" },
+      { "slug": "zh-moving-house", "title": "搬家的那一天", "test_type": "reading", "elo_rating": 1650, "tier": "free-tier" },
+      { "slug": "zh-city-library", "title": "城市图书馆的新规定", "test_type": "dictation", "elo_rating": 1900, "tier": "premium" }
+    ]
+  },
+  "GET /api/tests/daily-load": {
+    "status": "success",
+    "daily_load": {
+      "progress": { "completed": 1, "total": 3 },
+      "tests": [
+        { "slug": "zh-weekend-hike", "title": "周末去爬山", "test_type": "listening", "elo_rating": 1180, "slot_type": "new", "is_completed": true },
+        { "slug": "zh-new-cafe", "title": "新开的咖啡馆", "test_type": "reading", "elo_rating": 1460, "slot_type": "new", "is_completed": false },
+        { "slug": "zh-moving-house", "title": "搬家的那一天", "test_type": "dictation", "elo_rating": 1700, "slot_type": "retry", "original_percentage": 62, "is_completed": false }
+      ]
+    }
+  },
+  "GET /api/tests/random": { "status": "success", "test": { "slug": "zh-new-cafe" } },
+  "GET /api/tests/zh-weekend-hike": {
+    "status": "success",
+    "test": { "slug": "zh-weekend-hike", "title": "周末去爬山", "topic": "Outdoor activities", "language": "zh", "language_id": 1, "audio_url": "/static/none.mp3", "audio_generated": true, "total_attempts": 42, "is_custom": false }
+  },
+  "GET /api/tests/test/zh-weekend-hike": {
+    "status": "success",
+    "test_data": {
+      "id": "t-hike",
+      "slug": "zh-weekend-hike",
+      "title": "周末去爬山",
+      "topic": "Outdoor activities",
+      "language": "zh",
+      "language_id": 1,
+      "audio_url": "/static/none.mp3",
+      "transcript": "上个周末，我和朋友一起去爬山。早上七点我们就出发了，天气很好，不冷也不热。爬到山顶的时候，我们都很累，但是风景非常漂亮。我们在山顶吃了午饭，拍了很多照片。下山的时候开始下雨了，幸好我带了雨伞。虽然很累，但是我们都觉得这次爬山很有意思，下个月还想再去一次。"
+    },
+    "skill_ratings": {
+      "listening": { "elo_rating": 1180, "total_attempts": 3 },
+      "reading": { "elo_rating": 1220, "total_attempts": 0 },
+      "dictation": { "elo_rating": 1300, "total_attempts": 1 }
+    },
+    "questions_data": [
+      { "id": "q1", "question_text": "他们几点出发？", "choices": ["早上六点", "早上七点", "中午十二点", "下午两点"], "question_type": "mc" },
+      { "id": "q2", "question_text": "那天的天气怎么样？", "choices": ["很冷", "很热", "不冷也不热", "一直下雨"], "question_type": "mc" },
+      { "id": "q3", "question_text": "他们在山顶做了什么？", "choices": ["睡觉", "吃了午饭，拍了照片", "唱歌", "看书"], "question_type": "mc" },
+      { "id": "q4", "question_text": "下山的时候发生了什么？", "choices": ["开始下雨了", "他们迷路了", "朋友受伤了", "天黑了"], "question_type": "mc" },
+      { "id": "q5", "question_text": "他们下个月想做什么？", "choices": ["去游泳", "再去爬山", "在家休息", "去看电影"], "question_type": "mc" }
+    ],
+    "vocab_token_map": [["上个", null], ["周末", 101], ["，我和", null], ["朋友", 102], ["一起去", null], ["爬山", 103], ["。早上七点我们就", null], ["出发", 104], ["了，", null], ["天气", 105], ["很好，不冷也不热。爬到", null], ["山顶", 106], ["的时候，我们都很累，但是", null], ["风景", 107], ["非常漂亮。我们在山顶吃了午饭，拍了很多照片。下山的时候开始下雨了，", null], ["幸好", 108], ["我带了雨伞。虽然很累，但是我们都觉得这次爬山很有意思，下个月还想再去一次。", null]],
+    "definitions": {
+      "101": { "word": "周末", "definition": "weekend", "part_of_speech": "noun", "reading": "zhōumò" },
+      "102": { "word": "朋友", "definition": "friend", "part_of_speech": "noun", "reading": "péngyou" },
+      "103": { "word": "爬山", "definition": "to climb a mountain; to go hiking", "part_of_speech": "verb", "reading": "páshān" },
+      "104": { "word": "出发", "definition": "to set off; to start out", "part_of_speech": "verb", "reading": "chūfā" },
+      "105": { "word": "天气", "definition": "weather", "part_of_speech": "noun", "reading": "tiānqì" },
+      "106": { "word": "山顶", "definition": "summit; mountain top", "part_of_speech": "noun", "reading": "shāndǐng" },
+      "107": { "word": "风景", "definition": "scenery; landscape", "part_of_speech": "noun", "reading": "fēngjǐng" },
+      "108": { "word": "幸好", "definition": "fortunately; luckily", "part_of_speech": "adverb", "reading": "xìnghǎo" }
+    }
+  },
+  "GET /api/tests/zh-weekend-hike/sentences": {
+    "status": "success",
+    "sentences": [
+      { "idx": 0, "l2_text": "上个周末，我和朋友一起去爬山。", "char_start": 0, "char_end": 15, "reference": { "l1_text": "Last weekend my friends and I went hiking." } },
+      { "idx": 1, "l2_text": "早上七点我们就出发了，天气很好，不冷也不热。", "char_start": 15, "char_end": 37, "reference": { "l1_text": "We set off at seven in the morning; the weather was fine, neither cold nor hot." } }
+    ]
+  },
+  "POST /api/tests/zh-weekend-hike/submit": {
+    "status": "success",
+    "result": {
+      "score": 4,
+      "total_questions": 5,
+      "prestudied": false,
+      "question_results": [
+        { "question_id": "q1", "selected_answer": "早上七点", "correct_answer": "早上七点", "is_correct": true, "answer_explanation": "The speaker says 早上七点我们就出发了 — they set off at seven." },
+        { "question_id": "q2", "selected_answer": "很热", "correct_answer": "不冷也不热", "is_correct": false, "answer_explanation": "天气很好，不冷也不热: neither cold nor hot." },
+        { "question_id": "q3", "selected_answer": "吃了午饭，拍了照片", "correct_answer": "吃了午饭，拍了照片", "is_correct": true, "answer_explanation": "我们在山顶吃了午饭，拍了很多照片。" },
+        { "question_id": "q4", "selected_answer": "开始下雨了", "correct_answer": "开始下雨了", "is_correct": true, "answer_explanation": "下山的时候开始下雨了。" },
+        { "question_id": "q5", "selected_answer": "再去爬山", "correct_answer": "再去爬山", "is_correct": true, "answer_explanation": "下个月还想再去一次。" }
+      ],
+      "word_quiz": {
+        "attempt_id": "att-1",
+        "candidates": [
+          { "sense_id": 107, "lemma": "风景", "pronunciation": "fēngjǐng", "correct_definition": "scenery; landscape", "options": ["scenery; landscape", "weather", "friend", "fortunately; luckily"] }
+        ]
+      }
+    }
+  },
+  "GET /api/tests/test/zh-weekend-hike?mode=dictation": {
+    "status": "success",
+    "test_data": { "id": "t-hike", "slug": "zh-weekend-hike", "title": "周末去爬山", "language": "zh", "language_id": 1, "audio_url": "/static/none.mp3" }
+  },
+  "POST /api/tests/zh-weekend-hike/submit-dictation": {
+    "status": "success",
+    "result": {
+      "accuracy": 86.4,
+      "word_correct": 19,
+      "word_total": 22,
+      "replay_count": 4,
+      "replay_factor": 0.7,
+      "user_elo_change": { "change": 9 },
+      "diff": [
+        { "op": "equal", "correct": "上个周末", "user": "上个周末" },
+        { "op": "equal", "correct": "我和朋友", "user": "我和朋友" },
+        { "op": "replace", "correct": "一起", "user": "一齐", "is_correct": false },
+        { "op": "equal", "correct": "去爬山", "user": "去爬山" },
+        { "op": "delete", "correct": "早上", "user": "" },
+        { "op": "equal", "correct": "七点我们就出发了", "user": "七点我们就出发了" },
+        { "op": "insert", "correct": "", "user": "很" },
+        { "op": "equal", "correct": "天气很好", "user": "天气很好" }
+      ]
+    }
+  },
+  "POST /api/users/preferences": { "status": "success" },
+  "PATCH /api/users/preferences": { "status": "success" },
+  "POST /api/vocabulary/word-quiz": { "status": "success" },
+  "POST /api/tests/daily-load/complete": { "status": "success" }
+}

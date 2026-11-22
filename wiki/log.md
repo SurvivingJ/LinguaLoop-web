@@ -6611,3 +6611,523 @@ Not deployed. Pages: created [[decisions/ADR-046-untaught-words-start-the-drill]
 [[features/new-word-drill]], [[features/new-word-drill.tech]] (note 16), [[tasklist/new-word-drill.tasks]]
 (TASK-975), [[tasklist/master]], index.
 
+## [2026-11-16] ingest | Mobile redesign built — app shell and design system (ADR-048)
+Source: the engineers' reports for the mobile redesign build (foundation + integration; the
+integration report reached the wiki truncated after its i18n paragraph), the foundation hand-off
+notes, and the approved mockup `wiki/demos/mobile-redesign-mockup.html`. Claims were checked
+against the working tree before writing: `templates/base.html` (viewport-fit, three body modes,
+`#ldTabbar` with Today/Practice/Tests/Me, task-mode blocks, active tab by endpoint),
+`static/css/styles.css` (`100dvh`/`--ld-vvh`, `width >= 768px`, `width < 576px` sheets, five named
+`data-theme` blocks, `.ld-stage { position: relative }`, no `.test-list-page` / `.pitch-accent-page`),
+`theme-manager.js` (six themes, storage keys, `setMode` behaviour), `base.js` (`LinguaShell`,
+visual-viewport keyboard rule), `controller.js` (`ctx.frame`, runtime task mode), `profile.html`
+(Me links and pickers), `practice.js` (`#exerciseDock` passed to `DTErrorCard.mount`),
+`web/pages.py` (route table), the deleted `_redesign` i18n folder and page-CSS stubs, and no hex
+in page CSS. Why the earlier scroll fix did not hold was established from git: the only earlier
+no-scroll work (2026-11-14, `14d554a`) pinned the body around the DT repair sheet only, while the
+pages kept a sticky header + footer frame and `vh` heights (`.session-stage { min-height: 50vh }`,
+`.login-container { min-height: 100vh }`) with actions at the end of the content.
+Nothing outside `wiki/` was changed. The redesign is in the working tree only: not committed, not deployed.
+Pages created (4): [[decisions/ADR-048-mobile-app-shell]], [[pages/app-shell]],
+[[pages/app-shell.tech]], [[tasklist/mobile-redesign.tasks]] (TASK-976–988 and TASK-1007).
+Pages updated (5): [[pages/pages-overview]] (navigation and layout section; shell mode per route;
+route registration now `web/pages.py`; added the missing `/test/<slug>/prestudy`, `/word-list`,
+`/calibration`, `/counter-drill` rows; base.html, themes, static assets), [[pages/study-session]]
+(entry via the Today / Practice tabs; task-screen header, strip and dock; no runner Skip button),
+[[pages/study-session.tech]] (task-mode frame, `ctx.frame`, Back), [[tasklist/master]], index.
+Tasks: TASK-987 Done (integration requests: i18n merge of 65 keys, Me page links, hard-coded
+colours — verified); TASK-982 (Playwright E2E, credentials) and TASK-988 (commit, review, deploy —
+owner) Blocked; TASK-976–981 and TASK-1007, 983–986 Not Started. A re-run of the integrator's i18n key check
+still lists `session.dt_repair_heading` missing in `es` and ten fallback-only keys that pre-date the
+redesign (TASK-985). Open questions: 3 (real iOS Safari, measured contrast, ship decision).
+
+## [2026-11-16] update | i18n gaps filled — es dt_repair, speed round, DT target words (TASK-985)
+Re-ran the locale key check: `es.json` lacked 57 keys (the 55-key `dt_repair.*` family and
+`session.dt_repair_heading` / `session.dt_repair_none`), so Spanish users saw the English repair
+sheet. A scan of `templates/` and `static/js` for `data-i18n*` and `t()/T()/tr()/label()` literal keys
+found 17 keys used in code but present in no locale (English fallback only): nine `session.speed_*`
+in `static/js/session/players/speed_round.js` (including `session.speed_heading`) and eight
+`dual_translation.target_*` in `static/js/dual_translation.js` (including the runtime-built
+`target_produced|variant|omitted`). All added: en/zh/ja +17 keys each, es +74; the four files now
+have identical key sets (1175). Only `static/i18n/*.json` changed; no JS, template or backend edits.
+`npm run check` clean, `npm run test:unit` 505 passed, `tests/test_i18n_locale_files.py` 5 passed.
+Not done: loading the speed round in zh in a browser. Not committed.
+Pages updated (2): [[tasklist/mobile-redesign.tasks]] (TASK-985 Done), [[tasklist/master]]
+(Not Started 42→41, Done 251→252).
+
+## [2026-11-16] update | Fixes from end-to-end runs on the real app
+Source: two phone-sized end-to-end runs (zh, ja) against the real server with the test account. Fixed: dictation grading no longer strips kana voicing marks (が≠か) in `services/dictation/tokenizer.py`; `/api/tests/<slug>` returns the real test title; follow-up prestudy says so when there is nothing to review; text flashcards render `**emphasis**` as bold and their buttons are translated; feedback after a miss drops the leading "Correct." of the answer explanation; the test results hint no longer praises every score; practice rounds show a loading state; keyboard no longer covers typed inputs; prestudy progress strip capped at three rows; secondary nav links hidden at 768–1100px. Not verified on iOS Safari; dual translation grading, sentence repair and speed round were not reachable with the test account.
+
+## [2026-11-16] update | Dual translation grading moved to free models (temporary)
+Investigation: the OpenRouter key reached its $10 total limit, so every paid grading call returned 403 and submissions showed "Grading didn't finish"; no grade had ever been stored. Temporary change: `config.py` defaults for `DT_SINGLE_CALL_MODEL` / `DT_SINGLE_CALL_FALLBACK_MODEL` are now `particle-ai/particle-1:free` / `nvidia/nemotron-3.5-super-vl:free` (reasoning disabled in `single_call_grader.REQUEST_EXTRAS`). Verified with real zh submissions as the test account (non-provisional grade, errors and repair items stored). Not validated against the gold set (ADR-044 validated gpt-6-luna and deepseek-v4.1-flash only); revert by env vars once the key is funded. Still open: `/api/dual-translation/next` has no study-language filter and repeats the same passage; passage/reference coverage is thin (about 29 tests per language).
+
+## [2026-11-16] update | Dual translation, prestudy and pinyin fixes integrated
+Source: the engineer and reviewer reports for three areas changed in the same working tree (dual
+translation next passage + provider refusal; prestudy Produce availability + option sets + unknown
+share; pinyin display), checked against `git show 76e911c` (checkpoint commit) and the uncommitted
+diff. Integration: the four locale files are valid JSON with no duplicate keys and identical key
+sets (1188 each; the six new keys translated in en/zh/ja/es); no file was edited by two areas in
+conflicting ways (`reading_listening.js` only has the pinyin edit; `services/prestudy.py` only
+prestudy edits); no debug code or scratch files in the repo. One cross-area defect fixed:
+dual translation's `_window_materials` dropped stale sentence rows before
+`select_window_for_primed`, which walks list positions — the same straddle bug the prestudy
+reviewer fixed in `choose_produce_window` — so a `/next` window could name a range
+`open_range_passage` refuses (409/422). Stale rows and missing indices now stay as window breakers;
+two tests added (both fail on the previous function). Results: full pytest 5077 passed, 11
+skipped, only the two known failures; `npm run check` 0 errors (41 existing warnings);
+`npm run test:unit` 663/663; Playwright 15/15 against the real app. Real-app walk at 393x659 as the
+test account: DT zh (passage 97, L2 1, graded band 4, repair sheet: one sentence fixed, one
+compared) and ja (passage 98, L2 3, band 4, no repair items); a zh prestudied test (3/4) → results
+offered only "Review the words you missed" → follow-up step 3 "Done", Produce hidden, no Produce
+request; word prime in zh (typed readings) and ja (12 MC items, 0 mixed-language sets); a 20-item
+classifier drill round (badge "Choose", tone-marked pinyin only). No screen scrolled the document,
+the pinned bar stayed in view, no raw i18n keys; the only console error was the 401 from
+`/api/auth/device-restore` (token injected without a refresh cookie). No ADR: no new
+architectural decision; the "all done" choice awaits the owner (TASK-989).
+Pages created (1): [[tasklist/fixes-2026-11-16.tasks]] (TASK-989–1000).
+Pages updated (8): [[features/dual-translation.tech]] (`/next` arguments, selection order,
+sentence-window fallback, 404 codes, latency; provider refusal section; submit errors),
+[[features/dual-translation]] (which passage comes next; open question), [[features/test-prestudy]]
+(Fixes 2026-11-16: Produce availability signal, option-set rule, one unknown share),
+[[features/measure-word-trainer.tech]] (pinyin display, Auto badge, RPC gap),
+[[features/new-word-drill.tech]] (reading display), [[api/rpcs.tech]] (route contract changes),
+[[tasklist/master]] (Not Started 41→47, Blocked 29→35), index. Not committed, not deployed.
+
+## [2026-11-17] update | Dual translation, measure-word drill, basic-word mastery and session/pinyin integrated
+Source: the build and review reports of four areas changed in the same working tree (dual
+translation all-done/re-serve + untaken tests + `/next` read RPC + sanitised storage; measure-word
+drill levels and mastery; basic-word frequencies and prior; session resume, tone marks, "type it
+as"), checked against checkpoint commit 972548c and the uncommitted diff. Integration checks: the
+four locale files are valid JSON with no duplicate keys and identical key sets (1200 each); no
+conflicting edits between areas; no debug code or scratch files in the repo. Live database: the only
+migrations applied since 2026-11-14 are `dt_next_inputs` (20261117030308),
+`task998_classifier_drill_levels` (20261117034255), `task998_classifier_cloze_sentences_fill`
+(20261117034512) and `task994_vocab_frequency_fill` (20261117035509), all applied by the reviewers;
+each stored statement equals its repo file once comments and whitespace are removed (md5); nothing
+applied that is not in the repo. Rollbacks next to each file (`*_rollback.sql`). Cross-area change
+applied: `services/prestudy._load_senses` takes the cross-language gloss at the linked sense's own
+definition level (then standard, then simple), as the basic-word work specified (INT-1, without its
+`source='llm_gloss'` filter); `tests/test_prestudy_gloss_level.py` (5, three fail on the old code).
+Results: full pytest 5254 passed, 11 skipped, only the two known failures; `npm run check` 0 errors
+(41 existing warnings); `npm run test:unit` 726/726; Playwright 15/15 against the real app. Real-app
+walk at 393x659 as the test account: DT zh from the Today "Quick access" chip (an error card first,
+then a passage, graded band 3 in 11.6 s), ja from the chip (untaken-test note, band 2 in 7.5 s), zh
+from a test preview link (shown, 50 px; first try went to guided repair, second graded band 3 in
+7.0 s), ja from a preview (band 2 in 8.7 s, reused open submission 60); all-done for zh test
+41aa1ec3 with both dock buttons (50/44 px) and a re-serve in 1.1 s showing the repeat note. `GET
+/next` over HTTP: zh 2.65/1.20/1.45 s, ja 0.92/0.77/8.54 s (the slow call materialised three error
+cards — TASK-1003); each fresh call still created an empty submission (114–119). Measure-word Auto
+round: Choose 11, Reverse 7, Type 1, Fill in 1; 20 answers → 20 mastery updates (attempts 205→225).
+Prestudy step 3 "Take the test" → the test running in the session, Today card hidden, 4.6 s. Tone
+marks only: prestudy word list 24/24, popover "飞机 fēi jī", `/flashcards` "zhī dào", test-page
+popover 25 readings (submit answered locally). New-word drill (real practice payload, POSTs answered
+locally): "Type it as: yin4 shua1 shu4" after a wrong typed reading; ja: no hint. Prestudy preview of
+zh-d6 "my favorite t-shirt": 69/127 unknown, 没有 no longer new, 是/有/都/很/好 still new from the
+test account's own knowledge rows. No screen scrolled the document, the pinned bar stayed in view,
+no raw i18n keys; console errors seen: the 404 of `ALL_DONE` (TASK-1006), `ERR_TUNNEL_CONNECTION_FAILED`
+for an external resource blocked by the sandbox proxy, and the known `/api/auth/device-restore` 401
+on `/login`. ADR: [[decisions/ADR-047-basic-word-knowledge-prior]] filed as proposed (owner
+sign-off pending).
+Pages created (1): [[decisions/ADR-047-basic-word-knowledge-prior]].
+Pages updated (11): [[features/dual-translation]], [[features/dual-translation.tech]],
+[[features/measure-word-trainer.tech]], [[features/test-prestudy]], [[features/new-word-drill.tech]],
+[[features/vocabulary-knowledge]], [[api/rpcs.tech]], [[database/schema.tech]],
+[[tasklist/fixes-2026-11-16.tasks]] (TASK-989/990/993/994/997/998/999 Done, 991 blocked on owner,
+1000 in progress, new TASK-1001–1006), [[tasklist/master]] (Not Started 47→46, In Progress 13→14,
+Blocked 35→34, Done 252→259), index. Not committed, not deployed.
+
+## [2026-11-17] update | Owner decisions on the 2026-11-17 fixes
+ADR-047 (basic-word knowledge prior) accepted. Dual translation: a test whose passage was translated beforehand keeps a full-weight first rated attempt (TASK-1001 part 1). Measure-word drill: manual Choose/Type answers count toward promotion (TASK-1002). Both match the built behaviour; no code change. TASK-1002 and TASK-1004 move from blocked to not started; TASK-991(b) (empty submission rows) still awaits the owner.
+
+## [2026-11-17] update | Dual translation resumes the current passage; visible skip
+Owner decision on TASK-991(b). GET `/api/dual-translation/next` now resumes the passage the learner was last shown (an open submission that is not skipped; `resumed: true`) before anything else, except with `reserve=1`. New `POST /api/dual-translation/<submission_id>/skip` sets `dt_submission.skipped_at`; a skipped passage returns only after everything unseen (step 5) and its marker is cleared when it is served again. "Skip this passage" button under Submit on `/dual-translation` and in the session player (44px, four locales). Live database: `dt_submission_skip` applied (new nullable column; the 89 existing never-started rows, all the test account's, marked skipped) and `dt_next_inputs` re-applied with `history[].sk`; rollback in `migrations/dt_submission_skip_rollback.sql`. Verified on the real app: two calls return the same submission, skip moves on, reload keeps the new passage; no document scroll.
+
+## [2026-11-17] update | Old whole-passage dual-translation pool retired
+Owner decision. GET `/api/dual-translation/next` serves sentence-reference windows only: a `dt_passage` row with no sentence range (the 19 active Chinese whole passages from 5 tests, built before ADR-037) is never served, resumed or re-served (`SERVE_LEGACY_PASSAGES = False` in `routes/dual_translation.py`; the legacy selection steps stay behind the switch and their tests run with it on). Reason: a whole passage and the sentence windows of the same test cover the same text and were not recognised as repeats of each other. No data change; rows and graded history are kept. TASK-991 done. Verified on the real app: Chinese and Japanese both serve `sentence_refs` passages.
+
+## [2026-11-17] update | Old whole-passage dual-translation rows deleted from the live database
+Owner decision; the owner ran the delete. Removed: all 67 `dt_passage` rows with no sentence range (19 zh, 21 ja, 27 en), their 134 `dt_passage_reference` rows, and the test account's 27 submissions on them with 6 grades, 6 grading-call records, 10 error instances, 4 cards (1 review), 6 repair sessions and 8 repair items. Backup of every deleted row: `data/backups/dt_legacy_passages_2026-11-17.json`. After: 0 whole passages, 64 window passages, 0 `dt_passage_reference` rows, no orphan submissions. `SERVE_LEGACY_PASSAGES` stays False; the legacy selection code is now dead and can be removed.
+
+## [2026-11-17] update | Dead whole-passage dual-translation code removed
+Follows the delete of every whole-passage row. `routes/dual_translation.py`: `SERVE_LEGACY_PASSAGES`, the two legacy selection steps, the whole-passage branch of `_first_servable`, `legacy_passages`/`legacy_text` (bundle and per-table), `_legacy_reference`, `_served_passage` and the `source:'passage'` answer removed; selection is now 0 resume, 1 new window of an attempted test, 2 new window of an untaken test, 3 skipped, 4 reserve (`skip` docstring and [[features/dual-translation.tech]] renumbered). A `dt_passage` row with no sentence range is never chosen (`_first_servable`). `migrations/dt_next_inputs.sql` no longer returns `legacy` (same signature and grants) — **not applied; the owner re-applies it** (Python ignores the key, so old and new definitions both work). Tests: the switch fixture and `legacy_off` marker removed; Chinese fixtures are now sentence windows; 9 legacy-only tests deleted, one kept test asserts a no-range row is never served, resumed or re-served. `scripts/build_dt_passages.py` only builds the retired pool and is obsolete; left in place. Pages updated: [[features/dual-translation]], [[features/dual-translation.tech]], [[api/rpcs.tech]], [[database/schema.tech]].
+
+## [2026-11-17] update | scripts/build_dt_passages.py removed
+Owner decision. The script only built whole-passage `dt_passage` rows and `dt_passage_reference` rows, the pool retired and deleted earlier today. Found while checking what still reads `dt_passage_reference` (now empty): `services/dual_translation/cards.py` and `repair/store.py` read it with a window fallback, and the live `build_daily_session` counts dual-translation availability through it, so the daily session currently hydrates zero dual-translation items for every learner (before the delete it could only count the 5 Chinese tests that had whole passages). Open: make that predicate mirror GET `/next` (sentence windows), then the table can be dropped.
+
+## [2026-11-17] update | Daily session counts dual translation from sentence windows; dt_passage_reference unread
+Owner decision (count untaken tests too). `build_daily_session` decided dual-translation availability from whole-passage `dt_passage` rows with a `dt_passage_reference`, from attempted tests only; with that pool deleted it hydrated 0 for every learner. New canonical file `migrations/build_daily_session_dt_windows.sql` (applied live by an in-place rewrite; live `md5(prosrc)` = `2e1c3732cfe5c311d1588623e6ed9154` = the file's body): counts active tests in the study language, attempted or not, with two adjacent usable sentences outside every served or retired window and clearing the tightness floor, plus window passages shown and not graded; 0 when L1 = L2. Standalone check for the test account: zh 85, ja 54, en 0. `daily_session_one_topic_per_day.sql` archived. Error cards (`cards._window_l1_text`) and sentence repair now take L1 text from the sentence references only; `store.get_l1_passage_text` removed. Nothing reads `dt_passage_reference` any more; `migrations/dt_passage_reference_drop.sql` written, NOT applied (apply after this branch is deployed). Not verified: a real daily session containing a dual-translation item — the test account's plan budgeted only listening today, so none was requested.
+
+## [2026-11-17] update | Merged main; app-shell decision renumbered ADR-046 → ADR-048
+`main` gained [[decisions/ADR-046-untaught-words-start-the-drill]] while this branch had used the same number for the mobile app shell. The app-shell record is now [[decisions/ADR-048-mobile-app-shell]]; every reference in the wiki was updated. Code conflict: `static/js/exercise-renderers.js` keeps main's per-option explanation notes and this branch's feedback path.
+
+## [2026-11-17] update | Database back under the Free-plan 500 MB cap (quick wins, part 1)
+Found live: database 523 MB, over the Supabase Free 500 MB cap (Free projects go read-only above it;
+still writable at the time). `exercises` was 253 MB (144k rows), of which `tags` 54 MB and
+`tags.provenance` 30 MB. `provenance.sentence_sources` is an index-aligned copy of
+`word_assets.content.sentences[i].sentence_source` on the row's `word_asset_id` asset; verified identical
+on 140,476 / 140,476 rows that have an asset (14 rows without `word_asset_id` were left untouched).
+Done live: stripped `sentence_sources` from those rows in batches (the `mined_count` / `generated_count`
+counts stay), plain VACUUM between batches, then `VACUUM (FULL, ANALYZE) exercises`. Result: `exercises`
+253 → 200 MB (tags 54 → 33 MB), **database 523 → 470 MB**. Judge tags untouched
+(`v_ladder_judge_reject_rates` reads them; still returns rows). Code: `exercise_renderer._sentence_provenance`
+no longer copies the list onto new rows (counts only); test updated; tests/test_transcript_mining.py +
+tests/test_vocab_ladder_judges.py 64 pass, 2 fail identically before and after (jieba not installable here).
+Not deployed: until the change is deployed, newly rendered exercises still add the list (~200 B/row).
+NOT done: archive + drop `backup_semdisc_content_20261115` (19 MB) and archiving tag history to Supabase
+Storage — uploading to Storage with the service key was refused in this session, and the table is the only
+rollback copy of the 2026-11-15 semantic-discrimination rewrite, so it was not dropped without an archive.
+Proposed (not filed): move exercise `content` out of Postgres into per-sense JSON files in Storage
+("warehouse/shelf"), ~23 KB → ~6 KB of database per sense.
+Pages: index, log.
+
+## [2026-11-17] ingest | Exercise content to Storage — Phase 0 (architect): inventory, ADR-049, task breakdown
+Source: owner brief (move exercise `content` out of Postgres; Free cap 500 MB, DB 470 MB, target 10k zh + 10k ja
+words) + read-only catalog queries on the live project. Pages created: 2 ([[decisions/ADR-049-exercise-content-in-storage]]
+(proposed), [[tasklist/exercise-content-storage.tasks]]). Pages updated: 3 ([[database/schema.tech]] planned note +
+stale-index note, [[tasklist/master]] (TASK-1008–1031, Not Started 31→55), index). No code, no migration applied, no
+Storage call. Measured live: `exercises` 200 MB, `content` 119 MB (avg 864 B, inline), 144,374 rows / 11,021 senses,
+10 sense-less zh collocation rows; `storage.objects` row ≈ 595 B. Inventory (ADR Appendix A): only
+`get_practice_session` and `get_review_ahead_items` return content among deployed RPCs (repo bodies match live);
+grading, IRT, admission, views (incl. `v_ladder_judge_reject_rates`, which reads tags + `word_assets.content`) do not
+read it; serve-path Python readers: session assembly + follow-ups, intro block, speed round, gate/stress, prestudy page
+(largest fan-out, zh p90 126 senses), typed re-grade, admin preview; writers funnel through `render_all`, plus
+queue-drain/batch regen, stage-runner render and two content fix scripts. Found: the unique index
+`uq_exercises_context_free_variant` is an expression on `content` (replaced by a `dedupe_key` column); drift —
+`phase17_drop_deprecation_wrappers.sql` not in effect live (`get_exercise_session` ×2 and `get_ladder_session` still
+exist, one returns `e.content`), live-only `apply_semdisc_notes(jsonb)`, `semdisc_rewrite_work`,
+`backup_semdisc_content_20261115`; schema.tech index list stale. Design changes vs the brief: version 0 = backfill
+export so no row is rewritten (stamping 144k rows ≈ 190 MB of row versions); versions from a sequence + no-overwrite
+uploads; compare-and-swap commit on (version, row-id set) under a per-sense advisory lock; two flags (read
+db/shadow/storage, write db/dual) with `db` byte-identical to today; byte LRU (callers mutate content in place) and the
+store's own fetch pool (prestudy runs inside `run_parallel`); per-call cap 160 senses / 3 s. Open (owner, not
+blocking): prestudy fan-out; archive/drop of the semdisc leftovers.
+
+## [2026-11-17] update | Exercise content to Storage — Phase 1 integrated (TASK-1008–1025)
+Branch `claude/dreamy-brahmagupta-40a4gq` (not pushed). Merged with `--no-ff`, no conflicts (no file was touched by
+two packages): `ecs/a-store` (TASK-1009/1010/1011: `58000de`, `cf007b5`, `8462de4`; merge `2b4b35d`), `ecs/b-writers`
+(TASK-1012–1015: `3b5d83d`, `1a602e7`, `5211684`, `24293da`; merge `57a7de9`), `ecs/c-sql` (TASK-1016–1018: `93c653b`,
+`ced9d87`, `b14f7b2`, `8c690fd`; merge `67ca70e`), `ecs/d1-session-readers` (TASK-1019/1020: `75fd2ac`, `5254a14`,
+`d95072d`; merge `a2b208c`), `ecs/d2-prestudy-routes` (TASK-1021/1022: `7d64886`, `00684e8`; merge `c8bb607`),
+`ecs/e-backfill` (TASK-1023/1024: `b9e174d`, `20e8071`, `ba132be`; merge `c4ef849`); TASK-1008 was the foundation
+commit `c3cb106`. Integration fixes: `e508f1c` aligns `FakeContentDB` (package a's test fake) with package c's
+`exercise_content_commit` (static 22023 checks before the CAS, `source_type` required → 23502, update id also deleted →
+22023); no production file needed a fix. New test `tests/test_exercise_content_integration.py` (`5c98e43`): TASK-1025
+scenarios 1–8, the serve paths in db/db, shadow/dual and storage/dual (cold and warm) equal the db payload; db mode
+issues the pre-ADR selects/RPC args with no Storage I/O; storage-mode prestudy reads only the drill senses' files and
+the speed round only the picked rows. Cross-check: the db-mode serve and write paths of `c3cb106` and of the merged
+branch over one fake DB give identical payloads and calls (session, extra round, speed round, `render_all`, scoped
+regen); prestudy differs only by the owner's drill-only change. Tests (all offline): every TASK-1008–1025 verification
+command passes in all three flag combinations; the 35-file cited set gives 554 passed / 2 failed (jieba) in each; full
+suite 5444 passed, 48 failed, 17 skipped, 1 collection error in each combination, failing ids identical to the
+foundation commit (4938 passed there; jieba ×36, MeCab/ipadic, Supabase credentials at import, DT v6 fixtures,
+auth/prompt-split environment tests); `npx vitest run` 518/518. One flake seen once under concurrent load:
+`test_budget_ceiling_cost_integration::test_real_llm_cost_reaches_spend_since_and_trips_the_ceiling` (timing race
+between the worker thread and the every-10 ceiling check; passed 15/15 alone and on the clean re-run). Pages created: 1
+([[features/test-prestudy.tech]]). Pages updated: 9 ([[decisions/ADR-049-exercise-content-in-storage]] "Implementation
+status", Appendix A status, §5 prestudy text, Consequences; [[tasklist/exercise-content-storage.tasks]] 18/24 done;
+[[tasklist/master]] Not Started 55→37, Done 250→268; [[features/test-prestudy]]; [[features/practice-engine.tech]];
+[[features/practice-extra-rounds.tech]]; [[database/schema.tech]] `exercises` columns `content_version` /
+`dedupe_key`, real index list, ADR-049 RPCs; [[api/rpcs.tech]]; index). Nothing applied live; flags stay `db`. Next:
+operator TASK-1026 (apply the two Phase-1 migrations on staging first, smoke-test the real Storage API).
+
+## [2026-11-17] update | Exercise content to Storage — review fixes (TASK-1025 follow-up)
+The independent review of the integrated branch said *needs fixes*: 1 major and 3 minor findings. All four are fixed on `claude/dreamy-brahmagupta-40a4gq`, with tests:
+1. **Major.** Cut-over step 3a (`migrations/exercise_content_drop_column.sql`) now aborts unless:
+   - the 6-argument session RPCs are applied and no 5-argument overload exists;
+   - `storage.objects` holds the `--archive-all` manifest from the last 24 hours;
+   - the sense-less archive exists and is newer than every sense-less row;
+   - the semdisc manifest exists (while semdisc objects remain);
+   - a `--verify` marker from the last 24 hours exists.
+
+   A clean full `--verify` now writes `_archive/verify-ok/<UTC>.json`. A new step 0e shows these checks read-only. All eight raise paths and the pass path were exercised on a scratch PostgreSQL 16.
+2. db mode again sends the pre-ADR select string for the typed re-grade (`routes/practice.py`) and `build_exercise_gen_reference_set.py`.
+3. New `write_sense(expected_version=...)` and `store.base_version(rows)`. `backfill_exercise_audio`, `backfill_hant_mirrors` and `--repair` refuse a stale read-modify-write (`ContentWriteConflict`, no upload, no retry) instead of overwriting a newer version.
+4. The two fix scripts hydrate with offline limits: the whole chunk, 300 s.
+
+Tests, all offline:
+- exercise-content suites: 680 passed (+22);
+- full suite: 5466 passed, 48 failed, 17 skipped, 1 collection error. The failures are the same pre-existing environment ones;
+- vitest prestudy on-demand: 17/17.
+
+Pages updated: 3 ([[decisions/ADR-049-exercise-content-in-storage]] §9 and "Review fixes", ops notes and risks; [[tasklist/exercise-content-storage.tasks]] TASK-1025 and TASK-1030; this log).
+
+Nothing was applied live, and the flags stay `db`.
+
+## [2026-11-17] update | Exercise content to Storage — both Phase-1 migrations applied live (TASK-1026, in progress)
+Production is the only Supabase project; there is no staging.
+
+**Before applying:**
+- The live 5-argument `get_practice_session` and `get_review_ahead_items` bodies were md5-identical to `get_practice_session_language_scope.sql` and `practice_review_ahead.sql`. So the repo test that "only the content lines change" holds for the live state.
+- The three dropped functions had no caller: no Python/JS on this branch or on `main`, no views, no other function.
+- Every column used by `exercise_content_commit` exists live, `pattern_code` included.
+
+**What was applied:**
+- `exercise_content_storage`, through the Supabase migration tool. Bodies and comments are md5-identical to the repo.
+- `exercise_content_session_rpcs`, run by the owner in the SQL editor after the migration tool's confirmation prompt timed out. The bodies have CRLF line endings from the paste; with `\r` removed they are md5-identical.
+
+**Checks after applying:**
+- Only the 6-argument session RPCs exist, and the dead `get_exercise_session` ×2 and `get_ladder_session` are gone.
+- `search_path` is pinned, and all five ADR-049 functions are callable by `service_role` only.
+- Bucket `exercise-content` is private, 1 MB, JSON only.
+- Real calls with 5 named arguments for the largest-ladder learner (zh): 24/24 items with content and `content_version` 0. With `p_include_content => false`, no content. Review-ahead: 10/10 items.
+- Database size: 494,431,379 → 495,873,171 bytes. Migration 1 added 16 KB. The remaining ~1.4 MB is not table data (0 new app rows, no other clients); not traced further.
+
+**ACL check:** clean for the new objects. It also shows pre-existing violations unrelated to this work: `anon` SELECT on 28 public tables (including `users`, `user_tokens`, `token_transactions` and `trusted_devices`; RLS is on for these), and RLS off on the two semdisc leftover tables.
+
+**Not done yet:**
+- `tests/sql/test_exercise_content_storage.sql` inside a ROLLBACK on production (it writes, then rolls back; needs owner approval);
+- deploy of the Phase-1 code;
+- the app walkthrough.
+
+**Note:** other sessions applied migrations `task994_vocab_frequency_fill` and `task998_classifier_drill_levels` today, which may clash with ADR-049's TASK-1026/1030 ids.
+
+Pages updated: 8 ([[tasklist/exercise-content-storage.tasks]] TASK-1026; [[tasklist/master]]; [[decisions/ADR-049-exercise-content-in-storage]] "Live status"; [[database/schema.tech]]; [[api/rpcs.tech]]; [[features/practice-engine.tech]]; [[features/practice-extra-rounds.tech]]; index). The status headers of both migration files were updated too.
+
+## [2026-11-17] update | Exercise content to Storage — merged with main; renumbered to ADR-049 / TASK-1008–1031
+`main` (PR #35) was merged into `claude/dreamy-brahmagupta-40a4gq` before the deploy.
+
+**IDs clashed with `main`, which got there first, so this work moved:**
+- **ADR:** `main` has `ADR-047-basic-word-knowledge-prior` and `ADR-048-mobile-app-shell`, so this work's ADR-047 is now [[decisions/ADR-049-exercise-content-in-storage]] (file renamed).
+- **Tasks:** [[tasklist/mobile-redesign.tasks]] (TASK-976–988, 1007) and [[tasklist/fixes-2026-11-16.tasks]] (TASK-989–1006) use the same numbers, so this work's tasks moved by +32. TASK-976–999 is now TASK-1008–1031:
+  - the integration task (old 993) is TASK-1025;
+  - the operator steps (old 994–998) are TASK-1026–1030;
+  - the clean-up task (old 999) is TASK-1031.
+
+  Earlier log entries in this series were renumbered in place.
+- **Scope:** changed only in files this branch touched, and only on lines this branch added. `main`'s own TASK-976–1007 and ADR-047 references are unchanged.
+- **Kept the old ids on purpose:**
+  - the `migrations/exercise_content_*.sql` function bodies and `COMMENT` strings, which are, or will be, the live text compared by md5. Each file's header records the mapping;
+  - the live function comments in the database.
+
+**Code conflicts:**
+- `services/prestudy.py`: kept this branch's drill-only exercise loading (`drill_sense_ids`, `has_exercises`, on-demand endpoint) together with `main`'s `share_plan` / `plan` and `produce_available`. `plan_for_tests` takes `main`'s `share_plan` and keeps `drill_sense_ids` as the single drill rule. `main` and this branch already had the same rule (p < 0.75, Zipf prior).
+- `static/js/prestudy/prestudy.js`: took `main`'s mobile-redesign markup and formatting, then put back the drill-rule helpers, the `has_exercises` set, on-demand loading when a word is added, and the prime's "waiting for exercises" state. Formatted with Prettier.
+
+**Tests, all offline:**
+- full suite: 5865 passed, 51 failed, 1 collection error. The failures are the earlier 48 environment failures plus 3 in `main`'s `test_task994_vocab_frequency_fill.py` (`ipadic` / `jieba` missing here; that file is unchanged from `main`);
+- exercise-content + prestudy suites: 770 passed;
+- vitest: 743/743;
+- eslint, Prettier and ruff are clean.
+
+## [2026-11-17] query + implement + apply | Fleshing out dual-translation sentences
+Developer asked how to flesh out the sentences available for dual translation, then "Execute all above".
+Findings (live, read-only): (1) a 2026-11-16 batch of 667 references (30 ja + 30 zh tests, run_00/run_01)
+was committed on main (7824c8e) without a wiki log entry; (2) `dt_passage_reference` had 0 rows and every
+`dt_passage` row was a range passage, so the `/next` this branch was built from returned 404 — main had already
+retired and deleted the whole-passage pool by owner decision and rebuilt `/next` on sentence windows (log
+entries "Old whole-passage dual-translation pool retired" / "rows deleted", above); this branch had not merged
+main yet, so an earlier draft of this entry wrongly called the deletion unrecorded; (3) 150 zh and 10 en tests
+created 2026-11-14 had no `test_sentences` rows and no `transcript_hash`.
+Done:
+- A `/next` rewrite on this branch (then filed as TASK-976) duplicated main's `_choose_next`; it was dropped
+  at the merge (see the merge entry below).
+- Live: `build_test_sentences.py --apply` for the 160 new tests (preamble audit: 0 found); English references
+  authored (Sonnet) and blind-reviewed (Sonnet, Opus on 2 of every 9–10 packs) for 24 ja + 65 zh + 150 new zh
+  tests: 2,191 rows uploaded and activated, 12 superseded; second blind review of the 193 below-floor
+  references (new `scripts/sentence_ref_recheck.py`, 8 Opus turns): 150 pass, 35 rewritten, 8 fail (broken
+  gold kept the old reference). Coverage now: ja 388/388 (96.6% at the floor), zh 3,008/3,008 (94.3%);
+  en → zh unchanged at 484/2,486 (deferred: no Chinese-native learner). Servable windows: 850 zh, 81 ja.
+  Author/reviewer turns: 21 author + 21 reviewer + 8 recheck. OpenRouter spend: none.
+- Runner fixes: `export` counts `rewritten` as covered; `assemble` takes provenance from the authored doc.
+Findings for the developer: 15 zh transcripts contain English glosses (TASK-1032, query:
+`transcript ~ '[（(][A-Za-z][A-Za-z \-]+[)）]' or transcript ~ '[A-Za-z]{3,}[（(][^)）]*[一-鿿]'`); 110
+references stay below the floor after two blind reviews that both called them faithful (OPEN on
+[[features/test-sentence-references]]); 89 of the new batch below the floor have one review only; the
+number check cannot match 万 amounts written with thousands separators; Japanese has a hard ceiling of ~81
+windows (tests average 4.7 sentences); the 10 new en tests have no word map.
+Pages updated: [[features/test-sentence-references]], [[features/test-sentence-references.tech]],
+[[features/dual-translation]], [[features/dual-translation.tech]], [[tasklist/test-sentence-references.tasks]]
+(TASK-908 [~], TASK-1032), [[tasklist/master]], [[index]].
+
+## [2026-11-17] decision + implement + apply | Reviewer agreement overrides the tightness floor; glosses kept; new batch rechecked
+Developer answers to the four questions: (1) English glosses in Chinese transcripts stay — TASK-1032 Won't Do;
+(2) "Blind reviewers agreement can override" the tightness floor; (3) yes, second review of the 89 below-floor
+references from the 2026-11-14 batch; (4) English → Chinese stays deferred.
+Done:
+- ADR-050 + TASK-1033: `migrations/test_sentence_references_faithful_reviews.sql` **applied live** (column
+  `faithful_reviews`, CHECK ≥ 0, backfill = distinct runs that passed or wrote the same text). Upload script sets it;
+  `passage_builder.window_meets_floor` (shared by `/next` and Produce) leaves agreed sentences (≥ 2) out of the mean.
+  Code committed, not deployed — deploy is safe now (the column exists). 181 related tests pass (incl. migration
+  security lint). Agreed active rows: ja 43, zh 391, en→zh 239.
+- `recheck-accepted-2026-11-17`: the 8 references a second reviewer failed only for glossed/duplicated gold
+  activated (7 pass, 1 rewritten: 6ff700da-8 restores 液 "liquid").
+- `recheck2-2026-11-17` (4 Opus turns): 89 → 74 pass, 15 rewritten, 0 fail; `export` now skips sentences already
+  second-reviewed (`--include-rechecked` to override).
+Result: gate passed (floor or agreement) by ja 386/388, zh 2,985/3,008, en→zh 473/484; servable windows zh 856,
+ja 83. Still gated: second-review rewrites whose new text has one review (ja 2, zh 20, en→zh 11).
+Pages: created [[decisions/ADR-050-reviewer-agreement-overrides-tightness-floor]]; updated
+[[decisions/ADR-037-sentence-level-l1-references]] (amended note), [[features/test-sentence-references]],
+[[features/test-sentence-references.tech]], [[tasklist/test-sentence-references.tasks]] (TASK-908 record, TASK-1032,
+TASK-1033), [[tasklist/master]], [[index]].
+
+## [2026-11-17] update | Merged main into claude/happy-sagan-wkcpgs; reviewer-agreement override ported to main's /next
+`main` (PR #35) had rebuilt GET `/next` on sentence windows (`_choose_next`, `dt_next_inputs`, resume / skip /
+reserve / untaken tests) and used ADR-047/048 and TASK-976–1007. Resolution: main's `/next`, players and route tests
+kept; this branch's `/next` rewrite, `plan_sentence_windows` and `pick_next_window` removed. Renumbered: ADR-047
+(reviewer agreement) → [[decisions/ADR-050-reviewer-agreement-overrides-tightness-floor]], TASK-977 → TASK-1032,
+TASK-978 → TASK-1033, TASK-976 dropped. The override now reaches main's paths: `_next_sentence_window` passes the
+`agreed` set to `select_window_for_primed`; `_materials_from_rows` reads a new per-test `ag` list from
+`dt_next_inputs` and the per-table fallback reads `faithful_reviews`. **Applied live:** `migrations/dt_next_inputs.sql`
+(adds `ag`; output for the test account byte-identical apart from `ag`, grants unchanged) and
+`migrations/build_daily_session_dt_agreed.sql` (the adjacent-pair availability count honours agreement; in-place
+rewrite with three exact replacements, live `md5(prosrc)` = `43a6350874936f833042b7cef0dfe742` = the file's body;
+`build_daily_session_dt_windows.sql` archived). Standalone count for the test account: zh 266 → 267, ja 69 → 71.
+Live column comment corrected to ADR-050. Tests: 202 related tests pass (incl. migration security lint);
+new cases in `tests/test_dual_translation_next_selection.py` and `tests/test_sentence_ref_floor_override.py`.
+Not deployed: the Python. Deploy is safe in any order relative to these DB changes (the additions are ignored
+by the old code).
+
+## [2026-11-17] fix | Sentence-reference number check compares values
+Developer: "We should fix translation checkers number check." `sentence_refs.missing_numbers` tested whether
+each digit string of the gold appeared anywhere in the reference: false alarms on correct renderings (102万 →
+"1,020,000", 1000 → "1,000", 11月 → "November", 70年代 → "1970s") pushed authors into "1020000 yuan" and "the
+1970s of the 20th century", and it missed real errors (a 5 was "carried" by "15" or "2015"). Now values are
+compared: thousands separators, decimals, 百/千/万/亿/兆 compounds (one-part amounts also accept the bare
+number), English scale words, month names, decades and centuries; full-width commas stay list separators;
+numbers spelled as words still fail. Verified on every live reference (3,880) and every authored/reviewed
+document on disk (9,936): 0 failures before, 0 after; the three 2026-11-17 runs re-check clean. 18 new
+assertions in `tests/test_sentence_refs.py`. Authoring rules (runner), `sentence-reference-authoring` and
+`sentence-reference-review` skills now say numbers are written the L1's way. Not changed: the two live
+references bent by the old check (61f4125b idx 1–2, 3574dd04 idx 2). Pages: [[features/test-sentence-references.tech]],
+[[tasklist/test-sentence-references.tasks]].
+
+## [2026-11-17] fix + apply | Number words accepted; the three bent references reworded
+Developer: "Fix the odd translations. Can we also allow written word version of numbers eg three." (1)
+`sentence_refs.missing_numbers` now also reads numbers written as words in the reference (never in the gold):
+English cardinals, ordinals, twice/thrice, dozen, half, runs (twenty-five, one hundred and five, three million,
+twelve hundred, one and a half) and CJK numerals (三, 十二, 两百, 三百万, positional 二〇二六); the value must
+still match. Authoring rules (runner), `sentence-reference-authoring` and `sentence-reference-review` now say
+"digits or words". No live (3,880) or on-disk (9,936) reference changes result; tests updated (the old
+"three apples fails" assertions now expect a pass). (2) `scripts/sentence_ref_recheck.py export` gained
+`--sentences test_id:idx,...` and `--reason` (the reason replaces the tightness intro in the pack). One Opus
+reviewer, blind-first, rewrote 61f4125b idx 1–2 ("980000 / 1020000 / 970000 yuan" → "980,000 / 1,020,000 /
+970,000 yuan"; "does not let the vertical axis start from zero" → "does not start the vertical axis at zero")
+and 3574dd04 idx 2 ("the 1970s of the 20th century" → "the 1970s"); uploaded live (`recheck-numbers-2026-11-17`,
+3 inserted/activated, 3 deactivated; tightness 0.88 / 0.83 / 1.00). Pages: [[features/test-sentence-references.tech]],
+[[tasklist/test-sentence-references.tasks]].
+
+## [2026-11-17] update | Merged main again; reviewer-agreement decision renumbered ADR-049 → ADR-050
+`main` (PR #36, exercise content in Storage) took ADR-049 and TASK-1008–1031 while this branch was using
+ADR-049 / TASK-1008 / TASK-1009. This branch's numbers become [[decisions/ADR-050-reviewer-agreement-overrides-tightness-floor]],
+TASK-1032 (English glosses, Won't Do) and TASK-1033 (the floor override), in its own files only (main's ADR-049
+references are untouched). Text already applied live keeps the old id, as main's merge did for ADR-047: the
+comment inside the live `build_daily_session` body says "ADR-049" (= ADR-050; noted in the file header, body
+md5 unchanged); the `faithful_reviews` column comment was updated live to ADR-050. Earlier log entries of this
+branch were renumbered in place before landing. Conflicts were only in `wiki/index.md`, `wiki/log.md` and
+`wiki/tasklist/master.md`; `services/prestudy.py` and `routes/tests/prestudy.py` merged automatically.
+
+## [2026-11-17] query + fix | Why dual translation grading failed; failed grading calls now stored
+Developer: "Why isn't dual translation grading working?", then "Yes" to storing failed calls' errors.
+Findings (live, read-only): last saved grade 04:49 UTC; one submit since — submission 128 (ja, passage 98)
+at 21:50 UTC. Both free single-call models (`particle-ai/particle-1:free`, `nvidia/nemotron-3.5-super-vl:free`)
+raised within ~1 s with no response (`llm_calls`: 0 tokens, no latency); the v2 fallback then reads
+`qwen/qwen3.6-flash` / `qwen/qwen3.7-plus` from `prompt_templates`, which the OpenRouter key refuses (403 "Key
+limit exceeded (total limit) … $10.00 of $10.00 used; does not reset"). No grade, no `dt_grading_call` row, so
+the cause of the free-model failure was only in the host log. Replaying passage 98 locally with the repo's
+code and key graded in 3 s and passed every storage check; both free models are up. The deployed key may
+differ from this environment's (free-request counts disagree) — unconfirmed.
+Fix (code, not deployed): `provider_errors.CallRecorder.failures` keeps every raised call (slug, role, HTTP
+status, refused, `failure_text` ≤ 300 chars incl. the provider body); single-call attempts use the same text;
+submit writes `dt_grading_call` rows on every exit after grading (503, provisional, malformed, saved), adding
+one `call_failed` row per failed configured-flow call (`flow` v1/v2, `prompt_version` `configured-flow`,
+`prompt_variant` = role). No migration (existing columns; a rolled-back live insert passed the CHECKs). Tests:
+7 new in `tests/test_dual_translation_provider_errors.py`; 425 DT tests pass.
+Owner actions: top up / raise the OpenRouter key limit (the paid fallback is dead until then); check the host
+log at 21:50 UTC for `single_call_grader: call to … failed`; submission 128 is still open and can be resubmitted.
+Pages: [[features/dual-translation.tech]], [[index]].
+## [2026-11-17] update | Exercise content to Storage — Phase-1 code merged to main; SQL test passed on production (TASK-1026)
+**Merge:** PR #36 was merged to `main` as `8e0afb6`, with both flags at their `db` default. Railway deploys from `main`; the deploy itself could not be observed here, because this environment's network does not allow the production host.
+
+**CI:**
+- vitest + eslint passed on the first run.
+- pytest failed once: `tests/test_prompt_split_l4_l8.py::test_unregistered_prompt_version_is_refused_not_guessed`, which was red on `main` too. Commit c426784 had registered `morphology_slot` prompt v2, but the test still used v2 as its "unregistered" example.
+- Fixed in `00b1673`: the test now uses the first version after the registered ones. Both CI jobs were then green.
+
+**SQL test:** the owner ran `tests/sql/test_exercise_content_storage.sql` in the SQL editor, inside its own ROLLBACK.
+- No error was raised.
+- `exercise_content_version_seq` stands at exactly 4, the four draws a complete run makes.
+- A read-only check found 0 rows left behind (no new exercises, no non-zero `content_version`, no `dedupe_key`).
+- Database size: 495,815,827 bytes.
+
+**Remaining for TASK-1026:** the owner's in-app check of Practice and the prestudy page, including on-demand exercise loading for an added word.
+Pages updated: 2 ([[tasklist/exercise-content-storage.tasks]], [[tasklist/master]]).
+
+## [2026-11-19] update | Exercise content to Storage — CUT-OVER DONE: `exercises.content` dropped, database 342 MB (TASK-1027–1030)
+The owner decided (2026-11-18) to skip the shadow week and the Railway flag steps and cut over at once.
+
+**Defaults changed in code:**
+- PR #39: Storage reads and dual writes by default; live-versions keyset fallback in the scripts.
+- PR #40: a failed Storage GET is retried once, and idle connections are kept 60 s instead of httpx's default 5 s. This came from the first Storage-mode session at 22:05 UTC: one of seven GETs (`ja/42754.v0.json`) never reached Supabase, and only the DB fallback hid it.
+- The second session at 00:43 had 0 fallbacks.
+
+**Export and checks:**
+- 11,021 files (125 MB).
+- `--verify --language all`: 0 mismatches.
+- Their `storage.objects` rows added 17 MB to the database.
+
+**Archives:**
+- semdisc leftovers (9 objects), then dropped by the owner (−20 MB);
+- the 10 sense-less rows, fetched by id;
+- `--archive-all` skipped (owner decision).
+
+**Steps 1–2:**
+- `dedupe_key` for 30,491 rows, batched, with VACUUM between batches;
+- v2 index built CONCURRENTLY.
+
+**Step 3, split:**
+1. Post-drop session RPCs applied first.
+2. The owner ran preconditions + delete 10 rows + drop old index + `DROP COLUMN content`.
+3. Post-drop `exercise_content_commit` applied straight after.
+
+Every body is md5-identical to the runbook.
+
+**Checks after the drop, using the store against production with no writes:**
+- ja 23/23 and zh 20/20 session items served from Storage, with no fallback;
+- review-ahead runs;
+- `VACUUM (FULL, ANALYZE) exercises`: database 476 → **342 MB**, `exercises` 200 → 72 MB;
+- 0 orphan files, 0 live groups without a file.
+
+Pages updated: 7 ([[decisions/ADR-049-exercise-content-in-storage]] accepted + "Cut-over completed"; [[tasklist/exercise-content-storage.tasks]] TASK-1026–1030; [[tasklist/master]]; [[database/schema.tech]]; [[features/practice-engine.tech]]; [[features/practice-extra-rounds.tech]]; index).
+
+**Next:** TASK-1031 (remove the transition code).
+
+
+## [2026-11-19] update | Exercise content to Storage — transition code removed (TASK-1031)
+Agent run, offline: no live database or Storage access. `exercises.content` was dropped earlier the same day (TASK-1030); this run removes the code that only made sense while the column existed. Production behaviour is unchanged: it already ran Storage reads and dual writes.
+
+**Code:**
+- `config.py`: `EXERCISE_CONTENT_SOURCE`, `_WRITE`, `_DB_FALLBACK`, `_SHADOW_SAMPLE` removed; the tuning settings stay.
+- `services/exercise_content/`: no `read_mode()` / `write_mode()`, no db read or write path, no shadow comparer (`shadow.py` deleted), no DB fallback. `select_columns` always reads `content_version`; `rpc_content_args()` is always `p_include_content: false`; the writer takes a sense's base content only from its current file.
+- Without Storage credentials (and no test backend), `hydrate` treats every item needing content as missing (one ERROR) and `write_sense` raises `ContentStorageError`.
+- Callers (typed re-grade, reference-set script, session assembly, speed round) no longer branch on a mode.
+- Log lines: the session INFO line lost `mode=` and `db_fallback=`; the `db_fallback*` and `shadow_*` lines are gone.
+
+**Scripts and SQL:**
+- `scripts/backfill_exercise_content.py` deleted (it only worked with the column). The sweep keeps the keyset-paging fallback for a timed-out live-versions RPC, now in the sweep script.
+- `scripts/sql/check_jumbled_and_definition_match.sql` deleted: it read the column and nothing referenced it.
+- `tests/sql/test_session_budget_settings.sql` and `tests/sql/test_exercise_content_storage.sql` no longer read or write `content`; the latter checks the post-drop state.
+
+**Migrations** (per `migrations/CLAUDE.md`; rows in `migrations/archive/README.md`):
+- Archived: `get_practice_session_language_scope.sql`, `practice_review_ahead.sql`, `exercise_content_session_rpcs.sql` and its rollback, `exercise_content_storage_rollback.sql`, `exercise_content_cutover_step3_20261118.sql`, `phase17_drop_deprecation_wrappers.sql`.
+- Markers: live `md5(prosrc)` = the `exercise_content_drop_column.sql` bodies (`e2f6089f…`, `4043b817…`, `e2199ec8…`), or the object absent live, checked 2026-11-19.
+- Kept as the only records of live objects: `phase8`, `phase9`, `phase12`, `task743`, `exercise_content_storage.sql`. `exercise_content_drop_column_rollback.sql` kept, with a header note that a rollback also needs a refill of the column from Storage and the code from before TASK-1031.
+
+**Tests:**
+- The conftest installs a fresh `InMemoryBackend` per test instead of pinning flags.
+- Tests of db mode, shadow, the fallback and the flags are deleted; the rest run against seeded files or `FakeContentDB` (post-drop table only).
+- `test_exercise_content_store_db_mode.py` renamed `test_exercise_content_store.py`; `test_exercise_content_migration_rpcs.py` deleted (pre-apply checks only).
+- Offline suite: 5,743 passed, 50 failed, 17 skipped, 1 collection error. Every failure is in the environment baseline (jieba / MeCab / ipadic / credentials). ruff clean on every changed file.
+
+**Leftover direct use of `exercises.content` in code:** none.
+
+Pages updated: 10 ([[decisions/ADR-049-exercise-content-in-storage]] §5, §6, §9 and "Transition code removed"; [[tasklist/exercise-content-storage.tasks]]; [[tasklist/master]]; [[features/practice-engine.tech]]; [[features/practice-extra-rounds.tech]]; [[features/test-prestudy.tech]]; [[database/schema.tech]]; [[database/rpcs.tech]] (dropped wrappers); [[api/rpcs.tech]]; index).
+
+## [2026-11-19] update | Exercise content store — interface tidy-up after TASK-1031
+- `store.hydrate` no longer takes `db`, which only fed the removed DB fallback. The ten callers are updated: routes (typed re-grade, admin preview), session assembly, intro drill, prestudy, ladder service, speed round, and the reference-set, audio and hant-mirror scripts.
+- `HydrationReport.mode` and `WriteResult.mode`, which never varied, are removed.
+- The test doubles now have the real signature.
+- Behaviour is unchanged.
+- Tests (offline): 5,743 passed, and the 50 failures are all on the known environment list. ruff is clean.
+
+Pages updated: 1 ([[decisions/ADR-049-exercise-content-in-storage]] "Interface tidy-up").
+

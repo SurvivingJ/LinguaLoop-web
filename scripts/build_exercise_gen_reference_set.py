@@ -65,6 +65,8 @@ except ImportError:  # run or imported as scripts.<name>
 
 bootstrap(log_level=None)
 
+from services.exercise_content import store  # noqa: E402
+
 
 logger = logging.getLogger('build_exercise_gen_reference_set')
 
@@ -291,13 +293,21 @@ def fetch_word_asset_snapshot(db, sense_id: int, language_id: int) -> list[dict]
 
 
 def fetch_exercise_snapshot(db, sense_id: int) -> list[dict]:
+    # Content through the exercise-content store (ADR-049): the rows carry
+    # content_version and hydrate fills content from the sense's file (each
+    # row's own language_id; hydrate needs each row's id, sense and language).
+    # Rows whose content is missing are dropped.
+    columns = store.select_columns(
+        'id, word_sense_id, language_id, exercise_type, ladder_level, complexity_tier, tags, {content}')
     resp = (db.table('exercises')
-            .select('exercise_type,ladder_level,complexity_tier,tags,content')
+            .select(columns)
             .eq('word_sense_id', sense_id)
             .order('ladder_level')
             .execute())
+    data = resp.data or []
+    store.hydrate(data)
     rows = []
-    for row in (resp.data or []):
+    for row in data:
         tags = row.get('tags') or {}
         rows.append({
             'type': row['exercise_type'],

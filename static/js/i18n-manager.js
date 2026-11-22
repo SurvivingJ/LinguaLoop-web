@@ -81,7 +81,12 @@
     // after the other.
     const enP = loadTranslationFile('en');
     const curP = currentLang !== 'en' ? loadTranslationFile(currentLang) : enP;
-    loadPromise = Promise.all([enP, curP.catch(function (err) { return err; })])
+    loadPromise = Promise.all([
+      enP,
+      curP.catch(function (err) {
+        return err;
+      }),
+    ])
       .then(function (res) {
         fallbackTranslations = res[0];
         if (res[1] instanceof Error) throw res[1];
@@ -117,7 +122,9 @@
    */
   function t(key, params) {
     const hit = translations[key] || fallbackTranslations[key];
-    if (hit === undefined) {
+    // Only once the bundles are in: pages localise early and again on load,
+    // so a lookup before then is not a missing key.
+    if (hit === undefined && isLoaded && key) {
       // Warn once per missing key so locale drift surfaces in the
       // console instead of silently rendering the key string itself.
       if (!t._warned) t._warned = {};
@@ -266,6 +273,34 @@
       dropdown.appendChild(li);
     });
 
+    // Inline pickers (e.g. the Me page): <div data-ld-ui-lang-picker></div>
+    document.querySelectorAll('[data-ld-ui-lang-picker]').forEach(renderPicker);
+
+    updateSwitcherUI();
+  }
+
+  /**
+   * Fill an element with one chip per UI language (aria-pressed marks the
+   * current one). Public as LinguaI18n.renderPicker(el).
+   */
+  function renderPicker(el) {
+    if (!el) return;
+    el.classList.add('ld-wrap');
+    el.setAttribute('role', 'group');
+    el.innerHTML = '';
+    Object.keys(SUPPORTED_LANGS).forEach(function (code) {
+      const info = SUPPORTED_LANGS[code];
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'ld-chip';
+      btn.dataset.lang = code;
+      btn.lang = code;
+      btn.textContent = info.flag + ' ' + info.nativeName;
+      btn.addEventListener('click', function () {
+        setLanguage(code);
+      });
+      el.appendChild(btn);
+    });
     updateSwitcherUI();
   }
 
@@ -280,6 +315,9 @@
       } else {
         item.classList.remove('active');
       }
+    });
+    document.querySelectorAll('[data-ld-ui-lang-picker] [data-lang]').forEach(function (btn) {
+      btn.setAttribute('aria-pressed', btn.dataset.lang === currentLang ? 'true' : 'false');
     });
 
     const triggerBtn = document.querySelector('#langSwitcherBtn .lang-flag');
@@ -307,6 +345,7 @@
       return isLoaded;
     },
     applyToDOM: applyToDOM,
+    renderPicker: renderPicker,
     init: init,
     SUPPORTED_LANGS: SUPPORTED_LANGS,
   };

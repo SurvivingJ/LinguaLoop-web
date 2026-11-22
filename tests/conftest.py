@@ -2,7 +2,7 @@
 """Shared fixtures for the LinguaDojo test suite."""
 
 import pytest
-from unittest.mock import MagicMock, patch, PropertyMock
+from unittest.mock import MagicMock, patch
 from types import SimpleNamespace
 
 from config import Config
@@ -33,6 +33,26 @@ def _dt_single_call_off(monkeypatch):
     """
     monkeypatch.setattr(Config, 'DT_SINGLE_CALL_GRADER', False)
     monkeypatch.setattr(Config, 'DT_GRADING_ASSET_COLUMNS', False)
+
+
+@pytest.fixture(autouse=True)
+def _exercise_content_store():
+    """A fresh ADR-049 exercise-content store per test, backed by an empty InMemoryBackend.
+
+    ``store.reset_state()`` drops the backend, the caches, the warn-once flags and
+    the reader's fetch pool before and after every test, so nothing leaks between
+    tests and nothing reaches the network. A test that needs content seeds files
+    into ``store.backend()`` (``store.encode_sense_file``) or installs its own
+    backend with ``store.set_backend(...)``; ``store.set_backend(None)`` brings
+    back the Config-built backend (e.g. to test missing credentials).
+    """
+    from services.exercise_content import store
+    from services.exercise_content.backends import InMemoryBackend
+
+    store.reset_state()
+    store.set_backend(InMemoryBackend())
+    yield
+    store.reset_state()
 
 
 # ---------------------------------------------------------------------------

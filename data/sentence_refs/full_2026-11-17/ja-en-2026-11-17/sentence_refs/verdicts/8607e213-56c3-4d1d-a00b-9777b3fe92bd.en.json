@@ -1,0 +1,52 @@
+{
+  "test_id": "8607e213-56c3-4d1d-a00b-9777b3fe92bd",
+  "l1": "en",
+  "reviewer_model": "claude-opus-5-5",
+  "sentences": [
+    {
+      "idx": 0,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.875,
+      "back_translation": "町の古いお寺には大きな鐘があります。"
+    },
+    {
+      "idx": 1,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8511,
+      "back_translation": "昔から、お寺の人は毎日夕方にこの鐘を鳴らしています。"
+    },
+    {
+      "idx": 2,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.7917,
+      "back_translation": "その音を聞くと、子どもたちは遊ぶのをやめて家に帰ります。"
+    },
+    {
+      "idx": 3,
+      "verdict": "rewritten",
+      "entailment_ok": true,
+      "changed": true,
+      "notes": "Gold 祖父 is the narrator's own grandfather. Bare 'Grandfather' pulls toward おじいさん (any old man/someone's grandpa); 'My grandfather' matches 祖父 and the run's rendering in 50e1c1e1.",
+      "tightness": 0.7111,
+      "back_translation": "おじいさんは「この鐘の音は町の大切な約束だ」と言います。"
+    },
+    {
+      "idx": 4,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8421,
+      "back_translation": "今でも、町のみんなでこの鐘を守っています。"
+    }
+  ]
+}

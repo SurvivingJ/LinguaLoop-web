@@ -23,7 +23,7 @@ logger = logging.getLogger("routes.tests")
 
 _PRESTUDY_TEST_COLUMNS = (
     'id, slug, title, language_id, transcript, audio_url, difficulty, target_age_tier, '
-    'vocab_sense_ids, vocab_token_map, furigana_payload, pinyin_payload'
+    'vocab_sense_ids, vocab_token_map, furigana_payload, pinyin_payload, transcript_hash'
 )
 _PRESTUDY_MAX_ANSWERS = 400
 _PRESTUDY_MAX_EXERCISE_ANSWERS = 40
@@ -64,6 +64,33 @@ def get_test_prestudy(identifier):
         payload['attempt_id'] = attempt_id
         payload['primed_sense_ids'] = (prime or {}).get('words_quizzed') or []
     return api_success(data=payload)
+
+
+@tests_bp.route('/<identifier>/prestudy/exercises', methods=['GET'])
+@supabase_jwt_required
+@api_errors('Failed to load exercises')
+def get_test_prestudy_exercises(identifier):
+    """Ladder exercises for words that joined the prime's drill set on the page
+    ("I don't know this"); the payload carries exercises for the drill words
+    only (ADR-049 open question 1).
+
+    ``?sense_ids=11,12,...``: 1-20 distinct ids (400 otherwise). Ids that are
+    not linked to this test (``tests.vocab_sense_ids``) or not numbers are
+    ignored. Returns ``{sense_ids: [served ids], exercises: {sense_id:
+    [{id, type, group, level, c}]}}``, the payload's ``exercises`` shape; a
+    served sense with no exercise has no key. Never queues generation.
+    """
+    from services import prestudy
+    tokens = list(dict.fromkeys(t.strip() for t in (request.args.get('sense_ids') or '').split(',') if t.strip()))
+    if not tokens or len(tokens) > prestudy.MAX_ON_DEMAND_SENSES:
+        return bad_request(f"sense_ids must list 1-{prestudy.MAX_ON_DEMAND_SENSES} sense ids")
+    db = get_db()
+    test = _find_test_for_prestudy(db, identifier)
+    if not test:
+        return not_found("Test not found")
+    requested = [int(t) for t in tokens if t.isascii() and t.isdigit()]
+    served, exercises = prestudy.on_demand_exercises(db, test, requested)
+    return api_success(data={'sense_ids': served, 'exercises': exercises})
 
 
 @tests_bp.route('/<identifier>/prestudy/session', methods=['POST'])
@@ -256,11 +283,10 @@ def start_test_prestudy_produce(identifier):
     user_id = g.current_user_id
     body = json_body(silent=True)
     try:
-        l1 = int(body.get('l1_language_id') or get_user_definition_language_id(db, user_id) or 2)
+        requested = int(body.get('l1_language_id') or get_user_definition_language_id(db, user_id) or 2)
     except (TypeError, ValueError):
         return bad_request("l1_language_id must be a language id")
-    if l1 == int(test['language_id']):
-        l1 = 2 if int(test['language_id']) != 2 else None
+    l1 = prestudy.resolve_produce_l1(int(test['language_id']), requested)
     if not l1:
         return api_error("No reference language for this test", 422, error_code="NO_WINDOW")
     attempt_id, wrong = prestudy.wrong_question_senses(db, user_id, test['id'])
@@ -282,3 +308,27 @@ def start_test_prestudy_produce(identifier):
         db, user_id, str(test['id']), window[0], window[1], l1, primed,
         extra={'sentence_start': window[0], 'sentence_end': window[1], 'test_id': test['id']},
     )
+
+
+@tests_bp.route('/<identifier>/prestudy/produce-available', methods=['GET'])
+@supabase_jwt_required
+@api_errors('Failed to check Produce')
+def get_test_prestudy_produce_available(identifier):
+    """Whether Produce (POST .../prestudy/produce) can open a passage on this
+    test for the learner: {produce_available, l1_language_id}.
+
+    The result screen's fallback when it has no answer already (the prestudy
+    payload carries the same flag, and the prestudy page leaves it in
+    sessionStorage for the result screen). Same rule as the produce route
+    (prestudy.produce_available -> choose_produce_window); two reads.
+    """
+    db = get_db()
+    test = _find_test_for_prestudy(db, identifier)
+    if not test:
+        return not_found("Test not found")
+    from services import prestudy
+    from services.vocabulary.gloss_lookup import get_user_definition_language_id
+    l1 = prestudy.resolve_produce_l1(int(test['language_id']),
+                                     get_user_definition_language_id(db, g.current_user_id))
+    return api_success(data={'produce_available': prestudy.produce_available(db, test, l1),
+                             'l1_language_id': l1})

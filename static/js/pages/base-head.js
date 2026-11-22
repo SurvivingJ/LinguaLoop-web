@@ -29,13 +29,40 @@
   }
 
   // ---- Theme: applied before first paint to avoid a flash of the default.
+  // Mirrors theme-manager.js (which owns these keys): data-theme for a named
+  // theme ('default' = no attribute), data-mode for a forced light/dark, and
+  // data-bs-theme for Bootstrap's own dark styles.
+  const NAMED_THEMES = {
+    stillwater: 'light',
+    midnight: 'dark',
+    sakura: 'light',
+    forest: 'light',
+    inkstone: 'light',
+  };
   const theme = stored('linguadojo-theme');
-  if (theme && theme !== 'default') {
-    document.documentElement.setAttribute('data-theme', theme);
+  const mode = stored('linguadojo-theme-mode');
+  const html = document.documentElement;
+  let scheme;
+  if (theme && NAMED_THEMES[theme]) {
+    html.setAttribute('data-theme', theme);
+    scheme = NAMED_THEMES[theme];
+  } else {
+    if (mode === 'light' || mode === 'dark') html.setAttribute('data-mode', mode);
+    scheme =
+      mode === 'light' || mode === 'dark'
+        ? mode
+        : window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+          ? 'dark'
+          : 'light';
   }
+  html.setAttribute('data-bs-theme', scheme);
 
-  // ---- CJK web fonts: only the family for the study / UI language.
+  // ---- CJK web fonts: only the families for the study / UI language.
+  // Sans covers UI text in a zh/ja interface; Serif is the redesign's face
+  // for target-language text (var(--f-cjk), .ld-tl), so only the study
+  // language needs it.
   const FAMILY = { zh: 'Noto+Sans+SC:wght@400;500;700', ja: 'Noto+Sans+JP:wght@400;500;700' };
+  const SERIF = { zh: 'Noto+Serif+SC:wght@500;700', ja: 'Noto+Serif+JP:wght@500;700' };
   const LANGS = (boot.metadata && boot.metadata.languages) || [];
   const requested = {};
   function codeForStudyLanguage(id) {
@@ -44,25 +71,36 @@
     }
     return null;
   }
-  function ensureFont(code) {
-    if (!code || !FAMILY[code] || requested[code]) return;
-    requested[code] = true;
+  function addFontSheet(key, family) {
+    if (requested[key]) return;
+    requested[key] = true;
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     link.media = 'print'; // load without blocking rendering ...
     link.onload = function () {
       this.media = 'all'; // ... then apply
     };
-    link.href = 'https://fonts.googleapis.com/css2?family=' + FAMILY[code] + '&display=swap';
+    link.href = 'https://fonts.googleapis.com/css2?family=' + family + '&display=swap';
     document.head.appendChild(link);
+  }
+  function ensureFont(code) {
+    if (!code || !FAMILY[code]) return;
+    addFontSheet(code, FAMILY[code]);
+  }
+  function ensureSerif(code) {
+    if (!code || !SERIF[code]) return;
+    addFontSheet('serif-' + code, SERIF[code]);
   }
   window.LinguaFonts = {
     ensure: ensureFont,
+    ensureSerif: ensureSerif,
     ensureForStudyLanguage: function (id) {
-      ensureFont(codeForStudyLanguage(id));
+      const code = codeForStudyLanguage(id);
+      ensureFont(code);
+      ensureSerif(code);
     },
   };
-  ensureFont(codeForStudyLanguage(stored('selectedLanguageId')));
+  window.LinguaFonts.ensureForStudyLanguage(stored('selectedLanguageId'));
   ensureFont(stored('linguadojo-ui-lang'));
 
   // ---- i18n preload: base.html preloads en.json (always needed as the

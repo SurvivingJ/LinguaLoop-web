@@ -1,0 +1,52 @@
+{
+  "test_id": "217b165d-46af-453e-b5af-886297ee5bc4",
+  "l1": "en",
+  "reviewer_model": "claude-opus-5-5",
+  "sentences": [
+    {
+      "idx": 0,
+      "verdict": "rewritten",
+      "entailment_ok": true,
+      "changed": true,
+      "notes": "我们要洗手 expresses necessity (要); 'should' weakened the modality.",
+      "tightness": 0.7273,
+      "back_translation": "我们应该洗手。"
+    },
+    {
+      "idx": 1,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 1.0,
+      "back_translation": "洗手很重要。"
+    },
+    {
+      "idx": 2,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.64,
+      "back_translation": "肥皂和水可以把我们的手洗干净。"
+    },
+    {
+      "idx": 3,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 1.0,
+      "back_translation": "细菌会让人生病。"
+    },
+    {
+      "idx": 4,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.875,
+      "back_translation": "洗手可以去除细菌。"
+    }
+  ]
+}

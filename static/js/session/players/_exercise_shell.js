@@ -1,52 +1,52 @@
 // static/js/session/players/_exercise_shell.js
 // Chrome shared by the players that run ExRenderers exercises (practice.js and
-// speed_round.js): card styles, the progress header, answer feedback and the
-// "Next" button that hands control back to the session.
+// speed_round.js): the session frame (scrolling stage + pinned dock), the
+// progress row, answer feedback and the "Next" button that hands control back
+// to the session. Styles live in static/css/redesign/session.css (.ex-screen).
 
 import { T } from '../dom.js';
 
-// Card styles for ExRenderers output inside /session (from vocab-dojo).
-export const EXERCISE_BASE_STYLES = `
-    .vd-session-head { max-width: 680px; margin: 16px auto 0; display: flex; align-items: center; justify-content: space-between; }
-    .vd-progress { display: flex; align-items: center; gap: 12px; }
-    .vd-progress-text { font-size: 14px; font-weight: 600; color: var(--text-secondary); white-space: nowrap; }
-    .vd-progress-bar { width: 140px; height: 6px; background: var(--border-default); border-radius: 3px; overflow: hidden; }
-    .vd-progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary), #6366f1); border-radius: 3px; transition: width .4s ease; }
-    .vd-score { font-size: 14px; font-weight: 600; color: var(--text-secondary); }
-    .exercise-card-area { max-width: 680px; margin: 16px auto; background: var(--bg-surface); border-radius: 16px; box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.08)); padding: 28px; min-height: 300px; }
-    .exercise-id-badge { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; color: var(--text-secondary); opacity: .55; margin-bottom: 6px; user-select: all; cursor: text; }
-    .exercise-type-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: var(--text-secondary); margin-bottom: 12px; }
-    .exercise-instruction { font-size: 16px; font-weight: 600; color: var(--text-primary); margin-bottom: 16px; }
-    .exercise-prompt { font-size: 18px; line-height: 1.6; color: var(--text-primary); margin-bottom: 20px; }
-    .exercise-prompt .blank { background: var(--bg-muted); border-bottom: 2px solid var(--primary); padding: 2px 20px; border-radius: 4px; }
-    .exercise-options { display: flex; flex-direction: column; gap: 10px; }
-    .exercise-option { display: flex; align-items: center; gap: 12px; padding: 14px 18px; background: var(--bg-surface); border: 2px solid var(--border-default); border-radius: 12px; cursor: pointer; transition: all .2s; font-size: 15px; }
-    .exercise-option:hover:not(.disabled) { border-color: var(--primary); background: rgba(30,64,175,0.04); }
-    .exercise-option.correct { border-color: var(--success); background: rgba(5,150,105,0.08); }
-    .exercise-option.incorrect { border-color: var(--danger); background: rgba(220,38,38,0.08); }
-    .exercise-option.disabled { pointer-events: none; opacity: .85; }
-    .option-letter { width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 8px; background: var(--bg-muted); font-weight: 700; font-size: 13px; color: var(--text-secondary); flex-shrink: 0; }
-    .exercise-feedback { margin-top: 16px; padding: 14px 18px; border-radius: 12px; font-size: 14px; line-height: 1.6; display: none; }
-    .exercise-feedback.show { display: block; }
-    .exercise-feedback.correct { background: rgba(5,150,105,0.08); border: 1px solid rgba(5,150,105,0.2); color: var(--text-primary); }
-    .exercise-feedback.incorrect { background: rgba(220,38,38,0.08); border: 1px solid rgba(220,38,38,0.2); color: var(--text-primary); }
-    .exercise-next-btn { display: none; margin-top: 16px; }
-    .exercise-next-btn.show { display: inline-flex; }
-    .phonetic-display { text-align: center; margin-bottom: 24px; }
-    .phonetic-display .ipa { font-size: 24px; color: var(--primary); font-weight: 600; }
-    .phonetic-display .pron { font-size: 16px; color: var(--text-secondary); margin-top: 4px; }`;
+/**
+ * The player's screen: a scrolling stage (progress row + #exerciseCard) and a
+ * pinned dock (#exerciseDock) for feedback, Check and Next. `extra` is markup
+ * placed between the progress row and the card (the speed-round clock).
+ */
+export function exerciseScreenHtml(icon, headingKey, heading, extra = '') {
+  return `
+<div class="ld-screen ex-screen">
+  <div class="ld-stage ex-stage" id="exerciseStage">
+    ${sessionHeadHtml(icon, headingKey, heading)}
+    ${extra}
+    <div class="exercise-card-area" id="exerciseCard"></div>
+  </div>
+  <div class="ld-dock ex-dock" id="exerciseDock"></div>
+</div>`;
+}
 
 /** The player's title row with the (initially hidden) progress block. */
 export function sessionHeadHtml(icon, headingKey, heading) {
   return `
 <div class="vd-session-head">
-    <span style="font-weight:700;font-size:16px;color:var(--text-primary)"><i class="fas ${icon} me-2"></i><span data-i18n="${headingKey}">${heading}</span></span>
+    <span class="vd-session-title"><i class="fas ${icon} me-2" aria-hidden="true"></i><span data-i18n="${headingKey}">${heading}</span></span>
     <div class="vd-progress" id="progressArea" style="display:none">
-        <span class="vd-progress-text" id="progressText">0 / 0</span>
-        <div class="vd-progress-bar"><div class="vd-progress-fill" id="progressFill"></div></div>
-        <span class="vd-score" id="scoreText"></span>
+        <span class="vd-progress-text ld-num" id="progressText">0 / 0</span>
+        <div class="vd-progress-bar ld-bar"><div class="vd-progress-fill" id="progressFill"></div></div>
+        <span class="vd-score ld-num" id="scoreText"></span>
     </div>
 </div>`;
+}
+
+/**
+ * Mark the screen as running inside the session frame: the runner's header
+ * then carries the title and the "3 / 12 · 80%" count, so the in-stage title
+ * and numbers are hidden (the bar stays). No-op without a frame.
+ */
+export function useFrame(container, ctx) {
+  const frame = ctx && ctx.frame;
+  if (!frame) return null;
+  const root = container.querySelector('.ex-screen');
+  if (root) root.classList.add('has-frame');
+  return frame;
 }
 
 /** Whole-percent accuracy; 0 before anything is answered. */
@@ -54,11 +54,12 @@ export function accuracyPct(correct, answered) {
   return answered ? Math.round((correct / answered) * 100) : 0;
 }
 
-/** Point ExRenderers at this player's card and callbacks. */
-export function bindRenderers(ER, cardEl, state, handlers) {
+/** Point ExRenderers at this player's card, dock and callbacks. */
+export function bindRenderers(ER, cardEl, state, handlers, dockEl) {
   if (!ER || !ER.init) return;
   ER.init({
     cardEl,
+    dockEl: dockEl || null,
     isAnswered: () => state.isAnswered,
     setAnswered: (v) => {
       state.isAnswered = v;
@@ -77,18 +78,65 @@ export function renderProgress(container, done, total, correct, answered) {
   q('scoreText').textContent = `${accuracyPct(correct, answered)}%`;
 }
 
+/** The header's right-hand count: "3 / 12 · 80%" (no accuracy before an answer). */
+export function progressEndText(done, total, correct, answered) {
+  const pos = `${Math.min(done + 1, total)} / ${total}`;
+  return answered ? `${pos} · ${accuracyPct(correct, answered)}%` : pos;
+}
+
 /** Fill the renderer's #exerciseFeedback and reveal its Next button. */
 export function renderFeedback(container, ok, expl, { correctIcon, escHtml }) {
   const fb = container.querySelector('#exerciseFeedback');
   if (!fb) return;
-  fb.className = 'exercise-feedback show ' + (ok ? 'correct' : 'incorrect');
+  fb.className =
+    'exercise-feedback show ld-feedback ' +
+    (ok ? 'correct ld-feedback--ok' : 'incorrect ld-feedback--bad');
   let html = ok
-    ? `<i class="fas ${correctIcon} me-2"></i>` + T('session.correct', null, 'Correct!')
-    : '<i class="fas fa-times-circle me-2"></i>' + T('session.incorrect', null, 'Incorrect');
-  if (expl) html += `<div style="margin-top:8px">${escHtml(expl)}</div>`;
+    ? `<b><i class="fas ${correctIcon} me-2" aria-hidden="true"></i>${T('session.correct', null, 'Correct!')}</b>`
+    : `<b><i class="fas fa-times-circle me-2" aria-hidden="true"></i>${T('session.incorrect', null, 'Incorrect')}</b>`;
+  // Leading blank lines (e.g. "\nExpected: …") would show as an empty row.
+  const text = expl ? String(expl).replace(/^\s+/, '') : '';
+  if (text) html += `<div class="ex-expl">${escHtml(text)}</div>`;
   fb.innerHTML = html;
+  const hint = container.querySelector('.ex-dock-hint');
+  if (hint) hint.remove();
   const btn = container.querySelector('#nextBtn');
-  if (btn) btn.classList.add('show');
+  if (btn) {
+    btn.classList.add('show');
+    // Keyboard users land on Next; scroll the stage, never the page.
+    try {
+      btn.focus({ preventScroll: true });
+    } catch {
+      /* focus options unsupported */
+    }
+  }
+  // After the dock has its final size (feedback + Next).
+  revealAnswer(container);
+}
+
+/**
+ * The feedback in the dock shrinks the stage, which can push the marked answer
+ * (the right option, the learner's wrong pick, the correction line) below its
+ * fold. Scroll the stage (never the page) so they are in view, keeping the
+ * first of them at the top if they do not all fit.
+ */
+export function revealAnswer(container) {
+  const stage = container.querySelector('#exerciseStage');
+  if (!stage || stage.clientHeight === 0) return;
+  const marks = [
+    ...stage.querySelectorAll(
+      '.exercise-option.correct, .exercise-option.incorrect, .sip-part.correct, .sip-part.incorrect, .sip-correction'
+    ),
+  ].filter((el) => el.offsetParent !== null && getComputedStyle(el).display !== 'none');
+  if (!marks.length) return;
+  const box = stage.getBoundingClientRect();
+  const top = Math.min(...marks.map((el) => el.getBoundingClientRect().top));
+  const bottom = Math.max(...marks.map((el) => el.getBoundingClientRect().bottom));
+  const pad = 8;
+  let delta = 0;
+  if (bottom > box.bottom - pad) delta = bottom - box.bottom + pad;
+  if (top - delta < box.top + pad) delta = top - box.top - pad;
+  if (delta > 0) stage.scrollTop += delta;
 }
 
 /** The small monospace exercise id shown above every item. */
@@ -100,22 +148,27 @@ export function exerciseIdBadge(ex, escHtml) {
 export function renderErrorHtml(prefix, ex, escHtml) {
   return (
     prefix +
-    `<p style="color:var(--danger)">Error rendering exercise: ${escHtml(ex.exercise_type)}</p>`
+    `<p class="ex-message ex-message--bad">Error rendering exercise: ${escHtml(ex.exercise_type)}</p>`
   );
 }
 
+/** A centred message in the card (empty round, load failed, checkpoint loading). */
+export function messageHtml(text, bad = false) {
+  return `<p class="ex-message${bad ? ' ex-message--bad' : ''}">${text}</p>`;
+}
+
 const nextInner = () =>
-  `<span>${T('session.next_item', null, 'Next')}</span><i class="fas fa-arrow-right ms-2"></i>`;
+  `<span>${T('session.next_item', null, 'Next')}</span><i class="fas fa-arrow-right" aria-hidden="true"></i>`;
 
 /** Markup of the session "Next" button for a results card. */
 export function nextButtonHtml() {
-  return `<button class="btn btn-primary" type="button" data-session-next>${nextInner()}</button>`;
+  return `<button class="ld-btn ld-btn--block" type="button" data-session-next>${nextInner()}</button>`;
 }
 
 /** Append a lone "Next" button (no items / load failed). */
 export function appendNextButton(card, className) {
   const btn = document.createElement('button');
-  btn.className = className;
+  btn.className = className || 'ld-btn ld-btn--block';
   btn.type = 'button';
   btn.setAttribute('data-session-next', '');
   btn.innerHTML = nextInner();
@@ -123,8 +176,8 @@ export function appendNextButton(card, className) {
 }
 
 /** One figure ("12/15" over "Correct") on a results card. */
-export function statHtml(value, label, color = 'var(--primary)') {
-  return `<div><div style="font-size:1.6rem;font-weight:700;color:${color}">${value}</div><div class="text-muted small">${label}</div></div>`;
+export function statHtml(value, label) {
+  return `<div class="ld-stat"><div class="ld-stat__n">${value}</div><small>${label}</small></div>`;
 }
 
 /** Wire the "Next" button to finish the item with `result()`. */

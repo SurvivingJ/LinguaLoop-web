@@ -1,0 +1,79 @@
+{
+  "test_id": "ccbad16e-76f5-49ec-a80b-ceb7db2428bc",
+  "l1": "en",
+  "reviewer_model": "claude-sonnet-5-5",
+  "sentences": [
+    {
+      "idx": 0,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8172,
+      "back_translation": "辛普森悖论是统计学中一个耐人寻味的现象：在每个子组中都成立的结论，一旦把各组合并成整体，可能会完全相反。"
+    },
+    {
+      "idx": 1,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.7907,
+      "back_translation": "假设一家医院分别用A、B两种疗法各治疗五百名患者。"
+    },
+    {
+      "idx": 2,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.6875,
+      "back_translation": "在轻症组，A的治愈率是90%，B是85%；在重症组，A是60%，B是50%。"
+    },
+    {
+      "idx": 3,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8148,
+      "back_translation": "由此可见，无论在哪一组，A都更有效。"
+    },
+    {
+      "idx": 4,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.7925,
+      "back_translation": "然而，把总数合并之后，A的总体治愈率只有66%，而B高达78%。"
+    },
+    {
+      "idx": 5,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.7677,
+      "back_translation": "原因在于，接受A疗法的患者多为重症，接受B疗法的患者多为轻症；两组的比例在规模上相差悬殊，而病情轻重本身会影响结果。"
+    },
+    {
+      "idx": 6,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8,
+      "back_translation": "只有按各组人数对数据加权后再比较，才能消除这种不平衡。"
+    },
+    {
+      "idx": 7,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.78,
+      "back_translation": "这个悖论提醒我们：数据背后的结构比表面的数字更重要，在得出结论之前，必须问一问分组是否合理、是否忽略了混杂因素。"
+    }
+  ]
+}

@@ -13,6 +13,39 @@
   // metadata is embedded in the page, so it resolves once i18n has loaded).
   const renderReady = LinguaMetadata.load();
 
+  /** Translation with an English fallback (new keys may not be in every bundle yet). */
+  function tr(key, params, fallback) {
+    const v = window.LinguaI18n && LinguaI18n.t ? LinguaI18n.t(key, params) : key;
+    if (v && v !== key) return v;
+    return String(fallback || key).replace(/\{(\w+)\}/g, (m, k) =>
+      params && k in params ? params[k] : m
+    );
+  }
+
+  // Static text that may not have a key in the bundle yet: [data-tl-t].
+  function localizePage() {
+    document.querySelectorAll('[data-tl-t]').forEach((el) => {
+      if (!el.dataset.tlEn) el.dataset.tlEn = el.textContent;
+      el.textContent = tr(el.getAttribute('data-tl-t'), null, el.dataset.tlEn);
+    });
+  }
+
+  /** The study language's code ('zh', 'ja', ...) for a lang attribute. */
+  function langCodeById(id) {
+    const cache = window.LinguaMetadata && LinguaMetadata._cache;
+    const lang = cache && (cache.languages || []).find((l) => l.id === Number(id));
+    return (lang && lang.language_code) || '';
+  }
+
+  function langAttr(id) {
+    const code = langCodeById(id);
+    return code ? ` lang="${escapeHtml(code)}"` : '';
+  }
+
+  function typeLabel(testType) {
+    return tr('test_list.' + testType, null, capitalizeFirst(testType));
+  }
+
   // ELO Range Mapping
   function getEloRange(band) {
     // The filter uses the same bands as the badges (static/js/utils.js ELO_RANGES).
@@ -80,48 +113,34 @@
 
   function createTestCard(test) {
     const eloRating = getTestEloRating(test);
-    const difficultyClass = getDifficultyInfo(eloRating).class;
+    const title = test.title || test.topic || 'Untitled Test';
+    const glyph = Array.from(title)[0] || '·';
+    const tags = [
+      test.is_custom
+        ? `<span class="ld-tag ld-tag--info">${escapeHtml(tr('test_list.custom', null, 'Custom'))}</span>`
+        : '',
+      test.is_featured
+        ? `<span class="ld-tag ld-tag--brand">${escapeHtml(tr('test_list.featured', null, 'Featured'))}</span>`
+        : '',
+    ].join('');
+    const firstLine = [test.topic, getDifficultyText(eloRating)].filter(Boolean).map(escapeHtml);
+    const secondLine = [
+      escapeHtml(LinguaMetadata.getNativeNameById(test.language_id) || 'N/A'),
+      `ELO: ${escapeHtml(eloRating)}`,
+      escapeHtml(LinguaI18n.t('test_list.attempts', { count: test.total_attempts || 0 })),
+    ];
 
     return `
-            <div class="test-card" onclick="goToTestPreview('${test.slug}')">
-                <div class="test-card-header">
-                    <div class="test-card-title">
-                        <span>${escapeHtml(test.title || test.topic || 'Untitled Test')}</span>
-                        <div class="test-badges">
-                            <span class="badge-difficulty ${difficultyClass}">${escapeHtml(getDifficultyText(eloRating))}</span>
-                            ${test.is_custom ? '<span class="badge-difficulty badge-custom">Custom</span>' : ''}
-                            ${test.is_featured ? '<span class="badge-difficulty badge-featured">Featured</span>' : ''}
-                        </div>
-                    </div>
-                </div>
-
-                <div class="test-card-body">
-                    <div class="test-meta">
-                        <div class="test-meta-item">
-                            <svg class="test-meta-icon" fill="currentColor" viewBox="0 0 16 16">
-                                <path d="M11 5a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM8 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm.256 7a4.474 4.474 0 0 1-.5-8.38.5.5 0 1 1 .994.12 3.5 3.5 0 1 0 3.6 3.5.5.5 0 0 1 .994-.084 4.5 4.5 0 0 1-4.088 4.748Z"/>
-                            </svg>
-                            <span>${escapeHtml(LinguaMetadata.getNativeNameById(test.language_id) || 'N/A')}</span>
-                        </div>
-
-                        <div class="test-meta-item">
-                            <svg class="test-meta-icon" fill="currentColor" viewBox="0 0 16 16">
-                                <path d="M3 14.5A1.5 1.5 0 0 1 1.5 13V3A1.5 1.5 0 0 1 3 1.5h8a.5.5 0 0 1 0 1H3a.5.5 0 0 0-.5.5v10a.5.5 0 0 0 .5.5h8a.5.5 0 0 0 .5-.5V8a.5.5 0 0 1 1 0v5a1.5 1.5 0 0 1-1.5 1.5H3z"/>
-                            </svg>
-                            <span>ELO: ${eloRating}</span>
-                        </div>
-
-                        <div class="test-meta-item">
-                            <svg class="test-meta-icon" fill="currentColor" viewBox="0 0 16 16">
-                                <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5z"/>
-                            </svg>
-                            <span>${LinguaI18n.t('test_list.attempts', { count: test.total_attempts || 0 })}</span>
-                        </div>
-                    </div>
-
-                    ${test.topic ? `<p class="test-description">${escapeHtml(test.topic)}</p>` : ''}
-                </div>
-            </div>
+            <button type="button" class="test-card ld-trow" data-slug="${escapeHtml(test.slug || '')}">
+                <span class="ld-trow__glyph"${langAttr(test.language_id)} aria-hidden="true">${escapeHtml(glyph)}</span>
+                <span class="ld-trow__mid">
+                    <span class="tl-row-title"${langAttr(test.language_id)}>${escapeHtml(title)}</span>
+                    <small>${firstLine.join(' · ')}</small>
+                    <small class="ld-num">${secondLine.join(' · ')}</small>
+                    ${tags ? `<span class="ld-wrap">${tags}</span>` : ''}
+                </span>
+                <span class="ld-trow__end" aria-hidden="true">›</span>
+            </button>
         `;
   }
 
@@ -294,8 +313,12 @@
       btn.disabled = false;
       icon.classList.remove('loading');
 
-      // Show error message
-      alert(LinguaI18n.t('test_list.random_failed'));
+      // Show error message (the app's toast; a dialog where it is missing)
+      if (typeof window.showToast === 'function') {
+        window.showToast(LinguaI18n.t('test_list.random_failed'), 'error');
+      } else {
+        alert(LinguaI18n.t('test_list.random_failed'));
+      }
     }
   }
 
@@ -358,8 +381,8 @@
   function displayRecommendedTests(tests) {
     const suggestedGrid = document.querySelector('.suggested-grid');
 
-    // Remove existing skeleton cards
-    const skeletonCards = suggestedGrid.querySelectorAll('.skeleton-card');
+    // Remove existing skeleton cards (and an earlier empty/error card)
+    const skeletonCards = suggestedGrid.querySelectorAll('.skeleton-card, .tl-rec-note');
     skeletonCards.forEach((card) => card.remove());
 
     // Take up to 3 recommended tests
@@ -375,29 +398,29 @@
   }
 
   function createRecommendedCard(test) {
-    const card = document.createElement('div');
-    card.className = 'suggested-card recommended-card';
+    const card = document.createElement('button');
+    card.type = 'button';
+    card.className = 'tl-pick suggested-card recommended-card';
     card.onclick = () => goToTestPreviewRecommended(test.slug, test.test_type);
 
     const testTypeIcon = getTestTypeIcon(test.test_type);
-    const testTypeLabel = capitalizeFirst(test.test_type);
-    const difficultyClass = getDifficultyInfo(test.elo_rating).class;
+    const testTypeLabel = typeLabel(test.test_type || 'listening');
     const tierBadge =
-      test.tier !== 'free-tier' ? '<span class="tier-badge premium">Premium</span>' : '';
+      test.tier !== 'free-tier'
+        ? `<span class="ld-tag ld-tag--warn tier-badge premium">${escapeHtml(tr('test_list.premium', null, 'Premium'))}</span>`
+        : '';
 
     card.innerHTML = `
-            <div class="recommended-header">
-                <span class="test-type-badge ${test.test_type}">${testTypeIcon} ${testTypeLabel}</span>
+            <span class="ld-wrap recommended-header">
+                <span class="ld-tag test-type-badge ${escapeHtml(test.test_type || '')}">${testTypeIcon} ${escapeHtml(testTypeLabel)}</span>
                 ${tierBadge}
-            </div>
-            <div class="recommended-title">${escapeHtml(test.title)}</div>
-            <div class="recommended-meta">
-                <span class="badge-difficulty ${difficultyClass}">${escapeHtml(getDifficultyText(test.elo_rating))}</span>
-                <span class="elo-info">ELO ${test.elo_rating}</span>
-            </div>
-            <button class="btn btn-primary btn-sm recommended-btn" type="button">
-                ${LinguaI18n.t('test_list.start_test')}
-            </button>
+            </span>
+            <span class="tl-pick__title recommended-title"${langAttr(localStorage.getItem('selectedLanguageId'))}>${escapeHtml(test.title)}</span>
+            <span class="tl-pick__meta recommended-meta">
+                <span>${escapeHtml(getDifficultyText(test.elo_rating))}</span>
+                <b class="ld-num elo-info">ELO ${escapeHtml(test.elo_rating)}</b>
+            </span>
+            <span class="visually-hidden">${escapeHtml(LinguaI18n.t('test_list.start_test'))}</span>
         `;
 
     return card;
@@ -405,9 +428,9 @@
 
   function getTestTypeIcon(testType) {
     const icons = {
-      listening: '<i class="fa-solid fa-headphones"></i>',
-      reading: '<i class="fa-solid fa-book-open"></i>',
-      dictation: '<i class="fa-solid fa-keyboard"></i>',
+      listening: '<i class="fa-solid fa-headphones" aria-hidden="true"></i>',
+      reading: '<i class="fa-solid fa-book-open" aria-hidden="true"></i>',
+      dictation: '<i class="fa-solid fa-keyboard" aria-hidden="true"></i>',
     };
     return icons[testType] || icons.listening;
   }
@@ -426,37 +449,39 @@
     window.location.href = `/test/${testId}/preview?type=${testType}`;
   }
 
-  function showRecommendedEmpty() {
+  // Empty / error: the first placeholder becomes a note card, the others go.
+  function recommendedNote(cls, html) {
     const skeletonCards = document.querySelectorAll('.skeleton-card');
+    let note = null;
     skeletonCards.forEach((card, index) => {
       if (index === 0) {
-        card.classList.remove('skeleton-card');
-        card.innerHTML = `
-                    <div class="recommended-empty">
-                        <p>${LinguaI18n.t('test_list.recommended_empty')}</p>
-                    </div>
-                `;
+        card.classList.remove('skeleton-card', 'tl-skel');
+        card.classList.add('tl-rec-note');
+        card.removeAttribute('aria-hidden');
+        card.innerHTML = `<div class="${cls}">${html}</div>`;
+        note = card;
       } else {
         card.remove();
       }
     });
+    return note;
+  }
+
+  function showRecommendedEmpty() {
+    recommendedNote(
+      'recommended-empty',
+      `<p>${escapeHtml(LinguaI18n.t('test_list.recommended_empty'))}</p>`
+    );
   }
 
   function showRecommendedError() {
-    const skeletonCards = document.querySelectorAll('.skeleton-card');
-    skeletonCards.forEach((card, index) => {
-      if (index === 0) {
-        card.classList.remove('skeleton-card');
-        card.innerHTML = `
-                    <div class="recommended-error">
-                        <p>${LinguaI18n.t('test_list.recommended_error')}</p>
-                        <button class="btn btn-sm btn-secondary" onclick="loadRecommendedTests()">${LinguaI18n.t('test_list.retry')}</button>
-                    </div>
-                `;
-      } else {
-        card.remove();
-      }
-    });
+    const note = recommendedNote(
+      'recommended-error',
+      `<p>${escapeHtml(LinguaI18n.t('test_list.recommended_error'))}</p>
+                        <button type="button" class="ld-btn ld-btn--sm ld-btn--ghost">${escapeHtml(LinguaI18n.t('test_list.retry'))}</button>`
+    );
+    const retry = note && note.querySelector('button');
+    if (retry) retry.addEventListener('click', () => loadRecommendedTests());
   }
 
   // ============================================
@@ -502,6 +527,7 @@
 
     section.style.display = '';
     grid.innerHTML = '';
+    localizePage();
 
     // Update progress
     updateDailyProgress(dailyLoad.progress);
@@ -513,20 +539,22 @@
       grid.appendChild(card);
     });
 
-    // Show congrats message if all complete
+    // Show congrats message if all complete (above the cards)
+    const old = section.querySelector('.daily-all-complete');
+    if (old) old.remove();
     if (allComplete) {
-      const completeMsg = document.createElement('div');
-      completeMsg.className = 'daily-all-complete';
-      completeMsg.innerHTML =
-        '<div class="daily-all-complete-icon">&#127881;</div><div>Great job! You\'ve completed today\'s test load!</div>';
-      grid.appendChild(completeMsg);
+      const completeMsg = document.createElement('p');
+      completeMsg.className = 'ld-note ld-note--ok mb-0 daily-all-complete';
+      completeMsg.textContent =
+        '🎉 ' + tr('test_list.daily_done', null, 'Great job! You’ve completed today’s test load!');
+      section.insertBefore(completeMsg, grid);
     }
   }
 
   function createDailyLoadCard(test, index) {
     const card = document.createElement('div');
     const isCompleted = test.is_completed;
-    card.className = 'daily-card' + (isCompleted ? ' daily-card-completed' : '');
+    card.className = 'tl-pick daily-card' + (isCompleted ? ' is-done daily-card-completed' : '');
 
     if (!isCompleted) {
       card.onclick = function () {
@@ -548,61 +576,65 @@
       };
     }
 
-    const testTypeIcon = getTestTypeIcon(test.test_type || 'listening');
-    const testTypeLabel = capitalizeFirst(test.test_type || 'listening');
-    const diffClass = getDifficultyInfo(test.elo_rating || 1400).class;
-
-    const slotBadgeClass = test.slot_type === 'retry' ? 'slot-badge-retry' : 'slot-badge-new';
-    const slotLabel = test.slot_type === 'retry' ? 'Retry' : 'New';
-    const numberBadgeHtml =
-      '<div class="daily-card-number">' + (isCompleted ? '&#10003;' : index + 1) + '</div>';
+    const type = test.test_type || 'listening';
+    const testTypeIcon = getTestTypeIcon(type);
+    const elo = test.elo_rating || 1400;
+    const isRetry = test.slot_type === 'retry';
+    const slotLabel = isRetry
+      ? tr('test_list.slot_retry', null, 'Retry')
+      : tr('test_list.slot_new', null, 'New');
 
     let originalScoreHtml = '';
-    if (test.slot_type === 'retry' && test.original_percentage != null) {
+    if (isRetry && test.original_percentage != null) {
+      const pct = Math.round(test.original_percentage);
       originalScoreHtml =
-        '<div class="daily-original-score">Previously scored ' +
-        Math.round(test.original_percentage) +
-        '%</div>';
+        '<span class="ld-small ld-muted daily-original-score">' +
+        escapeHtml(tr('test_list.previously_scored', { pct }, 'Previously scored {pct}%')) +
+        '</span>';
     }
 
-    const completedBadge = isCompleted
-      ? '<span class="slot-badge slot-badge-completed">Completed</span>'
-      : '';
-
     const buttonHtml = isCompleted
-      ? '<button class="btn btn-success btn-sm daily-card-btn" disabled>Completed</button>'
-      : '<button class="btn btn-primary btn-sm daily-card-btn" type="button">Start Test</button>';
+      ? '<button class="ld-btn ld-btn--sm daily-card-btn" type="button" disabled>' +
+        '<i class="fas fa-check" aria-hidden="true"></i> ' +
+        escapeHtml(tr('test_list.completed', null, 'Completed')) +
+        '</button>'
+      : '<button class="ld-btn ld-btn--sm daily-card-btn" type="button">' +
+        escapeHtml(tr('test_list.start_test', null, 'Start Test')) +
+        '</button>';
 
     card.innerHTML =
-      numberBadgeHtml +
-      '<div class="daily-card-header">' +
-      '<span class="test-type-badge ' +
-      (test.test_type || 'listening') +
+      '<span class="ld-wrap daily-card-header">' +
+      '<span class="ld-tag ' +
+      (isCompleted ? 'ld-tag--ok' : 'ld-tag--brand') +
+      ' daily-card-number">' +
+      (isCompleted ? '&#10003;' : index + 1) +
+      '</span>' +
+      '<span class="ld-tag test-type-badge ' +
+      escapeHtml(type) +
       '">' +
       testTypeIcon +
       ' ' +
-      testTypeLabel +
+      escapeHtml(typeLabel(type)) +
       '</span>' +
-      '<span class="slot-badge ' +
-      slotBadgeClass +
-      '">' +
-      slotLabel +
+      '<span class="ld-tag ' +
+      (isRetry ? 'ld-tag--warn slot-badge-retry' : 'ld-tag--info slot-badge-new') +
+      ' slot-badge">' +
+      escapeHtml(slotLabel) +
       '</span>' +
-      completedBadge +
-      '</div>' +
-      '<div class="daily-card-title">' +
+      '</span>' +
+      '<span class="tl-pick__title daily-card-title"' +
+      langAttr(localStorage.getItem('selectedLanguageId')) +
+      '>' +
       escapeHtml(test.title || 'Test') +
-      '</div>' +
-      '<div class="daily-card-meta">' +
-      '<span class="badge-difficulty ' +
-      diffClass +
-      '">' +
-      escapeHtml(getDifficultyText(test.elo_rating || 1400)) +
       '</span>' +
-      '<span class="elo-info">ELO ' +
-      (test.elo_rating || 1400) +
+      '<span class="tl-pick__meta daily-card-meta">' +
+      '<span>' +
+      escapeHtml(getDifficultyText(elo)) +
       '</span>' +
-      '</div>' +
+      '<b class="ld-num elo-info">ELO ' +
+      escapeHtml(elo) +
+      '</b>' +
+      '</span>' +
       originalScoreHtml +
       buttonHtml;
 
@@ -629,6 +661,23 @@
   window.loadRecommendedTests = loadRecommendedTests;
   window.goToTestPreviewRecommended = goToTestPreviewRecommended;
   window.loadDailyLoad = loadDailyLoad;
+
+  // Controls (no inline handlers in the template).
+  difficultyFilter?.addEventListener('change', applyFilters);
+  testTypeFilter?.addEventListener('change', applyFilters);
+  document.getElementById('filter-form')?.addEventListener('submit', (e) => e.preventDefault());
+  document
+    .querySelectorAll('[data-tl-reset]')
+    .forEach((b) => b.addEventListener('click', resetFilters));
+  document
+    .querySelectorAll('[data-tl-retry]')
+    .forEach((b) => b.addEventListener('click', () => loadTests()));
+  document.getElementById('randomTestBtn')?.addEventListener('click', getRandomTest);
+  testsGrid?.addEventListener('click', (e) => {
+    const card = e.target.closest('.test-card');
+    if (card && card.dataset.slug) goToTestPreview(card.dataset.slug);
+  });
+  renderReady.then(localizePage);
 
   // Initial load. The head script's early redirect covers the no-token case,
   // and authFetch handles refresh/device-restore/redirect on 401.

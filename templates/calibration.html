@@ -1,63 +1,74 @@
 {% extends "base.html" %}
 {% set defer_base_scripts = true %}
+{# One task per screen (FOUNDATION.md): Back pill header with the running
+   counts, the word and its options in a scrolling stage, "I don't know" /
+   Next word (or Start again / Back home on the results) in a pinned dock.
+   Styles: static/css/redesign/trainers.css (.cal-page). #}
+{% set task_mode = true %}
+{% set task_back = 'history' %}
 
 {% block title %}Calibration | LinguaDojo{% endblock %}
 
-{% block body_class %}bg-slate-50{% endblock %}
+{% block body_class %}bg-slate-50 trainer-page{% endblock %}
 
-{% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/calibration.css') }}">
-{% endblock %}
+{% block task_back_href %}{{ url_for('profile') }}{% endblock %}
+{% block task_title %}<span data-i18n="calibration.title">Calibration</span>{% endblock %}
+{% block task_glyph %}测{% endblock %}
+{% block task_subtitle %}<span class="cal-stat"><b id="calAnswered">0</b> <span data-i18n="calibration.answered">answered</span></span> · <span class="cal-stat"><b id="calAccuracy">—</b> <span data-i18n="calibration.correct">correct</span></span>{% endblock %}
 
 {% block content %}
-<div id="calHeader" class="cal-header" style="display:none;">
-    <div class="cal-header-left">
-        <span class="text-base font-semibold" data-i18n="calibration.title">Calibration</span>
+<div class="ld-screen cal-page">
+    <div id="calHeader" class="cal-header drill-strip" style="display:none;">
+        <div class="drill-strip__row">
+            <span class="ld-seg cal-mode-toggle" id="calModeToggle">
+                <button type="button" data-mode="definition" class="active"
+                        data-i18n="calibration.mode_definition">Meanings</button>
+                <button type="button" data-mode="pronunciation"
+                        data-i18n="calibration.mode_pronunciation">Readings</button>
+            </span>
+            <button type="button" id="calFinishBtn" class="ld-btn ld-btn--sm ld-btn--ghost cal-finish" data-i18n="calibration.finish">Finish</button>
+        </div>
     </div>
-    <div class="cal-header-right">
-        <span class="cal-mode-toggle" id="calModeToggle">
-            <button type="button" data-mode="definition" class="active"
-                    data-i18n="calibration.mode_definition">Meanings</button>
-            <button type="button" data-mode="pronunciation"
-                    data-i18n="calibration.mode_pronunciation">Readings</button>
-        </span>
-        <span class="cal-stat"><b id="calAnswered">0</b> <span data-i18n="calibration.answered">answered</span></span>
-        <span class="cal-stat"><b id="calAccuracy">—</b> <span data-i18n="calibration.correct">correct</span></span>
-        <button type="button" id="calFinishBtn" class="cal-btn" data-i18n="calibration.finish">Finish</button>
-    </div>
-</div>
 
-<div id="calLoading" class="cal-msg" data-i18n="calibration.loading">Preparing your calibration…</div>
+    <div class="ld-stage cal-scroll">
+        <div id="calLoading" class="cal-msg" role="status" data-i18n="calibration.loading">Preparing your calibration…</div>
 
-<div id="calStage" class="cal-stage" style="display:none;">
-    <div id="calPrompt" class="cal-prompt"></div>
-    <div id="calReading" class="cal-reading"></div>
-    <div class="cal-instruction" data-i18n="calibration.instruction">Which definition is correct?</div>
-    <div id="calOptions" class="cal-options"></div>
-    <div class="cal-actions">
-        <button type="button" id="calSkipBtn" class="cal-btn" data-i18n="calibration.skip">I don't know</button>
-        <span class="cal-next-hint" id="calNextHint" hidden data-i18n="calibration.next_hint">or press Enter</span>
-        <button type="button" id="calNextBtn" class="cal-btn cal-btn-primary" hidden
-                data-i18n="calibration.next">Next word</button>
-    </div>
-</div>
+        <div id="calStage" class="cal-stage" style="display:none;">
+            <div id="calPrompt" class="cal-prompt"></div>
+            <div id="calReading" class="cal-reading"></div>
+            <div class="cal-instruction ld-eyebrow" data-i18n="calibration.instruction">Which definition is correct?</div>
+            <div id="calOptions" class="cal-options"></div>
+        </div>
 
-<div id="calResults" class="cal-results" style="display:none;">
-    <div class="cal-headline">
-        <div class="cal-big" id="calResultLevel">—</div>
-        <div class="cal-sub" id="calResultSub"></div>
-    </div>
-    <div class="cal-curve" id="calCurve"></div>
-    <p class="cal-note" id="calResultNote"></p>
-    <div class="cal-rating" id="calRating" hidden></div>
-    <div class="cal-actions">
-        <button type="button" id="calRestartBtn" class="cal-btn cal-btn-primary" data-i18n="calibration.restart">Start again</button>
-        <a href="/" class="cal-btn" data-i18n="calibration.home">Back home</a>
-    </div>
-</div>
+        <div id="calResults" class="cal-results" style="display:none;">
+            <div class="cal-headline">
+                <div class="cal-big" id="calResultLevel">—</div>
+                <div class="cal-sub" id="calResultSub"></div>
+            </div>
+            <div class="cal-chart">
+                <div class="cal-curve" id="calCurve"></div>
+                <p class="cal-note" id="calResultNote"></p>
+            </div>
+            <div class="cal-rating ld-note" id="calRating" hidden></div>
+        </div>
 
-<div id="calEmpty" class="cal-msg" style="display:none;" data-i18n="calibration.exhausted">
-    You have seen every word we have for this language. That is the whole dictionary!
+        <div id="calEmpty" class="cal-msg" style="display:none;" data-i18n="calibration.exhausted">
+            You have seen every word we have for this language. That is the whole dictionary!
+        </div>
+    </div>
+
+    <div class="ld-dock cal-dock" id="calDock" hidden>
+        <div class="cal-actions" id="calStageActions">
+            <button type="button" id="calSkipBtn" class="ld-btn ld-btn--ghost" data-i18n="calibration.skip">I don't know</button>
+            <button type="button" id="calNextBtn" class="ld-btn" hidden
+                    data-i18n="calibration.next">Next word</button>
+            <span class="cal-next-hint ld-wide-only" id="calNextHint" hidden data-i18n="calibration.next_hint">or press Enter</span>
+        </div>
+        <div class="ld-row cal-actions" id="calResultsActions" hidden>
+            <button type="button" id="calRestartBtn" class="ld-btn ld-btn--ghost" data-i18n="calibration.restart">Start again</button>
+            <a href="/" class="ld-btn" data-i18n="calibration.home">Back home</a>
+        </div>
+    </div>
 </div>
 {% endblock %}
 

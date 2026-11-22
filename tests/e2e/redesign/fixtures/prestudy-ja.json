@@ -1,0 +1,631 @@
+{
+ "POST /api/tests/*": {
+  "status": "success",
+  "session_id": "ps-1"
+ },
+ "POST /api/tests/zh-weekend-hike/prestudy/session": {
+  "status": "success",
+  "session_id": "ps-1"
+ },
+ "POST /api/tests/zh-weekend-hike/prestudy/evidence": {
+  "status": "success",
+  "intro": {
+   "overflow": {
+    "fits": 2,
+    "over": 3,
+    "extra_minutes_per_day": 2,
+    "sense_ids": [
+     101,
+     102,
+     103
+    ]
+   }
+  }
+ },
+ "POST /api/tests/ja-station/prestudy/session": {
+  "status": "success",
+  "session_id": "ps-2"
+ },
+ "POST /api/tests/ja-station/prestudy/evidence": {
+  "status": "success",
+  "intro": {
+   "overflow": {
+    "fits": 2,
+    "over": 1,
+    "extra_minutes_per_day": 2,
+    "sense_ids": [
+     201
+    ]
+   }
+  }
+ },
+ "_comment": "Test prestudy (ja). Pass after default.json.",
+ "GET /api/tests/ja-station/prestudy": {
+  "test": {
+   "id": "t-ja-1",
+   "slug": "ja-station",
+   "title": "駅で友達を待つ",
+   "language_id": 3,
+   "transcript": "駅の前で友達を待ちました。電車が遅れて、少し困りました。",
+   "audio_url": "/static/none.mp3",
+   "difficulty": 3,
+   "target_age_tier": "adult",
+   "vocab_sense_ids": [
+    201,
+    202,
+    203,
+    204,
+    205,
+    206,
+    207
+   ],
+   "vocab_token_map": [
+    [
+     "駅",
+     201
+    ],
+    [
+     "の",
+     null
+    ],
+    [
+     "前",
+     202
+    ],
+    [
+     "で",
+     null
+    ],
+    [
+     "友達",
+     203
+    ],
+    [
+     "を",
+     null
+    ],
+    [
+     "待ちました",
+     204
+    ],
+    [
+     "。",
+     null
+    ],
+    [
+     "電車",
+     205
+    ],
+    [
+     "が",
+     null
+    ],
+    [
+     "遅れて",
+     null
+    ],
+    [
+     "、",
+     null
+    ],
+    [
+     "少し",
+     206
+    ],
+    [
+     "困りました",
+     207
+    ],
+    [
+     "。",
+     null
+    ]
+   ],
+   "furigana_payload": {
+    "transcript": [
+     {
+      "kind": "ruby",
+      "base": "駅",
+      "rt": "えき"
+     },
+     {
+      "kind": "text",
+      "text": "の"
+     },
+     {
+      "kind": "ruby",
+      "base": "前",
+      "rt": "まえ"
+     },
+     {
+      "kind": "text",
+      "text": "で"
+     },
+     {
+      "kind": "ruby",
+      "base": "友達",
+      "rt": "ともだち"
+     },
+     {
+      "kind": "text",
+      "text": "を"
+     },
+     {
+      "kind": "ruby",
+      "base": "待",
+      "rt": "ま"
+     },
+     {
+      "kind": "text",
+      "text": "ちました"
+     },
+     {
+      "kind": "text",
+      "text": "。"
+     },
+     {
+      "kind": "ruby",
+      "base": "電車",
+      "rt": "でんしゃ"
+     },
+     {
+      "kind": "text",
+      "text": "が"
+     },
+     {
+      "kind": "ruby",
+      "base": "遅",
+      "rt": "おく"
+     },
+     {
+      "kind": "text",
+      "text": "れて"
+     },
+     {
+      "kind": "text",
+      "text": "、"
+     },
+     {
+      "kind": "ruby",
+      "base": "少",
+      "rt": "すこ"
+     },
+     {
+      "kind": "text",
+      "text": "し"
+     },
+     {
+      "kind": "ruby",
+      "base": "困",
+      "rt": "こま"
+     },
+     {
+      "kind": "text",
+      "text": "りました"
+     },
+     {
+      "kind": "text",
+      "text": "。"
+     }
+    ]
+   },
+   "pinyin_payload": null
+  },
+  "questions": [
+   {
+    "sense_ids": [
+     207
+    ]
+   }
+  ],
+  "senses": {
+   "201": {
+    "lemma": "駅",
+    "pos": "noun",
+    "freq": 4.5,
+    "reading": "えき",
+    "glosses": {
+     "2": {
+      "def": "station (train)",
+      "ex": "駅で会いましょう。"
+     }
+    }
+   },
+   "202": {
+    "lemma": "前",
+    "pos": "noun",
+    "freq": 5.2,
+    "reading": "まえ",
+    "glosses": {
+     "2": {
+      "def": "in front of; before",
+      "ex": "家の前に車があります。"
+     }
+    }
+   },
+   "203": {
+    "lemma": "友達",
+    "pos": "noun",
+    "freq": 4.8,
+    "reading": "ともだち",
+    "glosses": {
+     "2": {
+      "def": "friend",
+      "ex": "友達と映画を見ました。"
+     }
+    }
+   },
+   "204": {
+    "lemma": "待つ",
+    "pos": "verb",
+    "freq": 4.6,
+    "reading": "まつ",
+    "glosses": {
+     "2": {
+      "def": "to wait",
+      "ex": "ここで待ってください。"
+     }
+    }
+   },
+   "205": {
+    "lemma": "電車",
+    "pos": "noun",
+    "freq": 4.4,
+    "reading": "でんしゃ",
+    "glosses": {
+     "2": {
+      "def": "train (electric)",
+      "ex": "電車で行きます。"
+     }
+    }
+   },
+   "206": {
+    "lemma": "少し",
+    "pos": "adverb",
+    "freq": 4.9,
+    "reading": "すこし",
+    "glosses": {
+     "2": {
+      "def": "a little; a few",
+      "ex": "少し休みましょう。"
+     }
+    }
+   },
+   "207": {
+    "lemma": "困る",
+    "pos": "verb",
+    "freq": 4.1,
+    "reading": "こまる",
+    "glosses": {
+     "2": {
+      "def": "to be troubled; to be at a loss",
+      "ex": "お金がなくて困っています。"
+     }
+    }
+   }
+  },
+  "knowledge": {
+   "201": {
+    "p": 0.1
+   },
+   "202": {
+    "p": 0.9
+   },
+   "203": {
+    "p": 0.3
+   },
+   "204": {
+    "p": 0.15
+   },
+   "205": {
+    "p": 0.45
+   },
+   "206": {
+    "p": 0.8
+   },
+   "207": {
+    "p": 0.05
+   }
+  },
+  "exercises": {},
+  "gloss_language_id": 2,
+  "ability_zipf": 4.5,
+  "status": "success"
+ },
+ "GET /api/tests/ja-station/prestudy?mode=followup": {
+  "test": {
+   "id": "t-ja-1",
+   "slug": "ja-station",
+   "title": "駅で友達を待つ",
+   "language_id": 3,
+   "transcript": "駅の前で友達を待ちました。電車が遅れて、少し困りました。",
+   "audio_url": "/static/none.mp3",
+   "difficulty": 3,
+   "target_age_tier": "adult",
+   "vocab_sense_ids": [
+    201,
+    202,
+    203,
+    204,
+    205,
+    206,
+    207
+   ],
+   "vocab_token_map": [
+    [
+     "駅",
+     201
+    ],
+    [
+     "の",
+     null
+    ],
+    [
+     "前",
+     202
+    ],
+    [
+     "で",
+     null
+    ],
+    [
+     "友達",
+     203
+    ],
+    [
+     "を",
+     null
+    ],
+    [
+     "待ちました",
+     204
+    ],
+    [
+     "。",
+     null
+    ],
+    [
+     "電車",
+     205
+    ],
+    [
+     "が",
+     null
+    ],
+    [
+     "遅れて",
+     null
+    ],
+    [
+     "、",
+     null
+    ],
+    [
+     "少し",
+     206
+    ],
+    [
+     "困りました",
+     207
+    ],
+    [
+     "。",
+     null
+    ]
+   ],
+   "furigana_payload": {
+    "transcript": [
+     {
+      "kind": "ruby",
+      "base": "駅",
+      "rt": "えき"
+     },
+     {
+      "kind": "text",
+      "text": "の"
+     },
+     {
+      "kind": "ruby",
+      "base": "前",
+      "rt": "まえ"
+     },
+     {
+      "kind": "text",
+      "text": "で"
+     },
+     {
+      "kind": "ruby",
+      "base": "友達",
+      "rt": "ともだち"
+     },
+     {
+      "kind": "text",
+      "text": "を"
+     },
+     {
+      "kind": "ruby",
+      "base": "待",
+      "rt": "ま"
+     },
+     {
+      "kind": "text",
+      "text": "ちました"
+     },
+     {
+      "kind": "text",
+      "text": "。"
+     },
+     {
+      "kind": "ruby",
+      "base": "電車",
+      "rt": "でんしゃ"
+     },
+     {
+      "kind": "text",
+      "text": "が"
+     },
+     {
+      "kind": "ruby",
+      "base": "遅",
+      "rt": "おく"
+     },
+     {
+      "kind": "text",
+      "text": "れて"
+     },
+     {
+      "kind": "text",
+      "text": "、"
+     },
+     {
+      "kind": "ruby",
+      "base": "少",
+      "rt": "すこ"
+     },
+     {
+      "kind": "text",
+      "text": "し"
+     },
+     {
+      "kind": "ruby",
+      "base": "困",
+      "rt": "こま"
+     },
+     {
+      "kind": "text",
+      "text": "りました"
+     },
+     {
+      "kind": "text",
+      "text": "。"
+     }
+    ]
+   },
+   "pinyin_payload": null
+  },
+  "questions": [
+   {
+    "sense_ids": [
+     207
+    ]
+   }
+  ],
+  "senses": {
+   "201": {
+    "lemma": "駅",
+    "pos": "noun",
+    "freq": 4.5,
+    "reading": "えき",
+    "glosses": {
+     "2": {
+      "def": "station (train)",
+      "ex": "駅で会いましょう。"
+     }
+    }
+   },
+   "202": {
+    "lemma": "前",
+    "pos": "noun",
+    "freq": 5.2,
+    "reading": "まえ",
+    "glosses": {
+     "2": {
+      "def": "in front of; before",
+      "ex": "家の前に車があります。"
+     }
+    }
+   },
+   "203": {
+    "lemma": "友達",
+    "pos": "noun",
+    "freq": 4.8,
+    "reading": "ともだち",
+    "glosses": {
+     "2": {
+      "def": "friend",
+      "ex": "友達と映画を見ました。"
+     }
+    }
+   },
+   "204": {
+    "lemma": "待つ",
+    "pos": "verb",
+    "freq": 4.6,
+    "reading": "まつ",
+    "glosses": {
+     "2": {
+      "def": "to wait",
+      "ex": "ここで待ってください。"
+     }
+    }
+   },
+   "205": {
+    "lemma": "電車",
+    "pos": "noun",
+    "freq": 4.4,
+    "reading": "でんしゃ",
+    "glosses": {
+     "2": {
+      "def": "train (electric)",
+      "ex": "電車で行きます。"
+     }
+    }
+   },
+   "206": {
+    "lemma": "少し",
+    "pos": "adverb",
+    "freq": 4.9,
+    "reading": "すこし",
+    "glosses": {
+     "2": {
+      "def": "a little; a few",
+      "ex": "少し休みましょう。"
+     }
+    }
+   },
+   "207": {
+    "lemma": "困る",
+    "pos": "verb",
+    "freq": 4.1,
+    "reading": "こまる",
+    "glosses": {
+     "2": {
+      "def": "to be troubled; to be at a loss",
+      "ex": "お金がなくて困っています。"
+     }
+    }
+   }
+  },
+  "knowledge": {
+   "201": {
+    "p": 0.1
+   },
+   "202": {
+    "p": 0.9
+   },
+   "203": {
+    "p": 0.3
+   },
+   "204": {
+    "p": 0.15
+   },
+   "205": {
+    "p": 0.45
+   },
+   "206": {
+    "p": 0.8
+   },
+   "207": {
+    "p": 0.05
+   }
+  },
+  "exercises": {},
+  "gloss_language_id": 2,
+  "ability_zipf": 4.5,
+  "status": "success",
+  "followup_sense_ids": [
+   201,
+   207
+  ]
+ }
+}

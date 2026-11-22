@@ -41,7 +41,7 @@ function lazyPlayer(name) {
     let handle = null;
     let destroyed = false;
     container.innerHTML =
-      '<div class="text-center py-5" data-player-loading>' +
+      '<div class="session-player-loading" data-player-loading>' +
       '<div class="spinner-border text-primary" role="status"></div></div>';
     loadModule(name)
       .then((mod) => {
@@ -204,13 +204,20 @@ export function getPlayer(item) {
 // optional link to the standalone page and a "Skip for now" button.
 function placeholderPlayer({ title, message, href }) {
   return function mount(container, ctx) {
+    // Same frame as every player: message in the stage, actions in the dock.
     container.innerHTML = `
-            <div class="session-card"><div class="card"><div class="card-body p-4 text-center">
-                <h2 class="h5 mb-2">${escapeHtml(title)}</h2>
-                <p class="text-muted">${escapeHtml(message)}</p>
-                ${href ? `<a class="btn btn-outline-primary me-2" href="${href}">Open page</a>` : ''}
-                <button class="btn btn-secondary" type="button" data-session-skip>Skip for now</button>
-            </div></div></div>`;
+            <div class="ld-screen session-placeholder">
+                <div class="ld-stage">
+                    <div class="session-placeholder__body">
+                        <h2 class="ld-h2">${escapeHtml(title)}</h2>
+                        <p class="ld-muted mb-0">${escapeHtml(message)}</p>
+                    </div>
+                </div>
+                <div class="ld-dock">
+                    ${href ? `<a class="ld-btn ld-btn--ghost" href="${href}">Open page</a>` : ''}
+                    <button class="ld-btn" type="button" data-session-skip>Skip for now</button>
+                </div>
+            </div>`;
     const skip = container.querySelector('[data-session-skip]');
     if (skip) skip.onclick = () => ctx.onSkip && ctx.onSkip();
     return {

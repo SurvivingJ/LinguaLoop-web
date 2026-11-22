@@ -1,0 +1,70 @@
+{
+  "test_id": "d112902b-b3b7-4934-ba92-954c171d5192",
+  "l1": "en",
+  "reviewer_model": "claude-opus-5-5",
+  "sentences": [
+    {
+      "idx": 0,
+      "verdict": "rewritten",
+      "entailment_ok": true,
+      "changed": true,
+      "notes": "Gold 凛とした寒気 is a crisp, bracing cold; 'biting' added harshness the gold does not carry (blind back-translation became 身を切るような). Rewrote.",
+      "tightness": 0.7164,
+      "back_translation": "身を切るような寒さが窓ガラスを伝い、部屋の空気を凍りつかせようとしている。"
+    },
+    {
+      "idx": 1,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.7551,
+      "back_translation": "しかし、窓辺に立つ幼い我が子の目は銀白色に覆われた庭に釘付けで、彼は抑えきれない生命の衝動に駆られていた。"
+    },
+    {
+      "idx": 2,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "Low tightness is lexical (余念がない rendered as wholly absorbed); gold subject is implicit, he is the same child. Meaning preserved.",
+      "tightness": 0.5507,
+      "back_translation": "厳冬の寒さなど意に介さず、彼は純粋に、ひたすら外遊びの支度に没頭している。"
+    },
+    {
+      "idx": 3,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.7273,
+      "back_translation": "ぎこちないながらも、彼は厚手のコートの袖に腕を通し、冷気から身を守るための鎧をまとう。"
+    },
+    {
+      "idx": 4,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8542,
+      "back_translation": "凍てつく空気の中、ボタンを一つずつ留めるその仕草は、未知の領域に挑む戦士のような厳かささえ帯びていた。"
+    },
+    {
+      "idx": 5,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8372,
+      "back_translation": "やがて支度が整うと、彼は勢いよく扉を押し開ける。"
+    },
+    {
+      "idx": 6,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.6875,
+      "back_translation": "激しい寒風が頬を打つ外の世界へと無邪気な好奇心をもって駆け出していくその背中には、過酷な環境さえも楽しみへと変えてしまう、人間が本来持つたくましさが凝縮されていた。"
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "_comment": "Japanese overrides for tests.json (pass after it, with --lang 3): the same slug carries a Japanese reading test with a furigana payload.",
+  "GET /api/tests/zh-weekend-hike": {
+    "status": "success",
+    "test": { "slug": "zh-weekend-hike", "title": "週末の山登り", "topic": "Outdoor activities", "language": "ja", "language_id": 3, "audio_url": "/static/none.mp3", "audio_generated": true, "total_attempts": 12 }
+  },
+  "GET /api/tests/test/zh-weekend-hike": {
+    "status": "success",
+    "test_data": {
+      "id": "t-hike-ja",
+      "slug": "zh-weekend-hike",
+      "title": "週末の山登り",
+      "topic": "Outdoor activities",
+      "language": "ja",
+      "language_id": 3,
+      "audio_url": "/static/none.mp3",
+      "transcript": "先週末、友達と山に登りました。朝七時に出発しました。天気はとても良かったです。"
+    },
+    "skill_ratings": { "reading": { "elo_rating": 1260, "total_attempts": 2 }, "listening": { "elo_rating": 1200, "total_attempts": 0 } },
+    "questions_data": [
+      { "id": "q1", "question_text": "何時に出発しましたか？", "choices": ["六時", "七時", "八時", "九時"], "question_type": "mc" },
+      { "id": "q2", "question_text": "天気はどうでしたか？", "choices": ["雨でした", "寒かったです", "とても良かったです", "雪でした"], "question_type": "mc" }
+    ],
+    "furigana_payload": {
+      "transcript": [
+        { "kind": "ruby", "base": "先週末", "rt": "せんしゅうまつ" }, { "kind": "plain", "text": "、" },
+        { "kind": "ruby", "base": "友達", "rt": "ともだち" }, { "kind": "plain", "text": "と" },
+        { "kind": "ruby", "base": "山", "rt": "やま" }, { "kind": "plain", "text": "に" },
+        { "kind": "ruby", "base": "登", "rt": "のぼ" }, { "kind": "plain", "text": "りました。" },
+        { "kind": "ruby", "base": "朝", "rt": "あさ" }, { "kind": "ruby", "base": "七時", "rt": "しちじ" }, { "kind": "plain", "text": "に" },
+        { "kind": "ruby", "base": "出発", "rt": "しゅっぱつ" }, { "kind": "plain", "text": "しました。" },
+        { "kind": "ruby", "base": "天気", "rt": "てんき" }, { "kind": "plain", "text": "はとても" },
+        { "kind": "ruby", "base": "良", "rt": "よ" }, { "kind": "plain", "text": "かったです。" }
+      ],
+      "questions": [
+        { "text": [{ "kind": "ruby", "base": "何時", "rt": "なんじ" }, { "kind": "plain", "text": "に" }, { "kind": "ruby", "base": "出発", "rt": "しゅっぱつ" }, { "kind": "plain", "text": "しましたか？" }], "choices": [[{ "kind": "ruby", "base": "六時", "rt": "ろくじ" }], [{ "kind": "ruby", "base": "七時", "rt": "しちじ" }], [{ "kind": "ruby", "base": "八時", "rt": "はちじ" }], [{ "kind": "ruby", "base": "九時", "rt": "くじ" }]] }
+      ]
+    },
+    "vocab_token_map": [["先週末", 201], ["、", null], ["友達", 202], ["と山に登りました。朝七時に出発しました。天気はとても良かったです。", null]],
+    "definitions": { "201": { "word": "先週末", "definition": "last weekend", "part_of_speech": "noun", "reading": "せんしゅうまつ" }, "202": { "word": "友達", "definition": "friend", "part_of_speech": "noun", "reading": "ともだち" } }
+  },
+  "GET /api/tests/zh-weekend-hike/sentences": { "status": "success", "sentences": [] }
+}

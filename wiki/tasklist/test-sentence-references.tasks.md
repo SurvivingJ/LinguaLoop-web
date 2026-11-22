@@ -3,8 +3,8 @@ title: "Test Sentence References — Task Breakdown"
 feature: test-sentence-references
 prose_page: ../features/test-sentence-references.md
 tech_page: ../features/test-sentence-references.tech.md
-total_tasks: 12
-done: 11
+total_tasks: 14
+done: 12
 ---
 
 # Test Sentence References — Task Breakdown
@@ -278,7 +278,7 @@ The evaluation page exists, the tasklist and ADR-037 are updated with the decisi
 
 ## TASK-908: Full run — all active tests, winning arm
 
-**Status:** [ ] Not Started — unblocked by TASK-907; needs TASK-901 applied live first
+**Status:** [~] In Progress — English references for every Japanese and Chinese test **done live 2026-11-17**; Chinese references for English tests deferred (developer, 2026-11-17: no learner has Chinese as native language yet). See the run record below.
 **Feature:** test-sentence-references
 **Type:** feature
 **Complexity:** L
@@ -291,13 +291,23 @@ tests are fully covered. Second L1 set (ja for zh tests, zh for ja tests, ja for
 follow-on slice once a learner with that L1 exists.
 
 **Acceptance Criteria:**
-- [ ] Every active test with ≥ 2 sentences has an active reference for every sentence in the first L1 set; `status` shows no gaps.
-- [ ] Coverage query per language = 100% of sentences; tightness floor met by ≥ 90% of sentences; the rest are listed for a second review pass.
-- [ ] `dt_passage` rows for fully covered tests are `retired`; existing `dt_submission` history still resolves.
-- [ ] Author and reviewer turn counts recorded in the log (the cost of this run is agent time, not OpenRouter spend).
+- [~] Every active test with ≥ 2 sentences has an active reference for every sentence in the first L1 set; `status` shows no gaps. *(Japanese and Chinese → English: done 2026-11-17. English → Chinese: deferred.)*
+- [x] Coverage query per language = 100% of sentences; tightness floor met by ≥ 90% of sentences; the rest are listed for a second review pass. *(ja 100% / 96.6%, zh 100% / 94.3%; second pass run on 193, 89 listed.)*
+- [x] ~~`dt_passage` rows for fully covered tests are `retired`~~ — obsolete: no legacy passages remain (2026-11-17); `dt_submission` history unaffected.
+- [x] Author and reviewer turn counts recorded in the log (the cost of this run is agent time, not OpenRouter spend).
 
 **Verification:**
 `scripts/sentence_ref_runner.py status` across all RUN dirs; the coverage SQL in the tech page.
+
+**Run record (2026-11-16/17):**
+- 2026-11-16, not previously logged: 30 Japanese + 30 Chinese tests (run_00/run_01, 667 references, sentencewise).
+- 2026-11-17 (`data/sentence_refs/full_2026-11-17/`): `ja-en-2026-11-17` 24 tests / 116 sentences (2 Sonnet author turns, 2 reviewer turns: 1 Opus, 1 Sonnet; 110 pass, 6 rewritten); `zh-en-2026-11-17` 65 tests / 1,036 sentences (9 Sonnet author turns, 9 reviewer turns: 2 Opus, 7 Sonnet; 1,013 pass, 23 rewritten); `zh-en-new-2026-11-17` the 150 Chinese tests added on 2026-11-14, which had no `test_sentences` rows or `transcript_hash` until `build_test_sentences.py --apply` today (1,039 sentences; 10 Sonnet author turns, 10 reviewer turns: 2 Opus, 8 Sonnet; 1,016 pass, 23 rewritten); `recheck-2026-11-17` second blind review of the 193 references below the floor (8 Opus turns; 150 pass, 35 rewritten, 8 fail = broken gold, previous reference kept).
+- Result, active tests: Japanese 388/388 sentences with an English reference (96.6% at the floor), Chinese 3,008/3,008 (94.3%), English→Chinese unchanged at 484/2,486 (94.8% of those at the floor). Servable `/next` windows: 850 Chinese, 81 Japanese.
+- 89 references of the 2026-11-14 batch are below the floor and have had one review only — candidates for the next `sentence_ref_recheck.py` pass. 110 earlier ones stay below the floor after two blind reviews that both called them faithful (open question on the prose page).
+- "`dt_passage` rows for fully covered tests are retired": no longer applies. `dt_passage_reference` had 0 rows and every `dt_passage` row was a range passage on 2026-11-17.
+- Later on 2026-11-17, after the developer's decisions: `recheck2-2026-11-17` second blind review of the 89 (4 Opus turns; 74 pass, 15 rewritten, 0 fail); `recheck-accepted-2026-11-17` activates the 8 references failed only for glossed/duplicated gold (7 pass, 1 rewritten), since the glosses are intended (TASK-1032 Won't Do). With the ADR-050 override (TASK-1033): at floor or agreed ja 386/388, zh 2,985/3,008, en→zh 473/484; servable windows zh 856, ja 83. Still gated: references rewritten by a second reviewer whose new text has one review (ja 2, zh 20, en→zh 11 below the floor).
+- OpenRouter spend: none.
+- Harness fixes: `export` counts `rewritten` as covered (it re-exported tests already done); `assemble` takes `author_model`/`arm`/`prompt_version` from the authored document (reviewers never see `docs/`, so every row was `claude-subagent`). The number check compared digit strings, so 102万 → "1,020,000" failed and one test (61f4125b) was written "1020000 yuan"; fixed later on 2026-11-17 (values, see the tech page; number words accepted too). Both bent references were re-reviewed (`recheck-numbers-2026-11-17`, Opus, `export --sentences ... --reason ...`) and replaced live: 61f4125b idx 1–2 now "980,000 / 1,020,000 / 970,000 yuan", 3574dd04 idx 2 "...traced back to the 1970s." 
 
 ---
 
@@ -387,3 +397,63 @@ learner asks for it (off by default).
 
 **Verification:**
 vitest; open the preview on a test with sentence rows and on one without.
+
+---
+
+## TASK-1032: Clean English glosses out of Chinese transcripts
+
+**Status:** Won't Do — developer, 2026-11-17: the glosses are intended content. The 8 references failed for this reason (and for 18a77687's intended "这件T恤的T恤") were activated in `recheck-accepted-2026-11-17`.
+**Feature:** test-sentence-references
+**Type:** bug
+**Complexity:** S
+**Depends On:** none
+
+**Description:**
+15 active Chinese tests carry English inside the transcript, mostly bracketed glosses such as
+（sustainability） or English words with a Chinese gloss (meritocratic（绩效导向）). The
+reviewers failed 7 references on them as broken gold (6ff700da, 1e6419a4, 4980d9b2, 568533a8,
+eb41dd33). Learners are asked to produce Chinese that contains English. Candidates (2026-11-17):
+6ff700da (9), 0841c0e6 (3), 56d76dd3 (3), 12c9556a, 2c1e8d79, 568533a8 (2 each), 61eb20cc,
+b28afcde, cb4f80b2, c2d263d5, cc7b0bb0, a171a56b, eb41dd33, 4980d9b2 (1 each), 1e6419a4 (3
+English words with Chinese glosses). 18a77687's "这件T恤的T恤" is not included: on 2026-11-12 it
+was left as is because the audio says it.
+
+**Acceptance Criteria:**
+- [ ] Each candidate is either cleaned (gloss removed, word map, pinyin and sentences rebuilt with the existing scripts) or recorded as intended.
+- [ ] Cleaned tests get fresh references through the authoring and review skills (a transcript edit retires the old ones by hash).
+
+**Verification:**
+Re-run the gloss query in the 2026-11-17 log entry; it returns only tests recorded as intended.
+
+---
+
+## TASK-1033: Two agreeing reviews override the tightness floor (ADR-050)
+
+**Status:** [x] Done (repo + migration applied live 2026-11-17) — code not deployed. Deploy after the migration (already applied): the new code reads `faithful_reviews`.
+**Feature:** test-sentence-references
+**Type:** feature
+**Complexity:** S
+**Depends On:** TASK-909
+
+**Description:**
+Developer decision 2026-11-17: when two independent reviews agree a reference is faithful, its
+tightness score no longer gates window selection. Store the agreement as
+`test_sentence_references.faithful_reviews` and use one gate for `/next` and Produce.
+
+**Acceptance Criteria:**
+- [x] Migration adds `faithful_reviews` (CHECK ≥ 0) and backfills it from existing rows; applied live.
+- [x] `upload_sentence_references.py` sets it on every insert (distinct runs that passed or wrote the same text; 0 for `fail`).
+- [x] `window_meets_floor` leaves agreed sentences out of the mean; both selectors use it.
+- [x] `/next` and Produce read the column.
+
+**Files to Create / Modify:**
+- `migrations/test_sentence_references_faithful_reviews.sql`
+- `services/dual_translation/sentence_refs.py` — `FLOOR_OVERRIDE_REVIEWS`, `faithful_reviews()`
+- `services/dual_translation/passage_builder.py` — `window_meets_floor`, `agreed` parameter on both selectors
+- `routes/dual_translation.py`, `services/prestudy.py`, `scripts/upload_sentence_references.py`
+- `tests/test_dt_next_sentence_windows.py`, `tests/test_upload_sentence_references.py`
+
+**Verification:**
+`pytest tests/test_dt_next_sentence_windows.py tests/test_upload_sentence_references.py tests/test_window_selector.py tests/test_prestudy_session.py tests/test_migration_security_lint.py`;
+live: `select count(*) filter (where faithful_reviews >= 2) from test_sentence_references where is_active` (673 on 2026-11-17).
+

@@ -39,8 +39,9 @@ def plan_for_test(db, test_id: str, rows: list[dict], run_id: str) -> dict:
     by_idx = {s['idx']: s['id'] for s in sents}
     sids = list(by_idx.values())
     l1ids = sorted({r['l1_language_id'] for r in rows})
-    existing_run = db.table('test_sentence_references').select('sentence_id, l1_language_id').in_('sentence_id', sids).eq('run_id', run_id).execute().data or []
-    already = {(e['sentence_id'], e['l1_language_id']) for e in existing_run}
+    prior = db.table('test_sentence_references').select('sentence_id, l1_language_id, l1_text, run_id, review_verdict') \
+        .in_('sentence_id', sids).in_('l1_language_id', l1ids).execute().data or []
+    already = {(e['sentence_id'], e['l1_language_id']) for e in prior if e['run_id'] == run_id}
     active = db.table('test_sentence_references').select('id, sentence_id, l1_language_id').in_('sentence_id', sids).in_('l1_language_id', l1ids).eq('is_active', True).execute().data or []
     existing_active = {(e['sentence_id'], e['l1_language_id']): e['id'] for e in active}
     inserts = []
@@ -56,6 +57,7 @@ def plan_for_test(db, test_id: str, rows: list[dict], run_id: str) -> dict:
             'arm': r.get('arm'), 'reviewer_model': r.get('reviewer_model'), 'review_verdict': r['review_verdict'],
             'tightness': r.get('tightness'), 'entailment_ok': r.get('entailment_ok'), 'is_active': False, 'run_id': run_id,
         })
+        inserts[-1]['faithful_reviews'] = sr.faithful_reviews(inserts[-1], run_id, prior)
     act = sr.activation_plan(inserts, existing_active)
     return {'insert': inserts, 'deactivate': act['deactivate'], 'activate': act['activate']}
 

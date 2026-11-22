@@ -37,6 +37,7 @@ import logging
 import random
 from dataclasses import dataclass, field
 
+from services.exercise_content import store
 from services.supabase_factory import get_supabase_admin
 
 logger = logging.getLogger(__name__)
@@ -133,7 +134,18 @@ class SpeedRoundComposer:
                 reason='no_recognition_items_for_mastered_words',
             )
 
-        items = self._select(candidates, size)
+        # Pick first, then hydrate only the picked rows (ADR-049): content is
+        # fetched for at most ``size`` senses, not for every mastered one. A
+        # row whose content cannot be found is dropped by hydrate.
+        picked = self._pick(candidates, size)
+        try:
+            store.hydrate(picked, language_id=language_id)
+        except Exception as exc:
+            # hydrate never raises for storage or network problems (ADR-049
+            # §9); serve only the rows that have content.
+            logger.error('speed-round content hydration failed: %s', exc)
+            picked = [row for row in picked if row.get('content') is not None]
+        items = [_to_item(row) for row in picked]
         if len(items) < MIN_BATTERY:
             # Better no battery than a three-item "round": the format only
             # produces fluency pressure at length.
@@ -207,8 +219,9 @@ class SpeedRoundComposer:
         try:
             resp = (
                 self.db.table('exercises')
-                .select('id, exercise_type, content, ladder_level, word_sense_id, '
-                        'complexity_tier')
+                .select(store.select_columns(
+                    'id, exercise_type, {content}, ladder_level, word_sense_id, '
+                    'complexity_tier'))
                 .eq('language_id', language_id)
                 .eq('is_active', True)
                 .not_.is_('word_asset_id', 'null')
@@ -224,12 +237,14 @@ class SpeedRoundComposer:
     # ------------------------------------------------------------------
 
     @staticmethod
-    def _select(candidates: list[dict], size: int) -> list[dict]:
-        """Pick at most one item per sense, shuffled, capped at ``size``.
+    def _pick(candidates: list[dict], size: int) -> list[dict]:
+        """Pick at most one row per sense, shuffled, capped at ``size``.
 
         Grouping first and sampling within the group keeps the battery spread
         across the learner's mastered vocabulary rather than clustering on
-        whichever senses happen to have the most generated items.
+        whichever senses happen to have the most generated items. Returns the
+        exercise rows themselves (a new list), so the caller can hydrate just
+        these before projecting them with :func:`_to_item`.
         """
         by_sense: dict = {}
         for item in candidates:
@@ -240,7 +255,12 @@ class SpeedRoundComposer:
             picked.extend(random.sample(items, min(MAX_ITEMS_PER_SENSE, len(items))))
 
         random.shuffle(picked)
-        return [_to_item(item) for item in picked[:size]]
+        return picked[:size]
+
+    @staticmethod
+    def _select(candidates: list[dict], size: int) -> list[dict]:
+        """:meth:`_pick`, projected into the battery's item shape."""
+        return [_to_item(row) for row in SpeedRoundComposer._pick(candidates, size)]
 
 
 def _to_item(row: dict) -> dict:

@@ -5,7 +5,7 @@ only network-touching function (`generate_l1_reference`) takes its router
 resolver and model caller as injectable arguments, so no live DB or OpenRouter
 call happens here (same convention as test_dual_translation_routes.py /
 test_dual_translation_grader_cascade.py). Live verification against a real
-seeded corpus is done by scripts/build_dt_passages.py, not here.
+seeded corpus was done by scripts/build_dt_passages.py (removed 2026-11-17), not here.
 """
 
 import pytest

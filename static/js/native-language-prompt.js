@@ -18,7 +18,9 @@
   function browserLanguageId(languages) {
     const list = languages || [];
     for (let i = 0; i < list.length; i++) {
-      const code = String(list[i] || '').toLowerCase().split('-')[0];
+      const code = String(list[i] || '')
+        .toLowerCase()
+        .split('-')[0];
       if (SUPPORTED[code]) return SUPPORTED[code];
     }
     return SUPPORTED.en;
@@ -78,7 +80,8 @@
   }
 
   function maybePrompt() {
-    if (isDone() || !hasToken() || typeof window.authFetch !== 'function') return Promise.resolve(false);
+    if (isDone() || !hasToken() || typeof window.authFetch !== 'function')
+      return Promise.resolve(false);
     return window
       .authFetch('/api/users/native-language')
       .then(function (res) {

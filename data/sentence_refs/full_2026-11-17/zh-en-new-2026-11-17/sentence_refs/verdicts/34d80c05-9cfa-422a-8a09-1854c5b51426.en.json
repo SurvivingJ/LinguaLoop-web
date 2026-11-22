@@ -1,0 +1,52 @@
+{
+  "test_id": "34d80c05-9cfa-422a-8a09-1854c5b51426",
+  "l1": "en",
+  "reviewer_model": "claude-sonnet-5-5",
+  "sentences": [
+    {
+      "idx": 0,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8676,
+      "back_translation": "在描述一组数据的集中趋势时，人们习惯把平均数、中位数和众数当作可靠的答案，但它们的敏感程度并不相同，一旦数据的分布形态发生扭曲，结论就可能产生误导。"
+    },
+    {
+      "idx": 1,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8333,
+      "back_translation": "当少数极端值把整体拉高或拉低时，平均数就失去了代表性：大多数员工的月薪只有几千元，但少数高管的巨额薪酬让平均数看起来相当可观，这时中位数反而更接近真实情况。"
+    },
+    {
+      "idx": 2,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.7907,
+      "back_translation": "众数的弱点在于它只反映频率最高的那一个区间，如果分布比较分散，它甚至无法指出数据的重心在哪里。"
+    },
+    {
+      "idx": 3,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8627,
+      "back_translation": "偏态分布尤其容易制造错觉：在右偏的工资和房价数据中，平均数总是被长尾拉高，而中位数仍稳稳地处在大多数人的位置。"
+    },
+    {
+      "idx": 4,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8889,
+      "back_translation": "因此，与其追问哪个指标最准确，不如先看清数据的形状，再结合三者的差异来判断，以免被单一数字误导。"
+    }
+  ]
+}
