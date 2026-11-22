@@ -7150,3 +7150,26 @@ Developer: "apply the part of speech label migration" (written 2026-11-11, never
 **Effect on the staged fat-seed packages** (`data/exercise_seeding/{ja,zh}/upload_*`, not applied): their `part_of_speech` UPDATEs (`名词`, `动词`, …) now land as the standard label with the original kept, so the 4,879 zh "overwrites" in `overwrites_live_values.csv` are no longer a format change. The 68 ja POS overwrites still contradict the 2026-11-12 decision (ja keeps the tagger's tag) and should be dropped before that package is applied.
 
 Pages updated: 3 ([[database/schema.tech]] `dim_vocabulary` columns, check, triggers; index; this log). Migration header status updated.
+
+## [2026-11-22] update | zh/ja content seeding staged (2026-11-17 → 11-19); apply plan filed (TASK-1034–1043)
+Developer brief (2026-11-17): build exercises for Chinese (and Japanese if its output was missing) and a comprehensive zh/ja topic list including professional subjects, **staged only, no database writes** (codebase mid-refactor). Then (2026-11-19): check the post-cut-over tables and plan how to apply it.
+
+**Topics** (2026-11-17, commit 17abfdc): 573 new entries in `data/topics/staged/2026-11-17/` — zh 315, ja 325 (67 shared), 35 categories (18 new: economics, finance, law, mathematics, psychology, …); T5–T6 weighted to economics, finance, history, science/tech, law, medicine. Importer-valid JSON per category + `manifest.{json,csv}` + `stamp_tiers.sql` (the importer still drops `target_age_tier`). Not imported.
+
+**Exercise assets** (fat-seed pipeline, `.claude/skills/fat-seed-authoring/SKILL.md`, 20 workers, run under the offline shim against a read-only REST snapshot of 2026-11-17 12:55 UTC):
+- ja output was confirmed missing (3,183 reviewed senses never uploaded) and restored from git history (`0dce7d1`), plus 34 new runs → package `data/exercise_seeding/ja/upload_2026-11-17/`: 3,298 senses, 23,086 `word_assets`, 7,100 UPDATEs.
+- zh: 9,585 senses restored from history (`cfb6fd1`) + 989 new runs (10,569 senses, all finished after ~7 container restarts; 35 run failures, all from malformed repair JSON, all retried successfully) → package `data/exercise_seeding/zh/upload_2026-11-19/`: 15,624 senses, 109,368 `word_assets`, 31,248 UPDATEs.
+- Senses that already had `prompt1_core` were excluded (ja 3,151, zh 7,786).
+- Dictionary overwrites listed per package (`overwrites_live_values.csv`): zh 8,768 (4,879 POS label format, 3,578 pinyin `shì (shi4)` → `shì`, 311 semantic_class), ja 337 (189 semantic_class, 68 POS, 80 pronunciation).
+- Opus spot-check (rubric v3, 36 senses each): ja 6.95, zh 6.80; ~19–22% of senses with a fatal defect, nearly all a level_3/6/7 "wrong" item that is acceptable language.
+- Archives pushed to `claude/hopeful-johnson-iv4k69` (~272 MB, 22 files ≤ 45 MB, force-added under the git-ignored `data/exercise_seeding/`), indexed in `data/exercise_seeding/tools/archive/README.md`.
+
+**Apply plan** (read-only checks on the live database, 2026-11-19 and 2026-11-22):
+- The packages write only `word_assets` and dictionary fields; exercises are created at render time by `scripts/render_existing_assets.py` through `store.write_sense` (ADR-049), so the cut-over does not change the packages.
+- Drift: every staged sense exists, 0 edited since the snapshot, 0 with assets or exercises; 28 zh senses are blocklisted (`calibration_anchor_blocklist`).
+- **Space is the blocker:** database 362 MB of 500 MB; applying everything adds ~330–380 MB (`word_assets` ~148, `exercises` ~129, `storage.objects` ~31, update churn ~15, judge logs ~43, topics ~13). Options in TASK-1034.
+- The part-of-speech migration was applied the same day (entry above), so zh POS UPDATEs land as standard labels; the 68 ja POS overwrites must still be dropped (TASK-1035).
+
+**Filed:** [[tasklist/zh-ja-content-seeding.tasks]] (TASK-1034–1043, draft for owner review; two owner decisions gate the pilot). Tools committed: `scratch_offline/staging/staged_check.py` (read-only drift check), `overwrite_report.py`, `rest_snapshot.py`.
+
+Pages created: 1 ([[tasklist/zh-ja-content-seeding.tasks]]). Pages updated: 3 ([[tasklist/master]] Not Started 47→55, awaiting decision 30→32; index; this log).
