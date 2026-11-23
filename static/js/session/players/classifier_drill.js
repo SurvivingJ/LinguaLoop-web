@@ -961,7 +961,7 @@ export const CLASSIFIER = {
       ? ' <span class="cd-feedback-alt">(' +
         t('also', null, 'also') +
         ': ' +
-        altList.join(' / ') +
+        altList.map(escapeHtml).join(' / ') +
         ')</span>'
       : '';
     el.fbCanonical.innerHTML =

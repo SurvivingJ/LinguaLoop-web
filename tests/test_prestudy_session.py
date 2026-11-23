@@ -8,7 +8,6 @@ import json
 from types import SimpleNamespace
 from unittest.mock import MagicMock
 
-import pytest
 from flask import Flask, g
 
 import routes.tests.prestudy as test_routes

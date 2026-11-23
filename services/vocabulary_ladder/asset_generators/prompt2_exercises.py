@@ -13,12 +13,10 @@ concrete noun, the prompt simply omits Level 5 entirely.
 import json
 import logging
 
-from config import Config
 from services.llm_service import call_llm, ladder_qwen_reasoning_mode
 from services.prompt_service import get_template_config
 from services.vocabulary_ladder.config import (
-    PROMPT2_LEVELS, OPTION_KEY_MAP, DEFAULT_SENTENCE_ASSIGNMENTS,
-    SENTENCE_ASSIGNMENTS_A, get_sentence_target, remap_keys,
+    PROMPT2_LEVELS, OPTION_KEY_MAP, SENTENCE_ASSIGNMENTS_A, get_sentence_target, remap_keys,
 )
 from services.vocabulary_ladder.asset_generators._renderer import render_template
 
@@ -365,8 +363,8 @@ class ExerciseAssetGenerator:
             # TASK-8xx (en bundle-mode 0-exercise renders, item 6): the model
             # is not schema-guaranteed to emit the sentence index as a JSON
             # number — a string index here survives remap/validation
-            # untouched and later blows up `correct_idx < len(sentences)` in
-            # `exercise_renderer._gather_bundle_judge_requests` with
+            # untouched and later blows up a `correct_idx < len(sentences)`
+            # comparison downstream with
             # `TypeError: '<' not supported between instances of 'str' and
             # 'int'`, observed live on en senses 13900/13902. Coerce once,
             # here, so every downstream reader gets a real int.

@@ -2,7 +2,6 @@
 """Tests for Pydantic request validation on key endpoints."""
 
 import json
-import pytest
 
 
 def resp_json(resp):

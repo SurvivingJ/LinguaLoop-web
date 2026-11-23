@@ -44,7 +44,12 @@
             <div class="cal-headline">
                 <div class="cal-big" id="calResultLevel">—</div>
                 <div class="cal-sub" id="calResultSub"></div>
+                {# OQ33: name what this check's own figure measures (TASK-1042). #}
+                <div class="cal-sub cal-measure" id="calResultMeasure" hidden data-i18n="calibration.result_measure">The frequency level where you still know 85% of words (this check's own measure)</div>
             </div>
+            {# The Knowledge Report's range for the same learner (P16, TASK-1042); filled by
+               calibration.js only when /api/knowledge/summary answers 200. #}
+            <div class="cal-knowledge ld-note" id="calKnowledge" hidden></div>
             <div class="cal-chart">
                 <div class="cal-curve" id="calCurve"></div>
                 <p class="cal-note" id="calResultNote"></p>

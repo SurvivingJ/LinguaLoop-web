@@ -53,6 +53,7 @@ from routes.dual_translation import dual_translation_bp
 from routes.dt_repair import dt_repair_bp
 from routes.test_intros import test_intros_bp
 from routes.word_list_import import word_list_import_bp
+from routes.knowledge import knowledge_bp
 
 
 def create_app(config_class=Config):
@@ -141,12 +142,12 @@ def _initialize_services(app, config_class=Config):
 
     # Supabase initialization via centralized factory
     try:
-        if Config.SUPABASE_URL and Config.SUPABASE_KEY:
+        if config_class.SUPABASE_URL and config_class.SUPABASE_KEY:
             SupabaseFactory.initialize(
-                supabase_url=Config.SUPABASE_URL,
-                supabase_key=Config.SUPABASE_KEY,
-                service_role_key=Config.SUPABASE_SERVICE_ROLE_KEY,
-                postgrest_timeout=Config.SUPABASE_POSTGREST_TIMEOUT,
+                supabase_url=config_class.SUPABASE_URL,
+                supabase_key=config_class.SUPABASE_KEY,
+                service_role_key=config_class.SUPABASE_SERVICE_ROLE_KEY,
+                postgrest_timeout=config_class.SUPABASE_POSTGREST_TIMEOUT,
                 # Test configurations run on mocked clients.
                 require_service_role=not getattr(config_class, 'TESTING', False),
             )
@@ -176,23 +177,23 @@ def _initialize_services(app, config_class=Config):
         app.device_service = None
 
     try:
-        service_factory = ServiceFactory(Config)
-        app.openai_service = service_factory.openai_service if Config.OPENAI_API_KEY else None
+        service_factory = ServiceFactory(config_class)
+        app.openai_service = service_factory.openai_service if config_class.OPENAI_API_KEY else None
         app.logger.info(f"OpenAI service: {'enabled' if app.openai_service else 'disabled'}")
     except Exception as e:
         app.logger.error(f"Service factory error: {e}")
         app.openai_service = None
 
     try:
-        app.r2_service = R2Service(Config) if Config.R2_ACCESS_KEY_ID else None
+        app.r2_service = R2Service(config_class) if config_class.R2_ACCESS_KEY_ID else None
         app.logger.info(f"R2 service: {'enabled' if app.r2_service else 'disabled'}")
     except Exception as e:
         app.logger.error(f"R2 service error: {e}")
         app.r2_service = None
 
     try:
-        if Config.STRIPE_SECRET_KEY:
-            stripe.api_key = Config.STRIPE_SECRET_KEY
+        if config_class.STRIPE_SECRET_KEY:
+            stripe.api_key = config_class.STRIPE_SECRET_KEY
             app.logger.info("Stripe configured")
         else:
             app.logger.warning("Stripe not configured")
@@ -250,6 +251,8 @@ def _register_blueprints(app):
     app.register_blueprint(dt_repair_bp, url_prefix='/api/dual-translation/repair')
     app.register_blueprint(test_intros_bp)
     app.register_blueprint(word_list_import_bp)
+    # Knowledge Report ("My vocabulary"); answers 404 while KNOWLEDGE_REPORT_ENABLED is off.
+    app.register_blueprint(knowledge_bp, url_prefix='/api/knowledge')
 
     app.logger.info("Blueprints registered")
 

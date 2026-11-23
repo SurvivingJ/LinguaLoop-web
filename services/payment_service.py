@@ -5,8 +5,8 @@ Handles token-based pay-as-you-go payments via Stripe
 
 import logging
 import stripe
-from datetime import datetime, timedelta, timezone
-from typing import Dict, Optional, Tuple
+from datetime import datetime, timezone
+from typing import Dict, Tuple
 from enum import Enum
 from supabase import Client
 
@@ -368,7 +368,7 @@ class PaymentService:
         """Award daily free tokens to user"""
         today = datetime.now(timezone.utc).date().isoformat()
         
-        updated_record = self.supabase.table('user_tokens').update({
+        self.supabase.table('user_tokens').update({
             'last_free_token_date': today,
             'updated_at': datetime.now(timezone.utc).isoformat()
         }).eq('user_id', user_id).execute()

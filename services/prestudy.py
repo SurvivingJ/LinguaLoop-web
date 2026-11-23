@@ -42,6 +42,7 @@ import math
 import random
 from typing import Iterable, Optional
 
+from services.calibration_service import MODE_DEFINITION
 from services.concurrency import run_parallel
 from services.exercise_content import store
 from services.pagination import fetch_all
@@ -164,6 +165,18 @@ def _chunks(seq: list, n: int = 200):
         yield seq[i:i + n]
 
 
+def _with_zh_numbered(reading: Optional[str], language_id) -> Optional[str]:
+    """A zh reading stored tone-marked only ('mù tou') gains its numbered part ('mù tou (mu4 tou5)'),
+    the shape the prestudy page and the intro drill read: without it their typed-reading formats are
+    dropped for most zh words (vocab-placement tech E17). Other languages and readings that already
+    carry a numbered part, or are not pinyin, are returned unchanged."""
+    if not reading or language_id != 1 or '(' in reading:
+        return reading
+    from services.intro_drill import _zh_numbered
+    numbered = _zh_numbered(reading.strip())
+    return f'{reading.strip()} ({numbered})' if numbered else reading
+
+
 def _load_senses(db, sense_ids: list[int], gloss_language_id: Optional[int]) -> dict[str, dict]:
     """Lemma, POS, frequency, reading and glosses (native + preferred) per sense."""
     rows: list[dict] = []
@@ -182,7 +195,7 @@ def _load_senses(db, sense_ids: list[int], gloss_language_id: Optional[int]) -> 
             'lemma': v.get('lemma') or '',
             'pos': v.get('part_of_speech'),
             'freq': v.get('frequency_rank'),
-            'reading': v.get('reading') or r.get('pronunciation'),
+            'reading': _with_zh_numbered(v.get('reading') or r.get('pronunciation'), v.get('language_id')),
             'glosses': {str(r.get('definition_language_id')): {'def': r.get('definition'), 'ex': r.get('example_sentence')}},
         }
         if gloss_language_id and gloss_language_id != r.get('definition_language_id'):
@@ -244,9 +257,14 @@ def _load_exercises(db, sense_ids: list[int], *, language_id: Optional[int] = No
 
 
 def _ability_zipf(db, user_id: str, language_id: int) -> float:
+    """The learner's definition-mode calibration ability, else the default.
+
+    ``user_calibration_state`` is keyed (user, language, mode); only the
+    definition mode measures word knowledge (a pronunciation ability measures
+    reading), so the other modes never feed this prior."""
     try:
         r = db.table('user_calibration_state').select('ability_zipf').eq('user_id', user_id) \
-            .eq('language_id', language_id).limit(1).execute().data
+            .eq('language_id', language_id).eq('mode', MODE_DEFINITION).limit(1).execute().data
         if r and r[0].get('ability_zipf') is not None:
             return float(r[0]['ability_zipf'])
     except Exception as e:  # optional signal; the prior falls back to the default

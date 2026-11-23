@@ -133,12 +133,14 @@ def zh():
 
 
 @pytest.mark.parametrize("sentence", CHINESE_SENTENCES)
+@pytest.mark.requires('jieba')
 def test_chinese_chunk_count_in_range(zh, sentence):
     chunks = zh.chunk_sentence(sentence)
     assert 3 <= len(chunks) <= 6, f"got {len(chunks)} for: {sentence}"
 
 
 @pytest.mark.parametrize("sentence", CHINESE_SENTENCES)
+@pytest.mark.requires('jieba')
 def test_chinese_chunks_drop_punct_only(zh, sentence):
     """Concatenated chunks should equal the sentence with punctuation removed."""
     chunks = zh.chunk_sentence(sentence)
@@ -149,6 +151,7 @@ def test_chinese_chunks_drop_punct_only(zh, sentence):
     assert joined == stripped, f"{joined!r} != {stripped!r}"
 
 
+@pytest.mark.requires('jieba')
 def test_chinese_coverb_attaches_to_following_np(zh):
     """The coverb 把 should head its own chunk together with the following NP."""
     chunks = zh.chunk_sentence("我把苹果吃了。")

@@ -2,7 +2,6 @@
 """Tests for flashcard endpoints (due, review, stats, skip)."""
 
 import json
-import pytest
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 

@@ -1,12 +1,15 @@
 """TASK-872 service side -- new-word accrual arguments and tail / unstarted-first
 ordering in ``PracticeSessionService``.
 
-``record_session_progress`` is a SQL RPC (agent-owned migration); here only the
-Python call contract is pinned: ``p_sense_id`` is passed for acquisition attempts
-only, ``p_is_tail`` follows the ``is_tail`` flag. Ordering is applied to the RPC's
+``record_session_progress`` is called inside ``record_exercise_attempt``
+(migrations/record_exercise_attempt.sql); here the Python call contract is
+pinned (``p_plan_kind``, ``p_is_tail`` follows the ``is_tail`` flag) and the
+migration text is checked to pass ``p_sense_id`` for acquisition attempts only. Ordering is applied to the RPC's
 items after the fact (the selection RPC is untouched).
 """
 
+import re
+from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import MagicMock
 
@@ -14,7 +17,6 @@ import pytest
 
 from config import Config
 from services.practice_session_service import PracticeSessionService
-from services.vocabulary.knowledge_service import VocabularyKnowledgeService
 from tests.exercise_content_fakes import seed_content_files
 
 
@@ -51,18 +53,16 @@ class _DB:
 
     def rpc(self, name, args):
         self.rpcs.append((name, args))
+        if name == 'record_exercise_attempt':
+            return _Q({'attempt_id': 'attempt-1', 'is_first_attempt': True,
+                       'exercise_type': 'definition_match', 'sense_id': None,
+                       'language_id': 1, 'warnings': []})
         return _Q(None)
 
 
 @pytest.fixture
 def svc(monkeypatch):
     monkeypatch.setattr(Config, 'STUDY_PLAN_ENABLED', True)
-    # BKT / FSRS are not under test.
-    monkeypatch.setattr(VocabularyKnowledgeService, '__init__', lambda self, db=None: None)
-    monkeypatch.setattr(VocabularyKnowledgeService, 'update_from_word_test',
-                        lambda self, **k: None)
-    monkeypatch.setattr(PracticeSessionService, '_update_fsrs_for_exercise',
-                        lambda *a, **k: None)
     db = _DB({'id': 'ex-1', 'exercise_type': 'definition_match', 'word_sense_id': 42,
               'attempt_count': 0, 'correct_count': 0, 'language_id': 1})
     s = PracticeSessionService.__new__(PracticeSessionService)
@@ -70,8 +70,13 @@ def svc(monkeypatch):
     return s
 
 
+_SQL = re.sub(r'\s+', ' ', (Path(__file__).resolve().parent.parent / 'migrations'
+                            / 'record_exercise_attempt.sql').read_text())
+_SENSE_FOR_ACQ_ONLY = "p_sense_id => CASE WHEN p_plan_kind = 'practice_acq' THEN v_sense::bigint END"
+
+
 def _progress_args(svc):
-    (name, args), = [r for r in svc.db.rpcs if r[0] == 'record_session_progress']
+    (name, args), = [r for r in svc.db.rpcs if r[0] == 'record_exercise_attempt']
     return args
 
 
@@ -79,8 +84,8 @@ def test_acquisition_attempt_passes_the_sense_id(svc):
     svc.record_attempt_with_updates('u', 'ex-1', True, session_mode='acquisition',
                                     language_id=1)
     args = _progress_args(svc)
-    assert args['p_kind'] == 'practice_acq'
-    assert args['p_sense_id'] == 42
+    assert args['p_plan_kind'] == 'practice_acq'
+    assert _SENSE_FOR_ACQ_ONLY in _SQL
     assert args['p_is_tail'] is False
 
 
@@ -88,7 +93,7 @@ def test_maintenance_attempt_passes_no_sense_id(svc):
     svc.record_attempt_with_updates('u', 'ex-1', True, session_mode='maintenance',
                                     language_id=1)
     args = _progress_args(svc)
-    assert args['p_kind'] == 'practice_maint' and args['p_sense_id'] is None
+    assert args['p_plan_kind'] == 'practice_maint' and _SENSE_FOR_ACQ_ONLY in _SQL
 
 
 def test_tail_flag_is_forwarded(svc):

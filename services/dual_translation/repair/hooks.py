@@ -16,12 +16,12 @@ from services.dual_translation.repair import planner, service, settings, store
 logger = logging.getLogger(__name__)
 
 
-def _response(db, session: Optional[dict], contract: dict) -> dict:
+def _response(db, session: Optional[dict], contract: dict, items: Optional[list] = None) -> dict:
     if session is None:
         return contract
     if not isinstance(session.get("id"), int):
         raise ValueError(f"unusable dt_repair_session row: {session!r:.200}")
-    payload = service.session_payload(db, session)
+    payload = service.session_payload(db, session, items)
     # The payload must serialise (a broken row must cost the session, not the
     # learner's grade): checked here, inside the never-raise boundary.
     json.dumps(payload)
@@ -55,9 +55,39 @@ def after_grade(db, *, user_id: str, submission_row: dict, passage: dict, contra
         return contract
 
 
+def _recreate_items(db, user_id: str, submission_id: int, contract: dict) -> list:
+    """B-05: an open session with no items is the leftover of a failed items
+    insert (the session row and its items are two inserts, no transaction).
+    Re-run ``start_session``: it finds the existing session row and, seeing no
+    items, plans and inserts them. Returns the session's items afterwards
+    ([] when the replan has nothing to insert or the insert fails again, in
+    which case the caller serves the full grade)."""
+    submission = store.get_submission(db, submission_id)
+    passage = store.get_passage(db, submission["passage_id"]) if submission else None
+    if not submission or not passage:
+        return []
+    logger.warning("dt_repair: open session for submission %s has no items; re-creating them",
+                   submission_id)
+    try:
+        session = service.start_session(db, user_id=user_id, submission=submission, passage=passage,
+                                        reproduction=submission.get("reproduction") or "",
+                                        grade=contract)
+    except Exception as exc:  # noqa: BLE001 - fall back to the full grade
+        if store.is_missing_table_error(exc):
+            raise
+        logger.error("dt_repair: re-creating items for submission %s failed; serving the full "
+                     "result: %s", submission_id, exc)
+        return []
+    if session is None or session.get("submission_id") != submission_id:
+        return []
+    return store.get_items(db, session["id"])
+
+
 def for_cached(db, user_id: str, submission_id: int, contract: dict) -> dict:
     """The idempotent re-submit path: the existing session (open -> redacted), or
-    ``after_grade`` semantics when none exists (a crash between grade and session)."""
+    ``after_grade`` semantics when none exists (a crash between grade and session).
+    An open session with no items (B-05: the items insert failed) gets its items
+    re-created; if that yields none, the full grade is served."""
     try:
         if not settings.DT_GUIDED_REPAIR or not store.tables_available():
             return contract
@@ -68,7 +98,16 @@ def for_cached(db, user_id: str, submission_id: int, contract: dict) -> dict:
         if session is not None:
             if session.get("status") == "open" and service._is_stale(session, service._now()):
                 service._finish_session(db, session, status="abandoned", closed_early=None, body={})
-            return _response(db, session, contract)
+                return _response(db, session, contract)
+            if session.get("status") != "open":
+                return _response(db, session, contract)
+            items = store.get_items(db, session["id"])
+            if not items:
+                items = _recreate_items(db, user_id, submission_id, contract)
+                if not items:
+                    # no steps to offer: never a redacted grade with nothing to repair
+                    return contract
+            return _response(db, session, contract, items)
         submission = store.get_submission(db, submission_id)
         passage = store.get_passage(db, submission["passage_id"]) if submission else None
         if not submission or not passage:

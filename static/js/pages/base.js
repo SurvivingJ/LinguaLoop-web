@@ -514,9 +514,10 @@ document.addEventListener('DOMContentLoaded', function () {
         const token = _getStored('jwt_token');
         if (!token) throw new Error('Please log in');
 
-        const res = await fetch('/api/reports/submit', {
+        // authFetch sets Content-Type and the Bearer token, and renews an
+        // expired token on 401 (the modal may have been open a while).
+        const res = await window.authFetch('/api/reports/submit', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
           body: JSON.stringify({
             report_category: category,
             description: description,

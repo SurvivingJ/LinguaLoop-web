@@ -13,10 +13,8 @@ dedup. Covers both halves of decision Q5:
 from unittest.mock import MagicMock
 from uuid import uuid4
 
-import pytest
 
 from services.test_generation.dedup import (
-    DedupResult,
     PassageDedupChecker,
     compute_passage_hash,
     normalize_passage,

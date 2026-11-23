@@ -207,10 +207,12 @@ def test_each_valid_answer_updates_mastery_in_order():
         {'classifier_id': 379, 'is_correct': True, 'level': 1},
         {'classifier_id': 376, 'is_correct': False, 'level': 2},
     ], limit=2)
-    assert [p['p_classifier_id'] for _, p in sent] == [379, 376]
-    assert [p['p_is_correct'] for _, p in sent] == [True, False]
+    # Different classifiers' chains run concurrently, so the order the two
+    # calls are SENT in is not fixed; the updates come back in answer order.
+    assert sorted((p['p_classifier_id'], p['p_is_correct']) for _, p in sent) == [
+        (376, False), (379, True)]
     assert all(n == 'update_classifier_mastery' and p['p_user_id'] == 'u' for n, p in sent)
-    assert len(out) == 2
+    assert [row['classifier_id'] for row in out] == [379, 376]
 
 
 def test_malformed_answers_are_skipped():

@@ -194,7 +194,7 @@ def main():
         SupabaseFactory.initialize()
 
         # Log configuration
-        logger.info(f"Configuration:")
+        logger.info("Configuration:")
         logger.info(f"  File: {args.file}")
         logger.info(f"  Category: {args.category or '(auto)'}")
         logger.info(f"  Default Lens: {args.lens}")

@@ -175,6 +175,56 @@ describe('authFetch', () => {
   });
 });
 
+describe('report form', () => {
+  function setupReportForm() {
+    document.body.innerHTML = `
+      <form id="reportForm">
+        <select id="reportCategory"><option value="bug" selected>bug</option></select>
+        <textarea id="reportDescription">this is a long enough description</textarea>
+      </form>
+      <div id="reportError" class="d-none"></div>
+      <div id="reportSuccess" class="d-none"></div>
+      <div id="reportFooter"><button id="submitReportBtn" type="button">Send</button></div>`;
+    window.LinguaI18n = { t: (k) => k };
+    window.bootstrap = { Modal: { getInstance: () => ({ hide() {} }) } };
+    // Capture this run's DOMContentLoaded handler only: earlier tests in this
+    // file left their own handlers registered on document.
+    const spy = vi.spyOn(document, 'addEventListener');
+    run(BODY);
+    const handler = spy.mock.calls.find((c) => c[0] === 'DOMContentLoaded')[1];
+    spy.mockRestore();
+    handler();
+  }
+
+  it('submits through authFetch: renews an expired token instead of failing', async () => {
+    const stale = jwt(3600);
+    const fresh = jwt(7200);
+    localStorage.setItem('jwt_token', stale);
+    run(HEAD);
+    setupReportForm();
+    const submits = [];
+    fetchMock.mockImplementation(async (url, opts) => {
+      if (url === '/api/auth/refresh-token') {
+        return jsonResponse({ success: true, jwt_token: fresh });
+      }
+      submits.push({ ...opts, headers: { ...opts.headers } }); // authFetch mutates opts
+      return submits.length === 1
+        ? { ok: false, status: 401, json: async () => ({ error: 'expired' }) }
+        : jsonResponse({ success: true });
+    });
+
+    document.getElementById('submitReportBtn').click();
+    await vi.advanceTimersByTimeAsync(100);
+
+    expect(submits).toHaveLength(2);
+    expect(submits[0].headers.Authorization).toBe(`Bearer ${stale}`);
+    expect(submits[1].headers.Authorization).toBe(`Bearer ${fresh}`);
+    expect(Object.keys(submits[1].headers).filter((k) => /content-type/i.test(k))).toHaveLength(1);
+    expect(document.getElementById('reportError').classList.contains('d-none')).toBe(true);
+    expect(document.getElementById('reportSuccess').classList.contains('d-none')).toBe(false);
+  });
+});
+
 describe('proactive renewal', () => {
   it('refreshes about a minute before exp, then re-arms for the new token', async () => {
     localStorage.setItem('jwt_token', jwt(600));
