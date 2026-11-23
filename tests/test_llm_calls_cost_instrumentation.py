@@ -548,11 +548,13 @@ def test_malformed_json_repair_logs_call_role_json_repair():
         )
 
     assert result == {'ok': True}
-    assert len(rows) == 1  # only the repair call logs (the malformed
-    # first attempt never reaches _log_llm_call — json.JSONDecodeError is
-    # raised before any of call_llm's three _log_llm_call call sites).
-    assert rows[0]['task_name'] == 't__json_repair'
-    assert rows[0]['call_role'] == svc.CALL_ROLE_JSON_REPAIR
+    # D-02: the billed malformed primary is now logged too (parsed_ok=False),
+    # followed by the json_repair row.
+    assert len(rows) == 2
+    assert rows[0]['task_name'] == 't'
+    assert rows[0]['parsed_ok'] is False
+    assert rows[1]['task_name'] == 't__json_repair'
+    assert rows[1]['call_role'] == svc.CALL_ROLE_JSON_REPAIR
 
 
 def test_sense_id_and_batch_id_reach_the_repair_rows_too():
