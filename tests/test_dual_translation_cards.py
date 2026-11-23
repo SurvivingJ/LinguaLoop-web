@@ -8,6 +8,8 @@ fake query-builder, matching the ``_FakeDB`` pattern in
 test_dual_translation_routes.py.
 """
 
+import pytest
+
 from services.dual_translation import cards
 
 
@@ -548,3 +550,69 @@ class TestWindowL1Text:
         assert cards._window_l1_text(None, window, 2) == ''
         whole = {'l2_text': 'x', 'source_ref_id': 'test-1', 'sentence_start': None, 'sentence_end': None}
         assert cards._window_l1_text(None, whole, 2) == ''
+
+
+# ---------------------------------------------------------------------------
+# TASK-1003 / B-03: characterisation of generate_cards_for_queued_entries
+# across several queued entries (recorded from the pre-batching per-entry
+# loop), plus the round-trip budget of the batched version.
+# ---------------------------------------------------------------------------
+
+from tests import dt_card_fakes  # noqa: E402
+
+
+def _pair(entry_id, error_id, subtype, *, prompt, answer, l1, target):
+    base = {'user_id': 'u1', 'profile_entry_id': entry_id, 'origin_error_id': error_id,
+            'state': 'new'}
+    return [
+        {'card_type': 'cloze', 'subtype': subtype,
+         'prompt_payload': {'prompt': prompt, 'answer': answer, 'l1_context': l1}, **base},
+        {'card_type': 'isolate_retranslate', 'subtype': subtype,
+         'prompt_payload': {'l1_context': l1, 'target_sentence': target, 'answer': answer},
+         **base},
+    ]
+
+
+_ARTICLE_901 = dict(prompt='The cat sat on ____.', answer='the mat',
+                    l1='The cat sat on the mat.', target='The cat sat on the mat.')
+_TENSE_904 = dict(prompt='She ____ a book.', answer='bought', l1='', target='She buyed a book.')
+_WORD_CHOICE_906 = dict(prompt='I eat ____ every day.', answer='apples',
+                        l1='I eat apples every day.', target='I eat apple every day.')
+
+# Recorded from the per-entry loop before TASK-1003 (no language filter).
+EXPECTED_CARDS_PRE_B02 = (
+    _pair(100, 901, 'article', **_ARTICLE_901)
+    + _pair(101, 904, 'tense', **_TENSE_904)
+    + _pair(104, 901, 'article', **_ARTICLE_901)
+    + _pair(105, 906, 'word_choice', **_WORD_CHOICE_906)
+    + _pair(106, 904, 'tense', **_TENSE_904)
+)
+EXPECTED_STATUSES_PRE_B02 = {
+    100: 'drilling', 101: 'drilling', 102: 'queued', 103: 'queued', 104: 'drilling',
+    105: 'drilling', 106: 'drilling', 107: 'queued', 108: 'drilling', 109: 'queued',
+}
+
+
+@pytest.fixture
+def _flag_off(monkeypatch):
+    monkeypatch.setattr(cards.Config, 'DT_TAXONOMY_COLUMNS', False)
+
+
+@pytest.mark.usefixtures('_flag_off')
+class TestBatchedCardGeneration:
+
+    def test_rows_written_match_the_per_entry_loop(self):
+        db = dt_card_fakes.FilteringDB(dt_card_fakes.scenario_tables())
+
+        assert cards.generate_cards_for_queued_entries(db, 'u1') == 5
+        new_cards, statuses = dt_card_fakes.written(db)
+        assert new_cards == EXPECTED_CARDS_PRE_B02
+        assert statuses == EXPECTED_STATUSES_PRE_B02
+
+    def test_second_pass_is_a_no_op(self):
+        db = dt_card_fakes.FilteringDB(dt_card_fakes.scenario_tables())
+        cards.generate_cards_for_queued_entries(db, 'u1')
+        before = dt_card_fakes.written(db)
+
+        assert cards.generate_cards_for_queued_entries(db, 'u1') == 0
+        assert dt_card_fakes.written(db) == before
