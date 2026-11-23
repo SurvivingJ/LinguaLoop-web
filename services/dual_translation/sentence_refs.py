@@ -17,9 +17,9 @@ from dataclasses import dataclass, field, asdict
 from difflib import SequenceMatcher
 from typing import Iterable, Optional
 
-# The sentence regexes are copied from passage_builder (importing it pulls in the
-# whole LLM stack, which the offline harness must not need). tests/test_sentence_refs.py
-# asserts they are still identical to passage_builder's when that module imports.
+# This module holds the only copy of the sentence segmenter regexes (it imports
+# no LLM stack, so the offline harness can use it). passage_builder has no copy;
+# tests/test_sentence_refs.py asserts that.
 _CJK_CODES = frozenset({'zh', 'ja'})
 _CJK_TERMINATORS = '。！？…!?'
 # Closing quotes/brackets that follow a terminator stay with the sentence they
@@ -33,7 +33,7 @@ _WHITESPACE_RE = re.compile(r'\s+')
 
 
 def segment_sentences(text: Optional[str], language_code: str) -> list[str]:
-    """Same output as passage_builder.segment_sentences (kept in sync by test)."""
+    """Split text into sentences (the one segmenter; passage_builder has no copy)."""
     cleaned = _WHITESPACE_RE.sub(' ', (text or '')).strip()
     if not cleaned:
         return []
@@ -71,7 +71,7 @@ def transcript_hash(transcript: str) -> str:
 def segment_with_spans(transcript: str, language_code: str) -> list[SentenceSpan]:
     """Split the RAW transcript into sentences and keep character spans.
 
-    Uses the same terminator regexes as passage_builder.segment_sentences, but
+    Uses the same terminator regexes as segment_sentences, but
     on the uncollapsed text so that spans index into `tests.transcript`
     directly. Leading/trailing whitespace of each match is trimmed off the span.
     The stripped texts equal `segment_sentences(transcript)` whenever the

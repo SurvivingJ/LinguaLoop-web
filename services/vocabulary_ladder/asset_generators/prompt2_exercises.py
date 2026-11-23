@@ -365,8 +365,8 @@ class ExerciseAssetGenerator:
             # TASK-8xx (en bundle-mode 0-exercise renders, item 6): the model
             # is not schema-guaranteed to emit the sentence index as a JSON
             # number — a string index here survives remap/validation
-            # untouched and later blows up `correct_idx < len(sentences)` in
-            # `exercise_renderer._gather_bundle_judge_requests` with
+            # untouched and later blows up a `correct_idx < len(sentences)`
+            # comparison downstream with
             # `TypeError: '<' not supported between instances of 'str' and
             # 'int'`, observed live on en senses 13900/13902. Coerce once,
             # here, so every downstream reader gets a real int.
