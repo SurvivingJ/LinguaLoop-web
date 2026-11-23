@@ -181,6 +181,39 @@ def plan_today(
     return local_date(plan_timezone(db, user_id, language_id), now)
 
 
+# ---------------------------------------------------------------------------
+# FSRS review day (TASK-1211)
+# ---------------------------------------------------------------------------
+#: THE ONE PYTHON PLACE the flashcard (FSRS) review day's time zone is set.
+#: Every FSRS date in the app (``user_flashcards.due_date`` / ``last_review``
+#: written, and "due today" read) uses the calendar of this zone, for every
+#: learner, independent of the study plan's own ``timezone`` (which governs
+#: only plan / day-slot accounting). Owner decision 2026-11-23: "AEST
+#: midnight", i.e. Australia/Brisbane (UTC+10 all year, no daylight saving).
+#: The SQL mirror is ``public.review_today()`` in
+#: migrations/fsrs_review_today_aest.sql; change both together.
+REVIEW_TIMEZONE = "Australia/Brisbane"
+
+
+def _utcnow() -> datetime:
+    """The current instant (UTC). A seam for tests: the suite has no freezegun."""
+    return datetime.now(_UTC)
+
+
+def review_today(now: Optional[datetime] = None) -> date:
+    """Today's date on the FSRS review calendar (``REVIEW_TIMEZONE``).
+
+    No database round trip. Writers stamp this as the review date; readers
+    treat ``due_date <= review_today()`` as due.
+    """
+    return local_date(REVIEW_TIMEZONE, now or _utcnow())
+
+
+def review_today_iso(now: Optional[datetime] = None) -> str:
+    """``review_today`` as ISO ``YYYY-MM-DD``."""
+    return review_today(now).isoformat()
+
+
 def utc_today_iso(now: Optional[datetime] = None) -> str:
     """The pre-ADR-022 behaviour, kept explicit for callers that genuinely
     want a global date (cron sweeps) rather than a learner-local one."""
