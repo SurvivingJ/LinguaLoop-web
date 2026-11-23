@@ -468,7 +468,7 @@ The planned split into separate acquisition, maintenance and scoring modules was
 2. `p_credit_seconds` = `_effective_practice_seconds(time_taken_ms, expected_seconds)`: missing/zero ms or elapsed over `PRACTICE_ATTEMPT_MAX_SECONDS` (300) credits the item's `expected_seconds` (default `DEFAULT_EXPECTED_SECONDS` = 45, clamped to 300); else the measured seconds rounded, minimum 1.
 3. One call: `db.rpc('record_exercise_attempt', {p_user_id, p_exercise_id, p_is_correct, p_user_response, p_time_taken_ms, p_language_id, p_credit_seconds, p_plan_kind, p_is_tail, p_exercise_context})`.
 4. Result `{'error': 'exercise_not_found'}` from SQL becomes `{'error': 'Exercise not found'}` (the route answers 500 via `server_error`). Any RPC exception propagates and the route's `api_errors` returns the normal error envelope; because it is one transaction, **nothing is half-written**.
-5. FSRS (Python, `services/vocabulary/fsrs.py`): the RPC returns the learner's `user_flashcards` row as `flashcard`; Python rates it (wrong -> AGAIN; correct and under 5000 ms -> EASY; else GOOD), updates the row (`last_review = date.today()`, server date), and on a lapse calls `bkt_apply_lapse_penalty(p_user_id, p_sense_id)` after the BKT write the RPC committed.
+5. FSRS (Python, `services/vocabulary/fsrs.py`): the RPC returns the learner's `user_flashcards` row as `flashcard`; Python rates it (wrong -> AGAIN; correct and under 5000 ms -> EASY; else GOOD), updates the row (`due_date` and `last_review` from one `day_boundary.review_today()` value: the app-wide AEST review day, see "FSRS review day" below), and on a lapse calls `bkt_apply_lapse_penalty(p_user_id, p_sense_id)` after the BKT write the RPC committed.
 6. The ladder summary is copied to `result['ladder']`; after a ring-2 demotion `intro_drill.restart_if_demoted(...)` may set `result['ladder']['intro_restart'] = True`.
 
 Inside the RPC, in order (all in one transaction):
@@ -494,9 +494,22 @@ Live check 2026-11-23: `record_exercise_attempt` exists with the 10-argument sig
 
 Other writers: `record_prestudy_exercise_attempt` (prestudy prime: direct insert tagged `source='prestudy'`, BKT on first attempt only, no ladder / FSRS / plan counters; see [[features/test-prestudy.tech]]) and `record_speed_round_attempt` (FSRS only, never the ladder) are unchanged and do not use the RPC.
 
-### Known limitation: FSRS dates are server-UTC
+### FSRS review day: one app-wide review time zone (AEST) (TASK-1211)
 
-Flashcard reviews are dated with the server's UTC date (`date.today()` in `attempt_recording._apply_fsrs_review` and `routes/flashcards.py`; `CURRENT_DATE` in `ladder_graduate` and `ladder_record_attempt`). Due-ness is read in **UTC** by `get_practice_session`, `get_session_senses`, `compute_weekly_plan_load_signals` and the flashcards route (`/due`, `/stats`), and in the **learner's local date** (`p_date`, plan timezone) by `build_daily_session` and `review_governor_state`. Writers (attempt recording, the flashcards review route, `ladder_graduate`, `ladder_record_attempt`) all write UTC. A correct change must move all readers and writers together. All three live study plans have `timezone = 'UTC'` (checked 2026-11-23), so there is no effect today. Not fixed.
+Owner decision 2026-11-23: no per-learner local day for flashcards. Every FSRS date (`user_flashcards.due_date` and `last_review` written, and "due today" read) uses **one app-wide review calendar whose day rolls over at midnight AEST** (`Australia/Brisbane`, UTC+10 all year, no daylight saving; 00:00 AEST = 14:00 UTC). The study plan's own `timezone` (ADR-022) keeps governing only plan / day-slot accounting (load date, week, "reviews done today" window, intro-drill dates). The per-learner local-day design is recorded as not pursued (see TASK-1211).
+
+The zone is configured in exactly two places; change both together (a test, `tests/test_review_day_boundary.py`, fails if they differ):
+- **Python:** `services/day_boundary.py` `REVIEW_TIMEZONE`; helpers `review_today()` / `review_today_iso()` (no database round trip).
+- **SQL:** the string literal in `public.review_today(p_at timestamptz DEFAULT now())`, `migrations/fsrs_review_day_aest.sql`.
+
+| Side | Writers (stamp the review date) | Readers (decide what is due) |
+|---|---|---|
+| Python (code done) | `fsrs.schedule_review` default, `attempt_recording._apply_fsrs_review`, `POST /api/flashcards/review` | `GET /api/flashcards/due`, `/stats` |
+| SQL (**pending apply**, PENDING-2026-11-23 group 10) | `ladder_graduate`, `ladder_record_attempt` (FSRS lapse path only) | `get_practice_session` (new `v_review_today`), `get_session_senses`, `compute_weekly_plan_load_signals`, `review_governor_state` and `build_daily_session` (their `user_flashcards` comparisons use `review_today()` instead of the plan-local `p_date`; `new_word_state_inputs` reaches them through `review_governor_state`) |
+
+Stays on the UTC date on purpose (not FSRS): `get_practice_session`'s anti-repetition `v_today` (compared with `user_exercise_history.session_date`, whose default is `CURRENT_DATE`), and the ladder's own `family_success_dates`, `review_due_at` and `last_success_session_date` in `ladder_record_attempt`. `last_review` is `timestamptz`; both old and new rows store the calendar date at 00:00 UTC.
+
+**Until the SQL file is applied the system is mixed** once the Python is deployed: deploy the Python and apply the file in the same 00:00-14:00 UTC window, when the AEST and UTC dates are equal and old and new code agree. If the halves straddle 14:00-24:00 UTC, for up to 10 hours the flashcard page and the practice / daily session disagree by one day about which cards are due. Existing rows are not backfilled: cards now come due up to 10 hours earlier (at most one AEST day early), never later. The 9 live cards with `due_date = last_review` are all `relearning`: AGAIN on a review card schedules `review_date + 1 minute`, which on a `date` is the same day (intended same-day relearning).
 
 ## Exercise content hydration (ADR-049, TASK-1019; modes removed in TASK-1031)
 

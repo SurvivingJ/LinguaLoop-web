@@ -19,15 +19,17 @@ below.
 
 | Status | Rows in this file | All task files (union, file status wins) |
 |--------|-------------------|------------------------------------------|
-| Not Started | 66 | 90 |
+| Not Started | 65 | 89 |
 | In Progress (`[~]`) | 17 | 24 |
-| Blocked / Deferred / Awaiting decision (`[?]`; includes "Done (repo), awaiting live apply") | 59 | 60 |
+| Blocked / Deferred / Awaiting decision (`[?]`; includes "Done (repo), awaiting live apply") | 60 | 61 |
 | Won't Do (obsolete) | 3 | 3 |
 | Superseded | 2 | 2 |
 | Done | 227 | 361 |
 | **Total distinct task ids** | **374** | **540** |
 
 *Recount 2026-11-23 (replaces the earlier stated counts of 78 / 17 / 59 / 5 / 305, which had drifted).* Method: the wiki checker (`check_wiki.py`) parsed every `| TASK-nnn |` table row in this file (374 distinct ids; duplicate rows of the same id counted once) and every `## TASK-nnn:` block in the 35 task files under `wiki/tasklist/` and `wiki/tasklist/archive/`, and mapped each status marker (`[ ]`, `[~]`, `[x]`, `[?]`, "Done", "Won't Do", "Superseded") to the buckets above; the right-hand column takes the task file's status where file and master disagree. The right-hand total includes 166 ids that exist only in task files (older archived work not given a master row, of which 25 are open: TASK-101 to 112, 609, 723 and 783 to 794, left as they are). 14 file-versus-master status disagreements remain in the archived lists (TASK-517 to 534 in `archive/exercise-generation-v2.tasks.md` and TASK-612 in `archive/dual-translation.tasks.md`): the truth is not checkable without the old live state and they were not changed. TASK-1200 to 1233 (34 rows, 10 of them `[?]`) were added by [[tasklist/review-2026-11-22.tasks]].
+
+*2026-11-23 (TASK-1211, owner decision "AEST midnight"):* FSRS dates moved to one app-wide review day (midnight AEST, `Australia/Brisbane`) instead of per-learner local days (not pursued). Python done; `migrations/fsrs_review_day_aest.sql` (PENDING group 10) awaits live apply together with the deploy. Counts: Not Started 66→65, Blocked/awaiting 59→60 (task files: 90→89, 60→61).
 
 *2026-11-23 (placement gates pass after owner decisions):* PQ23 → words with no buildable reading item are asked meaning-only (`calibration_responses.reading_exempt`, applied live); OQ29 → zh pool refreshed now (TASK-1063 Done; zh/zh frame 12,711). Gates: zh (1,2)/(1,3) PASS 99.4%, ja (3,2)/(3,3) PASS, ja (3,1) fails by two band-1 words, en PASS. Live smoke test passed on the test account. Counts: Blocked/awaiting 60→59, Done 304→305.
 
@@ -1494,7 +1496,7 @@ Full spec: [[tasklist/review-2026-11-22.tasks]]. Record: [[evaluations/codebase-
 | TASK-1208 | codebase-review-2026-11-22 | Decide ADR-063: ladder generation paths | [?] | XL | — |
 | TASK-1209 | codebase-review-2026-11-22 | Generation queue health and requeue policy | [ ] | M | — |
 | TASK-1210 | codebase-review-2026-11-22 | Token economy: rebuild or retire | [?] | L | — |
-| TASK-1211 | codebase-review-2026-11-22 | FSRS review dating by the learner's local day | [ ] | L | — |
+| TASK-1211 | codebase-review-2026-11-22 | FSRS review dating on one app-wide review day (midnight AEST); code done, `fsrs_review_day_aest.sql` awaiting live apply with the deploy | [?] Done (repo), awaiting live apply | M | — |
 | TASK-1212 | codebase-review-2026-11-22 | Make two submission functions return the generic error like the other three | [ ] | S | — |
 | TASK-1213 | codebase-review-2026-11-22 | Database leftovers: ambiguous overloads, documented-as-dropped functions, backups | [ ] | M | TASK-1201 |
 | TASK-1214 | codebase-review-2026-11-22 | Audit EXECUTE grants on public functions | [ ] | S | — |
