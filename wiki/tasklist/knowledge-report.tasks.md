@@ -4,7 +4,7 @@ feature: knowledge-report
 prose_page: ../features/knowledge-report.md
 tech_page: ../features/knowledge-report.tech.md
 total_tasks: 40
-done: 12
+done: 13
 ---
 
 # Knowledge Report — Task Breakdown
@@ -970,7 +970,7 @@ definition-mode answer counts toward the estimate (S9; today 38% of en/en pool i
 
 ## TASK-1063: Refresh the zh calibration anchor pool [?] (LIVE-DB data)
 
-**Status:** [?] Blocked — OQ29 and the size gate (≈ 5–7 MB, ESTIMATE from 369 B per pool row and 215 B per cache row)
+**Status:** [x] Done — 2026-11-23 (OQ29 answered: refresh now). zh/zh frame 12,711; pool +0.37 MB, cache +2.87 MB; coverage zh/zh 99.9% / 99.8%, zh/en and zh/ja 99.8%. No snapshots existed yet, so no growth-card notice was needed
 **Feature:** knowledge-report
 **Type:** infra
 **Complexity:** S (1-3h)
