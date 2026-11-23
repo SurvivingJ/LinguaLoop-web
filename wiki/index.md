@@ -1,5 +1,5 @@
 # LinguaDojo Wiki Index
-Last updated: 2026-11-23 (**OWNER DECISIONS AFTER THE REVIEW** — token economy retired (TASK-1210), Mystery and Listening Lab removed (TASK-1227), FSRS review day at AEST midnight (TASK-1211, code done, SQL pending as group 10 of `migrations/PENDING-2026-11-23.md`); see [[evaluations/codebase-review-2026-11-22]]; offline pytest 6,311 passed, ruff clean) | Pages: 291
+Last updated: 2026-11-23 (**OWNER DECISIONS AFTER THE REVIEW** — token economy retired (TASK-1210), Mystery and Listening Lab removed (TASK-1227), FSRS review day at Sydney midnight (TASK-1211, code done, SQL pending as group 10 of `migrations/PENDING-2026-11-23.md`), 20 unused API routes removed (TASK-1221; 116 URL rules), scripts write only with `--apply` (TASK-1218, partly done); see [[evaluations/codebase-review-2026-11-22]]; offline pytest 6,494 passed, ruff clean) | Pages: 291
 
 Prior: 2026-11-23 (**CODEBASE REVIEW, CLEAN-UP AND WIKI SYNC** — see [[evaluations/codebase-review-2026-11-22]]: all 108 tables and views and 214 functions documented, all 137 routes documented, four new package pages with tech pairs, ADR-061–063 proposed, follow-ups TASK-1200–1233 in [[tasklist/review-2026-11-22.tasks]]; nothing deployed, no migration applied) | Pages: 291
 
@@ -272,7 +272,7 @@ Prior: 2026-08-12 (**Exercise Generation v2 batch closed** — TASK-521 sense-em
 - [[database/rpcs.tech]] — All 214 public functions, each with its live status (re-verified 2026-11-23; was 53 application RPCs)
 
 ## API
-- [[api/rpcs]] — API surface overview (20 route modules, 137 routes, 2026-11-23)
+- [[api/rpcs]] — API surface overview (18 route modules, 116 URL rules after the 2026-11-23 route removals)
 - [[api/rpcs.tech]] — Full endpoint specifications (**+2026-11-16**: DT `/next` + submit 503, prestudy `produce-available`, pinyin payloads)
 
 ## Pages

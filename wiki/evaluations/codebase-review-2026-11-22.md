@@ -10,7 +10,7 @@ open_questions:
   - "OPEN (TASK-1207): accept ADR-062 (retire dt_card review cards, choose the /next window in SQL)?"
   - "OPEN (TASK-1208): accept ADR-063 (fat-seed as the bulk ladder path, nightly drain as the only top-up)?"
   - "ANSWERED 2026-11-23 (TASK-1210): the token economy is retired; see 'After the review (2026-11-23)'."
-  - "OPEN (TASK-1221): does any client outside the repository call the 28 routes marked 'no in-repo client'?"
+  - "ANSWERED 2026-11-23 (TASK-1221): the owner confirmed no outside client calls the API; 20 caller-less routes removed, /api/health, /api/tests/ and the admin vocab preview kept; see 'After the review (2026-11-23)'."
   - "OPEN (TASK-1224): keep or unschedule the nightly watchlist sweep?"
   - "ANSWERED 2026-11-23 (TASK-1227): Mystery and Listening Lab removed by hand; see 'After the review (2026-11-23)'."
   - "OPEN (TASK-1231): the wiki structure decisions (index header, log order, duplicate ADR numbers, off-schema directories, rpcs.tech rewrite, dangling lesson links)."
@@ -101,8 +101,9 @@ top.
   [[decisions/ADR-028-exercise-gen-cost-under-1c]], and proposed ADR-061, ADR-062 and ADR-063.
 
 ### After the review (2026-11-23)
-Three owner decisions, each on its own branch and merged with the gates re-run (offline pytest
-6,311 passed, 16 skipped, 0 failed; ruff clean; frontend 846 unit tests passed; 136 URL rules).
+Owner decisions, each on its own branch and merged with the gates re-run. After the first three
+(offline pytest 6,311 passed, 16 skipped, 0 failed; ruff clean; frontend 846 unit tests passed; 136 URL
+rules) three more followed the same day; the final gates are in the last bullets below.
 - **Token economy retired (TASK-1210, Done):** `GET /api/users/tokens`, the payments blueprint,
   `services/payment_service.py`, the token config, the `stripe` pin and the token fields in the
   login, config and health payloads are removed; 11 tests added, 8 removed (6,301 to 6,304). No SQL.
@@ -115,6 +116,22 @@ Three owner decisions, each on its own branch and merged with the gates re-run (
   `last_review` stamp; the per-learner local-day design is not pursued. 15 tests added (6,296 to
   6,311). `migrations/fsrs_review_day_aest.sql` (with a rollback) is group 10 of
   `migrations/PENDING-2026-11-23.md` and is applied together with the deploy.
+- **Review day zone is Australia/Sydney (TASK-1211):** `REVIEW_TIMEZONE` is `Australia/Sydney`, so the
+  review day follows Sydney daylight saving. The deploy window for
+  `migrations/fsrs_review_day_aest.sql` is 00:00 to 13:00 UTC while daylight saving is in force (11:00 to
+  midnight Sydney time) and 00:00 to 14:00 UTC otherwise; existing cards fall due up to 11 hours earlier
+  during daylight saving. Branch `followup/fsrs-sydney`: 2 tests added (6,311 to 6,313). SQL still pending
+  as group 10.
+- **Unused API routes removed (TASK-1221, Done):** the owner confirmed no outside client calls the API,
+  so 20 routes with no caller in the repository were removed with the code only they used, and the
+  corpus blueprint is gone (136 to 116 URL rules). `/api/health`, `/api/tests/` and the admin vocabulary
+  preview stay. 40 tests removed, 66 added (6,313 to 6,339). No SQL.
+- **Scripts write only with `--apply` (TASK-1218, partly done):** 29 scripts and
+  `exercise_stage_runner.py render` now dry-run unless given `--apply`, a guard test scans `scripts/`
+  for the convention, six skills were updated; 155 tests added (6,339 to 6,494). Still open: the
+  transactional classifier rebuild, the sentence-reference upload RPCs and `Corpuses/ingest_corpus.py`.
+  Final gates after all three: offline pytest 6,494 passed, 16 skipped, 0 failed; ruff clean; frontend
+  846 unit tests passed, `npm run check` 0 errors with 2 warnings; 116 URL rules.
 - Recorded for the owner: the provider key will be funded and the validated DT grader models set
   (TASK-1202, still open; config defaults unchanged until then).
 
@@ -127,9 +144,9 @@ owner (TASK-1229).
 ## Not done
 - Lazy-loading `/session` assets and CSP enforcement (TASK-1215, TASK-1216): no E2E safety net in
   the review environment.
-- Database size reductions (TASK-1217), the uploader `--apply` convention (TASK-1218).
-  (Payments and the token economy, TASK-1210, and FSRS dating, TASK-1211, were decided on
-  2026-11-23: see "After the review".)
+- Database size reductions (TASK-1217), the rest of TASK-1218 (the convention and skill text are done).
+  (Payments and the token economy, TASK-1210, FSRS dating, TASK-1211, unused routes, TASK-1221, and
+  the `--apply` convention were decided or done on 2026-11-23: see "After the review".)
 - Grader model choice, prompt text and judging logic: the owner's, validated against gold sets
   (TASK-1202, TASK-1205).
 - Nothing was deployed and no migration was applied by the review.
