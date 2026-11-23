@@ -588,17 +588,13 @@ def run(dry_run: bool = False):
         chunk = pair_rows[i:i + 500]
         db.table('dim_classifier_noun_pairs').insert(chunk).execute()
     logger.info(f"Inserted {len(pair_rows)} curated noun-classifier pairs")
-    logger.info("Curated build complete. Run import_cedict_classifiers.py for long-tail coverage.")
+    logger.info("Curated build complete. Run import_cedict_classifiers.py --apply for long-tail coverage.")
 
 
 def main(argv=None):
     parser = base_parser("Build curated classifier dictionary for Chinese. "
                          "Dry run unless --apply is given.")
-    parser.add_argument('--dry-run', action='store_true',
-                        help='explicit dry run (the default; cannot be combined with --apply)')
-    args = parser.parse_args(argv)
-    if args.apply and args.dry_run:
-        parser.error('--apply and --dry-run are mutually exclusive')
+    args = parser.parse_args(argv)  # base_parser rejects --apply with --dry-run (exit 2)
     run(dry_run=not args.apply)
 
 

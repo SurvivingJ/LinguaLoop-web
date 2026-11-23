@@ -1507,7 +1507,7 @@ Full spec: [[tasklist/review-2026-11-22.tasks]]. Record: [[evaluations/codebase-
 | TASK-1215 | codebase-review-2026-11-22 | Enforce the Content-Security-Policy and review access-token storage | [ ] | XL | TASK-1216 |
 | TASK-1216 | codebase-review-2026-11-22 | Cut /session page weight | [ ] | XL | E2E coverage for /session (first sub-step) |
 | TASK-1217 | codebase-review-2026-11-22 | Database size: 349 MB of the 500 MB Free-plan cap | [ ] | L | — |
-| TASK-1218 | codebase-review-2026-11-22 | Pipeline script safety: align write conventions and fix the skill text | [ ] | L | — |
+| TASK-1218 | codebase-review-2026-11-22 | Pipeline script safety: align write conventions and fix the skill text (convention + skill text done 2026-11-23; transactional classifier rebuild / sentence-reference upload RPCs and `Corpuses/ingest_corpus.py` open) | [~] | L | — |
 | TASK-1219 | codebase-review-2026-11-22 | Test-suite follow-ups | [ ] | L | — |
 | TASK-1220 | codebase-review-2026-11-22 | Unknown test slug on the submit routes probably returns 500 instead of 404 | [ ] | S | — |
 | TASK-1221 | codebase-review-2026-11-22 | Remove routes with no in-repo client | Done (repo) — 20 unused routes removed 2026-11-23, `/api/health` and `/api/tests/` kept | M | — |

@@ -36,30 +36,32 @@ failed sense write counts every row it carried as failed (the audio is in R2
 but no row points at it) and the run goes on. Rows with no ``word_sense_id``
 (the 10 zh collocation rows; never served, cannot be keyed by sense) are
 skipped and counted as ``skipped_no_sense``; rows whose content the store
-cannot supply are counted as ``content_unavailable``. ``--dry-run`` and
+cannot supply are counted as ``content_unavailable``. Nothing is written
+without ``--apply``: the default (or the explicit ``--dry-run``) and
 ``--report-only`` never write.
 
 Usage:
-    python scripts/backfill_exercise_audio.py --language ja [options]
+    python scripts/backfill_exercise_audio.py --language ja [options]          # dry run
+    python scripts/backfill_exercise_audio.py --language ja --apply [options]  # synthesise + write
 
 Options:
     --language CODE   Required: zh | en | ja (or "all")
-    --dry-run         Report what would be synthesised; make no TTS calls
+    --apply           Synthesise and write (default: dry run)
+    --dry-run         Explicit dry run: report what would be synthesised; no TTS calls
     --cap N           Max syntheses this run (default: $AUDIO_BACKFILL_CAP or 500)
     --types T [T...]  Restrict to specific exercise types
     --report-only     Print the coverage table and exit
 """
 
-import argparse
 import logging
 import os
 import sys
 from collections import defaultdict
 
 try:
-    from _common import admin_db, bootstrap
+    from _common import admin_db, base_parser, bootstrap
 except ImportError:  # run or imported as scripts.<name>
-    from scripts._common import admin_db, bootstrap
+    from scripts._common import admin_db, base_parser, bootstrap
 
 bootstrap(log_format='%(asctime)s %(levelname)-7s %(message)s')
 
@@ -466,13 +468,13 @@ class AudioBackfillRun:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(
+    parser = base_parser(
         description='Synthesise missing audio for L1 and listening items',
+        apply_help='synthesise and write (default: dry run, no TTS calls, no writes)',
+        dry_run_help='Report what would be synthesised; make no TTS calls (the default)',
     )
     parser.add_argument('--language', required=True,
                         choices=[*LANGUAGE_CODES, 'all'])
-    parser.add_argument('--dry-run', action='store_true',
-                        help='Report what would be synthesised; make no TTS calls')
     parser.add_argument('--cap', type=int, default=DEFAULT_CAP,
                         help=f'Max syntheses this run (default {DEFAULT_CAP})')
     parser.add_argument('--types', nargs='*', choices=list(AUDIO_TYPES),

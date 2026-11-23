@@ -10,14 +10,15 @@ For each test in a given language:
 5. Write stats to tests.vocab_sense_stats
 
 Usage:
-    python scripts/backfill_vocab.py --language zh [--dry-run] [--limit 10] [--delay 0.5]
+    python scripts/backfill_vocab.py --language zh [--apply] [--limit 10] [--delay 0.5]
 
     # Under a Claude subscription rather than per-token OpenRouter billing:
     python scripts/backfill_vocab.py --language zh --provider claude-cli
 
 Options:
     --language CODE   Required. Language code: zh, en, ja
-    --dry-run         Preview changes without writing to DB
+    --apply           Write the changes (default: dry run)
+    --dry-run         Preview changes without writing to DB (the default)
     --limit N         Process at most N tests (default: all)
     --delay SECS      Delay between tests for LLM rate limiting (default: 0.5)
     --select-senses   Ask the LLM which existing sense fits each occurrence
@@ -32,14 +33,13 @@ in a Claude Code session instead, see
 
 import sys
 import time
-import argparse
 import logging
 
 # Add parent directory to path for imports
 try:
-    from _common import bootstrap, paginate
+    from _common import base_parser, bootstrap, paginate
 except ImportError:  # run or imported as scripts.<name>
-    from scripts._common import bootstrap, paginate
+    from scripts._common import base_parser, bootstrap, paginate
 
 bootstrap()
 
@@ -400,11 +400,10 @@ class VocabBackfillRunner:
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Backfill vocabulary for existing tests')
+    parser = base_parser(description='Backfill vocabulary for existing tests',
+                         dry_run_help='Preview changes without writing to DB (the default)')
     parser.add_argument('--language', required=True, choices=['zh', 'en', 'ja'],
                         help='Language code to process')
-    parser.add_argument('--dry-run', action='store_true',
-                        help='Preview changes without writing to DB')
     parser.add_argument('--limit', type=int, default=0,
                         help='Max number of tests to process (0=all)')
     parser.add_argument('--delay', type=float, default=0.5,

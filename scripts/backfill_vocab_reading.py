@@ -22,16 +22,17 @@ same-reading collision either way and reasons over sentence context, not
 over which code path produced the reading.
 
 Usage:
-    python scripts/backfill_vocab_reading.py [--dry-run] [--limit N] [--batch-size 500]
+    python scripts/backfill_vocab_reading.py [--apply] [--limit N] [--batch-size 500]
+
+Dry run unless --apply is given (--dry-run is accepted as an explicit alias).
 """
 
-import argparse
 import logging
 
 try:
-    from _common import admin_db, bootstrap
+    from _common import admin_db, base_parser, bootstrap
 except ImportError:  # run or imported as scripts.<name>
-    from scripts._common import admin_db, bootstrap
+    from scripts._common import admin_db, base_parser, bootstrap
 
 bootstrap()
 
@@ -44,8 +45,7 @@ LANGUAGE_ID_JA = 3
 
 
 def main():
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--dry-run', action='store_true')
+    parser = base_parser(description=__doc__)
     parser.add_argument('--limit', type=int, default=0)
     parser.add_argument('--batch-size', type=int, default=500)
     args = parser.parse_args()

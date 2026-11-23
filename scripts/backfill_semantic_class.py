@@ -25,22 +25,21 @@ Idempotent: only classifies rows with semantic_class IS NULL unless --force.
 Failures are logged and counted; they never abort the run.
 
 Usage:
-    python scripts/backfill_semantic_class.py --language all [--dry-run] [--limit N]
-    python scripts/backfill_semantic_class.py --language zh --limit 100        # pilot
+    python scripts/backfill_semantic_class.py --language all [--apply] [--limit N]
+    python scripts/backfill_semantic_class.py --language zh --limit 100 --apply   # pilot
     python scripts/backfill_semantic_class.py --language all --emit-sample 200 \
         --sample-out spot_check_semantic_class.csv   # stratified human-review sheet
 """
 
-import argparse
 import csv
 import logging
 import random
 
 # Add parent directory to path for imports
 try:
-    from _common import admin_db, bootstrap
+    from _common import admin_db, base_parser, bootstrap
 except ImportError:  # run or imported as scripts.<name>
-    from scripts._common import admin_db, bootstrap
+    from scripts._common import admin_db, base_parser, bootstrap
 
 bootstrap()
 
@@ -328,10 +327,10 @@ def process_language(db, language_id: int, args) -> dict:
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Backfill dim_vocabulary.semantic_class (LLM).')
+    parser = base_parser(description='Backfill dim_vocabulary.semantic_class (LLM). '
+                                     'Dry run (classifies, writes nothing) unless --apply.')
     parser.add_argument('--language', required=True,
                         choices=sorted(set(LANGUAGE_CODE_TO_ID) | {'all'}))
-    parser.add_argument('--dry-run', action='store_true')
     parser.add_argument('--limit', type=int, default=0, help='Cap lemmas per language.')
     parser.add_argument('--batch-size', type=int, default=50)
     parser.add_argument('--force', action='store_true', help='Reclassify already-classified rows.')

@@ -17,12 +17,12 @@ SenseGenerator (the cache/stats are per-instance), and stats are aggregated at
 the end.
 
 Usage:
-    python scripts/backfill_senses.py --language zh
+    python scripts/backfill_senses.py --language zh --apply
     python scripts/backfill_senses.py --language ja --limit 100 --dry-run
-    python scripts/backfill_senses.py --language en --model deepseek/deepseek-v4-flash --concurrency 8
+    python scripts/backfill_senses.py --language en --model deepseek/deepseek-v4-flash --concurrency 8 --apply
 
     # Under a Claude subscription: 200 words per prompt, 2 calls in flight.
-    python scripts/backfill_senses.py --language ja --provider claude-cli --batch-size 200
+    python scripts/backfill_senses.py --language ja --provider claude-cli --batch-size 200 --apply
 
 Options:
     --language CODE    Required. zh | en | ja
@@ -31,7 +31,8 @@ Options:
     --concurrency N    In-flight LLM calls (default: 5)
     --batch-size N     Words folded into each call (default: 1 = one call per word)
     --delay SECS       Per-word delay inside each worker (default: 0.0)
-    --dry-run          Generate + log, write nothing
+    --apply            Write (default: dry run)
+    --dry-run          Generate + log, write nothing (the default)
     --provider NAME    openrouter (default, per-token) | claude-cli (subscription)
 
 Batching vs concurrency
@@ -44,15 +45,14 @@ throughput there.
 """
 
 import time
-import argparse
 import logging
 import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 try:
-    from _common import bootstrap, paginate
+    from _common import base_parser, bootstrap, paginate
 except ImportError:  # run or imported as scripts.<name>
-    from scripts._common import bootstrap, paginate
+    from scripts._common import base_parser, bootstrap, paginate
 
 bootstrap()
 
@@ -62,9 +62,6 @@ from services.supabase_factory import SupabaseFactory, get_supabase_admin
 from services.llm_service import SENSE_MODEL_DEFAULT
 from services.vocabulary.sense_generator import SenseGenerator
 from scripts.provider_arg import add_provider_arg, apply_provider, clamp_concurrency
-
-if not SupabaseFactory.is_initialized():
-    SupabaseFactory.initialize()
 
 logger = logging.getLogger(__name__)
 
@@ -207,14 +204,14 @@ def run(language_code: str, model: str, limit: int, concurrency: int,
         logger.info("Dry-run: no rows were written.")
 
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="Backfill two-level word senses")
+def main(argv=None):
+    parser = base_parser(description="Backfill two-level word senses",
+                         dry_run_help='Generate + log, write nothing (the default)')
     parser.add_argument('--language', required=True, help='Language code: zh, en, ja')
     parser.add_argument('--model', default=SENSE_MODEL_DEFAULT, help='Sense model slug')
     parser.add_argument('--limit', type=int, default=0, help='Cap lemmas (0 = all)')
     parser.add_argument('--concurrency', type=int, default=5, help='In-flight LLM calls')
     parser.add_argument('--delay', type=float, default=0.0, help='Per-word delay (s)')
-    parser.add_argument('--dry-run', action='store_true', help='Generate + log, write nothing')
     parser.add_argument(
         '--batch-size', type=int, default=1,
         help=(
@@ -224,8 +221,15 @@ if __name__ == '__main__':
         ),
     )
     add_provider_arg(parser)
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
+    # Here, not at import: --help and the tests must not need Supabase credentials.
+    if not SupabaseFactory.is_initialized():
+        SupabaseFactory.initialize()
     apply_provider(args.provider)
     concurrency = clamp_concurrency(args.provider, args.concurrency)
     run(args.language, args.model, args.limit, concurrency, args.delay,
         args.dry_run, args.batch_size)
+
+
+if __name__ == '__main__':
+    main()

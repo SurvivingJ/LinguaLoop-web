@@ -30,7 +30,7 @@ contains the source word itself, or any batch item left unanswered.
 Usage:
     python scripts/upload_glosses.py --batch-file data/gloss_seeding/en_to_zh-ja/batch_001.json \\
         --glosses-file data/gloss_seeding/en_to_zh-ja/batch_001.glosses.json --dry-run
-    python scripts/upload_glosses.py --batch-file ... --glosses-file ...
+    python scripts/upload_glosses.py --batch-file ... --glosses-file ... --apply
 
 Glosses file format -- a list, or an object with a "glosses" list:
     [
@@ -45,7 +45,8 @@ Glosses file format -- a list, or an object with a "glosses" list:
 Options:
     --batch-file PATH    The exported batch this answers (defines legal keys).
     --glosses-file PATH  Generated glosses to apply.
-    --dry-run            Report what would be written, write nothing.
+    --apply              Write. Without it the run is a dry run.
+    --dry-run            Explicit dry run (the default): report, write nothing.
     --skip-invalid       Drop invalid items and continue instead of aborting.
     --source-model NAME  Recorded in source_ref (default: claude-code:cross-language-glosses)
 """
@@ -56,9 +57,9 @@ import argparse
 import logging
 
 try:
-    from _common import bootstrap
+    from _common import base_parser, bootstrap
 except ImportError:  # run or imported as scripts.<name>
-    from scripts._common import bootstrap
+    from scripts._common import base_parser, bootstrap
 
 bootstrap()
 
@@ -289,11 +290,10 @@ def apply(db, batch: dict, writable: list[dict], args) -> dict:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__,
-                                     formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser = base_parser(description=__doc__,
+                         formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('--batch-file', required=True)
     parser.add_argument('--glosses-file', required=True)
-    parser.add_argument('--dry-run', action='store_true')
     parser.add_argument('--skip-invalid', action='store_true')
     parser.add_argument('--source-model', default=DEFAULT_SOURCE_MODEL)
     args = parser.parse_args()

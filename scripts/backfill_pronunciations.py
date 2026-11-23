@@ -21,18 +21,19 @@ Idempotent: skips senses whose pronunciation is already populated unless --force
 Failures are logged with a reason and counted; they never abort the run.
 
 Usage:
-    python scripts/backfill_pronunciations.py --language zh [--dry-run] [--limit N] [--force]
-    python scripts/backfill_pronunciations.py --language ja [--dry-run] [--limit N] [--force]
+    python scripts/backfill_pronunciations.py --language zh [--apply] [--limit N] [--force]
+    python scripts/backfill_pronunciations.py --language ja [--apply] [--limit N] [--force]
+
+Dry run unless --apply is given (--dry-run is accepted as an explicit alias).
 """
 
-import argparse
 import logging
 
 # Add parent directory to path for imports
 try:
-    from _common import admin_db, bootstrap
+    from _common import admin_db, base_parser, bootstrap
 except ImportError:  # run or imported as scripts.<name>
-    from scripts._common import admin_db, bootstrap
+    from scripts._common import admin_db, base_parser, bootstrap
 
 bootstrap()
 
@@ -164,9 +165,8 @@ def fetch_senses(db, language_id: int, force: bool, limit: int) -> list[dict]:
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Backfill dim_word_senses.pronunciation (deterministic).')
+    parser = base_parser(description='Backfill dim_word_senses.pronunciation (deterministic).')
     parser.add_argument('--language', required=True, choices=sorted(LANGUAGE_CODE_TO_ID))
-    parser.add_argument('--dry-run', action='store_true')
     parser.add_argument('--limit', type=int, default=0)
     parser.add_argument('--force', action='store_true', help='Overwrite already-populated rows.')
     args = parser.parse_args()

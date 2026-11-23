@@ -72,7 +72,8 @@ Configuration is loaded from `services.topic_generation.config.topic_gen_config`
 | `--file` | `-f` | (required) | Path to JSON file containing topics |
 | `--category` | `-t` | `Import: {filename}` | Category name |
 | `--lens` | `-e` | `cultural` | Default lens code if not in JSON |
-| `--dry-run` | `-d` | `false` | Validate without database changes |
+| `--apply` | -- | `false` | Write the topics and queue entries; without it the run is a dry run |
+| `--dry-run` | `-d` | (the default) | Validate without database changes; cannot be combined with `--apply` |
 | `--skip-gatekeeper` | -- | `false` | Skip cultural validation |
 | `--skip-novelty` | -- | `false` | Skip duplicate checking |
 | `--validate-only` | -- | `false` | Only validate JSON format |
