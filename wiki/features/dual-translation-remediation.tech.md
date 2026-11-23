@@ -1,9 +1,12 @@
 ---
 title: Dual Translation — Technical Specification (Feature 2: Error Synthesis + Spaced Remediation)
 type: feature-tech
-status: planned
+status: in-progress
 prose_page: ./dual-translation.md
-last_updated: 2026-06-22
+last_updated: 2026-11-23
+open_questions:
+  - "OPEN: there is no separate prose page for Feature 2 (error synthesis and card remediation); [[features/dual-translation]] covers both features, so prose_page keeps pointing there. A checker expects features/dual-translation-remediation.md; create it, or accept the shared prose page?"
+  - "OPEN (owner): two remediation systems run side by side (this FSRS dt_card system: 4 cards, 0 reviews; guided repair: 22 sessions). Proposed in [[decisions/ADR-062-retire-dt-card-and-select-next-window-in-sql]]."
 dependencies:
   - "table: dt_error_instance (from Feature 1) — source of all remediation"
   - "service: services/vocabulary/fsrs.py (FSRS-4) — reused scheduler"
@@ -13,6 +16,14 @@ breaking_change_risk: low
 ---
 
 # Dual Translation — Technical Specification (Feature 2: Error Synthesis + Spaced Remediation)
+
+> **Status 2026-11-23.** Built and live, with almost no use. Live counts: `dt_error_instance` 33 rows, `dt_error_profile_entry` 14 (1 `queued`, 4 `drilling`),
+> `dt_card` 4, `dt_card_review` 0. The tables below exist. Card generation is `services/dual_translation/cards.py`
+> (`generate_cards_for_queued_entries`, called from `GET /next` when it serves an error card, so `/next` writes on a GET). It is batched
+> (a constant 9 round trips, asserted by the code's own test; all reads before any write, an entry set to `drilling` only with its cards) and builds a card only from an error in the
+> entry's **own language**; before, a Chinese entry could get a card from a Japanese error (live cards 11 and 12; a data-fix migration is pending).
+> Guided self-repair ([[features/dt-guided-self-repair.tech]]) is a second remediation system; the proposal to retire this one is
+> [[decisions/ADR-062-retire-dt-card-and-select-next-window-in-sql]].
 
 > Feeds entirely off `dt_error_instance` rows produced by Feature 1
 > ([[features/dual-translation.tech]]). Implements the brief's §3.
@@ -155,7 +166,9 @@ vocab/math labs and must be validated on our own remediation data.
 - Recurrence metric present and decreasing on a seeded fixture.
 
 ## Related Pages
-- [[features/dual-translation]] — prose
+- [[features/dual-translation]] — prose (covers both features)
+- [[features/dt-guided-self-repair.tech]] — the second remediation system
+- [[decisions/ADR-062-retire-dt-card-and-select-next-window-in-sql]] — proposed: one remediation system
 - [[features/dual-translation.tech]] — Feature 1 (grading) + shared data model
 - [[features/flashcards.tech]] — FSRS-4 implementation reused
 - [[business-rules/translation-error-taxonomy]] — taxonomy, severity, promotion rule

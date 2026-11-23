@@ -3,7 +3,8 @@ title: Evidence-First Grading (Dual Translation v2) — Technical Specification
 type: algorithm-tech
 status: complete
 prose_page: ./evidence-first-grading.md
-last_updated: 2026-07-19
+last_updated: 2026-11-23
+open_questions: []
 dependencies:
   - "service: services.dual_translation.{tier0,prompts,grader_cascade,router} — v1 modules being revised"
   - "table: dt_error_instance (severity CHECK extension required), dt_rubric_version (config v3), dt_taxonomy_version (v5)"
@@ -13,6 +14,8 @@ breaking_change_risk: medium
 ---
 
 # Evidence-First Grading (v2) — Technical Specification
+
+> **Status note 2026-11-23:** since 2026-11-14 the live DT grader is the single-call grader ([[decisions/ADR-044-dt-single-call-generative-grader]], `Config.DT_SINGLE_CALL_GRADER` default true). Tier 0 still runs first. The v2 flow (`DT_FRAMEWORK_V2` default true) now grades only when the single call is switched off, fails (primary and fallback model), or the loaded taxonomy does not match its hardcoded type list; v1 is the rollback path behind that. Production currently runs two free models in the single-call slot ([[evaluations/dt-free-grader-goldset-2026-11-23]]). See [[features/dual-translation.tech]] for the current flow.
 
 > Supersedes-by-design the grading logic in [[algorithms/translation-grading-cascade.tech]]
 > (v1, shipped). Tier 0, the router, prompt caching, budget guardrails, and the L2-only /
@@ -258,7 +261,7 @@ escapes HTML). Contract additions: `errors[].explanation_parts = {rule, applicat
 
 ## 7. Prompts (complete)
 
-Same architecture as v1 `prompts.py`: a **cacheable system prefix** assembled from versioned
+Same architecture as v1 `services/dual_translation/prompts.py`: a **cacheable system prefix** assembled from versioned
 blocks (byte-stable per L2 + versions) and a **tiny per-submission user suffix**. JSON field
 names stay English (protocol tokens); all natural language is in the L2 for Detector/Verifier
 and in the **L1** for the Explainer. ZH/JA strings below are AI-authored first drafts flagged
@@ -430,7 +433,7 @@ scope.
   default fix, tier-0 near-exact tightening. Measure against baseline.
 
   **As-built (TASK-624, 2026-07-05).** Prompts upgraded **in place** on the existing tier1/tier2
-  builders (roles NOT swapped — that is TASK-628): `prompts.py` gained the accounted-for,
+  builders (roles NOT swapped — that is TASK-628): `services/dual_translation/prompts.py` gained the accounted-for,
   acceptable-variation, reader-impact-severity, span-discipline, is_mistake and exemplar blocks
   as module dicts (EN/ZH/JA; ZH/JA pending native review), plus a `regions` param on
   `build_user_prompt`; `grader_cascade` passes the tier-0 non-equal opcodes as candidate regions
