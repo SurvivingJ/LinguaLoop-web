@@ -100,10 +100,14 @@ BEGIN
     END IF;
     IF r.option_sense_ids[r.key_position + 1] <> r.anchor_sense_id THEN RAISE EXCEPTION 'key sense mismatch'; END IF;
     IF (calibration_placement_meaning_parts(r.anchor_sense_id, s.word_language_id, s.definition_language_id,
-                                            v_lemma, (SELECT definition FROM dim_word_senses WHERE id = r.anchor_sense_id))).status <> 'ok'
-       OR (NOT calibration_placement_reading_exempt(v_lemma, s.word_language_id)
-           AND NOT calibration_placement_reading_ready(r.anchor_vocab_id, s.word_language_id, v_lemma)) THEN
+                                            v_lemma, (SELECT definition FROM dim_word_senses WHERE id = r.anchor_sense_id))).status <> 'ok' THEN
       RAISE EXCEPTION 'served a non-ready lemma %', v_lemma;
+    END IF;
+    -- PQ23: a scored meaning row records meaning-only = lemma-exempt OR no buildable reading item
+    IF r.probe_kind IS NULL AND r.reading_exempt IS DISTINCT FROM
+         (calibration_placement_reading_exempt(v_lemma, s.word_language_id)
+          OR NOT calibration_placement_reading_ready(r.anchor_vocab_id, s.word_language_id, v_lemma)) THEN
+      RAISE EXCEPTION 'reading_exempt % wrong for %', r.reading_exempt, v_lemma;
     END IF;
     IF NOT calibration_placement_reading_exempt(v_lemma, s.word_language_id) AND v_read = ANY (texts) THEN
       RAISE EXCEPTION 'meaning item shows the reading %', v_read;
@@ -229,7 +233,7 @@ BEGIN
     PERFORM pg_temp.plc_check_item(p_user, v_sid, v_item);
     SELECT * INTO r FROM calibration_responses WHERE id = (v_item->>'response_id')::bigint;
     SELECT lemma INTO v_lemma FROM dim_vocabulary WHERE id = r.anchor_vocab_id;
-    v_ex := calibration_placement_reading_exempt(v_lemma, p_l);
+    v_ex := coalesce(r.reading_exempt, calibration_placement_reading_exempt(v_lemma, p_l));   -- PQ23
     v_know := 0.10 + 0.11 * r.zipf_band;            -- band 7: 0.87, band 1: 0.21
 
     -- choose an answer (and remember its role for the hand count)
@@ -299,7 +303,7 @@ BEGIN
         IF v_ex THEN
           hp[b][1] := hp[b][1] + 1;
           IF v_pos = r.key_position THEN hp[b][2] := hp[b][2] + 1;
-          ELSIF v_pos IS NOT NULL THEN hp[b][3] := hp[b][3] + 1; END IF;
+          ELSIF v_pos IS NOT NULL AND p_l <> 1 THEN hp[b][3] := hp[b][3] + 1; END IF;   -- zh: no wrong slot
         ELSIF v_pos IS DISTINCT FROM r.key_position THEN
           hp[b][1] := hp[b][1] + 1;
         END IF;
@@ -621,8 +625,9 @@ BEGIN
       RAISE EXCEPTION 'ready_counts totals';
     END IF;
     FOR b IN SELECT * FROM jsonb_array_elements(j->'bands') LOOP
-      IF (b->>'ready_n')::int > (b->>'meaning_ready_n')::int
-         OR (b->>'ready_n')::int > (b->>'reading_ready_n')::int + (b->>'exempt_n')::int THEN
+      -- PQ23: every meaning-ready word is ready (meaning-only when its reading item cannot be built)
+      IF (b->>'ready_n')::int <> (b->>'meaning_ready_n')::int
+         OR (b->>'meaning_only_n')::int > (b->>'ready_n')::int THEN
         RAISE EXCEPTION 'ready_counts band inconsistent: %', b;
       END IF;
     END LOOP;

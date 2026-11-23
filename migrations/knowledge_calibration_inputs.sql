@@ -138,7 +138,7 @@ cfg AS (
 mrows AS (
     SELECT cr.id, cr.session_id, cr.anchor_vocab_id AS v, cr.zipf_band AS b, cr.answered_at,
            cr.is_correct, (cr.chosen_sense_id IS NULL) AS skip, cr.chosen_position,
-           cs.mode, cs.stop_reason
+           cr.reading_exempt, cs.mode, cs.stop_reason
       FROM cfg, prm, calibration_sessions cs
       JOIN calibration_responses cr ON cr.session_id = cs.id
       JOIN dim_word_senses a ON a.id = cr.anchor_sense_id AND a.sense_rank = 1
@@ -173,7 +173,10 @@ pj AS (
     SELECT pm.b,
            pm.is_correct AS mc,
            (pm.chosen_position IS NULL) AS m_idk,
-           (p_language_id = 3 AND coalesce(v.lemma ~ '^[ぁ-ゟァ-ヿー・]+$', false)) AS ex,
+           -- PQ23: the flag recorded when the meaning item was served (meaning-only words);
+           -- rows served before it existed fall back to the lemma rule.
+           coalesce(pm.reading_exempt,
+                    p_language_id = 3 AND coalesce(v.lemma ~ '^[ぁ-ゟァ-ヿー・]+$', false)) AS ex,
            (rd.id IS NOT NULL) AS r_ans,
            coalesce(rd.is_correct, false) AS rc,
            (rd.id IS NOT NULL AND rd.chosen_position IS NULL) AS r_idk,
@@ -199,7 +202,7 @@ pb AS (
     SELECT bands.b,
            CASE WHEN p_language_id = 1 THEN
                jsonb_build_array(count(ps.b),
-                                 count(ps.b) FILTER (WHERE ps.mc AND ps.role = 'K'),
+                                 count(ps.b) FILTER (WHERE ps.mc AND (ps.ex OR ps.role = 'K')),
                                  count(ps.b) FILTER (WHERE ps.mc AND ps.role = 'KT'),
                                  count(ps.b) FILTER (WHERE ps.mc AND ps.role IN ('F', 'FT')))
            ELSE

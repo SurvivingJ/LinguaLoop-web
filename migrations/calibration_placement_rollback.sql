@@ -31,6 +31,7 @@ ALTER TABLE public.calibration_responses
   DROP CONSTRAINT IF EXISTS calibration_responses_item_kind_chk;
 
 ALTER TABLE public.calibration_responses
+  DROP COLUMN IF EXISTS reading_exempt,
   DROP COLUMN IF EXISTS chosen_position,
   DROP COLUMN IF EXISTS option_texts,
   DROP COLUMN IF EXISTS option_roles,

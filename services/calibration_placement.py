@@ -235,7 +235,7 @@ def _response_rows(session_id: str) -> list[dict]:
     db = get_supabase_admin()
     return (db.table('calibration_responses')
             .select('id,anchor_vocab_id,anchor_sense_id,item_kind,probe_kind,is_correct,chosen_position,'
-                    'chosen_sense_id,answered_at,pair_response_id,option_roles,zipf_band')
+                    'chosen_sense_id,answered_at,pair_response_id,option_roles,zipf_band,reading_exempt')
             .eq('session_id', session_id).is_('probe_kind', 'null').not_.is_('answered_at', 'null')
             .order('id').execute().data or [])
 
@@ -268,7 +268,12 @@ def _word_outcomes(session_id: str, language_id: int) -> list[dict]:
             else:
                 reading = 'right' if rd.get('is_correct') else 'wrong'
         lemma = lemmas.get(int(r['anchor_vocab_id']))
-        ready = rd is not None or not reading_exempt(language_id, lemma)
+        # PQ23: the flag stored when the meaning item was served (meaning-only words); older rows
+        # fall back to the lemma rule.
+        exempt = r.get('reading_exempt')
+        if exempt is None:
+            exempt = reading_exempt(language_id, lemma)
+        ready = rd is not None or not exempt
         if meaning == 'right' and ready and rd is None:
             continue                                            # incomplete pair
         words.append(dict(response_id=r['id'], vocab_id=r['anchor_vocab_id'], sense_id=r['anchor_sense_id'],

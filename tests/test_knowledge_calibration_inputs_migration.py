@@ -77,7 +77,9 @@ def test_sample_rules_in_sql():
     assert "m.mode = 'placement'" in body
     assert 'ps AS (SELECT * FROM pj WHERE ex OR NOT mc OR r_ans)' in body
     # ja exempt words are the kana-only lemmas (same regex as the placement helper)
-    assert "(p_language_id = 3 AND coalesce(v.lemma ~ '^[ぁ-ゟァ-ヿー・]+$', false))" in body
+    # PQ23: the flag stored on the meaning row first, the lemma rule for older rows
+    assert "coalesce(pm.reading_exempt, p_language_id = 3 AND coalesce(v.lemma ~ '^[ぁ-ゟァ-ヿー・]+$', false))" in body
+    assert "ps.mc AND (ps.ex OR ps.role = 'K')" in body
     # zh roles come from the stored option roles of the reading row
     assert 'rd.option_roles[rd.chosen_position + 1] AS role' in body
     # eligibility (b) precondition

@@ -29,7 +29,9 @@ class SqlError(Exception):
 class FakePlacementSQL:
     def __init__(self, words_per_band=40, seed=0, kana_share=0.25):
         self.rng = random.Random(seed)
-        self.now = datetime(2026, 11, 20, 12, 0, tzinfo=timezone.utc)
+        # The service reads the real clock (resume window, daily cap), so the fake must too: a fixed
+        # date made the resume and daily-cap tests fail from 24 h after it.
+        self.now = datetime.now(timezone.utc).replace(microsecond=0)
         self.sessions: dict[str, dict] = {}
         self.responses: list[dict] = []
         self.ids = itertools.count(1)

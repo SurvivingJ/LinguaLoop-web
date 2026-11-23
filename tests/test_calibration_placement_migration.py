@@ -213,7 +213,7 @@ def test_rollback_drops_every_function():
 
 def test_requires_schema_and_zh_tone_variants_first():
     sql = code(RPCS)
-    assert "column_name = 'option_roles'" in sql
+    assert "column_name = 'reading_exempt'" in sql   # PQ23 column, the newest calibration_placement.sql column
     assert "to_regprocedure('public.calibration_zh_tone_variants(text,integer)') IS NULL" in sql
     # called with the TASK-1092 signature (text, integer)
     for m in re.finditer(r'calibration_zh_tone_variants\(([^()]*)\)', code_without_strings(read(RPCS))):
@@ -288,3 +288,16 @@ def test_schema_refuses_when_keys_would_be_readable():
     assert "has_table_privilege('anon', 'public.calibration_responses', 'SELECT')" in sql
     assert "has_table_privilege('authenticated', 'public.calibration_responses', 'SELECT')" in sql
     assert sql.index('has_table_privilege') < sql.index('ADD COLUMN')
+
+
+def test_meaning_only_words_pq23():
+    """PQ23: an unbuildable reading item makes the word meaning-only, recorded on the meaning row."""
+    sql = code(RPCS)
+    assert 'SET reading_exempt = calibration_placement_reading_exempt(c.lemma, p_word_language_id)' in sql
+    assert 'OR NOT calibration_placement_reading_ready(c.vocab_id, p_word_language_id, c.lemma)' in sql
+    assert 'coalesce(v_r.reading_exempt, calibration_placement_reading_exempt(v_lemma, v_l))' in sql
+    assert 'coalesce(r.reading_exempt,' in sql
+    assert "ps.mc AND (ps.ex OR ps.role = 'K')" in sql
+    assert "(m_status = 'ok') AS ready" in sql
+    schema = code(SCHEMA)
+    assert 'ADD COLUMN IF NOT EXISTS reading_exempt boolean NULL' in schema

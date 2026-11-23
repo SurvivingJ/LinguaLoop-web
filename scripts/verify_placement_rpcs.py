@@ -55,7 +55,7 @@ KANA_ONLY = re.compile('^[ぁ-ゟァ-ヿー・]+$')
 TONELESS = str.maketrans('āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜü', 'aaaaeeeeiiiioooouuuuvvvvv')
 ROW_COLS = ('id, session_id, user_id, anchor_sense_id, anchor_vocab_id, zipf_band, item_kind, probe_kind, '
             'instrument, pair_response_id, option_sense_ids, key_position, option_roles, option_texts, '
-            'chosen_position, chosen_sense_id, is_correct, answered_at')
+            'chosen_position, chosen_sense_id, is_correct, answered_at, reading_exempt')
 
 
 class RpcError(Exception):
@@ -271,11 +271,16 @@ class Checker:
             mp = mp[0] if isinstance(mp, list) else mp
             if mp['status'] != 'ok':
                 self.fail(f'{tag} meaning status {mp["status"]}')
+            if r['probe_kind'] is None:
+                # PQ23: a scored meaning row records meaning-only = lemma-exempt OR no buildable reading item
+                ready = exempt(lemma, lang) or self.b.rpc('calibration_placement_reading_ready', {
+                    'p_vocab_id': r['anchor_vocab_id'], 'p_word_language_id': lang, 'p_lemma': lemma}) is True
+                if r.get('reading_exempt') is not (exempt(lemma, lang) or not ready):
+                    self.fail(f"{tag} reading_exempt {r.get('reading_exempt')} but lemma-exempt "
+                              f"{exempt(lemma, lang)}, reading-ready {ready}")
+                if not ready:
+                    self.count('meaning_only_words')
             if not exempt(lemma, lang):
-                ready = self.b.rpc('calibration_placement_reading_ready', {
-                    'p_vocab_id': r['anchor_vocab_id'], 'p_word_language_id': lang, 'p_lemma': lemma})
-                if ready is not True:
-                    self.fail(f'{tag} not reading-ready')
                 reading = self.b.rpc('calibration_placement_reveal_reading', {
                     'p_vocab_id': r['anchor_vocab_id'], 'p_word_language_id': lang})
                 if reading and reading in opts:
@@ -380,10 +385,11 @@ class Checker:
                     hm[b][0] += 1
                     hm[b][1] += want
                     hm[b][2] += (pos is not None and not want)
-                    if exempt(item['lemma'], lang):
+                    if r.get('reading_exempt'):          # meaning-only word (PQ23 flag on the row)
                         hp[b][0] += 1
                         hp[b][1] += want
-                        hp[b][2] += (pos is not None and not want)
+                        if lang != 1:                     # zh has no wrong-reading slot: [n', pc, pkt, pf]
+                            hp[b][2] += (pos is not None and not want)
                     elif not want:
                         hp[b][0] += 1
                 else:

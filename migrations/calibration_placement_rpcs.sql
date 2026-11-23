@@ -60,7 +60,7 @@ DO $$
 BEGIN
   IF NOT EXISTS (SELECT 1 FROM information_schema.columns
                   WHERE table_schema = 'public' AND table_name = 'calibration_responses'
-                    AND column_name = 'option_roles') THEN
+                    AND column_name = 'reading_exempt') THEN   -- PQ23 column (calibration_placement.sql)
     RAISE EXCEPTION 'apply migrations/calibration_placement.sql (TASK-1076) first';
   END IF;
   IF to_regprocedure('public.calibration_zh_tone_variants(text,integer)') IS NULL THEN
@@ -481,10 +481,10 @@ BEGIN
                                                        p_definition_language_id, p_band, p_exclude_days)
          ORDER BY vocab_id
     LOOP
+        -- PQ23 (2026-11-23): a word whose reading item cannot be built is served meaning-only,
+        -- so any meaning-ready word can be drawn.
         IF (calibration_placement_meaning_parts(c.sense_id, p_word_language_id, p_definition_language_id,
-                                                c.lemma, c.definition)).status = 'ok'
-           AND (calibration_placement_reading_exempt(c.lemma, p_word_language_id)
-                OR calibration_placement_reading_ready(c.vocab_id, p_word_language_id, c.lemma)) THEN
+                                                c.lemma, c.definition)).status = 'ok' THEN
             RETURN true;
         END IF;
     END LOOP;
@@ -515,9 +515,7 @@ BEGIN
     LOOP
         SELECT * INTO m FROM calibration_placement_meaning_parts(
             c.sense_id, p_word_language_id, p_definition_language_id, c.lemma, c.definition);
-        CONTINUE WHEN m.status <> 'ok';
-        CONTINUE WHEN NOT calibration_placement_reading_exempt(c.lemma, p_word_language_id)
-                  AND NOT calibration_placement_reading_ready(c.vocab_id, p_word_language_id, c.lemma);
+        CONTINUE WHEN m.status <> 'ok';   -- PQ23: no reading condition (build_meaning records meaning-only)
         anchor_sense_id := c.sense_id;
         vocab_id        := c.vocab_id;
         lemma           := c.lemma;
@@ -732,7 +730,8 @@ BEGIN
     ),
     m AS (
         SELECT r.id, r.zipf_band AS b, r.is_correct AS mc, (r.chosen_position IS NULL) AS m_idk,
-               calibration_placement_reading_exempt(v.lemma, v_s.word_language_id) AS ex
+               coalesce(r.reading_exempt,
+                        calibration_placement_reading_exempt(v.lemma, v_s.word_language_id)) AS ex   -- PQ23
           FROM r JOIN dim_vocabulary v ON v.id = r.anchor_vocab_id
          WHERE r.item_kind = 'meaning' AND r.probe_kind IS NULL AND r.answered_at IS NOT NULL
     ),
@@ -756,7 +755,7 @@ BEGIN
         SELECT bands.b,
                CASE WHEN v_s.word_language_id = 1 THEN
                    jsonb_build_array(count(ps.id),
-                                     count(ps.id) FILTER (WHERE ps.mc AND ps.role = 'K'),
+                                     count(ps.id) FILTER (WHERE ps.mc AND (ps.ex OR ps.role = 'K')),
                                      count(ps.id) FILTER (WHERE ps.mc AND ps.role = 'KT'),
                                      count(ps.id) FILTER (WHERE ps.mc AND ps.role IN ('F', 'FT')))
                ELSE
@@ -851,16 +850,24 @@ LANGUAGE plpgsql VOLATILE
 SET search_path = public, pg_temp
 AS $$
 DECLARE
-    c record;
+    c     record;
+    v_out jsonb;
 BEGIN
     SELECT * INTO c FROM calibration_placement_draw(p_user_id, p_session_id, p_word_language_id,
                                                     p_definition_language_id, p_band, p_nearest, p_exclude_days);
     IF NOT FOUND OR c.anchor_sense_id IS NULL THEN
         RETURN NULL;
     END IF;
-    RETURN calibration_placement_insert_item(
+    v_out := calibration_placement_insert_item(
         p_session_id, p_user_id, c.anchor_sense_id, c.vocab_id, c.lemma, c.zipf, c.zipf_band,
         'meaning', NULL, 'meaning_bare_v1', NULL, c.sense_ids, c.texts, NULL, 1, false, p_seed);
+    -- PQ23: meaning-only when the lemma is exempt (en, ja kana-only) or no reading item can be built.
+    -- Every reader of the exemption (answer, tallies, knowledge_calibration_inputs, Python) uses this flag.
+    UPDATE calibration_responses
+       SET reading_exempt = calibration_placement_reading_exempt(c.lemma, p_word_language_id)
+                            OR NOT calibration_placement_reading_ready(c.vocab_id, p_word_language_id, c.lemma)
+     WHERE id = (v_out ->> 'response_id')::bigint;
+    RETURN v_out;
 END;
 $$;
 
@@ -958,7 +965,7 @@ AS $$
             ON NOT st.ex AND st.rk_sense IS NOT NULL
     ),
     f AS (
-        SELECT st2.*, (m_status = 'ok') AS mok, (m_status = 'ok' AND (ex OR rr)) AS ready
+        SELECT st2.*, (m_status = 'ok') AS mok, (m_status = 'ok') AS ready   -- PQ23: unbuildable reading -> meaning-only
           FROM st2
     ),
     bands AS (SELECT g::smallint AS b FROM generate_series(1, 7) g),
@@ -971,6 +978,7 @@ AS $$
                    'meaning_ready_n',    count(f.vocab_id) FILTER (WHERE f.mok),
                    'reading_ready_n',    count(f.vocab_id) FILTER (WHERE f.rr),
                    'exempt_n',           count(f.vocab_id) FILTER (WHERE f.ex),
+                   'meaning_only_n',     count(f.vocab_id) FILTER (WHERE f.mok AND NOT f.ex AND NOT f.rr),
                    'excluded_rule5_n',   count(f.vocab_id) FILTER (WHERE f.m_status = 'rule5'),
                    'excluded_rule3b_n',  count(f.vocab_id) FILTER (WHERE p_word_language_id = 3 AND NOT f.ex
                                                                     AND f.n_rule3 >= 3 AND f.n_rule3b < 3),
@@ -1154,7 +1162,7 @@ BEGIN
     v_l := v_s.word_language_id;
     v_d := v_s.definition_language_id;
     SELECT lemma INTO v_lemma FROM dim_vocabulary WHERE id = v_r.anchor_vocab_id;
-    v_exempt := calibration_placement_reading_exempt(v_lemma, v_l);
+    v_exempt := coalesce(v_r.reading_exempt, calibration_placement_reading_exempt(v_lemma, v_l));   -- PQ23
     v_root   := coalesce(v_r.pair_response_id, v_r.id);
 
     SELECT count(*) FILTER (WHERE probe_kind IS NOT NULL),

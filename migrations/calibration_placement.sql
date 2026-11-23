@@ -90,7 +90,11 @@ ALTER TABLE public.calibration_responses
   ADD COLUMN IF NOT EXISTS key_position     smallint NULL,
   ADD COLUMN IF NOT EXISTS option_roles     text[] NULL,
   ADD COLUMN IF NOT EXISTS option_texts     text[] NULL,
-  ADD COLUMN IF NOT EXISTS chosen_position  smallint NULL;
+  ADD COLUMN IF NOT EXISTS chosen_position  smallint NULL,
+  -- PQ23 (2026-11-23): set on scored meaning rows when served; true = the word is asked the meaning
+  -- question only (en, ja kana-only, or no reading item can be built). NULL on older rows and on
+  -- reading/probe rows: readers fall back to calibration_placement_reading_exempt(lemma).
+  ADD COLUMN IF NOT EXISTS reading_exempt   boolean NULL;
 
 ALTER TABLE public.calibration_responses DROP CONSTRAINT IF EXISTS calibration_responses_item_kind_chk;
 ALTER TABLE public.calibration_responses ADD CONSTRAINT calibration_responses_item_kind_chk
