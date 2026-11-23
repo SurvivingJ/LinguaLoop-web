@@ -3,7 +3,7 @@ title: Answer-Entailment Judge — Technical Specification
 type: feature-tech
 status: complete
 prose_page: answer-entailment-judge.md
-last_updated: 2026-09-27
+last_updated: 2026-11-23
 dependencies:
   - "services/exercise_generation/judges/answer_entailment.py"
   - "services/exercise_generation/judges/answer_entailment_jev.py"
@@ -156,7 +156,9 @@ batch / fails open when serving; `_apply_judges` shape. Existing suites still gr
 `tests/test_distractor_two_axis.py`, `tests/test_judge_subject_keywords.py`.
 
 Run: `PYTHONPATH=. pytest tests/test_jev_entailment.py`. Live wiring check (production
-pipeline, <1¢): `PYTHONPATH=. python scripts/smoke_entailment_jev.py`.
+pipeline, <1¢): `PYTHONPATH=. python scripts/smoke_entailment_production_path.py` (the earlier
+script smoke_entailment_jev was removed in commit 401ac533; the replacement exercises the production
+`judge_answer_entailment` wrapper against the live prompt row, see [[evaluations/entailment-likert-v3-rollout-2026-08-19]]).
 
 ## Open questions
 

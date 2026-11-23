@@ -3,10 +3,13 @@ title: Translation Grading Cascade
 type: algorithm
 status: deprecated
 tech_page: ./translation-grading-cascade.tech.md
-last_updated: 2026-07-19
+last_updated: 2026-11-23
+open_questions: []
 ---
 
 # Translation Grading Cascade
+
+> **Status note 2026-11-23:** since 2026-11-14 the live DT grader is the single-call grader ([[decisions/ADR-044-dt-single-call-generative-grader]], `Config.DT_SINGLE_CALL_GRADER` default true). Tier 0 still runs first. The v2 flow (`DT_FRAMEWORK_V2` default true) now grades only when the single call is switched off, fails (primary and fallback model), or the loaded taxonomy does not match its hardcoded type list; v1 is the rollback path behind that. Production currently runs two free models in the single-call slot ([[evaluations/dt-free-grader-goldset-2026-11-23]]). See [[features/dual-translation.tech]] for the current flow.
 
 > **Superseded (2026-07-19):** the v2 Evidence-First flow ([[algorithms/evidence-first-grading]])
 > is now the LIVE default (`Config.DT_FRAMEWORK_V2` defaults ON since TASK-632; harness pass filed

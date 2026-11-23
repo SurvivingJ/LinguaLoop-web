@@ -1,10 +1,12 @@
 ---
 title: Dual Translation
 type: feature
-status: planned
+status: in-progress
 tech_page: ./dual-translation.tech.md
-last_updated: 2026-11-17
+last_updated: 2026-11-23
 open_questions:
+  - "OPEN (owner, 2026-11-23): grading currently uses two free models that failed the gold-set check ([[evaluations/dt-free-grader-goldset-2026-11-23]]); revert to the validated pair? See [[decisions/ADR-044-dt-single-call-generative-grader]]."
+  - "OPEN (owner, 2026-11-23): two proposals are not decided: [[decisions/ADR-051-one-transactional-write-per-dt-submission]] and [[decisions/ADR-052-retire-dt-card-and-select-next-window-in-sql]]."
   - "RESOLVED 2026-11-17 (TASK-989): 'all done' screen first, with an explicit 'Translate an earlier passage again' action that re-serves the least recently graded passage; a repeat is graded but kept out of the error profile."
   - "OPEN (2026-11-17): spoiler rule — should the first rated attempt of a test whose passage was translated beforehand count at half weight, as a prestudied attempt does? Needs a hook in routes/tests/submit.py (TASK-1001)."
   - "OPEN (2026-11-17): confirm what a repeat counts towards — today study minutes, the daily token budget and prestudy Produce bookkeeping, but not the error profile, trends, error cards, guided repair or word-knowledge evidence (TASK-1001)."
@@ -51,7 +53,10 @@ flashcards — the core LinguaDojo audience. It closes the loop from passive rec
 5. Errors are tagged, persisted and aggregated into a **per-learner error profile**. Only
    *systematic* errors (recurring, not one-off slips) are promoted into a spaced-repetition
    queue and remediated with cloze cards and "isolate-and-re-translate" drills — always
-   toward the **corrected** form, never the learner's wrong form.
+   toward the **corrected** form, never the learner's wrong form. *(Since 2026-11-16 the result screen
+   itself is the guided self-repair flow: the learner fixes their own flagged sentences before the correction is
+   shown, see [[features/dt-guided-self-repair]]. The spaced card queue exists but is hardly used: 4 cards and no
+   reviews on 2026-11-23.)*
 
 ### Which passage comes next (updated 2026-11-17)
 - The passage is always in the language the learner is studying right now (the language picked
@@ -93,7 +98,8 @@ flashcards — the core LinguaDojo audience. It closes the loop from passive rec
   gold once and an L1 reference *per supported L1*. Interlingual error rules are defined per
   **directed L1↔L2 pair** ([[decisions/ADR-016-per-pair-error-taxonomy]]).
 - **Source from existing corpus — `tests.transcript` only.** Passages are drawn from existing L2
-  test transcripts (not mystery scenes); the L1 reference(s) are generated and stored alongside.
+  test transcripts (not mystery scenes); the L1 references are the reviewed sentence-by-sentence translations
+  ([[features/test-sentence-references]]), not generated on the spot.
   We never invent new L2 source content. Passages are served from tests the learner has **already
   completed** (reading/listening/dictation), so content is inherently at their level.
 - **Grading is level-neutral; only naturalness is level-dependent.** Because difficulty is
@@ -119,9 +125,9 @@ error-vs-mistake gate, and promotion threshold.
 - ANSWERED: source → `tests.transcript` only, from the learner's already-completed tests.
 - ANSWERED: directionality → L1→L2 only for MVP.
 - ANSWERED: difficulty banding → age tiers, not CEFR.
-- ANSWERED: model access → flash-style, language-dependent OpenRouter slugs in `prompt_templates`
-  (Gemini-flash for EN content, Qwen for ZH/JA); grading prompts are target-language-only and
-  emit numerical indices (no English, no prose).
+- ANSWERED (superseded for grading, 2026-11-23): model access was first planned as flash-style, language-dependent OpenRouter slugs in
+  `prompt_templates` (Gemini-flash for EN content, Qwen for ZH/JA). Grading is now one structured call to a model named in `config.py`
+  ([[decisions/ADR-044-dt-single-call-generative-grader]]); the validated model is `openai/gpt-6-luna`, but production currently runs two free models (see the open question above).
 
 ## Related Pages
 - [[features/dual-translation.tech]] — architecture, data model, grading pipeline (Feature 1)
@@ -131,5 +137,9 @@ error-vs-mistake gate, and promotion threshold.
 - [[business-rules/translation-error-taxonomy]] — error taxonomy and promotion rules
 - [[features/dictation]] — reuses the same Levenshtein diff grader for Tier 0
 - [[tasklist/fixes-2026-11-16.tasks]] — open items from the 2026-11-16 fixes
+- [[features/dt-guided-self-repair]] — the result screen is a guided self-repair flow (live since 2026-11-16)
+- [[decisions/ADR-044-dt-single-call-generative-grader]], [[decisions/ADR-045-dt-guided-self-repair]]
+- [[evaluations/dt-free-grader-goldset-2026-11-23]] — gold-set check of the free models in use
+- [[decisions/ADR-051-one-transactional-write-per-dt-submission]] and [[decisions/ADR-052-retire-dt-card-and-select-next-window-in-sql]] — proposals
 - [[features/flashcards]] — reuses FSRS-4 for remediation card scheduling
 - [[decisions/ADR-014-reference-first-grading]], [[decisions/ADR-015-eager-error-explanations]], [[decisions/ADR-016-per-pair-error-taxonomy]], [[decisions/ADR-017-dual-translation-standalone-l1l2-mvp]]

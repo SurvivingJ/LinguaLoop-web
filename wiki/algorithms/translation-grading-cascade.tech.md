@@ -3,18 +3,21 @@ title: Translation Grading Cascade — Technical Specification
 type: algorithm-tech
 status: deprecated
 prose_page: ./translation-grading-cascade.md
-last_updated: 2026-07-19
+last_updated: 2026-11-23
+open_questions: []
 dependencies:
   - "service: services.dictation.grader (Levenshtein WordDiff)"
   - "table: prompt_templates (OpenRouter slugs per language+stage)"
   - "service: services.model_arena.pricing (OpenRouter /v1/models pricing fetcher) — pattern reused"
   - "service: services.model_arena.llm_runner.call_model_with_usage — OpenRouter call + token usage"
   - "service: services.llm_output_cleaner.clean_json_response — strips fences before json.loads"
-  - "table: dt_rubric_version, dt_taxonomy_version — shapes now defined by services/dual_translation/grader_cascade.py + prompts.py (see Implementation contracts below)"
+  - "table: dt_rubric_version, dt_taxonomy_version — shapes now defined by services/dual_translation/grader_cascade.py + services/dual_translation/prompts.py (see Implementation contracts below)"
 breaking_change_risk: low
 ---
 
 # Translation Grading Cascade — Technical Specification
+
+> **Status note 2026-11-23:** since 2026-11-14 the live DT grader is the single-call grader ([[decisions/ADR-044-dt-single-call-generative-grader]], `Config.DT_SINGLE_CALL_GRADER` default true). Tier 0 still runs first. The v2 flow (`DT_FRAMEWORK_V2` default true) now grades only when the single call is switched off, fails (primary and fallback model), or the loaded taxonomy does not match its hardcoded type list; v1 is the rollback path behind that. Production currently runs two free models in the single-call slot ([[evaluations/dt-free-grader-goldset-2026-11-23]]). See [[features/dual-translation.tech]] for the current flow.
 
 > **Superseded (2026-07-19, TASK-632):** the v2 Detector/Verifier flow
 > ([[algorithms/evidence-first-grading.tech]]) is the LIVE default — `Config.DT_FRAMEWORK_V2`
@@ -103,7 +106,7 @@ change. The cost win comes from prompt caching + Tier 0, not a batch discount.
   Tier 1 / reference-anchored); the de-emphasized `naturalness` is the expensive fuzzy one. Don't
   "fix" quality by spending more on nativeness grading.
 
-## Implementation contracts (TASK-606, `services/dual_translation/grader_cascade.py` + `prompts.py`)
+## Implementation contracts (TASK-606, `services/dual_translation/grader_cascade.py` + `services/dual_translation/prompts.py`)
 
 TASK-606 had to define several JSON shapes the wiki described only in prose. These are now the
 canonical contracts — TASK-604 (rubric seed) and TASK-616 (taxonomy localisation) must conform to
@@ -173,7 +176,7 @@ malformed entries individually rather than discarding the whole response):
 ```
 JSON field names stay in English in every L2 (protocol tokens, like an XML tag name — not prose);
 everything else in the prompt (instructions, enum glosses, subtype glosses, band descriptors) is
-authored in the L2 being graded. The three instructional templates (EN/ZH/JA) in `prompts.py` are
+authored in the L2 being graded. The three instructional templates (EN/ZH/JA) in `services/dual_translation/prompts.py` are
 AI-authored first drafts, not native-reviewed — functionally complete, flagged for linguistic QA
 alongside TASK-616.
 

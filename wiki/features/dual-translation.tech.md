@@ -3,7 +3,12 @@ title: Dual Translation — Technical Specification (Feature 1: Grading)
 type: feature-tech
 status: in-progress
 prose_page: ./dual-translation.md
-last_updated: 2026-11-17
+last_updated: 2026-11-23
+open_questions:
+  - "OPEN (owner): production grades with two free models that failed the gold-set check ([[evaluations/dt-free-grader-goldset-2026-11-23]]). Revert the defaults to the validated pair? See the status note in [[decisions/ADR-044-dt-single-call-generative-grader]]."
+  - "OPEN: the submit duplicate handling, concurrent reads, /next card batching and dead-code removal described below exist on branch `review/integration` (commits of 2026-11-23), not at `main` HEAD e9858759 when this page was written. Confirm the merge before treating them as live."
+  - "OPEN: the 8 -> 5 sequential-wave figure for submit comes from the commit message of d0145a1e, and the /next round-trip counts from a code count (2026-11-23 review); neither was traced at run time."
+  - "OPEN: proposed [[decisions/ADR-051-one-transactional-write-per-dt-submission]] and [[decisions/ADR-052-retire-dt-card-and-select-next-window-in-sql]] need the owner's decision."
 dependencies:
   - "table: tests (transcript) and mysteries/mystery_scenes — L2 source for passages"
   - "table: dim_languages (1=ZH, 2=EN, 3=JA), users, user_languages"
@@ -11,7 +16,7 @@ dependencies:
   - "table: prompt_templates — holds OpenRouter model slugs per language/stage (model router)"
   - "service: services.dictation.grader (Levenshtein WordDiff) — reused for Tier 0"
   - "service: shared OpenRouter client (as used by services.model_arena.llm_runner)"
-  - "new tables: dt_passage, dt_submission, dt_grade, dt_error_instance, dt_rubric_version, dt_taxonomy_version"
+  - "tables: dt_passage, dt_submission, dt_grade, dt_error_instance, dt_rubric_version, dt_taxonomy_version, dt_grading_call (dt_passage_reference was dropped: whole-passage references no longer exist)"
   - "new service: services.dual_translation.* (passage_builder, grader_cascade, router)"
   - "service (2026-11-14, flag-gated): services.dual_translation.single_call_grader / single_call_prompts / sentence_pairs — ADR-044"
   - "migration (applied to production 2026-11-14): migrations/dt_grading_assets.sql — dt_error_instance asset columns + dt_grading_call"
@@ -125,7 +130,9 @@ The L2 gold + L1 reference(s), sourced from existing corpus.
 | `status` | text NOT NULL DEFAULT 'active' | CHECK: `active` \| `draft` \| `retired` |
 | `created_at` | timestamptz | |
 
-### `dt_passage_reference`
+### `dt_passage_reference` (DROPPED, historical)
+> **This table no longer exists** (checked live 2026-11-23: `to_regclass('public.dt_passage_reference')` is null). The whole-passage reference pool was retired on 2026-11-17; learners are served sentence windows with reviewed references from `test_sentence_references` ([[features/test-sentence-references.tech]]). Nothing reads or writes it. The description below is kept as history only.
+
 One L1 reference per supported L1 (per-user-L1 design).
 | column | type | notes |
 |---|---|---|
@@ -244,6 +251,7 @@ tiers and **hidden at the lowest age tiers** (1–2) to avoid demotivation.
   **503 `GRADING_UNAVAILABLE`** when at least one grading call was *refused* by the provider and no
   model answered at all — see "Provider refusal" below. Nothing is saved in that case.
 - **Auth:** authenticated learner; submission must belong to user.
+- **Flow, duplicates and concurrency:** see "Submit flow and duplicate submits" below.
 - **Side effects:** writes dt_grade + dt_error_instance[]; enqueues systematic errors for Feature 2;
   logs grader_trace cost. **Repeat (2026-11-17, `_repeat_of`):** the grade is stored and shown, but
   its errors go only into `dt_grade.grader_trace.repeat` (with the earlier submission id and band);
@@ -322,16 +330,33 @@ tiers and **hidden at the lowest age tiers** (1–2) to avoid demotivation.
 - **Retired windows (TASK-991):** `/next` never opens a non-active window passage, and
   `POST /passage-from-sentences` answers **409 `PASSAGE_RETIRED`** before creating a submission.
 - **Error cards:** due cards are interleaved only when the study language is known (TASK-991), and
-  filtered to it (`_card_ids_for_language`). Materialising newly queued profile entries
-  (`dt_cards.generate_cards_for_queued_entries`) is sequential: observed 2026-11-17, one Japanese
-  call that materialised three cards took 8.5 s (about 6 round trips per entry) — TASK-1003.
+  filtered to it (`_card_ids_for_language`). `/next` can therefore **write on a GET**: when it serves the
+  error-card branch it first materialises newly queued profile entries
+  (`dt_cards.generate_cards_for_queued_entries`). *At `main` HEAD* this costs about 8 round trips per queued
+  entry (one Japanese call that built three cards took 8.5 s on 2026-11-17; TASK-1003). *On `review/integration`
+  (commits ad55bd4d, 15049d63)* it is batched: all reads for all entries first (submissions and passages in the
+  entries' languages, latest errors per (subtype, language), window sentences, references, taxonomy stamp), then one
+  multi-row insert of the cards and one update flipping the entries to `drilling`: a constant 9 round trips (10 with
+  `DT_TAXONOMY_COLUMNS` on), 2 when nothing is uncarded. All reads happen before any write. An entry is set to
+  `drilling` only after its cards are written (if a batch write fails, each entry is retried on its own). The error
+  a card is built from is now the latest one **in the entry's own language**; before, a Chinese entry could be carded
+  from a Japanese error (live `dt_card` ids 11 and 12 are two such cards; a one-off data-fix migration written
+  2026-11-23 is pending and not applied). An entry with no error in its language stays `queued`.
 - **Reads (TASK-990):** one RPC, `dt_next_inputs(p_user_id, p_l2, p_l1)` (see [[api/rpcs.tech]]),
   returns attempts, served/graded history, eligible tests with ELO, and windows' sentence
   references (the `legacy` array of whole passages was removed 2026-11-17; the revised
   `migrations/dt_next_inputs.sql` must be re-applied). If it fails, the route logs once, stops trying for
   `_NEXT_INPUTS_RETRY_S` (600 s) and uses the per-table reads (`_TableInputs`, about 21–23 trips).
-  The payload grows with the content in the language (77.6 KB zh, 41.2 KB ja for the test account
-  on 2026-11-17; about 200 KB inferred at full zh coverage).
+  The payload grows with the content in the language because the RPC returns the sentence rows of
+  **every** candidate test although `_choose_next` uses only the first eligible window: about 176 KB
+  (175,771 bytes) for zh (274 tests) for the test account, measured 2026-11-23 (server execution 313 ms zh,
+  595 ms en); it was 77.6 KB zh / 41.2 KB ja on 2026-11-17, before more references were reviewed.
+- **Round trips (code count, 2026-11-23):** on the RPC path `/next` makes 1 to 5 database calls, typically 2 to 3
+  after the RPC itself: the RPC (1), 0-2 for a window-text read miss, 0-1 to create the window's `dt_passage`,
+  0-1 to open or create the `dt_submission` (0 on resume). It makes **no LLM call**. The error-card branch (1
+  `/next` in 4, `DT_ERROR_CARD_INTERLEAVE_EVERY`) adds the card queries above. The per-table fallback path
+  (`_TableInputs`) costs roughly 15 to 30 round trips and duplicates the RPC path's logic by hand; see the proposed
+  [[decisions/ADR-052-retire-dt-card-and-select-next-window-in-sql]].
 - **Latency (HTTP from gunicorn next to a remote DB, test account, 2026-11-17):** zh 2.65 / 1.20 /
   1.45 s, ja 0.92 / 0.77 / 8.54 s (the last one materialised error cards, above); before the RPC:
   17–19 round trips, 5.5–6.4 s.
@@ -418,8 +443,17 @@ approval 2026-11-14). Taxonomy v6 was activated in production on 2026-11-14 (TAS
 inactive) and `migrations/dt_grading_assets.sql` was applied the same day (TASK-935), so this flow
 grades live once the code is deployed and the web workers are restarted (the taxonomy is cached per
 process with no TTL). `DT_TAXONOMY_COLUMNS` also defaults to on now that its columns exist. Not done:
-shadow run on real submissions, native-speaker review of the model explanations, deploy. If the
+shadow run on real submissions, native-speaker review of the model explanations. If the
 migration were missing, grades would still be saved without the asset columns.
+
+**Production model status (2026-11-23).** Production has **not** been running the validated models. Since
+2026-11-16 the `config.py` defaults are two free-tier models (the OpenRouter key hit its limit), with a
+"temporary, not validated" comment. All 21 single-call grades recorded between 2026-11-16 and 2026-11-18 (every
+`dt_grading_call` row with status `ok`) were made by them: 20 by `particle-ai/particle-1:free` and 1 by
+`nvidia/nemotron-3.5-super-vl:free`; the first 11 used prompt variant `v2` (no guard paragraph), the later 10 `v2_guard`.
+For unvalidated slugs the severity rule is the model's own. The gold-set check
+([[evaluations/dt-free-grader-goldset-2026-11-23]]) found both models fail the standard ADR-044 was approved on; see the
+status note in [[decisions/ADR-044-dt-single-call-generative-grader]].
 
 ### Flow
 
@@ -523,8 +557,8 @@ the configured flow ("taxonomy mismatch").
 | Name | Default | Effect |
 |---|---|---|
 | `DT_SINGLE_CALL_GRADER` | `True` | Turns the flow on. `grade_submission(single_call=True/False)` overrides it (tests, eval harness). |
-| `DT_SINGLE_CALL_MODEL` | `openai/gpt-6-luna` | Primary slug. |
-| `DT_SINGLE_CALL_FALLBACK_MODEL` | `deepseek/deepseek-v4.1-flash` | Tried once if the primary fails. Blank disables. |
+| `DT_SINGLE_CALL_MODEL` | `particle-ai/particle-1:free` (**temporary since 2026-11-16, not validated**; the `config.py` comment says to set `openai/gpt-6-luna`, the validated primary, once the key is funded) | Primary slug. |
+| `DT_SINGLE_CALL_FALLBACK_MODEL` | `nvidia/nemotron-3.5-super-vl:free` (**temporary, not validated**; the validated fallback is `deepseek/deepseek-v4.1-flash`) | Tried once if the primary fails. Blank disables. |
 | `DT_SINGLE_CALL_SHOW_LOW_CONFIDENCE` | `False` | Keeps entries the model marks `low` in the grade (scored like any error). For a UI with an "unsure" state. |
 | `DT_SINGLE_CALL_FREE_TRANSLATION` | `False` | Appends Track E's "free translations are expected" paragraph (prompt variant `v2_mit`). Not re-measured with prompt v2. |
 | `DT_SINGLE_CALL_EXPLAINER` | `False` | Also runs the v2 Explainer (one more call); its Application layer then replaces the grading model's explanation. |
@@ -590,7 +624,9 @@ CHECK added only if absent (`NOT VALID`, validated after commit).
 | `span_source` | text (exact/normalised/fuzzy/diff_hunk/sentence) | how the learner span was located |
 | `correction_source` | text (model_quote/aligned_diff/reference_sentence) | how the correction was derived |
 
-`dt_grading_call` — new table, one row per grading model call, RLS on with no policies:
+`dt_grading_call` — one row per grading model call, failed or successful, RLS on with no policies. It is specified
+only here: [[database/schema.tech]] has no section for it or for the other `dt_*` tables. Live check 2026-11-23: 29 columns
+(those below), rows from 2026-11-16 (single-call `ok`, `malformed_shape`, `call_failed`, plus two failed `v2` rows):
 
 | Column | Type | Meaning |
 |---|---|---|
@@ -639,10 +675,49 @@ CHECK added only if absent (`NOT VALID`, validated after commit).
 
 The flow that uses these grader fields — redacted submit response, hint ladder, one-sentence
 re-check with the single-call prompt, daily practice of the learner's own sentences, and its three
-tables (`migrations/dt_guided_self_repair.sql`, not yet applied) — is specified in
+tables (`migrations/dt_guided_self_repair.sql`, **applied; live since 2026-11-16**, 22 sessions and 26 items on 2026-11-23) — is specified in
 [[features/dt-guided-self-repair.tech]] and recorded in [[decisions/ADR-045-dt-guided-self-repair]].
 The only edits it makes to this route file are the submit hook (`repair.hooks.after_grade` /
 `for_cached`) and `_tokens_used_today` adding re-check tokens.
+
+### Submit flow and duplicate submits (code state: `review/integration`, 2026-11-23)
+
+> Code state: the lock, the concurrent reads and the cleanup below are on branch `review/integration`
+> (commits d0145a1e, be2921c0). `main` HEAD e9858759 still runs the reads serially and has no lock or cleanup.
+
+`submit()` in order:
+
+1. Clean and validate the body; `_get_submission` (1 read); ownership check.
+2. `_SubmissionLock(submission_id)`: a per-submission **in-process** lock. A second submit of a submission being
+   graded in the same process waits up to `_SUBMIT_LOCK_WAIT_S` (90 s) and then normally finds the stored grade on
+   step 3; past the wait it proceeds without the lock. Released in `finally`; the registry entry is removed when no
+   request holds or waits for it.
+3. `_cached_grade`: a stored grade is returned through `_cached_response` (repair hook `for_cached`).
+4. **One concurrent wave** (`services.concurrency.run_parallel`): `_get_passage`, `_repeat_of`, `_tokens_used_today`.
+   Results are unpacked in the old serial order so a failure surfaces where it did. Sequential waves before the
+   grading call: 8 to 5 (figure from the commit message).
+5. Grade (`grade_submission` under `provider_errors.capture()`), sanitise, then `_persist_grade`: update the
+   submission's reproduction, insert the `dt_error_instance` rows, insert `dt_grade` **last** (UNIQUE `submission_id`),
+   so a failed error insert leaves no grade behind (ADR-019).
+6. **Loser of a race.** If the `dt_grade` insert fails, `_discard_error_rows` deletes only the error rows this call
+   inserted (by id, never by submission), when the failure is a unique violation or no grade exists; if a grade exists
+   after any other failure its rows are kept. `submit()` then reads `_cached_grade`: a stored grade is returned as a
+   cached one (warning logged); with no stored grade the original error is re-raised (500; a retry re-grades).
+7. Then `_persist_grading_assets`, the repair hook `after_grade`, target-word evidence and study time.
+
+**Known limit.** `Procfile` starts `gunicorn wsgi:app --workers 2 --worker-class gthread --threads 8`. The lock is per
+process, so a double submit that lands on the other worker passes `_cached_grade` in both and **grades twice** (two grader
+calls are paid); the loser is cleaned up by step 6. The error rows, the grade, the repair session and its items remain
+separate statements with no transaction. Proposed fix:
+[[decisions/ADR-051-one-transactional-write-per-dt-submission]].
+
+### Retired code in `passage_builder.py` (`review/integration`, commit 39a56023)
+
+The whole-passage builders (`build_passages_for_test`, `select_new_passages`, `generate_l1_reference`, the reference
+prompt, the dedupe helpers) and the module's own copy of the sentence segmenter were deleted. Kept:
+`difficulty_to_age_tier`, `join_sentences`, `MAX_WINDOW` / `MIN_WINDOW`, `SOURCE_KIND`, `DEFAULT_STATUS`,
+`select_window_for_primed`, `window_meets_floor`. `services/dual_translation/sentence_refs.py` holds the only segmenter.
+At `main` HEAD the dead code is still present.
 
 ### Verification
 
@@ -667,3 +742,6 @@ The only edits it makes to this route file are the submit hook (`repair.hooks.af
 - [[tasklist/fixes-2026-11-16.tasks]] — open items from the 2026-11-16 next-passage / refusal fixes (TASK-989–991)
 - [[features/test-prestudy]] — Produce shares the sentence-window rules
 - [[features/model-arena.tech]] — OpenRouter pricing/runner pattern reused for the router
+- [[evaluations/dt-free-grader-goldset-2026-11-23]] — gold-set check of the two free models production uses
+- [[decisions/ADR-051-one-transactional-write-per-dt-submission]] — proposed: one atomic write per graded submission
+- [[decisions/ADR-052-retire-dt-card-and-select-next-window-in-sql]] — proposed: one remediation system, window chosen in SQL

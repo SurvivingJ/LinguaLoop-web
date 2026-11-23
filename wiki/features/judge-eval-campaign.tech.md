@@ -3,7 +3,7 @@ title: Judge Evaluation Campaign System — Technical Specification
 type: feature-tech
 status: planned
 prose_page: judge-eval-campaign.md
-last_updated: 2026-08-17
+last_updated: 2026-11-23
 dependencies:
   - "scripts/measure_entailment_ab.py — the working 7-arm harness this generalises"
   - "services/model_arena/pricing.py:fetch_model_list — existing OpenRouter /models discovery + cache"
@@ -18,7 +18,9 @@ breaking_change_risk: low
 # Judge Evaluation Campaign System — Technical Specification
 
 **Deferred 2026-08-17. Nothing built.** This records the design so it is
-recoverable. See [[features/judge-eval-campaign]] for rationale.
+recoverable. *(Checked 2026-11-23: every path introduced by this design, that is `scripts/run_judge_ab_campaign.py`, `scripts/build_entailment_gold_set.py`,
+`services/judge_eval/*`, `data/eval/entailment_gold_v1.json` and its `.meta.json`, `data/eval/model_preflight_cache.json` and the `test_judge_eval_*.py` files, is a
+**planned name** and does not exist in the repository. Only `scripts/measure_entailment_ab.py` exists.)* See [[features/judge-eval-campaign]] for rationale.
 
 ## Scope note
 

@@ -3,8 +3,9 @@ title: DT Guided Self-Repair
 type: feature
 status: in-progress
 tech_page: ./dt-guided-self-repair.tech.md
-last_updated: 2026-11-14
+last_updated: 2026-11-23
 open_questions:
+  - "OPEN (owner): known issues of the re-check (unguarded prompt variant, no injection protection, stricter JSON parsing) are recorded in [[features/dt-guided-self-repair.tech]] section 15; fixing them needs a gold-set re-validation."
   - "OPEN (owner): Everyone or an A/B test? Default in this spec: every learner whose grade comes from the single-call grader gets the guided flow (DT_GUIDED_REPAIR=on). The A/B test in the design spec (§7) is not built; the existing correction-style arm is still stamped on each submission and applies to the full result screen shown after the flow."
   - "OPEN (owner): Should 'maybe' flags (the grader's own low-confidence errors) be shown as the 'This part may need another look' step? Default: no. The grader withholds them today (DT_SINGLE_CALL_SHOW_LOW_CONFIDENCE=off) because on the gold set every one was a false alarm. The step is fully specified and built, so turning it on is a config change, but it would also count those errors in the score."
   - "OPEN (owner): Hint templates (the 'what kind' name and the 'clue') are AI-drafted and unreviewed; Chinese and Japanese clue texts exist only for the English-L2 error types. Is it acceptable to ship with them before native review (TASK-938)? Default: ship; a missing template falls back to a general clue, never to model-written text."
@@ -20,10 +21,11 @@ sentence, with help arriving one step at a time only when asked for. Sentences t
 not fix on their own come back later in daily practice, where they fix the same sentence again.
 Everything the learner does along the way is recorded for later design and tuning work.
 
-**Status (2026-11-14):** built and integration-tested (backend and frontend run against each other,
-in a real browser over a local test database). Not live: the database migration is waiting for the
-owner, and the code is not deployed. Until both happen, learners see today's results screen. See
-[[decisions/ADR-045-dt-guided-self-repair]].
+**Status (2026-11-23):** **live since 2026-11-16.** It was built and integration-tested on 2026-11-14 (backend and
+frontend run against each other, in a real browser over a local test database); the database migration was applied and the
+flag `DT_GUIDED_REPAIR` defaults to on. On 2026-11-23 the database holds 22 repair sessions and 26 repair items. If a session
+exists but has no steps (a failed save), the next time the learner opens the result the steps are rebuilt, or the full result is
+shown instead of a result with nothing to repair (this fix is written and tested but was still on a review branch, not on the main branch, on 2026-11-23). See [[decisions/ADR-045-dt-guided-self-repair]].
 
 The owner chose this design on 2026-11-14 ("the guided process in mockup two is the way to go").
 Design source: [[design/dt-feedback/option-2-guided-self-repair/SPEC]] (Revision 2 governs) and
@@ -156,3 +158,5 @@ See frontmatter. All other choices in this page are design defaults recorded in 
 - [[decisions/ADR-044-dt-single-call-generative-grader]]
 - [[evaluations/dt-decision-grading-2026-11-14]]
 - [[features/study-plans.tech]] — the daily session queue
+- [[decisions/ADR-051-one-transactional-write-per-dt-submission]] — proposed: atomic write of grade, errors, session and items
+- [[decisions/ADR-052-retire-dt-card-and-select-next-window-in-sql]] — proposed: retire the `dt_card` system kept alongside
