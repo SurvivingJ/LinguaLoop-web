@@ -533,3 +533,61 @@ describe('renderJumbled', () => {
     expect(submits).toHaveLength(1);
   });
 });
+
+// ---------------------------------------------------------------------------
+// Escaping of pipeline-authored values (target_word in the instruction, cefr_level badge)
+// ---------------------------------------------------------------------------
+
+describe('HTML escaping of exercise content', () => {
+  let card;
+  const XSS = '<img src=x onerror=1>';
+
+  beforeEach(() => {
+    card = document.createElement('div');
+    document.body.appendChild(card);
+    R().init({
+      cardEl: card,
+      isAnswered: () => false,
+      setAnswered: () => {},
+      showFeedback: () => {},
+      submitAttempt: () => {},
+      nextExercise: () => {},
+    });
+  });
+
+  afterEach(() => {
+    card.remove();
+  });
+
+  const sd = (target_word) => ({
+    target_word,
+    sentences: [
+      { text: 'A', is_correct: true },
+      { text: 'B', is_correct: false },
+    ],
+    correct_answer: 'A',
+    explanation: 'x',
+  });
+
+  it('renders a hostile target_word in the instruction as text', () => {
+    R().dispatch('semantic_discrimination', { cefr_level: 'A1' }, sd(XSS), '');
+    expect(card.querySelector('.exercise-instruction img')).toBeNull();
+    expect(card.querySelector('.exercise-instruction').textContent).toContain(XSS);
+  });
+
+  it('renders ordinary CJK target_word unchanged', () => {
+    R().dispatch('semantic_discrimination', { cefr_level: 'N5' }, sd('食べる'), '');
+    expect(card.querySelector('.exercise-instruction').textContent).toContain('食べる');
+  });
+
+  it('renders a hostile cefr_level in the type badge as text', () => {
+    R().dispatch('semantic_discrimination', { cefr_level: XSS }, sd('word'), '');
+    expect(card.querySelector('.exercise-type-badge img')).toBeNull();
+    expect(card.querySelector('.exercise-cefr-badge').textContent).toBe(XSS);
+  });
+
+  it('renders an ordinary cefr_level unchanged', () => {
+    R().dispatch('semantic_discrimination', { cefr_level: 'HSK3' }, sd('word'), '');
+    expect(card.querySelector('.exercise-cefr-badge').textContent).toBe('HSK3');
+  });
+});
