@@ -8,7 +8,6 @@ Endpoints:
                                                     error cards, TASK-614)
   POST /api/dual-translation/<id>/submit        — grade a reproduction
   GET  /api/dual-translation/profile            — error-profile dashboard
-  GET  /api/dual-translation/cards/due          — due error-remediation cards
   POST /api/dual-translation/cards/<id>/review  — grade a card review
 
 This module owns the dt_submission/dt_grade/dt_error_instance persistence;
@@ -58,7 +57,7 @@ from services.dual_translation.grader_cascade import grade_submission, get_activ
 from services.dual_translation.repair import budget as repair_budget
 from services.dual_translation.repair import hooks as repair_hooks
 from services.dual_translation.passage_builder import (
-    MAX_WINDOW, SOURCE_KIND, DEFAULT_STATUS, difficulty_to_age_tier, join_sentences,
+    SOURCE_KIND, DEFAULT_STATUS, difficulty_to_age_tier, join_sentences,
 )
 from services.dual_translation.sentence_refs import LANG_CODE as _LANG_CODE, FLOOR_OVERRIDE_REVIEWS
 from services.vocabulary.knowledge_service import VocabularyKnowledgeService
@@ -366,7 +365,7 @@ def submit(submission_id: int) -> ApiResponse:
         max_tier = 'tier1' if _result(tokens_read) >= Config.DT_DAILY_TOKEN_BUDGET else 'tier2'
 
         # TASK-910: the prestudy Produce stage echoes the signed primed-sense
-        # token issued by /passage-from-sentences; its senses become the
+        # token issued by open_range_passage; its senses become the
         # grader's target words. A bad token is a 400, never a silent drop —
         # the per-word rows are the whole point of that stage.
         target_ctx = None
@@ -630,72 +629,33 @@ def skip(submission_id: int) -> ApiResponse:
 
 
 # ============================================================================
-# POST /passage-from-sentences  (TASK-909, ADR-037)
+# Range passage (TASK-909, ADR-037)
 # ============================================================================
 
-@dual_translation_bp.route('/passage-from-sentences', methods=['POST'])
-@supabase_jwt_required
-def passage_from_sentences() -> ApiResponse:
-    """Find or create the ``dt_passage`` for a sentence range of a test and
-    open a submission on it — the prestudy Produce stage's entry point.
-
-    Body: ``{test_id, sentence_start, sentence_end, l1_language_id,
-    primed_sense_ids[]}`` (indices inclusive, into ``test_sentences.idx``).
+def open_range_passage(db, user_id: str, test_id: str, start: int, end: int, l1_language_id: int,
+                       primed_ids: list, extra: Optional[dict] = None) -> ApiResponse:
+    """Find or create the ``dt_passage`` for a sentence range of a test and open
+    a submission on it. Called by the prestudy Produce route
+    (POST /api/tests/<id>/prestudy/produce), which picks the window itself
+    (indices inclusive, into ``test_sentences.idx``). ``extra`` keys are merged
+    into the success payload.
 
     * 403 when the user has no attempt on the test (DT's existing rule:
       passages come only from attempted tests);
     * 422 when any sentence in the range lacks an active ``pass``/``rewritten``
-      reference in that L1 (``missing_idx`` names them so the client can fall
-      back to the best fully covered window), or the range has no sentence
-      rows;
-    * 409 when the sentence rows are stale for the stored transcript.
+      reference in that L1 (``missing_idx`` names them), or the range has no
+      sentence rows;
+    * 409 when the sentence rows are stale for the stored transcript, or the
+      window's passage was retired.
 
     The passage is keyed by ``(source_ref_id, sentence_start, sentence_end)``
     (partial unique index) so the same range always yields the same
     ``passage_id``; ``l2_text`` is never returned. The primed senses are not
     stored: they come back signed as ``primed_token``, which the client echoes
     on ``POST /<submission_id>/submit`` (see services/dual_translation/primed_token.py).
-
-    Deviation from the tech page's "dt_passage insert, nothing else": a
-    ``dt_submission`` row is created too (as ``GET /next`` does), because the
-    existing submit route grades a submission, not a passage — without it the
-    client could not submit the reproduction.
+    A ``dt_submission`` row is created too (as ``GET /next`` does), because the
+    submit route grades a submission, not a passage.
     """
-    try:
-        db = current_app.supabase_service
-        if not db:
-            return server_error("Database service not configured")
-        user_id = g.current_user_id
-
-        data = request.get_json(silent=True) or {}
-        test_id = data.get('test_id')
-        try:
-            start = int(data.get('sentence_start'))
-            end = int(data.get('sentence_end'))
-            l1_language_id = int(data.get('l1_language_id'))
-        except (TypeError, ValueError):
-            return bad_request("test_id, sentence_start, sentence_end and l1_language_id required")
-        if not test_id or not isinstance(test_id, str):
-            return bad_request("test_id required")
-        n_sentences = end - start + 1
-        if start < 0 or n_sentences < 1 or n_sentences > MAX_WINDOW:
-            return bad_request(f"sentence range must cover 1-{MAX_WINDOW} sentences")
-        primed_ids = data.get('primed_sense_ids') or []
-        if not isinstance(primed_ids, list):
-            return bad_request("primed_sense_ids must be a list")
-
-        return open_range_passage(db, user_id, test_id, start, end, l1_language_id, primed_ids)
-
-    except Exception as e:
-        logger.error("Error building passage from sentences: %s", e)
-        return server_error("Failed to build passage")
-
-
-def open_range_passage(db, user_id: str, test_id: str, start: int, end: int, l1_language_id: int,
-                       primed_ids: list, extra: Optional[dict] = None) -> ApiResponse:
-    """Core of POST /passage-from-sentences, shared with the prestudy Produce
-    route (POST /api/tests/<id>/prestudy/produce), which picks the window
-    itself. ``extra`` keys are merged into the success payload."""
     n_sentences = end - start + 1
     if not _user_has_attempted(db, user_id, test_id):
         return forbidden("Dual translation passages come only from tests you have attempted")
@@ -953,39 +913,6 @@ def get_profile() -> ApiResponse:
     except Exception as e:
         logger.error("Error fetching error profile for %s: %s", g.current_user_id, e)
         return server_error("Failed to fetch error profile")
-
-
-# ============================================================================
-# GET /cards/due
-# ============================================================================
-
-@dual_translation_bp.route('/cards/due', methods=['GET'])
-@supabase_jwt_required
-def get_due_cards() -> ApiResponse:
-    """Due error-remediation cards for the authenticated user (TASK-614).
-
-    Lazily materialises ``dt_card`` rows for any newly-``queued``
-    ``dt_error_profile_entry`` clusters first (pipeline steps 5-6 —
-    [[features/dual-translation-remediation.tech]] §Pipeline), then returns
-    the due queue interleaved by subtype so a review session never presents
-    a long run of the same subtype back-to-back.
-    """
-    try:
-        db = current_app.supabase_service
-        if not db:
-            return server_error("Database service not configured")
-
-        user_id = g.current_user_id
-        dt_cards.generate_cards_for_queued_entries(db, user_id)
-
-        due = _fetch_due_cards(db, user_id)
-        interleaved = dt_cards.interleave_by_subtype(due)
-
-        return api_success({'cards': interleaved, 'total': len(interleaved)})
-
-    except Exception as e:
-        logger.error("Error fetching due dual-translation cards for %s: %s", g.current_user_id, e)
-        return server_error("Failed to fetch due cards")
 
 
 # ============================================================================

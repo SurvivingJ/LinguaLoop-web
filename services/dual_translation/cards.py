@@ -611,7 +611,7 @@ def generate_cards_for_queued_entries(db, user_id: str) -> int:
     ([[features/dual-translation-remediation.tech]] §Pipeline) that the pure
     functions above intentionally leave undone. Idempotent: a profile entry
     that already has a ``dt_card`` row is skipped, so calling this on every
-    ``GET /next``/``GET /cards/due`` request is safe.
+    ``GET /next`` request is safe.
 
     TASK-1003: a constant number of round trips whatever the number of queued
     entries — queued entries, their existing cards, then (only when something
