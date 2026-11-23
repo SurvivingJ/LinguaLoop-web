@@ -49,13 +49,14 @@ JA = 3
     ('跑。', ZH, '跑', 'trailing ideographic period'),
     ('走る、', JA, '走る', 'trailing ideographic comma'),
     # Traditional -> Simplified, Chinese only.
-    ('學習', ZH, '学习', 't2s'),
-    ('電腦', ZH, '电脑', 't2s'),
+    pytest.param('學習', ZH, '学习', 't2s', marks=pytest.mark.requires('opencc')),
+    pytest.param('電腦', ZH, '电脑', 't2s', marks=pytest.mark.requires('opencc')),
 ])
 def test_normalize_rules(raw, language_id, expected, rule):
     assert normalize(raw, language_id) == expected, f'rule: {rule}'
 
 
+@pytest.mark.requires('opencc')
 def test_t2s_is_chinese_only():
     """JA must not be folded to Simplified.
 
@@ -83,7 +84,8 @@ def test_normalize_handles_empty_and_none():
     ('ｒｕｎ', ['run'], EN, True, 'full-width folded'),
     ('run.', ['run'], EN, True, 'trailing punctuation stripped'),
     ('ran', ['run', 'ran'], EN, True, 'inflection in accepted set'),
-    ('學習', ['学习'], ZH, True, 'traditional typed, simplified keyed'),
+    pytest.param('學習', ['学习'], ZH, True, 'traditional typed, simplified keyed',
+                 marks=pytest.mark.requires('opencc')),
     ('学习', ['学习'], ZH, True, 'simplified typed'),
     # Negatives — normalisation must not be so generous it stops testing.
     ('walk', ['run'], EN, False, 'different word'),
@@ -161,6 +163,7 @@ def test_grade_falls_back_to_target_word_when_accepted_missing():
     assert grade({'target_word': 'run'}, 'Run', EN)['is_correct'] is True
 
 
+@pytest.mark.requires('opencc')
 def test_grade_traditional_typed_zh_matches_simplified_key():
     """The AC's ZH case, end to end through the server grader."""
     assert grade(_item(['学习'], target='学习'), '學習', ZH)['is_correct'] is True

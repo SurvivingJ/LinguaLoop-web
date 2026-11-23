@@ -50,6 +50,7 @@ def test_expected_count_matches_the_values_list(forward_rows):
     assert by_lang == {1: 229, 2: 422, 3: 119}
 
 
+@pytest.mark.requires('jieba', 'MeCab', 'ipadic')
 def test_every_value_is_the_apps_own_wordfreq_score(forward_rows):
     mismatches = []
     for vid, lang, lemma, zipf in forward_rows:
@@ -67,6 +68,7 @@ JA_PART_SCORED_IDS = {22529, 24812, 24896, 24908, 24909, 24933, 24935, 24958,
                       24996, 25056, 25101, 32033}
 
 
+@pytest.mark.requires('MeCab', 'ipadic')
 def test_no_japanese_value_is_scored_from_its_parts(forward_rows):
     from wordfreq import tokenize
     split = [(vid, lemma) for vid, lang, lemma, _ in forward_rows
@@ -75,6 +77,7 @@ def test_no_japanese_value_is_scored_from_its_parts(forward_rows):
     assert not JA_PART_SCORED_IDS & {r[0] for r in forward_rows}
 
 
+@pytest.mark.requires('jieba', 'MeCab', 'ipadic')
 def test_part_scored_japanese_compounds_would_be_inflated():
     # Pins the reason for the exclusion: if wordfreq ever starts penalising ja
     # compounds the exclusion can be revisited.
