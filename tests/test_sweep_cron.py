@@ -41,6 +41,8 @@ class _FakeQuery:
         self._rows = rows
         self._filters = []  # list of (kind, col, val)
         self._op = None
+        self._order = None
+        self._range = None
 
     # -- filter builders (all return self) ------------------------------
     def select(self, *_a, **_kw):
@@ -60,6 +62,14 @@ class _FakeQuery:
 
     def overlaps(self, col, vals):
         self._filters.append(('overlaps', col, set(vals)))
+        return self
+
+    def order(self, col, desc=False):
+        self._order = (col, desc)
+        return self
+
+    def range(self, start, end):
+        self._range = (start, end)
         return self
 
     def update(self, payload):
@@ -87,6 +97,12 @@ class _FakeQuery:
 
     def execute(self):
         matched = [r for r in self._rows if self._match(r)]
+        if self._order:
+            col, desc = self._order
+            matched = sorted(matched, key=lambda r: r.get(col), reverse=desc)
+        if self._range:
+            start, end = self._range
+            matched = matched[start:end + 1]
         if self._op:
             kind, payload = self._op
             if kind == 'update':
@@ -443,3 +459,113 @@ def test_inactive_watchlist_row_is_never_a_candidate():
     assert result['sweep'] is None
     watchlist_row = db._tables['user_word_watchlist'][0]
     assert watchlist_row['last_matched_test_id'] is None
+
+
+# ---------------------------------------------------------------------------
+# Chunked sense-id filter (URL-length safety) and row-cap paging
+# ---------------------------------------------------------------------------
+
+
+class _RecordingDB(FakeDB):
+    """FakeDB that records every `.in_` call and page `.range` made against
+    user_word_watchlist, and can fail the Nth watchlist query."""
+
+    def __init__(self, fail_on_call=None):
+        super().__init__()
+        self.in_calls = []  # list of (col, list(vals))
+        self.ranges = []
+        self.fail_on_call = fail_on_call
+
+    def table(self, name):
+        q = super().table(name)
+        if name != 'user_word_watchlist':
+            return q
+        outer = self
+        orig_in, orig_range, orig_exec = q.in_, q.range, q.execute
+
+        def in_(col, vals):
+            outer.in_calls.append((col, list(vals)))
+            return orig_in(col, vals)
+
+        def range_(a, b):
+            outer.ranges.append((a, b))
+            return orig_range(a, b)
+
+        def execute():
+            if outer.fail_on_call == len(outer.in_calls):
+                raise RuntimeError('boom')
+            return orig_exec()
+
+        q.in_, q.range, q.execute = in_, range_, execute
+        return q
+
+
+def _seed_big_batch(db, n_ids=4682):
+    ids = list(range(1, n_ids + 1))
+    db.seed('tests', [
+        {'id': 't1', 'created_at': '2026-01-05T00:00:00+00:00',
+         'vocab_sense_ids': ids[:3000], 'is_active': True,
+         'language_id': LANG_EN},
+        {'id': 't2', 'created_at': '2026-01-06T00:00:00+00:00',
+         'vocab_sense_ids': ids[2000:] + [5, 5], 'is_active': True,
+         'language_id': LANG_EN},
+    ])
+    return ids
+
+
+def test_sense_id_filter_is_chunked_and_matches_single_call_result():
+    db = _RecordingDB()
+    _seed_cursor(db, '2026-01-01T00:00:00+00:00')
+    ids = _seed_big_batch(db)
+    watch_ids = [1, 150, 2500, 4682]
+    db.seed('user_word_watchlist', [
+        {'id': f'w{s}', 'user_id': USER, 'sense_id': s, 'language_id': LANG_EN,
+         'last_matched_test_id': None, 'active': True} for s in watch_ids
+    ] + [
+        {'id': 'w-off', 'user_id': USER, 'sense_id': 7, 'language_id': LANG_EN,
+         'last_matched_test_id': None, 'active': False},
+        {'id': 'w-other', 'user_id': USER, 'sense_id': 99999,
+         'language_id': LANG_EN, 'last_matched_test_id': None, 'active': True},
+    ])
+
+    tests = sc._fetch_tests_since(db, '2026-01-01T00:00:00+00:00')
+    rows = sc._fetch_active_watchlist_rows_for_senses(
+        db, sc._extract_sense_ids(tests))
+
+    assert len(db.in_calls) > 1
+    assert all(len(v) <= sc._SENSE_ID_CHUNK for _c, v in db.in_calls)
+    sent = [x for _c, v in db.in_calls for x in v]
+    assert len(sent) == len(set(sent)) == len(ids)  # distinct, complete
+    assert sorted(r['sense_id'] for r in rows) == watch_ids
+    assert len({r['id'] for r in rows}) == len(rows)
+
+
+def test_chunk_matching_more_than_page_size_is_paged():
+    db = _RecordingDB()
+    db.seed('user_word_watchlist', [
+        {'id': f'w{i:05d}', 'user_id': f'u{i}', 'sense_id': 1,
+         'language_id': LANG_EN, 'last_matched_test_id': None, 'active': True}
+        for i in range(2300)
+    ])
+    rows = sc._fetch_active_watchlist_rows_for_senses(db, {1, 2, 3})
+    assert len(rows) == 2300
+    assert len({r['id'] for r in rows}) == 2300
+    assert len(db.ranges) == 3
+
+
+def test_failure_in_second_chunk_leaves_watermark_unchanged():
+    db = _RecordingDB(fail_on_call=2)
+    _seed_cursor(db, '2026-01-01T00:00:00+00:00')
+    _seed_big_batch(db)
+    db.seed('user_word_watchlist', [])
+
+    try:
+        sc.run_watchlist_sweep(db)
+    except RuntimeError:
+        pass
+    else:
+        raise AssertionError('expected the chunk failure to propagate')
+
+    assert len(db.in_calls) == 2
+    row = db._tables['word_upload_sweep_state'][0]
+    assert row['last_swept_created_at'] == '2026-01-01T00:00:00+00:00'
