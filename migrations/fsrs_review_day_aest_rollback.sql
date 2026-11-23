@@ -15,8 +15,9 @@
 -- search_path and ACL as live.
 --
 -- Roll back the Python change (services/day_boundary.review_today users) in
--- the same 00:00-14:00 UTC window: see the forward file's DEPLOYMENT ORDER.
--- Rows written while the AEST calendar was live keep their dates (at most one
+-- the same window (00:00-13:00 UTC in daylight saving, 00:00-14:00 UTC
+-- otherwise): see the forward file's DEPLOYMENT ORDER.
+-- Rows written while the Sydney calendar was live keep their dates (at most one
 -- day later than the UTC calendar would have stamped; such cards come due up
 -- to one day later than under UTC). No data change is needed.
 --

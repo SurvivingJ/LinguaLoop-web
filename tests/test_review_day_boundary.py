@@ -1,9 +1,10 @@
 """TASK-1211 — FSRS review dating on ONE app-wide review time zone.
 
 Owner decision (2026-11-23): no per-learner local day for flashcards; the FSRS
-day rolls over at midnight AEST for everyone. ``services.day_boundary.REVIEW_TIMEZONE``
-(Python) and ``public.review_today()`` (SQL, migrations/fsrs_review_today_aest.sql)
-are the two places the zone is configured.
+day rolls over at midnight Sydney time (``Australia/Sydney``: UTC+11 in daylight
+saving, UTC+10 otherwise) for everyone. ``services.day_boundary.REVIEW_TIMEZONE``
+(Python) and ``public.review_today()`` (SQL, migrations/fsrs_review_day_aest.sql;
+the file name is historical) are the two places the zone is configured.
 
 Pinned here:
   (a) a review at 23:30 AEST is dated that AEST day; at 00:30 AEST it is dated
@@ -25,9 +26,10 @@ import pytest
 from services import day_boundary
 from services.vocabulary.fsrs import CardState, GOOD, schedule_review
 
-# 2026-11-23 13:30 UTC = 23:30 AEST on the 23rd; 14:30 UTC = 00:30 AEST on the 24th.
-BEFORE_MIDNIGHT_AEST = datetime(2026, 11, 23, 13, 30, tzinfo=timezone.utc)
-AFTER_MIDNIGHT_AEST = datetime(2026, 11, 23, 14, 30, tzinfo=timezone.utc)
+# Daylight saving (AEDT, UTC+11): 2026-11-23 12:30 UTC = 23:30 on the 23rd;
+# 13:30 UTC = 00:30 on the 24th.
+BEFORE_MIDNIGHT_AEST = datetime(2026, 11, 23, 12, 30, tzinfo=timezone.utc)
+AFTER_MIDNIGHT_AEST = datetime(2026, 11, 23, 13, 30, tzinfo=timezone.utc)
 
 
 def _freeze(monkeypatch, moment):
@@ -38,12 +40,31 @@ def _freeze(monkeypatch, moment):
 # The helper and its configuration
 # ---------------------------------------------------------------------------
 
-def test_review_zone_is_aest_without_daylight_saving():
-    assert day_boundary.REVIEW_TIMEZONE == 'Australia/Brisbane'
-    # Brisbane has no DST: midnight is 14:00 UTC in both January and July.
-    assert day_boundary.review_today(datetime(2026, 1, 15, 13, 59, tzinfo=timezone.utc)) == date(2026, 1, 15)
-    assert day_boundary.review_today(datetime(2026, 1, 15, 14, 0, tzinfo=timezone.utc)) == date(2026, 1, 16)
-    assert day_boundary.review_today(datetime(2026, 7, 15, 14, 0, tzinfo=timezone.utc)) == date(2026, 7, 16)
+def test_review_zone_is_sydney_with_daylight_saving():
+    assert day_boundary.REVIEW_TIMEZONE == 'Australia/Sydney'
+    utc = timezone.utc
+    # Summer (AEDT, UTC+11): midnight is 13:00 UTC.
+    assert day_boundary.review_today(datetime(2026, 1, 15, 12, 59, tzinfo=utc)) == date(2026, 1, 15)
+    assert day_boundary.review_today(datetime(2026, 1, 15, 13, 0, tzinfo=utc)) == date(2026, 1, 16)
+    # Winter (AEST, UTC+10): midnight is 14:00 UTC.
+    assert day_boundary.review_today(datetime(2026, 7, 15, 13, 59, tzinfo=utc)) == date(2026, 7, 15)
+    assert day_boundary.review_today(datetime(2026, 7, 15, 14, 0, tzinfo=utc)) == date(2026, 7, 16)
+
+
+def test_review_today_winter_date():
+    # 2026-07-01 (AEST): 13:30 UTC = 23:30 the same day; 14:30 UTC = 00:30 the next.
+    assert day_boundary.review_today(datetime(2026, 7, 1, 13, 30, tzinfo=timezone.utc)) == date(2026, 7, 1)
+    assert day_boundary.review_today(datetime(2026, 7, 1, 14, 30, tzinfo=timezone.utc)) == date(2026, 7, 2)
+
+
+def test_review_today_across_the_october_daylight_saving_start():
+    # DST starts Sunday 2026-10-04 at 02:00 AEST (16:00 UTC on the 3rd), so
+    # 4 October is 23 hours long: 14:00 UTC on the 3rd to 13:00 UTC on the 4th.
+    utc = timezone.utc
+    assert day_boundary.review_today(datetime(2026, 10, 3, 13, 59, tzinfo=utc)) == date(2026, 10, 3)
+    assert day_boundary.review_today(datetime(2026, 10, 3, 14, 0, tzinfo=utc)) == date(2026, 10, 4)
+    assert day_boundary.review_today(datetime(2026, 10, 4, 12, 59, tzinfo=utc)) == date(2026, 10, 4)
+    assert day_boundary.review_today(datetime(2026, 10, 4, 13, 0, tzinfo=utc)) == date(2026, 10, 5)
 
 
 def test_review_today_rolls_over_at_aest_midnight():
@@ -199,21 +220,21 @@ def test_review_route_stamps_the_review_day(client, auth_headers, monkeypatch, m
     assert payload['last_review'] == expected
 
 
-def test_one_day_interval_is_not_due_the_same_aest_day_but_is_the_next(client, auth_headers, monkeypatch):
-    # Reviewed at 00:30 AEST on the 24th (14:30 UTC on the 23rd).
+def test_one_day_interval_is_not_due_the_same_review_day_but_is_the_next(client, auth_headers, monkeypatch):
+    # Reviewed at 00:30 AEDT on the 24th (13:30 UTC on the 23rd).
     payload = _review(client, auth_headers, monkeypatch, AFTER_MIDNIGHT_AEST)
     assert payload['last_review'] == '2026-11-24'
     assert payload['due_date'] == '2026-11-25'          # a 1-day interval
 
-    # 23:30 AEST on the 24th (13:30 UTC on the 24th): same AEST day, not due.
-    same_day = datetime(2026, 11, 24, 13, 30, tzinfo=timezone.utc)
+    # 23:30 AEDT on the 24th (12:30 UTC on the 24th): same review day, not due.
+    same_day = datetime(2026, 11, 24, 12, 30, tzinfo=timezone.utc)
     today = _due_today(client, auth_headers, monkeypatch, same_day)
     assert today == '2026-11-24'
     assert not payload['due_date'] <= today
 
-    # 00:30 AEST on the 25th (14:30 UTC on the 24th): the next AEST day, due —
+    # 00:30 AEDT on the 25th (13:30 UTC on the 24th): the next review day, due —
     # although the UTC date has not changed since the previous check.
-    next_day = datetime(2026, 11, 24, 14, 30, tzinfo=timezone.utc)
+    next_day = datetime(2026, 11, 24, 13, 30, tzinfo=timezone.utc)
     today = _due_today(client, auth_headers, monkeypatch, next_day)
     assert today == '2026-11-25'
     assert payload['due_date'] <= today
