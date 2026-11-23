@@ -59,6 +59,11 @@ def pytest_configure(config):
         'markers',
         'live: reads or writes the live Supabase project; skipped unless selected with -m live',
     )
+    config.addinivalue_line(
+        'markers',
+        'requires(*modules): skip unless every named module imports (optional NLP '
+        'packages such as jieba, MeCab/ipadic, opencc)',
+    )
     if _live_selected(config):
         # Deliberate live run: give the live tests their credentials back,
         # including those in .env that config.py was told not to load.
@@ -83,6 +88,12 @@ def pytest_collection_modifyitems(config, items):
     for item in items:
         if item.get_closest_marker('live'):
             item.add_marker(skip_live, append=False)
+
+
+def pytest_runtest_setup(item):
+    for mark in item.iter_markers('requires'):
+        for module in mark.args:
+            pytest.importorskip(module)
 
 
 @pytest.fixture(autouse=True)
