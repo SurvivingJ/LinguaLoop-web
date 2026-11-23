@@ -63,7 +63,6 @@ ENDPOINT_LIMITS = {
     'dt_repair.check': (('20 per minute; 300 per hour', user_or_ip),),
     'dt_repair.hint': (('60 per minute', user_or_ip),),
     'dt_repair.practice_due': (('30 per minute', user_or_ip),),
-    'tests.moderate_content': (('20 per minute', user_or_ip),),
     'corpus.ingest_corpus': (('10 per hour', user_or_ip),),
     'corpus.analyze_style': (('10 per hour', user_or_ip),),
     'vocab_admin.generate_assets': (('30 per hour', user_or_ip),),
