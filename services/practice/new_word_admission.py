@@ -503,14 +503,17 @@ class NewWordAdmissionMixin:
         if not candidates or want <= 0:
             return []
         head = candidates[:max(want * NOMINATION_OVERFETCH, want)]
-        supplied = self._senses_with_supply(head, language_id)
         from services import intro_drill
         if intro_drill.ENABLED:
             # Intro session 1 needs no ladder exercises (gloss + sentence +
             # reading); starved words are still queued for generation below.
-            starved = [sid for sid in head[:want] if sid not in supplied]
+            # Only the `want` admitted senses matter, so supply is read for
+            # those alone, not for the whole overfetched head.
             admitted = head[:want]
+            supplied = self._senses_with_supply(admitted, language_id)
+            starved = [sid for sid in admitted if sid not in supplied]
         else:
+            supplied = self._senses_with_supply(head, language_id)
             admitted = [sid for sid in head if sid in supplied]
             starved = [sid for sid in head if sid not in supplied]
         if starved:

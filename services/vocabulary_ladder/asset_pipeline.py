@@ -44,8 +44,6 @@ from services.vocabulary_ladder.collocation_grounding import (
 from services.vocabulary_ladder.validators import (
     VocabAssetValidator, is_sentence_scoped, parse_sentence_errors,
 )
-from services.vocabulary_ladder.bundle.flags import bundle_authoritative, bundle_enabled
-from services.vocabulary_ladder.bundle.generator import BundleGenerator
 
 logger = logging.getLogger(__name__)
 
@@ -398,120 +396,82 @@ class VocabAssetPipeline:
 
         variant_results = {}
 
-        # ADR-028 Phase 2 (TASK-815): bundle-mode call collapse. Only ever
-        # attempted on a full, unscoped regen (`levels is None`) — TASK-811
-        # level-scoped regen and the bundle collapse don't compose (a scoped
-        # regen wants to skip whole prompt families; the bundle call would
-        # have to ask for them anyway to produce anything at all), so a
-        # scoped regen always uses the legacy per-generator fan-out below,
-        # regardless of the flag.
-        bundle_attempted = levels is None and bundle_enabled()
-        bundle_result = None
-        if bundle_attempted:
-            bundle_gen = BundleGenerator(self.db, language_id)
-            bundle_result = bundle_gen.generate_bundle(
-                sense_id=sense_id,
-                core_asset=core_asset,
-                active_levels=active_levels,
-                semantic_class=semantic_class,
-                capability_context=capability_context,
-                p3_expected_levels=p3_expected_levels,
-                split_levels_wanted=split_levels_wanted,
-                typed_wanted_codes=None,  # unscoped regen -> every applicable type
-                variants=variants,
-                l7_correct_indices={
-                    vk: cfg['l7_correct_indices'] for vk, cfg in variants.items()
-                },
-            )
-            logger.info(
-                "Bundle generation for sense %s: ok=%s fallback_calls=%s",
-                sense_id, bundle_result.ok, bundle_result.fallback_calls,
-            )
-            if bundle_authoritative():
-                variant_results.update(bundle_result.to_variant_results())
-            # else: VOCAB_LADDER_BUNDLE_MODE=shadow — bundle_result is logged
-            # above (and should be persisted to a shadow-comparison sink by
-            # whoever wires TASK-807's protocol) but NOT stored/served; the
-            # legacy fan-out below still runs and its output remains
-            # authoritative.
-
-        if not (bundle_attempted and bundle_authoritative()):
-            # BatchModeThreadPoolExecutor, not the bare one: batch mode is
-            # thread-local, so plain pool threads judged fail-*open* for the whole
-            # of P2/P3 and the split/typed levels — only P1, which runs on this
-            # thread, was ever genuinely fail-closed. See judges/base.py.
-            #
-            # max_workers=12 (was 8, TASK-737): up to 2 variants x (P2 + P3 +
-            # up to 2 split levels + typed) = up to 10 futures. At 8 workers, 2
-            # of those queued behind the rest every sense — a small but free
-            # latency win to remove, since each future is independently CPU/IO
-            # light on this thread (the wait is all downstream LLM latency).
-            with stage('fan_out', stage_seconds), \
-                    BatchModeThreadPoolExecutor(max_workers=12) as pool:
-                futures = {}
-                for variant_key, cfg in variants.items():
-                    # Submit P2 variant
-                    if want_p2:
+        # BatchModeThreadPoolExecutor, not the bare one: batch mode is
+        # thread-local, so plain pool threads judged fail-*open* for the whole
+        # of P2/P3 and the split/typed levels — only P1, which runs on this
+        # thread, was ever genuinely fail-closed. See judges/base.py.
+        #
+        # max_workers=12 (was 8, TASK-737): up to 2 variants x (P2 + P3 +
+        # up to 2 split levels + typed) = up to 10 futures. At 8 workers, 2
+        # of those queued behind the rest every sense — a small but free
+        # latency win to remove, since each future is independently CPU/IO
+        # light on this thread (the wait is all downstream LLM latency).
+        with stage('fan_out', stage_seconds), \
+                BatchModeThreadPoolExecutor(max_workers=12) as pool:
+            futures = {}
+            for variant_key, cfg in variants.items():
+                # Submit P2 variant
+                if want_p2:
+                    futures[pool.submit(
+                        p2_gen.generate, sense_id, core_asset, active_levels,
+                        cfg['sentence_assignments'],
+                    )] = ('p2', variant_key)
+                else:
+                    variant_results[('p2', variant_key)] = _SKIPPED
+                # Submit P3 variant. semantic_class + capability_context turn
+                # on per-type gating inside the generator (TASK-514/B5) so P3
+                # only asks for spot-incorrect when an enabled capability row
+                # for that *type* can actually fire.
+                if want_p3:
+                    futures[pool.submit(
+                        p3_gen.generate, sense_id, core_asset, active_levels,
+                        cfg['sentence_assignments'], cfg['l7_correct_indices'],
+                        None, semantic_class, capability_context,
+                    )] = ('p3', variant_key)
+                else:
+                    variant_results[('p3', variant_key)] = _SKIPPED
+                # Submit the split levels. Already gated by p3_expected_levels,
+                # so each generator only has to decide whether *this sense*
+                # gives it a usable sentence.
+                for level in split_levels:
+                    if level in split_levels_wanted:
                         futures[pool.submit(
-                            p2_gen.generate, sense_id, core_asset, active_levels,
+                            split_gens[level].generate, sense_id, core_asset,
                             cfg['sentence_assignments'],
-                        )] = ('p2', variant_key)
+                        )] = (f'l{level}', variant_key)
                     else:
-                        variant_results[('p2', variant_key)] = _SKIPPED
-                    # Submit P3 variant. semantic_class + capability_context turn
-                    # on per-type gating inside the generator (TASK-514/B5) so P3
-                    # only asks for spot-incorrect when an enabled capability row
-                    # for that *type* can actually fire.
-                    if want_p3:
-                        futures[pool.submit(
-                            p3_gen.generate, sense_id, core_asset, active_levels,
-                            cfg['sentence_assignments'], cfg['l7_correct_indices'],
-                            None, semantic_class, capability_context,
-                        )] = ('p3', variant_key)
-                    else:
-                        variant_results[('p3', variant_key)] = _SKIPPED
-                    # Submit the split levels. Already gated by p3_expected_levels,
-                    # so each generator only has to decide whether *this sense*
-                    # gives it a usable sentence.
-                    for level in split_levels:
-                        if level in split_levels_wanted:
-                            futures[pool.submit(
-                                split_gens[level].generate, sense_id, core_asset,
-                                cfg['sentence_assignments'],
-                            )] = (f'l{level}', variant_key)
-                        else:
-                            variant_results[(f'l{level}', variant_key)] = _SKIPPED
-                    # Type-registered LLM generators (TASK-522 syn/ant +
-                    # word_family, TASK-527 particle_selection). One future per
-                    # variant rather than per type: they share a driver that
-                    # already walks the capability matrix, and the matrix decides
-                    # which of them apply to this word. `typed_wanted_codes`
-                    # narrows that further to the requested levels (TASK-811).
-                    if want_typed:
-                        futures[pool.submit(
-                            typed_llm.generate_all,
-                            self.db, language_id, sense_id, core_asset, semantic_class,
-                            cfg['sentence_assignments'], capability_context,
-                            typed_wanted_codes,
-                        )] = ('typed', variant_key)
-                    else:
-                        variant_results[('typed', variant_key)] = _SKIPPED
+                        variant_results[(f'l{level}', variant_key)] = _SKIPPED
+                # Type-registered LLM generators (TASK-522 syn/ant +
+                # word_family, TASK-527 particle_selection). One future per
+                # variant rather than per type: they share a driver that
+                # already walks the capability matrix, and the matrix decides
+                # which of them apply to this word. `typed_wanted_codes`
+                # narrows that further to the requested levels (TASK-811).
+                if want_typed:
+                    futures[pool.submit(
+                        typed_llm.generate_all,
+                        self.db, language_id, sense_id, core_asset, semantic_class,
+                        cfg['sentence_assignments'], capability_context,
+                        typed_wanted_codes,
+                    )] = ('typed', variant_key)
+                else:
+                    variant_results[('typed', variant_key)] = _SKIPPED
 
-                for future in as_completed(futures):
-                    prompt_type, variant_key = futures[future]
-                    try:
-                        asset = future.result()
-                        variant_results[(prompt_type, variant_key)] = asset
-                    except JudgeUnavailable:
-                        # A judge outage during a batch aborts the batch. Letting
-                        # this fall into the generic handler below would downgrade
-                        # a loud stop into "variant failed, carry on" — quieter
-                        # than the fail-open bug it replaced.
-                        raise
-                    except Exception as e:
-                        logger.error("Variant %s_%s failed for sense %s: %s",
-                                     prompt_type, variant_key, sense_id, e)
-                        variant_results[(prompt_type, variant_key)] = None
+            for future in as_completed(futures):
+                prompt_type, variant_key = futures[future]
+                try:
+                    asset = future.result()
+                    variant_results[(prompt_type, variant_key)] = asset
+                except JudgeUnavailable:
+                    # A judge outage during a batch aborts the batch. Letting
+                    # this fall into the generic handler below would downgrade
+                    # a loud stop into "variant failed, carry on" — quieter
+                    # than the fail-open bug it replaced.
+                    raise
+                except Exception as e:
+                    logger.error("Variant %s_%s failed for sense %s: %s",
+                                 prompt_type, variant_key, sense_id, e)
+                    variant_results[(prompt_type, variant_key)] = None
 
         # Step 4: Validate and store each variant
         for variant_key in ('A', 'B'):
