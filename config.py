@@ -286,16 +286,15 @@ class Config:
     # config; under any other taxonomy the single call is skipped and the
     # configured flow grades (grader_trace.single_call.reason says why).
     DT_SINGLE_CALL_GRADER = os.environ.get('DT_SINGLE_CALL_GRADER', 'True').lower() == 'true'
-    # TEMPORARY (2026-11-16): the defaults are free-tier OpenRouter models because
-    # the API key reached its spending limit and every paid call was refused, so
-    # nothing could be graded. They are NOT validated against the gold set. Once
-    # the key is funded, set DT_SINGLE_CALL_MODEL=openai/gpt-6-luna and
-    # DT_SINGLE_CALL_FALLBACK_MODEL=deepseek/deepseek-v4.1-flash (the validated
-    # pair, ADR-044), or restore them as the defaults here.
-    DT_SINGLE_CALL_MODEL = os.environ.get('DT_SINGLE_CALL_MODEL', 'particle-ai/particle-1:free')
+    # The ADR-044 validated pair (primary + fallback). The free models that were the
+    # temporary defaults from 2026-11-16 (particle-ai/particle-1:free,
+    # nvidia/nemotron-3.5-super-vl:free) failed the gold set on 2026-11-23 — see
+    # wiki/evaluations/dt-free-grader-goldset-2026-11-23.md. Do not change these
+    # defaults without a gold-set run.
+    DT_SINGLE_CALL_MODEL = os.environ.get('DT_SINGLE_CALL_MODEL', 'openai/gpt-6-luna')
     # Tried once when the primary call fails. Blank disables the model fallback.
     DT_SINGLE_CALL_FALLBACK_MODEL = os.environ.get(
-        'DT_SINGLE_CALL_FALLBACK_MODEL', 'nvidia/nemotron-3.5-super-vl:free')
+        'DT_SINGLE_CALL_FALLBACK_MODEL', 'deepseek/deepseek-v4.1-flash')
     # Track E's "free translations are expected" prompt paragraph. Default OFF:
     # with prompt v1 it removed false flags on rephrased sentences but lowered
     # recall on near-verbatim answers (gpt-6-luna .88 -> .80). Not re-measured
