@@ -91,7 +91,7 @@ Run `python -m pytest tests/test_calibration_normaliser_migration.py tests/test_
 
 ## TASK-1075: Japanese reading readiness — katakana exclusion, kana-consistent foils, ja-only pool refresh and cache refill (LIVE-DB, owner-applied)
 
-**Status:** [~] Code done (2026-11-19); both migrations applied live 2026-11-22 (ja (3, 2) ready 2,099 / 3,175 = 66% before the data steps); owner: apply, ja-only pool refresh, cache delete/refill, gate (runbook Phase 2)
+**Status:** [~] Code done (2026-11-19); both migrations applied live 2026-11-22; ja pool refreshed, 277 inconsistent cache anchors deleted and all ja pairs refilled 2026-11-23 → (3, 2) 88.4% ready, gate FAIL on the long-word length check and band 1 (79%); waits on PQ23. Was: owner: apply, ja-only pool refresh, cache delete/refill, gate (runbook Phase 2)
 **Feature:** vocab-placement
 **Type:** infra
 **Complexity:** M (3-8h)

@@ -55,7 +55,23 @@ expected growth well under 1 MB).
   zh ready counts exceed PostgREST's 8 s timeout: run them with `--psql` or `tests/sql/check_calibration_placement.sql`
   in the SQL editor.
 
-Still to do: the zh gate (SQL editor or `--psql`), Phase 2 steps 2–5, Phase 3.
+### 2026-11-23 — Phase 2 data steps and both gates
+
+- ja pool refresh (`calibration_refresh_anchor_pool(3)`): ja 3,278 → 3,350 / 3,350 / 3,447 rows (katakana now in);
+  zh 4,048 / 3,682 / 3,682 and en 6,110 unchanged.
+- ja pronunciation cache: 277 of 567 kanji+kana anchors deleted (fewer than 3 kana-consistent foils), then every ja
+  pair refilled: definition 99.5–99.6% cached, pronunciation 2,827 / 2,984 (94.7%; 210 anchors short).
+- **ja (3, 2) gate: FAIL** — 2,864 / 3,241 ready (88.4%, was 66%); band 1 79%; in every band the unready words are
+  mostly ≥ 3 characters (band 1: 84% of unready vs 51% of ready).
+- **zh (1, 2) and (1, 3) gate: FAIL** (identical; computed in four vocab-id chunks with the function's own query,
+  scored with `evaluate()`): 3,389 / 3,623 ready (93.5%), every band ≥ 84%, but the length check fails in bands
+  1–3 (band 1: 92% of unready are ≥ 3 characters vs 55% of ready) and band 7's Zipf gap is 0.15 (> 0.10, 13 words).
+- Causes (zh): (a) 74 words (马, 母亲, 父亲, 青少年…) have a native reading but the stale zh pool marks
+  `has_pronunciation = false`, so no reading key — fixed by the zh pool refresh (TASK-1063, OQ29); (b) long words
+  (理论体系, 科学研究…) have no cached wrong reading of the same syllable count (rule 3). ja unready words are the
+  same long-word shape.
+
+Still to do: owner decisions on OQ29 (zh pool refresh now?) and on long words (PQ23), then the gates again; Phase 3.
 
 ## Phase 0 — bug fix, independent (any time)
 
