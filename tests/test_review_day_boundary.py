@@ -58,6 +58,16 @@ def test_review_today_without_an_argument_reads_the_clock(monkeypatch):
     assert day_boundary.review_today_iso() == '2026-11-24'
 
 
+def test_python_and_sql_name_the_same_review_zone():
+    """The SQL mirror public.review_today() must use the same zone literal."""
+    from pathlib import Path
+    import re
+
+    sql = (Path(__file__).resolve().parent.parent / 'migrations' / 'fsrs_review_day_aest.sql').read_text()
+    body = sql.split('CREATE OR REPLACE FUNCTION public.review_today(', 1)[1].split('$function$;', 1)[0]
+    assert re.findall(r"AT TIME ZONE '([^']+)'", body) == [day_boundary.REVIEW_TIMEZONE]
+
+
 def test_the_zone_is_one_constant(monkeypatch):
     """Changing the one constant moves every Python reader and writer."""
     monkeypatch.setattr(day_boundary, 'REVIEW_TIMEZONE', 'UTC')
