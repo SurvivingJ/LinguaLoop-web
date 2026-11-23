@@ -1,6 +1,6 @@
 ---
 title: Master Task List
-last_updated: 2026-11-19
+last_updated: 2026-11-22
 ---
 
 # Master Task List
@@ -19,12 +19,14 @@ below.
 
 | Status | Count |
 |--------|-------|
-| Not Started | 47 |
+| Not Started | 55 |
 | In Progress (`[~]`) | 15 |
-| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 30 |
+| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 32 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
 | Won't Do (obsolete) | 3 |
 | Done (cumulative, not listed here) | 282 |
+
+*2026-11-22 (NEW — zh/ja Content Seeding, TASK-1034–1043):* staged fat-seed exercise assets (ja 3,298 senses, zh 15,624 senses) and 573 staged topics, none applied. Applying everything would take the database from 362 MB to ~690–740 MB, over the 500 MB Free cap, so TASK-1034 (owner: Pro, a Free-plan subset, or `word_assets` to Storage) and TASK-1042 (owner: fix the level_6 defect before render or not) gate the pilot (TASK-1037). TASK-1036 (REST applier) and TASK-1041 (topic import) do not wait on them. Draft for owner review. Counts: Not Started 47→55, Awaiting decision 30→32. See [[tasklist/zh-ja-content-seeding.tasks]].
 
 *2026-11-19 (Exercise Content in Storage — TRANSITION CODE REMOVED, TASK-1031):*
 - No read/write modes, no DB fallback, no shadow comparer and no `EXERCISE_CONTENT_SOURCE` / `_WRITE` / `_DB_FALLBACK` / `_SHADOW_SAMPLE` flags: content is read only from the files and written file first. Production behaviour unchanged (it already ran Storage reads and dual writes).
@@ -1274,6 +1276,22 @@ Full spec: [[tasklist/dt-guided-self-repair.tasks]] · [[features/dt-guided-self
 | TASK-972 | dt-guided-self-repair | Native-speaker review of hint templates and zh/ja UI strings | [?] no reviewer | M | — |
 | TASK-973 | dt-guided-self-repair | Evaluate the one-sentence re-check on real submissions | [?] needs real sessions | M | TASK-966, TASK-974 |
 | TASK-974 | dt-guided-self-repair | Deploy: worker restart, deploy, post-deploy checks | [?] owner | S | TASK-966, TASK-937 |
+
+### zh/ja Content Seeding — NEW 2026-11-22
+Full spec: [[tasklist/zh-ja-content-seeding.tasks]]. Staged packages in `data/exercise_seeding/` (archives on the branch), topics in `data/topics/staged/2026-11-17/`. Live writes are operator tasks.
+
+| ID | Feature | Title | Status | Complexity | Depends On |
+|----|---------|-------|--------|------------|------------|
+| TASK-1034 | zh-ja-content-seeding | Decide the database-space approach (Pro / Free subset / word_assets to Storage) | [?] Awaiting owner decision | XS | — |
+| TASK-1035 | zh-ja-content-seeding | Rebuild the packages for the current database (ja POS rule, blocklist, subset) | Not Started | S | TASK-1034 |
+| TASK-1036 | zh-ja-content-seeding | REST applier for a staged package (`scripts/apply_staged_word_assets.py`) | Not Started | M | — |
+| TASK-1037 | zh-ja-content-seeding | Pilot: 100 zh + 50 ja senses end to end, measured (operator) | Not Started | M | TASK-1034, TASK-1035, TASK-1036, TASK-1042 |
+| TASK-1038 | zh-ja-content-seeding | Apply the remaining assets in tranches (operator) | Not Started | M | TASK-1037 |
+| TASK-1039 | zh-ja-content-seeding | Render the remaining senses in shards + sweep (operator) | Not Started | L | TASK-1038 |
+| TASK-1040 | zh-ja-content-seeding | Audio for the new listening items + sweep (operator) | Not Started | M | TASK-1039 |
+| TASK-1041 | zh-ja-content-seeding | Import the 573 staged topics + stamp tiers (operator) | Not Started | S | — |
+| TASK-1042 | zh-ja-content-seeding | Decide on the level_6 "incorrect sentence is correct" defect before render | [?] Awaiting owner decision | XS | — |
+| TASK-1043 | zh-ja-content-seeding | Close-out (sizes, reject rates, wiki) | Not Started | S | TASK-1040, TASK-1041 |
 
 ### Exercise Content in Storage (ADR-049) — NEW 2026-11-17
 Full spec: [[tasklist/exercise-content-storage.tasks]] · [[decisions/ADR-049-exercise-content-in-storage]]. Phase 0 done (inventory, design, contracts). Phase 1 built and integrated 2026-11-17 (TASK-1008–1025). The two Phase-1 migrations are live since 2026-11-17 (TASK-1026, deploy of the Phase-1 code still pending; flags `db`). TASK-1026–1030 are operator tasks, not for agents.
