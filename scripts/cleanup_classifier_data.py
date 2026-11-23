@@ -15,29 +15,27 @@ tables that accumulated from the CC-CEDICT import:
      (e.g. "han4") for CC-CEDICT-imported rows. Convert each one to the
      proper diacritic form ("hàn") following standard pinyin orthography.
 
-Run this once after import_cedict_classifiers.py. Idempotent — safe to re-run.
+Run this once after import_cedict_classifiers.py --apply. Idempotent — safe to re-run.
 
 Usage:
-    python scripts/cleanup_classifier_data.py            # apply
-    python scripts/cleanup_classifier_data.py --dry-run  # preview only
+    python scripts/cleanup_classifier_data.py --apply    # apply
+    python scripts/cleanup_classifier_data.py            # preview only (dry run)
+
+Nothing is written without --apply (--dry-run is accepted as an explicit alias).
 """
 
 import re
-import argparse
 import logging
 
 try:
-    from _common import bootstrap
+    from _common import base_parser, bootstrap
 except ImportError:  # run or imported as scripts.<name>
-    from scripts._common import bootstrap
+    from scripts._common import base_parser, bootstrap
 
 bootstrap()
 
 
 from services.supabase_factory import SupabaseFactory, get_supabase_admin
-
-if not SupabaseFactory.is_initialized():
-    SupabaseFactory.initialize()
 
 logger = logging.getLogger(__name__)
 
@@ -276,7 +274,7 @@ def fix_noun_pairs(db, dry_run: bool) -> int:
     return updates + deletes
 
 
-def main(dry_run: bool):
+def run(dry_run: bool):
     db = get_supabase_admin()
     logger.info("=" * 60)
     logger.info("Classifier data cleanup" + ("  (DRY-RUN)" if dry_run else ""))
@@ -288,8 +286,14 @@ def main(dry_run: bool):
     logger.info("Done.")
 
 
+def main(argv=None):
+    parser = base_parser(dry_run_help='Preview without writing (the default)')
+    args = parser.parse_args(argv)
+    # Here, not at import: --help and the tests must not need Supabase credentials.
+    if not SupabaseFactory.is_initialized():
+        SupabaseFactory.initialize()
+    run(dry_run=args.dry_run)
+
+
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--dry-run', action='store_true', help='Preview without writing')
-    args = parser.parse_args()
-    main(dry_run=args.dry_run)
+    main()

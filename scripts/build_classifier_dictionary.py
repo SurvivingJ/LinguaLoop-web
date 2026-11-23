@@ -588,7 +588,7 @@ def run(dry_run: bool = False):
         chunk = pair_rows[i:i + 500]
         db.table('dim_classifier_noun_pairs').insert(chunk).execute()
     logger.info(f"Inserted {len(pair_rows)} curated noun-classifier pairs")
-    logger.info("Curated build complete. Run import_cedict_classifiers.py for long-tail coverage.")
+    logger.info("Curated build complete. Run import_cedict_classifiers.py --apply for long-tail coverage.")
 
 
 def main(argv=None):

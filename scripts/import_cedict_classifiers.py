@@ -19,31 +19,29 @@ this importer skips any (lemma, classifier) pair that already has a
 source='curated' row.
 
 Usage:
-    python scripts/import_cedict_classifiers.py             # full import
-    python scripts/import_cedict_classifiers.py --dry-run   # parse only
-    python scripts/import_cedict_classifiers.py --limit 500 # first 500 hits
+    python scripts/import_cedict_classifiers.py --apply             # full import
+    python scripts/import_cedict_classifiers.py                     # dry run: parse only
+    python scripts/import_cedict_classifiers.py --limit 500 --apply # first 500 hits
+
+Nothing is written without --apply (--dry-run is accepted as an explicit alias).
 """
 
 import os
 import re
 import gzip
 import urllib.request
-import argparse
 import logging
 from collections import defaultdict
 
 try:
-    from _common import bootstrap, paginate
+    from _common import base_parser, bootstrap, paginate
 except ImportError:  # run or imported as scripts.<name>
-    from scripts._common import bootstrap, paginate
+    from scripts._common import base_parser, bootstrap, paginate
 
 bootstrap()
 
 
 from services.supabase_factory import SupabaseFactory, get_supabase_admin
-
-if not SupabaseFactory.is_initialized():
-    SupabaseFactory.initialize()
 
 logger = logging.getLogger(__name__)
 
@@ -297,9 +295,16 @@ def run(dry_run: bool = False, limit: int = 0):
     logger.info(f"Inserted {len(pairs_to_insert)} new noun-classifier pairs from CC-CEDICT")
 
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="Import CC-CEDICT classifier annotations")
-    parser.add_argument('--dry-run', action='store_true', help='Parse only, no DB writes')
+def main(argv=None):
+    parser = base_parser(description="Import CC-CEDICT classifier annotations",
+                         dry_run_help='Parse only, no DB writes (the default)')
     parser.add_argument('--limit', type=int, default=0, help='Cap inserts (0 = unlimited)')
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
+    # Here, not at import: --help and the tests must not need Supabase credentials.
+    if not SupabaseFactory.is_initialized():
+        SupabaseFactory.initialize()
     run(dry_run=args.dry_run, limit=args.limit)
+
+
+if __name__ == '__main__':
+    main()
