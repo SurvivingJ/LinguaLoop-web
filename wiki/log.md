@@ -7189,6 +7189,48 @@ Pages updated: 10 ([[decisions/ADR-049-exercise-content-in-storage]] §5, §6, �
 Pages updated: 1 ([[decisions/ADR-049-exercise-content-in-storage]] "Interface tidy-up").
 
 
+## [2026-11-22] apply | Part of speech standardised live (`standardise_part_of_speech.sql`)
+Developer: "apply the part of speech label migration" (written 2026-11-11, never applied: the Supabase migration tool's confirmation prompt timed out on 2026-11-12 and twice more on 2026-11-22). The owner ran the repo file unchanged in the SQL editor.
+
+**Checked before applying (read-only):**
+- No reader breaks on the standard labels: the live `pos_class()` (used by `get_quiz_distractors` / `_batch`) and `static/js/session/lexicon.js` already map `noun`/`名词`/`NOUN` to one class; Python readers that hint authoring prompts read `part_of_speech_raw` first (`services/vocabulary/pos.py` `pos_hint`; `prompt1_core.py` and `export_exercise_worklist.py` select `dim_vocabulary(*)` for this).
+- Preview of the backfill matched the result below exactly.
+
+**Verified after applying:**
+- 15,039 of 20,613 rows normalised, original tag kept in `part_of_speech_raw`: zh 7,811 (mostly `名词` → noun, `动词` → verb), en 3,776 (spaCy `NOUN`/`ADJ`/`VERB`), ja 3,452 (UniDic `名詞`/`動詞`/`形状詞`).
+- 0 non-standard labels left; for every row `normalize_pos(part_of_speech_raw) = part_of_speech`.
+- 19 rows became `other`: zh 3 (`方向补语` ×2, `结果补语`), ja 16 (`接尾辞` ×10, `接頭辞` ×6).
+- `dim_vocabulary_part_of_speech_check` validated; trigger `trg_dim_vocabulary_normalize_pos` (BEFORE INSERT OR UPDATE OF part_of_speech) live; `pos_tag_lookup`, `normalize_pos`, the trigger function: `search_path` pinned, EXECUTE for `service_role` only.
+- Spot checks: `名词`, `名詞-普通名詞-一般`, `NOUN` → noun; `量词` → measure_word; `成语` → idiom; blank/NULL → NULL.
+- Database 358.4 → 361.8 MB.
+
+**Effect on the staged fat-seed packages** (`data/exercise_seeding/{ja,zh}/upload_*`, not applied): their `part_of_speech` UPDATEs (`名词`, `动词`, …) now land as the standard label with the original kept, so the 4,879 zh "overwrites" in `overwrites_live_values.csv` are no longer a format change. The 68 ja POS overwrites still contradict the 2026-11-12 decision (ja keeps the tagger's tag) and should be dropped before that package is applied.
+
+Pages updated: 3 ([[database/schema.tech]] `dim_vocabulary` columns, check, triggers; index; this log). Migration header status updated.
+
+## [2026-11-22] update | zh/ja content seeding staged (2026-11-17 → 11-19); apply plan filed (TASK-1034–1043)
+Developer brief (2026-11-17): build exercises for Chinese (and Japanese if its output was missing) and a comprehensive zh/ja topic list including professional subjects, **staged only, no database writes** (codebase mid-refactor). Then (2026-11-19): check the post-cut-over tables and plan how to apply it.
+
+**Topics** (2026-11-17, commit 17abfdc): 573 new entries in `data/topics/staged/2026-11-17/` — zh 315, ja 325 (67 shared), 35 categories (18 new: economics, finance, law, mathematics, psychology, …); T5–T6 weighted to economics, finance, history, science/tech, law, medicine. Importer-valid JSON per category + `manifest.{json,csv}` + `stamp_tiers.sql` (the importer still drops `target_age_tier`). Not imported.
+
+**Exercise assets** (fat-seed pipeline, `.claude/skills/fat-seed-authoring/SKILL.md`, 20 workers, run under the offline shim against a read-only REST snapshot of 2026-11-17 12:55 UTC):
+- ja output was confirmed missing (3,183 reviewed senses never uploaded) and restored from git history (`0dce7d1`), plus 34 new runs → package `data/exercise_seeding/ja/upload_2026-11-17/`: 3,298 senses, 23,086 `word_assets`, 7,100 UPDATEs.
+- zh: 9,585 senses restored from history (`cfb6fd1`) + 989 new runs (10,569 senses, all finished after ~7 container restarts; 35 run failures, all from malformed repair JSON, all retried successfully) → package `data/exercise_seeding/zh/upload_2026-11-19/`: 15,624 senses, 109,368 `word_assets`, 31,248 UPDATEs.
+- Senses that already had `prompt1_core` were excluded (ja 3,151, zh 7,786).
+- Dictionary overwrites listed per package (`overwrites_live_values.csv`): zh 8,768 (4,879 POS label format, 3,578 pinyin `shì (shi4)` → `shì`, 311 semantic_class), ja 337 (189 semantic_class, 68 POS, 80 pronunciation).
+- Opus spot-check (rubric v3, 36 senses each): ja 6.95, zh 6.80; ~19–22% of senses with a fatal defect, nearly all a level_3/6/7 "wrong" item that is acceptable language.
+- Archives pushed to `claude/hopeful-johnson-iv4k69` (~272 MB, 22 files ≤ 45 MB, force-added under the git-ignored `data/exercise_seeding/`), indexed in `data/exercise_seeding/tools/archive/README.md`.
+
+**Apply plan** (read-only checks on the live database, 2026-11-19 and 2026-11-22):
+- The packages write only `word_assets` and dictionary fields; exercises are created at render time by `scripts/render_existing_assets.py` through `store.write_sense` (ADR-049), so the cut-over does not change the packages.
+- Drift: every staged sense exists, 0 edited since the snapshot, 0 with assets or exercises; 28 zh senses are blocklisted (`calibration_anchor_blocklist`).
+- **Space is the blocker:** database 362 MB of 500 MB; applying everything adds ~330–380 MB (`word_assets` ~148, `exercises` ~129, `storage.objects` ~31, update churn ~15, judge logs ~43, topics ~13). Options in TASK-1034.
+- The part-of-speech migration was applied the same day (entry above), so zh POS UPDATEs land as standard labels; the 68 ja POS overwrites must still be dropped (TASK-1035).
+
+**Filed:** [[tasklist/zh-ja-content-seeding.tasks]] (TASK-1034–1043, draft for owner review; two owner decisions gate the pilot). Tools committed: `scratch_offline/staging/staged_check.py` (read-only drift check), `overwrite_report.py`, `rest_snapshot.py`.
+
+Pages created: 1 ([[tasklist/zh-ja-content-seeding.tasks]]). Pages updated: 3 ([[tasklist/master]] Not Started 47→55, awaiting decision 30→32; index; this log).
+
 ## [2026-11-19] build | Knowledge Report + Vocabulary placement — re-review, code and migrations (nothing applied live)
 Owner: "Re-review the codebase and database to double check the plan (we just executed the exercises cutover), and then begin working through as much of it as possible." **Re-review:** main merged (exercise-content cut-over, TASK-1026–1031); all 72 file:line citations in the two tech specs and task files still hold (the cut-over's edits sit outside the cited ranges); live frames match §2.1 exactly; calibration, UVK and BKT objects as specified; database 358 MB (`pg_database_size`), so report OQ13 / placement PQ15 no longer gate anything; no calibration activity since 11-17. **Build** on `claude/beautiful-planck-0fftk4` by the orchestrator plus five parallel workers in worktrees, merged and re-tested: report TASK-1035, 1037–1043 Done (repo); TASK-1034, 1036, 1044 awaiting live apply; placement TASK-1078, 1080, 1082, 1084, 1087 Done (repo); TASK-1074, 1075 (code), 1076, 1077, 1079, 1081, 1092 awaiting live apply; TASK-1088 code part (nightly close job 04:30 UTC, readiness gate script). **Verification:** a local PostgreSQL 16 harness (live DDL, live helper functions, a real pool sample, UTF8) with all 12 migrations applied in the runbook order: `test_calibration_placement.sql` 13, `test_knowledge_calibration_inputs.sql` 5, `test_knowledge_report.sql` 94 checks, all green with the real functions; the Python placement service driven end to end against that SQL (zh, ja, en, tone trouble, retake, End now, abandon). V0 (TASK-1087) on the production code: coverage 0.92–0.97, bias ≤ 1.3% of the pool (E34). Full pytest 6,242 passed (1 pre-existing order-dependent failure), vitest 838 passed. **Found and fixed while integrating:** gap guard (a learner who always picks the same wrong tones doubled the tone gap); combined line only on the placement instrument; ja mora count now counts っ; prestudy had the zh numbered-pinyin gap (fixed with the intro drill); character-reading table removes 15 of 48 polyphone cases. **New:** TASK-1096 (heteronym seed, 14 real readings left), OQ38 (tied latest outcomes; built wrong-first), PQ22. Spec deviations recorded in [[features/vocab-placement.tech]] §23 and [[features/knowledge-report.tech]] §17. Pages created: 1 ([[tasklist/report-and-placement-apply-runbook]]). Pages updated: both feature pages and tech pages, both task files, master (Not Started 101→78, In Progress 15→16, Blocked/awaiting 59→69, Done 283→296), index. Read-only live checks only; a scratch copy of two accounts' rows used for checking was deleted.
 
@@ -7224,3 +7266,8 @@ Orchestrated multi-agent review (recon; 8 area reviewers and 2 wiki-lint agents;
 
 ## [2026-11-23] update | DT grader defaults reverted to the ADR-044 validated models
 `config.py` now defaults `DT_SINGLE_CALL_MODEL` to `openai/gpt-6-luna` and `DT_SINGLE_CALL_FALLBACK_MODEL` to `deepseek/deepseek-v4.1-flash` (env overrides unchanged; the free models failed the gold set, [[evaluations/dt-free-grader-goldset-2026-11-23]]); a 5-call live check passed through the production path ($0.0011, pipeline only, not a re-validation). The owner must check the host has neither variable set to the old free values and raise the provider key's own limit ($11, about $1 headroom left); TASK-1202 Done, TASK-1203 stays open. Pages updated: [[decisions/ADR-044-dt-single-call-generative-grader]], [[features/dual-translation.tech]], [[tasklist/review-2026-11-22.tasks]], [[tasklist/master]].
+
+## [2026-11-23] update | CI fix (leftover `import stripe`) and main merged (PR #43, zh/ja content seeding)
+- **CI:** `app.py` still imported `stripe` after the token-economy retirement removed the pin, so every test using the app fixture failed in a clean environment. Import and the dead Stripe init block removed; new guard `tests/test_requirements_cover_imports.py` checks every module-level third-party import of the application packages against `requirements.txt` and imports `app` in a fresh interpreter.
+- **Merge of main:** conflicts only in [[index]], this log and [[tasklist/master]] (both sides kept; main's entries placed before this branch's). The duplicate `part_of_speech_raw` column row and trigger row that both sides wrote into [[database/schema.tech]] were reduced to main's (newer) wording.
+- **TASK id collision, not renumbered:** TASK-1034 to TASK-1043 are used by both [[tasklist/knowledge-report.tasks]] and [[tasklist/zh-ja-content-seeding.tasks]]; owner to decide. Master summary recounted with the checker; see the note there.

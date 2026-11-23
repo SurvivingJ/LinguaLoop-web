@@ -1,6 +1,10 @@
 -- ============================================================================
 -- standardise_part_of_speech.sql — one part-of-speech vocabulary in dim_vocabulary
 -- Date: 2026-11-11
+-- Status: APPLIED LIVE 2026-11-22 — run by the owner in the Supabase SQL editor
+--         (the migration tool's confirmation prompt timed out twice). Verified:
+--         15,039 rows normalised (zh 7,811, en 3,776, ja 3,452), 0 non-standard
+--         labels left, CHECK validated, new functions service_role only.
 --
 -- dim_vocabulary.part_of_speech mixed tagsets: the tokenizer's own tag was
 -- stored when a word was created (jieba n/nr/v/vn, UniDic 名詞/形状詞, spaCy

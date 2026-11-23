@@ -19,13 +19,15 @@ below.
 
 | Status | Rows in this file | All task files (union, file status wins) |
 |--------|-------------------|------------------------------------------|
-| Not Started | 64 | 88 |
+| Not Started | 72 | 88 |
 | In Progress (`[~]`) | 18 | 25 |
-| Blocked / Deferred / Awaiting decision (`[?]`; includes "Done (repo), awaiting live apply") | 56 | 57 |
+| Blocked / Deferred / Awaiting decision (`[?]`; includes "Done (repo), awaiting live apply") | 58 | 57 |
 | Won't Do (obsolete) | 3 | 3 |
 | Superseded | 2 | 2 |
-| Done | 231 | 365 |
+| Done | 221 | 365 |
 | **Total distinct task ids** | **374** | **540** |
+
+*2026-11-23 (after merging main, PR #43 zh/ja content seeding):* summary recounted with the checker (`check_wiki.py`), not picked from either side. **TASK id collision, not renumbered (owner to decide):** TASK-1034 to TASK-1043 are defined twice: by [[tasklist/knowledge-report.tasks]] (this branch, mostly Done) and by [[tasklist/zh-ja-content-seeding.tasks]] (main, 8 Not Started, 2 awaiting decision). The checker counts each id once: in the left-hand column it took the zh-ja rows' status for those ten ids (hence Not Started 64 to 72, Blocked 56 to 58, Done 231 to 221 with no task actually changing), and in the right-hand column the knowledge-report files' status (unchanged). Counted by row instead, the zh-ja tasks add 8 Not Started and 2 awaiting decision on top of the previous 64 / 56, and the knowledge-report Done count stays 231.
 
 *Recount 2026-11-23 (replaces the earlier stated counts of 78 / 17 / 59 / 5 / 305, which had drifted).* Method: the wiki checker (`check_wiki.py`) parsed every `| TASK-nnn |` table row in this file (374 distinct ids; duplicate rows of the same id counted once) and every `## TASK-nnn:` block in the 35 task files under `wiki/tasklist/` and `wiki/tasklist/archive/`, and mapped each status marker (`[ ]`, `[~]`, `[x]`, `[?]`, "Done", "Won't Do", "Superseded") to the buckets above; the right-hand column takes the task file's status where file and master disagree. The right-hand total includes 166 ids that exist only in task files (older archived work not given a master row, of which 25 are open: TASK-101 to 112, 609, 723 and 783 to 794, left as they are). 14 file-versus-master status disagreements remain in the archived lists (TASK-517 to 534 in `archive/exercise-generation-v2.tasks.md` and TASK-612 in `archive/dual-translation.tasks.md`): the truth is not checkable without the old live state and they were not changed. TASK-1200 to 1233 (34 rows, 10 of them `[?]`) were added by [[tasklist/review-2026-11-22.tasks]].
 
@@ -46,6 +48,8 @@ below.
 *2026-11-19 (Knowledge Report + Vocabulary placement BUILT, nothing applied live):* re-review after main's exercise cut-over: every cited code location still holds, frames unchanged (3:2 = 3,175, 1:2 = 3,623, 2:2 = 3,754), database 358 MB so the size gate (report OQ13, placement PQ15) no longer binds. Built on `claude/beautiful-planck-0fftk4` (orchestrator + 5 parallel workers): report TASK-1035, 1037–1043 Done (repo); TASK-1034, 1036, 1044 awaiting live apply; placement TASK-1078, 1080, 1082, 1084, 1087 Done (repo); TASK-1074, 1075 (code), 1076, 1077, 1079, 1081, 1092 awaiting live apply; TASK-1088 in progress (owner launch steps). All migrations applied in order to one local PostgreSQL 16 copy of the live schema with real pool data: SQL suites 13 + 5 + 94 checks green; the placement service driven end to end against the real SQL. Full suite 6,242 passed (1 pre-existing order-dependent failure), vitest 838 passed. New TASK-1096 (heteronym seed). Apply order and launch steps: [[tasklist/report-and-placement-apply-runbook]]. Counts: Not Started 101→78, In Progress 15→16, Blocked/awaiting 59→69, Done 283→296.
 
 *2026-11-19 (main merged into the Knowledge Report / placement branch):* main's exercise-content cut-over (TASK-1026–1031) merged into `claude/beautiful-planck-0fftk4`. Counts = merge base (52 / 16 / 30 / 2 / 277) + this branch's changes (+54 / 0 / +29 / +2 / +1: billing, Knowledge Report, placement) + main's changes (−5 / −1 / 0 / +1 / +5).
+
+*2026-11-22 (NEW — zh/ja Content Seeding, TASK-1034–1043):* staged fat-seed exercise assets (ja 3,298 senses, zh 15,624 senses) and 573 staged topics, none applied. Applying everything would take the database from 362 MB to ~690–740 MB, over the 500 MB Free cap, so TASK-1034 (owner: Pro, a Free-plan subset, or `word_assets` to Storage) and TASK-1042 (owner: fix the level_6 defect before render or not) gate the pilot (TASK-1037). TASK-1036 (REST applier) and TASK-1041 (topic import) do not wait on them. Draft for owner review. Counts: Not Started 47→55, Awaiting decision 30→32. See [[tasklist/zh-ja-content-seeding.tasks]].
 
 *2026-11-19 (Exercise Content in Storage — TRANSITION CODE REMOVED, TASK-1031):*
 - No read/write modes, no DB fallback, no shadow comparer and no `EXERCISE_CONTENT_SOURCE` / `_WRITE` / `_DB_FALLBACK` / `_SHADOW_SAMPLE` flags: content is read only from the files and written file first. Production behaviour unchanged (it already ran Storage reads and dual writes).
@@ -1307,6 +1311,22 @@ Full spec: [[tasklist/dt-guided-self-repair.tasks]] · [[features/dt-guided-self
 | TASK-972 | dt-guided-self-repair | Native-speaker review of hint templates and zh/ja UI strings | [?] no reviewer | M | — |
 | TASK-973 | dt-guided-self-repair | Evaluate the one-sentence re-check on real submissions | [?] needs real sessions | M | TASK-966, TASK-974 |
 | TASK-974 | dt-guided-self-repair | Deploy: worker restart, deploy, post-deploy checks | [?] owner | S | TASK-966, TASK-937 |
+
+### zh/ja Content Seeding — NEW 2026-11-22
+Full spec: [[tasklist/zh-ja-content-seeding.tasks]]. Staged packages in `data/exercise_seeding/` (archives on the branch), topics in `data/topics/staged/2026-11-17/`. Live writes are operator tasks.
+
+| ID | Feature | Title | Status | Complexity | Depends On |
+|----|---------|-------|--------|------------|------------|
+| TASK-1034 | zh-ja-content-seeding | Decide the database-space approach (Pro / Free subset / word_assets to Storage) | [?] Awaiting owner decision | XS | — |
+| TASK-1035 | zh-ja-content-seeding | Rebuild the packages for the current database (ja POS rule, blocklist, subset) | Not Started | S | TASK-1034 |
+| TASK-1036 | zh-ja-content-seeding | REST applier for a staged package (`scripts/apply_staged_word_assets.py`) | Not Started | M | — |
+| TASK-1037 | zh-ja-content-seeding | Pilot: 100 zh + 50 ja senses end to end, measured (operator) | Not Started | M | TASK-1034, TASK-1035, TASK-1036, TASK-1042 |
+| TASK-1038 | zh-ja-content-seeding | Apply the remaining assets in tranches (operator) | Not Started | M | TASK-1037 |
+| TASK-1039 | zh-ja-content-seeding | Render the remaining senses in shards + sweep (operator) | Not Started | L | TASK-1038 |
+| TASK-1040 | zh-ja-content-seeding | Audio for the new listening items + sweep (operator) | Not Started | M | TASK-1039 |
+| TASK-1041 | zh-ja-content-seeding | Import the 573 staged topics + stamp tiers (operator) | Not Started | S | — |
+| TASK-1042 | zh-ja-content-seeding | Decide on the level_6 "incorrect sentence is correct" defect before render | [?] Awaiting owner decision | XS | — |
+| TASK-1043 | zh-ja-content-seeding | Close-out (sizes, reject rates, wiki) | Not Started | S | TASK-1040, TASK-1041 |
 
 ### Exercise Content in Storage (ADR-049) — NEW 2026-11-17
 Full spec: [[tasklist/exercise-content-storage.tasks]] · [[decisions/ADR-049-exercise-content-in-storage]]. Phase 0 done (inventory, design, contracts). Phase 1 built and integrated 2026-11-17 (TASK-1008–1025). The two Phase-1 migrations are live since 2026-11-17 (TASK-1026, deploy of the Phase-1 code still pending; flags `db`). TASK-1026–1030 are operator tasks, not for agents.

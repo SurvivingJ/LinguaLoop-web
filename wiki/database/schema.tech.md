@@ -267,7 +267,8 @@ Master vocabulary lemma registry. Each lemma is unique per language.
 | `lemma` | text | NO | | |
 | `phrase_type` | text | YES | 'single_word' | |
 | `component_lemmas` | text[] | YES | | For multi-word entries |
-| `part_of_speech` | text | YES | | |
+| `part_of_speech` | text | YES | | One standard label (`services/vocabulary/pos.py` CANONICAL_POS): noun, verb, adjective, adverb, pronoun, preposition, conjunction, particle, measure_word, idiom, phrase, numeral, auxiliary, adnominal, determiner, interjection, other. Normalised on every INSERT/UPDATE by trigger `trg_dim_vocabulary_normalize_pos` (`migrations/standardise_part_of_speech.sql`, live 2026-11-22). Writers send the tagger's or model's tag unchanged. |
+| `part_of_speech_raw` | text | YES | | The original tag (jieba / UniDic / spaCy / model label) when it differed from the standard label; set by the trigger and by the 2026-11-22 backfill (15,039 rows). Exercise-authoring prompts are hinted with it (`pos.pos_hint`). |
 | `frequency_rank` | real | YES | | A wordfreq 3.1.1 **Zipf score** (0–8, higher = more common), not a rank. 770 NULL rows filled 2026-11-17 (TASK-994, `migrations/task994_vocab_frequency_fill.sql`); 76 stay NULL by design (zh 12, en 20, ja 44). |
 | `level_tag` | text | YES | | |
 | `semantic_class` | text | YES | | |
@@ -276,13 +277,13 @@ Master vocabulary lemma registry. Each lemma is unique per language.
 | `semantic_class_confidence` | real | YES |  | Confidence of `semantic_class` (`semantic_class_backfill.sql`) |
 | `lemma_traditional` | text | YES |  | Traditional-script form of a Chinese lemma (`traditional_chinese_groundwork.sql`) |
 | `reading` | text | YES |  | Reading of the headword (`add_vocab_reading_column.sql`) |
-| `part_of_speech_raw` | text | YES |  | Source part-of-speech tag before normalisation; `part_of_speech` holds the normalised class (`standardise_part_of_speech.sql`, trigger `trg_dim_vocabulary_normalize_pos`) |
 
 - **Primary Key:** `dim_vocabulary_pkey (id)`
 - **Unique:** `uq_vocab_lemma (language_id, lemma)`
 - **Indexes:** `idx_dv_level_tag (level_tag)`, `idx_vocab_components GIN (component_lemmas WHERE NOT NULL)`, `idx_vocab_language (language_id)`, `idx_vocab_lemma_lookup (language_id, lemma text_pattern_ops)`, `idx_vocab_phrase_type (phrase_type WHERE <>'single_word')`
 - **Foreign Keys:** `language_id` -> `dim_languages.id`
-- **Triggers:** BEFORE UPDATE -> `update_updated_at_column()`
+- **Check:** `dim_vocabulary_part_of_speech_check` — `part_of_speech` is NULL or one of the 17 standard labels (validated 2026-11-22)
+- **Triggers:** BEFORE UPDATE -> `update_updated_at_column()`; BEFORE INSERT OR UPDATE OF part_of_speech -> `trg_dim_vocabulary_normalize_pos()` (calls `normalize_pos(text)` → `pos_tag_lookup(text)`; both service_role only); AFTER UPDATE OF language_id -> `propagate_vocab_language_to_senses()`
 - **RLS:** Enabled
 - **Referenced by:** dim_word_senses, vocabulary_review_queue
 
@@ -2624,6 +2625,7 @@ Live column lists of the three older views: `corpus_statistics` (`language_id`, 
 | Table | Event | Trigger Name | Function | Description |
 |-------|-------|-------------|----------|-------------|
 | `dim_vocabulary` | BEFORE UPDATE | -- | `update_updated_at_column()` | Auto-set updated_at |
+| `dim_vocabulary` | BEFORE INSERT OR UPDATE OF part_of_speech | `trg_dim_vocabulary_normalize_pos` | `trg_dim_vocabulary_normalize_pos()` | Maps any tag to the standard label; keeps the original in `part_of_speech_raw` (live 2026-11-22) |
 | `dim_word_senses` | BEFORE UPDATE | -- | `update_updated_at_column()` | Auto-set updated_at |
 | `tests` | BEFORE UPDATE | -- | `update_updated_at_column()` | Auto-set updated_at |
 | `user_languages` | BEFORE UPDATE | -- | `update_updated_at_column()` | Auto-set updated_at |
@@ -2638,7 +2640,6 @@ Live column lists of the three older views: `corpus_statistics` (`language_id`, 
 | `test_sentence_references` | BEFORE INSERT/UPDATE | `test_sentence_references_check_l1_script` | `test_sentence_references_check_l1_script()` | Reject L2 script (Han / kana) in l1_text (TASK-901, live; the live Han range wrongly starts at U+8C48, fix pending: section 14) |
 | `user_study_plans` | BEFORE UPDATE | `trg_user_study_plans_updated_at` | `touch_user_study_plans_updated_at()` | Auto-set updated_at |
 | `selection_tuning` | BEFORE UPDATE | `selection_tuning_touch` | `selection_tuning_touch()` | Auto-set updated_at |
-| `dim_vocabulary` | BEFORE INSERT/UPDATE | `trg_dim_vocabulary_normalize_pos` | `trg_dim_vocabulary_normalize_pos()` | Fills `part_of_speech` from `part_of_speech_raw` |
 | `dim_vocabulary` | AFTER UPDATE | `trg_dim_vocabulary_language_propagate` | `propagate_vocab_language_to_senses()` | Copies a changed language to the vocabulary's senses |
 | `dim_word_senses` | BEFORE INSERT/UPDATE | `trg_dim_word_senses_word_language` | `set_sense_word_language()` | Sets `word_language_id` from the vocabulary row |
 | `user_skill_rating_adjustments` | BEFORE UPDATE | `usra_append_only` | `usra_refuse_update()` | Refuses UPDATE (append-only audit) |
