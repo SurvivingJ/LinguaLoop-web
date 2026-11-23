@@ -3,7 +3,7 @@ title: CSV Exercise Authoring — Technical Specification
 type: feature-tech
 status: in-progress
 prose_page: ./csv-exercise-authoring.md
-last_updated: 2026-09-20
+last_updated: 2026-11-23
 dependencies:
   - "script: scripts/upload_exercises.py (extended by TASK-799 with an llm_types_<v> path; otherwise unchanged)"
   - "script: scripts/exercise_stage_runner.py + services/vocabulary_ladder/stage_runner.py (TASK-797)"
@@ -11,7 +11,14 @@ dependencies:
   - "table: word_assets, exercises, dim_word_senses, dim_exercise_capabilities"
   - "prompt_templates: vocab_prompt1_core, vocab_prompt2_exercises, vocab_prompt3_transforms, ladder_* generators and judges"
 breaking_change_risk: low
+open_questions:
+  - "PROPOSED, not decided: ADR-063 would retire stages 1-6 of the staged runner and the batch-exercise-authoring skill, keeping stage 8, render and the judging skill. See [[decisions/ADR-063-vocabulary-ladder-generation-paths]]."
 ---
+
+> **Status update 2026-11-23 (paths corrected, fat-seed dependency noted).**
+> - Dead references fixed below: `scripts/export_exercise_csv.py` does not exist; the export is `scripts/export_exercise_worklist.py --language ja --format csv` (the "stage 0 as a mode of the worklist script" design this page argues for is what was built). `data/exercise_seeding/ja/*` (`senses.csv`, `batch_001*.json`) are not files in the repository: `senses.csv` was replaced by the run directory `RUN/` passed to `--out-dir`, and the `batch_001` names in the `upload_exercises.py` example below are illustrative (the uploader's own docstring uses the same names). Line-number anchors into `asset_pipeline.py` and `export_exercise_worklist.py` were dropped because the files moved on.
+> - **The fat-seed path still uses this runner.** `scripts/fat_seed_runner.py` (skills `fat-seed-authoring` and `fat-seed-review`; the path that wrote 10,793 of 10,958 senses that have assets live, checked 2026-11-23) reproduces the prompts as rules and writes its own per-sense JSON, but after upload with `--no-render` it relies on this runner for **stage 8** (`prepare --stage 8`, answered by `batch-exercise-judging`, then `collect`) and **`render`** (`render --dry-run`, `render`). Stages 1-6, `bridge` (2b) and `assemble` are not used by fat-seed. The runner is `scripts/exercise_stage_runner.py` (stages 1-6 and 8 plus `bridge`, `assemble`, `render`, `status`).
+> - `scripts/upload_exercises.py` writes `word_assets`; the `render` command (and the uploader's own render unless `--no-render`) writes `exercises` rows and the content files in Storage through `store.write_sense` (ADR-049). The sentence in the operator skill that says only the uploader writes the database is therefore imprecise.
 
 # CSV Exercise Authoring — Technical Specification
 
@@ -88,11 +95,11 @@ Everything the prompts need that the database knows is exported **once**, up
 front. This is what makes the rest genuinely local, and it is what the previous
 draft missed.
 
-`scripts/export_exercise_csv.py --language ja --limit N --out data/exercise_seeding/ja/senses.csv`
+`python scripts/export_exercise_worklist.py --language ja --format csv --limit N --out-dir RUN` (the script that was built; this page originally named an `export_exercise_csv.py` that never existed)
 
 ### 2.0 Mining: bulk-export the tests, mine locally, reuse the miner
 
-`_fetch_corpus_sentences` ([`asset_pipeline.py:668`](../../services/vocabulary_ladder/asset_pipeline.py#L668))
+`_fetch_corpus_sentences` ([`asset_pipeline.py`](../../services/vocabulary_ladder/asset_pipeline.py))
 is **already** two separable halves, which is what makes bulk local mining a
 refactor rather than a rewrite:
 
@@ -136,7 +143,7 @@ are **not** table reads — they are pipeline logic:
 - `primary_collocate` / `collocate_grade` ← the PMI grounder
 
 `export_exercise_worklist.py` already calls all of them
-([`export_exercise_worklist.py:226`](../../scripts/export_exercise_worklist.py#L226)).
+([`export_exercise_worklist.py`](../../scripts/export_exercise_worklist.py)).
 **Stage 0 should be a `--format csv` output mode on that script, not a new set
 of SQL queries.** Hand-writing SQL that reproduces a capability gate creates a
 second copy of a rule that already moved once — the same drift the previous

@@ -3,7 +3,7 @@ title: Conversation Generation — Technical Specification
 type: feature-tech
 status: deprecated
 prose_page: ./conversations.md
-last_updated: 2026-09-22
+last_updated: 2026-11-23
 dependencies:
   - "services/conversation_generation/"
   - "routes/conversations.py"
@@ -15,6 +15,8 @@ breaking_change_risk: low
 # Conversation Generation — Technical Specification
 
 > **ARCHIVED 2026-09-21.** Code (routes/conversations.py, services/conversation_generation/, reader/list templates, seed + batch scripts, tests) was removed; categorical_maps.py moved to services/categorical_maps.py. The 6 tables, the 7,352 conversation-sourced exercises (no word_sense_id, so never servable) and 29 prompt_templates rows are exported in the zip. Everything (code, docs, table rows, DDL, restore notes) is in `archive/modules/conversations-2026-09-21.zip` (gitignored, local only). The tables were dropped by `migrations/archive_unused_modules_2026_09_21.sql` (applied 2026-09-22). This page is kept for history only.
+>
+> **Re-verified 2026-11-23:** none of these tables exists in the live database (conversations, conversation_generation_queue, scenarios, personas, persona_pairs, conversation_domains), and the code tip has no route, service or template for this feature. Nothing here describes running behaviour; the page is history. Status stays `deprecated`.
 
 
 ## Architecture Overview

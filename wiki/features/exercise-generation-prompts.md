@@ -3,7 +3,8 @@ title: Exercise Generation Prompts — Verbatim Reference
 type: feature-tech
 status: complete
 prose_page: ./exercises.md
-last_updated: 2026-06-07
+tech_page: ./exercises.tech.md
+last_updated: 2026-11-23
 dependencies:
   - "prompt_templates table (Supabase) — model + provider are now first-class tracked columns"
   - "corpus_collocations table (Supabase) — used by L5 PMI gate"
@@ -17,6 +18,7 @@ dependencies:
   - "services/vocabulary_ladder/config.py — LanguageValidationProfile / LANGUAGE_VALIDATION_PROFILES / get_validation_profile: per-language P1 validation (1=zh, 2=en, 3=ja; merged EN/zh enums as default)"
 breaking_change_risk: low
 open_questions:
+  - "STRUCTURE 2026-11-23: this page is itself a technical reference (type feature-tech) but has no .tech.md name and no prose twin of its own; prose_page points at exercises.md and tech_page at exercises.tech.md (the chain spec). Renaming or splitting it is a structural change that needs the owner's approval."
   - "Japanese (language_id=3) seeds remain absent for all three tasks."
   - "Chinese L5/L8 silently skip until corpus_collocations is populated for language_id=1 (PMI gate). Acceptable bootstrap state; revisit when Chinese collocation data lands."
   - "RESOLVED 2026-05-12: Chinese L1 audio now ships. LadderExerciseRenderer._render_phonetic pre-renders TTS into the L1 content jsonb at exercise insert time, voiced from dim_languages.tts_voice_ids (Azure neural voices, see migrations/seed_chinese_tts_voices.sql). Frontend renderPhonetic auto-plays and hides IPA/pinyin while audio is present."
@@ -24,6 +26,8 @@ open_questions:
 ---
 
 # Exercise Generation Prompts — Verbatim Reference
+
+> **Note 2026-11-23:** these are the live default prompts of the hosted path (`services/vocabulary_ladder/ladder_service.py`, `scripts/run_generation_batch.py`). The fat-seed and staged-CSV paths reproduce them as rules rather than calling them (see [[features/csv-exercise-authoring.tech]] and [[decisions/ADR-063-vocabulary-ladder-generation-paths]]). The draft "bundle" prompts (`migrations/exercise_gen_bundle_prompts_draft.sql`) were never applied (no `vocab_bundle_generation` or `ladder_bundle_judge` row exists in `prompt_templates`, checked 2026-11-23), and bundle mode itself was removed from the code. Language Packs, mentioned below, is an archived feature ([[features/language-packs]]).
 
 Verbatim copies of the LLM prompt templates that power the **vocabulary ladder
 exercise generation pipeline**. The pipeline is a 3-prompt chain executed once

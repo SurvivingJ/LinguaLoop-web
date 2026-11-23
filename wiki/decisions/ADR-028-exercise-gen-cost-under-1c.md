@@ -185,3 +185,9 @@ needs re-run (TASK-858). Details: [[evaluations/exercise-gen-phase2-2026-10]] se
 ## Update 2026-10-09: production flipped (TASK-857)
 
 User approved the recommended config. Code defaults in `services/llm_service.py` now are `LADDER_QWEN_REASONING=budget` with per-language budgets ja 1024 / en 1024 / zh 2048 (env `LADDER_QWEN_REASONING_BUDGET_<LANG>` > `LADDER_QWEN_REASONING_BUDGET` > per-language default > 1024). Bundle mode stays off. Calls without a `language_code` (legacy `services/exercise_generation/generators/*`) fall back to 1024. Rollback: set `LADDER_QWEN_REASONING=on` (pre-flip unbounded reasoning). The en P2/P3 sonnet migration is separate. A post-flip `llm_calls` sample is still owed to close the TASK-857 cost criterion.
+
+## Status update 2026-11-23: bundle mode removed
+
+*Note only; the Decision above is unchanged.* Bundle mode (`services/vocabulary_ladder/bundle/`, flag `VOCAB_LADDER_BUNDLE_MODE`, default off) was deleted from the code on 2026-11-23: about 1,600 lines plus four test files. It had not been touched since 2026-10-11 and failed its quality comparison in every language ([[evaluations/exercise-gen-phase2-2026-10]]). The attribution eval planned above (bundle mode versus the reasoning setting changed at the same time) was never run and is now foreclosed. Leftovers: the unapplied draft `migrations/exercise_gen_bundle_prompts_draft.sql` (task names `vocab_bundle_generation`, `ladder_bundle_judge`; no such rows exist in `prompt_templates`) and comments in `services/llm_service.py`. The "one bundle generation call" and "one bundle judge call" in Decision section 4 are therefore not an available option.
+
+The alternative "Fat-seed subagent path as the sole generation method. Rejected for now" is revisited, as a proposal only, in [[decisions/ADR-063-vocabulary-ladder-generation-paths]]: fat-seed has since produced 10,793 of 10,958 senses that have assets.

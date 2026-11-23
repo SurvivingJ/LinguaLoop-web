@@ -3,7 +3,7 @@ title: Calibration — Technical Specification
 type: feature-tech
 status: in-progress
 prose_page: calibration.md
-last_updated: 2026-10-30
+last_updated: 2026-11-23
 dependencies:
   - "table: dim_word_senses (+ new column word_language_id, embedding)"
   - "table: dim_vocabulary (lemma, language_id, frequency_rank)"
@@ -27,9 +27,12 @@ breaking_change_risk: low
 
 **Phases 1-4 are COMPLETE** — distractor foundation, session engine + UI,
 pronunciation mode + the corrected estimator, and the handoff to test selection.
-Phases 1-3 are applied live; Phase 4's migration is written and **not yet applied**
-(the session that wrote it had no DDL path), and everything downstream fails closed
-until it is. TASK-763 remains open and needs real learner traffic.
+Phases 1-4 are applied live. (An earlier version of this paragraph said Phase 4's
+migration was not yet applied; that contradicted the Phase 4 section below, which
+records it applied live under TASK-765, and the live database: re-checked
+2026-11-23, `calibration_zipf_to_elo` and `apply_calibration_to_skill_ratings` both
+exist.) Consumers still fail closed if `user_calibration_state` is ever absent.
+TASK-763 remains open and needs real learner traffic.
 
 ## Architecture Overview
 

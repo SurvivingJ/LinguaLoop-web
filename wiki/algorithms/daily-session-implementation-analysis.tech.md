@@ -10,6 +10,8 @@ dependencies:
   - "services/study_plan_service.py, services/test_service.py, routes/study_session.py"
   - "static/js/session/* , templates/study_session.html"
 breaking_change_risk: low
+open_questions:
+  - "Which migration file holds the live body of build_daily_session and get_recommended_tests? The two files this page called canonical were moved to migrations/archive/. Compare md5(prosrc) live against the later files before naming one."
 ---
 
 # Daily Session Implementation Analysis — Technical Evidence
@@ -48,7 +50,7 @@ Feedback: submit handlers → apply_attempt_timing_and_progress →
   ago**. The upcoming week's `weekly_plan_states` row is never created.
 - `build_daily_session` returns `E_NOWEEK` (RPC lines 81-88) → `test_service.py:498-504`
   logs and falls back to legacy — silent for the user, all week.
-- `apply_study_plan_template` (phase13_apply_study_plan_template.sql) inserts
+- `apply_study_plan_template` (`migrations/phase13_apply_study_plan_template.sql`) inserts
   only `user_study_plans`; `templates/study_plan.html:324-336` applyTemplate
   does not call `/api/study-plan/recompute`. Cold-start users have no week row
   until the (mistargeted) cron or a manual button press.

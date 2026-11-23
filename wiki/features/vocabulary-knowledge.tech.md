@@ -3,7 +3,7 @@ title: Vocabulary Knowledge Tracking — Technical Specification
 type: feature-tech
 status: in-progress
 prose_page: ./vocabulary-knowledge.md
-last_updated: 2026-04-16
+last_updated: 2026-11-23
 dependencies:
   - "user_vocabulary_knowledge table"
   - "user_flashcards table (FSRS stability for decay)"
@@ -14,10 +14,15 @@ dependencies:
   - "get_session_senses() RPC (Phase 7)"
   - "bkt_apply_lapse_penalty() / bkt_infer_from_frequency() / bkt_contextual_inference() (Phase 7)"
   - "services/vocabulary/"
-  - "services/exercise_session_service.py"
+  - "services/practice_session_service.py and services/practice/ (the former services/exercise_session_service.py no longer exists)"
   - "services/test_generation/orchestrator.py"
 breaking_change_risk: low
+open_questions:
+  - "Do the four SQL callers of bkt_effective_p_known (compute_weekly_plan_load_signals, get_practice_session, get_review_ahead_items, get_session_senses) all pass four arguments? A two-argument call is ambiguous live (verified 2026-11-23), so they must, but each body was not read."
+  - "Pending migrations (not applied as of 2026-11-23): drop_get_quiz_distractors_batch.sql, drop_update_vocabulary_from_word_test_4arg.sql, word_quiz_retake_fallback_hardened.sql. Re-check live before relying on the 'pending' wording below."
 ---
+
+> **Update 2026-11-23:** the batch quiz-distractor path was removed from the code, `update_vocabulary_from_word_test` and the two decay functions each have two live overloads, and the word-quiz retake band returns no candidates. See [Live function overloads and pending database changes (2026-11-23)](#live-function-overloads-and-pending-database-changes-2026-11-23).
 
 # Vocabulary Knowledge Tracking — Technical Specification
 
@@ -159,6 +164,27 @@ Both are triggered from `VocabularyKnowledgeService` in Python after RPC calls.
 
 5. **Per-question sense_ids (Phase 7)**
    - Rationale: Each question should only link to vocabulary appearing in its text + choices. This enables accurate contextual inference (distinguishing directly-tested vs. contextually-present words).
+
+## Live function overloads and pending database changes (2026-11-23)
+
+Checked live with `pg_get_function_arguments` and `pg_proc` on 2026-11-23 (read-only).
+
+**Overloads (two live bodies each):**
+
+| Function | Overload | Role |
+|----------|----------|------|
+| `bkt_apply_decay` | `(p_known numeric, p_last_evidence_at timestamptz, p_half_life_days numeric DEFAULT 60.0)` | Legacy fixed half-life decay (plpgsql, IMMUTABLE): `0.10 + (p_known - 0.10) * 0.5^(days / half_life)`, none within 1 day |
+| `bkt_apply_decay` | `(p_known numeric, p_last_evidence_at timestamptz, p_stability real DEFAULT NULL, p_evidence_count integer DEFAULT 0)` | Phase 7 path described under Decay Model (FSRS stability, else evidence-scaled half-life) |
+| `bkt_effective_p_known` | `(p_known numeric, p_last_evidence_at timestamptz)` | Legacy wrapper (SQL, IMMUTABLE): `bkt_apply_decay(p_known, p_last_evidence_at, 60.0)` |
+| `bkt_effective_p_known` | `(p_known, p_last_evidence_at, p_stability real DEFAULT NULL, p_evidence_count integer DEFAULT 0)` | Phase 7 wrapper used by the session RPCs |
+
+A two-argument `bkt_effective_p_known(numeric, timestamptz)` call fails live as "not unique" (SQLSTATE 42725), because the four-argument overload also matches through its defaults; a four-argument call works. The Decay Model section above describes the four-argument overloads only.
+
+`update_vocabulary_from_word_test` also has two live overloads: `(p_user_id uuid, p_sense_id integer, p_is_correct boolean, p_language_id smallint)` and the same plus `p_exercise_type text DEFAULT NULL`. A call with four arguments matches both and fails as ambiguous. `services/vocabulary/knowledge_service.py` (`update_from_word_test`) sends four named arguments when `exercise_type is None`, and swallows the error, so the knowledge update for an exercise without a type is lost. `migrations/drop_update_vocabulary_from_word_test_4arg.sql` drops the four-argument overload (the five-argument body does the same with `p_exercise_type = NULL`); **it is not applied**. Its only SQL caller, `record_exercise_attempt`, already passes five arguments.
+
+**Quiz distractors.** The batch path (`QUIZ_DISTRACTORS_BATCH` flag, RPC `get_quiz_distractors_batch`) was **removed from the code** on 2026-11-23. Measured live it took 6.5-13.8 s for five words, against about 0.4 s wall time for the per-word `get_quiz_distractors` calls run in parallel. The RPC itself still exists live (checked 2026-11-23); `migrations/drop_get_quiz_distractors_batch.sql` is **pending**. The single `get_quiz_distractors(p_sense_id, p_language_id, p_count, p_definition_language_id)` now samples sense ids first (no definition text or per-row `pos_class` call before the top-N pick); this was applied live on 2026-11-23 (`migrations/get_quiz_distractors_sample_ids_first.sql`; the live body carries its "worked out once" comment) with the same output columns and ordering.
+
+**Retake band.** `get_word_quiz_candidates(p_user_id, p_sense_ids, p_language_id, p_max_words DEFAULT 5)` returns only tracked words with `p_known` in 0.25-0.75. There is no fallback tier outside that band, so on a retake it returns zero candidates and the quiz is not shown. `migrations/word_quiz_retake_fallback_hardened.sql` (adds a second tier from the test's other tracked words, keeping SECURITY DEFINER and `search_path`) is **not applied**, and applying it is an owner decision because learners would see a quiz on retakes again.
 
 ## Related Pages
 

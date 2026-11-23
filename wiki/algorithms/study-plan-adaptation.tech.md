@@ -3,7 +3,7 @@ title: Study Plan Adaptation — Technical Specification
 type: algorithm-tech
 status: planned
 prose_page: ./study-plan-adaptation.md
-last_updated: 2026-05-21
+last_updated: 2026-11-23
 dependencies:
   - "weekly_plan_states, user_study_plans (write)"
   - "user_skill_ratings, user_word_ladder, user_vocabulary_knowledge, user_flashcards (read)"
@@ -12,6 +12,8 @@ dependencies:
   - "dim_study_plan_templates (read)"
   - "Config.STUDY_PLAN_TIER_C_ALPHA_M, ALPHA_A, GAMMA"
 breaking_change_risk: low
+open_questions:
+  - "Re-checked 2026-11-23: the config names this page depends on (STUDY_PLAN_TIER_C_ALPHA_M, ALPHA_A, GAMMA) do not appear in any .py or .sql file of the code tip, so the adaptation tiers are still unbuilt and status planned stands. The weekly-plan RPCs that do exist (compute_weekly_plan_*) are specified in [[features/weekly-minutes.tech]]."
 ---
 
 # Study Plan Adaptation — Technical Specification
@@ -215,7 +217,7 @@ def compute_weekly_plan(user_id, language_id, week_start):
 > account creation. The live resolver now splits `today_budget` into
 > `v_test_budget`/`v_practice_budget` *before* ranking, proportional to each
 > side's outstanding weekly minutes, then runs the loop below as two
-> independent passes (one per side). See `migrations/task732_build_daily_session_split_budget.sql`
+> independent passes (one per side). See `migrations/archive/task732_build_daily_session_split_budget.sql` (moved to the archive)
 > and `wiki/log.md` 2026-08-24 for the fix; this section is not yet rewritten
 > to match.
 
