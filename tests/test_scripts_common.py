@@ -46,6 +46,50 @@ def test_base_parser_is_dry_run_unless_apply_is_passed():
     assert parser.parse_args(['--apply']).apply is True
 
 
+@pytest.mark.parametrize('argv, apply, dry_run, flag', [
+    ([], False, True, False),
+    (['--dry-run'], False, True, True),
+    (['--apply'], True, False, False),
+])
+def test_base_parser_dry_run_is_an_alias_for_the_default(argv, apply, dry_run, flag):
+    args = _common.base_parser('demo').parse_args(argv)
+    assert (args.apply, args.dry_run, args.dry_run_flag) == (apply, dry_run, flag)
+
+
+def test_base_parser_rejects_apply_with_dry_run():
+    with pytest.raises(SystemExit) as exc:
+        _common.base_parser('demo').parse_args(['--apply', '--dry-run'])
+    assert exc.value.code == 2
+
+
+def test_base_parser_extra_dry_run_spelling():
+    parser = _common.base_parser('demo', dry_run_flags=('--dry-run', '-d'))
+    assert parser.parse_args(['-d']).dry_run_flag is True
+    with pytest.raises(SystemExit) as exc:
+        parser.parse_args(['-d', '--apply'])
+    assert exc.value.code == 2
+
+
+def test_apply_flags_on_one_sub_command():
+    parser = _common.ApplyArgumentParser()
+    sub = parser.add_subparsers(dest='cmd', required=True)
+    sub.add_parser('status')
+    _common.add_apply_flags(sub.add_parser('render'))
+    assert parser.parse_args(['render']).dry_run is True
+    assert parser.parse_args(['render', '--apply']).dry_run is False
+    assert not hasattr(parser.parse_args(['status']), 'dry_run')
+    for argv in (['render', '--apply', '--dry-run'], ['status', '--apply']):
+        with pytest.raises(SystemExit) as exc:
+            parser.parse_args(argv)
+        assert exc.value.code == 2
+
+
+def test_add_apply_flags_needs_the_checking_parser():
+    import argparse
+    with pytest.raises(TypeError):
+        _common.add_apply_flags(argparse.ArgumentParser())
+
+
 def test_bootstrap_puts_repo_root_on_path_and_can_leave_logging_alone(monkeypatch):
     import logging
     monkeypatch.setattr(sys, 'path', [p for p in sys.path if p != _common.ROOT])

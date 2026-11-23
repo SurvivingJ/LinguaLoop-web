@@ -594,11 +594,7 @@ def run(dry_run: bool = False):
 def main(argv=None):
     parser = base_parser("Build curated classifier dictionary for Chinese. "
                          "Dry run unless --apply is given.")
-    parser.add_argument('--dry-run', action='store_true',
-                        help='explicit dry run (the default; cannot be combined with --apply)')
-    args = parser.parse_args(argv)
-    if args.apply and args.dry_run:
-        parser.error('--apply and --dry-run are mutually exclusive')
+    args = parser.parse_args(argv)  # base_parser rejects --apply with --dry-run (exit 2)
     run(dry_run=not args.apply)
 
 

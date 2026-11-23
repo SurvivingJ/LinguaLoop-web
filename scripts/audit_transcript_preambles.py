@@ -49,9 +49,9 @@ from datetime import date, datetime, timezone
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 try:
-    from _common import admin_db, bootstrap, paginate
+    from _common import admin_db, base_parser, bootstrap, paginate
 except ImportError:  # run or imported as scripts.<name>
-    from scripts._common import admin_db, bootstrap, paginate
+    from scripts._common import admin_db, base_parser, bootstrap, paginate
 
 bootstrap()
 
@@ -246,12 +246,13 @@ def apply_changes(db, affected: list[dict], tests: list[dict], passages: list[di
 # ------------------------------------------------------------------ main
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    mode = ap.add_mutually_exclusive_group(required=True)
-    mode.add_argument('--dry-run', action='store_true', help='report only (read-only)')
-    mode.add_argument('--apply', action='store_true', help='strip preambles and write (LIVE-DB)')
+    ap = base_parser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter,
+                     apply_help='strip preambles and write (LIVE-DB)',
+                     dry_run_help='report only (read-only)')
     ap.add_argument('--language', choices=['zh', 'en', 'ja'], help='restrict to one L2')
     args = ap.parse_args()
+    if not (args.apply or args.dry_run_flag):  # one of the two is required
+        ap.error('one of the arguments --dry-run --apply is required')
 
     db = admin_db()
     if db is None:
