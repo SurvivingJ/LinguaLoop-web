@@ -79,7 +79,26 @@ expected growth well under 1 MB).
   recorded per response (new column), which touches the answer function, tallies, `knowledge_calibration_inputs`,
   the Python outcomes and evidence writer. Waiting on the owner's choice.
 
-Still to do: OQ29 (zh pool refresh now?) and the PQ23 variant, then the gates again; Phase 3.
+### 2026-11-23 (later) — owner decisions applied; gates pass
+
+- **PQ23 → per-word meaning-only** (a word with no buildable reading item is asked the meaning question only;
+  `calibration_responses.reading_exempt`; [[features/vocab-placement.tech]] §23b). Applied live; the 7 changed
+  functions are identical to the local harness copy; answer still service-role only.
+- **OQ29 → zh pool refreshed now** (TASK-1063): zh/zh 4,048 → 13,125 rows (12,790 lemmas, frame 12,711); zh/en and
+  zh/ja 3,682 → 3,909 (bounded by en/ja definitions); tone inventory rebuilt (381, unchanged). Cache refilled
+  (one connection reset, resumed): zh/zh definition 99.9%, pronunciation 99.8%, zh/en and zh/ja 99.8%.
+- Bytes: pool 10.10 → 10.47 MB, cache 7.50 → 10.37 MB; database 362.5 → 366.7 MB.
+- **Gates** (ready = meaning-ready; computed through the MCP because the API times out at 8 s):
+  zh (1, 2) and (1, 3) **PASS** 3,824 / 3,849 (99.4%, every band ≥ 99%); ja (3, 2) **PASS** 98.5%;
+  ja (3, 3) **PASS** 98.6%; ja (3, 1) **FAIL** by two words — band 1 has 31 / 610 unready (5.1%, the
+  representativeness threshold is 5%), 29 of them rare katakana culture/history terms (ルネサンス, バロック, グーテンベルク)
+  with too few usable definition foils (`few_foils`) and 2 rule 5; en (2, 2) PASS.
+- Live smoke test on the test account after the change: all five pairs × 200 draws, every check passed (1,440 answers,
+  68 meaning-only words), p50 274 ms / p95 342 ms; sessions deleted.
+
+Still to do: Phase 3 (deploy, `PLACEMENT_ENABLED_LANGS="1,2"`, `KNOWLEDGE_REPORT_ENABLED=true`); ja launch also needs the
+exam-list check (TASK-1053) and, for zh-speaking learners of ja, either better definition foils for the ~29 band-1
+terms or an owner waiver.
 
 ## Phase 0 — bug fix, independent (any time)
 

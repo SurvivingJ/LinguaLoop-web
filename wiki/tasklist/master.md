@@ -21,10 +21,12 @@ below.
 |--------|-------|
 | Not Started | 78 |
 | In Progress (`[~]`) | 17 |
-| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 60 |
+| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 59 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
 | Won't Do (obsolete) | 5 |
-| Done (cumulative, not listed here) | 304 |
+| Done (cumulative, not listed here) | 305 |
+
+*2026-11-23 (placement gates pass after owner decisions):* PQ23 → words with no buildable reading item are asked meaning-only (`calibration_responses.reading_exempt`, applied live); OQ29 → zh pool refreshed now (TASK-1063 Done; zh/zh frame 12,711). Gates: zh (1,2)/(1,3) PASS 99.4%, ja (3,2)/(3,3) PASS, ja (3,1) fails by two band-1 words, en PASS. Live smoke test passed on the test account. Counts: Blocked/awaiting 60→59, Done 304→305.
 
 *2026-11-22 (Knowledge Report + Vocabulary placement migrations APPLIED LIVE):* all 12 migrations applied in runbook order (1.3 in four parts by the agent; 1.3 part 4 – 2.2 pasted by the owner in the SQL editor). All 46 functions identical to the verified local copy (ignoring the editor's CRLF; two zh helpers hold the tone marks as characters rather than `\uXXXX` regex escapes, same results on 20,000 readings). Security checks clean for every new object. TASK-1034, 1036, 1044, 1074, 1076, 1079, 1092 Done; TASK-1077 Done after the live smoke test (all five pairs pass; In Progress 18→17, Done 303→304); TASK-1081 (intro-drill check after deploy) in progress; TASK-1075 data steps remain. Counts: In Progress 16→18, Blocked/awaiting 69→60, Done 296→303.
 
@@ -1432,7 +1434,7 @@ Full spec: [[tasklist/knowledge-report.tasks]] · [[features/knowledge-report]] 
 | TASK-1060 | knowledge-report | Import not-in-dictionary words with credits | [?] billing's credit spend path (`spend_credits(8, 'sense_import')`, `w… | L | TASK-1051 |
 | TASK-1061 | knowledge-report | Calibration forced-choice probe items [?] (LIVE-DB) | [?] OQ5 (owner approval of a Calibration change) | M | none |
 | TASK-1062 | knowledge-report | Calibration selector — one lemma, rank-1 sense [?] (LIVE-DB) | [?] OQ9 (owner approval of a live Calibration function change) | M | none |
-| TASK-1063 | knowledge-report | Refresh the zh calibration anchor pool [?] (LIVE-DB data) | [?] OQ29 and the size gate (≈ 5–7 MB, ESTIMATE from 369 B per pool row… | S | TASK-1074 |
+| TASK-1063 | knowledge-report | Refresh the zh calibration anchor pool [?] (LIVE-DB data) | Done — 2026-11-23 (OQ29: refresh now) | S | TASK-1074 |
 | TASK-1064 | knowledge-report | Targeted practice of an explicit word set | [?] OQ15 (scope with the Practice owner) | L | TASK-1046, TASK-1050 |
 | TASK-1065 | knowledge-report | Evidence-kind counters or an evidence log [?] (LIVE-DB) | [?] OQ16 (worth changing the seven writer functions?) and the size gate | L | none |
 | TASK-1066 | knowledge-report | Decay function clean-ups [?] (LIVE-DB) | [?] OQ14 (owner approval for a live change with no staging) | S | none |
@@ -1450,7 +1452,7 @@ Full spec: [[tasklist/vocab-placement.tasks]] · [[features/vocab-placement]] ·
 | ID | Feature | Title | Status | Complexity | Depends On |
 |----|---------|-------|--------|------------|------------|
 | TASK-1074 | vocab-placement | Fix the zh reading normaliser and syllable count (LIVE-DB, owner) | Done — applied live 2026-11-22 | S | — |
-| TASK-1075 | vocab-placement | ja reading readiness: katakana, kana-consistent foils, ja-only refresh, refill (LIVE-DB, owner) | [~] code done, migrations applied live 2026-11-22; owner refresh/refill/gate | M | TASK-1077 (gate) |
+| TASK-1075 | vocab-placement | ja reading readiness: katakana, kana-consistent foils, ja-only refresh, refill (LIVE-DB, owner) | [~] data steps done 2026-11-23; ja gates (3,2) (3,3) PASS, (3,1) fails by 2 words; exam-list check open | M | TASK-1077 (gate) |
 | TASK-1076 | vocab-placement | Placement schema migration (LIVE-DB, owner) | Done — applied live 2026-11-22 | M | — |
 | TASK-1077 | vocab-placement | Placement SQL functions (LIVE-DB, owner) | Done — applied live 2026-11-22, live smoke test passed | L | TASK-1076; TASK-1092 (zh) |
 | TASK-1078 | vocab-placement | Pure placement design and estimator functions | Done (repo) | M | TASK-1035 |
