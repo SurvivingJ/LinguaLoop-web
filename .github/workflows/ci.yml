@@ -37,11 +37,8 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt -r requirements-dev.txt
 
-      # NOT A GATE YET: the repo still has ruff findings, so a failure here is
-      # only reported. Once `ruff check .` is clean, delete the
-      # `continue-on-error: true` line below to make it block the build.
-      - name: Ruff (pyflakes rules, not yet blocking)
-        continue-on-error: true
+      # Blocking gate: `ruff check .` is clean, keep it that way.
+      - name: Ruff (pyflakes rules)
         run: ruff check .
 
       # Tests marked `live` (they read the live database) skip unless selected
