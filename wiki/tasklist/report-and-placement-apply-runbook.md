@@ -71,7 +71,15 @@ expected growth well under 1 MB).
   (理论体系, 科学研究…) have no cached wrong reading of the same syllable count (rule 3). ja unready words are the
   same long-word shape.
 
-Still to do: owner decisions on OQ29 (zh pool refresh now?) and on long words (PQ23), then the gates again; Phase 3.
+- PQ23 (owner, 2026-11-23): long words get the meaning question only. Where reading items fail, by shape (live):
+  zh — 1 char 247/263 reading-ready, 2 chars 2,501/2,522, 3 chars 440/470, 4 chars 220/290, 5+ 0/4, no reading key 74
+  (stale pool); ja (3, 2) — 2-kanji words ≥ 99%, but 3+ character words with kana endings (食べる, 大きい, 新しい)
+  192/470, readings of 5+ morae mostly fail, 76 number/symbol lemmas have no key. A fixed length rule would drop
+  ≈ 660 working zh reading items and ≈ 190 ja ones; the alternative is "no buildable reading item → meaning only",
+  recorded per response (new column), which touches the answer function, tallies, `knowledge_calibration_inputs`,
+  the Python outcomes and evidence writer. Waiting on the owner's choice.
+
+Still to do: OQ29 (zh pool refresh now?) and the PQ23 variant, then the gates again; Phase 3.
 
 ## Phase 0 — bug fix, independent (any time)
 
