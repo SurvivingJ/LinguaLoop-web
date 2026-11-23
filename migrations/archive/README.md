@@ -231,3 +231,27 @@ object that is live: one is a data wipe, the other a rollback whose forward file
 | `archive_unused_modules_2026_09_21.sql` | spent one-shot (applied 2026-09-22; its `TRUNCATE public.llm_calls` and DROPs cannot recur because its first guard raises on 0 conversation exercises), but rule #4: it is the only repo record of the live `exercises.chk_source_fk` definition (`word_sense_id` / `corpus_collocation_id` only) and of the column drops on `exercises` |
 | `exercise_content_drop_column_rollback.sql` | `tests/test_exercise_content_migration_cutover.py` requires it in `migrations/`; a STALE warning was added at the top of the file instead |
 | `task998_classifier_drill_levels_rollback.sql` | `tests/test_classifier_drill_levels.py` reads it from `migrations/`; a STALE warning was added at the top of the file instead |
+
+## 2026-11-23 — schema/prompt files of modules dropped live (database review F-22)
+
+Every object these files create was dropped by `archive_unused_modules_2026_09_21.sql`
+(applied 2026-09-22) and is absent live. Re-running them would `DROP ... CASCADE` (where
+they do) and recreate the tables, policies with `USING (true)`, client grants and prompt
+rows of retired modules.
+
+| Archived file | Object | New canonical file | Live marker checked |
+|---|---|---|---|
+| `listening_lab_schema.sql` | tables `listening_lab_passages`, `listening_lab_sessions` (+ indexes, policies, grants); `dim_test_types` row `listening_lab`; `questions.pool_source`, `chk_questions_pool_source`, `idx_questions_test_pool` | *(dropped — no canonical)* | object dropped live: both tables, the `listening_lab` test type, the `questions.pool_source` column, the constraint and the index are absent (2026-11-23) |
+| `mystery_mode_tables.sql` | tables `mysteries`, `mystery_scenes`, `mystery_questions`, `mystery_progress`, `mystery_attempts`, `mystery_skill_ratings` (+ indexes, policies, grants); `dim_test_types` row `mystery` | *(dropped — no canonical)* | object dropped live: all six tables and the `mystery` test type absent (2026-11-23) |
+| `mystery_prompt_templates.sql` | `prompt_templates` rows `mystery_*` | *(dropped — no canonical)* | 0 `prompt_templates` rows with `task_name ILIKE 'mystery%'` (2026-11-23) |
+| `scenario_generation_prompts.sql` | `prompt_templates` rows `scenario_batch_generation` (conversations module) | *(dropped — no canonical)* | 0 rows with `task_name ILIKE 'scenario%'` (2026-11-23) |
+| `update_scenario_prompts_numeric_keys.sql` | `prompt_templates` rows `scenario_batch_generation` (update) | *(dropped — no canonical)* | as above |
+
+**Not archived, deliberately:** `conversation_generation_tables.sql` (tables `personas`,
+`persona_pairs`, `scenarios`, `conversations`, `conversation_domains`,
+`conversation_generation_queue`, `exercises.conversation_id`, `dim_languages.conversation_model`,
+all absent live 2026-11-23). It is listed in `HISTORICAL_RLS_FILES` of
+`tests/test_migration_security_lint.py`, whose staleness test requires every listed file in
+`migrations/`; moving it needs that entry removed in the same change (outside this
+migrations-only package). It also holds the only `ALTER TYPE exercise_source_type ADD VALUE
+'conversation'`; the enum label is still live (labels cannot be dropped).
