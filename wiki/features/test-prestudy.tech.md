@@ -3,7 +3,7 @@ title: Test Prestudy — Technical Specification
 type: feature-tech
 status: in-progress
 prose_page: ./test-prestudy.md
-last_updated: 2026-11-19
+last_updated: 2026-11-23
 dependencies:
   - "services/prestudy.py (payload, drill rule, on-demand exercises, evidence, follow-ups, daily-session plan)"
   - "routes/tests/prestudy.py (GET payload, GET exercises on demand, POST session / evidence / admit-overflow / produce)"
@@ -11,6 +11,8 @@ dependencies:
   - "services/exercise_content/store.py (select_columns, hydrate; ADR-049)"
   - "exercises, tests, questions, dim_word_senses, user_vocabulary_knowledge, user_calibration_state, prestudy_sessions, prestudy_followups"
 breaking_change_risk: medium
+open_questions:
+  - "OPEN (pending migration): the SQL bundle `prestudy_plan_inputs` (used by `prestudy.plan_for_tests` through `services/optional_rpc.call_bundle`) still reads ANY calibration mode for `ability_zipf` (live body has no `ucs.mode = 'definition'` filter, checked 2026-11-23). `migrations/prestudy_plan_inputs_definition_mode.sql` (adds the filter; rollback file present) is written and NOT applied. Until it is applied the daily-session plan (RPC path) and the prestudy page / Python fallback path (definition-mode only) can disagree for a learner whose only ability row is another mode. Live check 2026-11-23: `user_calibration_state` has one non-null ability, a ja pronunciation-mode row (the migration header reports 5.49; value not re-read), and no definition-mode ability; so that one learner is planned with the pronunciation ability on the RPC path and with the default 5.0 on the Python path."
 ---
 
 # Test Prestudy — Technical Specification
@@ -39,6 +41,16 @@ the request's content fan-out from every
 linked sense (zh p90 126, max 306) to the drill set, which stays under the store's 160-sense
 per-call cap.
 
+## Knowledge prior: `_ability_zipf` (changed 2026-11-23)
+
+`services/prestudy.py::_ability_zipf(db, user_id, language_id) -> float` reads
+`user_calibration_state.ability_zipf` filtered to `mode = MODE_DEFINITION` (`'definition'`, from
+`services/calibration_service.py`) and returns `DEFAULT_ABILITY_ZIPF` (5.0) when there is no such row, the
+value is NULL or the read fails (logged at INFO). Only the definition mode measures word knowledge; a
+pronunciation ability measures reading, so other modes never feed this prior. Used by
+`build_prestudy_payload` (page payload) and by `plan_for_tests` when the SQL bundle is absent. The SQL twin
+(`prestudy_plan_inputs`) lacks the filter until the pending migration is applied (frontmatter open question).
+
 ## Database Impact
 
 Reads only (see [[database/schema.tech]]):
@@ -48,7 +60,7 @@ Reads only (see [[database/schema.tech]]):
   Drill content: `store.select_columns('id, word_sense_id, exercise_type, {content},
   ladder_level')` — i.e. `'id, word_sense_id, exercise_type, content_version, ladder_level'`
   (`exercises.content` was dropped on 2026-11-19) — for the drill senses only, then one
-  `store.hydrate(rows, language_id=<test language>, db=db)` before `group_exercises`. The rows
+  `store.hydrate(rows, language_id=<test language>)` before `group_exercises` (no `db` argument since 2026-11-19). The rows
   carry no `language_id`, so the test's language must be passed: `_load_exercises(db, ids)`
   without it serves nothing (both callers pass it).
 - `tests`, `questions`, `dim_word_senses` (+ `dim_vocabulary`), `user_vocabulary_knowledge`,

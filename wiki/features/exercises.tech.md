@@ -3,7 +3,7 @@ title: Exercises — Technical Specification
 type: feature-tech
 status: deprecated
 prose_page: ./exercises.md
-last_updated: 2026-05-21
+last_updated: 2026-11-23
 dependencies:
   - "exercises table"
   - "exercise_attempts table"
@@ -12,14 +12,14 @@ dependencies:
   - "dim_word_senses table"
   - "corpus_collocations table"
   - "services/exercise_generation/"
-  - "services/exercise_session_service.py"
+  - "services/practice_session_service.py and services/practice/ (serving; see [[features/practice-package.tech]])"
   - "services/vocabulary_ladder/"
 breaking_change_risk: medium
 ---
 
 # Exercises — Technical Specification
 
-> **DEPRECATED — see [[features/practice-engine.tech]].** The session-time selection logic described here (specifically `get_exercise_session` and `services/exercise_session_service.py`) is replaced by `get_practice_session` + `services/practice_session_service.py` as of 2026-05-21. Generation pipeline (LLM prompts, validators, exercise types) is unchanged and still lives here. `get_exercise_session` remains as a deprecation wrapper for one release. See [[decisions/ADR-007-merge-exercises-vocab-dojo]].
+> **DEPRECATED — see [[features/practice-engine.tech]].** The session-time selection logic described here (specifically `get_exercise_session` and the exercise-session service module, deleted 2026-11-14) is replaced by `get_practice_session` + `services/practice_session_service.py` + `services/practice/` as of 2026-05-21. Generation pipeline (LLM prompts, validators, exercise types) is unchanged and still lives here. `get_exercise_session` was dropped from the live database on 2026-11-17. See [[decisions/ADR-007-merge-exercises-vocab-dojo]].
 
 ## Architecture Overview
 
@@ -35,13 +35,13 @@ Generation (batch, admin-triggered or pack pipeline):
     → exercises table (immutable after validation)
 
 Serve-time (jumbled_sentence only):
-  routes/* + exercise_session_service
+  services/practice/session_assembly.py::_prepare_jumbled_items (per served item)
     → prepare_jumbled_content(content, language_id)
        calls LanguageProcessor.chunk_sentence (constituent-aware, multi-word)
        falls back to tokenize() only for sentences too short to chunk
 
-Full Pipeline (admin dashboard, single-button end-to-end):
-  POST /api/run/full-pipeline → _do_full_pipeline()
+Full Pipeline (REMOVED: the admin-local route module and its /api/run/full-pipeline button no longer exist; the steps below are now run as scripts):
+  _do_full_pipeline()
     → Step 1: VocabBackfillRunner (vocab + senses + token maps)
     → Step 2: TokenMapBackfillRunner (straggler token maps)
     → Step 3: run_backfill (per-question sense_ids)
@@ -182,12 +182,12 @@ services/exercise_generation/
     ├── style.py
     └── flashcard.py
 
-scripts/                             # Backfill scripts (used by Full Pipeline)
+scripts/                             # Backfill scripts (the old Full Pipeline called these)
 ├── backfill_vocab.py                # VocabBackfillRunner: vocab + senses + token maps
 ├── backfill_token_maps.py           # TokenMapBackfillRunner: straggler token maps
 ├── backfill_question_sense_ids.py   # Per-question sense_ids matching
 ├── backfill_test_skill_ratings.py   # Test skill ratings with ELO
-└── backfill_exercises.py            # ExerciseBackfillRunner: vocab + grammar + style
+(backfill_exercises.py is gone; exercise authoring now goes through the staged / fat-seed pipelines, see [[features/exercise-generation-v2]])
 
 services/vocabulary_ladder/
 ├── scheduler.py             # ExerciseScheduler (session building)
@@ -220,7 +220,7 @@ services/vocabulary_ladder/
 
 6. **Full Pipeline as unified backfill orchestrator**
    - Rationale: Running 5+ backfill scripts manually in the correct order is error-prone. A single admin button runs them sequentially with per-step try/except so one failure doesn't block subsequent steps.
-   - File: `routes/admin_local.py` — `_do_full_pipeline()` function
+   - **Removed:** the admin button and its file  were deleted; the individual scripts remain.
 
 ## Related Pages
 

@@ -1,24 +1,27 @@
 ---
 title: Study Plans — Technical Specification
 type: feature-tech
-status: planned
+status: complete
 prose_page: ./study-plans.md
-last_updated: 2026-05-21
+last_updated: 2026-11-23
 dependencies:
-  - "migrations/study_plans_v1/003_dim_study_plan_templates.sql — templates seed"
-  - "migrations/study_plans_v1/004_dim_study_goals.sql — empty in V1"
-  - "migrations/study_plans_v1/005_alter_test_attempts_duration.sql — started_at + duration_ms"
-  - "migrations/study_plans_v1/006_alter_daily_test_loads_targets.sql — daily_session_targets jsonb"
-  - "migrations/study_plans_v1/009_create_user_study_plans.sql"
-  - "migrations/study_plans_v1/010_create_weekly_plan_states.sql"
-  - "migrations/study_plans_v1/rpcs/{apply_study_plan_template,compute_weekly_plan,build_daily_session,record_session_progress}.sql"
-  - "services/study_plan_service.py (new)"
+  - "migrations/phase13_dim_study_plan_templates.sql — templates seed"
+  - "migrations/phase13_dim_study_goals.sql — empty in V1"
+  - "migrations/phase13_test_attempts_duration.sql — started_at + duration_ms"
+  - "migrations/phase13_daily_test_loads_targets.sql — daily_session_targets jsonb"
+  - "migrations/phase13_user_study_plans.sql"
+  - "migrations/phase13_weekly_plan_states.sql"
+  - "migrations/phase13_apply_study_plan_template.sql, phase13_compute_weekly_plan_helpers.sql, phase13_build_daily_session.sql (+ later build_daily_session_*.sql revisions), phase18_practice_time_seconds.sql (record_session_progress)"
+  - "services/study_plan_service.py"
+  - "services/study_plan_settings.py and routes/study_plan.py — /api/study-plan endpoints"
+  - "services/study_session/ and routes/study_session.py — the daily queue (see [[features/study-session-package.tech]])"
   - "services/test_service.py — get_or_create_daily_load routing"
-  - "routes/settings.py — /api/study-plan endpoints"
-  - "app.py — cron registration"
+  - "web/scheduler.py — cron registration (init_scheduler)"
   - "user_skill_ratings, user_word_ladder, user_vocabulary_knowledge, user_flashcards (read)"
   - "daily_test_loads, daily_test_load_items, test_attempts, exercise_attempts (read/write)"
 breaking_change_risk: medium
+open_questions:
+  - "The ADR-013 rollout steps and the config block below are the 2026-05 design; STUDY_PLAN_ENABLED now defaults to true in config.py (env STUDY_PLAN_ENABLED=false rolls back). The Tier-C constants STUDY_PLAN_TIER_C_* are not defined in config.py at commit 0d345e98; where the alphas live now was not traced in this pass."
 ---
 
 # Study Plans — Technical Specification
@@ -43,9 +46,13 @@ Canonical reference for **which surfaces the planner owns**. Decided in
 | `listening_lab` | ❌ **deliberately outside** | Long-form, exploratory, self-directed; a daily minute budget fights its design. |
 | `mystery` | ❌ **deliberately outside** | 5-scene gated narrative; session length is set by the story, not the budget. |
 
-> ⚠️ `listening_lab` and `mystery` **do** exist as `dim_test_types.type_code` rows. That is a
-> modelling artefact, **not** an intent to schedule them — no template allocates to either. Do not
-> "fix" their absence from the planner.
+> ⚠️ Neither `listening_lab` nor `mystery` exists as a `dim_test_types.type_code` row (live
+> check 2026-11-23: the table holds classifier_drill, counter_drill, dictation, grammar, listening,
+> pinyin, pitch_accent, reading, speaking, vocabulary, writing). An earlier version of this page
+> and of a comment in `study_plan_service.py` said they did; that was wrong and the comment was
+> corrected. `UNPLANNED_TEST_TYPES = ('listening_lab', 'mystery')` stays in `study_plan_service.py`
+> only as a name list read by `tests/test_plannable_surfaces.py`, which pins that the planner never
+> adopts them.
 
 > ⚠️ **Adding a surface requires seeding its time estimate.** `test_time_estimate(p_skill text)`
 > COALESCEs `dim_test_types.expected_minutes_p50` (NULL for all 12 type codes as of 2026-08-07)
@@ -71,8 +78,8 @@ ELO-rated `tests` row, so they ride a plannable *kind* rather than a new type co
 3. **Report.** Hydrated counts land in `daily_session_targets.surface_counts`, and both
    requested/hydrated join the TASK-702 shortfall maps, so `_log_hydration_shortfalls` covers
    them with no change.
-4. **Serve.** `routes/study_session.py` expands `surface_counts` into queue items
-   (`flashcards_1`, `dual_translation_1`, …); `player_registry.js` dispatches on `item.kind`.
+4. **Serve.** `services/study_session/queue.py` (called from `routes/study_session.py`) expands `surface_counts` into queue items
+   (`flashcards_1`, `dual_translation_1`, …) (`services/study_session/queue.py::build_surface_items`); `static/js/session/player_registry.js` dispatches on `item.kind`.
 5. **Complete.** `POST /api/study-session/complete-block` calls `record_session_progress` with
    `p_kind='surface'` and a deterministic uuid5 over (user, language, date, block) — surfaces
    have no `test_attempts` row, and the uuid5 makes a retried POST dedupe inside the RPC.
@@ -135,25 +142,25 @@ ELO-rated `tests` row, so they ride a plannable *kind* rather than a new type co
 ### New columns on existing tables
 
 ```sql
--- 005_alter_test_attempts_duration.sql
+-- migrations/phase13_test_attempts_duration.sql (was 005)
 ALTER TABLE test_attempts
   ADD COLUMN started_at  timestamptz,
   ADD COLUMN duration_ms integer
     CHECK (duration_ms IS NULL OR (duration_ms > 0 AND duration_ms < 3600000));
 
--- 006_alter_daily_test_loads_targets.sql
+-- migrations/phase13_daily_test_loads_targets.sql (was 006)
 ALTER TABLE daily_test_loads
   ADD COLUMN daily_session_targets jsonb;
 -- jsonb shape:
 -- { "practice_maintenance_min": int, "practice_acquisition_min": int,
 --   "resolver_solved_at": timestamptz, "objective_value": numeric }
 
--- 007_alter_user_exercise_sessions_mode.sql
+-- migrations/phase12_user_exercise_sessions_columns.sql (was 007)
 ALTER TABLE user_exercise_sessions
   ADD COLUMN mode           text CHECK (mode IN ('acquisition','maintenance','auto')),
   ADD COLUMN target_minutes smallint;
 
--- 008_alter_dim_test_types_p50.sql
+-- migrations/phase13_dim_test_types_p50.sql (was 008)
 ALTER TABLE dim_test_types
   ADD COLUMN expected_minutes_p50 numeric(4,1);
 ```
@@ -161,7 +168,7 @@ ALTER TABLE dim_test_types
 ### New tables
 
 ```sql
--- 003_dim_study_plan_templates.sql
+-- migrations/phase13_dim_study_plan_templates.sql (was 003)
 CREATE TABLE dim_study_plan_templates (
   template_id                smallint PRIMARY KEY,
   language_id                smallint NOT NULL REFERENCES dim_languages(id),
@@ -190,7 +197,7 @@ INSERT INTO dim_study_plan_templates VALUES
   (302, 2, 45, '{"reading":10,"listening":8,"dictation":3}',150, 0.30, 0.25, false),
   (303, 2, 60, '{"reading":13,"listening":11,"dictation":4}',200, 0.30, 0.25, false);
 
--- 004_dim_study_goals.sql (V2 placeholder; empty in V1)
+-- migrations/phase13_dim_study_goals.sql (was 004) (V2 placeholder; empty in V1)
 CREATE TABLE dim_study_goals (
   goal_id      smallint PRIMARY KEY,
   goal_type    text NOT NULL,
@@ -239,25 +246,25 @@ CREATE INDEX idx_weekly_plan_states_week ON weekly_plan_states (week_start_date)
 
 ### Migration sequence
 
-| # | File | Purpose |
+| # (design order) | File at commit 0d345e98 | Purpose |
 |---|---|---|
-| 001 | `dim_exercise_types.sql` | Create + backfill from `exercises.exercise_type DISTINCT` |
-| 002 | `dim_practice_modes.sql` | Create + seed 3 rows |
-| 003 | `dim_study_plan_templates.sql` | Create + seed 9 rows (3 langs × 3 buckets) |
-| 004 | `dim_study_goals.sql` | Create (empty) |
-| 005 | `alter_test_attempts_duration.sql` | Add `started_at`, `duration_ms` |
-| 006 | `alter_daily_test_loads_targets.sql` | Add `daily_session_targets jsonb` |
-| 007 | `alter_user_exercise_sessions_mode.sql` | Add `mode`, `target_minutes` |
-| 008 | `alter_dim_test_types_p50.sql` | Add `expected_minutes_p50` |
-| 009 | `create_user_study_plans.sql` | Create |
-| 010 | `create_weekly_plan_states.sql` | Create + index |
+| 001 | `migrations/phase12_dim_exercise_types.sql` | Create + backfill from `exercises.exercise_type DISTINCT` |
+| 002 | `migrations/phase12_dim_practice_modes.sql` | Create + seed 3 rows |
+| 003 | `migrations/phase13_dim_study_plan_templates.sql` | Create + seed 9 rows (3 langs × 3 buckets) |
+| 004 | `migrations/phase13_dim_study_goals.sql` | Create (empty) |
+| 005 | `migrations/phase13_test_attempts_duration.sql` | Add `started_at`, `duration_ms` |
+| 006 | `migrations/phase13_daily_test_loads_targets.sql` | Add `daily_session_targets jsonb` |
+| 007 | `migrations/phase12_user_exercise_sessions_columns.sql` | Add `mode`, `target_minutes` |
+| 008 | `migrations/phase13_dim_test_types_p50.sql` | Add `expected_minutes_p50` |
+| 009 | `migrations/phase13_user_study_plans.sql` | Create |
+| 010 | `migrations/phase13_weekly_plan_states.sql` | Create + index |
 
 **Pre-launch wipe (revised 2026-05-22 — supersedes backfill per plan R4.2 and [[decisions/ADR-013-global-feature-flag-rollout]])**
 
 Run **once** against the target DB right before flipping `Config.STUDY_PLAN_ENABLED = True`. Drops all per-user state so the new flow starts on a clean slate. Reference data (`dim_*`, `tests`, `questions`, `exercises`, `word_assets`, packs, auth) is untouched.
 
 ```sql
--- migrations/phase13_wipe_user_state_for_launch.sql
+-- migrations/archive/phase13_wipe_user_state_for_launch.sql
 BEGIN;
 TRUNCATE TABLE
     public.user_skill_ratings,
@@ -279,7 +286,7 @@ COMMIT;
 After the wipe:
 - New signups create `user_study_plans` rows via onboarding → `apply_study_plan_template` RPC.
 - Any leftover users without plan rows fall through to legacy `_compute_daily_load` (handled in `services/test_service.py::get_or_create_daily_load`).
-- No `INSERT … ON CONFLICT DO NOTHING` backfill is needed; the original backfill SQL is preserved as reference-only in the plan file (`C:\Users\James\.claude\plans\goal-continue-through-the-parsed-goblet.md`) for possible future scenarios where we want to seed plans for inherited users.
+- No `INSERT … ON CONFLICT DO NOTHING` backfill is needed; the original backfill SQL is reproduced below as reference-only (the author's local plan file is not in the repository) for possible future scenarios where we want to seed plans for inherited users.
 
 <details><summary>Reference-only backfill SQL (do NOT run during pre-launch rollout)</summary>
 
@@ -353,7 +360,7 @@ Behavior:
 4. Hydrate test slots per skill:
    - **Primary:** `get_recommended_tests(user, language)` — never-attempted ELO
      matches, `slot_type='new'`. Its per-type cap was raised **3 → 10**
-     (`task702_get_recommended_tests_rank_cap.sql`) so heavy-weekday budgets
+     (`migrations/archive/task702_get_recommended_tests_rank_cap.sql`) so heavy-weekday budgets
      (e.g. `reading:6`) don't outrun the pool.
    - **Exhausted-pool fallback (TASK-702):** if the never-attempted pool
      underfills a budgeted skill, top up the remaining slots from
@@ -382,8 +389,7 @@ Behavior:
 7. UPSERT `daily_test_load_items` for each test_id.
 8. Return upserted row + targets.
 
-Canonical migration: `task702_build_daily_session.sql` (supersedes
-`phase13_build_daily_session_classifier_drill.sql`).
+Migration lineage of `build_daily_session` (archived files in `migrations/archive/`: `phase13_build_daily_session_classifier_drill.sql`, `task702_build_daily_session.sql`, `task714_build_daily_session_surfaces.sql`, `task732_build_daily_session_split_budget.sql`; current files in `migrations/`: `phase13_build_daily_session.sql`, `build_daily_session_dt_agreed.sql`, `session_module_exclusions_build_daily_session.sql`). The live body is authoritative (live md5 `43a63508…`, checked 2026-11-23). It takes `p_date` and reads the learner's local date.
 
 If `weekly_plan_states` row exists but Tier B failed somehow, fall back to template defaults (no carry-over) and log a warning. Logged for monitoring.
 
@@ -427,21 +433,21 @@ crediting nothing.
 
 Called from:
 - `apply_attempt_timing_and_progress` (test path, `p_delta_minutes`; never touches the practice `_sec`/`_min` columns).
-- `record_attempt_with_updates` in the practice service (`p_delta_seconds`).
+- `record_exercise_attempt` (the practice attempt RPC; `p_delta_seconds`).
 
 ## Modified RPCs / services
 
 | Surface | Change |
 |---|---|
 | `process_test_submission` (and dictation/pinyin/pitch variants) | **Unchanged.** Body-of-RPC modification was deferred during implementation in favor of a side-car hook RPC — see next row. The submission RPCs are entangled with ELO + idempotency + retry-slot factor + furigana and a 4× duplication would have been brittle. Timing capture has no influence on ELO calculation, so isolating it in a hook is clean. |
-| `apply_attempt_timing_and_progress(p_attempt_id, p_started_at, p_finished_at) RETURNS jsonb` **(new)** | Post-submission hook called by `routes/tests.py` after each submission RPC returns its `attempt_id`. Atomically: (a) UPDATEs `test_attempts(started_at, duration_ms)` after computing `duration_ms = (finished − started)·1000` and silently capping to (0, 3_600_000); (b) calls `record_session_progress(..., 'test', <skill from dim_test_types.type_code>, 1, duration_minutes)`. NULL-timestamp-tolerant (skips the UPDATE while still recording progress). Best-effort: failures are warned, not raised. See `migrations/phase13_apply_attempt_timing_and_progress.sql`. |
+| `apply_attempt_timing_and_progress(p_attempt_id, p_started_at, p_finished_at) RETURNS jsonb` **(new)** | Post-submission hook called by the `routes/tests/` package (`submit.py`) after each submission RPC returns its `attempt_id`. Atomically: (a) UPDATEs `test_attempts(started_at, duration_ms)` after computing `duration_ms = (finished − started)·1000` and silently capping to (0, 3_600_000); (b) calls `record_session_progress(..., 'test', <skill from dim_test_types.type_code>, 1, duration_minutes)`. NULL-timestamp-tolerant (skips the UPDATE while still recording progress). Best-effort: failures are warned, not raised. See `migrations/phase13_apply_attempt_timing_and_progress.sql`. |
 | `services/test_service.py::get_or_create_daily_load` | If `Config.STUDY_PLAN_ENABLED` AND `user_study_plans` row exists for (user, language), call `build_daily_session(user, language, today)`; else legacy `_compute_daily_load`. External signature unchanged. |
-| `services/practice_session_service.py::record_attempt_with_updates` | Accept `session_mode` + `expected_seconds` from caller; compute effective seconds via `_effective_practice_seconds` (clamp + p50 fallback) and call `record_session_progress(..., 'practice_'||mode, p_delta_seconds=<sec>)` (TASK-701). |
-| `routes/tests.py` — all 4 submit handlers (`submit_test_attempt`, `submit_pinyin_attempt`, `submit_pitch_accent_attempt`, `submit_dictation_attempt`) | Read `started_at` / `finished_at` from request body and call `_apply_timing_and_progress(client, attempt_id, body)` helper right after the submission RPC succeeds. Helper wraps the new hook RPC and logs (but does not raise) on failure. |
+| `services/practice/attempt_recording.py::record_attempt_with_updates` (via `PracticeSessionService`) | Accept `session_mode` + `expected_seconds` from caller; compute effective seconds via `_effective_practice_seconds` (clamp + p50 fallback) and pass them with `p_plan_kind` to the `record_exercise_attempt` RPC, which calls `record_session_progress(..., 'practice_acq'/'practice_maint', p_delta_seconds=<sec>)` inside its transaction (TASK-701; see [[features/practice-engine.tech]]). |
+| `routes/tests/submit.py` — all 4 submit handlers (`submit_test_attempt`, `submit_pinyin_attempt`, `submit_pitch_accent_attempt`, `submit_dictation_attempt`) | Read `started_at` / `finished_at` from request body and call `_apply_timing_and_progress(client, attempt_id, body)` helper right after the submission RPC succeeds. Helper wraps the new hook RPC and logs (but does not raise) on failure. |
 
 ## Cron jobs
 
-`app.py:227-251` additions:
+Registered in `web/scheduler.py` (`init_scheduler`, called from `app.py`; jobs `study_plan_weekly_recompute` Sunday 23:00 UTC and `exercise_time_estimate_refresh` 04:05 UTC; `_run_weekly_plan_recompute` and `_refresh_exercise_time_estimates` live in `services/study_plan_service.py`). Original design sketch:
 
 ```python
 # Sunday 23:00 UTC — weekly recompute
@@ -463,6 +469,8 @@ scheduler.add_job(
 
 ## HTTP endpoints
 
+Served by `routes/study_plan.py` (mounted at `/api/study-plan`; settings logic in `services/study_plan_settings.py`; the former settings route module no longer exists). The daily queue is `routes/study_session.py` at `/api/study-session` (see [[features/study-session-package.tech]]).
+
 | Method | Path | Body | Returns |
 |---|---|---|---|
 | GET | `/api/study-plan?language_id=:l` | — | `user_study_plans` row + current `weekly_plan_states` row |
@@ -477,7 +485,7 @@ All require authenticated session; `user_id` from `flask.g.user_id`.
 ```python
 class Config:
     # Existing constants...
-    STUDY_PLAN_ENABLED                 = False  # flip in rollout step 6
+    STUDY_PLAN_ENABLED                 = True   # now the default (env STUDY_PLAN_ENABLED=false rolls back); was False until rollout step 5
     STUDY_PLAN_DEFAULT_DAILY_MINUTES   = 30
     STUDY_PLAN_TIER_C_ALPHA_M          = 0.02
     STUDY_PLAN_TIER_C_ALPHA_A          = 0.02
@@ -490,8 +498,10 @@ class Config:
         'listening':     5,
         'dictation':     6,
         'pinyin':        4,
-        'measure_word':  4,
+        'classifier_drill': 4,   # was 'measure_word' at design time
         'pitch_accent':  4,
+        'flashcards':    7,      # TASK-714
+        'dual_translation': 12,  # TASK-714
     }
 ```
 
@@ -500,7 +510,7 @@ class Config:
 Per [[decisions/ADR-013-global-feature-flag-rollout]] (revised 2026-05-22 — pre-launch wipe path):
 
 1. **Ship migrations.** Apply all `phase12_*.sql` and `phase13_*.sql` migrations (schema + RPCs + helpers + `phase13_wipe_user_state_for_launch.sql`). `Config.STUDY_PLAN_ENABLED = False` still. Schema-only effect; no behaviour change.
-2. **Ship Practice merger.** Deploy `get_practice_session` + deprecation wrappers. Smoke-check against a handful of seeded dev users in both modes. Full parity testing (R4.7) is optional pre-launch since the wipe at step 4 drops all reference attempt history anyway.
+2. **Ship Practice merger.** Deploy `get_practice_session` + deprecation wrappers (since removed). Smoke-check against a handful of seeded dev users in both modes. Full parity testing (R4.7) is optional pre-launch since the wipe at step 4 drops all reference attempt history anyway.
 3. **Ship Settings UI + onboarding.** Deploy the `routes/practice.py` + `routes/study_plan.py` blueprints and the Settings tab so onboarding can call `apply_study_plan_template`. Still flag-off — the route exists but `get_or_create_daily_load` continues routing to legacy.
 4. **Wipe.** Run `phase13_wipe_user_state_for_launch.sql` once. TRUNCATE … RESTART IDENTITY CASCADE on all 12 user-state tables; reference data untouched.
 5. **Flip.** Set `Config.STUDY_PLAN_ENABLED = True` and deploy. From this moment:
@@ -509,9 +519,11 @@ Per [[decisions/ADR-013-global-feature-flag-rollout]] (revised 2026-05-22 — pr
    - Sunday 23:00 UTC cron computes the first weekly state for every `user_study_plans` row.
 6. **Monitor.** Track DAU, session-completion-rate, sessions-per-DAU, tests-per-session, practice-minutes-per-session.
 7. **Rollback** by toggling `Config.STUDY_PLAN_ENABLED = False` if any metric looks pathological. Rollback is instant; legacy `_compute_daily_load` resumes for every user (`weekly_plan_states` rows just go unread).
-8. **Deprecation cycle.** After 30 days stable, remove the `get_exercise_session` / `get_ladder_session` deprecation wrappers; replace `/api/exercises/session` and `/api/vocab-dojo/session` handlers with 302s to `/api/practice/session`.
+8. **Deprecation cycle.** After 30 days stable, remove the `get_exercise_session` / `get_ladder_session` deprecation wrappers; replace `/api/exercises/session` and `/api/vocab-dojo/session` handlers with 302s to `/api/practice/session` (done; the routes were later deleted outright, 2026-11-14).
 
 ## Worked Example
+
+> Historical illustration (2026-05): the skill named `measure_word` below is `classifier_drill` in the live `dim_test_types` / `TEST_TYPE_MINUTES`; the template seeds in the migrations quoted above still use the design-time key. Numbers are illustrative, not live.
 
 User U, Chinese, 45 min/day uniform weekday, week 4.
 
@@ -668,6 +680,10 @@ Returned: 11 items across 4 words. User completes 8; each submit fires `record_s
 - **Integration:** `record_session_progress` idempotency — call twice with same `attempt_id`; second returns `false`, counters unchanged.
 - **Integration:** Cron job — fire `_run_weekly_plan_recompute` in test mode against seeded users; verify all rows updated.
 - **Migration:** Wipe script on staging — verify all 12 user-state tables `COUNT(*) = 0` post-run; verify reference tables (`dim_languages`, `dim_study_plan_templates`, `tests`, `exercises`, `auth.users`, `public.users`) unaffected.
+
+## Daily-session code path (2026-11-23)
+
+`GET /api/study-session` -> `services/study_session/session.py::build_study_session` -> `test_service.get_or_create_daily_load` (-> `build_daily_session`) -> `PracticeSessionService.admit_daily_new_words` -> `services/study_session/queue.py::build_session_queue`. Full detail: [[features/study-session-package.tech]].
 
 ## Related Pages
 

@@ -1,9 +1,9 @@
 ---
 title: Study Plans
 type: feature
-status: planned
+status: complete
 tech_page: ./study-plans.tech.md
-last_updated: 2026-05-21
+last_updated: 2026-11-23
 open_questions:
   - "Should the settings page surface a 'total time across languages' warning above a threshold, or just display the tally silently?"
   - "What's the right copy for explaining the 30:70 maintenance-vs-acquisition split to learners who notice it in the UI?"
@@ -130,6 +130,7 @@ Full numerical traceback in [[features/study-plans.tech]] under "Worked Example.
 
 - [[features/study-plans.tech]] — Full technical specification.
 - [[features/session-modules]] — Per-language include/exclude of daily-session modules.
+- [[features/study-session-package]] — The code that builds the daily queue.
 - [[features/session-budget-settings]] — Budget scope and learner-set new words per day.
 - [[algorithms/study-plan-adaptation]] — Plain-English adaptation philosophy.
 - [[algorithms/study-plan-adaptation.tech]] — Formulas and pseudocode.

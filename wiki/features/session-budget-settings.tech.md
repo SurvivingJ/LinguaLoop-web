@@ -1,9 +1,9 @@
 ---
 title: Session Budget Settings — Technical Specification
 type: feature-tech
-status: planned
+status: complete
 prose_page: ./session-budget-settings.md
-last_updated: 2026-10-13
+last_updated: 2026-11-23
 dependencies:
   - "table: user_study_plans (new columns excluded_modules, budget_scope, new_words_per_day)"
   - "table: weekly_plan_states (new columns budget_scope, review_target_minutes, new_words_target, new_words_completed, acq_target_minutes, tail_completed_min, tail_new_words_completed; constraint weekly_plan_states_shares_sum relaxed)"
@@ -847,6 +847,9 @@ coverage most nominations starve, so shortfall is expected and the generation re
 point. Note that calibration anchors come from `calibration_anchor_pool`, which is not filtered on
 exercise coverage, so A2 nominations feed generation like any other starved sense.
 
+> **Current code (verified 2026-11-23 against commit 0d345e98; supersedes the description above where they differ).**
+> (1) With the new-word drill on (`NEW_WORD_DRILL_ENABLED`, default true) `_gate_and_admit` admits `head[:want]` and runs the supply check on **those senses only** (one query for any batch size); starved admitted words are still queued for generation. With the drill off it checks the whole overfetched head and admits only those that pass. (2) Vocabulary placement (ADR-059, [[features/vocab-placement]]) adds evidence: missed placement meanings join A2, and words whose meaning was right but reading not right form a new queue A2r that alternates with A2 in one ranked list (`_interleave`); placement evidence writes are subtracted from A1's evidence counts. (3) A1 has no status veto; A2 and A2r veto `known` / `probably_known` (see the open question in [[features/new-word-drill.tech]]). The full admission flow is in [[features/practice-package.tech]].
+
 ### Cold start: how calibration evidence is identified (4B)
 
 **Verified facts (2026-10-13):**
@@ -863,15 +866,15 @@ exercise coverage, so A2 nominations feed generation like any other starved sens
   `end_session` near line 673). That is ELO only. **No BKT write exists anywhere in calibration today.**
 - `calibration_sessions.mode` exists (`migrations/calibration_pronunciation_mode.sql` line 285; values
   `'definition'` / `'pronunciation'`, `MODE_DEFINITION = 'definition'`).
-- The developer's reference path is the post-test word quiz: `POST /word-quiz` (`routes/vocabulary.py` line 16) ->
+- The developer's reference path is the post-test word quiz: `POST /word-quiz` (`routes/vocabulary.py` `/word-quiz`) ->
   `VocabularyKnowledgeService.record_word_quiz_results` -> `update_from_word_test(exercise_type='definition_match')`
   (`services/vocabulary/knowledge_service.py`, calls at lines 372-379). **The file is
-  `services/vocabulary/knowledge_service.py`, not `services/knowledge_service.py`.**
+  `services/vocabulary/knowledge_service.py` (there is no flat knowledge-service module at the services root).**
 - The batch RPC `update_vocabulary_from_word_tests_batch(p_user_id uuid, p_language_id smallint, p_results jsonb)`
   (`migrations/bkt_word_test_batch.sql` line 27; `p_results = [{"sense_id": int, "is_correct": bool}, ...]`;
   returns `out_sense_id, out_p_known_before, out_p_known_after, out_status`; dedupes by `bool_or`) is used by
-  dictation at `routes/tests.py` lines 967-973 via `VocabularyKnowledgeService.update_from_word_tests_batch`
-  (`knowledge_service.py` line 113).
+  dictation (at design time the flat tests route module, lines 967-973; now in `services/attempts.py` and `routes/tests/prestudy.py`) via `VocabularyKnowledgeService.update_from_word_tests_batch`
+  (`services/vocabulary/knowledge_service.py`).
 - The batch RPC takes **no `p_exercise_type`** and applies `bkt_update_word_test` (slip 0.05, guess 0.25, transit
   0.05). The `definition_match` branch of `bkt_update_exercise` (`migrations/phase7_bkt_improvements.sql`) uses
   exactly slip 0.05, guess 0.25, transit 0.05. **The two are numerically identical.**
