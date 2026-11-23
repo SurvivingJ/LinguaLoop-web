@@ -11,7 +11,7 @@ open_questions:
   - "SUPERSEDED 2026-11-09 by [[decisions/ADR-040-criterion-based-new-word-drill]]: drilled prestudy words now enter the ladder through the new-word drill (a prime that meets the stage-1 criterion counts as intro session 1). They count against `new_words_per_day`. Over-quota words are queued for later unless the learner chooses to overload after a notice (decided 2026-11-09). Was (2026-10-29): prestudy words do NOT count against `new_words_per_day` and never admit to the ladder."
   - "ANSWERED 2026-10-29: a prestudy block spends tests-share minutes (0.5 × the test's time estimate, capped at 8 min)."
   - "OPEN: lesson content spend. Per-sentence L1 translations and answer explanations for ~305 active tests at test-generation prices is roughly $3–10 total; needs approval before Phase 2."
-  - "OPEN: may lesson mode show the test's own questions before the attempt? Recommendation: never; use `questions.pool_source = 'lab_expansion'` items (Listening Lab) as teaching checks and keep the originals for the attempt."
+  - "OPEN: may lesson mode show the test's own questions before the attempt? Recommendation: never; keep the originals for the attempt. (The earlier suggestion to use Listening Lab expansion questions, `questions.pool_source = 'lab_expansion'`, as teaching checks no longer applies: the column is gone live and Listening Lab was removed from the codebase 2026-11-23, so teaching checks must be built from the passage itself.)"
   - "ANSWERED 2026-10-30: Chinese reading input = toneless pinyin typed, then a per-syllable tone picker; inline tone numbers or marks also accepted. Alternatives considered: tone marks required (hard to type), hanzi via IME (tests writing, not reading), audio recording (no grader). Open follow-up: whether the pinyin trainer's per-character tone game should replace the picker for multi-character words."
   - "OPEN 2026-11-17: how the app decides a learner already knows basic words (one shared prior for preview and evidence, default ability for uncalibrated learners, re-basing old rows, one knowledge row per meaning) — [[decisions/ADR-047-basic-word-knowledge-prior]] (accepted 2026-11-17; its open proposals are TASK-1004)."
   - "OPEN: whether Azure TTS audio can be segmented per sentence (word timestamps are not stored today). Without it, sentence-by-sentence listening falls back to whole-clip audio plus the text."
@@ -72,8 +72,9 @@ under 7% of the words. This is the known blocker on [[features/lookahead-preteac
 - The pre-submit test payload (`GET /api/tests/test/<slug>`) already ships the transcript, the
   token map and personalised definitions; word clicks are blocked only by the client's
   `isSubmitted` check. The post-test word quiz builder works on any sense list.
-- Listening Lab expansion questions (`pool_source = 'lab_expansion'`) exist for some passages and
-  are not the scored questions.
+- ~~Listening Lab expansion questions (`pool_source = 'lab_expansion'`) exist for some passages and
+  are not the scored questions.~~ No longer true: `questions.pool_source` is gone live and Listening
+  Lab was removed from the codebase 2026-11-23 (TASK-1227).
 
 **What is missing:** `questions.answer_explanation` is NULL on **all 1,424 questions**
 (the comprehension-tests page's "results with explanations" describes the code path, not the
@@ -170,8 +171,9 @@ Prestudy is one feature with four **modes** (cheap to expensive) and four **trig
 
 3. **Lesson walkthrough** (needs generated content). Sentence by sentence: the sentence, its
    glossed unknowns, an L1 translation (toggle), audio for that sentence where segmentation
-   exists, and one teaching check every few sentences drawn from the Listening Lab expansion pool
-   or from a short "which sentence says…" item built from the passage itself. The scored
+   exists, and one teaching check every few sentences built from the passage itself (a short
+   "which sentence says…" item; the Listening Lab expansion pool once named here was removed
+   2026-11-23). The scored
    questions are never shown. Ends with a one-screen summary of the passage's main idea and the
    question types the test will ask, with a one-line strategy for each (e.g. "author purpose:
    look for evaluative words, not facts").

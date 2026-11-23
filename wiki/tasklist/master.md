@@ -21,13 +21,15 @@ below.
 |--------|-------------------|------------------------------------------|
 | Not Started | 66 | 90 |
 | In Progress (`[~]`) | 17 | 24 |
-| Blocked / Deferred / Awaiting decision (`[?]`; includes "Done (repo), awaiting live apply") | 59 | 60 |
+| Blocked / Deferred / Awaiting decision (`[?]`; includes "Done (repo), awaiting live apply") | 58 | 59 |
 | Won't Do (obsolete) | 3 | 3 |
 | Superseded | 2 | 2 |
-| Done | 227 | 361 |
+| Done | 228 | 362 |
 | **Total distinct task ids** | **374** | **540** |
 
 *Recount 2026-11-23 (replaces the earlier stated counts of 78 / 17 / 59 / 5 / 305, which had drifted).* Method: the wiki checker (`check_wiki.py`) parsed every `| TASK-nnn |` table row in this file (374 distinct ids; duplicate rows of the same id counted once) and every `## TASK-nnn:` block in the 35 task files under `wiki/tasklist/` and `wiki/tasklist/archive/`, and mapped each status marker (`[ ]`, `[~]`, `[x]`, `[?]`, "Done", "Won't Do", "Superseded") to the buckets above; the right-hand column takes the task file's status where file and master disagree. The right-hand total includes 166 ids that exist only in task files (older archived work not given a master row, of which 25 are open: TASK-101 to 112, 609, 723 and 783 to 794, left as they are). 14 file-versus-master status disagreements remain in the archived lists (TASK-517 to 534 in `archive/exercise-generation-v2.tasks.md` and TASK-612 in `archive/dual-translation.tasks.md`): the truth is not checkable without the old live state and they were not changed. TASK-1200 to 1233 (34 rows, 10 of them `[?]`) were added by [[tasklist/review-2026-11-22.tasks]].
+
+*2026-11-23 (TASK-1227 Done):* the owner decided to remove Mystery and Listening Lab; the last code references, the `UNPLANNED_TEST_TYPES` constant and its guard tests were removed by hand (82a80de not cherry-picked); nothing remained live, so no migration. Counts: Blocked/awaiting 59→58 (file union 60→59), Done 227→228 (361→362).
 
 *2026-11-23 (placement gates pass after owner decisions):* PQ23 → words with no buildable reading item are asked meaning-only (`calibration_responses.reading_exempt`, applied live); OQ29 → zh pool refreshed now (TASK-1063 Done; zh/zh frame 12,711). Gates: zh (1,2)/(1,3) PASS 99.4%, ja (3,2)/(3,3) PASS, ja (3,1) fails by two band-1 words, en PASS. Live smoke test passed on the test account. Counts: Blocked/awaiting 60→59, Done 304→305.
 
@@ -1510,7 +1512,7 @@ Full spec: [[tasklist/review-2026-11-22.tasks]]. Record: [[evaluations/codebase-
 | TASK-1224 | codebase-review-2026-11-22 | Watchlist sweep: keep or unschedule | [?] | XS | TASK-1201 item 9 |
 | TASK-1225 | codebase-review-2026-11-22 | DT route follow-ups | [ ] | M | TASK-1206 |
 | TASK-1226 | codebase-review-2026-11-22 | Migrations hygiene | [ ] | M | TASK-1201 |
-| TASK-1227 | codebase-review-2026-11-22 | Unmerged commit 82a80de "Remove Mystery and Listening Lab completely" | [?] | L | — |
+| TASK-1227 | codebase-review-2026-11-22 | Unmerged commit 82a80de "Remove Mystery and Listening Lab completely" | [x] Done 2026-11-23 | L | — |
 | TASK-1228 | codebase-review-2026-11-22 | Pin the first admission queue behaviour for a "known" word with recent misses | [ ] | S | — |
 | TASK-1229 | codebase-review-2026-11-22 | Owner checks on live data | [ ] | XS | — |
 | TASK-1230 | codebase-review-2026-11-22 | Frontend follow-ups | [ ] | M | TASK-1216 |

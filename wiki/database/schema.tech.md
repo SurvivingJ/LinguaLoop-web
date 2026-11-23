@@ -105,7 +105,7 @@ Supported languages with TTS settings and grammar tooling. **As of the 2026-05-0
 - **Unique:** `dim_languages_language_code_key (language_code)`
 - **Indexes:** `idx_dim_languages_active (is_active)`, `idx_dim_languages_code (language_code)`
 - **RLS:** Enabled
-- **Referenced by:** tests, test_attempts, user_languages, user_skill_ratings, personas, production_queue, prompt_templates, scenarios, conversations, conversation_generation_queue, categories, dim_vocabulary, dim_word_senses, user_vocabulary_knowledge, user_flashcards, mysteries, dim_grammar_patterns, mystery_attempts, exercises, corpus_sources, corpus_collocations, collocation_packs, corpus_style_profiles, style_pack_items, word_assets
+- **Referenced by:** tests, test_attempts, user_languages, user_skill_ratings, personas, production_queue, prompt_templates, scenarios, conversations, conversation_generation_queue, categories, dim_vocabulary, dim_word_senses, user_vocabulary_knowledge, user_flashcards, dim_grammar_patterns, exercises, corpus_sources, corpus_collocations, collocation_packs, corpus_style_profiles, style_pack_items, word_assets
 
 ---
 
@@ -131,7 +131,7 @@ Test/skill types (reading, listening, dictation, pinyin, pitch_accent).
 - **Unique:** `dim_test_types_type_code_key (type_code)`
 - **Indexes:** `idx_dim_test_types_active (is_active)`, `idx_dim_test_types_code (type_code)`
 - **RLS:** Enabled
-- **Referenced by:** test_skill_ratings, user_skill_ratings, test_attempts, mystery_attempts
+- **Referenced by:** test_skill_ratings, user_skill_ratings, test_attempts
 
 ---
 
@@ -210,7 +210,7 @@ Taxonomy of question types based on cognitive complexity (Bloom's).
 - **Unique:** `dim_question_types_type_code_key (type_code)`
 - **Indexes:** `idx_question_types_active (is_active WHERE is_active=true)`, `idx_question_types_cognitive (cognitive_level)`
 - **RLS:** Enabled (Phase 6). Policies: authenticated read, service_role full access.
-- **Referenced by:** questions (via id), mystery_questions (via id), question_type_distributions (via type_code)
+- **Referenced by:** questions (via id), question_type_distributions (via type_code)
 
 ---
 
@@ -448,7 +448,7 @@ Public mirror of `auth.users`. Auto-created by trigger on auth signup.
 - **Foreign Keys:** `id` -> `auth.users.id`, `subscription_tier_id` -> `dim_subscription_tiers.id`, `organization_id` -> `organizations.id`, `native_language_id` -> `dim_languages.id`
 - **Triggers:** AFTER INSERT -> `create_user_dependencies()`, BEFORE UPDATE -> `update_updated_at_column()`
 - **RLS:** Enabled. Live policies (2026-11-23): `rls_select` (service_role, own row, or admin), `rls_insert` / `rls_update` / `rls_delete` (service_role only). `authenticated` has SELECT only and no write privilege, so a user can no longer raise their own `subscription_tier_id` (the 2026-10-14 finding is closed; see Security posture).
-- **Referenced by:** test_attempts, user_skill_ratings, tests (gen_user), user_languages, user_tokens, token_transactions, flagged_content, user_exercise_sessions, organization_members, vocabulary_review_queue (reviewed_by), user_vocabulary_knowledge, user_flashcards, word_quiz_results, mysteries (gen_user), mystery_progress, mystery_attempts, exercise_attempts, user_word_ladder, user_exercise_history, user_pack_selections
+- **Referenced by:** test_attempts, user_skill_ratings, tests (gen_user), user_languages, user_tokens, token_transactions, flagged_content, user_exercise_sessions, organization_members, vocabulary_review_queue (reviewed_by), user_vocabulary_knowledge, user_flashcards, word_quiz_results, exercise_attempts, user_word_ladder, user_exercise_history, user_pack_selections
 
 ---
 
@@ -1630,9 +1630,11 @@ Junction table: collocation pack <-> style item. Links style items into packs (p
 
 ---
 
-## 7. Mystery System
+## 7. Mystery System (removed)
 
 Multi-scene narrative mysteries with comprehension questions and ELO matching.
+
+> **Removed.** Tables dropped 2026-09-22; the feature was removed from the codebase 2026-11-23 (TASK-1227). The `dim_test_types` rows `mystery` (id 8) and `listening_lab` (id 12), `questions.pool_source` and the `mystery_*` prompt rows are also gone live (checked 2026-11-23). The sections below are history only.
 
 ---
 

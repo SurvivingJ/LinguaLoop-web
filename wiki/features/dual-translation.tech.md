@@ -9,7 +9,7 @@ open_questions:
   - "OPEN (owner): production grades with two free models that failed the gold-set check ([[evaluations/dt-free-grader-goldset-2026-11-23]]). Revert the defaults to the validated pair? See the status note in [[decisions/ADR-044-dt-single-call-generative-grader]]."
   - "OPEN: proposed [[decisions/ADR-061-one-transactional-write-per-dt-submission]] and [[decisions/ADR-062-retire-dt-card-and-select-next-window-in-sql]] need the owner's decision."
 dependencies:
-  - "table: tests (transcript) and mysteries/mystery_scenes — L2 source for passages"
+  - "table: tests (transcript) — L2 source for passages (mystery scenes were never sourced; the mystery feature was removed from the codebase 2026-11-23)"
   - "table: dim_languages (1=ZH, 2=EN, 3=JA), users, user_languages"
   - "table: users.native_language_id (added TASK-607, migrations/add_users_native_language.sql) — the learner's L1; user_languages only tracks L2 study languages, never recorded this"
   - "table: prompt_templates — holds OpenRouter model slugs per language/stage (model router)"
@@ -42,7 +42,7 @@ breaking_change_risk: low
 | Prompt/output language (business rule) | Grading prompts are **target-language (L2) only — no English**; the grader **outputs numerical indices** (score ints, subtype/severity/source enum indices, span offsets), never prose. Same rule as the exercise-gen pipeline. |
 | Difficulty banding (CEFR descriptors) | **Age tiers** ([[decisions/ADR-003-age-tiers]]). Rubric band descriptors are written per age tier (1–6), not CEFR. |
 | Lazy explanations (§4.4) | **Overridden** — explanations are eager/first-class ([[decisions/ADR-015-eager-error-explanations]]), but **rendered from versioned per-subtype × per-L1 templates keyed by the grader's numerical subtype index** (not LLM prose). This satisfies the eager-explanation priority *and* the L2-only/numerical-output rule, and is cheaper than prose. |
-| Passage source / authoring (§8 Q6) | **Existing corpus** — `tests.transcript` and mystery scenes are the L2 gold; L1 reference(s) are generated per supported L1 and stored. |
+| Passage source / authoring (§8 Q6) | **Existing corpus** — `tests.transcript` is the L2 gold (the original answer also named mystery scenes; narrowed by the next row, and the mystery feature was removed 2026-11-23); L1 reference(s) are generated per supported L1 and stored. |
 | FSRS build-vs-buy (§8 Q3) | **Reuse** `services/vocabulary/fsrs.py` (FSRS-4). No new scheduler library. |
 | L1↔L2 only vs bidirectional (§8 Q1) | **L1→L2 only** for MVP ([[decisions/ADR-017-dual-translation-standalone-l1l2-mvp]]). |
 | Speech modality (§8 Q5) | Out of scope; `modality='text'` only. Tone/pitch subtypes gated behind a future `modality='speech'` flag. |

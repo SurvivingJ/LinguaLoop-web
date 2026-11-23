@@ -178,8 +178,9 @@ Feedback: submit handlers → apply_attempt_timing_and_progress →
   the same greedy loop (so they *compete* for minutes rather than adding to
   them), hydrated from their own pools, reported through the TASK-702 shortfall
   maps, and completed via `record_session_progress(p_kind='surface')` with a
-  deterministic uuid5. `listening_lab`/`mystery` exclusion is now pinned four
-  ways by `tests/test_plannable_surfaces.py`, and the `ELSE 5.0` trap is pinned
+  deterministic uuid5. `listening_lab`/`mystery` exclusion was pinned four
+  ways by `tests/test_plannable_surfaces.py` (those tests were deleted when both
+  features were removed from the codebase, 2026-11-23), and the `ELSE 5.0` trap is pinned
   by a test asserting both new surfaces resolve elsewhere *and* that the Python
   and SQL seeds agree. Dictation's cap is per-tier (80→400) with a matching
   tier-aware time estimate (6.0→22.0 min).
