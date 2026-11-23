@@ -140,7 +140,7 @@ an error you have not read.
 
 ```bash
 python -m scripts.backfill_sense_embeddings --language 3 --dry-run
-python -m scripts.backfill_sense_embeddings --language 3
+python -m scripts.backfill_sense_embeddings --language 3 --apply
 ```
 
 Language ids: zh 1, en 2, ja 3. Stage 3 embeds on create, so this is a net for
@@ -153,7 +153,7 @@ worse. Idempotent, and cheap (~$0.02 per million tokens).
 
 ```bash
 python scripts/relink_deferred_vocab.py --language ja --dry-run
-python scripts/relink_deferred_vocab.py --language ja
+python scripts/relink_deferred_vocab.py --language ja --apply
 ```
 
 When inline enrichment was capped during test generation, the tail of a test's

@@ -193,7 +193,7 @@ where source = 'llm_gloss' and definition_language_id in (1, 2);  -- the target 
 ```
 
 ```bash
-python -m scripts.backfill_sense_embeddings --language 3   # the SOURCE word's language, not the target
+python -m scripts.backfill_sense_embeddings --language 3 --apply   # the SOURCE word's language, not the target
 ```
 
 `--language` here filters on the word's own language (`dim_vocabulary.language_id`),

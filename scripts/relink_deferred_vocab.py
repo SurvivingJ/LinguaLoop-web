@@ -12,26 +12,27 @@ Without this script the deferral would be a permanent hole in the test's
 vocabulary layer rather than a delay, which would make T2.3 a quality
 regression dressed up as a throughput win. Run it after a backfill pass:
 
-    python scripts/backfill_senses.py --language zh
-    python scripts/relink_deferred_vocab.py --language zh
+    python scripts/backfill_senses.py --language zh --apply
+    python scripts/relink_deferred_vocab.py --language zh --apply
 
 It makes no LLM calls. A lemma whose sense still does not exist is left in
 ``deferred_lemmas`` for the next run.
 
 Usage:
     python scripts/relink_deferred_vocab.py [--language zh] [--limit 50]
-                                            [--dry-run]
+                                            [--apply]
+
+Dry run unless --apply is given (--dry-run is accepted as an explicit alias).
 """
 
 from __future__ import annotations
 
-import argparse
 import logging
 
 try:
-    from _common import admin_db, bootstrap
+    from _common import admin_db, base_parser, bootstrap
 except ImportError:  # run or imported as scripts.<name>
-    from scripts._common import admin_db, bootstrap
+    from scripts._common import admin_db, base_parser, bootstrap
 
 bootstrap(log_format='%(asctime)s %(levelname)s %(message)s')
 
@@ -153,11 +154,10 @@ def relink(db, test_row: dict, dry_run: bool) -> tuple[int, int]:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = base_parser(description=__doc__)
     parser.add_argument('--language', help='language code, e.g. zh')
     parser.add_argument('--limit', type=int, default=50,
                         help='max tests to process (default 50)')
-    parser.add_argument('--dry-run', action='store_true')
     args = parser.parse_args()
 
     db = admin_db()

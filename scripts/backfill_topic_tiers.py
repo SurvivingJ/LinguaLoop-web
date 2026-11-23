@@ -24,20 +24,21 @@ human to execute.
 
 Usage:
     python scripts/backfill_topic_tiers.py --report
-    python scripts/backfill_topic_tiers.py --stamp-tiers [--limit 10] [--dry-run]
-    python scripts/backfill_topic_tiers.py --queue-tiers 3,5 [--dry-run]
+    python scripts/backfill_topic_tiers.py --stamp-tiers [--limit 10] [--apply]
+    python scripts/backfill_topic_tiers.py --queue-tiers 3,5 [--apply]
+
+--stamp-tiers and --queue-tiers are dry runs unless --apply is given.
 """
 
 from __future__ import annotations
 
-import argparse
 import logging
 from collections import Counter
 
 try:
-    from _common import admin_db, bootstrap
+    from _common import admin_db, base_parser, bootstrap
 except ImportError:  # run or imported as scripts.<name>
-    from scripts._common import admin_db, bootstrap
+    from scripts._common import admin_db, base_parser, bootstrap
 
 bootstrap(log_format='%(asctime)s %(levelname)s %(message)s')
 
@@ -224,7 +225,7 @@ def queue_tiers(db, tiers: list[int], dry_run: bool) -> None:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = base_parser(description=__doc__)
     parser.add_argument('--report', action='store_true',
                         help='print per-tier topic and test coverage')
     parser.add_argument('--stamp-tiers', action='store_true',
@@ -233,7 +234,6 @@ def main() -> int:
                         help='T3.3: comma-separated tiers to enqueue, e.g. 3,5')
     parser.add_argument('--limit', type=int, default=50,
                         help='max topics to stamp (default 50)')
-    parser.add_argument('--dry-run', action='store_true')
     args = parser.parse_args()
 
     if not (args.report or args.stamp_tiers or args.queue_tiers):
