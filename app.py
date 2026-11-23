@@ -53,6 +53,7 @@ from routes.dual_translation import dual_translation_bp
 from routes.dt_repair import dt_repair_bp
 from routes.test_intros import test_intros_bp
 from routes.word_list_import import word_list_import_bp
+from routes.knowledge import knowledge_bp
 
 
 def create_app(config_class=Config):
@@ -250,6 +251,8 @@ def _register_blueprints(app):
     app.register_blueprint(dt_repair_bp, url_prefix='/api/dual-translation/repair')
     app.register_blueprint(test_intros_bp)
     app.register_blueprint(word_list_import_bp)
+    # Knowledge Report ("My vocabulary"); answers 404 while KNOWLEDGE_REPORT_ENABLED is off.
+    app.register_blueprint(knowledge_bp, url_prefix='/api/knowledge')
 
     app.logger.info("Blueprints registered")
 

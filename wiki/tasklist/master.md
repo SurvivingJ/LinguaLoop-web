@@ -19,12 +19,18 @@ below.
 
 | Status | Count |
 |--------|-------|
-| Not Started | 47 |
-| In Progress (`[~]`) | 15 |
-| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 30 |
+| Not Started | 78 |
+| In Progress (`[~]`) | 17 |
+| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 60 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
-| Won't Do (obsolete) | 3 |
-| Done (cumulative, not listed here) | 282 |
+| Won't Do (obsolete) | 5 |
+| Done (cumulative, not listed here) | 304 |
+
+*2026-11-22 (Knowledge Report + Vocabulary placement migrations APPLIED LIVE):* all 12 migrations applied in runbook order (1.3 in four parts by the agent; 1.3 part 4 – 2.2 pasted by the owner in the SQL editor). All 46 functions identical to the verified local copy (ignoring the editor's CRLF; two zh helpers hold the tone marks as characters rather than `\uXXXX` regex escapes, same results on 20,000 readings). Security checks clean for every new object. TASK-1034, 1036, 1044, 1074, 1076, 1079, 1092 Done; TASK-1077 Done after the live smoke test (all five pairs pass; In Progress 18→17, Done 303→304); TASK-1081 (intro-drill check after deploy) in progress; TASK-1075 data steps remain. Counts: In Progress 16→18, Blocked/awaiting 69→60, Done 296→303.
+
+*2026-11-19 (Knowledge Report + Vocabulary placement BUILT, nothing applied live):* re-review after main's exercise cut-over: every cited code location still holds, frames unchanged (3:2 = 3,175, 1:2 = 3,623, 2:2 = 3,754), database 358 MB so the size gate (report OQ13, placement PQ15) no longer binds. Built on `claude/beautiful-planck-0fftk4` (orchestrator + 5 parallel workers): report TASK-1035, 1037–1043 Done (repo); TASK-1034, 1036, 1044 awaiting live apply; placement TASK-1078, 1080, 1082, 1084, 1087 Done (repo); TASK-1074, 1075 (code), 1076, 1077, 1079, 1081, 1092 awaiting live apply; TASK-1088 in progress (owner launch steps). All migrations applied in order to one local PostgreSQL 16 copy of the live schema with real pool data: SQL suites 13 + 5 + 94 checks green; the placement service driven end to end against the real SQL. Full suite 6,242 passed (1 pre-existing order-dependent failure), vitest 838 passed. New TASK-1096 (heteronym seed). Apply order and launch steps: [[tasklist/report-and-placement-apply-runbook]]. Counts: Not Started 101→78, In Progress 15→16, Blocked/awaiting 59→69, Done 283→296.
+
+*2026-11-19 (main merged into the Knowledge Report / placement branch):* main's exercise-content cut-over (TASK-1026–1031) merged into `claude/beautiful-planck-0fftk4`. Counts = merge base (52 / 16 / 30 / 2 / 277) + this branch's changes (+54 / 0 / +29 / +2 / +1: billing, Knowledge Report, placement) + main's changes (−5 / −1 / 0 / +1 / +5).
 
 *2026-11-19 (Exercise Content in Storage — TRANSITION CODE REMOVED, TASK-1031):*
 - No read/write modes, no DB fallback, no shadow comparer and no `EXERCISE_CONTENT_SOURCE` / `_WRITE` / `_DB_FALLBACK` / `_SHADOW_SAMPLE` flags: content is read only from the files and written file first. Production behaviour unchanged (it already ran Storage reads and dual writes).
@@ -39,6 +45,16 @@ below.
 - The shadow week (TASK-1028) and the archive-all copy were skipped by owner decision; a clean full verify and checks against real sessions stood in for them.
 - Next: TASK-1031, removing the transition code. Counts: Not Started 52→48, In Progress 16→15, Won't Do 2→3, Done 277→281.
 
+*2026-11-18 (Vocabulary placement: owner answers PQ2, PQ3, PQ5, PQ10):* zh tones scored with wrong tone combinations built only from syllable+tone pairs that exist ([[decisions/ADR-060-zh-placement-scores-tones]], proposed); evidence rules approved ([[decisions/ADR-059-placement-evidence-kind]] accepted); no exam-level output for now; about 60 questions for zh/ja. TASK-1081 and TASK-1092 unblocked (TASK-1092 rewritten as the zh tone-variant task, a zh launch item); TASK-1090 parked. Counts: Not Started 104→106, Blocked 61→59.
+
+*2026-11-18 (Vocabulary placement specced, no code changed):* research workflow (literature, products, code and data audit, simulation → draft → 2 challengers → synthesis) → [[features/vocab-placement]], [[features/vocab-placement.tech]], ADR-057–059 (proposed), [[evaluations/vocab-placement-research-2026-11-18]], [[tasklist/vocab-placement.tasks]] TASK-1074–1095 (22: 13 Not Started, 9 Blocked [?]). TASK-1073 done. TASK-1063 now depends on TASK-1074. Counts: Not Started 91→104, In Progress 17→16, Blocked 52→61, Done 277→278.
+
+*2026-11-18 (Knowledge Report: goal-path layout preferred, placement test proposed):* TASK-1072 (goal-path layout, [?] OQ35/OQ36) and TASK-1073 (vocabulary placement test research and design, [?] OQ37) added. Counts: Blocked 51→53.
+
+*2026-11-17 (Knowledge Report specced, no code changed):* agent swarm (5 research, design, 2 challengers, synthesis) → [[features/knowledge-report]], [[features/knowledge-report.tech]], ADR-051–056 (proposed), [[tasklist/knowledge-report.tasks]] TASK-1034–1071 (38: 22 Not Started, 16 Blocked [?]). Billing TASK-993 superseded (pointer kept); billing TASK-980/997 cross-referenced to TASK-1038/TASK-1059. IDs start after main's ADR-050 / TASK-1033. Counts: Not Started 69→91, Blocked 36→51 (+16, −TASK-993).
+
+*2026-11-17 (billing branch merged into this branch):* `claude/tender-dirac-v603du` (billing plan, TASK-976–1000 in [[tasklist/billing.tasks]], [[decisions/ADR-047-credits-and-subscription-model]]) merged; its counts added (Not Started +17, Blocked +6, Won't Do +2). **ID clash, not renumbered here:** billing's TASK-976–1000 reuse ids already used by [[tasklist/mobile-redesign.tasks]] (976–988, 1007) and [[tasklist/fixes-2026-11-16.tasks]] (989–1006), and its ADR-047 reuses [[decisions/ADR-047-basic-word-knowledge-prior]]'s number. In this file the billing table is the one under "Billing, Credits and Plans"; read a billing id as `billing/TASK-nnn`.
+
 *2026-11-17 (Exercise Content in Storage Phase 1 built and integrated, TASK-1008–1025):* the six work-package branches (a store, b writers, c SQL, d1 session readers, d2 prestudy + route readers, e backfill + sweep) were merged into `claude/dreamy-brahmagupta-40a4gq` without conflicts; TASK-1025 aligned `FakeContentDB` with the commit SQL, added `tests/test_exercise_content_integration.py` (scenarios 1–8 in db/db, shadow/dual, storage/dual) and checked that `db` mode issues exactly the pre-ADR calls. Prestudy now loads exercise content only for the words it drills, with an on-demand endpoint for words the learner adds (owner decision). Migrations are written, **not applied**; flags stay `db`. Offline suite: same 48 environmental failures + 1 collection error as the foundation commit. Next: operator tasks TASK-1026–1030. Counts: Not Started 55→37, Done 250→268. See [[tasklist/exercise-content-storage.tasks]], [[decisions/ADR-049-exercise-content-in-storage]] "Implementation status".
 
 *2026-11-17 (NEW — Exercise Content in Storage, ADR-049, TASK-1008–1031):* exercise `content` (119 MB of a 470 MB database on the 500 MB Free cap) moves to one immutable JSON file per sense in the private Storage bucket `exercise-content`. Phase 0 (architect) done: reader/writer inventory (ADR-049 Appendix A), design and contracts. 24 tasks added, all Not Started: package a store (1008–1011; 1008 lands first), b writers (1012–1015), c migrations (1016–1018), d readers (1019–1022), e backfill + sweep (1023–1024), integration (1025); TASK-1026–1030 are operator steps (live DB, deploy, flags, measurement) and not for agents; TASK-1031 post-cut-over clean-up. Two owner questions in the ADR (prestudy fan-out, semdisc leftovers), neither blocking. Counts: Not Started 31→55. See [[tasklist/exercise-content-storage.tasks]].
@@ -52,6 +68,8 @@ below.
 *2026-11-16 (i18n gaps filled):* TASK-985 Done. `es.json` gained the 57 keys it lacked (the `dt_repair.*` family plus `session.dt_repair_heading` / `_none`); 17 keys used in code but present in no locale (`session.speed_*`, `dual_translation.target_*`) added to all four. The four locale files now have identical key sets (1175). Counts: Not Started 42→41, Done 251→252.
 
 *2026-11-16 (mobile redesign built — app shell and design system, ADR-048):* new breakdown [[tasklist/mobile-redesign.tasks]] (TASK-976–988 and TASK-1007) for every open issue and unverified item the redesign engineers reported. TASK-987 Done (i18n merge, Me page links, hard-coded colours — closed during integration, verified in the tree). TASK-982 (Playwright E2E, needs credentials) and TASK-988 (commit, review, deploy — owner) Blocked. The other 11 Not Started. Counts: Not Started 31→42, Blocked 27→29, Done 250→251.
+
+*2026-11-17 (billing plan filed, no code changed):* TASK-976–1000 added for Core/Pro plans, PAYG credits and the tutor step — 17 Not Started, 8 Blocked ([?]: D4 provider, D17 age policy, launch-scope questions for the knowledge report and custom tests, trainer cap, tutor spec). Counts: Not Started 31→48, Blocked 27→35. See [[tasklist/billing.tasks]].
 
 *2026-11-14 (DT guided self-repair built + integrated, WP-INT):* TASK-952–965 Done (WP-BE + WP-FE), TASK-968 and TASK-969 Done (WP-INT: contract test against the real routes, nine frontend/backend mismatches fixed, real-app browser run over an in-memory DB). TASK-966 (apply `dt_guided_self_repair.sql`, owner decision) and TASK-967 (authenticated E2E on a staging DB) Blocked. New: TASK-971 Not Started (real devices / Safari / screen reader / IME), TASK-972 / TASK-973 / TASK-974 Blocked (native review, re-check evaluation, deploy). TASK-939 and TASK-940 superseded by that breakdown. No task id is duplicated (TASK-970 is dt-taxonomy-v6 only). Counts: Not Started 30→31, Blocked 24→27 (+966, 967, 972, 973, 974; −939, 940), Done 234→250. See [[tasklist/dt-guided-self-repair.tasks]].
 
@@ -1348,6 +1366,112 @@ Full spec: [[tasklist/fixes-2026-11-16.tasks]] · [[features/dual-translation.te
 | TASK-1004 | fixes-2026-11-16 | Basic-word knowledge: ADR-047 proposals (P1–P6, INT-2/3, ja compounds, default ability) — ADR-047 accepted | [ ] | L | TASK-994 |
 | TASK-1005 | fixes-2026-11-16 | Tone marks on the last numbered-pinyin surfaces (classifier_match, counter drill, admin check) | [ ] | S | — |
 | TASK-1006 | fixes-2026-11-16 | DT UX gaps: test-available for done tests, all-done wording, 404 console error | [ ] | XS | — |
+
+### Billing, Credits and Plans — NEW 2026-11-17
+Full spec: [[tasklist/billing.tasks]] · [[business/pricing-plan.tech]] · [[decisions/ADR-047-credits-and-subscription-model]]. Planning only; no code changed.
+
+| ID | Feature | Title | Status | Complexity | Depends On |
+|----|---------|-------|--------|------------|------------|
+| TASK-976 | billing | Docs reconciliation before billing work | [ ] | XS | — |
+| TASK-977 | billing | Settle the balance store (`users.tokens` vs `user_tokens`) | [ ] | S | TASK-976 |
+| TASK-978 | billing | Migration — plans, prices, subscriptions, entitlements (LIVE-DB) | [ ] | M | TASK-977 |
+| TASK-979 | billing | Migration — credit ledger and RPCs (LIVE-DB) | [ ] | L | TASK-978 |
+| TASK-980 | billing | Entitlements service, `ENTITLEMENTS_ENFORCED` flag, endpoint | [ ] | M | TASK-979 |
+| TASK-981 | billing | Credits service and quote endpoint | [ ] | S | TASK-980 |
+| TASK-982 | billing | Retire dead token code (`PaymentService`, `TOKEN_PACKAGES`) | [ ] | S | TASK-981 |
+| TASK-983 | billing | Stripe webhook with idempotency and event dispatch | [ ] | L | TASK-981 |
+| TASK-984 | billing | Stripe provisioning, checkout and portal | [ ] | M | TASK-983 |
+| TASK-985 | billing | Merchant-of-record adapter | Won't Do (D4 = Stripe) | L | TASK-983 |
+| TASK-986 | billing | Scheduled billing jobs and nightly reconciliation | [ ] | S | TASK-983 |
+| TASK-987 | billing | Daily new-test limit: page pre-check + submit backstop | [ ] | M | TASK-980 |
+| TASK-988 | billing | Daily session and prestudy clamps for Free | [ ] | M | TASK-980 |
+| TASK-989 | billing | DT caps, over-cap credits, refunds, per-tier token backstop | [ ] | M | TASK-981 |
+| TASK-990 | billing | Word-list import: dictionary gate and per-new-sense credits | [ ] | M | TASK-981 |
+| TASK-991 | billing | Trainer level cap for Free | Won't Do (Q3) | S | TASK-980 |
+| TASK-992 | billing | Fix DT cost logging (D9 data) | [ ] | S | — |
+| TASK-993 | billing | Knowledge report — superseded by [[tasklist/knowledge-report.tasks]] (TASK-1034–1071) | Superseded | — | — |
+| TASK-994 | billing | User custom tests (10 credits, +30 references) | [?] spec + scope Q1 | XL | TASK-981 |
+| TASK-995 | billing | Billing UI: pricing page, paywall, credit chips, billing settings | [ ] | L | TASK-984, TASK-981 |
+| TASK-996 | billing | Trial and lifecycle emails (21-day Pro trial) | [?] D17 | M | TASK-980, TASK-986 |
+| TASK-997 | billing | Staging end-to-end and rollout (LIVE, owner) | [ ] | M | TASK-978–990, TASK-995 |
+| TASK-998 | billing | Re-create organizations for tutors (LIVE-DB) | [?] G1a gate + spec | M | TASK-997 |
+| TASK-999 | billing | Tutor billing: base + per-seat subscription | [?] after TASK-998 | M | TASK-998, TASK-984 |
+| TASK-1000 | billing | Tutor workspace: invite, assign, results | [?] classes-and-assignments spec | XL | TASK-998 |
+
+### Knowledge Report — NEW 2026-11-17
+Full spec: [[tasklist/knowledge-report.tasks]] · [[features/knowledge-report]] · [[features/knowledge-report.tech]] · [[decisions/ADR-051-vocabulary-size-from-calibration-frame]] – [[decisions/ADR-056-report-actions-reuse-existing-study-paths]]. Planning only; no code changed. Supersedes billing TASK-993. v1 = TASK-1034–1059; deferred = TASK-1060–1071.
+
+| ID | Feature | Title | Status | Complexity | Depends On |
+|----|---------|-------|--------|------------|------------|
+| TASK-1034 | knowledge-report | Foundation migration — snapshot table, frame, pairs and prune functions, `reference-data` bucket (LIVE-DB) | Done — applied live 2026-11-22 | M | none |
+| TASK-1035 | knowledge-report | Pure estimator and rules module (`knowledge_estimate.py`) | Done (repo) | M | none |
+| TASK-1036 | knowledge-report | Summary RPC `knowledge_report_summary` (LIVE-DB) | Done — applied live 2026-11-22 | L | TASK-1034, TASK-1079 |
+| TASK-1037 | knowledge-report | Nightly snapshot job | Done (repo) | M | TASK-1034, TASK-1035, TASK-1036 |
+| TASK-1038 | knowledge-report | Entitlement seam, shared 402 helper, feature flags and intent logging | Done (repo) | S | none |
+| TASK-1039 | knowledge-report | `GET /api/knowledge/summary` and the summary service | Done (repo) | M | TASK-1035, TASK-1036, TASK-1038 |
+| TASK-1040 | knowledge-report | `/knowledge` page — summary cards, states, Me row, i18n | Done (repo) | L | TASK-1039 |
+| TASK-1041 | knowledge-report | Prestudy next step (`GET /api/knowledge/prestudy-suggestion`) | Done (repo) | S | TASK-1039, TASK-1040 |
+| TASK-1042 | knowledge-report | Calibration result shows the same vocabulary range | Done (repo) | S | TASK-1039 |
+| TASK-1043 | knowledge-report | Practice deep link `?mode=practice&extra=reviews` | Done (repo) | XS | TASK-1040 |
+| TASK-1044 | knowledge-report | Words RPC `knowledge_report_words` (LIVE-DB) | Done — applied live 2026-11-22 | M | TASK-1034 |
+| TASK-1045 | knowledge-report | `GET /api/knowledge/words` (Pro) with validation, gate and intent log | [ ] | M | TASK-1044, TASK-1038, TASK-1039 |
+| TASK-1046 | knowledge-report | Pro UI — All words and Missed recently tabs, filters, sorts, search | [ ] | L | TASK-1045, TASK-1040 |
+| TASK-1047 | knowledge-report | Word sheet — detail RPC, route and UI (LIVE-DB) | [ ] | M | TASK-1044, TASK-1046 |
+| TASK-1048 | knowledge-report | Export — filtered and list CSV, Anki text (Pro) | [ ] | M | TASK-1045, TASK-1046, TASK-1049 |
+| TASK-1049 | knowledge-report | List RPCs, word-list store and route (LIVE-DB) | [ ] | L | TASK-1034, TASK-1038 |
+| TASK-1050 | knowledge-report | List cards (summary) and the Pro Lists tab | [ ] | M | TASK-1049, TASK-1046 |
+| TASK-1051 | knowledge-report | "Add these words to my word list" (Pro study action) | [ ] | S | TASK-1050, TASK-1046 |
+| TASK-1052 | knowledge-report | Word-list builder and upload script | [?] needs OQ2 (HSK edition) and OQ3 (licences, list-subset export) answ… | M | TASK-1049 |
+| TASK-1053 | knowledge-report | Upload the exam lists to Storage [?] (LIVE-STORAGE, owner) | [?] OQ2 and OQ3 only (the files live in Storage, so no database size gate — ADR-054… | S | TASK-1034, TASK-1052 |
+| TASK-1054 | knowledge-report | Performance evaluation on live data | [ ] | S | TASK-1036, TASK-1044 |
+| TASK-1055 | knowledge-report | End-to-end smoke and visual fixtures | [ ] | S | TASK-1040, TASK-1046 |
+| TASK-1056 | knowledge-report | Validate the estimator and the ratings | [?] needs OQ6 (exclude 110fb390?), TASK-1061 (forced-choice items, OQ5)… | M | TASK-1035, TASK-1037, TASK-1061 |
+| TASK-1057 | knowledge-report | Documentation reconciliation | [ ] | S | TASK-1034, TASK-1036, TASK-1038, TASK-1040 |
+| TASK-1058 | knowledge-report | Enable the report in production (LIVE environment change) | [ ] | XS | TASK-1037, TASK-1040, TASK-1041, TASK-1054 |
+| TASK-1059 | knowledge-report | Pro launch gate | [?] needs TASK-1053 (OQ2, OQ3; no longer the database size gate OQ13 — ADR-054, revised… | XS | TASK-1046, TASK-1048, TASK-1051, TASK-1053 |
+| TASK-1060 | knowledge-report | Import not-in-dictionary words with credits | [?] billing's credit spend path (`spend_credits(8, 'sense_import')`, `w… | L | TASK-1051 |
+| TASK-1061 | knowledge-report | Calibration forced-choice probe items [?] (LIVE-DB) | [?] OQ5 (owner approval of a Calibration change) | M | none |
+| TASK-1062 | knowledge-report | Calibration selector — one lemma, rank-1 sense [?] (LIVE-DB) | [?] OQ9 (owner approval of a live Calibration function change) | M | none |
+| TASK-1063 | knowledge-report | Refresh the zh calibration anchor pool [?] (LIVE-DB data) | [?] OQ29 and the size gate (≈ 5–7 MB, ESTIMATE from 369 B per pool row… | S | TASK-1074 |
+| TASK-1064 | knowledge-report | Targeted practice of an explicit word set | [?] OQ15 (scope with the Practice owner) | L | TASK-1046, TASK-1050 |
+| TASK-1065 | knowledge-report | Evidence-kind counters or an evidence log [?] (LIVE-DB) | [?] OQ16 (worth changing the seven writer functions?) and the size gate | L | none |
+| TASK-1066 | knowledge-report | Decay function clean-ups [?] (LIVE-DB) | [?] OQ14 (owner approval for a live change with no staging) | S | none |
+| TASK-1067 | knowledge-report | Frequency-aware decay and a model review flag | [?] OQ17 (its own ADR and validation data) | XL | TASK-1065, TASK-1066 |
+| TASK-1068 | knowledge-report | Learner corrections on the word sheet | [?] OQ18 (should self-reports write BKT state?) | M | TASK-1047 |
+| TASK-1069 | knowledge-report | Today card | [?] OQ19 (placement on Today) | S | TASK-1040 |
+| TASK-1070 | knowledge-report | "Upcoming tests" coverage card (Pro) | [?] OQ32 | M | TASK-1041, TASK-1046 |
+| TASK-1071 | knowledge-report | Estimated percentage per exam level | [?] OQ34 and TASK-1056 | M | TASK-1050, TASK-1056 |
+| TASK-1072 | knowledge-report | Goal-path layout (mockup C) in the spec and the page | [?] OQ35, OQ36 | L | TASK-1040, TASK-1046, TASK-1050, TASK-1037 |
+| TASK-1073 | knowledge-report | Vocabulary placement test — research and design | [x] Done (2026-11-18) → [[tasklist/vocab-placement.tasks]] | M | — |
+
+### Vocabulary placement — NEW 2026-11-18
+Full spec: [[tasklist/vocab-placement.tasks]] · [[features/vocab-placement]] · [[features/vocab-placement.tech]] · [[decisions/ADR-057-adaptive-placement-with-conditional-reading]] – [[decisions/ADR-059-placement-evidence-kind]] · [[evaluations/vocab-placement-research-2026-11-18]]. Planning only; no code changed. LIVE-DB tasks are written by the agent and applied by the owner. Launch needs TASK-1081 and, for zh, TASK-1082 and TASK-1092; ja also TASK-1075. Owner answered PQ2, PQ3 (zh), PQ5 and PQ10 on 2026-11-18.
+
+| ID | Feature | Title | Status | Complexity | Depends On |
+|----|---------|-------|--------|------------|------------|
+| TASK-1074 | vocab-placement | Fix the zh reading normaliser and syllable count (LIVE-DB, owner) | Done — applied live 2026-11-22 | S | — |
+| TASK-1075 | vocab-placement | ja reading readiness: katakana, kana-consistent foils, ja-only refresh, refill (LIVE-DB, owner) | [~] code done, migrations applied live 2026-11-22; owner refresh/refill/gate | M | TASK-1077 (gate) |
+| TASK-1076 | vocab-placement | Placement schema migration (LIVE-DB, owner) | Done — applied live 2026-11-22 | M | — |
+| TASK-1077 | vocab-placement | Placement SQL functions (LIVE-DB, owner) | Done — applied live 2026-11-22, live smoke test passed | L | TASK-1076; TASK-1092 (zh) |
+| TASK-1078 | vocab-placement | Pure placement design and estimator functions | Done (repo) | M | TASK-1035 |
+| TASK-1079 | vocab-placement | `knowledge_calibration_inputs` (LIVE-DB, owner) | Done — applied live 2026-11-22 | M | TASK-1076, TASK-1034 |
+| TASK-1080 | vocab-placement | Placement service and routes | Done (repo) | L | TASK-1077, TASK-1078, TASK-1079 |
+| TASK-1081 | vocab-placement | Placement evidence: pair-based BKT, A2/A2r on the native sense (LIVE-DB, owner) | [~] applied live 2026-11-22; intro-drill check after deploy | L | TASK-1076, TASK-1080 |
+| TASK-1082 | vocab-placement | Intro drill (and prestudy) show zh pinyin for diacritic-only readings | Done (repo) | S | — |
+| TASK-1083 | vocab-placement | Placement feeds test selection and the rating writer | [?] OQ33 | M | TASK-1080 |
+| TASK-1084 | vocab-placement | Placement page and i18n | Done (repo) | L | TASK-1080 |
+| TASK-1085 | vocab-placement | Entry points incl. onboarding gate | [?] PQ7 | S | TASK-1084, TASK-1040 |
+| TASK-1086 | vocab-placement | Report integration (LIVE-DB, owner) | [ ] | L | TASK-1078, TASK-1079, TASK-1081, TASK-1036, TASK-1039, TASK-1040, TASK-1044 |
+| TASK-1087 | vocab-placement | Simulation regression harness (V0) | Done (repo) | M | TASK-1078 |
+| TASK-1088 | vocab-placement | Launch per language (LIVE env, owner) | [~] code done (nightly close, gate script); owner steps | S | TASK-1080, TASK-1081, TASK-1082, TASK-1084, TASK-1087, TASK-1092 (zh) (ja: TASK-1075) |
+| TASK-1089 | vocab-placement | Validation study V1–V10 | [?] learners | M | TASK-1088 |
+| TASK-1090 | vocab-placement | Exam-level output — redesign and gate | [?] parked (owner PQ2: not now), V5 | L | TASK-1089, TASK-1049 |
+| TASK-1091 | vocab-placement | Check meaning items become the bare instrument (LIVE-DB, owner) | [?] PQ11 | M | TASK-1076, TASK-1077 |
+| TASK-1092 | vocab-placement | zh tone variants: inventory, generator, readiness (LIVE-DB, owner; zh launch item) | Done — applied live 2026-11-22 | M | — |
+| TASK-1093 | vocab-placement | IRT scoring v2 | [?] data | XL | TASK-1089 |
+| TASK-1094 | vocab-placement | Goal-path placement segment and hero copy | [?] TASK-1072 | S | TASK-1081, TASK-1086, TASK-1072 |
+| TASK-1095 | vocab-placement | Documentation reconciliation | [ ] | S | TASK-1086 |
+| TASK-1096 | vocab-placement | zh tone variants: heteronym list for single-character lemmas | [ ] | S | TASK-1092 |
 
 ### Language Packs (existing — unchanged)
 
