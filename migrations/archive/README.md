@@ -213,3 +213,21 @@ object, although one of its objects is now stale or dropped):
 | `exercise_content_storage.sql` | `exercise_content_commit` (pre-drop body; canonical: `exercise_content_drop_column.sql`) | only record of `exercises.content_version`, `exercises.dedupe_key`, `exercise_content_version_seq`, `exercise_content_begin`, `exercise_content_live_versions` and the bucket row |
 | `exercise_content_drop_column.sql` | — | canonical for `exercise_content_commit`, the two session RPCs and `uq_exercises_context_free_variant_v2` |
 | `exercise_content_drop_column_rollback.sql` | the pre-drop RPC bodies (a rollback) | the only rollback of the cut-over; its header now says a rollback also needs a refill of `exercises.content` from Storage, and the code before TASK-1031 |
+
+## 2026-11-23 — spent one-shot and stale rollback files (database review F-23 / F-24)
+
+Moved so they cannot be run by mistake from the canonical directory. Neither defines an
+object that is live: one is a data wipe, the other a rollback whose forward file is live.
+
+| Archived file | Object | New canonical file | Live marker checked |
+|---|---|---|---|
+| `phase13_wipe_user_state_for_launch.sql` | one-shot `TRUNCATE ... RESTART IDENTITY CASCADE` of the 12 user-progress tables (no object defined) | *(none — data operation)* | one-off, applied 2026-05-21 (wiki/log.md); re-running would erase every learner's ratings, knowledge, ladder, attempts and study plans. Checked 2026-11-23 that the file creates no object |
+| `latency_2026_11_db_rollback.sql` | rollback of `latency_2026_11_db.sql`: old `resolve_plan_timezone(text)`, `DROP TABLE tz_names`, recreate 4 duplicate indexes, drop the FK indexes | `latency_2026_11_db.sql` (stays canonical) | forward file is live: `tz_names` has 1,194 rows and the live `resolve_plan_timezone` body reads `tz_names` (2026-11-23). Still the only rollback of that file; to use it, run it from here |
+
+**Not archived, deliberately:**
+
+| Kept file | Why it stays |
+|---|---|
+| `archive_unused_modules_2026_09_21.sql` | spent one-shot (applied 2026-09-22; its `TRUNCATE public.llm_calls` and DROPs cannot recur because its first guard raises on 0 conversation exercises), but rule #4: it is the only repo record of the live `exercises.chk_source_fk` definition (`word_sense_id` / `corpus_collocation_id` only) and of the column drops on `exercises` |
+| `exercise_content_drop_column_rollback.sql` | `tests/test_exercise_content_migration_cutover.py` requires it in `migrations/`; a STALE warning was added at the top of the file instead |
+| `task998_classifier_drill_levels_rollback.sql` | `tests/test_classifier_drill_levels.py` reads it from `migrations/`; a STALE warning was added at the top of the file instead |

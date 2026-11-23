@@ -1,3 +1,14 @@
+-- #############################################################################
+-- ## STALE ROLLBACK - DO NOT RUN AGAINST THE LIVE DATABASE AS IS (2026-11-23)  ##
+-- #############################################################################
+-- task998_classifier_drill_levels.sql is live: get_classifier_drill_session_v2
+-- exists and user_classifier_mastery.level_attempts exists (checked
+-- 2026-11-23). Running this file now would revert the live
+-- update_classifier_mastery to the pre-task998 promotion rule, DROP
+-- get_classifier_drill_session_v2 (the measure-word drill falls back to v1) and
+-- DROP the level_attempts column with its data. Kept here, not in archive/,
+-- because tests/test_classifier_drill_levels.py reads it from migrations/.
+-- #############################################################################
 -- Rollback for migrations/task998_classifier_drill_levels.sql. Not applied;
 -- kept for an operator who needs to undo it.
 --
