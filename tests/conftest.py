@@ -76,8 +76,10 @@ def pytest_configure(config):
 def pytest_collection_modifyitems(config, items):
     if _live_selected(config):
         return
-    skip_live = pytest.mark.skip(
-        reason='live test: needs the live Supabase project; run deliberately with -m live')
+    # A skipif(True), prepended: pytest evaluates skipif marks before skip
+    # marks, so this reason wins over a test's own credential skipif.
+    skip_live = pytest.mark.skipif(
+        True, reason='live test: needs the live Supabase project; run deliberately with -m live')
     for item in items:
         if item.get_closest_marker('live'):
             item.add_marker(skip_live, append=False)

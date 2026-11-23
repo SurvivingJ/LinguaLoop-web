@@ -37,17 +37,18 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt -r requirements-dev.txt
 
+      # NOT A GATE YET: the repo still has ruff findings, so a failure here is
+      # only reported. Once `ruff check .` is clean, delete the
+      # `continue-on-error: true` line below to make it block the build.
       - name: Ruff (pyflakes rules, not yet blocking)
         continue-on-error: true
         run: ruff check .
 
-      # The two deselected tests read prompt_templates from the live database
-      # and cannot run on placeholder credentials.
+      # Tests marked `live` (they read the live database) skip unless selected
+      # with -m live; tests/conftest.py keeps every other test away from a real
+      # Supabase client whatever credentials are set.
       - name: pytest
-        run: >
-          python -m pytest -q
-          --deselect tests/test_ladder_validation_profiles.py::test_ja_p1_prompt_enumerates_exactly_the_profile_pos_set
-          --deselect tests/test_provider_routing_and_reasoning.py::test_no_active_vocab_ladder_model_resolves_to_a_reasoning_class_model
+        run: python -m pytest -q
 
   frontend:
     name: vitest + eslint

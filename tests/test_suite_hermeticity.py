@@ -69,6 +69,50 @@ def test_a_test_can_supply_its_own_fake(monkeypatch):
     assert supabase_factory.get_supabase_admin() == 'fake'
 
 
+def _child_pytest(tmp_path, files, *args):
+    """Run a child pytest on ``files`` with this suite's conftest; return its result."""
+    (tmp_path / 'conftest.py').write_text("pytest_plugins = ['tests.conftest']\n")
+    for name, text in files.items():
+        (tmp_path / name).write_text(text)
+    env = {k: v for k, v in os.environ.items() if k != 'PYTEST_ADDOPTS'}
+    env['PYTHONPATH'] = os.pathsep.join([REPO_ROOT, env.get('PYTHONPATH', '')])
+    return subprocess.run(
+        [sys.executable, '-m', 'pytest', '-q', '-rs', '-p', 'no:cacheprovider', '-p', 'no:randomly',
+         '--rootdir', str(tmp_path), '-c', os.devnull, *args, *map(str, files)],
+        cwd=tmp_path, env=env, capture_output=True, text=True)
+
+
+_LIVE_FILE = {'test_live.py': (
+    'import pytest\n'
+    '@pytest.mark.live\n'
+    'def test_reads_the_live_project():\n'
+    '    pass\n'
+    'def test_offline():\n'
+    '    pass\n'
+)}
+
+
+def test_live_tests_are_skipped_by_default(tmp_path):
+    out = _child_pytest(tmp_path, _LIVE_FILE)
+    assert out.returncode == 0, out.stdout + out.stderr
+    assert '1 passed, 1 skipped' in out.stdout
+    assert 'run deliberately with -m live' in out.stdout
+
+
+def test_live_tests_run_when_selected(tmp_path):
+    out = _child_pytest(tmp_path, _LIVE_FILE, '-m', 'live')
+    assert out.returncode == 0, out.stdout + out.stderr
+    assert '1 passed, 1 deselected' in out.stdout
+
+
+def test_the_two_prompt_templates_tests_are_marked_live():
+    from tests import test_ladder_validation_profiles as ladder
+    from tests import test_provider_routing_and_reasoning as routing
+    for fn in (ladder.test_ja_p1_prompt_enumerates_exactly_the_profile_pos_set,
+               routing.test_no_active_vocab_ladder_model_resolves_to_a_reasoning_class_model):
+        assert 'live' in {m.name for m in getattr(fn, 'pytestmark', [])}, fn.__name__
+
+
 def test_app_fixture_and_a_test_monkeypatch_do_not_leak_a_mock(tmp_path):
     """H-01: a test that monkeypatches a name the `app` fixture also patches.
 
@@ -77,8 +121,7 @@ def test_app_fixture_and_a_test_monkeypatch_do_not_leak_a_mock(tmp_path):
     ``app`` because autouse fixtures request monkeypatch first). Runs the pair
     in a child pytest so the leak cannot reach this session.
     """
-    (tmp_path / 'conftest.py').write_text("pytest_plugins = ['tests.conftest']\n")
-    (tmp_path / 'test_pair.py').write_text(
+    out = _child_pytest(tmp_path, {'test_pair.py': (
         'from unittest.mock import Mock\n'
         'import services.supabase_factory as f\n'
         'REAL = (f.get_supabase, f.get_supabase_admin, f.SupabaseFactory)\n'
@@ -89,13 +132,7 @@ def test_app_fixture_and_a_test_monkeypatch_do_not_leak_a_mock(tmp_path):
         '    assert not any(isinstance(o, Mock) for o in '
         '(f.get_supabase, f.get_supabase_admin, f.SupabaseFactory))\n'
         '    assert (f.get_supabase, f.get_supabase_admin, f.SupabaseFactory) == REAL\n'
-    )
-    env = {k: v for k, v in os.environ.items() if k != 'PYTEST_ADDOPTS'}
-    env['PYTHONPATH'] = os.pathsep.join([REPO_ROOT, env.get('PYTHONPATH', '')])
-    out = subprocess.run(
-        [sys.executable, '-m', 'pytest', '-q', '-p', 'no:cacheprovider', '-p', 'no:randomly',
-         '--rootdir', str(tmp_path), '-c', os.devnull, str(tmp_path / 'test_pair.py')],
-        cwd=tmp_path, env=env, capture_output=True, text=True)
+    )})
     assert out.returncode == 0, out.stdout + out.stderr
     assert '2 passed' in out.stdout
 
