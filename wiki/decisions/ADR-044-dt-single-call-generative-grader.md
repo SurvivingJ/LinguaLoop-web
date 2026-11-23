@@ -35,8 +35,10 @@ single-call grader the live DT grader. Outstanding: restart all web workers (tax
 - The evaluation's recommendation (a recommendation, not a decision): revert to the validated pair; if a free model must stay, keep particle as
   primary and remove nemotron as fallback.
 
+**2026-11-23 (later):** the `config.py` defaults were reverted to the validated pair, `openai/gpt-6-luna` (primary) and `deepseek/deepseek-v4.1-flash` (fallback), by owner decision after the provider key was funded. A 5-call live check passed (both models answered and parsed through the production path; $0.0011). That checks the pipeline only; it is not a re-validation.
+
 Open questions (owner):
-- OPEN: revert the two defaults to the validated pair, or keep the free models for now?
+- ANSWERED 2026-11-23: revert the two defaults to the validated pair (owner decision; see the update line below).
 - OPEN: re-grade the 21 grades made by the free models, or mark them in some way?
 - OPEN: add numeric thresholds to this ADR so a model swap can be gated mechanically?
 

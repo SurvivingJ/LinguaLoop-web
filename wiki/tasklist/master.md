@@ -21,13 +21,15 @@ below.
 |--------|-------------------|------------------------------------------|
 | Not Started | 64 | 88 |
 | In Progress (`[~]`) | 18 | 25 |
-| Blocked / Deferred / Awaiting decision (`[?]`; includes "Done (repo), awaiting live apply") | 57 | 58 |
+| Blocked / Deferred / Awaiting decision (`[?]`; includes "Done (repo), awaiting live apply") | 56 | 57 |
 | Won't Do (obsolete) | 3 | 3 |
 | Superseded | 2 | 2 |
-| Done | 230 | 364 |
+| Done | 231 | 365 |
 | **Total distinct task ids** | **374** | **540** |
 
 *Recount 2026-11-23 (replaces the earlier stated counts of 78 / 17 / 59 / 5 / 305, which had drifted).* Method: the wiki checker (`check_wiki.py`) parsed every `| TASK-nnn |` table row in this file (374 distinct ids; duplicate rows of the same id counted once) and every `## TASK-nnn:` block in the 35 task files under `wiki/tasklist/` and `wiki/tasklist/archive/`, and mapped each status marker (`[ ]`, `[~]`, `[x]`, `[?]`, "Done", "Won't Do", "Superseded") to the buckets above; the right-hand column takes the task file's status where file and master disagree. The right-hand total includes 166 ids that exist only in task files (older archived work not given a master row, of which 25 are open: TASK-101 to 112, 609, 723 and 783 to 794, left as they are). 14 file-versus-master status disagreements remain in the archived lists (TASK-517 to 534 in `archive/exercise-generation-v2.tasks.md` and TASK-612 in `archive/dual-translation.tasks.md`): the truth is not checkable without the old live state and they were not changed. TASK-1200 to 1233 (34 rows, 10 of them `[?]`) were added by [[tasklist/review-2026-11-22.tasks]].
+
+*2026-11-23 (DT grader defaults reverted):* summary recounted with the checker: TASK-1202 Done (Blocked 57 to 56, Done 230 to 231; file union Blocked 58 to 57, Done 364 to 365). Not Started 64 (88), In Progress 18 (25) unchanged.
 
 *2026-11-23 (after merging the Sydney review-day, unused-routes and scripts `--apply` branches):* summary recounted again from the task rows with the checker (`check_wiki.py`): Not Started 64 (file union 88), In Progress 18 (25), Blocked/awaiting 57 (58), Won't Do 3, Superseded 2, Done 230 (364); 374 distinct row ids, 540 in the union. Changes against the count below: TASK-1221 Done (Blocked 58 to 57, Done 229 to 230) and TASK-1218 In Progress, convention and skill text done (Not Started 65 to 64, In Progress 17 to 18). TASK-1211 stays awaiting live apply; its review zone is now `Australia/Sydney` (see [[evaluations/codebase-review-2026-11-22]]).
 
@@ -1487,13 +1489,13 @@ Full spec: [[tasklist/vocab-placement.tasks]] · [[features/vocab-placement]] ·
 | TASK-1096 | vocab-placement | zh tone variants: heteronym list for single-character lemmas | [ ] | S | TASK-1092 |
 
 ### Codebase Review 2026-11-22 (TASK-1200 to TASK-1233)
-Full spec: [[tasklist/review-2026-11-22.tasks]]. Record: [[evaluations/codebase-review-2026-11-22]]. Eight rows are `[?]` (seven owner decisions: TASK-1202, 1203, 1206, 1207, 1208, 1224 and 1231; plus TASK-1211 done in the repo and awaiting its live SQL). TASK-1210, 1211 and 1227 were decided 2026-11-23 and TASK-1221 was resolved the same day (20 routes removed, Done). Order of the owner actions: TASK-1200, deploy (TASK-1233), TASK-1201.
+Full spec: [[tasklist/review-2026-11-22.tasks]]. Record: [[evaluations/codebase-review-2026-11-22]]. Seven rows are `[?]` (six owner decisions: TASK-1203, 1206, 1207, 1208, 1224 and 1231; plus TASK-1211 done in the repo and awaiting its live SQL). TASK-1210, 1211 and 1227 were decided 2026-11-23 and TASK-1221 was resolved the same day (20 routes removed, Done). Order of the owner actions: TASK-1200, deploy (TASK-1233), TASK-1201.
 
 | ID | Feature | Title | Status | Complexity | Depends On |
 |----|---------|-------|--------|------------|------------|
 | TASK-1200 | codebase-review-2026-11-22 | Smoke-test `record_exercise_attempt` on the live database before deploying | [ ] | S | — |
 | TASK-1201 | codebase-review-2026-11-22 | Apply the nine pending migrations in the order of `migrations/PENDING-2026-11-23.md` | [ ] | M | TASK-1200 |
-| TASK-1202 | codebase-review-2026-11-22 | Decide the DT grader models (production defaults failed the gold set) | [?] | S | — |
+| TASK-1202 | codebase-review-2026-11-22 | Decide the DT grader models (production defaults failed the gold set) | Done (repo) — defaults reverted to the ADR-044 pair 2026-11-23; owner checks host env and key limit | S | — |
 | TASK-1203 | codebase-review-2026-11-22 | Re-grade or mark the 21 live grades made by unvalidated models | [?] | S | TASK-1202 |
 | TASK-1204 | codebase-review-2026-11-22 | Add numeric pass thresholds to ADR-044 | [ ] | XS | — |
 | TASK-1205 | codebase-review-2026-11-22 | Repair re-check parity with the grader | [ ] | L | TASK-1202 |

@@ -444,8 +444,8 @@ process with no TTL). `DT_TAXONOMY_COLUMNS` also defaults to on now that its col
 shadow run on real submissions, native-speaker review of the model explanations. If the
 migration were missing, grades would still be saved without the asset columns.
 
-**Production model status (2026-11-23).** Production has **not** been running the validated models. Since
-2026-11-16 the `config.py` defaults are two free-tier models (the OpenRouter key hit its limit), with a
+**Production model status (2026-11-23).** The `config.py` defaults were reverted to the validated pair on 2026-11-23 (owner decision; a 5-call live check passed). Until then production had **not** been running the validated models: since
+2026-11-16 the defaults had been two free-tier models (the OpenRouter key hit its limit), with a
 "temporary, not validated" comment. All 21 single-call grades recorded between 2026-11-16 and 2026-11-18 (every
 `dt_grading_call` row with status `ok`) were made by them: 20 by `particle-ai/particle-1:free` and 1 by
 `nvidia/nemotron-3.5-super-vl:free`; the first 11 used prompt variant `v2` (no guard paragraph), the later 10 `v2_guard`.
@@ -555,8 +555,8 @@ the configured flow ("taxonomy mismatch").
 | Name | Default | Effect |
 |---|---|---|
 | `DT_SINGLE_CALL_GRADER` | `True` | Turns the flow on. `grade_submission(single_call=True/False)` overrides it (tests, eval harness). |
-| `DT_SINGLE_CALL_MODEL` | `particle-ai/particle-1:free` (**temporary since 2026-11-16, not validated**; the `config.py` comment says to set `openai/gpt-6-luna`, the validated primary, once the key is funded) | Primary slug. |
-| `DT_SINGLE_CALL_FALLBACK_MODEL` | `nvidia/nemotron-3.5-super-vl:free` (**temporary, not validated**; the validated fallback is `deepseek/deepseek-v4.1-flash`) | Tried once if the primary fails. Blank disables. |
+| `DT_SINGLE_CALL_MODEL` | `openai/gpt-6-luna` (the ADR-044 validated primary; restored as the default on 2026-11-23, replacing the free `particle-ai/particle-1:free` that was the temporary default from 2026-11-16 and failed the gold set) | Primary slug. |
+| `DT_SINGLE_CALL_FALLBACK_MODEL` | `deepseek/deepseek-v4.1-flash` (the ADR-044 validated fallback; restored 2026-11-23, replacing the free `nvidia/nemotron-3.5-super-vl:free`) | Tried once if the primary fails. Blank disables. |
 | `DT_SINGLE_CALL_SHOW_LOW_CONFIDENCE` | `False` | Keeps entries the model marks `low` in the grade (scored like any error). For a UI with an "unsure" state. |
 | `DT_SINGLE_CALL_FREE_TRANSLATION` | `False` | Appends Track E's "free translations are expected" paragraph (prompt variant `v2_mit`). Not re-measured with prompt v2. |
 | `DT_SINGLE_CALL_EXPLAINER` | `False` | Also runs the v2 Explainer (one more call); its Application layer then replaces the grading model's explanation. |
