@@ -10,7 +10,10 @@ import os
 from datetime import timedelta
 from dotenv import load_dotenv
 
-load_dotenv()
+# The test suite sets LINGUADOJO_SKIP_DOTENV (tests/conftest.py) so a developer's
+# .env cannot put live credentials into an offline test run.
+if not os.environ.get('LINGUADOJO_SKIP_DOTENV'):
+    load_dotenv()
 
 _config_logger = logging.getLogger('config')
 
