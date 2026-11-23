@@ -3,7 +3,7 @@ title: Daily Session Implementation Analysis
 type: algorithm
 status: complete
 tech_page: daily-session-implementation-analysis.tech.md
-last_updated: 2026-07-05
+last_updated: 2026-11-23
 open_questions:
   - "Should listening_lab / mystery / dual_translation / flashcards ever be plannable session items, or stay standalone surfaces? (Needs a product decision before TASK-711.)"
   - "Should the session day boundary follow user_study_plans.timezone instead of UTC?"
@@ -76,6 +76,6 @@ schedule properly, and will it interleave?
 
 ## Related Pages
 - [[algorithms/daily-session-implementation-analysis.tech]] — evidence, file/line, fix sketches
-- [[tasklist/daily-session-hardening.tasks]] — TASK-700+ remediation breakdown
+- [[tasklist/archive/daily-session-hardening.tasks]] — TASK-700+ remediation breakdown
 - [[features/study-plans.tech]] — Tier B/C spec this audits against
 - [[algorithms/study-plan-adaptation.tech]] — weakness/bandit/resolver formulas

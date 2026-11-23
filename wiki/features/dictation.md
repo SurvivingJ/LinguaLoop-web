@@ -3,7 +3,7 @@ title: Dictation
 type: feature
 status: complete
 tech_page: ./dictation.tech.md
-last_updated: 2026-05-17
+last_updated: 2026-11-23
 open_questions: []
 ---
 
@@ -42,7 +42,7 @@ Replays are unlimited but tracked. The ELO K-factor multiplier follows: `max(0.5
 
 ## Test Pool
 
-All existing listening tests are dictation-eligible without any new content generation — the same `tests` row, the same R2 audio file, the same canonical transcript. The recommendation lane caps dictation candidates to transcripts ≤ 80 words (longer passages remain reachable via direct URL).
+All existing listening tests are dictation-eligible without any new content generation — the same `tests` row, the same R2 audio file, the same canonical transcript. The recommendation lane caps dictation candidates by transcript length, and the cap grows with the test's level: 80 words at the easiest level up to 400 at the hardest (longer passages remain reachable via direct URL). For Chinese and Japanese, which have no spaces, length is estimated from the character count.
 
 ## Constraints & Edge Cases
 

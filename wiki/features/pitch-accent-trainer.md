@@ -3,7 +3,7 @@ title: Pitch Accent Trainer
 type: feature
 status: complete
 tech_page: ./pitch-accent-trainer.tech.md
-last_updated: 2026-05-17
+last_updated: 2026-11-23
 open_questions: []
 ---
 

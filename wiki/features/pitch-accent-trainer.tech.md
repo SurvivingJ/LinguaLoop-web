@@ -3,12 +3,14 @@ title: Pitch Accent Trainer — Technical Specification
 type: feature-tech
 status: complete
 prose_page: ./pitch-accent-trainer.md
-last_updated: 2026-05-17
+last_updated: 2026-11-23
 dependencies:
   - "pyopenjtalk (Python NLP, MIT — provides NJD per-word accent extraction)"
   - "Migration: add_pitch_accent_mode.sql (dim_test_types + tests.pitch_payload + skill rating backfill)"
   - "Migration: process_pitch_accent_submission.sql (accuracy-based RPC)"
   - "Existing: test_skill_ratings, user_skill_ratings, test_attempts, user_languages"
+open_questions:
+  - "OPEN: the pending skill-rating migrations (migrations/skill_ratings_natural_key_unique.sql, then migrations/skill_ratings_writers_on_conflict.sql) are not applied live (checked 2026-11-23); a first-ever simultaneous submission could insert a duplicate rating row."
 breaking_change_risk: low
 ---
 
@@ -19,22 +21,22 @@ breaking_change_risk: low
 The Pitch Accent Trainer mirrors the Pinyin Trainer architecture one-to-one, swapping the Chinese-specific preprocessor (pypinyin + jieba + sandhi rules) for a Japanese one (pyopenjtalk + mora segmentation). Same shape: pre-compute a structured JSON payload at test save time, serve it as part of the test data fetch, replay it client-side as a per-word guessing game, and submit pre-counted accuracy to a dedicated RPC that updates ELO with the same K=32 formula.
 
 ```
-Test creation (services/test_service.py)
+Test creation (services/test_generation/orchestrator.py)
   → if language_id == 3:
        pitch_accent_service.process_passage(transcript)
        UPDATE tests SET pitch_payload = <json> WHERE id = test_id
-  → _create_skill_ratings inserts a pitch_accent row at ELO 1400
+  → insert_test_skill_ratings (services/test_generation/database_client.py) inserts a pitch_accent row at the test's seeded initial ELO
 
-Test load (routes/tests.py:get_test_with_ratings)
+Test load (routes/tests/catalog.py:get_test_with_ratings)
   → SELECT ... pitch_payload ... FROM tests
   → returns response_data["pitch_payload"] for JA tests
 
-Game (templates/test_pitch_accent.html)
+Game (static/js/session/players/pitch_accent.js, mounted by static/js/pages/test-pitch-accent.js from the shell templates/test_pitch_accent.html)
   → state machine with two renderers (Quick / Contour) sharing a single payload
   → per-token correctness check
   → on completion: POST /api/tests/<slug>/submit-pitch-accent
 
-Submit (routes/tests.py:submit_pitch_accent_attempt)
+Submit (routes/tests/submit.py:submit_pitch_accent_attempt)
   → RPC process_pitch_accent_submission(p_correct_units, p_total_units, ...)
   → JSONB response: { attempt_id, user_elo_before/after, test_elo_before/after, ... }
 ```
@@ -76,7 +78,7 @@ For every existing `language_id = 3` test, one row at `elo_rating = 1400, total_
 
 ### `POST /api/tests/<slug>/submit-pitch-accent`
 
-Implemented at [routes/tests.py:submit_pitch_accent_attempt](../../routes/tests.py).
+Implemented by `submit_pitch_accent_attempt` in [routes/tests/submit.py](../../routes/tests/submit.py) (shared skeleton `_submit_counted`). The body may also carry `furigana_used`, passed to the RPC as `p_furigana_used`.
 
 - **Auth:** JWT required (`@supabase_jwt_required`).
 - **Request body:**
@@ -113,7 +115,8 @@ Implemented at [routes/tests.py:submit_pitch_accent_attempt](../../routes/tests.
 - **Errors:**
   - `400` — `Invalid total_units` (≤ 0) or wrong-language test.
   - `404` — Test slug not found.
-  - `500` — RPC failure (includes propagated `error` and `error_detail` from the RPC's exception envelope).
+  - `403` — the RPC rejected the caller (`error_code:'unauthorized'`).
+  - `500` — RPC failure: body is the generic `{error_code:'submission_failed'}`; the Postgres message is logged server-side only and never returned (CR-04).
 
 ### `process_pitch_accent_submission(...)` RPC
 
@@ -126,14 +129,17 @@ process_pitch_accent_submission(
   p_correct_units  INTEGER,
   p_total_units    INTEGER,
   p_was_free_test  BOOLEAN DEFAULT TRUE,
-  p_idempotency_key UUID DEFAULT NULL
+  p_idempotency_key UUID DEFAULT NULL,
+  p_furigana_used  BOOLEAN DEFAULT FALSE  -- last parameter, as live
 ) RETURNS JSONB
 ```
 
-Source: [migrations/process_pitch_accent_submission.sql](../../migrations/process_pitch_accent_submission.sql). SECURITY DEFINER; `GRANT EXECUTE TO authenticated`. Behaviour-identical to `process_pinyin_submission` with parameter renames (`p_correct_chars`/`p_total_chars` → `p_correct_units`/`p_total_units`).
+Source: [migrations/process_pitch_accent_submission.sql](../../migrations/process_pitch_accent_submission.sql). SECURITY DEFINER, `search_path = public, pg_temp`; EXECUTE for `service_role` only (verified live 2026-11-23). Behaviour-identical to `process_pinyin_submission` with parameter renames (`p_correct_chars`/`p_total_chars` → `p_correct_units`/`p_total_units`).
 
 Key invariants:
-- Auth check: `p_user_id != auth.uid()` raises `Unauthorized`.
+- Auth gate (live 2026-11-23): returns `{success:false, error_code:'unauthorized'}` (no raise) when `p_user_id` is NULL or the caller is neither that user nor `service_role`.
+- Errors: a database exception is logged to the database log (`RAISE WARNING`) and returned as the generic `{success:false, error_code:'submission_failed', sqlstate}`; before 2026-11 the message text was returned. Learners see no difference.
+- Known limitation: rating rows are created with SELECT-then-INSERT and neither rating table has a natural-key unique index live, so two simultaneous first-ever submissions could insert duplicates (none exist). Fix pending: `migrations/skill_ratings_natural_key_unique.sql` then `migrations/skill_ratings_writers_on_conflict.sql`; see [[algorithms/elo-implementation-analysis.tech]].
 - Input validation: `0 <= correct_units <= total_units`, `total_units > 0`.
 - Idempotency: short-circuit return for matching `(user_id, idempotency_key)`.
 - ELO update **only on first attempt**: K=32, bounds [400, 3000]. Retries record an attempt row but don't move ELO.
@@ -283,12 +289,14 @@ One mistake per token regardless of retries. Posted to the submit endpoint as `c
 ## Security Considerations
 
 - Submit endpoint is JWT-gated (`@supabase_jwt_required`).
-- RPC enforces `p_user_id == auth.uid()` server-side, preventing cross-user submission spoofing.
+- RPC rejects a NULL user and any caller other than that user or the service-role backend; EXECUTE is service-role only, so the browser cannot call it directly.
 - Idempotency key path prevents double-credit on retries / network replays.
 - Input validation rejects pathological inputs (`total_units <= 0`, `correct_units > total_units`).
 - Language gate on the route (`language_id == 3`) prevents the JA-only RPC from being called against non-Japanese tests.
 
 ## Testing Strategy
+
+The pytest suite is hermetic: Supabase is unreachable unless a test is marked `live` (run those with `pytest -m live`). There is no pytest file named for pitch accent (checked 2026-11-23); route and RPC-envelope behaviour is covered by `tests/test_submission_rpc_error_envelope.py` and `tests/test_tests_routes_refactor.py`.
 
 ### Service unit tests
 

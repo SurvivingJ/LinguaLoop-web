@@ -3,8 +3,9 @@ title: Vocab Dojo
 type: feature
 status: deprecated
 tech_page: ./vocab-dojo.tech.md
-last_updated: 2026-05-21
-open_questions: []
+last_updated: 2026-11-23
+open_questions:
+  - "OPEN: the retirement banner says /api/vocab-dojo/session 302s to the practice session, but no such redirect exists in the code at HEAD (routes/vocab_dojo.py has only the gate and stress-test endpoints). Confirm the intended behaviour."
 ---
 
 # Vocab Dojo

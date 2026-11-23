@@ -3,7 +3,7 @@ title: Measure Word Trainer — Technical Specification
 type: feature-tech
 status: complete
 prose_page: ./measure-word-trainer.md
-last_updated: 2026-11-17
+last_updated: 2026-11-23
 dependencies:
   - "dim_classifiers, dim_classifier_distractor_groups, dim_classifier_noun_pairs"
   - "dim_test_types row classifier_drill (id=14)"
@@ -14,6 +14,9 @@ dependencies:
   - "update_classifier_mastery() RPC (replaced 2026-11-17, same signature) + user_classifier_mastery.level_attempts"
   - "process_classifier_drill_submission() RPC"
   - "services/classifier_curation/ (offline LLM authoring pipeline, qwen via OpenRouter)"
+open_questions:
+  - "OPEN: process_classifier_drill_submission still returns the raw Postgres message in its error payload (live 2026-11-23); unlike the pinyin, pitch-accent and dictation RPCs it has no generic submission_failed envelope. The route does not forward it. Confirm whether to harden it like the others."
+  - "OPEN: pending skill-rating migrations (migrations/skill_ratings_natural_key_unique.sql, then migrations/skill_ratings_writers_on_conflict.sql) are not applied live; the first-ever drill submission could create duplicate rating rows if two arrive at once."
 breaking_change_risk: low
 ---
 
@@ -28,10 +31,13 @@ Dictionary build (rebuildable; NOT incremental — wipes + re-inserts):
                                                  (abstract, small_round, strands, sections)
   2. (optional) scripts/generate_classifier_curation.py  qwen → data/classifier_curation/<hanzi>.json
      scripts/merge_classifier_curation.py                → data/classifier_curation/approved_curation.json
-  3. scripts/build_classifier_dictionary.py
-       embedded CLASSIFIERS + NOUN_CLASSIFIERS, MERGED with approved_curation.json if present
-       *** DELETES all language_id=1 rows in dim_classifiers + dim_classifier_noun_pairs,
-           then re-inserts (serial ids regenerate) ***
+  3. scripts/build_classifier_dictionary.py --apply   (bare run is a DRY RUN that writes nothing;
+       `--dry-run` is an explicit alias; passing both is an error)
+       embedded CLASSIFIERS + NOUN_CLASSIFIERS, MERGED with data/classifier_curation/approved_curation.json if present
+       *** with --apply: DELETES all language_id=1 rows in dim_classifiers + dim_classifier_noun_pairs,
+           then re-inserts (serial ids regenerate). NO TRANSACTION: a failure between the delete
+           and the inserts leaves the zh classifier tables empty. Row ids change, so anything
+           keyed on a classifier or pair id (user_classifier_mastery, cloze fill) must be re-checked ***
        → dim_classifier_distractor_groups  (16 rows)
        → dim_classifiers                   (75 curated rows, language_id=1)
        → dim_classifier_noun_pairs         (~872 curated rows)
@@ -40,8 +46,8 @@ Dictionary build (rebuildable; NOT incremental — wipes + re-inserts):
 
 Session serving:
   GET /api/classifier-drill/session?language_id=1&count=20
-    → routes/classifier_drill.py: get_drill_session
-    → services/classifier_drill_service.py: get_session
+    → routes/drills.py: get_drill_session (made by make_drill_blueprint; classifier_drill_bp)
+    → services/drill_service.py: DrillService.get_session
     → db.rpc('get_classifier_drill_session', {user_id, language_id, count})
     → returns up to `count` items, each:
         {pair_id, noun_lemma, noun_sense_id, noun_gloss, noun_pronunciation,
@@ -59,8 +65,8 @@ Gameplay (static/js/session/players/classifier_drill.js + templates/classifier_d
 Submission:
   POST /api/classifier-drill/submit  body:{language_id,correct_items,total_items,
                                             time_taken,idempotency_key?}
-    → routes/classifier_drill.py: submit_drill
-    → services/classifier_drill_service.py: submit_session (caches sentinel test_id)
+    → routes/drills.py: submit_drill
+    → services/drill_service.py: DrillService.submit_session (caches sentinel test_id)
     → db.rpc('process_classifier_drill_submission', ...)
     → K=32 ELO update on user_skill_ratings + test_skill_ratings
     → INSERT INTO test_attempts (percentage column is GENERATED ALWAYS)
@@ -173,15 +179,15 @@ LLM-assisted **authoring** tool; nothing here runs at request time.
 
 - `config.py` — model slugs (`CLASSIFIER_GEN_MODEL`, default `qwen/qwen3.7-plus`), the fixed
   16-group vocabulary, target counts, judge threshold, output paths.
-- `schemas.py` — `NounExample`, `NounList`, `ClassifierMeta`, `JudgeRatings` (Pydantic, used
+- `services/classifier_curation/schemas.py` — `NounExample`, `NounList`, `ClassifierMeta`, `JudgeRatings` (Pydantic, used
   with `call_llm(..., schema=...)`).
-- `generator.py` — `classify_classifier()` (group/tier/label for new/promoted measure words)
+- `services/classifier_curation/generator.py` — `classify_classifier()` (group/tier/label for new/promoted measure words)
   and `generate_nouns()` (12–20 idiomatic nouns + 数词+量词+名词 example phrase, never 个).
-- `judge.py` — `judge_nouns()`, a 1-5 Likert idiomatic-validity pass (fail-open).
+- `services/classifier_curation/judge.py` — `judge_nouns()`, a 1-5 Likert idiomatic-validity pass (fail-open).
 - `scripts/generate_classifier_curation.py` — driver (`--smoke | --classifiers | --underserved`,
   `--classify`); writes per-classifier review JSON; cross-checks `dim_vocabulary`.
 - `scripts/merge_classifier_curation.py` — consolidates accepted review JSON →
-  `approved_curation.json`. Existing classifiers keep curated group/tier (only nouns folded in);
+  `data/classifier_curation/approved_curation.json`. Existing classifiers keep curated group/tier (only nouns folded in);
   new/promoted classifiers contribute an LLM-classified meta block for human review.
 
 ## Pinyin display and the Auto badge (2026-11-16)
@@ -246,7 +252,7 @@ capped at the item count and 40.
 `dim_classifier_noun_pairs.example_sentence` (NULL on all 2,664 rows before) for exactly 661 pairs,
 copied from judged `prompt1_core` ladder sentences, then active zh test sentences. Pairs / classifiers
 with a cloze by tier: 1: 176 / 11 of 11; 2: 306 / 31 of 31; 3: 128 / 27 of 28; 4: 51 / 22 of 75.
-`scripts/build_classifier_dictionary.py` re-inserts pairs and empties the column: re-run the fill
+`scripts/build_classifier_dictionary.py --apply` re-inserts pairs and empties the column: re-run the fill
 after any rebuild.
 
 **Verified on the real app** (393x659, test account): reviewer 2026-11-17 — three rounds moved
@@ -287,10 +293,13 @@ sentences for 1 tier-3 and 53 tier-4 classifiers, 31 pairs whose noun contains i
 ## Security Considerations
 
 - Both endpoints require JWT via `@supabase_jwt_required`; backend rejects `language_id != 1` in v1.
-- Submission RPC validates `0 ≤ correct_items ≤ total_items`; `auth.uid() != p_user_id` guard.
+- Submission RPC validates `0 ≤ correct_items ≤ total_items`. Auth gate (live 2026-11-23): a NULL `p_user_id`, or a caller that is neither that user nor `service_role`, gets `{success:false, error_code:'unauthorized'}`; EXECUTE is service-role only. The route turns any failed RPC result into a generic 500 and logs the detail; the RPC's `WHEN OTHERS` handler still returns the Postgres message in `error` (not forwarded to the client).
+- Known limitation: the user and sentinel-test rating rows are created by SELECT-then-INSERT and the rating tables have no natural-key unique index live, so two simultaneous first-ever submissions could insert duplicates (none exist). Pending fix: see open_questions.
 - Idempotency key recommended for retry safety; server-generated UUID fallback.
 
 ## Testing Strategy
+
+The pytest suite is hermetic: Supabase is unreachable unless a test is marked `live` (run those with `pytest -m live`). Offline tests for this feature: `tests/test_build_classifier_dictionary.py`, `tests/test_classifier_drill_levels.py`, `tests/test_classifier_drill_progress.py`, `tests/test_classifier_drill_giveaway.py`. The SQL checks below run against the live database by hand.
 
 - **Data quality:** `COUNT(*)` on the three dim tables; spot-check high-frequency lemmas
   (`猫→只`, `车→辆`, `书→本`).

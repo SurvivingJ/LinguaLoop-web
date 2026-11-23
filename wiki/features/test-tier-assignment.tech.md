@@ -3,7 +3,7 @@ title: Test Tier Assignment — Technical Specification
 type: feature-tech
 status: complete
 prose_page: test-tier-assignment.md
-last_updated: 2026-09-27
+last_updated: 2026-11-23
 dependencies:
   - "services/jev_client.py (Decisions API client, shared with the entailment judge)"
   - "services/tier_classifier.py"
@@ -119,7 +119,7 @@ NaN, infinity, None, bool → `JevError`.
 | Reverse | `UPDATE … FROM tests_tier_backup_…` — statements in `migrations/task819_…sql` and `task821_…sql` |
 
 Recalibrating a language: build the sample → two independent blind readers write
-`<lang>_gold_A.json` / `_B.json` → fit → only change a table if cross-validation beats the
+`<lang>_gold_A.json` and `<lang>_gold_B.json` → fit → only change a table if cross-validation beats the
 default by more than noise → add the table and label to `tier_classifier.py` → add a fixture
 under `tests/fixtures/` → `rederive_tiers.py --apply`.
 
@@ -144,6 +144,7 @@ under `tests/fixtures/` → `rederive_tiers.py --apply`.
   support (empirical only). An outage stops generation by design.
 
 ## Testing Strategy
+The pytest suite is hermetic: Supabase is unreachable unless a test is marked `live` (run those with `pytest -m live`); the files below use stubs. `tests/test_difficulty_to_tier_matches_db.py` pins the Python difficulty-to-tier map against a copy of the live `dim_complexity_tiers` bands, not the database.
 `tests/test_jev_client.py` (status, verdict logging, concurrency bound, `cost_usd` reaching the
 row), `tests/test_jev_entailment.py` (retry policy, shared client),
 `tests/test_tier_classifier.py` (score→tier tables, prompts in the content language, ordering,
