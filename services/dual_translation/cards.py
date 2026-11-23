@@ -159,9 +159,9 @@ def _l1_context_for(gold_l2: str, l1_text: str, span: list[int]) -> str:
     sentence when that correspondence can be trusted, not the whole
     ``l1_text`` passage.
 
-    ``l1_text`` is a holistic LLM translation of the whole passage
-    (``passage_builder.generate_l1_reference``), not sentence-aligned by
-    construction, so there is no ground truth for "sentence N on the L1 side
+    ``l1_text`` is the passage's L1 text (the window's sentence references,
+    joined; it used to be a holistic whole-passage translation), not
+    guaranteed sentence-aligned with the L2 side, so there is no ground truth for "sentence N on the L1 side
     is sentence N on the L2 side." Matching sentence COUNTS on both sides is
     used as the only available signal that the correspondence is likely
     1:1 -- when it holds, index into ``l1_text``'s sentences positionally.
