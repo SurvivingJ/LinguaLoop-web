@@ -314,14 +314,14 @@ class _FakeDB:
 
 def _base_tables(**overrides):
     tables = {
-        'dt_error_profile_entry': [{'id': 100, 'subtype': 'article'}],
+        'dt_error_profile_entry': [{'id': 100, 'subtype': 'article', 'l2_language_id': 1}],
         'dt_card': [],
         'dt_submission': [{'id': 5, 'passage_id': 9, 'l1_language_id': 2}],
         'dt_error_instance': [{
             'id': 900, 'submission_id': 5, 'span_reference': [4, 7],
             'corrected_form': 'the cat', 'learner_form': 'cat', 'subtype': 'article',
         }],
-        'dt_passage': [{'id': 9, 'l2_text': 'The cat sat on the mat.'}],
+        'dt_passage': [{'id': 9, 'l2_language_id': 1, 'l2_text': 'The cat sat on the mat.'}],
     }
     tables.update(overrides)
     return tables
@@ -614,17 +614,24 @@ _ARTICLE_901 = dict(prompt='The cat sat on ____.', answer='the mat',
 _TENSE_904 = dict(prompt='She ____ a book.', answer='bought', l1='', target='She buyed a book.')
 _WORD_CHOICE_906 = dict(prompt='I eat ____ every day.', answer='apples',
                         l1='I eat apples every day.', target='I eat apple every day.')
+_TENSE_903 = dict(prompt='He ____ to school yesterday.', answer='went', l1='',
+                  target='He go to school yesterday.')
 
-# Recorded from the per-entry loop before TASK-1003 (no language filter).
-EXPECTED_CARDS_PRE_B02 = (
+# Recorded from the per-entry loop before TASK-1003, then changed by the B-02
+# language filter in exactly two places (marked): entry 101 (tense, zh) was
+# carded from the newer ja error 904 and now gets the zh error 903; entry 104
+# (article, ja) was carded from the zh error 901 and, with no ja article error,
+# is now left queued with no cards (the "no usable error" case).
+EXPECTED_CARDS = (
     _pair(100, 901, 'article', **_ARTICLE_901)
-    + _pair(101, 904, 'tense', **_TENSE_904)
-    + _pair(104, 901, 'article', **_ARTICLE_901)
+    + _pair(101, 903, 'tense', **_TENSE_903)          # B-02: was 904 (ja)
+    # B-02: entry 104 was _pair(104, 901, 'article', ...) (zh error, ja entry)
     + _pair(105, 906, 'word_choice', **_WORD_CHOICE_906)
     + _pair(106, 904, 'tense', **_TENSE_904)
 )
-EXPECTED_STATUSES_PRE_B02 = {
-    100: 'drilling', 101: 'drilling', 102: 'queued', 103: 'queued', 104: 'drilling',
+EXPECTED_STATUSES = {
+    100: 'drilling', 101: 'drilling', 102: 'queued', 103: 'queued',
+    104: 'queued',                                     # B-02: was 'drilling'
     105: 'drilling', 106: 'drilling', 107: 'queued', 108: 'drilling', 109: 'queued',
 }
 
@@ -640,10 +647,39 @@ class TestBatchedCardGeneration:
     def test_rows_written_match_the_per_entry_loop(self):
         db = dt_card_fakes.FilteringDB(dt_card_fakes.scenario_tables())
 
-        assert cards.generate_cards_for_queued_entries(db, 'u1') == 5
+        assert cards.generate_cards_for_queued_entries(db, 'u1') == 4
         new_cards, statuses = dt_card_fakes.written(db)
-        assert new_cards == EXPECTED_CARDS_PRE_B02
-        assert statuses == EXPECTED_STATUSES_PRE_B02
+        assert new_cards == EXPECTED_CARDS
+        assert statuses == EXPECTED_STATUSES
+
+    def test_card_is_built_from_the_latest_error_in_the_entrys_language(self):
+        """B-02: a Chinese (l2=1) word_choice entry must not be carded from the
+        learner's newer Japanese (l2=3) word_choice error; a Japanese entry with
+        no Japanese error of its subtype gets no card and stays queued."""
+        tables = dt_card_fakes.scenario_tables()
+        tables['dt_error_profile_entry'] = [
+            {'id': 105, 'user_id': 'u1', 'subtype': 'word_choice', 'l1_language_id': 2,
+             'l2_language_id': 1, 'remediation_status': 'queued'},
+            {'id': 110, 'user_id': 'u1', 'subtype': 'collocation', 'l1_language_id': 2,
+             'l2_language_id': 3, 'remediation_status': 'queued'},
+        ]
+        tables['dt_error_instance'] += [
+            # newest word_choice error overall, but in a Japanese passage
+            {'id': 907, 'submission_id': 7, 'subtype': 'word_choice', 'span_reference': [4, 9],
+             'corrected_form': 'bought', 'learner_form': 'buyed',
+             'created_at': '2026-07-20T10:00:00+00:00'},
+            # the only collocation error is in a Chinese passage
+            {'id': 908, 'submission_id': 5, 'subtype': 'collocation', 'span_reference': [0, 7],
+             'corrected_form': 'The cat', 'learner_form': 'cat',
+             'created_at': '2026-07-21T10:00:00+00:00'},
+        ]
+        db = dt_card_fakes.FilteringDB(tables)
+
+        assert cards.generate_cards_for_queued_entries(db, 'u1') == 1
+        new_cards, statuses = dt_card_fakes.written(db)
+        assert new_cards == _pair(105, 906, 'word_choice', **_WORD_CHOICE_906)
+        assert statuses[105] == 'drilling'
+        assert statuses[110] == 'queued'
 
     def test_second_pass_is_a_no_op(self):
         db = dt_card_fakes.FilteringDB(dt_card_fakes.scenario_tables())
@@ -696,8 +732,8 @@ class TestBatchedCardGeneration:
             cards.generate_cards_for_queued_entries(db, 'u1')
 
         new_cards, statuses = dt_card_fakes.written(db)
-        assert new_cards == [r for r in EXPECTED_CARDS_PRE_B02 if r['profile_entry_id'] != 101]
-        assert statuses == {**EXPECTED_STATUSES_PRE_B02, 101: 'queued'}
+        assert new_cards == [r for r in EXPECTED_CARDS if r['profile_entry_id'] != 101]
+        assert statuses == {**EXPECTED_STATUSES, 101: 'queued'}
 
     def test_status_update_failing_for_one_entry_never_marks_it_drilling(self):
         def fail(table, op, payload, ids):
@@ -709,8 +745,8 @@ class TestBatchedCardGeneration:
             cards.generate_cards_for_queued_entries(db, 'u1')
 
         new_cards, statuses = dt_card_fakes.written(db)
-        assert new_cards == EXPECTED_CARDS_PRE_B02
-        assert statuses == {**EXPECTED_STATUSES_PRE_B02, 101: 'queued'}
+        assert new_cards == EXPECTED_CARDS
+        assert statuses == {**EXPECTED_STATUSES, 101: 'queued'}
 
     def test_a_failed_read_writes_nothing(self):
         def fail(table, op, payload, ids):

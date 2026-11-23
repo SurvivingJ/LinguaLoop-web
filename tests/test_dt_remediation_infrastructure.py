@@ -513,7 +513,7 @@ def _e2e_tables():
             'corrected_form': 'the cat', 'learner_form': 'cat',
             'subtype': 'article',
         }],
-        'dt_passage': [{'id': 9, 'l2_text': GOLD_L2}],
+        'dt_passage': [{'id': 9, 'l2_language_id': 2, 'l2_text': GOLD_L2}],
     }
 
 

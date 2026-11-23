@@ -347,19 +347,22 @@ def _newest_first_key(row: dict):
         return (0, str(created), row["id"])
 
 
-def _latest_errors_by_key(db, submissions: list[dict], subtypes: set[str]) -> dict:
-    """The most recent ``dt_error_instance`` per subtype across ``submissions``
-    — the representative error a card gets built from. Was one
-    ``_latest_error_for_subtype`` call (2 round trips) per entry.
+def _latest_errors_by_key(db, submission_l2: dict, wanted: set[tuple]) -> dict:
+    """``{(subtype, l2_language_id): error}``: the most recent
+    ``dt_error_instance`` of each wanted subtype among the submissions in
+    ``submission_l2`` (``{submission_id: l2 of its passage}``), per language —
+    the representative error a card gets built from. Was one
+    ``_latest_error_for_subtype`` call (2 round trips) per entry, which ignored
+    the language (B-02).
 
     One query per ``_IN_CHUNK`` submissions (normally one), newest first,
-    paged only until every wanted subtype has been seen. ``id DESC`` breaks
+    paged only until every wanted key has been seen. ``id DESC`` breaks
     ``created_at`` ties deterministically (the per-entry ``limit(1)`` left them
     to the planner).
     """
-    submission_ids = [s["id"] for s in submissions]
+    subtypes = sorted({subtype for subtype, _ in wanted})
     best: dict = {}
-    for chunk in _chunks(submission_ids):
+    for chunk in _chunks(sorted(submission_l2)):
         found: dict = {}
         start = 0
         while True:
@@ -367,7 +370,7 @@ def _latest_errors_by_key(db, submissions: list[dict], subtypes: set[str]) -> di
                 db.table("dt_error_instance")
                 .select(", ".join(_ERROR_COLUMNS + ("created_at",)))
                 .in_("submission_id", chunk)
-                .in_("subtype", sorted(subtypes))
+                .in_("subtype", subtypes)
                 .order("created_at", desc=True)
                 .order("id", desc=True)
                 .range(start, start + _PAGE - 1)
@@ -376,8 +379,10 @@ def _latest_errors_by_key(db, submissions: list[dict], subtypes: set[str]) -> di
                 or []
             )
             for row in page:
-                found.setdefault(row["subtype"], row)
-            if len(page) < _PAGE or len(found) == len(subtypes):
+                key = (row["subtype"], submission_l2.get(row["submission_id"]))
+                if key in wanted:
+                    found.setdefault(key, row)
+            if len(page) < _PAGE or len(found) == len(wanted):
                 break
             start += _PAGE
         for key, row in found.items():
@@ -488,33 +493,38 @@ def _plan_cards(db, user_id: str, entries: list[dict]) -> list[tuple[int, list[d
         return []
     submission_by_id = {s["id"]: s for s in submissions}
 
-    latest = _latest_errors_by_key(db, submissions, {e["subtype"] for e in entries})
-    chosen = {e["id"]: latest.get(e["subtype"]) for e in entries}
-    passage_ids = sorted({submission_by_id[err["submission_id"]]["passage_id"]
-                          for err in chosen.values() if err is not None})
-    if not passage_ids:
-        return []
-    passages = {
-        p["id"]: p for p in (
+    # B-02: an error's language is its submission's passage's l2. The passages
+    # of every submission in the entries' languages are read once (they also
+    # supply the card text), and only those submissions are searched for errors.
+    languages = sorted({e["l2_language_id"] for e in entries})
+    passages: dict = {}
+    for chunk in _chunks(sorted({s["passage_id"] for s in submissions})):
+        for p in (
             db.table("dt_passage")
-            .select("id, l2_text, source_ref_id, sentence_start, sentence_end")
-            .in_("id", passage_ids)
+            .select("id, l2_language_id, l2_text, source_ref_id, sentence_start, sentence_end")
+            .in_("id", chunk)
+            .in_("l2_language_id", languages)
             .execute()
             .data
             or []
-        )
-    }
+        ):
+            passages[p["id"]] = p
+    submission_l2 = {s["id"]: passages[s["passage_id"]]["l2_language_id"]
+                     for s in submissions if s["passage_id"] in passages}
+    if not submission_l2:
+        return []
+
+    latest = _latest_errors_by_key(
+        db, submission_l2, {(e["subtype"], e["l2_language_id"]) for e in entries})
 
     sources = {}  # entry id -> (error, passage, l1_language_id)
     for entry in entries:
-        error = chosen[entry["id"]]
+        error = latest.get((entry["subtype"], entry["l2_language_id"]))
         if error is None:
             continue
         submission = submission_by_id[error["submission_id"]]
-        passage = passages.get(submission["passage_id"])
-        if passage is None:
-            continue
-        sources[entry["id"]] = (error, passage, submission["l1_language_id"])
+        sources[entry["id"]] = (error, passages[submission["passage_id"]],
+                                submission["l1_language_id"])
 
     l1_texts = _window_l1_texts(db, [(p, l1) for _, p, l1 in sources.values()])
 
@@ -594,9 +604,12 @@ def generate_cards_for_queued_entries(db, user_id: str) -> int:
 
     TASK-1003: a constant number of round trips whatever the number of queued
     entries — queued entries, their existing cards, then (only when something
-    is uncarded) the learner's submissions, the latest errors, their passages,
-    the window sentences and references, the taxonomy version (flag on), one
-    multi-row ``dt_card`` insert and one status update. An entry is only ever
+    is uncarded) the learner's submissions, their passages in the entries'
+    languages, the latest error per (subtype, language), the window sentences
+    and references, the taxonomy version (flag on), one multi-row ``dt_card``
+    insert and one status update. Each entry is carded from the latest error
+    of its subtype in its own L2 (B-02); with none it stays ``queued``. An
+    entry is only ever
     flipped to ``drilling`` after its cards are written; if the batch insert
     or the update fails, each entry is retried on its own (see
     ``_write_one_by_one``) and the first error is raised.
@@ -605,7 +618,7 @@ def generate_cards_for_queued_entries(db, user_id: str) -> int:
     """
     queued = (
         db.table("dt_error_profile_entry")
-        .select("id, subtype")
+        .select("id, subtype, l2_language_id")
         .eq("user_id", user_id)
         .eq("remediation_status", "queued")
         .execute()
