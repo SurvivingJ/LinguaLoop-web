@@ -55,7 +55,7 @@ NO_COLLOCATION = [lv for lv in ALL_LEVELS if lv not in (5, 8)]
     # unclassified (pre-backfill) falls through to the full ladder
     (None, EN, FULL),
     ('',   ZH, FULL),
-    ('mystery_legacy_value', JA, FULL),
+    ('unrecognised_legacy_value', JA, FULL),
 ])
 def test_active_levels_routing(semantic_class, language_id, expected):
     assert compute_active_levels(semantic_class, language_id) == expected
