@@ -27,7 +27,7 @@ open_questions:
 
 # Exercise Generation Prompts — Verbatim Reference
 
-> **Note 2026-11-23:** these are the live default prompts of the hosted path (`services/vocabulary_ladder/ladder_service.py`, `scripts/run_generation_batch.py`). The fat-seed and staged-CSV paths reproduce them as rules rather than calling them (see [[features/csv-exercise-authoring.tech]] and [[decisions/ADR-053-vocabulary-ladder-generation-paths]]). The draft "bundle" prompts (`migrations/exercise_gen_bundle_prompts_draft.sql`) were never applied (no `vocab_bundle_generation` or `ladder_bundle_judge` row exists in `prompt_templates`, checked 2026-11-23), and bundle mode itself was removed from the code. Language Packs, mentioned below, is an archived feature ([[features/language-packs]]).
+> **Note 2026-11-23:** these are the live default prompts of the hosted path (`services/vocabulary_ladder/ladder_service.py`, `scripts/run_generation_batch.py`). The fat-seed and staged-CSV paths reproduce them as rules rather than calling them (see [[features/csv-exercise-authoring.tech]] and [[decisions/ADR-063-vocabulary-ladder-generation-paths]]). The draft "bundle" prompts (`migrations/exercise_gen_bundle_prompts_draft.sql`) were never applied (no `vocab_bundle_generation` or `ladder_bundle_judge` row exists in `prompt_templates`, checked 2026-11-23), and bundle mode itself was removed from the code. Language Packs, mentioned below, is an archived feature ([[features/language-packs]]).
 
 Verbatim copies of the LLM prompt templates that power the **vocabulary ladder
 exercise generation pipeline**. The pipeline is a 3-prompt chain executed once

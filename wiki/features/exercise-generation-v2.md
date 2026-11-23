@@ -11,7 +11,7 @@ open_questions:
 
 # Vocabulary Exercise Generation Pipeline — Design Plan
 
-> **Note 2026-11-23:** this 2026-06 design predates later work. Generation grew into several overlapping pipelines, one of them (bundle mode) deleted on 2026-11-23; see [[decisions/ADR-053-vocabulary-ladder-generation-paths]] (proposed) for the comparison and the proposed consolidation.
+> **Note 2026-11-23:** this 2026-06 design predates later work. Generation grew into several overlapping pipelines, one of them (bundle mode) deleted on 2026-11-23; see [[decisions/ADR-063-vocabulary-ladder-generation-paths]] (proposed) for the comparison and the proposed consolidation.
 
 > Prepared 2026-06-11 from full wiki discovery + live Supabase inspection (project `kpfqrjtfxmujzolwsvdq`).
 > **Revision 2 (same day):** operator decisions incorporated — single ladder factory, JA now, top-1,000 senses/language,

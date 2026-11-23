@@ -12,7 +12,7 @@ dependencies:
   - "prompt_templates: vocab_prompt1_core, vocab_prompt2_exercises, vocab_prompt3_transforms, ladder_* generators and judges"
 breaking_change_risk: low
 open_questions:
-  - "PROPOSED, not decided: ADR-053 would retire stages 1-6 of the staged runner and the batch-exercise-authoring skill, keeping stage 8, render and the judging skill. See [[decisions/ADR-053-vocabulary-ladder-generation-paths]]."
+  - "PROPOSED, not decided: ADR-063 would retire stages 1-6 of the staged runner and the batch-exercise-authoring skill, keeping stage 8, render and the judging skill. See [[decisions/ADR-063-vocabulary-ladder-generation-paths]]."
 ---
 
 > **Status update 2026-11-23 (paths corrected, fat-seed dependency noted).**
