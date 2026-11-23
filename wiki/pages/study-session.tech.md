@@ -16,7 +16,7 @@ dependencies:
   - "i18n: static/i18n/{en,es,zh,ja}.json (session.*, test_list.*)"
 breaking_change_risk: medium
 open_questions:
-  - "Link [[i18n-applytodom-clobbers-defaults]] in 'Accessibility' resolves to no wiki page (no file at review/integration); the failure mode is described inline there."
+  - "Link [[i18n-applytodom-clobbers-defaults]] in 'Accessibility' resolves to no wiki page (no file at commit 0d345e98); the failure mode is described inline there."
 ---
 
 # Daily Session Runner (`/session`) — Technical Specification

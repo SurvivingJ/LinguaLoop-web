@@ -33,7 +33,7 @@ Decision rationale: [[decisions/ADR-035-study-time-ledger]]. All credits are bes
 ## Defects fixed (verified 2026-10-14)
 1. Only practice credits minutes: `record_session_progress` adds `p_delta_seconds` to `practice_completed_{maint,acq}_sec` and ignores `p_delta_minutes`; tests credit counts only (`_apply_timing_and_progress` in `routes/tests/submit.py` -> `services/attempts.py::apply_timing_and_progress` -> `apply_attempt_timing_and_progress`); flashcards/DT pass `p_delta_seconds: 0` (now `services/study_session/session.py::record_surface_progress`; the 2026-10-14 line reference `routes/study_session.py:744` is gone).
 2. Page reads `practice_completed_*_min` (`templates/study_plan.html:694`).
-3. Reader/writer week mismatch: `routes/study_plan.py` used `_monday_of(date.today())` at three places on 2026-10-14 (server date); writer uses learner-local week. others already used `plan_today`. Fixed: `routes/study_plan.py` at `review/integration` has no `date.today()` and uses `plan_today` (checked 2026-11-23). `credit_study_time`, `get_weekly_study_seconds`, `plan_local_date` and `week_start_for` all exist live (checked 2026-11-23); `study_time_ledger` holds 460 rows.
+3. Reader/writer week mismatch: `routes/study_plan.py` used `_monday_of(date.today())` at three places on 2026-10-14 (server date); writer uses learner-local week. others already used `plan_today`. Fixed: `routes/study_plan.py` at commit 0d345e98 has no `date.today()` and uses `plan_today` (checked 2026-11-23). `credit_study_time`, `get_weekly_study_seconds`, `plan_local_date` and `week_start_for` all exist live (checked 2026-11-23); `study_time_ledger` holds 460 rows.
 4. No weekly row: `record_session_progress` returns true and credits nothing.
 
 ## Database Impact

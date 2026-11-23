@@ -33,7 +33,7 @@ The Practice Engine is a single SQL-RPC-driven surface with mode dispatch. All s
 - Gate / stress-test battery composition (delegated to existing `LadderService` methods).
 - Attempt recording: one RPC, `record_exercise_attempt`, plus FSRS in Python.
 
-Current request flow (verified against code at `review/integration`, 2026-11-23):
+Current request flow (verified against code at commit 0d345e98, 2026-11-23):
 
 ```
 GET /api/practice/session?mode=auto&minutes=15&language_id=L          (routes/practice.py)
@@ -52,7 +52,7 @@ POST /api/practice/attempt                                             (routes/p
       -> FSRS review in Python (+ bkt_apply_lapse_penalty on a lapse)
 ```
 
-Old routes (`/api/exercises/session`, `/api/vocab-dojo/session`) were removed (see "Deprecation wrappers"); `routes/exercises.py` and `services/exercise_session_service.py` were deleted on 2026-11-14 and their code lives in `services/practice/` and `services/study_session/`.
+Old routes (`/api/exercises/session`, `/api/vocab-dojo/session`) were removed (see "Deprecation wrappers"); the former exercises route module and exercise-session service module were deleted on 2026-11-14 and their code lives in `services/practice/` and `services/study_session/`.
 
 ## RPC: `get_practice_session`
 
@@ -445,9 +445,9 @@ Equivalent wrapper for `get_ladder_session` calls `get_practice_session('acquisi
 
 ## Service-layer file map
 
-| File | Role (at `review/integration`, 2026-11-23) |
+| File | Role (at commit 0d345e98, 2026-11-23) |
 |---|---|
-| `services/practice_session_service.py` | Import point. `PracticeSessionService(SessionAssemblyMixin, AttemptRecordingMixin, NewWordAdmissionMixin)`; `get_practice_session_service()` singleton; re-exports `services/practice/constants.py`. Renamed from `exercise_session_service.py` (TASK-106); that file is deleted. |
+| `services/practice_session_service.py` | Import point. `PracticeSessionService(SessionAssemblyMixin, AttemptRecordingMixin, NewWordAdmissionMixin)`; `get_practice_session_service()` singleton; re-exports `services/practice/constants.py`. Renamed from the former exercise-session service module (TASK-106); that file is deleted. |
 | `services/practice/session_assembly.py` | `get_session`, `get_extra_round`, floor, follow-ups, ordering, hydration. |
 | `services/practice/attempt_recording.py` | `record_attempt_with_updates`, `record_prestudy_exercise_attempt`, `record_speed_round_attempt`, FSRS. |
 | `services/practice/new_word_admission.py` | Daily quota state, nomination queues, supply gate, ladder subscription. |
@@ -456,7 +456,7 @@ Equivalent wrapper for `get_ladder_session` calls `get_practice_session('acquisi
 | `routes/vocab_dojo.py` | Gate / stress-test endpoints (unchanged). |
 | `services/study_plan_service.py` | `_refresh_exercise_time_estimates` (nightly job `exercise_time_estimate_refresh`, 04:05 UTC, registered in `web/scheduler.py`). |
 
-The planned split into `_acquisition.py`, `_maintenance.py` and `_scoring.py` was never made: acquisition, maintenance and scoring are all inside the `get_practice_session` RPC. `routes/exercises.py` (the old thin wrapper) is deleted.
+The planned split into separate acquisition, maintenance and scoring modules was never made: acquisition, maintenance and scoring are all inside the `get_practice_session` RPC. The old thin wrapper route module for `/api/exercises/session` is deleted.
 
 ## Attempt recording (`record_exercise_attempt`, 2026-11-23)
 
@@ -573,7 +573,7 @@ Study-Plan orchestration.
 
 ## Parity test (R4.7) — historical
 
-The merger's one-off parity test (`tests/integration/test_practice_merger_parity.py`, which compared the Jaccard overlap of `get_ladder_session` / `get_exercise_session` with `get_practice_session` over 50 staging users in four cohorts) was run once at the merge. The test file and both legacy RPCs no longer exist (the RPCs were dropped live 2026-11-17), so the check cannot be re-run. Pass rule used: median Jaccard >= 0.70 and minimum >= 0.50. The CSV reports, if kept, are under `wiki/raw/parity_reports/`.
+The merger's one-off parity test (an integration test file named for the practice merger parity check, which compared the Jaccard overlap of `get_ladder_session` / `get_exercise_session` with `get_practice_session` over 50 staging users in four cohorts) was run once at the merge. The test file and both legacy RPCs no longer exist (the RPCs were dropped live 2026-11-17), so the check cannot be re-run. Pass rule used: median Jaccard >= 0.70 and minimum >= 0.50. The CSV reports, if kept, are under `wiki/raw/parity_reports/`.
 
 ## Key Architectural Decisions
 

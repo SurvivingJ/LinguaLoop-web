@@ -14,7 +14,7 @@ breaking_change_risk: medium
 open_questions:
   - "OPEN (known issue, not fixed): admission queue A1 has no known / probably_known veto; A2 and A2r do; [[decisions/ADR-047-basic-word-knowledge-prior]] says such words are vetoed. Owner: repeated recent misses override 'known'; the ADR is to be amended elsewhere. This page documents the code."
   - "OPEN (known limitation, not fixed): FSRS dating is server-UTC; see 'Known limitation: FSRS dates' in [[features/practice-engine.tech]]. Fix must move readers and writers together."
-  - "Verified against the branch review/integration (HEAD of main plus the 2026-11-23 review packages) on 2026-11-23, not against a deployed build. The live database was checked for record_exercise_attempt (present, advisory lock in source) and the other RPC names; the md5 of the live record_exercise_attempt body was not compared with migrations/record_exercise_attempt.sql."
+  - "Verified on 2026-11-23 against the code of the merged session branch (commit 0d345e98, which includes the 2026-11-23 review packages and the calibration / placement merge), not against a deployed build. The live database was checked for record_exercise_attempt (present, advisory lock in source) and the other RPC names; the md5 of the live record_exercise_attempt body was not compared with migrations/record_exercise_attempt.sql."
   - "OPEN: the supply check, placement admission (A2 / A2r) and the 2026-11-23 attempt path are described from code and unit tests; no production run was observed."
 ---
 
@@ -40,9 +40,9 @@ routes/tests/prestudy.py ─┘── get_practice_session_service()  (singleton
                       \________ constants.py (tunables, _settled / _unwrap) ________/
 ```
 
-`practice_session_service.py` re-exports every public name of `constants.py` (`from services.practice.constants import *`), so `services.study_time` and `services.study_session.session` import `PRACTICE_ATTEMPT_MAX_SECONDS`, `PRESTUDY_FOLLOWUPS_PER_SESSION`, `PRESTUDY_FOLLOWUP_EXPECTED_SECONDS` and `routes/practice.py` imports `EXTRA_NEW_WORDS_MAX` from there. It also imports `services.study_plan_service as _plan` (tests read it as `pss._plan`). `services/practice/__init__.py` is a docstring only. Line counts at `review/integration`: `session_assembly.py` 913, `new_word_admission.py` 1226, `attempt_recording.py` 436, `constants.py` 134.
+`practice_session_service.py` re-exports every public name of `constants.py` (`from services.practice.constants import *`), so `services.study_time` and `services.study_session.session` import `PRACTICE_ATTEMPT_MAX_SECONDS`, `PRESTUDY_FOLLOWUPS_PER_SESSION`, `PRESTUDY_FOLLOWUP_EXPECTED_SECONDS` and `routes/practice.py` imports `EXTRA_NEW_WORDS_MAX` from there. It also imports `services.study_plan_service as _plan` (tests read it as `pss._plan`). `services/practice/__init__.py` is a docstring only. Line counts at commit 0d345e98: `session_assembly.py` 913, `new_word_admission.py` 1226, `attempt_recording.py` 436, `constants.py` 134.
 
-The package was split out of `services/exercise_session_service.py` (deleted 2026-11-14); `routes/exercises.py` was deleted the same day. The service holds no per-request state except what `services/request_cache.py` stores for the current Flask request (`new_word_state`, `daily_load_row`).
+The package was split out of the former exercise-session service module (the former exercise-session service module, deleted 2026-11-14; the exercises route module was deleted the same day). The service holds no per-request state except what `services/request_cache.py` stores for the current Flask request (`new_word_state`, `daily_load_row`).
 
 ## Module map
 
@@ -52,7 +52,7 @@ The package was split out of `services/exercise_session_service.py` (deleted 202
 - **Called by:** `routes/practice.py` (`_service()`), `routes/study_session.py` (`_practice_service()`), `routes/tests/prestudy.py` (prestudy admission and evidence), `services/study_session/session.py` (constants), `services/study_time.py` (constant).
 
 ### `services/practice/constants.py`
-Tunables and two helpers. Values at `review/integration`:
+Tunables and two helpers. Values at commit 0d345e98:
 
 | Name | Value | Used by |
 |---|---|---|
@@ -173,7 +173,7 @@ All require `@supabase_jwt_required`. `user_id` always comes from `g.current_use
 
 ## Testing Strategy
 
-Existing tests at `review/integration`: `tests/test_practice_attempt_recording.py`, `test_practice_ladder_progress.py`, `test_practice_session_floor.py`, `test_practice_session_reads.py`, `test_practice_session_budget.py`, `test_practice_extra_rounds.py`, `test_practice_route_tail.py`, `test_practice_error_card_injection.py`, `test_ladder_new_word_quota.py`, `test_new_word_admission_gate.py`, `test_placement_admission.py`, `test_intro_drill.py`. Gaps to cover: a test that pins the A1 behaviour for a known word (so the decision on the open question is explicit), and a database test for the advisory lock under two concurrent calls.
+Existing tests at commit 0d345e98: `tests/test_practice_attempt_recording.py`, `test_practice_ladder_progress.py`, `test_practice_session_floor.py`, `test_practice_session_reads.py`, `test_practice_session_budget.py`, `test_practice_extra_rounds.py`, `test_practice_route_tail.py`, `test_practice_error_card_injection.py`, `test_ladder_new_word_quota.py`, `test_new_word_admission_gate.py`, `test_placement_admission.py`, `test_intro_drill.py`. Gaps to cover: a test that pins the A1 behaviour for a known word (so the decision on the open question is explicit), and a database test for the advisory lock under two concurrent calls.
 
 ## Related Pages
 

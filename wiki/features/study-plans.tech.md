@@ -21,7 +21,7 @@ dependencies:
   - "daily_test_loads, daily_test_load_items, test_attempts, exercise_attempts (read/write)"
 breaking_change_risk: medium
 open_questions:
-  - "The ADR-013 rollout steps and the config block below are the 2026-05 design; STUDY_PLAN_ENABLED now defaults to true in config.py (env STUDY_PLAN_ENABLED=false rolls back). The Tier-C constants STUDY_PLAN_TIER_C_* are not defined in config.py at review/integration; where the alphas live now was not traced in this pass."
+  - "The ADR-013 rollout steps and the config block below are the 2026-05 design; STUDY_PLAN_ENABLED now defaults to true in config.py (env STUDY_PLAN_ENABLED=false rolls back). The Tier-C constants STUDY_PLAN_TIER_C_* are not defined in config.py at commit 0d345e98; where the alphas live now was not traced in this pass."
 ---
 
 # Study Plans — Technical Specification
@@ -246,7 +246,7 @@ CREATE INDEX idx_weekly_plan_states_week ON weekly_plan_states (week_start_date)
 
 ### Migration sequence
 
-| # (design order) | File at `review/integration` | Purpose |
+| # (design order) | File at commit 0d345e98 | Purpose |
 |---|---|---|
 | 001 | `migrations/phase12_dim_exercise_types.sql` | Create + backfill from `exercises.exercise_type DISTINCT` |
 | 002 | `migrations/phase12_dim_practice_modes.sql` | Create + seed 3 rows |
@@ -469,7 +469,7 @@ scheduler.add_job(
 
 ## HTTP endpoints
 
-Served by `routes/study_plan.py` (mounted at `/api/study-plan`; settings logic in `services/study_plan_settings.py`; `routes/settings.py` no longer exists). The daily queue is `routes/study_session.py` at `/api/study-session` (see [[features/study-session-package.tech]]).
+Served by `routes/study_plan.py` (mounted at `/api/study-plan`; settings logic in `services/study_plan_settings.py`; the former settings route module no longer exists). The daily queue is `routes/study_session.py` at `/api/study-session` (see [[features/study-session-package.tech]]).
 
 | Method | Path | Body | Returns |
 |---|---|---|---|

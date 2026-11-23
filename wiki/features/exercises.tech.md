@@ -19,7 +19,7 @@ breaking_change_risk: medium
 
 # Exercises — Technical Specification
 
-> **DEPRECATED — see [[features/practice-engine.tech]].** The session-time selection logic described here (specifically `get_exercise_session` and `services/exercise_session_service.py`, deleted 2026-11-14) is replaced by `get_practice_session` + `services/practice_session_service.py` + `services/practice/` as of 2026-05-21. Generation pipeline (LLM prompts, validators, exercise types) is unchanged and still lives here. `get_exercise_session` was dropped from the live database on 2026-11-17. See [[decisions/ADR-007-merge-exercises-vocab-dojo]].
+> **DEPRECATED — see [[features/practice-engine.tech]].** The session-time selection logic described here (specifically `get_exercise_session` and the exercise-session service module, deleted 2026-11-14) is replaced by `get_practice_session` + `services/practice_session_service.py` + `services/practice/` as of 2026-05-21. Generation pipeline (LLM prompts, validators, exercise types) is unchanged and still lives here. `get_exercise_session` was dropped from the live database on 2026-11-17. See [[decisions/ADR-007-merge-exercises-vocab-dojo]].
 
 ## Architecture Overview
 
@@ -40,7 +40,7 @@ Serve-time (jumbled_sentence only):
        calls LanguageProcessor.chunk_sentence (constituent-aware, multi-word)
        falls back to tokenize() only for sentences too short to chunk
 
-Full Pipeline (REMOVED: admin_local.py and its /api/run/full-pipeline button no longer exist; the steps below are now run as scripts):
+Full Pipeline (REMOVED: the admin-local route module and its /api/run/full-pipeline button no longer exist; the steps below are now run as scripts):
   _do_full_pipeline()
     → Step 1: VocabBackfillRunner (vocab + senses + token maps)
     → Step 2: TokenMapBackfillRunner (straggler token maps)
@@ -220,7 +220,7 @@ services/vocabulary_ladder/
 
 6. **Full Pipeline as unified backfill orchestrator**
    - Rationale: Running 5+ backfill scripts manually in the correct order is error-prone. A single admin button runs them sequentially with per-step try/except so one failure doesn't block subsequent steps.
-   - **Removed:** the admin button and its file (`admin_local.py`) were deleted; the individual scripts remain.
+   - **Removed:** the admin button and its file  were deleted; the individual scripts remain.
 
 ## Related Pages
 

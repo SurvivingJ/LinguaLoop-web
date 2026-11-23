@@ -18,7 +18,7 @@ dependencies:
 breaking_change_risk: medium
 open_questions:
   - "OPEN (known issue, not fixed, recorded 2026-11-23): admission queue A1 (recent-test evidence: `_nominate_new_words` + `_evidence_candidates` in services/practice/new_word_admission.py) has NO veto for words whose `user_vocabulary_knowledge.status` is `known` or `probably_known`. `_evidence_rows` selects rows with status unknown/learning OR word_test_wrong > 0 OR comprehension_wrong > 0, so a known word with repeated recent misses (evidence >= 2, or p_known <= 0.40, or two distinct missed questions) can be admitted. Queue A2 and A2r DO veto known / probably_known (fail closed). [[decisions/ADR-047-basic-word-knowledge-prior]] says such words are vetoed. Owner position: repeated recent misses should override 'known'; ADR-047 is to be amended (by another agent). See [[decisions/ADR-047-basic-word-knowledge-prior]] once amended; until then this page describes the code."
-  - "OPEN: the as-built supply-gate behaviour with the drill on (supply read for admitted senses only) is verified in code at review/integration; whether production runs that code was not checked (deployment of review/integration unverified)."
+  - "OPEN: the as-built supply-gate behaviour with the drill on (supply read for admitted senses only) is verified in code at commit 0d345e98; whether production runs that code was not checked (deployment of commit 0d345e98 unverified)."
 ---
 
 # New-Word Drill — Technical Specification
@@ -39,7 +39,7 @@ account). Where the build differs from the plan above, **this section wins**:
    server clamps it to `0..min(4, n_words − 1)`. A fixed per-block gap made the last 2–3 words of a
    block unable to count anything (found by the shared fixture).
 3. **Client:** engine + player in one module, `static/js/session/players/intro_drill.js`, run by
-   the practice player (`players/practice.js`) before the regular items whenever the session
+   the practice player (`static/js/session/players/practice.js`) before the regular items whenever the session
    payload has `intro_drill`. Reading graders are reused from `prestudy.js`
    (`window.LinguaPrestudy`), now also loaded on the session page (its `init` returns early when
    the prestudy DOM is absent). Ladder exercises render through `ExRenderers`; types that need
@@ -109,7 +109,7 @@ account). Where the build differs from the plan above, **this section wins**:
 > section above, the notes win: there is no `intro_stage`-only column design with new RPCs
 > `intro_due_words` / `intro_complete_session` (never built; the live RPC is `intro_commit_word`),
 > no `PracticeSessionService._inject_intro_block` (the block is built by
-> `intro_drill.block_for_session`, called from `get_session`), and no `static/js/drill/engine.js`
+> `intro_drill.block_for_session`, called from `get_session`), and no the planned drill-engine module
 > (the engine is `static/js/session/players/intro_drill.js`).
 
 A new per-word state machine, **intro stages 1–4**, sits in front of the ladder and replaces
@@ -275,7 +275,7 @@ After a `prime` is recorded: for each drilled sense, `met = all five stage-1 for
 
 ## Component Specification (UI)
 
-### Drill engine (design: `static/js/drill/engine.js`; as built: `static/js/session/players/intro_drill.js`)
+### Drill engine (design: the planned drill-engine module; as built: `static/js/session/players/intro_drill.js`)
 - **Exports:** `createDrill({words, distractors, spacers, mode:'intro'|'prime'|'followup', rng})` → `{next(), answer(itemId, {correct, idk, given, ms}), state(), results()}`.
 - **State per word:** `{stage, target, cap, served, counted, lastCountedFormat, lastShownAt, coldDone, coldCorrect, formatsUsed[]}`; global `pos` (item counter).
 - **Counting rule:** `correct && !idk && pos − lastShownAt − 1 ≥ effGap && format ≠ lastCountedFormat` → `counted++`.
@@ -309,7 +309,7 @@ After a `prime` is recorded: for each drilled sense, `met = all five stage-1 for
 
 - **Engine (vitest):** counting rule (gap, distinct format, idk), cold bump, caps, never-twice-in-a-row, spacer insertion with 1–2 words, en format list without readings, deterministic with a seeded rng.
 - **Python:** `intro_drill.build_block` fallbacks (no reading, no sentence, no exercises); server recount of `passed` matches engine fixtures (shared JSON fixtures in `tests/fixtures/intro_drill/`; tests in `tests/test_intro_drill.py`); prestudy admission within/over quota.
-- **SQL (the planned `tests/sql/new_word_drill_test.sql` was never added; no SQL test for the drill exists at `review/integration`):** stage advance and due dates 0/1/2/4 from completion date; repeat on fail; graduation fields; idempotent replay; ladder pool excludes intro rows; demotion R2 → stage 3; `ladder_new_word_state` counts an intro-only start.
+- **SQL (the planned new_word_drill_test.sql was never added; no SQL test for the drill exists at commit 0d345e98):** stage advance and due dates 0/1/2/4 from completion date; repeat on fail; graduation fields; idempotent replay; ladder pool excludes intro rows; demotion R2 → stage 3; `ladder_new_word_state` counts an intro-only start.
 - **Browser (Playwright, phone size):** one block of 3 words end to end in practice mode; summary card returns.
 
 ## Measurement

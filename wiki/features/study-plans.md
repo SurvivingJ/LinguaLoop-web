@@ -130,6 +130,7 @@ Full numerical traceback in [[features/study-plans.tech]] under "Worked Example.
 
 - [[features/study-plans.tech]] — Full technical specification.
 - [[features/session-modules]] — Per-language include/exclude of daily-session modules.
+- [[features/study-session-package]] — The code that builds the daily queue.
 - [[features/session-budget-settings]] — Budget scope and learner-set new words per day.
 - [[algorithms/study-plan-adaptation]] — Plain-English adaptation philosophy.
 - [[algorithms/study-plan-adaptation.tech]] — Formulas and pseudocode.
