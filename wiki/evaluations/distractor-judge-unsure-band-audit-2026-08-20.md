@@ -231,4 +231,4 @@ to measure them is how TASK-723 destroyed two live rows.
   the per-language figures corrected in §1
 - [[evaluations/distractor-judge-language-divergence-2026-08-16]] — TASK-718
 - [[evaluations/distractor-gold-frame-2026-08-19]] — the gold set that answers §7
-- [[tasklist/distractor-judge-calibration]] — TASK-719, TASK-720, TASK-726
+- [[tasklist/distractor-judge-calibration.tasks]] — TASK-719, TASK-720, TASK-726

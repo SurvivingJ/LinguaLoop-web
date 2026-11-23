@@ -498,8 +498,8 @@ Phase 4 extends the L3-only judge to every LLM-authored ladder level plus the P1
 sentence corpus. Four `prompt_templates` task names, each seeded per-language
 (English `language_id=2` = `google/gemini-2.5-flash-lite`; Chinese `language_id=1`
 = `qwen/qwen-max`) by [`migrations/seed_ladder_judge_prompts.sql`](../../migrations/seed_ladder_judge_prompts.sql).
-All are temperature-0, fail-open, and — per [[distractor-judge-v3-likert]] and the
-[[tasklist/ladder-judge-layer.tasks]] decision 7 — report a **5-point Likert
+All are temperature-0, fail-open, and — per [[tasklist/distractor-judge-calibration.tasks]] and the
+[[tasklist/archive/ladder-judge-layer.tasks]] decision 7 — report a **5-point Likert
 `rating`** (mapped by `schemas.likert_to_verdict`: 5/4 accept, 3 flag, 2/1 reject),
 never a raw float. The binary L1 judge is the one exception (keep/reject).
 

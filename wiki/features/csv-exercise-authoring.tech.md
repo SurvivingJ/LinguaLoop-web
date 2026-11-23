@@ -237,7 +237,7 @@ A model that has just written an item, and can see why it wrote it, is not an
 independent judge of that item — it is already committed. The project has
 direct evidence that judging is not a formality: swapping only the judge model
 moved the zh distractor reject rate **32% → 2%**
-([[distractor-judge-v3-likert]]), and a closed enumeration inside a judge
+([[tasklist/distractor-judge-calibration.tasks]]), and a closed enumeration inside a judge
 prompt silently acts as an allow-list ([[ja-l1-judge-and-generator-doctrine]]).
 
 **Requirement:** stages 2 and 6 run in a **fresh context** — a subagent, or a

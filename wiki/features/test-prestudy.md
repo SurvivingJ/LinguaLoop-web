@@ -13,7 +13,7 @@ open_questions:
   - "OPEN: lesson content spend. Per-sentence L1 translations and answer explanations for ~305 active tests at test-generation prices is roughly $3–10 total; needs approval before Phase 2."
   - "OPEN: may lesson mode show the test's own questions before the attempt? Recommendation: never; use `questions.pool_source = 'lab_expansion'` items (Listening Lab) as teaching checks and keep the originals for the attempt."
   - "ANSWERED 2026-10-30: Chinese reading input = toneless pinyin typed, then a per-syllable tone picker; inline tone numbers or marks also accepted. Alternatives considered: tone marks required (hard to type), hanzi via IME (tests writing, not reading), audio recording (no grader). Open follow-up: whether the pinyin trainer's per-character tone game should replace the picker for multi-character words."
-  - "OPEN 2026-11-17: how the app decides a learner already knows basic words (one shared prior for preview and evidence, default ability for uncalibrated learners, re-basing old rows, one knowledge row per meaning) — [[decisions/ADR-047-basic-word-knowledge-prior]] (proposed, owner sign-off pending; TASK-1004)."
+  - "OPEN 2026-11-17: how the app decides a learner already knows basic words (one shared prior for preview and evidence, default ability for uncalibrated learners, re-basing old rows, one knowledge row per meaning) — [[decisions/ADR-047-basic-word-knowledge-prior]] (accepted 2026-11-17; its open proposals are TASK-1004)."
   - "OPEN: whether Azure TTS audio can be segmented per sentence (word timestamps are not stored today). Without it, sentence-by-sentence listening falls back to whole-clip audio plus the text."
 ---
 
@@ -476,7 +476,7 @@ Built and live (the ELO migration is applied: `test_attempts.prestudied` exists 
   都 0.16, 很 0.48, 好 0.10 **stay new for that account** because its own knowledge rows hold them
   there (its answers look automated); a learner with no history now gets the high prior. The rule
   itself — two different priors in the preview and in SQL, the 5.0 default ability, re-basing —
-  is [[decisions/ADR-047-basic-word-knowledge-prior]] (proposed).
+  is [[decisions/ADR-047-basic-word-knowledge-prior]] (accepted 2026-11-17).
 - **Gloss at the linked sense's level (INT-1, 2026-11-17).** Each meaning exists once per definition
   level ('simple', 'standard') per definition language, all with the same `sense_rank`.
   `services/prestudy._load_senses` keyed the cross-language gloss on (vocab_id, sense_rank), so the
@@ -561,5 +561,5 @@ and task breakdown can now be written.
 - [[features/vocabulary-knowledge]] — the BKT evidence prestudy writes
 - [[pages/study-session]] — where the prestudy block would sit
 - [[tasklist/fixes-2026-11-16.tasks]] — open items from the 2026-11-16 prestudy fixes (TASK-992–995, TASK-1004)
-- [[decisions/ADR-047-basic-word-knowledge-prior]] — how basic words are judged known (proposed)
+- [[decisions/ADR-047-basic-word-knowledge-prior]] — how basic words are judged known (accepted 2026-11-17)
 - [[database/schema.tech]] — `tests.vocab_token_map`, `questions.sense_ids`, `test_attempts`

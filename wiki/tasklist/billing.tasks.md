@@ -6,7 +6,7 @@ tech_page: ../business/pricing-plan.tech.md
 total_tasks: 25
 wont_do: 2
 superseded: 1
-done: 0
+done: 10
 ---
 
 # Billing, Credits and Plans — Task Breakdown

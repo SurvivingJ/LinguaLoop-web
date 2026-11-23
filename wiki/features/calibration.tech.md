@@ -505,7 +505,7 @@ All three languages swept, 14,400 senses, `google/gemini-3.5-flash-lite`,
 | ja | 3,563 | 154 | **4.32%** | 4 |
 | zh | 4,282 | 121 | **2.83%** | 6 |
 
-zh being the cleanest is consistent with [[distractor-judge-v3-likert]], which found
+zh being the cleanest is consistent with [[tasklist/distractor-judge-calibration.tasks]], which found
 the same thing once model artefacts were controlled for: under a common judge zh is
 the cleanest of the three, not the worst.
 
