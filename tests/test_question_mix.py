@@ -9,7 +9,6 @@ reason "the loader reads correct" was not accepted as evidence.
 
 import logging
 
-import pytest
 
 from services.test_generation.question_mix import (
     compare_question_mix,

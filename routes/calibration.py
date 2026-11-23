@@ -198,3 +198,115 @@ def end() -> ApiResponse:
     return api_success({
         'ability': calibration_service.end_session(g.current_user_id, session),
     })
+
+
+# =============================================================================
+# Vocabulary placement (vocab-placement tech §14; TASK-1080). A placement is a
+# calibration session with mode 'placement'; keys never leave the server.
+# =============================================================================
+from services import calibration_placement  # noqa: E402
+from services.calibration_placement import PlacementError  # noqa: E402
+from utils.responses import api_error  # noqa: E402
+
+
+def _placement_error(e: PlacementError) -> ApiResponse:
+    if e.status == 404:
+        return not_found(str(e))
+    if e.status == 429:
+        return api_error(str(e), 429, 'RATE_LIMITED')
+    return bad_request(str(e))
+
+
+def _opt_int(value, name: str, lo: int, hi: int):
+    if value is None:
+        return None, None
+    if not isinstance(value, int) or isinstance(value, bool):
+        return None, bad_request(f"{name} must be an integer or null")
+    if value < lo or value > hi:
+        return None, bad_request(f"{name} must be between {lo} and {hi}")
+    return value, None
+
+
+@calibration_bp.route('/placement/start', methods=['POST'])
+@supabase_jwt_required
+@api_errors("Failed to start the placement")
+def placement_start() -> ApiResponse:
+    data = json_body()
+    lang, dlang = data.get('word_language_id'), data.get('definition_language_id')
+    if lang not in _SUPPORTED_LANGUAGE_IDS or dlang not in _SUPPORTED_LANGUAGE_IDS:
+        return bad_request("word_language_id and definition_language_id must be 1 (zh), 2 (en) or 3 (ja)")
+    try:
+        out = calibration_placement.start(g.current_user_id, lang, dlang)
+    except PlacementError as e:
+        return _placement_error(e)
+    return api_success(out, status_code=200 if out.get('resumed') else 201)
+
+
+@calibration_bp.route('/placement/answer', methods=['POST'])
+@supabase_jwt_required
+@api_errors("Failed to record the answer")
+def placement_answer() -> ApiResponse:
+    data = json_body()
+    session_id = data.get('session_id')
+    if not session_id or not isinstance(session_id, str):
+        return bad_request("session_id required")
+    response_id = data.get('response_id')
+    if not isinstance(response_id, int) or isinstance(response_id, bool):
+        return bad_request("response_id required")
+    position, err = _opt_int(data.get('position'), 'position', 0, 3)
+    if err:
+        return err
+    latency_ms = data.get('latency_ms')
+    if latency_ms is not None:
+        if not isinstance(latency_ms, int) or isinstance(latency_ms, bool):
+            return bad_request("latency_ms must be an integer when provided")
+        latency_ms = max(0, min(latency_ms, 600_000))
+    try:
+        out = calibration_placement.answer(g.current_user_id, session_id, response_id, position, latency_ms)
+    except PlacementError as e:
+        return _placement_error(e)
+    return api_success(out)
+
+
+@calibration_bp.route('/placement/end', methods=['POST'])
+@supabase_jwt_required
+@api_errors("Failed to end the placement")
+def placement_end() -> ApiResponse:
+    data = json_body()
+    session_id = data.get('session_id')
+    if not session_id or not isinstance(session_id, str):
+        return bad_request("session_id required")
+    try:
+        return api_success(calibration_placement.end(g.current_user_id, session_id))
+    except PlacementError as e:
+        return _placement_error(e)
+
+
+@calibration_bp.route('/placement/result', methods=['GET'])
+@supabase_jwt_required
+@api_errors("Failed to load the placement result")
+def placement_result() -> ApiResponse:
+    session_id = request.args.get('session_id')
+    if not session_id:
+        return bad_request("session_id required")
+    try:
+        return api_success(calibration_placement.result(g.current_user_id, session_id))
+    except PlacementError as e:
+        return _placement_error(e)
+
+
+@calibration_bp.route('/placement/latest', methods=['GET'])
+@supabase_jwt_required
+@api_errors("Failed to load the latest placement")
+def placement_latest() -> ApiResponse:
+    try:
+        lang = int(request.args.get('word_language_id', ''))
+    except ValueError:
+        return bad_request("word_language_id must be 1 (zh), 2 (en) or 3 (ja)")
+    if lang not in _SUPPORTED_LANGUAGE_IDS:
+        return bad_request("word_language_id must be 1 (zh), 2 (en) or 3 (ja)")
+    try:
+        calibration_placement.require_enabled(lang)
+        return api_success(calibration_placement.latest(g.current_user_id, lang))
+    except PlacementError as e:
+        return _placement_error(e)

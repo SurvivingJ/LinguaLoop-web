@@ -90,6 +90,42 @@ def test_word_formats():
 
 
 # ---------------------------------------------------------------------------
+# _reading (TASK-1082): zh readings without a "(numbered)" part
+# ---------------------------------------------------------------------------
+
+def test_reading_zh_diacritic_only_derives_the_numbered_form():
+    assert idr._reading({'reading': 'yuán xíng'}, 'zh') == {'shown': 'yuán xíng', 'numbered': 'yuan2 xing2'}
+    # the TASK-1074 SQL fixtures, space-separated (calibration_zh_normaliser_fix.sql)
+    assert idr._reading({'reading': 'bēi zi'}, 'zh')['numbered'] == 'bei1 zi5'
+    assert idr._reading({'reading': 'lǜ shī'}, 'zh')['numbered'] == 'lü4 shi1'
+    assert idr._reading({'reading': 'nǚ ér'}, 'zh')['numbered'] == 'nü3 er2'
+    assert idr._reading({'reading': 'ma'}, 'zh')['numbered'] == 'ma5'
+
+
+def test_reading_zh_with_a_numbered_part_is_unchanged():
+    assert idr._reading({'reading': 'mù tou (mu4 tou5)'}, 'zh') == {'shown': 'mù tou', 'numbered': 'mu4 tou5'}
+    assert idr._reading({'reading': 'lǜ (lü4)'}, 'zh') == {'shown': 'lǜ', 'numbered': 'lü4'}
+
+
+def test_reading_zh_that_is_not_pinyin_has_no_reading():
+    assert idr._reading({'reading': '你好'}, 'zh') is None
+    assert idr._reading({'reading': 'ok!'}, 'zh') is None
+    assert idr._reading({'reading': ''}, 'zh') is None
+
+
+def test_reading_ja_and_en_unchanged():
+    assert idr._reading({'reading': 'すぴーど-speed'}, 'ja') == {'shown': 'すぴーど', 'numbered': None}
+    assert idr._reading({'reading': 'たべる'}, 'ja') == {'shown': 'たべる', 'numbered': None}
+    assert idr._reading({'reading': 'rʌn'}, 'en') is None
+
+
+def test_word_formats_start_with_read_typed_for_a_diacritic_only_zh_word():
+    rd = idr._reading({'reading': 'yuán xíng'}, 'zh')
+    assert idr.word_formats(1, 'zh', rd is not None, False, set())[0] == 'read_typed'
+    assert idr.word_formats(2, 'zh', rd is not None, False, set())[0] == 'read_typed'
+
+
+# ---------------------------------------------------------------------------
 # complete_word against a small in-memory DB
 # ---------------------------------------------------------------------------
 

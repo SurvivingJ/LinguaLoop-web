@@ -34,7 +34,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from services.exercise_generation.config import LANG_ID_TO_CODE
-from services.jev_client import DEFAULT_MODEL, JevError, call_jev
+from services.jev_client import JevError, call_jev
 
 # language_id -> (reject_below, accept_at)
 CUTOFFS: dict[int, tuple[float, float]] = {

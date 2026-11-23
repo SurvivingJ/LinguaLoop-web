@@ -547,15 +547,6 @@ a:hover {
   cursor: not-allowed;
 }
 
-.btn-lg {
-  --bs-btn-padding-y: 12px;
-  --bs-btn-font-size: 1.0625rem;
-  --bs-btn-border-radius: var(--r-btn);
-
-  min-height: 50px;
-  border-radius: var(--r-btn);
-}
-
 .btn-sm {
   --bs-btn-padding-x: 12px;
   --bs-btn-padding-y: 6px;
@@ -884,18 +875,10 @@ textarea.form-control {
 }
 
 /* Seamless Input Groups */
-.input-group-text {
-  background: var(--bg-surface);
-  border: 1.5px solid var(--line);
-  border-right: none;
-  color: var(--text-muted);
-}
-
 .form-control.border-start-0 {
   border-left: none;
 }
 
-.input-group:focus-within .input-group-text,
 .input-group:focus-within .form-control {
   border-color: var(--primary);
   box-shadow: 0 0 0 3px var(--focus-ring);
@@ -958,27 +941,6 @@ textarea.form-control {
 .nav-link.active {
   color: var(--brand);
   border-bottom-color: var(--brand);
-}
-
-.nav-tabs {
-  border-bottom-color: var(--line);
-}
-
-.nav-tabs .nav-link.active {
-  color: var(--brand);
-  background-color: var(--surface);
-  border-color: var(--line) var(--line) var(--surface);
-  border-bottom: 2.5px solid var(--brand);
-}
-
-.nav-pills {
-  --bs-nav-pills-link-active-bg: var(--surface);
-  --bs-nav-pills-link-active-color: var(--ink);
-  --bs-nav-pills-border-radius: 9px;
-
-  background: var(--surface-2);
-  border-radius: 11px;
-  padding: 3px;
 }
 
 /* ============================================
@@ -1145,35 +1107,9 @@ summary:focus-visible {
 }
 
 /* Bootstrap colour utilities on badges map to the tag palette. */
-.badge.bg-primary {
-  background: var(--brand-wash) !important;
-  color: var(--brand) !important;
-}
-
 .badge.bg-success {
   background: var(--good-wash) !important;
   color: var(--good) !important;
-}
-
-.badge.bg-danger {
-  background: var(--bad-wash) !important;
-  color: var(--bad) !important;
-}
-
-.badge.bg-warning {
-  background: var(--warn-wash) !important;
-  color: var(--warn) !important;
-}
-
-.badge.bg-info {
-  background: var(--info-wash) !important;
-  color: var(--info) !important;
-}
-
-.badge.bg-secondary,
-.badge.bg-light {
-  background: var(--surface-2) !important;
-  color: var(--ink-2) !important;
 }
 
 /* ============================================
@@ -1473,16 +1409,8 @@ summary:focus-visible {
   box-shadow: var(--shadow-md);
 }
 
-.transition-fast {
-  transition: var(--transition-fast);
-}
-
 .transition-base {
   transition: var(--transition-base);
-}
-
-.animate-slide-up {
-  animation: slideUp 0.3s ease;
 }
 
 /* Logo / wordmark — Sora display face, ink on porcelain */
@@ -3281,11 +3209,6 @@ body.ld-task > .ld-dock--page {
   }
 }
 
-.ld-gutter {
-  padding-left: var(--ld-pad-l);
-  padding-right: var(--ld-pad-r);
-}
-
 .ld-row {
   display: flex;
   gap: 8px;
@@ -3442,11 +3365,6 @@ body.ld-task > .ld-dock--page {
   line-height: 1.2;
 }
 
-.ld-blank.is-filled {
-  color: var(--brand);
-  border-color: var(--brand);
-}
-
 /* ---------- Buttons ---------- */
 .ld-btn {
   display: inline-flex;
@@ -3508,17 +3426,6 @@ body.ld-task > .ld-dock--page {
   color: var(--surface);
 }
 
-.ld-btn--glow {
-  background: var(--glow);
-  color: var(--glow-ink);
-}
-
-.ld-btn--glow:hover {
-  background: var(--glow);
-  color: var(--glow-ink);
-  filter: brightness(1.05);
-}
-
 .ld-btn--sm {
   flex: none;
   min-height: 44px;
@@ -3555,35 +3462,6 @@ body.ld-task > .ld-dock--page {
 
 .ld-link--quiet {
   color: var(--ink-2);
-}
-
-/* Round icon button (38px visual, 44px hit area) */
-.ld-iconbtn {
-  display: inline-grid;
-  place-items: center;
-  flex: none;
-  width: 44px;
-  height: 44px;
-  padding: 0;
-  border: 0;
-  border-radius: 50%;
-  background: transparent;
-  color: var(--ink);
-  cursor: pointer;
-}
-
-.ld-iconbtn::before {
-  content: '';
-  grid-area: 1 / 1;
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  background: var(--surface-2);
-}
-
-.ld-iconbtn > * {
-  grid-area: 1 / 1;
-  position: relative;
 }
 
 /* ---------- Chips and tags ---------- */
@@ -3679,18 +3557,6 @@ a.ld-chip {
   background: var(--brand-wash);
   color: var(--brand);
   font: 700 1rem/1 var(--f-cjk);
-}
-
-.ld-seal--lg {
-  width: 42px;
-  height: 42px;
-  border-radius: 13px;
-  font-size: 1.3rem;
-}
-
-.ld-seal--ink {
-  background: var(--ink);
-  color: var(--bg);
 }
 
 /* ---------- Cards, notes, hero ---------- */
@@ -4013,11 +3879,6 @@ button.ld-set:hover {
   gap: 7px;
 }
 
-.ld-opts--two {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-}
-
 .ld-opt {
   display: flex;
   align-items: center;
@@ -4300,24 +4161,6 @@ button.ld-set:hover {
   }
 }
 
-@keyframes ld-shake {
-  25% {
-    transform: translateX(-6px);
-  }
-
-  75% {
-    transform: translateX(6px);
-  }
-}
-
-.ld-rise {
-  animation: ld-rise 0.22s ease-out;
-}
-
-.ld-shake {
-  animation: ld-shake 0.25s 2;
-}
-
 /* ==================================================================
    Bootstrap utility bridge — colour utilities resolve to theme tokens
    (Bootstrap's own read fixed RGB triplets and ignore the theme).
@@ -4372,32 +4215,6 @@ button.ld-set:hover {
 .border-start,
 .border-end {
   border-color: var(--line) !important;
-}
-
-.text-bg-success {
-  background-color: var(--good-wash) !important;
-  color: var(--good) !important;
-}
-
-.text-bg-danger {
-  background-color: var(--bad-wash) !important;
-  color: var(--bad) !important;
-}
-
-.text-bg-warning {
-  background-color: var(--warn-wash) !important;
-  color: var(--warn) !important;
-}
-
-.text-bg-info {
-  background-color: var(--info-wash) !important;
-  color: var(--info) !important;
-}
-
-.text-bg-light,
-.text-bg-secondary {
-  background-color: var(--surface-2) !important;
-  color: var(--ink-2) !important;
 }
 
 .table {

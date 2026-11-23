@@ -86,7 +86,7 @@ def main():
         SupabaseFactory.initialize()
 
         # Log configuration
-        logger.info(f"Configuration:")
+        logger.info("Configuration:")
         logger.info(f"  Daily Quota: {topic_gen_config.daily_topic_quota}")
         logger.info(f"  Similarity Threshold: {topic_gen_config.similarity_threshold}")
         logger.info(f"  LLM Model: {topic_gen_config.llm_model}")

@@ -15,6 +15,7 @@ from utils.responses import api_error
 _API_ERRORS = {
     400: ('BAD_REQUEST', None),
     401: ('UNAUTHORIZED', None),
+    402: ('PAYMENT_REQUIRED', None),
     403: ('FORBIDDEN', None),
     404: ('NOT_FOUND', 'Endpoint not found'),
     405: ('METHOD_NOT_ALLOWED', 'Method not allowed'),

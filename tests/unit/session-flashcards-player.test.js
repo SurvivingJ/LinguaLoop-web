@@ -55,6 +55,16 @@ async function setup(item = { kind: 'flashcards', cards: 15 }) {
   return { c, ctx, rate };
 }
 
+describe('flashcards player: unavailable state', () => {
+  it('links "Open page" to the working /flashcards route', async () => {
+    window.authFetch = vi.fn(async () => ({ ok: false, status: 500, json: async () => ({}) }));
+    const { c } = await setup();
+    const link = c.querySelector('a.ld-btn--ghost');
+    expect(link).not.toBeNull();
+    expect(link.getAttribute('href')).toBe('/flashcards');
+  });
+});
+
 describe('flashcards player', () => {
   it('shows the next card before the review POST returns', async () => {
     let release;

@@ -19,7 +19,6 @@ guards those two agreeing with each other).
 
 import inspect
 
-import pytest
 
 
 # ---------------------------------------------------------------------------

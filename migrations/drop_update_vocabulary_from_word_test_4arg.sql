@@ -1,0 +1,59 @@
+-- ============================================================================
+-- drop_update_vocabulary_from_word_test_4arg.sql — remove the ambiguous
+-- 4-argument overload of update_vocabulary_from_word_test (finding F-06)
+-- Date: 2026-11-23   Review: pkg8. NOT APPLIED.
+--
+-- WHAT: DROP FUNCTION public.update_vocabulary_from_word_test(uuid, integer,
+-- boolean, smallint). The 5-argument overload
+-- (uuid, integer, boolean, smallint, text DEFAULT NULL) stays, unchanged.
+--
+-- WHY: live has both overloads. A call with 4 arguments matches both (the
+-- 5-argument one through its DEFAULT), so it is refused as ambiguous (42725
+-- "function ... is not unique"; through PostgREST, PGRST203).
+-- services/vocabulary/knowledge_service.py:139-154 sends 4 named arguments when
+-- exercise_type is None and swallows the error, so that knowledge update is
+-- lost. Once the 4-argument overload is gone, the same call resolves to the
+-- 5-argument function with p_exercise_type = NULL, whose body then does exactly
+-- what the 4-argument body does (bkt_update_word_test, same upsert; checked
+-- against both live bodies 2026-11-23).
+-- SQL callers (prosrc search 2026-11-23): only record_exercise_attempt, which
+-- passes 5 arguments (p_user_id, v_sense, p_is_correct, v_lang, v_type) and so
+-- already binds to the 5-argument overload. pg_depend: nothing depends on the
+-- 4-argument function.
+--
+-- WHAT A LEARNER WOULD NOTICE: word-test answers recorded without an exercise
+-- type now update the learner's word knowledge (p_known, status, evidence
+-- counts) instead of being dropped, so word status and review scheduling
+-- reflect them. Nothing else changes.
+--
+-- PRECONDITIONS: none; no code change is needed.
+--
+-- VERIFY BEFORE (read-only; expect two overloads, the 4-argument one with
+-- body_md5 = 32f5891ffb84292976bec4e87ff48228; second query: only
+-- record_exercise_attempt, with 5 arguments):
+--   SELECT p.oid::regprocedure, pg_get_function_arguments(p.oid),
+--          md5(regexp_replace(regexp_replace(p.prosrc, '--[^\n]*', '', 'g'), '\s', '', 'g')) AS body_md5
+--     FROM pg_proc p WHERE p.proname = 'update_vocabulary_from_word_test';
+--   SELECT p.oid::regprocedure AS caller,
+--          (regexp_matches(p.prosrc, 'update_vocabulary_from_word_test\s*\(([^;]*?)\)\s*;', 'gi'))[1] AS call_args
+--     FROM pg_proc p
+--    WHERE p.pronamespace = 'public'::regnamespace AND p.prokind = 'f'
+--      AND p.proname <> 'update_vocabulary_from_word_test'
+--      AND p.prosrc ILIKE '%update_vocabulary_from_word_test%';
+-- VERIFY AFTER (read-only; expect dropped = true and one remaining overload
+-- whose signature ends in "text"):
+--   SELECT to_regprocedure('public.update_vocabulary_from_word_test(uuid,integer,boolean,smallint)') IS NULL AS dropped;
+--   SELECT p.oid::regprocedure FROM pg_proc p WHERE p.proname = 'update_vocabulary_from_word_test';
+--
+-- ROLLBACK: migrations/drop_update_vocabulary_from_word_test_4arg_rollback.sql
+-- (recreates the 4-argument overload exactly as live on 2026-11-23, which also
+-- brings the ambiguity back).
+--
+-- After applying: bkt_vocabulary_tracking.sql still contains the 4-argument
+-- CREATE; keep that file (rule 4: only record of user_vocabulary_knowledge,
+-- user_flashcards and the bkt_* functions), but do not re-run it.
+--
+-- Idempotent: DROP ... IF EXISTS on the exact signature; safe to re-run.
+-- ============================================================================
+
+DROP FUNCTION IF EXISTS public.update_vocabulary_from_word_test(uuid, integer, boolean, smallint);

@@ -282,7 +282,7 @@ class TopicDatabaseClient:
 
         data = {
             'name': name,
-            'description': description or f'Imported topics',
+            'description': description or 'Imported topics',
             'status_id': active_status_id,
             'cooldown_days': 0,  # No cooldown for imported categories
         }

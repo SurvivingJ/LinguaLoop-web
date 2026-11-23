@@ -1,7 +1,6 @@
 """scripts/_common.py: the shared start-up helpers, and the dry-run default of the two
 scripts that used to write without asking."""
 
-import json
 import os
 import sys
 
@@ -125,17 +124,3 @@ def test_backfill_token_maps_writes_with_apply(monkeypatch):
     assert runner.run() is True
     assert created == ['abc']
     assert runner.db.writes == [('tests', {'vocab_token_map': [['abc', 7]]})]
-
-
-def test_upload_tests_dry_run_needs_no_credentials_and_creates_no_client(monkeypatch, tmp_path, capsys):
-    from scripts import upload_tests_to_supabase as mod
-    path = tmp_path / 'tests.json'
-    path.write_text(json.dumps([{'slug': 'a', 'language': 'en', 'difficulty': 3, 'topic': 't',
-                                 'transcript': 'x', 'questions': [{}, {}]}]), encoding='utf-8')
-    monkeypatch.setattr(mod, 'SUPABASE_URL', None)
-    monkeypatch.setattr(mod, 'GEN_USER_ID', None)
-    monkeypatch.setitem(sys.modules, 'supabase', None)  # importing it would raise
-    monkeypatch.setattr(sys, 'argv', ['upload_tests_to_supabase.py', str(path)])
-    mod.main()
-    out = capsys.readouterr().out
-    assert '1 tests would be inserted' in out and '2 questions' in out

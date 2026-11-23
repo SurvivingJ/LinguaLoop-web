@@ -2,7 +2,6 @@
 """Tests for core application routes (health, config, metadata, errors)."""
 
 import json
-import pytest
 
 
 class TestHealthCheck:

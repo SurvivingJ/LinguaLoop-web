@@ -10,7 +10,6 @@ characterise an author's or publication's writing style and are packaged into
 
 import logging
 import math
-import re
 from collections import Counter
 
 from services.corpus.tokenizers import LanguageTokenizer
