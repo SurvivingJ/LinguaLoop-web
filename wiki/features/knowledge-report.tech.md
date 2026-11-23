@@ -1019,7 +1019,7 @@ items reach SQL only as `integer[]` / `smallint[]` arguments built by Python fro
 Decorators: `@supabase_jwt_required` → `@api_errors("…")` → `@require_language_id`, then: if
 `g.current_user_id` is not a UUID (including the batch token's `'service-account'`,
 `middleware/auth.py:234-243`) → 403 `FORBIDDEN` "Learner token required"; `language_id ∉ {1,2,3}` →
-400; `KNOWLEDGE_REPORT_ENABLED` false → 404 `NOT_FOUND`; `call_bundle` returns `None`
+400 (no feature switch: `KNOWLEDGE_REPORT_ENABLED` was removed on 2026-11-23, owner); `call_bundle` returns `None`
 (`services/optional_rpc.py:22-43`) → 503 `SERVICE_UNAVAILABLE`. Every response sets `Cache-Control:
 private, no-store`.
 
@@ -1360,8 +1360,8 @@ reuses `.ld-card`, `.ld-note`, `.ld-rowlist`, `.ld-trow`, `.ld-stats`, `.ld-seg`
 (`static/css/styles.css:3620-4146`).
 
 ### Entry points
-- `templates/profile.html` Me hub: new `.ld-set` row first, rendered only when
-  `config.KNOWLEDGE_REPORT_ENABLED` (Flask's Jinja `config` global): title `common.nav.knowledge`, sub
+- `templates/profile.html` Me hub: new `.ld-set` row first, always rendered (the flag was removed
+  2026-11-23): title `common.nav.knowledge`, sub
   `me.knowledge_sub`.
 - `templates/base.html:64-70`: add `'knowledge_page'` to the `'me'` tab tuple.
 - `web/pages.py`: `('/knowledge', 'knowledge_page', 'knowledge.html')`.

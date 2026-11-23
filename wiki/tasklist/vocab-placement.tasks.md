@@ -707,7 +707,7 @@ learners carry the tone state of `wiki/evaluations/vocab-placement-research-2026
 
 ## TASK-1088: Launch per language — readiness gate, nightly close, flag (LIVE environment change, owner)
 
-**Status:** [~] In Progress (2026-11-19) — code part done (nightly close job, `scripts/placement_readiness_gate.py`); owner launch steps remain (runbook Phase 3)
+**Status:** [~] In Progress — code done; 2026-11-23 the `PLACEMENT_ENABLED_LANGS` switch was removed (owner: always on for zh, en, ja); gates zh/en/ja(3,2)/(3,3) PASS; remaining: deploy, the owner's own placement and latency check, ja exam-list check (TASK-1053)
 **Feature:** vocab-placement
 **Type:** infra
 **Complexity:** S (1-3h)

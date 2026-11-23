@@ -2,7 +2,7 @@
 
 Tech spec §6.2 guards, in order: JWT (401) → language_id required (400) → learner token (403 for
 a non-UUID identity such as the batch service account) → language ∈ {1, 2, 3} (400) →
-KNOWLEDGE_REPORT_ENABLED (404) → RPC available (503). The RPCs are faked behind ``get_db``
+RPC available (503). The report is always on (no feature switch). The RPCs are faked behind ``get_db``
 (tests/_knowledge_fakes.py); auth goes through the conftest mock (pattern:
 tests/test_word_list_import_routes.py).
 """
@@ -37,10 +37,9 @@ def _state(monkeypatch):
 
 @pytest.fixture()
 def learner(app, mock_supabase):
-    """The conftest mock authenticates every token as this UUID learner; the flag is on."""
+    """The conftest mock authenticates every token as this UUID learner."""
     mock_supabase.auth.get_user.return_value = SimpleNamespace(
         user=SimpleNamespace(id=USER, email='learner@example.com'))
-    app.config['KNOWLEDGE_REPORT_ENABLED'] = True
     return app
 
 
@@ -89,18 +88,7 @@ def test_batch_service_token_is_forbidden(learner, client, fake_db, monkeypatch)
 
 def test_non_uuid_learner_is_forbidden(app, client, fake_db):
     # The conftest mock's default user id is not a UUID.
-    app.config['KNOWLEDGE_REPORT_ENABLED'] = True
     assert _get(client, '/api/knowledge/summary?language_id=3').status_code == 403
-
-
-def test_flag_off_is_404(learner, client, fake_db):
-    learner.config['KNOWLEDGE_REPORT_ENABLED'] = False
-    for path in ('/api/knowledge/summary?language_id=3', '/api/knowledge/prestudy-suggestion?language_id=3'):
-        resp = _get(client, path)
-        assert resp.status_code == 404
-        assert resp.get_json()['error_code'] == 'NOT_FOUND'
-        assert resp.headers['Cache-Control'] == 'private, no-store'
-    assert fake_db.rpcs == []
 
 
 def test_rpc_missing_is_503(learner, client, fake_db):
@@ -145,8 +133,8 @@ def test_summary_envelope_and_headers(learner, client, fake_db):
 
 
 def test_p_user_id_is_always_the_callers(learner, client, fake_db):
-    resp = _get(client, f'/api/knowledge/summary?language_id=3&user_id=00000000-0000-0000-0000-000000000000'
-                        f'&p_user_id=00000000-0000-0000-0000-000000000000')
+    resp = _get(client, '/api/knowledge/summary?language_id=3&user_id=00000000-0000-0000-0000-000000000000'
+                        '&p_user_id=00000000-0000-0000-0000-000000000000')
     assert resp.status_code == 200
     calls = fake_db.rpc_calls('knowledge_report_summary')
     assert calls == [{'p_user_id': USER, 'p_language_id': 3, 'p_cal_since': []}]
@@ -196,10 +184,7 @@ def test_knowledge_page_serves_its_template(app, client):
     assert 'style=' not in stage                                   # tokens and classes only
 
 
-def test_me_row_is_first_and_only_with_the_flag(app, client):
-    app.config['KNOWLEDGE_REPORT_ENABLED'] = False
-    assert 'meKnowledgeRow' not in client.get('/profile').get_data(as_text=True)
-    app.config['KNOWLEDGE_REPORT_ENABLED'] = True
+def test_me_row_is_first(app, client):
     html = client.get('/profile').get_data(as_text=True)
     hub = html[html.index('me-links'):]
     assert 'meKnowledgeRow' in hub

@@ -66,7 +66,6 @@ class FakePlacementSQL:
         monkeypatch.setattr(cp, '_response_rows', self.response_rows)
         monkeypatch.setattr(cp, '_lemmas', lambda ids: {i: self.lemmas.get(i) for i in ids})
         monkeypatch.setattr(cp, 'evidence_writer', lambda u, s, w: self.evidence_calls.append((u, s['id'], w)))
-        monkeypatch.setattr(cp.Config, 'PLACEMENT_ENABLED_LANGS', '1,2,3', raising=False)
         return self
 
     # ---------------------------------------------------------------- tables

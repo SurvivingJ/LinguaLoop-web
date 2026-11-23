@@ -168,9 +168,6 @@ class Config:
     # (TASK-1031). Every process that reads or writes exercise content needs
     # SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY. These tuning settings are read
     # only through services.exercise_content.store internals, at call time.
-    # Vocabulary placement (vocab-placement tech §14, TASK-1088): comma-separated dim_languages ids for
-    # which the placement is enabled, e.g. "1,2". Empty = off everywhere (the API answers 404).
-    PLACEMENT_ENABLED_LANGS = (os.environ.get('PLACEMENT_ENABLED_LANGS') or '').strip()
     EXERCISE_CONTENT_BUCKET = (os.environ.get('EXERCISE_CONTENT_BUCKET') or '').strip() or 'exercise-content'
     # Process-wide LRU of raw file bytes, per process (2 gunicorn workers -> 2x).
     EXERCISE_CONTENT_CACHE_MB = _env_int('EXERCISE_CONTENT_CACHE_MB', 32)
@@ -329,13 +326,6 @@ class Config:
     # _asset_columns_usable) — but those fields are then not stored. Export
     # DT_GRADING_ASSET_COLUMNS=false to skip them outright.
     DT_GRADING_ASSET_COLUMNS = os.environ.get('DT_GRADING_ASSET_COLUMNS', 'True').lower() == 'true'
-
-    # Knowledge Report ("My vocabulary", wiki/features/knowledge-report.tech.md,
-    # TASK-1038). Off: the /knowledge page has no Me row and every
-    # /api/knowledge route answers 404. The nightly snapshot job is NOT gated by
-    # it (history must accrue while the page is hidden, ADR-053). Turned on in
-    # production by TASK-1058.
-    KNOWLEDGE_REPORT_ENABLED = _env_bool('KNOWLEDGE_REPORT_ENABLED', False)
 
     # Billing enforcement (billing TASK-980/997, ADR-055). Off: gated features
     # log `entitlement_shadow_deny` and serve. Flipped by billing's rollout only,

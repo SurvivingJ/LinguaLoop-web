@@ -70,8 +70,7 @@ class Job:
 #   04:20 watchlist sweep scans tests created since the last run, so it runs
 #         after regeneration has landed;
 #   04:25 knowledge snapshots (ADR-053) record each learner's report inputs for
-#         the UTC day; idempotent upsert, so both workers may run it. Not gated
-#         by KNOWLEDGE_REPORT_ENABLED: history must accrue before the page ships.
+#         the UTC day; idempotent upsert, so both workers may run it.
 JOBS = (
     Job('dt_error_synthesis_nightly',
         'scripts.dt_nightly_synthesis:run_nightly_synthesis',

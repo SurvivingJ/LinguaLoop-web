@@ -876,7 +876,8 @@ session checks that `p_user_id` owns it.
 ### Flask routes (`routes/calibration.py`, `calibration_bp`)
 
 Decorators as on the existing routes: `@supabase_jwt_required`, `@api_errors(...)`, ownership 404 through
-the RPC. Feature flag `PLACEMENT_ENABLED_LANGS` (e.g. `"1,2"`); a disabled language answers 404.
+the RPC. No feature switch (owner, 2026-11-23; the earlier `PLACEMENT_ENABLED_LANGS` flag was removed): always on
+for zh, en and ja (`calibration_placement.PLACEMENT_LANGUAGES`); any other language id answers 400/404.
 
 | endpoint | body / query | response |
 |---|---|---|

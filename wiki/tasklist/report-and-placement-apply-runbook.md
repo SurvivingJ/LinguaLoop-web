@@ -96,9 +96,8 @@ expected growth well under 1 MB).
 - Live smoke test on the test account after the change: all five pairs × 200 draws, every check passed (1,440 answers,
   68 meaning-only words), p50 274 ms / p95 342 ms; sessions deleted.
 
-Still to do: Phase 3 (deploy, `PLACEMENT_ENABLED_LANGS="1,2"`, `KNOWLEDGE_REPORT_ENABLED=true`); ja launch also needs the
-exam-list check (TASK-1053) and, for zh-speaking learners of ja, either better definition foils for the ~29 band-1
-terms or an owner waiver.
+Still to do: deploy (both features go live with it; no switches). The ja exam-list check (TASK-1053) waits for the
+owner's list; ja (3, 1) is two band-1 words over the gate (better definition foils for ~29 rare katakana terms).
 
 ## Phase 0 — bug fix, independent (any time)
 
@@ -168,17 +167,19 @@ while it holds files; the placement schema rollback refuses while placement sess
 ## Phase 3 — deploy and turn on
 
 The code is safe to deploy before any migration: with the migrations missing, `/api/knowledge/summary` answers 503,
-the snapshot job (04:25 UTC) and the placement close job (04:30 UTC) log "skipped", the placement API answers 404
-(flag off), and the practice admission's placement read fails soft to nothing.
+the snapshot job (04:25 UTC) and the placement close job (04:30 UTC) log "skipped", and the practice admission's
+placement read fails soft to nothing. **No feature switches (owner, 2026-11-23):** the placement is always on for zh,
+en and ja, and the Knowledge Report is always on; `PLACEMENT_ENABLED_LANGS` and `KNOWLEDGE_REPORT_ENABLED` were
+removed from the code.
 
 | Step | What | When |
 |---|---|---|
 | 3.1 | Deploy the branch | any time |
 | 3.2 | Snapshots start at 04:25 UTC the night after Phase 1 (the 30-day trend needs 30 days of rows) | after Phase 1 |
-| 3.3 | Zh gate: `python scripts/placement_readiness_gate.py --word-language 1 --psql "<DSN>"` → PASS for (1, 2), (1, 3) | after Phase 1 |
-| 3.4 | `PLACEMENT_ENABLED_LANGS="1,2"` (zh, en) — TASK-1088; take your own placement in each (V1) and record `/answer` latency over 50 calls (target p50 ≤ 250 ms, p95 ≤ 600 ms) | after 3.3 |
-| 3.5 | Add `3` to `PLACEMENT_ENABLED_LANGS` | after Phase 2's gate passes |
-| 3.6 | `KNOWLEDGE_REPORT_ENABLED=true` — TASK-1058 (needs TASK-1054's performance check and TASK-1041) | after Phase 1 |
+| 3.3 | Zh gate → PASS (done 2026-11-23) | — |
+| 3.4 | After deploy: take your own placement in each language (V1) and record `/answer` latency over 50 calls (target p50 ≤ 250 ms, p95 ≤ 600 ms) — TASK-1088 | after 3.1 |
+| 3.5 | ja: exam-list check (TASK-1053; owner is finding the list) | when the list arrives |
+| 3.6 | Knowledge Report: live on deploy (no switch) — TASK-1058; TASK-1054's performance check still to record | after 3.1 |
 | 3.7 | Leave `ENTITLEMENTS_ENFORCED` off until the Pro launch gate (TASK-1059) | — |
 
 ## Not built yet (blocks nothing above)

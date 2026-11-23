@@ -251,7 +251,7 @@ def _register_blueprints(app):
     app.register_blueprint(dt_repair_bp, url_prefix='/api/dual-translation/repair')
     app.register_blueprint(test_intros_bp)
     app.register_blueprint(word_list_import_bp)
-    # Knowledge Report ("My vocabulary"); answers 404 while KNOWLEDGE_REPORT_ENABLED is off.
+    # Knowledge Report ("My vocabulary"); always on.
     app.register_blueprint(knowledge_bp, url_prefix='/api/knowledge')
 
     app.logger.info("Blueprints registered")

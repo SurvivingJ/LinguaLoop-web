@@ -19,12 +19,14 @@ below.
 
 | Status | Count |
 |--------|-------|
-| Not Started | 78 |
+| Not Started | 77 |
 | In Progress (`[~]`) | 17 |
 | Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 59 |
 | Blocked (language-packs, unnumbered — design resolution needed) | all |
 | Won't Do (obsolete) | 5 |
-| Done (cumulative, not listed here) | 305 |
+| Done (cumulative, not listed here) | 306 |
+
+*2026-11-23 (feature switches removed):* owner: "Just make it so the code uses it, don't have env vars to switch". `PLACEMENT_ENABLED_LANGS` and `KNOWLEDGE_REPORT_ENABLED` removed; placement always on for zh/en/ja, report always on. TASK-1058 Done (repo); TASK-1088 in progress (deploy + owner checks). Counts: Not Started 78→77, Done 305→306.
 
 *2026-11-23 (placement gates pass after owner decisions):* PQ23 → words with no buildable reading item are asked meaning-only (`calibration_responses.reading_exempt`, applied live); OQ29 → zh pool refreshed now (TASK-1063 Done; zh/zh frame 12,711). Gates: zh (1,2)/(1,3) PASS 99.4%, ja (3,2)/(3,3) PASS, ja (3,1) fails by two band-1 words, en PASS. Live smoke test passed on the test account. Counts: Blocked/awaiting 60→59, Done 304→305.
 
@@ -1429,7 +1431,7 @@ Full spec: [[tasklist/knowledge-report.tasks]] · [[features/knowledge-report]] 
 | TASK-1055 | knowledge-report | End-to-end smoke and visual fixtures | [ ] | S | TASK-1040, TASK-1046 |
 | TASK-1056 | knowledge-report | Validate the estimator and the ratings | [?] needs OQ6 (exclude 110fb390?), TASK-1061 (forced-choice items, OQ5)… | M | TASK-1035, TASK-1037, TASK-1061 |
 | TASK-1057 | knowledge-report | Documentation reconciliation | [ ] | S | TASK-1034, TASK-1036, TASK-1038, TASK-1040 |
-| TASK-1058 | knowledge-report | Enable the report in production (LIVE environment change) | [ ] | XS | TASK-1037, TASK-1040, TASK-1041, TASK-1054 |
+| TASK-1058 | knowledge-report | Enable the report in production (LIVE environment change) | Done (repo) — switch removed 2026-11-23; live on deploy | XS | TASK-1037, TASK-1040, TASK-1041, TASK-1054 |
 | TASK-1059 | knowledge-report | Pro launch gate | [?] needs TASK-1053 (OQ2, OQ3; no longer the database size gate OQ13 — ADR-054, revised… | XS | TASK-1046, TASK-1048, TASK-1051, TASK-1053 |
 | TASK-1060 | knowledge-report | Import not-in-dictionary words with credits | [?] billing's credit spend path (`spend_credits(8, 'sense_import')`, `w… | L | TASK-1051 |
 | TASK-1061 | knowledge-report | Calibration forced-choice probe items [?] (LIVE-DB) | [?] OQ5 (owner approval of a Calibration change) | M | none |
@@ -1465,7 +1467,7 @@ Full spec: [[tasklist/vocab-placement.tasks]] · [[features/vocab-placement]] ·
 | TASK-1085 | vocab-placement | Entry points incl. onboarding gate | [?] PQ7 | S | TASK-1084, TASK-1040 |
 | TASK-1086 | vocab-placement | Report integration (LIVE-DB, owner) | [ ] | L | TASK-1078, TASK-1079, TASK-1081, TASK-1036, TASK-1039, TASK-1040, TASK-1044 |
 | TASK-1087 | vocab-placement | Simulation regression harness (V0) | Done (repo) | M | TASK-1078 |
-| TASK-1088 | vocab-placement | Launch per language (LIVE env, owner) | [~] code done (nightly close, gate script); owner steps | S | TASK-1080, TASK-1081, TASK-1082, TASK-1084, TASK-1087, TASK-1092 (zh) (ja: TASK-1075) |
+| TASK-1088 | vocab-placement | Launch per language (LIVE env, owner) | [~] switch removed 2026-11-23 (always on zh/en/ja); deploy + owner checks remain | S | TASK-1080, TASK-1081, TASK-1082, TASK-1084, TASK-1087, TASK-1092 (zh) (ja: TASK-1075) |
 | TASK-1089 | vocab-placement | Validation study V1–V10 | [?] learners | M | TASK-1088 |
 | TASK-1090 | vocab-placement | Exam-level output — redesign and gate | [?] parked (owner PQ2: not now), V5 | L | TASK-1089, TASK-1049 |
 | TASK-1091 | vocab-placement | Check meaning items become the bare instrument (LIVE-DB, owner) | [?] PQ11 | M | TASK-1076, TASK-1077 |
