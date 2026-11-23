@@ -255,3 +255,9 @@ all absent live 2026-11-23). It is listed in `HISTORICAL_RLS_FILES` of
 `migrations/`; moving it needs that entry removed in the same change (outside this
 migrations-only package). It also holds the only `ALTER TYPE exercise_source_type ADD VALUE
 'conversation'`; the enum label is still live (labels cannot be dropped).
+
+## 2026-11-23 — get_quiz_distractors_batch (drop pending)
+
+| Archived file | Object | New canonical file | Live marker checked |
+|---|---|---|---|
+| `get_quiz_distractors_batch.sql` | `get_quiz_distractors_batch(integer[],smallint,integer,smallint[])` | *(to be dropped by `drop_get_quiz_distractors_batch.sql`; the recreate is `drop_get_quiz_distractors_batch_rollback.sql`)* | **still live when archived**: body md5 (no comments/whitespace) `6278cbcaa21d1e3dcc319ce1b247c8e9` = this file, 2026-11-23. Archived ahead of the drop at the developer's request; until the drop is applied the live definition is recorded in the rollback file |
