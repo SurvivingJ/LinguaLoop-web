@@ -758,3 +758,33 @@ class TestBatchedCardGeneration:
         cards.generate_cards_for_queued_entries(db, 'u1')
         new_cards, _ = dt_card_fakes.written(db)
         assert {r['prompt_payload']['l1_context'] for r in new_cards} == {''}
+
+
+# ---------------------------------------------------------------------------
+# _newest_first_key: created_at may arrive as datetime, aware/naive or odd str
+# ---------------------------------------------------------------------------
+
+def test_newest_first_key_mixed_types_never_raise_and_order_by_time():
+    from datetime import datetime, timezone
+    rows = [
+        {"id": "a", "created_at": "2026-01-01T10:00:00+00:00"},
+        {"id": "b", "created_at": datetime(2026, 1, 1, 11, 0, 0, tzinfo=timezone.utc)},
+        {"id": "c", "created_at": "2026-01-01T12:00:00Z"},
+        {"id": "d", "created_at": "2026-01-01T09:00:00"},  # naive: read as UTC
+        {"id": "e", "created_at": "2026-01-01T12:00:00.5Z"},
+        {"id": "f", "created_at": None},
+    ]
+    ordered = sorted(rows, key=cards._newest_first_key, reverse=True)
+    assert [r["id"] for r in ordered] == ["f", "e", "c", "b", "a", "d"]
+
+
+def test_newest_first_key_id_breaks_ties_descending():
+    a = {"id": "a", "created_at": "2026-01-01T10:00:00Z"}
+    b = {"id": "b", "created_at": "2026-01-01T10:00:00+00:00"}
+    assert cards._newest_first_key(b) > cards._newest_first_key(a)
+
+
+def test_newest_first_key_unparseable_string_still_comparable():
+    good = {"id": "a", "created_at": "2026-01-01T10:00:00+00:00"}
+    odd = {"id": "b", "created_at": "not-a-date"}
+    assert cards._newest_first_key(good) > cards._newest_first_key(odd)

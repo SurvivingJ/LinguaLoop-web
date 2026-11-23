@@ -337,14 +337,25 @@ def _paged(make_query) -> list[dict]:
 def _newest_first_key(row: dict):
     """Sort key matching ``ORDER BY created_at DESC, id DESC`` (Postgres puts
     NULLs first in a DESC sort), for merging per-chunk winners."""
+    from datetime import datetime, timezone
+
     created = row.get("created_at")
     if created is None:
-        return (1, None, row["id"])
+        return (1, datetime.min.replace(tzinfo=timezone.utc), "", row["id"])
+    # Every key is (flag, aware datetime, unparsed text, id) so comparison is
+    # always between like types, whatever mix of datetime / ISO string (with a
+    # trailing 'Z', with or without microseconds, naive or aware) arrives.
     try:
-        from datetime import datetime
-        return (0, datetime.fromisoformat(str(created)), row["id"])
+        parsed = (
+            created if isinstance(created, datetime)
+            else datetime.fromisoformat(str(created).strip().replace("Z", "+00:00"))
+        )
     except ValueError:
-        return (0, str(created), row["id"])
+        # Unparseable: sorts before every real timestamp, ties broken by text.
+        return (0, datetime.min.replace(tzinfo=timezone.utc), str(created), row["id"])
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone.utc)
+    return (0, parsed, "", row["id"])
 
 
 def _latest_errors_by_key(db, submission_l2: dict, wanted: set[tuple]) -> dict:
