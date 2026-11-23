@@ -59,7 +59,6 @@ ENDPOINT_LIMITS = {
 
     # LLM-backed or otherwise expensive, per user.
     'word_list_import.submit': (('5 per hour; 20 per day', user_or_ip),),
-    'extract_vocabulary': (('10 per minute; 100 per day', user_or_ip),),
     'dual_translation.submit': (('10 per minute; 120 per hour', user_or_ip),),
     'dt_repair.check': (('20 per minute; 300 per hour', user_or_ip),),
     'dt_repair.hint': (('60 per minute', user_or_ip),),

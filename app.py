@@ -3,7 +3,7 @@ Flask Backend for LinguaDojo Language Learning Platform
 Clean, production-ready implementation with proper error handling
 """
 
-from flask import Flask, request, jsonify, make_response, g
+from flask import Flask, request, jsonify, make_response
 from flask_cors import CORS
 from werkzeug.middleware.proxy_fix import ProxyFix
 from datetime import datetime, timezone
@@ -20,12 +20,7 @@ from services.service_factory import ServiceFactory
 from services.r2_service import R2Service
 from services.auth_service import AuthService
 from services.device_service import DeviceService
-from middleware.auth import jwt_required as supabase_jwt_required
 from services.dimension_service import DimensionService
-from utils.responses import api_errors, api_success, bad_request, service_unavailable
-from utils.validation import json_body
-from models.requests import VocabularyExtractRequest, ErrorLogRequest
-from pydantic import ValidationError
 from web.errors import register_error_handlers
 from web.pages import register_pages
 from web.rate_limits import init_rate_limits
@@ -43,7 +38,6 @@ from routes.users import users_bp
 from routes.vocab_dojo import vocab_dojo_bp
 from routes.vocab_admin import vocab_admin_bp
 from routes.calibration import calibration_bp
-from routes.common import get_db
 from routes.drills import classifier_drill_bp, counter_drill_bp
 from routes.practice import practice_bp
 from routes.study_plan import study_plan_bp
@@ -274,17 +268,6 @@ def _register_core_routes(app):
             }
         })
     
-    @app.route('/api/config', methods=['GET'])
-    def get_config():
-        """Get public configuration"""
-        return jsonify({
-            "features": {
-                "ai_generation": app.openai_service is not None,
-                "database": app.supabase is not None,
-                "audio_generation": app.openai_service is not None
-            }
-        })
-
     @app.context_processor
     def _inline_metadata():
         """/api/metadata, embedded in every page (latency 2026-11).
@@ -308,44 +291,6 @@ def _register_core_routes(app):
             'test_types': DimensionService.get_all_test_types(),
             'status': 'success'
         })
-
-    @app.route('/api/vocabulary/extract', methods=['POST'])
-    @supabase_jwt_required
-    @api_errors("Vocabulary extraction failed")
-    def extract_vocabulary():
-        """Extract vocabulary (lemmas + phrases) from text"""
-        try:
-            body = VocabularyExtractRequest.model_validate(json_body())
-        except ValidationError as e:
-            return bad_request(e.errors()[0]['msg'])
-
-        if not app.vocab_pipeline:
-            return service_unavailable("Vocabulary service unavailable")
-
-        try:
-            vocab = app.vocab_pipeline.extract(body.text, body.language_code)
-            return api_success({"vocabulary": vocab})
-        except ValueError as e:
-            return bad_request(str(e))
-
-    @app.route('/api/errors/log', methods=['POST'])
-    @supabase_jwt_required
-    @api_errors("Failed to log error")
-    def log_error():
-        """Log an application error to the app_error_logs table"""
-        try:
-            body = ErrorLogRequest.model_validate(json_body())
-        except ValidationError as e:
-            return bad_request(e.errors()[0]['msg'])
-
-        get_db().table('app_error_logs').insert({
-            'error_type': body.error_type[:100],
-            'error_message': body.error_message[:Config.MAX_INPUT_LENGTH],
-            'url': (body.url or '')[:Config.MAX_INPUT_LENGTH],
-            'user_id': g.current_user_id,
-            'metadata': body.metadata,
-        }).execute()
-        return api_success(status_code=201)
 
 
 if __name__ == '__main__':

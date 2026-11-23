@@ -82,11 +82,8 @@ def test_no_payments_blueprint_is_registered(app):
     assert not [r.rule for r in app.url_map.iter_rules() if r.rule.startswith('/api/payments')]
 
 
-def test_public_config_does_not_advertise_the_token_economy(client):
+def test_health_does_not_advertise_the_token_economy(client):
     import json
-    data = json.loads(client.get('/api/config').data)
-    assert 'token_costs' not in data and 'daily_free_tokens' not in data
-    assert 'payments' not in data['features']
     health = json.loads(client.get('/api/health').data)
     assert 'stripe' not in health['services']
 

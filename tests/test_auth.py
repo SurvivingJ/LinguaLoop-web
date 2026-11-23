@@ -14,7 +14,6 @@ PROTECTED_ENDPOINTS = [
     ('POST', '/api/flashcards/skip'),
     ('POST', '/api/vocabulary/word-quiz'),
     ('POST', '/api/reports/submit'),
-    ('POST', '/api/vocabulary/extract'),
 ]
 
 
