@@ -41,7 +41,7 @@ Dictionary build (rebuildable; NOT incremental — wipes + re-inserts):
        → dim_classifier_distractor_groups  (16 rows)
        → dim_classifiers                   (75 curated rows, language_id=1)
        → dim_classifier_noun_pairs         (~872 curated rows)
-  4. scripts/import_cedict_classifiers.py   MUST run after the build to restore the
+  4. scripts/import_cedict_classifiers.py --apply   MUST run after the build to restore the
        CC-CEDICT long tail (~1.8k cedict pairs + ~71 lazy tier-4 'general' classifiers)
 
 Session serving:

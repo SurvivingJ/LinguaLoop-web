@@ -228,10 +228,10 @@ Backfills `pinyin_payload` for existing Chinese tests.
 
 ```
 Usage:
-  python scripts/batch_generate_pinyin.py              # All Chinese tests
-  python scripts/batch_generate_pinyin.py --limit 100  # First 100
-  python scripts/batch_generate_pinyin.py --resolve-polyphones  # With LLM
-  python scripts/batch_generate_pinyin.py --dry-run    # Preview only
+  python scripts/batch_generate_pinyin.py --apply              # All Chinese tests
+  python scripts/batch_generate_pinyin.py --limit 100 --apply  # First 100
+  python scripts/batch_generate_pinyin.py --resolve-polyphones --apply  # With LLM
+  python scripts/batch_generate_pinyin.py                      # Preview only (dry run; --dry-run is the same)
 ```
 
 **Flow:**

@@ -117,6 +117,10 @@ Counts are physical lines of `.py` (or the extension noted) found 2026-11-23, `_
 
 There is no local admin app, admin-dashboard or Model Arena route module, exercises, mystery or conversations route module, task-runner service or exercise-session service any more.
 
+## Script write convention
+
+A script under `scripts/` that can write to the live database or Storage writes nothing unless `--apply` is given: a bare run is a dry run, `--dry-run` is accepted as an explicit alias, and `--apply --dry-run` together exits with code 2. The flags come from `scripts/_common.base_parser` (or `add_apply_flags` for one sub-command, as for `exercise_stage_runner.py render`), and `tests/test_scripts_apply_convention_guard.py` fails when a script defines `--dry-run` itself. Exempt, each with its reason in the guard's allowlist: the generation runners whose run is the write (`run_generation_batch.py`, `run_test_generation_cli.py`, `run_ladder_from_existing.py`, and `dt_nightly_synthesis.py`, which the scheduler runs in-process), `dt_rewrite_history_v6.py` (its own four-mode group, already dry run by default), the retired `backfill_gloss_definitions.py`, and five scripts that write only local files. Scripts that write by design with no dry-run flag at all (for example `render_existing_assets.py`, `build_calibration_distractor_cache.py`, `Corpuses/verify_collocations.py`) are listed under TASK-1218 in [[tasklist/review-2026-11-22.tasks]] (2026-11-23).
+
 ## Background Scheduler
 
 `web/scheduler.py` declares the jobs as one table (`JOBS`, `Job` dataclass) and `init_scheduler(app)` starts a `BackgroundScheduler(timezone='UTC')` once per process (`coalesce=True`, `max_instances=1`, `replace_existing=True`). It is skipped when `DISABLE_SCHEDULER` is `1`/`true`/`yes` or when the app is created with `TESTING`. With two gunicorn workers there are two schedulers; every job serialises itself across processes (a Postgres advisory-lock pair, or an idempotent upsert) and a job that crashes is logged, never raised. Each job thread gets the longer batch timeout (`SUPABASE_JOB_TIMEOUT`, 120 s).

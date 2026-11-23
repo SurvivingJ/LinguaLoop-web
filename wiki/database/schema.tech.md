@@ -369,7 +369,7 @@ Senses are produced by a **single LLM call per word** ([services/vocabulary/sens
 
 `gen_confidence` (key 5) replaces the retired `vocab_validation` LLM call: it sets `is_validated` and flags low-confidence rows for review. POS (key 4) is a language-neutral integer mapped to a canonical string and written to `dim_vocabulary.part_of_speech` when blank. Prompts (`vocab_definition_generation`, `vocab_sense_selection`) are numeric-key, output-language-locked, and exist for zh/en/**ja** (`prompt_templates`, v2; migrations/rewrite_sense_prompts_two_level.sql).
 
-**Read paths must filter `definition_level='standard'`** so the two rows don't fan out duplicates — applied in `get_distractors` and the admin sense lookup. Bulk seeding: [scripts/backfill_senses.py](../../scripts/backfill_senses.py) (resumable via a `simple`-row gate, concurrent, `--language/--model/--limit/--concurrency/--dry-run`). Inline test-gen passes `prefer_existing=True` to skip already-seeded words.
+**Read paths must filter `definition_level='standard'`** so the two rows don't fan out duplicates — applied in `get_distractors` and the admin sense lookup. Bulk seeding: [scripts/backfill_senses.py](../../scripts/backfill_senses.py) (resumable via a `simple`-row gate, concurrent, `--language/--model/--limit/--concurrency`; writes only with `--apply`). Inline test-gen passes `prefer_existing=True` to skip already-seeded words.
 - **Referenced by:** exercises, word_assets, user_word_ladder, word_quiz_results, user_flashcards, user_vocabulary_knowledge, vocabulary_review_queue
 
 ---

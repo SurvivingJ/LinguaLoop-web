@@ -17,8 +17,8 @@ open_questions:
 
 > **Status update 2026-11-23 (paths corrected, fat-seed dependency noted).**
 > - Dead references fixed below: `scripts/export_exercise_csv.py` does not exist; the export is `scripts/export_exercise_worklist.py --language ja --format csv` (the "stage 0 as a mode of the worklist script" design this page argues for is what was built). `data/exercise_seeding/ja/*` (`senses.csv`, `batch_001*.json`) are not files in the repository: `senses.csv` was replaced by the run directory `RUN/` passed to `--out-dir`, and the `batch_001` names in the `upload_exercises.py` example below are illustrative (the uploader's own docstring uses the same names). Line-number anchors into `asset_pipeline.py` and `export_exercise_worklist.py` were dropped because the files moved on.
-> - **The fat-seed path still uses this runner.** `scripts/fat_seed_runner.py` (skills `fat-seed-authoring` and `fat-seed-review`; the path that wrote 10,793 of 10,958 senses that have assets live, checked 2026-11-23) reproduces the prompts as rules and writes its own per-sense JSON, but after upload with `--no-render` it relies on this runner for **stage 8** (`prepare --stage 8`, answered by `batch-exercise-judging`, then `collect`) and **`render`** (`render --dry-run`, `render`). Stages 1-6, `bridge` (2b) and `assemble` are not used by fat-seed. The runner is `scripts/exercise_stage_runner.py` (stages 1-6 and 8 plus `bridge`, `assemble`, `render`, `status`).
-> - `scripts/upload_exercises.py` writes `word_assets`; the `render` command (and the uploader's own render unless `--no-render`) writes `exercises` rows and the content files in Storage through `store.write_sense` (ADR-049). The sentence in the operator skill that says only the uploader writes the database is therefore imprecise.
+> - **The fat-seed path still uses this runner.** `scripts/fat_seed_runner.py` (skills `fat-seed-authoring` and `fat-seed-review`; the path that wrote 10,793 of 10,958 senses that have assets live, checked 2026-11-23) reproduces the prompts as rules and writes its own per-sense JSON, but after upload with `--no-render` it relies on this runner for **stage 8** (`prepare --stage 8`, answered by `batch-exercise-judging`, then `collect`) and **`render`** (`render --dry-run`, `render --apply`). Stages 1-6, `bridge` (2b) and `assemble` are not used by fat-seed. The runner is `scripts/exercise_stage_runner.py` (stages 1-6 and 8 plus `bridge`, `assemble`, `render`, `status`).
+> - `scripts/upload_exercises.py` writes `word_assets`; the `render` command (and the uploader's own render unless `--no-render`) writes `exercises` rows and the content files in Storage through `store.write_sense` (ADR-049). Since TASK-1218 (2026-11-23) both write only with `--apply` (a bare run is a dry run), and the operator skill's sentence now names both writers.
 
 # CSV Exercise Authoring — Technical Specification
 
@@ -269,7 +269,7 @@ nothing downstream changes:
 python scripts/upload_exercises.py --stage core \
   --batch-file  data/exercise_seeding/ja/batch_001.json \
   --answers-file data/exercise_seeding/ja/batch_001.core.json --dry-run
-# then without --dry-run, then the same pair for --stage exercises
+# then again with --apply in place of --dry-run, then the same pair for --stage exercises
 ```
 
 The uploader performs the same `PROMPT1_KEY_MAP` remap, the same schema gate on
