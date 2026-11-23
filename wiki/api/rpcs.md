@@ -3,75 +3,59 @@ title: API Surface Overview
 type: overview
 status: complete
 tech_page: ./rpcs.tech.md
-last_updated: 2026-05-12
+last_updated: 2026-11-23
 open_questions:
-  - "Several admin blueprints (vocab_admin, admin_local, model_arena) have no auth decorators — they rely on deployment posture. Worth tightening before exposing publicly."
-  - "Stripe webhook handler is not registered — `process_stripe_payment` RPC is unreachable from HTTP today."
+  - "OPEN: The daily free-token grant does not work. `GET /api/users/tokens` calls a database function that does not exist, so it answers an error, and no code grants free tokens. Decide what the token economy should be, then create the function."
+  - "OPEN: Buying tokens is off. The payment-intent route was removed because no verified webhook exists to credit the tokens; it comes back with the webhook."
+  - "OPEN: Several routes have no caller in this repository (the corpus and admin vocabulary endpoints, the error log, the moderation check, the vocabulary extractor and others, listed in [[api/rpcs.tech]]). Which of them does anything outside the repository use?"
 ---
 
 # API Surface Overview
 
 ## Purpose
 
-LinguaDojo's API is a Flask REST API organised into 15 blueprints (13 production + 2 admin-only). All `/api/*` endpoints are prefixed by blueprint; admin endpoints live under `/admin/*` and are mounted only by the local `admin_app.py` variant. Server-rendered Jinja2 pages call these same endpoints from client-side JavaScript.
+LinguaDojo's API is a Flask REST API of 111 endpoints under `/api/`, grouped into 20 route modules (one per domain: auth, tests, practice, study plan and session, dual translation and its guided repair, calibration and placement, knowledge report, flashcards, drills and so on), plus 24 page routes that only serve an HTML shell. There is no separate admin application and no `/admin/*` API: the few operator endpoints live under `/api/admin/vocab` and `/api/corpus` and require an admin account. The pages are rendered in the browser: each page loads its template and then calls the same API as any other client.
 
 ## Design Philosophy
 
-- **Blueprint organisation** — each domain (auth, tests, exercises, mystery, etc.) has its own Flask blueprint with a single responsibility.
-- **Supabase RPC for atomic operations** — multi-table transactional operations (test submission, ELO calculation, token grants, ladder progression) are implemented as plpgsql RPCs called via the Supabase client. Python wrappers stay thin.
-- **Simple reads via Python** — list/get operations use the Supabase Python client's query builder with foreign-key joins.
-- **Module-level JWT decorators** — all authenticated endpoints use `@jwt_required` (alias `@supabase_jwt_required`); admin tier checks use `@admin_required`; service-role tokens bypass JWT validation for batch jobs.
-- **Pydantic for request validation** — request bodies that need strict schemas use `models/requests.py` Pydantic types (`PaymentIntentRequest`, `WordQuizRequest`, `VocabularyExtractRequest`, `ErrorLogRequest`).
+- **One module per domain, thin handlers.** A route module checks who is calling, validates the input, calls a service and shapes the answer. The rules live in `services/`, where they can be tested without HTTP.
+- **The database does the atomic work.** Anything that must change several tables at once or must not race (grading and recording a test, recording a practice answer, moving a word on the ladder, building the day's session) is one Postgres function called through the Supabase client. For a practice answer the whole recording is a single call; only the spaced-repetition scheduling and its penalty stay in Python.
+- **The server decides, the client reports.** The server never trusts the client for who the user is, whether an answer was right (typed answers are re-graded; test answers are checked in the database), whether a battery was passed (batteries are signed and re-scored) or how long something took (timestamps are validated and clamped).
+- **Simple reads stay simple.** Lists and lookups use the Supabase query builder directly; hot reads are cached in process for a short time.
+- **Failures look the same everywhere.** Under `/api/`, every error (including a wrong URL or an oversized body) is a JSON object with `status`, `error` and a stable `error_code`; unknown page URLs send the visitor to the login page. The auth routes are the older exception: they use their own `success`/`error` bodies.
+- **Cost and abuse are limited centrally.** Every API route has a default rate limit per user (or per IP when anonymous); sign-in, language-model-backed and admin routes have stricter ones, and a request body over 1 MiB is refused before any handler runs. Because the app runs as two worker processes with in-memory counters, a client can reach roughly twice each limit unless the counters are moved to Redis.
+- **Features can be switched off without a deploy.** The knowledge report, the placement test, guided repair and similar features answer "not found" or "turned off" when their flag is off, and the pages show a "not available" notice.
 
-## Blueprint Map (Production)
+## What the API covers
 
-Registered by `app.py` and shipped to Railway.
+| Area | What a learner can do |
+|---|---|
+| Sign-in | Request an emailed code, verify it, stay signed in on a remembered device, sign out. |
+| Tests | List and open tests, take them (reading, listening, dictation, pinyin, pitch accent), see history, study a test's key words beforehand, see its sentences with translations. |
+| Daily session and practice | Get today's ordered session, practice items, extra rounds and a speed round; submit each answer; pass the gate and stress-test batteries. |
+| Study plan | Read and change daily minutes, modules and new-word settings. |
+| Flashcards and drills | Review due cards; do the measure-word and counter drills. |
+| Dual translation | Get a passage, submit a translation, repair mistakes with hints, review error cards and see the error profile. |
+| Vocabulary check, placement and report | Measure vocabulary on a frequency scale, take the adaptive placement, read "My vocabulary". |
+| Word lists | Upload words and watch their status. |
+| Account | Preferences, native language, reports to the team. |
+| Operators | Admin-only vocabulary and corpus endpoints. |
 
-| Blueprint | Prefix | Domain | Lines |
-|-----------|--------|--------|-------|
-| `auth_bp` | `/api/auth` | OTP login, refresh, profile | 165 |
-| `tests_bp` | `/api/tests` | Comprehension tests + pinyin | 1126 |
-| `exercises_bp` | `/api/exercises` | Daily mixed session | 227 |
-| `vocab_dojo_bp` | `/api/vocab-dojo` | Per-word ladder, gates, stress test | 418 |
-| `flashcards_bp` | `/api/flashcards` | FSRS review | 243 |
-| `vocabulary_bp` | `/api/vocabulary` | Post-test word quiz | 42 |
-| `corpus_bp` | `/api/corpus` | Corpus ingest, packs, style | 260 |
-| `mystery_bp` | `/api/mystery` | 5-scene murder mystery | 284 |
-| `conversations_bp` | `/api/conversations` | Read-only conversation browse | 98 |
-| `users_bp` | `/api/users` | Profile, ELO summary, tokens, prefs | 131 |
-| `reports_bp` | `/api/reports` | Bug reports | 59 |
-| `payments_bp` | `/api/payments` | Token packages + Stripe PaymentIntent | 61 |
-| `vocab_admin_bp` | `/api/admin/vocab` | Admin word upload + preview | 450 |
+## What was removed
 
-## Blueprint Map (Admin-only — `admin_app.py`)
-
-Mounted only by the local admin variant. Not registered in production.
-
-| Blueprint | Prefix | Domain |
-|-----------|--------|--------|
-| `admin_local_bp` | `/admin` | Pipeline dashboard (10 tabs) + reference data + task SSE |
-| `model_arena_bp` | `/admin/arena` | Head-to-head LLM comparison |
-
-## Core Routes (Non-Blueprint, app.py)
-
-| Endpoint | Method | Auth | Purpose |
-|----------|--------|------|---------|
-| `/api/health` | GET | none | Service health probe |
-| `/api/config` | GET | none | Public feature flags + token costs |
-| `/api/metadata` | GET | none | Cached `dim_languages` + `dim_test_types` |
-| `/api/vocabulary/extract` | POST | JWT | LLM vocab extraction from arbitrary text |
-| `/api/errors/log` | POST | JWT | Frontend error logging to `app_error_logs` |
-
-Plus a dozen web routes (`/login`, `/welcome`, `/tests`, `/test/<slug>`, `/profile`, etc.) — all defined inline in `_register_web_routes`.
+Mysteries, conversations and language packs were archived on 2026-09-21; the daily exercises endpoints were folded into the practice and study-session endpoints; the local admin dashboard and the Model Arena were deleted; the payment-intent endpoint was removed because there is no way yet to confirm a payment. The listening lab no longer exists as a feature.
 
 ## Authentication
 
-`Authorization: Bearer <supabase_jwt>` is required on all `/api/*` routes except the public ones noted above. The middleware sets `g.current_user_id` server-side; the client cannot inject this. If the token matches the `BATCH_SERVICE_TOKEN` env var (ADR-014, 2026-05-26), the request runs as a `'service-account'` identity — used by HTTP batch jobs. This identity is honoured only by `@jwt_required` routes; `@admin_required` and `@tier_required` reject it (no matching `users` row → 403). The previous bypass against `SUPABASE_SERVICE_ROLE_KEY` was removed by ADR-014.
+Every API route except sign-in, the token package list, the health check, the public configuration and metadata, and the public reading of a test requires `Authorization: Bearer <token>`. The server derives the user from the token; the client cannot set it. A separate batch token (ADR-014) lets scripts call HTTP routes as a service identity; it works only on ordinary authenticated routes and is refused on admin routes. The old rule that the Supabase service key also authenticated requests no longer applies.
 
-See [[api/rpcs.tech]] for the complete endpoint reference: every route, its body/query schema, the underlying RPC, and the success/error shapes.
+See [[api/rpcs.tech]] for the complete reference: every route, its handler, its auth, the database functions and tables it reaches, and the places where it deviates from these rules.
 
 ## Related Pages
 
-- [[api/rpcs.tech]] — Full endpoint specifications (all 15 blueprints)
-- [[overview/project.tech]] — Architecture, deployment, scheduler
-- [[database/rpcs.tech]] — Postgres RPCs called by the API
+- [[api/rpcs.tech]] — Full endpoint specifications (all 137 routes)
+- [[overview/project]] — What LinguaDojo is
+- [[overview/project.tech]] — Architecture, packages, scheduler, gates
+- [[features/web-package]] — How the app is wired
+- [[features/routes-tests-package]] — The tests route package
+- [[database/rpcs.tech]] — Postgres functions called by the API
