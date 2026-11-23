@@ -174,3 +174,84 @@ def test_payload_timeout_takes_precedence_over_cli_default():
     src = inspect.getsource(cli.ClaudeCliClient)
     assert "payload.get('timeout') or CLAUDE_CLI_TIMEOUT" in src
     assert 'exercise_generation.llm_client' not in inspect.getsource(svc)
+
+
+# ---------------------------------------------------------------------------
+# D-03 follow-up: with SDK retries off, tenacity must retry what the SDK did
+# (HTTP 408, 409, 429, >=500) and nothing else.
+# ---------------------------------------------------------------------------
+
+def _status_error(cls, status):
+    import httpx
+    req = httpx.Request('POST', 'https://example.test/v1/chat/completions')
+    resp = httpx.Response(status, request=req)
+    return cls('boom', response=resp, body=None)
+
+
+def _run_with(behaviours):
+    client = _FakeClient(behaviours)
+    with patch.object(svc, 'get_client', return_value=client), \
+            patch.object(svc, '_log_llm_call'):
+        try:
+            out = svc.call_llm('hi', provider='ollama', response_format='json')
+        except Exception as exc:  # noqa: BLE001 - returned for assertions
+            return client, exc
+    return client, out
+
+
+def test_server_error_is_retried_then_succeeds():
+    import openai
+    err = _status_error(openai.InternalServerError, 502)
+    client, out = _run_with([err, err, '{"ok": true}'])
+    assert out == {'ok': True}
+    assert client.completions.calls == 3
+
+
+def test_persistent_server_error_stops_at_three_attempts():
+    import openai
+    client, out = _run_with([_status_error(openai.InternalServerError, 503)])
+    assert isinstance(out, openai.InternalServerError)
+    assert client.completions.calls == 3
+
+
+@pytest.mark.parametrize('cls_name,status', [
+    ('ConflictError', 409),
+    ('RateLimitError', 429),
+])
+def test_conflict_and_rate_limit_are_retried(cls_name, status):
+    import openai
+    err = _status_error(getattr(openai, cls_name), status)
+    client, out = _run_with([err, '{"ok": true}'])
+    assert out == {'ok': True}
+    assert client.completions.calls == 2
+
+
+def test_request_timeout_408_is_retried():
+    import openai
+    err = _status_error(openai.APIStatusError, 408)
+    client, out = _run_with([err, '{"ok": true}'])
+    assert out == {'ok': True}
+    assert client.completions.calls == 2
+
+
+@pytest.mark.parametrize('cls_name,status', [
+    ('BadRequestError', 400),
+    ('AuthenticationError', 401),
+    ('PermissionDeniedError', 403),
+    ('NotFoundError', 404),
+    ('UnprocessableEntityError', 422),
+])
+def test_client_errors_are_not_retried(cls_name, status):
+    import openai
+    err = _status_error(getattr(openai, cls_name), status)
+    client, out = _run_with([err, '{"ok": true}'])
+    assert isinstance(out, openai.APIStatusError)
+    assert client.completions.calls == 1
+
+
+def test_other_status_errors_are_not_retried():
+    import openai
+    err = _status_error(openai.APIStatusError, 418)
+    client, out = _run_with([err, '{"ok": true}'])
+    assert isinstance(out, openai.APIStatusError)
+    assert client.completions.calls == 1

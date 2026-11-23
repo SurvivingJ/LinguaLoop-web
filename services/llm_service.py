@@ -43,13 +43,16 @@ from datetime import datetime, timezone
 from typing import Callable, Iterator
 
 import httpx
-from openai import OpenAI, APIConnectionError, RateLimitError, APITimeoutError, NotFoundError
+from openai import (
+    OpenAI, APIConnectionError, RateLimitError, APITimeoutError, NotFoundError,
+    APIStatusError, ConflictError, InternalServerError,
+)
 from pydantic import BaseModel, ValidationError
 from tenacity import (
     retry,
     stop_after_attempt,
     wait_exponential,
-    retry_if_exception_type,
+    retry_if_exception,
     before_sleep_log,
 )
 
@@ -837,6 +840,12 @@ def _log_llm_call(
 _RETRYABLE = (
     APIConnectionError, RateLimitError, APITimeoutError, ConnectionError,
     TimeoutError,
+    # call_llm builds its client with max_retries=0, so tenacity is the only
+    # retry layer. The SDK's own retry set was HTTP 408, 409, 429 and >= 500;
+    # RateLimitError (429) is above, these two cover 409 and every 5xx. 408
+    # has no distinct SDK class (plain APIStatusError) and is handled in
+    # _is_retryable. 400/401/403/404/422 stay non-retryable.
+    ConflictError, InternalServerError,
     # TASK-737: raised bare as "Server disconnected" — not wrapped into
     # APIConnectionError by the SDK on every code path. Went unnoticed while
     # every call to this client was serial (one request at a time never
@@ -873,10 +882,17 @@ def _retryable_types() -> tuple:
 # Core call_llm
 # ---------------------------------------------------------------------------
 
+def _is_retryable(exc: BaseException) -> bool:
+    """Tenacity predicate: transient fault types, plus HTTP 408 (request timeout)."""
+    if isinstance(exc, _retryable_types()):
+        return True
+    return isinstance(exc, APIStatusError) and exc.status_code == 408
+
+
 @retry(
     stop=stop_after_attempt(3),
     wait=wait_exponential(multiplier=1, min=2, max=10),
-    retry=retry_if_exception_type(_retryable_types()),
+    retry=retry_if_exception(_is_retryable),
     before_sleep=before_sleep_log(logger, logging.WARNING),
     reraise=True,
 )
