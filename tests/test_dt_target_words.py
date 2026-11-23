@@ -159,7 +159,6 @@ class _FakeRpcDB:
 
     def rpc(self, name, params):
         self.rpc_calls.append((name, params))
-        db = self
 
         class _Q:
             def execute(self_inner):

@@ -16,7 +16,7 @@ def j(resp):
 
 
 @pytest.fixture
-def route(scenario, monkeypatch):
+def route(scenario, monkeypatch):  # noqa: F811  (imported fixture)
     """Wire the submit route to the scenario: grade = a single-call contract."""
     state = {"contract": contract_for(error_rows()), "cached": None, "persisted": []}
     monkeypatch.setattr(dt_routes, "_get_submission", lambda db, sid: {
