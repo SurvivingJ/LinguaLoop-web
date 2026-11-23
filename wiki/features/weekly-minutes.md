@@ -1,9 +1,9 @@
 ---
 title: Weekly Minutes (accurate "studied this week")
 type: feature
-status: planned
+status: complete
 tech_page: ./weekly-minutes.tech.md
-last_updated: 2026-10-14
+last_updated: 2026-11-23
 open_questions:
   - "OPEN: should minutes studied on a second language also appear in a cross-language total? (v1 shows one language at a time.)"
   - "ANSWERED: activity outside planned sessions counts (developer decision 2026-10-14)."

@@ -3,7 +3,7 @@ title: Test Prestudy (tests as teaching material)
 type: feature
 status: in-progress
 tech_page: ./test-prestudy.tech.md
-last_updated: 2026-11-17
+last_updated: 2026-11-23
 demo: ../demos/test-prestudy-demo.html
 open_questions:
   - "ANSWERED 2026-10-29: ELO for a first attempt made after prestudy = reduced K with factor 0.5 (`test_attempts.prestudied = true`, `elo_reduction_factor = 0.5`, existing badge)."
@@ -349,7 +349,7 @@ prestudy is same-day priming, so the two coexist — note the tension in the tec
 
 ## Implementation — "Study first" on the preview page (2026-10-31)
 
-Built (repo; the ELO migration is not yet applied live):
+Built and live (the ELO migration is applied: `test_attempts.prestudied` exists and the live `process_test_submission` takes `p_prestudied`; checked 2026-11-23):
 
 - **Entry point.** The test preview page shows a "Study first" button under "Start Test" for the
   comprehension modes (listening, reading). It opens `/test/<slug>/prestudy?type=<mode>`.
@@ -367,8 +367,8 @@ Built (repo; the ELO migration is not yet applied live):
   `update_from_word_tests_batch(side_effects=False)`, so nothing is admitted to the ladder or
   counted against `new_words_per_day`.
 - **ELO 0.5.** "Take the test" leaves a `sessionStorage` marker (6 h); `test.html` then submits
-  `prestudied: true`. `routes/tests.py` passes `p_prestudied` to `process_test_submission` only when
-  true and falls back to the 8-argument call if the function has no such parameter (PGRST202).
+  `prestudied: true`. `routes/tests/submit.py` passes `p_prestudied` to `process_test_submission` only when
+  true and falls back to the call without it if the function has no such parameter (PGRST202; kept as a guard, no longer needed live).
   `migrations/prestudy_elo_factor.sql` adds `test_attempts.prestudied` and the 9-argument function
   (first attempt: user and test K × 0.5, `elo_reduction_factor = 0.5`). Skipping from the preview
   step without answering anything takes the test cold at full K.
@@ -533,7 +533,7 @@ Chinese test can link 100-300 words) down to the drill set. Technical detail:
 real knowledge rows (exported 2026-10-29; scored questions deliberately excluded). It shows the
 trigger per test, the frozen snapshot vs the recomputed unknown share, the key-word ranking,
 the gloss popover, the word prime with local BKT updates, and the rows a session would write.
-Regenerate with the scratch scripts `export.py` + `build.py` (not in the repo).
+Regenerate with the author's scratch export and build scripts (not in the repo).
 
 ## Open Questions
 

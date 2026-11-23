@@ -1,15 +1,15 @@
 ---
 title: Weekly Minutes — Technical Specification
 type: feature-tech
-status: planned
+status: complete
 prose_page: ./weekly-minutes.md
-last_updated: 2026-10-14
+last_updated: 2026-11-23
 dependencies:
   - "table: study_time_ledger (new)"
   - "RPC: credit_study_time, get_weekly_study_seconds (new)"
   - "table: weekly_plan_states (read target only)"
   - "table: test_attempts (duration_ms, started_at), exercise_attempts (time_taken_ms)"
-  - "services/attempt_timing.py, services/day_boundary.py (plan_today), services/practice_session_service.py"
+  - "services/attempt_timing.py, services/day_boundary.py (plan_today), services/practice_session_service.py + services/practice/attempt_recording.py (credit goes through record_exercise_attempt)"
   - "SQL: plan_local_date(user, language), week_start_for(date)"
 breaking_change_risk: low
 open_questions:
@@ -21,8 +21,8 @@ open_questions:
 
 ## Architecture Overview
 ```
-test submit (routes/tests.py, classifier/counter drill) --> _apply_timing_and_progress --> credit_study_time(kind test|drill)
-POST /api/practice/attempt (PracticeSessionService)     --> credit_study_time(kind practice)   [in or out of session]
+test submit (routes/tests/submit.py, classifier/counter drill in routes/drills.py) --> _apply_timing_and_progress --> services/attempts.py::apply_timing_and_progress --> credit_study_time(kind test|drill)
+POST /api/practice/attempt (PracticeSessionService)     --> record_exercise_attempt RPC --> credit_study_time(kind practice) inside its transaction   [in or out of session]
 POST /api/flashcards/review {active_ms,client_event_id} --> credit_study_time(kind flashcard)
 POST /api/dual-translation/<id>/submit {active_ms}      --> credit_study_time(kind dual_translation)
 POST /api/dual-translation/cards/<id>/review {active_ms,client_event_id} --> same kind
@@ -31,9 +31,9 @@ GET  /api/study-plan --> get_weekly_study_seconds(week = plan_today Monday) --> 
 Decision rationale: [[decisions/ADR-035-study-time-ledger]]. All credits are best-effort and never fail the learner's request (log a warning). Week attribution: the SQL function derives the week from `week_start_for(plan_local_date(user, language))` at credit time (same helpers `record_session_progress` uses, `migrations/task716_local_day_boundary.sql`).
 
 ## Defects fixed (verified 2026-10-14)
-1. Only practice credits minutes: `record_session_progress` adds `p_delta_seconds` to `practice_completed_{maint,acq}_sec` and ignores `p_delta_minutes`; tests credit counts only (`routes/tests.py:284` `_apply_timing_and_progress` -> `apply_attempt_timing_and_progress`); flashcards/DT pass `p_delta_seconds: 0` (`routes/study_session.py:744`).
+1. Only practice credits minutes: `record_session_progress` adds `p_delta_seconds` to `practice_completed_{maint,acq}_sec` and ignores `p_delta_minutes`; tests credit counts only (`_apply_timing_and_progress` in `routes/tests/submit.py` -> `services/attempts.py::apply_timing_and_progress` -> `apply_attempt_timing_and_progress`); flashcards/DT pass `p_delta_seconds: 0` (now `services/study_session/session.py::record_surface_progress`; the 2026-10-14 line reference `routes/study_session.py:744` is gone).
 2. Page reads `practice_completed_*_min` (`templates/study_plan.html:694`).
-3. Reader/writer week mismatch: `routes/study_plan.py:234, 505, 698` use `_monday_of(date.today())` (server date); writer uses learner-local week. `:291, :418` already use `plan_today`.
+3. Reader/writer week mismatch: `routes/study_plan.py` used `_monday_of(date.today())` at three places on 2026-10-14 (server date); writer uses learner-local week. others already used `plan_today`. Fixed: `routes/study_plan.py` at `review/integration` has no `date.today()` and uses `plan_today` (checked 2026-11-23). `credit_study_time`, `get_weekly_study_seconds`, `plan_local_date` and `week_start_for` all exist live (checked 2026-11-23); `study_time_ledger` holds 460 rows.
 4. No weekly row: `record_session_progress` returns true and credits nothing.
 
 ## Database Impact

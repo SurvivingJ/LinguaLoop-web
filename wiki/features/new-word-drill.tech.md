@@ -3,17 +3,22 @@ title: New-Word Drill — Technical Specification
 type: feature-tech
 status: in-progress
 prose_page: ./new-word-drill.md
-last_updated: 2026-11-17
+last_updated: 2026-11-23
 dependencies:
   - "table: user_word_ladder (new intro_* columns)"
   - "table: exercise_attempts (source column from migrations/prestudy_workflow.sql; new source value 'intro')"
   - "table: user_study_plans.new_words_per_day (default 5 → 10)"
   - "RPC: get_practice_session, ladder_new_word_state, ladder_record_attempt"
-  - "service: services/practice_session_service.py (admit_daily_new_words, _subscribe)"
-  - "service: services/prestudy.py, routes/tests.py prestudy evidence route"
-  - "client: static/js/prestudy/prestudy.js (drill engine to extract), static/js/session/controller.js, players/"
+  - "service: services/practice/new_word_admission.py (admit_daily_new_words, _gate_and_admit, _insert_ladder_rows; see [[features/practice-package.tech]])"
+  - "service: services/intro_drill.py (state machine, block builder, admit_prestudy, route_untaught, restart_if_demoted)"
+  - "service: services/prestudy.py, routes/tests/prestudy.py prestudy evidence route"
+  - "RPC: intro_commit_word (live); intro_due_words and intro_complete_session were planned and never built"
+  - "client: static/js/session/players/intro_drill.js (engine + player), static/js/prestudy/prestudy.js (reading graders, staged prime UI), static/js/session/controller.js"
   - "service: VocabularyKnowledgeService.update_from_word_tests_batch"
 breaking_change_risk: medium
+open_questions:
+  - "OPEN (known issue, not fixed, recorded 2026-11-23): admission queue A1 (recent-test evidence: `_nominate_new_words` + `_evidence_candidates` in services/practice/new_word_admission.py) has NO veto for words whose `user_vocabulary_knowledge.status` is `known` or `probably_known`. `_evidence_rows` selects rows with status unknown/learning OR word_test_wrong > 0 OR comprehension_wrong > 0, so a known word with repeated recent misses (evidence >= 2, or p_known <= 0.40, or two distinct missed questions) can be admitted. Queue A2 and A2r DO veto known / probably_known (fail closed). [[decisions/ADR-047-basic-word-knowledge-prior]] says such words are vetoed. Owner position: repeated recent misses should override 'known'; ADR-047 is to be amended (by another agent). See [[decisions/ADR-047-basic-word-knowledge-prior]] once amended; until then this page describes the code."
+  - "OPEN: the as-built supply-gate behaviour with the drill on (supply read for admitted senses only) is verified in code at review/integration; whether production runs that code was not checked (deployment of review/integration unverified)."
 ---
 
 # New-Word Drill — Technical Specification
@@ -50,11 +55,17 @@ account). Where the build differs from the plan above, **this section wins**:
    could otherwise pick them).
 6. **Extra rounds:** "new words" in an extra round are served as an intro block (session 1).
 7. **Admission:** all three insert paths (`_insert_ladder_rows`, `LadderService.init_ladder`,
-   prestudy) create intro rows; the 3-exercise supply gate is bypassed while the drill is on
-   (starved words are still sent to generation).
-8. **Ring-2 restart:** hooked in `LadderService.record_attempt`. Note: only Vocab Dojo records
-   ladder attempts; Practice-engine attempts update BKT/FSRS but never call
-   `ladder_record_attempt` (pre-existing behaviour, not changed here).
+   prestudy) create intro rows; the 3-exercise supply gate no longer rejects words while the drill is
+   on (starved words are still sent to generation). Since 2026-11-23 `_gate_and_admit` runs the
+   supply check **only on the senses it admits** (`head[:want]`): one query for any batch size (it
+   used to read the whole overfetched head: 2 queries at 10 words, 3 at 15). With the drill off the
+   gate still checks the whole head and admits only senses that pass. See the admission section of
+   [[features/practice-package.tech]].
+8. **Ring-2 restart:** first hooked in `LadderService.record_attempt`. Superseded: Practice attempts
+   now move the ladder ([[decisions/ADR-041-practice-moves-the-ladder]]): the `record_exercise_attempt`
+   RPC calls `ladder_apply_progress` and Python then calls `intro_drill.restart_if_demoted(db,
+   user_id, sense_id, language_id, ladder)` (`services/practice/attempt_recording.py::
+   _report_ladder_progress`), setting `result['ladder']['intro_restart'] = True`.
 9. **Quota default:** new plans get `max(10, daily_minutes // 6)` new words a day
    (`routes/study_plan.py`); the DB default is 10.
 10. **Flag:** `NEW_WORD_DRILL_ENABLED` (env, default true). Off: new words go to ring 1 as before;
@@ -94,6 +105,13 @@ account). Where the build differs from the plan above, **this section wins**:
 
 ## Architecture Overview
 
+> **Design-time sketch.** Where the diagram below differs from the "Implementation notes (as built)"
+> section above, the notes win: there is no `intro_stage`-only column design with new RPCs
+> `intro_due_words` / `intro_complete_session` (never built; the live RPC is `intro_commit_word`),
+> no `PracticeSessionService._inject_intro_block` (the block is built by
+> `intro_drill.block_for_session`, called from `get_session`), and no `static/js/drill/engine.js`
+> (the engine is `static/js/session/players/intro_drill.js`).
+
 A new per-word state machine, **intro stages 1–4**, sits in front of the ladder and replaces
 ring 1 for newly admitted words. Stage state lives on `user_word_ladder`. The practice session
 serves due intro words as one `kind: 'intro_drill'` block. The client runs the drill with a
@@ -106,17 +124,17 @@ admission (admit_daily_new_words / prestudy)        ── sets intro_stage=1 (o
         │
 get_practice_session ── excludes intro_stage IS NOT NULL from ladder pool
         │
-PracticeSessionService._inject_intro_block ── intro_due_words() → services/intro_drill.build_block()
+get_session ── intro_drill.block_for_session() → due_rows() → services/intro_drill.build_block()
         │                                       (content: lemma, reading, gloss, example sentence,
         │                                        distractor pool, ladder exercises by group)
-client players/intro_drill.js + static/js/drill/engine.js   (criterion counting, spacing, caps)
+client static/js/session/players/intro_drill.js   (criterion counting, spacing, caps)
         │  POST /api/practice/intro/complete
-services/intro_drill.complete() ── exercise_attempts rows (source='intro')
+services/intro_drill.complete_word() ── exercise_attempts rows (source='intro')
                                  ── update_from_word_tests_batch (1 row per word)
-                                 ── RPC intro_complete_session() → next stage / graduate to R2
+                                 ── RPC intro_commit_word() → next stage / graduate to R2
 ```
 
-## Constants (`services/intro_drill.py`, mirrored in `static/js/drill/engine.js`, test-pinned)
+## Constants (`services/intro_drill.py`, mirrored in `static/js/session/players/intro_drill.js`, test-pinned)
 
 | Name | Value | Meaning |
 |---|---|---|
@@ -206,6 +224,8 @@ per-attempt exercise BKT.
 
 ### New RPCs (SECURITY DEFINER, `service_role` EXECUTE only — ADR-034)
 
+> **Not built as written.** `intro_due_words` and `intro_complete_session` below were the design; neither exists live or in code (live check 2026-11-23). Due words are read in Python (`intro_drill.due_rows`, `due_review_count`) and a finished word is committed by `intro_commit_word(p_user_id, p_sense_id, p_stage, p_attempts, p_update)` (live; see note 12 above). The specs below are kept as the design record.
+
 ### `intro_due_words(p_user_id uuid, p_language_id smallint, p_today date, p_limit int DEFAULT 60): jsonb`
 - **Purpose:** the intro words due today, ordered stage DESC (finish older words first), then `intro_due_date`, then admission time.
 - **Returns:** `[{sense_id, stage, target_base, due_date, history}]`.
@@ -220,8 +240,8 @@ per-attempt exercise BKT.
 ## API / RPC Surface
 
 ### Session payload: `kind: 'intro_drill'` item
-Injected by `PracticeSessionService._inject_intro_block(payload, user_id, language_id)` in
-`get_session` (modes `acquisition`, `maintenance`, `auto`; not `tail`), placed first in the queue.
+Injected by `intro_drill.block_for_session(service, user_id, language_id, mode)` in
+`SessionAssemblyMixin.get_session` (`services/practice/session_assembly.py`) (modes `acquisition`, `maintenance`, `auto`; not `tail`), placed first in the queue.
 Practice mode (2026-11-06 split): stage 2–4 words are review chunks; stage 1 words are held back
 and offered with the "Learn new words" prompt (`static/js/session/tail.js` `splitPracticeQueue`).
 
@@ -245,8 +265,8 @@ other due/known senses of the same language and part of speech (prestudy's rule 
 - **Side effects:** `exercise_attempts` rows (source `intro`); one `update_from_word_tests_batch` row per word with `side_effects=False` (stage 1: majority rule of `prestudy.evidence_rows`; stages 2–4: `cold_correct`); `intro_complete_session`; minutes to `study_time_ledger` (kind `practice`); generation request (reason `intro`) for words with < 3 exercises after stage 1.
 - **Returns:** RPC result. **Auth:** `@supabase_jwt_required`.
 
-### Prestudy integration (`routes/tests.py` evidence route, `services/prestudy.py`)
-After a `prime` is recorded: for each drilled sense, `met = all five stage-1 formats answered correct at least once with prestudy's interleaving` (the client already records per-stage results). Admit via `PracticeSessionService.admit_prestudy_words(user_id, language_id, [(sid, met)])`:
+### Prestudy integration (`routes/tests/prestudy.py` evidence route, `services/prestudy.py`)
+After a `prime` is recorded: for each drilled sense, `met = all five stage-1 formats answered correct at least once with prestudy's interleaving` (the client already records per-stage results). Admit via `intro_drill.admit_prestudy(service, user_id, language_id, drilled, met)` (the design called it `admit_prestudy_words`):
 - within today's remaining quota (`new_word_state.effective − (unstarted + started_today)`): insert/upsert row with `intro_stage = 2 if met else 1`, `intro_due_date = tomorrow if met else today`, and an `intro_history` entry `{stage:1, source:'prestudy', …}` when met;
 - over quota: the evidence response carries `overflow: {fits, over, sense_ids:[…], extra_minutes_per_day}` where `extra_minutes_per_day = over × Σ INTRO_STAGE_ITEMS_EST / 4 × review_item_seconds / 60` (rounded up). Nothing is admitted for the over-quota words until the learner chooses:
   - **Queue for later** (default, also applied if the learner closes the page): nominate at the front of Queue A1 with reason `prestudy`; when admitted on a later day, `intro_stage = 1`.
@@ -255,7 +275,7 @@ After a `prime` is recorded: for each drilled sense, `met = all five stage-1 for
 
 ## Component Specification (UI)
 
-### `static/js/drill/engine.js` (new, extracted from `prestudy.js`)
+### Drill engine (design: `static/js/drill/engine.js`; as built: `static/js/session/players/intro_drill.js`)
 - **Exports:** `createDrill({words, distractors, spacers, mode:'intro'|'prime'|'followup', rng})` → `{next(), answer(itemId, {correct, idk, given, ms}), state(), results()}`.
 - **State per word:** `{stage, target, cap, served, counted, lastCountedFormat, lastShownAt, coldDone, coldCorrect, formatsUsed[]}`; global `pos` (item counter).
 - **Counting rule:** `correct && !idk && pos − lastShownAt − 1 ≥ effGap && format ≠ lastCountedFormat` → `counted++`.
@@ -288,8 +308,8 @@ After a `prime` is recorded: for each drilled sense, `met = all five stage-1 for
 ## Testing Strategy
 
 - **Engine (vitest):** counting rule (gap, distinct format, idk), cold bump, caps, never-twice-in-a-row, spacer insertion with 1–2 words, en format list without readings, deterministic with a seeded rng.
-- **Python:** `intro_drill.build_block` fallbacks (no reading, no sentence, no exercises); server recount of `passed` matches engine fixtures (shared JSON fixtures in `tests/fixtures/intro_drill/`); prestudy admission within/over quota.
-- **SQL (`tests/sql/new_word_drill_test.sql`):** stage advance and due dates 0/1/2/4 from completion date; repeat on fail; graduation fields; idempotent replay; ladder pool excludes intro rows; demotion R2 → stage 3; `ladder_new_word_state` counts an intro-only start.
+- **Python:** `intro_drill.build_block` fallbacks (no reading, no sentence, no exercises); server recount of `passed` matches engine fixtures (shared JSON fixtures in `tests/fixtures/intro_drill/`; tests in `tests/test_intro_drill.py`); prestudy admission within/over quota.
+- **SQL (the planned `tests/sql/new_word_drill_test.sql` was never added; no SQL test for the drill exists at `review/integration`):** stage advance and due dates 0/1/2/4 from completion date; repeat on fail; graduation fields; idempotent replay; ladder pool excludes intro rows; demotion R2 → stage 3; `ladder_new_word_state` counts an intro-only start.
 - **Browser (Playwright, phone size):** one block of 3 words end to end in practice mode; summary card returns.
 
 ## Measurement

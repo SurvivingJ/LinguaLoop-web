@@ -1,11 +1,11 @@
 ---
 title: Practice Engine
 type: feature
-status: planned
+status: complete
 tech_page: ./practice-engine.tech.md
-last_updated: 2026-09-22
+last_updated: 2026-11-23
 open_questions:
-  - "Should grammar/style items (sense_id IS NULL) be reachable in V1 via a 'Browse drills' surface, or only via the language-pack flow?"
+  - "OPEN: should grammar/style items (sense_id IS NULL) be reachable via a 'Browse drills' surface? (The language-pack flow they were tied to was archived 2026-09-21.)"
 ---
 
 # Practice Engine
@@ -29,7 +29,7 @@ Either way, the learner sees one continuous flow. Gate batteries and stress test
    - The Study Plan can override this by passing explicit `practice_maintenance_min` and `practice_acquisition_min` for the day.
 3. **Acquisition mode** picks one ladder-active word by priority, drills the families its current ring requires (one item per family, top-ranked by unified score), handles any pending gate or stress test, then re-ranks and picks the next word. Continues until accumulated expected time fills `target_minutes`.
 4. **Maintenance mode** ranks every FSRS-due-within-7-days or BKT-decay-flagged sense, picks the top items directly by unified score, drains the queue. If the queue empties before time is up, the session falls through to Acquisition for the remainder.
-5. Every item the learner submits updates BKT, FSRS, and ladder state via the existing per-attempt RPCs — no logic changes there.
+5. Every answer the learner submits is recorded in one database step that saves the attempt, updates the exercise counters, applies BKT and the ladder, and credits study time and plan progress together; FSRS scheduling is then applied right after. If that step fails, the whole answer fails and nothing is half-saved. Two quick submissions of the same exercise can no longer both count as a first attempt.
 6. The session also reports its time consumption to `record_session_progress` so the weekly plan's Maintenance/Acquisition counters stay live.
 
 ## The Unified Score
@@ -62,7 +62,7 @@ See [[algorithms/practice-unified-score]] for the plain-English version and [[al
 
 For each ladder-active word, the engine drills as many items as the current ring requires (K = number of required families: Ring 1 = 1, Ring 2 = 3, Ring 3 = 1, Ring 4 = 2). It always picks the highest-unified-score item *within each required family*, so the family-targeted philosophy of ADR-005 momentum bands is preserved. If a word reaches Gate A or B, the 3-item gate battery runs inline; if a word in pre-mastery reaches the stress test, the 8-item battery runs inline; both still gate ring advancement and graduation. Then the word is popped from the eligible pool and the next word is picked by re-evaluating ladder priority.
 
-If the learner has no eligible ladder words (e.g. brand-new account, or all words mastered), the engine auto-subscribes up to `target_new_rate` senses from the learner's selected packs (highest-frequency unsubscribed first). If they have no packs either, the session falls through to Maintenance. If even Maintenance has nothing, the engine returns an empty session with a `no_content` flag for the UI to surface a "select a pack" nudge.
+Before a session is built, the engine admits new words from the learner's own evidence (words missed in recent tests and quizzes, then calibration and placement misses), up to the day's new-word quota; see [[features/new-word-drill]]. If the learner has no eligible ladder words (e.g. brand-new account, or all words mastered), the session falls through to Maintenance. If even Maintenance has nothing, the engine returns an empty session with a `no_content_reason` for the UI to show a nudge. (Pack-based admission was archived on 2026-09-21.)
 
 ### Maintenance (batch-and-broad)
 
@@ -88,17 +88,12 @@ If the pool empties before `target_minutes` is reached, the engine falls through
 
 ## Backwards Compatibility
 
-For one release after launch, the legacy RPCs and routes are kept as thin wrappers:
-
-- `get_exercise_session(user, language, session_size, theta)` → `get_practice_session(user, language, 'auto', minutes ≈ session_size · 0.6, theta)`.
-- `get_ladder_session(user, language, count)` → `get_practice_session(user, language, 'acquisition', minutes ≈ count · 0.5)`.
-- `/api/exercises/session` and `/api/vocab-dojo/session` continue to function (with a deprecation log line).
-
-The new canonical route is `/api/practice/session?mode=...&minutes=...`. UI consolidation happens incrementally; the legacy routes are scheduled for removal in the next release after launch.
+The merger kept the old routes and database functions as thin wrappers for one release. That window is over: `/api/exercises/session` and `/api/vocab-dojo/session` were retired, and the legacy session functions were dropped from the live database on 2026-11-17. The only session route is `/api/practice/session?mode=...&minutes=...`.
 
 ## Related Pages
 
-- [[features/practice-engine.tech]] — Full technical specification (RPC contract, candidate-pool SQL, session-loop pseudocode).
+- [[features/practice-engine.tech]] — Full technical specification (RPC contract, candidate-pool SQL, session-loop pseudocode, attempt recording).
+- [[features/practice-package]] — The practice code package in plain English.
 - [[algorithms/practice-unified-score]] — Plain-English description of the scoring.
 - [[algorithms/practice-unified-score.tech]] — Exact normalization, weights, candidate pools.
 - [[features/study-plans]] — The orchestrator that drives `target_minutes` and mode targets.

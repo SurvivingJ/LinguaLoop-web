@@ -3,13 +3,13 @@ title: Exercises
 type: feature
 status: deprecated
 tech_page: ./exercises.tech.md
-last_updated: 2026-05-21
+last_updated: 2026-11-23
 open_questions: []
 ---
 
 # Exercises
 
-> **RETIRED 2026-07-14 (TASK-220) — see [[features/practice-engine]].** The standalone `/exercises` page (route, template, and nav link) has been removed, the `get_exercise_session` wrapper RPC dropped, and `/api/exercises/session` now **302s** to `/api/practice/session?mode=auto`. The canonical surface is the unified `/session` Practice player. Original merger context (2026-05-21): Exercises (Daily Mixed Session) was folded into the merged Practice Engine alongside [[features/vocab-dojo|Vocab Dojo]] per [[decisions/ADR-007-merge-exercises-vocab-dojo]].
+> **RETIRED 2026-07-14 (TASK-220) — see [[features/practice-engine]].** The standalone `/exercises` page (route, template, and nav link) has been removed, the `get_exercise_session` wrapper RPC dropped, and `/api/exercises/session` redirected to `/api/practice/session?mode=auto` until `routes/exercises.py` was deleted on 2026-11-14; there is now no `/api/exercises/*` route at all (checked in code 2026-11-23). The canonical surface is the unified `/session` Practice player. Original merger context (2026-05-21): Exercises (Daily Mixed Session) was folded into the merged Practice Engine alongside [[features/vocab-dojo|Vocab Dojo]] per [[decisions/ADR-007-merge-exercises-vocab-dojo]].
 >
 > Content below describes the legacy split-surface design and is preserved for historical context only.
 

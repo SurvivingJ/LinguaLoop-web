@@ -1,9 +1,9 @@
 ---
 title: Study Plans
 type: feature
-status: planned
+status: complete
 tech_page: ./study-plans.tech.md
-last_updated: 2026-05-21
+last_updated: 2026-11-23
 open_questions:
   - "Should the settings page surface a 'total time across languages' warning above a threshold, or just display the tally silently?"
   - "What's the right copy for explaining the 30:70 maintenance-vs-acquisition split to learners who notice it in the UI?"

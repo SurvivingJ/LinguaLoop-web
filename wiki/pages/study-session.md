@@ -3,10 +3,10 @@ title: Daily Session Runner (`/session`)
 type: page
 status: complete
 tech_page: study-session.tech.md
-last_updated: 2026-11-16
+last_updated: 2026-11-23
 open_questions:
-  - "OPEN — which surfaces are deliberately outside the planner (listening_lab, mystery, dual_translation, flashcards)? Tracked as TASK-711."
-  - "OPEN — day boundary is UTC midnight, which lands 07:00–09:00 local for the ZH/JA audience. Keep UTC or resolve through user_study_plans.timezone? Tracked as TASK-712."
+  - "ANSWERED — flashcards and dual_translation are planned surfaces; listening_lab and mystery are outside the planner and are no longer test types at all ([[decisions/ADR-021-plannable-surface-boundary]]; TASK-711)."
+  - "ANSWERED — the day boundary is the learner's local date from user_study_plans.timezone, UTC when unset ([[decisions/ADR-022-local-day-boundary]]; TASK-716). Known limitation: flashcard (FSRS) due dates are still read in UTC by several readers, see [[features/practice-engine.tech]]."
 ---
 
 # Daily Session Runner (`/session`)
@@ -88,8 +88,9 @@ row, and remember where I got to if I close the tab halfway through.
   there yet".
 - **No plan, or no week computed.** The runner still works: the server falls back to a
   legacy daily load rather than showing nothing.
-- **Day boundary is UTC.** The day rolls over at UTC midnight regardless of where the
-  learner is — see the open question above.
+- **Day boundary is the learner's local day.** The day rolls over at local midnight in the
+  learner's plan timezone (UTC when none is set). Flashcard due dates are the exception: several
+  readers still compare them in UTC (see [[features/practice-engine.tech]]).
 
 ## Business Rules
 
@@ -107,8 +108,8 @@ row, and remember where I got to if I close the tab halfway through.
 
 ## Open Questions
 
-- **OPEN** — Which surfaces are deliberately outside the daily planner? (TASK-711)
-- **OPEN** — Keep the UTC day boundary or resolve it through the plan timezone? (TASK-712)
+- **ANSWERED** — Flashcards and Dual Translation are in the planner; the Listening Lab and Mystery are outside it (ADR-021, TASK-711).
+- **ANSWERED** — The day boundary follows the learner's plan timezone, UTC when unset (ADR-022, TASK-716).
 
 ## Related Pages
 
@@ -117,5 +118,6 @@ row, and remember where I got to if I close the tab halfway through.
 - [[pages/app-shell]] — the shell and task-screen layout the runner uses
 - [[features/study-plans]] — what decides *what* is in today's queue
 - [[features/practice-engine]] — what the practice chunks serve
+- [[features/study-session-package]] — the code that builds the queue, in plain English
 - [[algorithms/daily-session-implementation-analysis]] — the audit (F1–F16) this runner was hardened against
 - [[tasklist/archive/daily-session-hardening.tasks]] — TASK-700–713

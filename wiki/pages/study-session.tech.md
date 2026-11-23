@@ -3,16 +3,20 @@ title: Daily Session Runner (`/session`) — Technical Specification
 type: page-tech
 status: complete
 prose_page: study-session.md
-last_updated: 2026-11-16
+last_updated: 2026-11-23
 dependencies:
-  - "route: app.py::study_session_page() → templates/study_session.html"
-  - "blueprint: routes/study_session.py (study_session_bp, url_prefix /api/study-session)"
+  - "route: `/session` is registered by `web/pages.py::register_pages` (table entry `('/session', 'study_session_page', 'study_session.html')`) → templates/study_session.html"
+  - "blueprint: routes/study_session.py (study_session_bp, url_prefix /api/study-session, registered in app.py::_register_blueprints)"
+  - "package: services/study_session/ — queue.py (pure composition) and session.py (reads/writes); see [[features/study-session-package.tech]]"
+  - "service: services/practice_session_service.py (admit_daily_new_words, new_word_state)"
   - "service: services/test_service.py::get_or_create_daily_load"
   - "RPC: build_daily_session(p_user_id uuid, p_language_id smallint, p_date date)"
   - "table: daily_test_loads (test_ids, daily_session_targets, completed_test_ids, completed_blocks)"
   - "frontend: static/js/session/controller.js + player_registry.js + players/*"
   - "i18n: static/i18n/{en,es,zh,ja}.json (session.*, test_list.*)"
 breaking_change_risk: medium
+open_questions:
+  - "Link [[i18n-applytodom-clobbers-defaults]] in 'Accessibility' resolves to no wiki page (no file at review/integration); the failure mode is described inline there."
 ---
 
 # Daily Session Runner (`/session`) — Technical Specification
@@ -22,34 +26,32 @@ Prose counterpart: [[pages/study-session]].
 ## Architecture Overview
 
 ```
-GET /session ──► app.py::study_session_page()  ──► templates/study_session.html
+GET /session ──► web/pages.py (register_pages) ──► templates/study_session.html
                                                         │
                               static/js/session/controller.js (ES module)
                                                         │
                        GET /api/study-session?language_id=L
                                                         │
-                    routes/study_session.py::get_study_session()
-                         │                                   │
-        test_service.get_or_create_daily_load()      daily_test_loads
-                         │                            .daily_session_targets
-        ┌────────────────┴────────────────┐           .completed_blocks
-   STUDY_PLAN_ENABLED + plan?        else legacy               │
-        │                                                     │
-   RPC build_daily_session                                    │
-        │                                                     │
-        └──────────────► build_session_queue() ◄──────────────┘
-                                │
-              _round_robin_tests()  +  _build_practice_chunks()
-                                │              │
-                          _interleave_practice()
-                                │
+              routes/study_session.py::get_study_session()   (parse, resolve local "today", call)
+                                                        │
+              services/study_session/session.py::build_study_session()
+                 1. _daily_load_with_intake: test_service.get_or_create_daily_load()
+                       (STUDY_PLAN_ENABLED + plan → RPC build_daily_session, else legacy)
+                    then practice_service.admit_daily_new_words(); if it says needs_rebuild,
+                    StudyPlanService.rebuild_today() ONCE and the load is read again
+                 2. _today_load_row → daily_session_targets, completed_blocks
+                 3. _session_reads (concurrent, each as (value, error)): prestudy plans,
+                    speed-round availability, intro-due + follow-up counts, mpnw, DT-repair due count
+                 4. queue.build_session_queue → queue.apply_prestudy (via _with_prestudy)
+                    → with_intro_reviews → with_dt_repair
+                 5. _governor_and_tail → governor, tail, tail_queue
+                                                        │
                          ordered queue → controller.js
                                 │
                      player_registry.getPlayer(item).mount(stage, ctx)
 ```
 
-The ordering layer is **pure Python in the route**, not in the RPC — deliberately, so it
-can be iterated and unit-tested cheaply (TASK-703 decision).
+The ordering layer is **pure Python** (`services/study_session/queue.py`; it reads nothing from the database), not in the RPC — deliberately, so it can be iterated and unit-tested cheaply (TASK-703 decision). It moved out of `routes/study_session.py` into the package; the route still re-exports the old private names (`_build_practice_chunks`, `_valid_block_ids`, …) for tests. Package map: [[features/study-session-package.tech]].
 
 ## API / RPC Surface
 
@@ -59,7 +61,11 @@ can be iterated and unit-tested cheaply (TASK-703 decision).
 - **Returns:**
   ```jsonc
   { "load_date": "YYYY-MM-DD", "language_id": 1, "study_plan_enabled": true,
-    "progress": { ... }, "next_index": 0,
+    "progress": { "completed": 0, "total": 7 }, "next_index": 0,
+    "governor": { "level": "normal", "overdue_items": 0, "overdue_minutes": 0, "threshold_minutes": 0,
+                  "new_words_quota": 10, "new_words_effective": 10 } /* null without a plan */,
+    "tail": null /* or { reviews_left_items, reviews_left_minutes, new_words_left, new_words_left_minutes } */,
+    "tail_queue": [] /* optional practice chunks, is_bonus + is_tail, never part of queue/progress */,
     "queue": [
       { "kind": "test", "id": "<uuid>", "slug": "...", "test_type": "listening",
         "title": "...", "elo_rating": 1200, "slot_type": "new|retry|replay",
@@ -70,7 +76,13 @@ can be iterated and unit-tested cheaply (TASK-703 decision).
       { "kind": "flashcards", "id": "flashcards_1", "skill": "flashcards",
         "cards": 15, "is_completed": false },
       { "kind": "dual_translation", "id": "dual_translation_1",
-        "skill": "dual_translation", "is_completed": false }
+        "skill": "dual_translation", "is_completed": false },
+      // conditional / bonus kinds added by the queue decorators
+      { "kind": "prestudy", "id": "prestudy_<test_id>", "test_id": "<uuid>", "plan_mode": "full|light",
+        "minutes_est": 3, "trigger": "auto|retry", "is_completed": false },
+      { "kind": "practice", "id": "intro_reviews", "mode": "maintenance", "minutes": 4, "is_completed": false },
+      { "kind": "dt_repair", "id": "dt_repair", "items": 3, "is_completed": false },
+      { "kind": "speed_round", "id": "speed_round_1", "skill": "speed_round", "is_bonus": true, "is_completed": false }
     ] }
   ```
   `load_date` is the learner's **local** date (ADR-022 / TASK-716), resolved from
@@ -92,10 +104,11 @@ key and degrades to no surface items.
 - **Purpose:** mark one non-test block done for today — a practice chunk
   (TASK-703) or a surface block (TASK-714).
 - **Arguments:** `{ language_id: int, block_id: str }` where `block_id` must be in
-  `_valid_block_ids(targets)` — a chunk id today's targets actually generate
-  (`practice_acq_1`, `practice_maint_2`, `flashcards_1`, `dual_translation_1`, …).
+  `queue.valid_block_ids(targets, extra_ids)` — a chunk id today's targets actually generate
+  (`practice_acq_1`, `practice_maint_2`, `flashcards_1`, `dual_translation_1`, …), `speed_round_1`, tail ids
+  (`tail_window_ids`), today's `prestudy_<test_id>` ids, `intro_reviews` and `dt_repair`.
 - **Returns:** success; idempotent append to `daily_test_loads.completed_blocks`.
-- **Errors:** `bad_request` on an unknown / not-today `block_id`.
+- **Errors:** `not_found` when there is no `daily_test_loads` row for today (`NoDailyLoad`); `bad_request` on an unknown / not-today `block_id` (`InvalidBlockId`, message lists the valid ids).
 - **Auth:** `@supabase_jwt_required`.
 - **Side effects:** for **surface** blocks only, calls
   `record_session_progress(p_kind='surface', p_skill=<flashcards|dual_translation>)`
@@ -109,9 +122,8 @@ key and degrades to no surface items.
 
 ## Ordering Algorithm
 
-`build_session_queue(tests, targets, completed_blocks, user_id, load_date)`
-([routes/study_session.py:178](../../routes/study_session.py#L178)) composes three pure
-helpers. Determinism is the contract: two GETs must yield identical order.
+`services/study_session/queue.py::build_session_queue(tests, targets, completed_blocks, user_id, load_date, speed_round_available=False)`
+composes the pure helpers below (flashcards first, then tests interleaved with practice chunks and Dual Translation items, then the optional speed round). Determinism is the contract: two GETs must yield identical order.
 
 1. **`_stable_seed(user_id, load_date)`** — `int(sha256(f"{user_id}:{load_date}")[:8], 16)`.
    Seeds a `random.Random` so ordering is fixed per learner per day.
@@ -122,7 +134,7 @@ helpers. Determinism is the contract: two GETs must yield identical order.
    itself is structural, determinism never depends on the RNG — the seed only decides
    which type leads.
 
-3. **`_build_practice_chunks(targets, completed_blocks)`** — expands the two base blocks
+3. **`build_practice_chunks(targets, completed_blocks)`** — expands the two base blocks
    in `_PRACTICE_BLOCKS` (`practice_acq` → mode `acquisition` /
    `practice_acquisition_min`; `practice_maint` → `maintenance` /
    `practice_maintenance_min`) via `_chunk_minutes(total, max_chunk=10)`
@@ -194,7 +206,7 @@ See [[pages/app-shell.tech]] and [[decisions/ADR-048-mobile-app-shell]].
 
 ## Key Architectural Decisions
 
-1. **Decision:** ordering lives in Python (`routes/study_session.py`), not in
+1. **Decision:** ordering lives in Python (`services/study_session/queue.py`), not in
    `build_daily_session`.
    - **Rationale:** cheap to iterate and unit-test; the RPC stays a *selection* concern.
    - **Alternatives rejected:** ordering inside the RPC — would have made every
@@ -213,7 +225,7 @@ See [[pages/app-shell.tech]] and [[decisions/ADR-048-mobile-app-shell]].
 ## Security Considerations
 
 - Both endpoints require JWT (`@supabase_jwt_required`); all queries scope to `g.user`.
-- `block_id` is validated against `_valid_practice_block_ids(targets)` — an arbitrary
+- `block_id` is validated against `queue.valid_block_ids(targets, extra_ids)` — an arbitrary
   string cannot be appended to `completed_blocks`.
 - `language_id` goes through `parse_language_id`.
 - Server-supplied titles are escaped client-side before entering `innerHTML`/attributes.
@@ -223,6 +235,7 @@ See [[pages/app-shell.tech]] and [[decisions/ADR-048-mobile-app-shell]].
 
 - **`tests/test_study_session_ordering.py`** (20 tests) — adjacency, determinism across
   two builds, chunk splitting, interleave positions, `next_index` resume.
+- **`tests/test_study_session_tail.py`, `tests/test_plannable_surfaces.py`, `tests/test_prestudy_session.py`** — tail, surface and prestudy queue composition.
 - **`tests/test_daily_load_shortfall.py`** — hydration-shortfall WARNING (TASK-702).
 - **`tests/test_daily_load_retry_slot.py`** — retry-slot contract (TASK-704).
 - **`tests/test_daily_load_fallback_type.py`** — legacy fallback type labels (TASK-707).
@@ -232,6 +245,7 @@ See [[pages/app-shell.tech]] and [[decisions/ADR-048-mobile-app-shell]].
 ## Related Pages
 
 - [[pages/study-session]] — prose counterpart
+- [[features/study-session-package]] and [[features/study-session-package.tech]] — the services this page consumes
 - [[pages/pages-overview]], [[features/study-plans.tech]], [[features/practice-engine.tech]]
 - [[algorithms/daily-session-implementation-analysis.tech]] — findings F1–F16
 - [[api/rpcs.tech]], [[database/rpcs.tech]]
