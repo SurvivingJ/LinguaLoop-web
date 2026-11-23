@@ -48,7 +48,7 @@ import json
 import math
 import os
 from collections import defaultdict
-from typing import Any, Dict, Iterable, List, Optional, Sequence
+from typing import Any, Dict, List, Optional, Sequence
 
 # --- constants mirroring live config ----------------------------------------
 

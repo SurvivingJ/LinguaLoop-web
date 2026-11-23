@@ -76,6 +76,23 @@ def service_unavailable(message: str = "Service temporarily unavailable") -> Tup
     return api_error(message, 503, 'SERVICE_UNAVAILABLE')
 
 
+def payment_required(error_code: str, message: str, **extra: Any) -> Tuple[Response, int]:
+    """402 Payment Required: the one paywall envelope for every gated feature (ADR-055).
+
+    ``{"status": "error", "error": message, "error_code": error_code,
+    "upgrade": true, **extra}`` — e.g. ``entitlement``, ``required``, ``current``.
+    Billing TASK-980 reuses this helper rather than adding a second one.
+    """
+    response: Dict[str, Any] = {
+        'status': 'error',
+        'error': message,
+        'error_code': error_code,
+        'upgrade': True,
+    }
+    response.update(extra)
+    return jsonify(response), 402
+
+
 def api_errors(message: str):
     """Set the client message for an unhandled exception in this route.
 

@@ -68,7 +68,10 @@ class Job:
 #   04:15 queue drain regenerates content, so it follows the slug probe rather
 #         than spending its budget on a model that is about to be flagged dead;
 #   04:20 watchlist sweep scans tests created since the last run, so it runs
-#         after regeneration has landed.
+#         after regeneration has landed;
+#   04:25 knowledge snapshots (ADR-053) record each learner's report inputs for
+#         the UTC day; idempotent upsert, so both workers may run it. Not gated
+#         by KNOWLEDGE_REPORT_ENABLED: history must accrue before the page ships.
 JOBS = (
     Job('dt_error_synthesis_nightly',
         'scripts.dt_nightly_synthesis:run_nightly_synthesis',
@@ -89,6 +92,14 @@ JOBS = (
         'services.word_list_import.sweep_cron:run_watchlist_sweep',
         {'hour': 4, 'minute': 20}, 'Word-upload watchlist sweep', _log_skippable,
         _admin_client),
+    Job('knowledge_snapshots_nightly',
+        'services.knowledge_snapshots:run_nightly',
+        {'hour': 4, 'minute': 25}, 'Knowledge snapshots', _log_skippable, _admin_client),
+    # 04:30 placement close: abandoned placements (idle 24 h) get their frozen
+    # result and their evidence write (vocab-placement tech §14, TASK-1088).
+    Job('placement_close_stale_nightly',
+        'services.calibration_placement:run_nightly_close',
+        {'hour': 4, 'minute': 30}, 'Placement close stale', _log_skippable),
     Job('study_plan_weekly_recompute',
         'services.study_plan_service:_run_weekly_plan_recompute',
         {'day_of_week': 'sun', 'hour': 23, 'minute': 0}, 'Weekly Study Plan recompute'),

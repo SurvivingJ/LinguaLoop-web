@@ -20,7 +20,6 @@ import statistics
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
-from services.dual_translation import sentence_refs as sr  # noqa: E402
 
 
 def load(path):

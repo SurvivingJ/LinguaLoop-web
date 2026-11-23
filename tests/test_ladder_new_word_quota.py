@@ -24,11 +24,10 @@ from services import practice_session_service as pss
 from services.practice import new_word_admission
 from services import study_plan_service as plan
 from services.practice_session_service import (
-    LADDER_MIN_EXERCISES_PER_SENSE,
     LADDER_TOPUP_MAX_PER_CALL,
 )
 from tests.test_ladder_topup import (
-    _Query, _Response, _StubDB, _known, _missed, _service, _supply_for,
+    _Response, _StubDB, _known, _missed, _service, _supply_for,
 )
 
 UTC = timezone.utc

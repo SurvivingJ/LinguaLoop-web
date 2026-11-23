@@ -1,7 +1,6 @@
 from services.ai_service import AIService
 from services.prompt_service import PromptService
 from services.llm_service import get_client
-from config import Config
 from services.r2_service import R2Service
 
 class ServiceFactory:

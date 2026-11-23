@@ -36,7 +36,7 @@ Cross-worker mutex (APScheduler runs in every gunicorn worker; only the
 lock-holder does the sweep), matching the exact skip semantics of
 `services.study_plan_service._try_advisory_lock`/`_release_advisory_lock`:
 best-effort, ``db.rpc(<lock_rpc>, {}).execute()`` wrapping a fixed advisory
-key (migrations/word_upload_sweep_advisory_lock.sql, key 'WUSw'), and if the
+key (migrations/word_upload_sweep_advisory_lock_hardened.sql, key 'WUSw'), and if the
 RPC itself errors (e.g. the migration is not deployed yet in some
 environment) this FALLS THROUGH TO True rather than refusing to run — a
 misconfigured environment should still sweep (at worst paying for redundant
@@ -80,12 +80,19 @@ never queries `user_word_watchlist` at all, and never advances the watermark
 import logging
 from datetime import datetime, timezone
 
+from services.pagination import fetch_all
+from services.practice.constants import SUPPLY_GATE_CHUNK
 from services.word_list_import.match_sweep import sweep_immediate_matches
 
 logger = logging.getLogger(__name__)
 
 _LOCK_RPC = 'pg_try_advisory_lock_for_word_upload_sweep'
 _UNLOCK_RPC = 'pg_advisory_unlock_for_word_upload_sweep'
+
+# Ids per `.in_('sense_id', ...)` request. PostgREST carries the filter in the
+# URL, so one filter over every id of a night's tests (thousands) can exceed
+# the gateway's URL limit. Same chunk size the other `.in_()` readers use.
+_SENSE_ID_CHUNK = SUPPLY_GATE_CHUNK
 
 _CURSOR_TABLE = 'word_upload_sweep_state'
 _CURSOR_ROW_ID = 1
@@ -106,7 +113,7 @@ def _try_advisory_lock(db) -> bool:
     """Best-effort cross-worker mutex for the word-upload watchlist sweep.
 
     Wraps the dedicated advisory-lock key (key 'WUSw', see
-    migrations/word_upload_sweep_advisory_lock.sql). Same shape as
+    migrations/word_upload_sweep_advisory_lock_hardened.sql). Same shape as
     services.study_plan_service._try_advisory_lock: falls through to True if
     the RPC itself errors (e.g. not yet deployed) so a misconfigured
     environment still runs the sweep — sweep_immediate_matches' writes are
@@ -202,14 +209,22 @@ def _fetch_active_watchlist_rows_for_senses(db, sense_ids: set) -> list:
     exist but none of them use any watched sense" stays cheap too."""
     if not sense_ids:
         return []
-    resp = (
-        db.table('user_word_watchlist')
-        .select('id, user_id, sense_id, language_id, last_matched_test_id')
-        .eq('active', True)
-        .in_('sense_id', list(sense_ids))
-        .execute()
-    )
-    return resp.data or []
+    ids = sorted(set(sense_ids), key=lambda x: (str(type(x)), x))
+    rows: list = []
+    for start in range(0, len(ids), _SENSE_ID_CHUNK):
+        chunk = ids[start:start + _SENSE_ID_CHUNK]
+        # One chunk can match more than PostgREST's 1,000-row cap (many users
+        # watching the same sense), so page each chunk; `id` gives the total
+        # order `fetch_all` needs. Distinct ids on one column cannot match the
+        # same row in two chunks, so no dedupe is needed after the merge.
+        rows.extend(fetch_all(lambda chunk=chunk: (
+            db.table('user_word_watchlist')
+            .select('id, user_id, sense_id, language_id, last_matched_test_id')
+            .eq('active', True)
+            .in_('sense_id', chunk)
+            .order('id')
+        )))
+    return rows
 
 
 # ---------------------------------------------------------------------------

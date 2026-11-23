@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+{#- Knowledge Report, "My vocabulary" (wiki/features/knowledge-report.tech.md §3.1, §10).
+    Task mode like the DT error profile: Back pill, one scrolling stage of cards, no dock.
+    Every card stays hidden (d-none) until static/js/pages/knowledge.js renders it; element ids
+    are the contract with that script. Styles: static/css/pages/knowledge.css (.kn-page). -#}
+{% set task_mode = true %}
+{% set task_back = 'history' %}
+
+{% block title %}My vocabulary | LinguaDojo{% endblock %}
+
+{% block body_class %}bg-slate-50 kn-body{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/knowledge.css') }}">
+{% endblock %}
+
+{% block task_back_href %}{{ url_for('profile') }}{% endblock %}
+{% block task_title %}<span data-i18n="knowledge.title">My vocabulary</span>{% endblock %}
+{% block task_subtitle %}<span id="knSubtitle"></span>{% endblock %}
+{% block task_glyph %}語{% endblock %}
+
+{% block content %}
+<div class="ld-screen kn-page">
+    <div class="ld-stage kn-stage">
+        <div id="knLoading" class="kn-msg ld-muted" role="status" data-i18n="knowledge.state.loading">Loading your vocabulary…</div>
+
+        <div id="knError" class="ld-note ld-note--bad kn-msg d-none" role="alert">
+            <p class="mb-2" data-i18n="knowledge.state.error">Couldn't load your vocabulary. Try again.</p>
+            <button type="button" id="knRetry" class="ld-btn ld-btn--sm ld-btn--ghost" data-i18n="knowledge.state.retry">Try again</button>
+        </div>
+
+        <div id="knUnavailable" class="ld-note kn-msg d-none" role="status" data-i18n="knowledge.state.unavailable">This page isn't available yet.</div>
+
+        <section id="knEmpty" class="ld-card kn-card d-none" aria-labelledby="knEmptyTitle">
+            <h2 class="ld-h2" id="knEmptyTitle"></h2>
+            <p class="ld-muted kn-body-text" data-i18n="knowledge.state.empty_body">Take the vocabulary check or a test, and this page will show what you know.</p>
+            <div class="kn-actions">
+                <a class="ld-btn" href="{{ url_for('calibration_page') }}" data-i18n="knowledge.state.empty_check">Take the vocabulary check</a>
+                <a class="ld-btn ld-btn--ghost" href="{{ url_for('tests') }}" data-i18n="knowledge.state.empty_test">Take a test</a>
+            </div>
+        </section>
+
+        <section id="knEstimate" class="ld-card kn-card d-none" aria-labelledby="knEstimateTitle">
+            <h2 class="ld-h2" id="knEstimateTitle" data-i18n="knowledge.estimate.title">Words you know</h2>
+            <div id="knEstimateBody" class="kn-card__body"></div>
+            <button type="button" class="kn-link" id="knHowOpen" data-bs-toggle="modal" data-bs-target="#knSheet"
+                    aria-haspopup="dialog" data-i18n="knowledge.how.open">How this works</button>
+        </section>
+
+        <section id="knGroups" class="ld-card kn-card d-none" aria-labelledby="knGroupsTitle">
+            <h2 class="ld-h2" id="knGroupsTitle" data-i18n="knowledge.group.title">By word frequency</h2>
+            <div id="knGroupsBody" class="kn-card__body"></div>
+        </section>
+
+        <section id="knLists" class="ld-card kn-card d-none" aria-labelledby="knListsTitle">
+            <h2 class="ld-h2" id="knListsTitle" data-i18n="knowledge.lists.title">Exam word lists</h2>
+            <div id="knListsBody" class="kn-card__body"></div>
+        </section>
+
+        <section id="knWordList" class="ld-card kn-card d-none" aria-labelledby="knWordListTitle">
+            <h2 class="ld-h2" id="knWordListTitle" data-i18n="knowledge.wordlist.title">My word list</h2>
+            <div id="knWordListBody" class="kn-card__body"></div>
+        </section>
+
+        <section id="knGrowth" class="ld-card kn-card d-none" aria-labelledby="knGrowthTitle">
+            <div class="kn-card__head">
+                <h2 class="ld-h2" id="knGrowthTitle" data-i18n="knowledge.growth.title">Last 30 / 90 days</h2>
+                <div class="ld-seg kn-seg" id="knGrowthSeg" role="group" aria-labelledby="knGrowthTitle">
+                    <button type="button" data-window="30" aria-pressed="true" data-i18n="knowledge.growth.window_30">30 days</button>
+                    <button type="button" data-window="90" aria-pressed="false" data-i18n="knowledge.growth.window_90">90 days</button>
+                </div>
+            </div>
+            <div id="knGrowthBody" class="kn-card__body"></div>
+        </section>
+
+        <section id="knSkills" class="ld-card kn-card d-none" aria-labelledby="knSkillsTitle">
+            <h2 class="ld-h2" id="knSkillsTitle" data-i18n="knowledge.skills.title">Skills</h2>
+            <p class="ld-small ld-muted kn-subtitle" data-i18n="knowledge.skills.subtitle">First-try accuracy, last 90 days.</p>
+            <div id="knSkillsBody" class="kn-card__body"></div>
+        </section>
+
+        <section id="knNext" class="ld-card kn-card d-none" aria-labelledby="knNextTitle">
+            <h2 class="ld-h2" id="knNextTitle" data-i18n="knowledge.next.title">What to do next</h2>
+            <div id="knNextBody" class="kn-actions kn-actions--stack"></div>
+        </section>
+
+        <section id="knProTeaser" class="ld-card kn-card kn-card--pro d-none" aria-labelledby="knProTitle">
+            <h2 class="ld-h2" id="knProTitle"></h2>
+            <div id="knProBody" class="kn-card__body"></div>
+        </section>
+
+        <section id="knWords" class="kn-words d-none" aria-labelledby="knWordsTitle">
+            <h2 class="ld-h2 visually-hidden" id="knWordsTitle" data-i18n="knowledge.pro.preview_title">Word by word</h2>
+        </section>
+    </div>
+</div>
+
+<div class="modal fade kn-sheet" id="knSheet" tabindex="-1" aria-labelledby="knSheetTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title ld-h2" id="knSheetTitle" data-i18n="knowledge.how.title">How these numbers work</h2>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" data-i18n-aria="common.close"></button>
+            </div>
+            <div class="modal-body">
+                <ul class="kn-how">
+                    <li data-i18n="knowledge.how.pool_only">The range counts only the words the vocabulary check draws from. Words LinguaDojo has not yet put into the check are not counted.</li>
+                    <li data-i18n="knowledge.how.recognition_only">It measures recognition: choosing the right meaning from four options. It does not show whether you can produce the word.</li>
+                    <li data-i18n="knowledge.how.idk_rule">If you choose “I don't know”, we count the word as not known. Guesses are corrected for the 1-in-4 chance of being right. If some of the words you skipped were partly known, the true figure is higher.</li>
+                    <li data-i18n="knowledge.how.ratings_not_probabilities">“Rated known after a direct check” is the app's own rating of a word you have answered directly. It is a model rating, not a probability, and reading tests can change it.</li>
+                    <li data-i18n="knowledge.how.not_logged">Some practice is not logged word by word and is not counted here: prestudy warm-ups, flashcard ratings, dictation and translation practice.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script defer src="{{ url_for('static', filename='js/pages/knowledge.js') }}"></script>
+{% endblock %}

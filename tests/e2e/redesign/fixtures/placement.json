@@ -1,0 +1,34 @@
+{
+  "_comment": "Vocabulary placement (/placement, TASK-1084). Pass after default.json. Static answers: /latest has nothing unseen (the intro shows), /start serves a zh meaning item, and every /answer reveals a missed meaning and serves the next word (the reveal waits for Next). preview.cjs --click '#plcStartBtn' shows the item; --click '#plcStartBtn' --click '.cal-option' the reveal. For the result use placement-result.json.",
+  "GET /api/calibration/placement/latest*": { "status": "success", "result": null, "unseen": false },
+  "POST /api/calibration/placement/start": {
+    "status": 201,
+    "body": {
+      "status": "success",
+      "session_id": "s-preview",
+      "item": {
+        "response_id": 11, "vocab_id": 101, "lemma": "学习", "band": 1, "kind": "meaning",
+        "probe_kind": null, "idk_allowed": true, "prompt_key": null,
+        "options": ["to study; to learn", "to rest; to take a break", "to practise; an exercise", "to review (a lesson)"]
+      },
+      "progress": { "scored": 0, "cap": 60, "minutes_left": 7 },
+      "resumed": false
+    }
+  },
+  "POST /api/calibration/placement/answer": {
+    "status": "success",
+    "answer": { "is_correct": false, "skipped": false, "kind": "meaning", "probe_kind": null, "role": null },
+    "reveal": {
+      "lemma": "学习", "reading": "xuéxí", "meaning": "to study; to learn",
+      "parts": [{ "kind": "meaning", "probe_kind": null, "chosen_text": "to rest; to take a break", "key_text": "to study; to learn", "is_correct": false, "tone_only_miss": false }]
+    },
+    "next_item": {
+      "response_id": 13, "vocab_id": 102, "lemma": "朋友", "band": 1, "kind": "meaning",
+      "probe_kind": null, "idk_allowed": true, "prompt_key": null,
+      "options": ["friend", "neighbour", "colleague", "guest"]
+    },
+    "done": false, "result": null, "can_stop": false, "needed": 19,
+    "progress": { "scored": 1, "cap": 60, "minutes_left": 6.9 }
+  },
+  "POST /api/calibration/placement/end": { "status": "success", "not_enough": true, "needed": 19 }
+}

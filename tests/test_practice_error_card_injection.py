@@ -7,7 +7,6 @@ failure never breaks the session. Fakes the Supabase client (RPC + dt tables) in
 the "mock every boundary" style of the other dual-translation suites.
 """
 
-import pytest
 
 from services.practice_session_service import PracticeSessionService
 from services.dual_translation import cards as dt_cards

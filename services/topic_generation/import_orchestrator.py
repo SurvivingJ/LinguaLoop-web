@@ -14,8 +14,7 @@ Coordinates the JSON-based topic import workflow:
 
 import time
 import logging
-from dataclasses import dataclass, field
-from datetime import datetime
+from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Optional, Tuple
 from uuid import UUID
@@ -24,7 +23,6 @@ from .config import topic_gen_config
 from .json_importer import JSONTopicImporter, JSONTopicEntry
 from .database_client import (
     TopicDatabaseClient,
-    TopicCandidate,
     Category,
     Language,
     Lens

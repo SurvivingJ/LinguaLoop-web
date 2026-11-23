@@ -196,7 +196,7 @@ def run_with_debug_wrapper(orchestrator, logger):
     def debug_generate_test(topic, lang_config, category_name, difficulty):
         """Wrapped _generate_test with detailed debugging."""
         logger.info("=" * 50)
-        logger.info(f"[DEBUG] Starting test generation")
+        logger.info("[DEBUG] Starting test generation")
         logger.info(f"[DEBUG]   Language: {lang_config.language_name} ({lang_config.language_code})")
         logger.info(f"[DEBUG]   Topic: {topic.concept_english[:80]}...")
         logger.info(f"[DEBUG]   Difficulty: {difficulty}")
@@ -204,7 +204,7 @@ def run_with_debug_wrapper(orchestrator, logger):
         logger.info("=" * 50)
 
         # Log language config details
-        logger.info(f"[DEBUG] Language Config Details:")
+        logger.info("[DEBUG] Language Config Details:")
         logger.info(f"[DEBUG]   ID: {lang_config.id}")
         logger.info(f"[DEBUG]   Prose Model: {lang_config.prose_model}")
         logger.info(f"[DEBUG]   Question Model: {lang_config.question_model}")

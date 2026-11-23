@@ -27,7 +27,6 @@ import re
 from datetime import datetime, timezone, timedelta
 from unittest.mock import MagicMock
 
-import pytest
 
 from config import Config
 from tests._page_source import page_source

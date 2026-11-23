@@ -2,7 +2,6 @@
 """Tests for user-related endpoints (profile, tokens, ELO)."""
 
 import json
-import pytest
 from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 

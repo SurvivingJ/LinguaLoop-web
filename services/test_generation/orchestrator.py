@@ -18,7 +18,7 @@ import threading
 from concurrent.futures import as_completed
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import Callable, List, Optional
+from typing import Callable, Optional
 from uuid import UUID, uuid4
 
 from .config import get_test_gen_config
@@ -311,6 +311,16 @@ class TestGenerationOrchestrator:
                     # failed and moving to the next one would work through the
                     # whole queue writing unjudged questions — the outage this
                     # run is wrapped in batch_mode() to prevent. Abort.
+                    # The item was already marked 'processing'; later runs
+                    # select only 'pending', so put it back before aborting
+                    # or it is stuck forever.
+                    if not dry_run:
+                        try:
+                            self.db.update_queue_item_status(item.id, 'pending')
+                        except Exception:
+                            logger.exception(
+                                "Could not return queue item %s to pending", item.id
+                            )
                     raise
 
                 except Exception as e:
@@ -438,9 +448,14 @@ class TestGenerationOrchestrator:
             raise
 
         except Exception as e:
+            # Generation raised, so zero tests were produced: propagate so the
+            # run loop marks the item failed (retryable) instead of completing
+            # it with 0 tests. A legitimate rejection returns False and still
+            # completes below.
             logger.error(
                 f"Failed to generate test at tier {tier_id}: {e}"
             )
+            raise
 
         # Mark queue item complete
         if not dry_run:

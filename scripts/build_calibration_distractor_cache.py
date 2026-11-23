@@ -149,8 +149,12 @@ def main() -> None:
     db = admin_db()
 
     if args.refresh_pool:
-        rows = db.rpc('calibration_refresh_anchor_pool', {}).execute().data
-        print(f'anchor pool rebuilt: {rows} rows')
+        # TASK-1075: with --word-language, rebuild that language only (needs
+        # migrations/calibration_pool_refresh_language_and_katakana.sql applied).
+        params = {'p_word_language_id': args.word_language} if args.word_language else {}
+        rows = db.rpc('calibration_refresh_anchor_pool', params).execute().data
+        scope = f'language {args.word_language}' if args.word_language else 'all languages'
+        print(f'anchor pool rebuilt for {scope}: {rows} rows')
 
     coverage = _coverage(db)
     if args.coverage:

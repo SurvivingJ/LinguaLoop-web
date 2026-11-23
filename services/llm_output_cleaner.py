@@ -176,7 +176,7 @@ def validate_language(
 
     if _LANGDETECT_AVAILABLE:
         try:
-            from langdetect import detect, LangDetectException
+            from langdetect import detect
             detected_iso = detect(text)
             detected_app = _LANGDETECT_TO_APP.get(detected_iso)
             if detected_app is not None:

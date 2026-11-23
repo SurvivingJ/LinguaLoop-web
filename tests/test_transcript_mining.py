@@ -19,6 +19,8 @@ Covered here:
 No LLM, no Supabase: the db handle is a stub and the RPC returns fixtures.
 """
 
+import pytest
+
 from services.vocabulary_ladder import exercise_renderer as rendermod
 from services.vocabulary_ladder.asset_generators.prompt1_core import CoreAssetGenerator
 from services.vocabulary_ladder.asset_pipeline import VocabAssetPipeline
@@ -247,6 +249,7 @@ def test_chinese_mining_matches_through_the_tokenizer():
     assert '咖啡' in mined[0]['text']
 
 
+@pytest.mark.requires('jieba')
 def test_chinese_mining_rejects_an_in_token_substring():
     """``\\b`` cannot express this; the tokenizer can.
 
@@ -261,6 +264,7 @@ def test_chinese_mining_rejects_an_in_token_substring():
     assert mined == []
 
 
+@pytest.mark.requires('jieba')
 def test_chinese_mining_recovers_a_verb_object_merge():
     """jieba merges 喝+咖啡 into one token; the sentence still attests 咖啡.
 

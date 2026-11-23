@@ -1,9 +1,7 @@
 """The dt_repair block of the daily study session (tech 7.6)."""
 
-from datetime import date
 from types import SimpleNamespace
 
-import pytest
 from flask import Flask
 
 from services.dual_translation.repair import service as repair_service

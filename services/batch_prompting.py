@@ -29,10 +29,9 @@ can lose 200 rows instead of 1. Every design choice below is about capping that.
   the prompt corpus into a second, drifting copy.
 """
 
-import json
 import logging
 import re
-from typing import Any, Callable, Iterable, Iterator, Sequence, TypeVar
+from typing import Any, Callable, Iterator, Sequence, TypeVar
 
 logger = logging.getLogger(__name__)
 

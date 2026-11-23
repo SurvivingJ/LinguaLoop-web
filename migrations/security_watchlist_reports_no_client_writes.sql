@@ -80,7 +80,9 @@ BEGIN
 END $$;
 
 REVOKE ALL ON TABLE public.user_word_watchlist FROM PUBLIC, anon, authenticated;
-GRANT SELECT ON TABLE public.user_word_watchlist TO authenticated;
+-- No GRANT SELECT here: live (2026-11-14) authenticated holds no privilege on
+-- this table, so granting one would widen access. The own-row SELECT policy
+-- stays in place and is inert until a grant is added on purpose.
 
 -- ---- user_reports: no client INSERT ---------------------------------------------
 DO $$

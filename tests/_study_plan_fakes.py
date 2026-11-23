@@ -5,7 +5,6 @@ Importable as ``tests._study_plan_fakes`` (tests/ is a package).
 
 from __future__ import annotations
 
-from types import SimpleNamespace
 from typing import Any, Dict, List, Optional
 
 # ZH 30-minute template (id 101): the worked example in

@@ -81,6 +81,7 @@ def test_unconfigured_language_still_gets_the_permissive_default():
     not os.environ.get('SUPABASE_URL'),
     reason='needs Supabase credentials; the prompt row is the source of truth',
 )
+@pytest.mark.live
 def test_ja_p1_prompt_enumerates_exactly_the_profile_pos_set():
     """The prompt and the gate must agree, or ja generation fails outright.
 

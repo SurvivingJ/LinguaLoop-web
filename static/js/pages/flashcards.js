@@ -1,5 +1,4 @@
 (function () {
-  const RATING_MAP = { 1: 'again', 2: 'hard', 3: 'good', 4: 'easy' };
   const languageId = parseInt(localStorage.getItem('selectedLanguageId')) || 1;
 
   // Weekly-minutes active-time measurement (one timer + event id per card showing).

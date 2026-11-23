@@ -75,7 +75,7 @@ def rec():
 
 
 @pytest.fixture
-def wired(scenario, monkeypatch):
+def wired(scenario, monkeypatch):  # noqa: F811  (imported fixture)
     """The real submit route over the scenario: the grade is a single-call contract."""
     state = {"contract": contract_for(error_rows()), "persisted": None}
 
