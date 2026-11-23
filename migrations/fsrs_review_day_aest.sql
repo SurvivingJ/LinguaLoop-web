@@ -1,13 +1,18 @@
 -- ============================================================================
--- fsrs_review_day_aest.sql - one app-wide FSRS review day: midnight AEST
+-- fsrs_review_day_aest.sql - one app-wide FSRS review day: midnight Sydney time
 -- Date: 2026-11-23   Task: TASK-1211 (owner decision). NOT APPLIED.
+-- NOTE: the file name is historical ("aest"); the review zone is the IANA zone
+-- Australia/Sydney (owner decision 2026-11-23: "Use Sydney time"): UTC+11 in
+-- daylight saving (first Sunday in October to first Sunday in April), UTC+10
+-- otherwise.
 --
--- *** LEARNER-VISIBLE (flashcard due dates roll over at 00:00 AEST = 14:00 UTC
---     instead of 00:00 UTC). MUST SWITCH TOGETHER WITH THE PYTHON DEPLOY. ***
+-- *** LEARNER-VISIBLE (flashcard due dates roll over at 00:00 Sydney time =
+--     13:00 UTC in daylight saving, 14:00 UTC otherwise, instead of 00:00 UTC).
+--     MUST SWITCH TOGETHER WITH THE PYTHON DEPLOY. ***
 --
 -- WHAT
 --   1. NEW public.review_today(p_at timestamptz DEFAULT now()) RETURNS date:
---      (p_at AT TIME ZONE 'Australia/Brisbane')::date. LANGUAGE sql, STABLE,
+--      (p_at AT TIME ZONE 'Australia/Sydney')::date. LANGUAGE sql, STABLE,
 --      SECURITY INVOKER, search_path public, pg_temp, EXECUTE service_role only.
 --      THE ONE SQL PLACE the review zone is configured (one string literal).
 --      Python mirror: services/day_boundary.py REVIEW_TIMEZONE. Change both;
@@ -55,7 +60,7 @@
 --   review_governor_state.
 --
 -- WHY: the FSRS day was the UTC date everywhere. The owner chose one fixed
--- app-wide review time zone ("AEST midnight") over per-learner local days.
+-- app-wide review time zone ("Use Sydney time") over per-learner local days.
 -- The study plan's own timezone keeps governing plan/day-slot accounting only;
 -- FSRS due-ness everywhere (flashcard page, practice session, daily session,
 -- review governor, weekly load signals) uses review_today().
@@ -66,15 +71,18 @@
 -- BEFORE hash differs, something else changed it: do not apply; re-derive.
 --
 -- DEPLOYMENT ORDER (with the Python change, commit "FSRS review day: one
--- app-wide review time zone (AEST) in Python"):
---   Between 00:00 and 14:00 UTC (10:00-24:00 AEST) the AEST date equals the
---   UTC date, so old and new code compute the SAME day and a half-switched
---   system behaves identically. Do both halves inside one such window:
---   deploy the Python first (00:00-13:00 UTC), confirm it is healthy, then
---   apply this file (one transaction) straight after, well before 14:00 UTC.
+-- app-wide review time zone (Sydney) in Python"):
+--   While the Sydney date equals the UTC date, old and new code compute the
+--   SAME day and a half-switched system behaves identically. That window is
+--   00:00 to 13:00 UTC during daylight saving (11:00-24:00 Sydney time; in
+--   force on 2026-11-23) and 00:00 to 14:00 UTC otherwise (10:00-24:00 Sydney
+--   time). Do both halves inside one such window: deploy the Python first,
+--   confirm it is healthy, then apply this file (one transaction) straight
+--   after, well before the window closes (13:00 UTC in daylight saving).
 --   If the deploy is rolled back, do not apply this file (or apply the
---   rollback before 14:00 UTC).
---   Worst case if the halves straddle 14:00-24:00 UTC (at most 10 hours,
+--   rollback inside the window).
+--   Worst case if the halves straddle the end of the window (13:00-24:00 UTC
+--   in daylight saving, 14:00-24:00 UTC otherwise: at most 11 hours,
 --   self-healing at 00:00 UTC): the flashcard page and the practice/daily
 --   session disagree by one day about which cards are due today (a card due
 --   "tomorrow" on one calendar shows as due on the other), and a card
@@ -82,9 +90,11 @@
 --   depending on which path rated it. No data is lost.
 --
 -- EXISTING ROWS: no backfill. A card stamped on the UTC calendar keeps its
--- due_date; it now becomes due at 00:00 AEST on that date (14:00 UTC the day
--- before) instead of 00:00 UTC, i.e. up to 10 hours EARLIER, never later.
--- Reviews made 14:00-24:00 UTC were dated one day behind the AEST date, so
+-- due_date; it now becomes due at 00:00 Sydney time on that date (13:00 UTC the
+-- day before in daylight saving, 14:00 UTC otherwise) instead of 00:00 UTC,
+-- i.e. up to 11 hours EARLIER in daylight saving (10 hours otherwise), never
+-- later. Reviews made 13:00-24:00 UTC (14:00-24:00 outside daylight saving)
+-- were dated one day behind the Sydney date, so
 -- those cards' intervals measured on the new calendar are at most one day
 -- shorter (due at most one day early). last_review (timestamptz) keeps the
 -- convention "calendar date at 00:00 UTC" for both old and new rows.
@@ -108,12 +118,13 @@
 --     ) AS v(fn, before, after)
 --     JOIN pg_proc p ON p.oid = v.fn::regprocedure;
 --   SELECT to_regprocedure('public.review_today(timestamptz)') IS NOT NULL AS has_helper,
---          public.review_today(timestamptz '2026-11-23 13:30+00') AS d_2330_aest,   -- expect 2026-11-23
---          public.review_today(timestamptz '2026-11-23 14:30+00') AS d_0030_aest;   -- expect 2026-11-24
+--          public.review_today(timestamptz '2026-11-23 12:30+00') AS d_2330_sydney, -- expect 2026-11-23
+--          public.review_today(timestamptz '2026-11-23 13:30+00') AS d_0030_sydney;  -- expect 2026-11-24
 --
 -- ROLLBACK: migrations/fsrs_review_day_aest_rollback.sql (the seven live
 -- bodies, then DROP review_today). Roll back the Python together, inside a
--- 00:00-14:00 UTC window, for the same reason as above.
+-- window (00:00-13:00 UTC in daylight saving, 00:00-14:00 UTC otherwise), for
+-- the same reason as above.
 --
 -- After applying: this file is canonical for the seven functions. Per
 -- migrations/CLAUDE.md, check whether each canonical file listed above is now
@@ -137,14 +148,14 @@ CREATE OR REPLACE FUNCTION public.review_today(p_at timestamptz DEFAULT now())
 AS $function$
     -- THE ONE SQL PLACE the FSRS review day's time zone is set (TASK-1211).
     -- Python mirror: services/day_boundary.py REVIEW_TIMEZONE. Change both.
-    SELECT (p_at AT TIME ZONE 'Australia/Brisbane')::date
+    SELECT (p_at AT TIME ZONE 'Australia/Sydney')::date
 $function$;
 
 REVOKE ALL ON FUNCTION public.review_today(timestamptz) FROM PUBLIC, anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.review_today(timestamptz) TO service_role;
 
 COMMENT ON FUNCTION public.review_today(timestamptz) IS
-  'TASK-1211: today on the app-wide FSRS review calendar (midnight AEST, Australia/Brisbane). '
+  'TASK-1211: today on the app-wide FSRS review calendar (midnight Sydney time, Australia/Sydney). '
   'Every user_flashcards due_date/last_review read or write uses this date. '
   'Python mirror: services/day_boundary.review_today (REVIEW_TIMEZONE).';
 

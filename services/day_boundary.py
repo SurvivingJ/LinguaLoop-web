@@ -188,11 +188,12 @@ def plan_today(
 #: Every FSRS date in the app (``user_flashcards.due_date`` / ``last_review``
 #: written, and "due today" read) uses the calendar of this zone, for every
 #: learner, independent of the study plan's own ``timezone`` (which governs
-#: only plan / day-slot accounting). Owner decision 2026-11-23: "AEST
-#: midnight", i.e. Australia/Brisbane (UTC+10 all year, no daylight saving).
+#: only plan / day-slot accounting). Owner decision 2026-11-23: "Use
+#: Sydney time", i.e. Australia/Sydney (UTC+11 in daylight saving, first Sunday
+#: in October to first Sunday in April; UTC+10 otherwise).
 #: The SQL mirror is ``public.review_today()`` in
-#: migrations/fsrs_review_today_aest.sql; change both together.
-REVIEW_TIMEZONE = "Australia/Brisbane"
+#: migrations/fsrs_review_day_aest.sql; change both together.
+REVIEW_TIMEZONE = "Australia/Sydney"
 
 
 def _utcnow() -> datetime:
