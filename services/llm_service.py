@@ -436,8 +436,9 @@ def _use_enabled_false_reasoning_param(model: str | None) -> bool:
 # above, landed 2026-09-28, AFTER Phase 1's own eval was measured) -- so the
 # regression cannot yet be attributed to either axis alone. This flag lets a
 # clean attribution eval hold qwen's reasoning state at its Phase-1-measured
-# value while bundle mode is varied independently (see
-# `VOCAB_LADDER_BUNDLE_MODE`, a separate flag).
+# value while bundle mode is varied independently. (Historical: that second
+# flag, `VOCAB_LADDER_BUNDLE_MODE`, and bundle mode itself have since been
+# deleted; the env var is now ignored. The eval note above is kept as record.)
 #
 # `on` (the default): restores the qwen behaviour Phase 1's published numbers
 # were actually measured under. Per wiki/evaluations/exercise-gen-phase1-2026-09.md
@@ -462,7 +463,8 @@ def _use_enabled_false_reasoning_param(model: str | None) -> bool:
 #
 # Scoped to qwen only (via `_use_enabled_false_reasoning_param`'s own
 # pattern) and to this one mechanism; it does not touch
-# `VOCAB_LADDER_BUNDLE_MODE` or any other pipeline's reasoning handling.
+# any other pipeline's reasoning handling. (It once also did not touch the
+# since-deleted `VOCAB_LADDER_BUNDLE_MODE` flag.)
 _LADDER_QWEN_REASONING_ENV = 'LADDER_QWEN_REASONING'
 
 # ADR-028 bounded-reasoning middle setting (2026-10-05): `on` (85-92%

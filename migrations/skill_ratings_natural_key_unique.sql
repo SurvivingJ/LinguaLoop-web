@@ -36,10 +36,10 @@
 --   2. skill_ratings_writers_on_conflict.sql (INSERT ... ON CONFLICT in the six
 --      writers). It cannot go first: ON CONFLICT (cols) fails (42P10) without a
 --      unique index on exactly those columns.
--- Other writer: scripts/backfill_test_skill_ratings.py inserts
--- test_skill_ratings rows for (test, type) pairs it found missing; with the
--- index a pair created meanwhile raises unique_violation in that one-off script
--- (no learner impact; rerun it).
+-- Other writer: none now. scripts/backfill_test_skill_ratings.py (a one-off
+-- that inserted test_skill_ratings rows for (test, type) pairs it found
+-- missing) has been deleted, so no remaining script can hit the new index with
+-- a unique_violation.
 --
 -- RUN OUTSIDE A TRANSACTION: CREATE INDEX CONCURRENTLY cannot run inside a
 -- transaction block. Run each statement on its own (psql without -1 / --single-

@@ -21,10 +21,14 @@
 -- already binds to the 5-argument overload. pg_depend: nothing depends on the
 -- 4-argument function.
 --
--- WHAT A LEARNER WOULD NOTICE: word-test answers recorded without an exercise
--- type now update the learner's word knowledge (p_known, status, evidence
--- counts) instead of being dropped, so word status and review scheduling
--- reflect them. Nothing else changes.
+-- WHAT A LEARNER WOULD NOTICE: nothing today. The effect is latent. No live
+-- caller sends a NULL exercise type: record_exercise_attempt always passes
+-- the exercise's own type, the Python callers pass 'definition_match' or
+-- 'text_flashcard' or the type of an exercises row, and no exercises row has
+-- a NULL exercise_type (SELECT 2026-11-23: 0 of 144364). The ambiguous call
+-- therefore is not made at present; the drop removes the trap for any future
+-- caller that omits the exercise type (its knowledge update would otherwise
+-- be refused as ambiguous and silently lost).
 --
 -- PRECONDITIONS: none; no code change is needed.
 --
