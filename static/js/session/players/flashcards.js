@@ -156,7 +156,7 @@ export function mount(container, ctx) {
           T('session.flashcards_unavailable', null, 'Couldn’t load your review cards right now.')
         )}</p>
       </div>`;
-    setDock(`<a class="ld-btn ld-btn--ghost" href="/flashcards/page">${esc(
+    setDock(`<a class="ld-btn ld-btn--ghost" href="/flashcards">${esc(
       T('session.open_page', null, 'Open page')
     )}</a>
       <button class="ld-link ld-link--quiet" type="button" data-fc-skip>${esc(

@@ -13,7 +13,6 @@ case the ladder advances the wrong family, or nothing at all, and no test that
 looks only at `content` would notice.
 """
 
-import pytest
 
 from services.vocabulary_ladder import deterministic as det
 from services.vocabulary_ladder.ladder_service import LadderService

@@ -1,3 +1,16 @@
+-- #############################################################################
+-- ## STALE ROLLBACK - DO NOT RUN AGAINST THE LIVE DATABASE AS IS (2026-11-23)  ##
+-- #############################################################################
+-- The forward migration (exercise_content_drop_column.sql, the ADR-049 cut-over)
+-- is live: exercises.content no longer exists (checked 2026-11-23) and the live
+-- get_practice_session / get_review_ahead_items / exercise_content_commit equal
+-- the forward file's bodies. Running this file now would replace those three
+-- live RPCs with the pre-drop bodies that read and write exercises.content and
+-- re-add the empty column, so practice sessions would break until the column
+-- is refilled from Storage (no script exists) AND the code from before
+-- TASK-1031 is deployed. Kept here, not in archive/, because
+-- tests/test_exercise_content_migration_cutover.py requires it in migrations/.
+-- #############################################################################
 -- =============================================================================
 -- exercise_content_drop_column_rollback.sql — undo the ADR-049 cut-over
 -- (migrations/exercise_content_drop_column.sql, step 3)

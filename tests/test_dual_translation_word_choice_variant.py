@@ -146,6 +146,7 @@ def test_same_lemma_is_wrong_sense_even_against_model():
     assert counts["same_lemma"] == 1
 
 
+@pytest.mark.requires('jieba')
 def test_same_lemma_via_single_resolving_token():
     """知道了 is not a lemma; jieba gives 知道 + 了 and only 知道 resolves."""
     errs = [_wc("知道了", "知道")]

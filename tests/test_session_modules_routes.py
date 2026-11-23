@@ -7,7 +7,6 @@ tests/test_session_budget_settings_routes.py.
 
 import pytest
 
-import routes.study_plan as sp
 from tests.study_plan_route_harness import (
     ZH_AVAILABLE, FakeDB, install, plan_tables,
 )

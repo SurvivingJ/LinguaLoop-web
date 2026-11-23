@@ -164,25 +164,14 @@ class TestDistractors:
         assert [q['sense_id'] for q in quiz] == [1, 2]
         assert all(o.startswith(('def', f"d{q['sense_id']}-")) for q in quiz for o in q['options'])
 
-    def test_batch_flag_uses_one_call(self, monkeypatch):
-        monkeypatch.setenv('QUIZ_DISTRACTORS_BATCH', '1')
-        batch = [{'out_position': pos, 'out_sense_id': pos, 'out_definition': f'd{pos}-{i}',
-                  'out_lemma': f'l{i}'} for pos in (1, 2) for i in range(3)]
-        db = FakeDB(rpcs={'get_word_quiz_candidates': self.CANDIDATES,
-                          'get_quiz_distractors_batch': batch})
-        quiz = VocabularyKnowledgeService(db).build_quiz_with_distractors('u', [1, 2], 1)
-        names = [n for n, _ in db.rpc_calls]
-        assert names == ['get_word_quiz_candidates', 'get_quiz_distractors_batch']
-        assert db.rpc_calls[1][1]['p_sense_ids'] == [1, 2]
-        assert [len(q['options']) for q in quiz] == [4, 4]
-        assert all(o.startswith(('def', f"d{q['sense_id']}-")) for q in quiz for o in q['options'])
-
-    def test_batch_failure_falls_back_to_per_word(self, monkeypatch):
+    def test_retired_batch_flag_is_ignored(self, monkeypatch):
         monkeypatch.setenv('QUIZ_DISTRACTORS_BATCH', '1')
         db = FakeDB(rpcs={'get_word_quiz_candidates': self.CANDIDATES,
-                          'get_quiz_distractors_batch': RuntimeError('PGRST202'),
                           'get_quiz_distractors': self._single})
         quiz = VocabularyKnowledgeService(db).build_quiz_with_distractors('u', [1, 2], 1)
+        names = [n for n, _ in db.rpc_calls]
+        assert names.count('get_quiz_distractors') == 2
+        assert 'get_quiz_distractors_batch' not in names
         assert len(quiz) == 2
 
 

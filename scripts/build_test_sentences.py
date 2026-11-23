@@ -8,7 +8,7 @@
     python scripts/build_test_sentences.py --fixture data.json --out spans.json   # offline
 
 Segmentation is services.dual_translation.sentence_refs.segment_with_spans (the
-same terminators as passage_builder.segment_sentences, applied to the raw
+same terminators as sentence_refs.segment_sentences, applied to the raw
 transcript so spans index into tests.transcript). Token spans come from
 tests.vocab_token_map. A test whose transcript_hash matches its existing
 sentence rows is skipped; a changed hash replaces the rows and retires the

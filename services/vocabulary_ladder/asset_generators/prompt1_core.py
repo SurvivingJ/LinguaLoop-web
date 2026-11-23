@@ -11,7 +11,6 @@ This is the foundation — Prompts 2 and 3 depend on the output of Prompt 1.
 
 import json
 import logging
-from typing import Optional
 
 from config import Config
 from services.llm_service import call_llm, ladder_qwen_reasoning_mode

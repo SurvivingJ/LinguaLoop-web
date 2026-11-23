@@ -112,9 +112,9 @@ class JSONTopicImporter:
             return errors
 
         # Check required fields
-        for field in self.REQUIRED_FIELDS:
-            if field not in entry:
-                errors.append(f"{prefix}: Missing required field '{field}'")
+        for required_field in self.REQUIRED_FIELDS:
+            if required_field not in entry:
+                errors.append(f"{prefix}: Missing required field '{required_field}'")
 
         # Validate topic
         if 'topic' in entry:
@@ -161,7 +161,7 @@ class JSONTopicImporter:
         # Validate first
         errors = self.validate_json(file_path)
         if errors:
-            raise ValueError(f"JSON validation failed:\n" + "\n".join(errors))
+            raise ValueError("JSON validation failed:\n" + "\n".join(errors))
 
         # Parse
         try:

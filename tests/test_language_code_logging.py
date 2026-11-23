@@ -8,7 +8,6 @@ kwargs `_log_llm_call` would have inserted.
 
 from unittest.mock import patch
 
-import pytest
 
 import services.llm_service as svc
 

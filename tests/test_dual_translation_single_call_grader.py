@@ -21,7 +21,6 @@ from services.dimension_service import DimensionService
 from services.dual_translation import (
     grader_cascade, single_call_grader as scg, single_call_prompts as sc_prompts, tier0,
 )
-from services.dual_translation.sentence_pairs import build_sentence_pairs
 
 _REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LANG_IDS = {'zh': 1, 'en': 2, 'ja': 3}

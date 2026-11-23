@@ -81,7 +81,8 @@ CLAUDE_CLI_BASE_URL = 'claude-cli://local'
 # subscription rate limit, where throughput matters more than peak quality.
 CLAUDE_CLI_MODEL = os.getenv('CLAUDE_CLI_MODEL', 'sonnet')
 
-# Per-call ceiling. The CLI has no --max-turns in 2.1.x, but with tools disabled
+# Fallback ceiling, used only when a call sends no timeout (call_llm always does,
+# default 60 s, so it overrides this). The CLI has no --max-turns in 2.1.x, but with tools disabled
 # there is nothing to loop on; this guards against a pathological hang.
 CLAUDE_CLI_TIMEOUT = int(os.getenv('CLAUDE_CLI_TIMEOUT', '600'))
 
@@ -371,6 +372,8 @@ class ClaudeCliClient:
             )
 
         argv = self._build_argv(payload, system_prompt)
+        # Precedence: payload['timeout'] (call_llm always sends one, default 60 s)
+        # wins; CLAUDE_CLI_TIMEOUT only applies to a direct call with no timeout.
         timeout = payload.get('timeout') or CLAUDE_CLI_TIMEOUT
 
         start = time.perf_counter()

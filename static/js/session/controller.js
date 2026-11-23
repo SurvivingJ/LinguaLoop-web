@@ -120,6 +120,9 @@ const session = {
   extraRounds: 0,
   extraTail: null,
   extraDeclined: false,
+  // `/session?mode=practice&extra=reviews` (the knowledge page's "Review in Practice",
+  // TASK-1043): start a reviews round at once when nothing required is left today.
+  extraDeepLink: false,
 };
 
 document.addEventListener('DOMContentLoaded', init);
@@ -179,6 +182,28 @@ export function takeResumeMarker(loc = window.location, hist = window.history) {
   return marker;
 }
 
+// `extra=reviews` on a practice-mode URL: true once, and the parameter is removed so a
+// reload does not start another round.
+export function takeExtraDeepLink(loc = window.location, hist = window.history) {
+  let params;
+  try {
+    params = new URLSearchParams(loc.search || '');
+  } catch {
+    return false;
+  }
+  if (params.get('extra') !== 'reviews') return false;
+  params.delete('extra');
+  const qs = params.toString();
+  try {
+    if (hist && typeof hist.replaceState === 'function') {
+      hist.replaceState(hist.state, '', `${loc.pathname}${qs ? `?${qs}` : ''}${loc.hash || ''}`);
+    }
+  } catch {
+    /* history blocked: still used only once per page load */
+  }
+  return true;
+}
+
 // The queue index to open straight away for `marker`, or -1 for the Today card.
 // `start` is where the session would resume (server next_index); the item
 // opened is the one Resume would open from there.
@@ -199,6 +224,7 @@ async function init() {
   session.practiceOnly = params.get('mode') === 'practice';
   // Consumed now, before any await: a reload never sees it again.
   const resume = takeResumeMarker();
+  session.extraDeepLink = session.practiceOnly && takeExtraDeepLink();
   applyModeLabels();
 
   session.languageId = parseInt(localStorage.getItem('selectedLanguageId') || '0', 10);
@@ -358,9 +384,11 @@ async function loadSession({ resume = null } = {}) {
 
   if (session.queue.length === 0) {
     showEmpty();
-    return false;
+  } else {
+    renderStart();
   }
-  renderStart();
+  // The deep link applies to this first load only.
+  session.extraDeepLink = false;
   return false;
 }
 
@@ -376,6 +404,7 @@ function renderStart() {
 
   if (remaining === 0) {
     // already finished today's load
+    if (startDeepLinkedReviews()) return;
     showSummary();
     return;
   }
@@ -1100,11 +1129,26 @@ function emptyMessage() {
       );
 }
 
+// Practice mode with nothing required left and no new words waiting: the deep link starts the
+// reviews round the extra-round panel would offer, once, instead of waiting for a click.
+function startDeepLinkedReviews() {
+  if (!session.extraDeepLink) return false;
+  session.extraDeepLink = false;
+  if (!session.practiceOnly || newWordsPending()) return false;
+  const choice = normalizeExtraChoice({ reviews: true, newWords: 0 });
+  if (!isRunnableExtraChoice(choice)) return false;
+  $('sessionLoading').classList.add('d-none');
+  $('sessionStart').classList.add('d-none');
+  startExtraRound(choice);
+  return true;
+}
+
 function showEmpty() {
   leaveRun();
   if (session.practiceOnly) {
     // Practice mode always has something to offer: open-ended extra rounds.
     $('sessionLoading').classList.add('d-none');
+    if (startDeepLinkedReviews()) return;
     showEmptyWithTail();
     renderNewWordsPrompt();
     renderExtraPanel();

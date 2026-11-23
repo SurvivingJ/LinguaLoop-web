@@ -1,0 +1,28 @@
+{
+  "_comment": "Vocabulary placement result (/placement, TASK-1084): an unseen zh result from /latest with a retake block, both gap lines and the ended-early flag. Pass after default.json (and placement.json).",
+  "GET /api/calibration/placement/latest*": {
+    "status": "success",
+    "unseen": true,
+    "session_id": "s-preview",
+    "word_lists": {
+      "tones_not_yet": [{ "lemma": "学习", "reading": "xuéxí", "meaning": "to study; to learn" }],
+      "not_yet": [{ "lemma": "电脑", "reading": "diànnǎo", "meaning": "computer" }]
+    },
+    "result": {
+      "version": 1, "word_language_id": 1, "definition_language_id": 2, "instrument": "meaning_bare_v1",
+      "stop_reason": "learner", "ended_early": true, "fast": false, "skip_share": 0.41,
+      "items": { "scored": 24, "meaning": 16, "reading": 8, "probes": 1 }, "active_seconds": 170,
+      "words": { "asked": 16, "both": 5, "tones_not_yet": 2, "meaning_only": 1, "not_yet": 8 },
+      "frame_n": 3623,
+      "this": {
+        "m": { "lo": 900, "hi": 1700, "label": "rough" },
+        "mr": { "lo": 500, "hi": 1100, "label": "rough" },
+        "tone_gap": { "lo": 60, "hi": 420 },
+        "gap": { "lo": 120, "hi": 650 }
+      },
+      "combined": { "m": { "lo": 1000, "hi": 1600 }, "mr": { "lo": 600, "hi": 1000, "label": "rough" } },
+      "previous": { "session_id": "old", "ended_at": "2026-10-02T10:00:00Z", "mr": { "lo": 200, "hi": 700 }, "verdict": "up" },
+      "seen": false
+    }
+  }
+}

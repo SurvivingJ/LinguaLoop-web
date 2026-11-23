@@ -1,6 +1,5 @@
 """TASK-889: tests and drills credit measured duration to the study-time ledger."""
 
-import json
 from datetime import datetime, timedelta, timezone
 from types import SimpleNamespace
 from unittest.mock import patch
