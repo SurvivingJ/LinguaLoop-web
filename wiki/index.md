@@ -1,5 +1,7 @@
 # LinguaDojo Wiki Index
-Last updated: 2026-11-23 (**CODEBASE REVIEW, CLEAN-UP AND WIKI SYNC** — see [[evaluations/codebase-review-2026-11-22]]: all 108 tables and views and 214 functions documented, all 137 routes documented, four new package pages with tech pairs, ADR-061–063 proposed, follow-ups TASK-1200–1233 in [[tasklist/review-2026-11-22.tasks]]; nothing deployed, no migration applied) | Pages: 291
+Last updated: 2026-11-23 (**OWNER DECISIONS AFTER THE REVIEW** — token economy retired (TASK-1210), Mystery and Listening Lab removed (TASK-1227), FSRS review day at AEST midnight (TASK-1211, code done, SQL pending as group 10 of `migrations/PENDING-2026-11-23.md`); see [[evaluations/codebase-review-2026-11-22]]; offline pytest 6,311 passed, ruff clean) | Pages: 291
+
+Prior: 2026-11-23 (**CODEBASE REVIEW, CLEAN-UP AND WIKI SYNC** — see [[evaluations/codebase-review-2026-11-22]]: all 108 tables and views and 214 functions documented, all 137 routes documented, four new package pages with tech pairs, ADR-061–063 proposed, follow-ups TASK-1200–1233 in [[tasklist/review-2026-11-22.tasks]]; nothing deployed, no migration applied) | Pages: 291
 
 Prior: 2026-11-19 (**KNOWLEDGE REPORT + VOCABULARY PLACEMENT BUILT — NOTHING APPLIED LIVE** — re-review after the exercise cut-over: plan holds, frames unchanged, DB 358 MB so the size gate is gone. Built on `claude/beautiful-planck-0fftk4`: estimator (`knowledge_estimate.py`), report API/page/snapshot job, placement design/service/routes/page, evidence path into practice (A2/A2r), 12 migrations (report foundation/summary/words, placement schema/RPCs/inputs, zh normaliser fix, zh tone variants + character readings, evidence kind, ja readiness) — all applied in order to a local PostgreSQL 16 copy of the live schema with SQL suites 13 + 5 + 94 green; V0 on production code: coverage 0.92–0.97, bias ≤ 1.3% of the pool. Full suite 6,242 passed, vitest 838. Owner checklist: [[tasklist/report-and-placement-apply-runbook]]. New questions OQ38 (tied latest outcomes) and PQ22 (heteronym seed, TASK-1096).)
 
@@ -208,14 +210,14 @@ Prior: 2026-08-12 (**Exercise Generation v2 batch closed** — TASK-521 sense-em
 - Mockup: `wiki/demos/knowledge-report-goal-path.html` — **NEW 2026-11-18, preferred layout**: the goal-path report fleshed out (estimate first, goal and exam date, level path, next steps, this week, keep missing, read next, skills, 13 weeks, lists), Pro and Core, ja and zh
 - [[features/flashcards]] — FSRS spaced-repetition review (now a Maintenance sub-type)
 - [[features/flashcards.tech]] — FSRS technical spec
-- [[features/mysteries]] — Murder mystery stories gated by comprehension — **ARCHIVED 2026-09-21** (see `archive/modules/`)
-- [[features/mysteries.tech]] — Mystery generation and serving — **ARCHIVED 2026-09-21** (see `archive/modules/`)
+- [[features/mysteries]] — Murder mystery stories gated by comprehension — **ARCHIVED 2026-09-21, REMOVED from the code 2026-11-23** (TASK-1227; deprecated; see `archive/modules/`)
+- [[features/mysteries.tech]] — Mystery generation and serving — **ARCHIVED 2026-09-21, REMOVED from the code 2026-11-23** (deprecated; see `archive/modules/`)
 - [[features/conversations]] — Simulated dialogue generation for corpus — **ARCHIVED 2026-09-21** (see `archive/modules/`)
 - [[features/conversations.tech]] — Two-step scenario generation (Matrix Builder + Expander) — **ARCHIVED 2026-09-21** (see `archive/modules/`)
 - [[features/corpus-analysis]] — NLP pipeline for collocation extraction
 - [[features/corpus-analysis.tech]] — Corpus analysis technical spec
-- [[features/token-economy]] — Token-based access and Stripe payments
-- [[features/token-economy.tech]] — Payment flow technical spec
+- [[features/token-economy]] — Token-based access and Stripe payments — **DEPRECATED 2026-11-23: retired (TASK-1210), code removed**
+- [[features/token-economy.tech]] — Payment flow technical spec — **DEPRECATED 2026-11-23: retired, routes and service removed**
 - [[features/vocab-dojo]] — **DEPRECATED 2026-05-21** — merged into [[features/practice-engine]]
 - [[features/vocab-dojo.tech]] — **DEPRECATED 2026-05-21** — get_ladder_session is now a wrapper
 - [[features/pinyin-trainer]] — Chinese tone-guessing game mode with sandhi rules

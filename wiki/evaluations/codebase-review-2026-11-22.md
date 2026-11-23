@@ -9,10 +9,10 @@ open_questions:
   - "OPEN (TASK-1206): accept ADR-061 (one transactional write per DT submission)?"
   - "OPEN (TASK-1207): accept ADR-062 (retire dt_card review cards, choose the /next window in SQL)?"
   - "OPEN (TASK-1208): accept ADR-063 (fat-seed as the bulk ladder path, nightly drain as the only top-up)?"
-  - "OPEN (TASK-1210): rebuild or retire the token economy?"
+  - "ANSWERED 2026-11-23 (TASK-1210): the token economy is retired; see 'After the review (2026-11-23)'."
   - "OPEN (TASK-1221): does any client outside the repository call the 28 routes marked 'no in-repo client'?"
   - "OPEN (TASK-1224): keep or unschedule the nightly watchlist sweep?"
-  - "OPEN (TASK-1227): redo the removal of Mystery and Listening Lab (commit 82a80de) on the current code?"
+  - "ANSWERED 2026-11-23 (TASK-1227): Mystery and Listening Lab removed by hand; see 'After the review (2026-11-23)'."
   - "OPEN (TASK-1231): the wiki structure decisions (index header, log order, duplicate ADR numbers, off-schema directories, rpcs.tech rewrite, dangling lesson links)."
 ---
 
@@ -100,6 +100,24 @@ top.
   recent misses override "known"; owner kept the code), a note on
   [[decisions/ADR-028-exercise-gen-cost-under-1c]], and proposed ADR-061, ADR-062 and ADR-063.
 
+### After the review (2026-11-23)
+Three owner decisions, each on its own branch and merged with the gates re-run (offline pytest
+6,311 passed, 16 skipped, 0 failed; ruff clean; frontend 846 unit tests passed; 136 URL rules).
+- **Token economy retired (TASK-1210, Done):** `GET /api/users/tokens`, the payments blueprint,
+  `services/payment_service.py`, the token config, the `stripe` pin and the token fields in the
+  login, config and health payloads are removed; 11 tests added, 8 removed (6,301 to 6,304). No SQL.
+  The token pages are deprecated; a future design is proposed in [[features/token-economy]].
+- **Mystery and Listening Lab removed (TASK-1227, Done):** done by hand, not by cherry-picking
+  82a80de; `UNPLANNED_TEST_TYPES` and its 8 guard tests are gone (6,304 to 6,296). Nothing was
+  live, so no migration.
+- **FSRS review day at midnight AEST (TASK-1211, code done, SQL pending):** one app-wide review
+  zone (`services/day_boundary.py` `REVIEW_TIMEZONE`, `Australia/Brisbane`) for the schedule and the
+  `last_review` stamp; the per-learner local-day design is not pursued. 15 tests added (6,296 to
+  6,311). `migrations/fsrs_review_day_aest.sql` (with a rollback) is group 10 of
+  `migrations/PENDING-2026-11-23.md` and is applied together with the deploy.
+- Recorded for the owner: the provider key will be funded and the validated DT grader models set
+  (TASK-1202, still open; config defaults unchanged until then).
+
 ## Incident
 On 2026-11-23 at 00:31 UTC a review agent ran the test suite with credentials present and the
 network open. The suite's own write path wrote 38 test rows to the live database (26 `llm_calls`,
@@ -107,12 +125,11 @@ network open. The suite's own write path wrote 38 test rows to the live database
 owner (TASK-1229).
 
 ## Not done
-- FSRS local-day dating (TASK-1211): readers and writers must change together; no effect today
-  because all three live plans are UTC.
 - Lazy-loading `/session` assets and CSP enforcement (TASK-1215, TASK-1216): no E2E safety net in
   the review environment.
-- Database size reductions (TASK-1217), payments and the token economy (TASK-1210), the uploader
-  `--apply` convention (TASK-1218).
+- Database size reductions (TASK-1217), the uploader `--apply` convention (TASK-1218).
+  (Payments and the token economy, TASK-1210, and FSRS dating, TASK-1211, were decided on
+  2026-11-23: see "After the review".)
 - Grader model choice, prompt text and judging logic: the owner's, validated against gold sets
   (TASK-1202, TASK-1205).
 - Nothing was deployed and no migration was applied by the review.
