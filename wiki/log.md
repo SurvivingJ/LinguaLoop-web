@@ -7151,7 +7151,7 @@ Developer: "apply the part of speech label migration" (written 2026-11-11, never
 
 Pages updated: 3 ([[database/schema.tech]] `dim_vocabulary` columns, check, triggers; index; this log). Migration header status updated.
 
-## [2026-11-22] update | zh/ja content seeding staged (2026-11-17 → 11-19); apply plan filed (TASK-1034–1043)
+## [2026-11-22] update | zh/ja content seeding staged (2026-11-17 → 11-19); apply plan filed (TASK-1097–1106, 1109; renumbered 2026-11-23)
 Developer brief (2026-11-17): build exercises for Chinese (and Japanese if its output was missing) and a comprehensive zh/ja topic list including professional subjects, **staged only, no database writes** (codebase mid-refactor). Then (2026-11-19): check the post-cut-over tables and plan how to apply it.
 
 **Topics** (2026-11-17, commit 17abfdc): 573 new entries in `data/topics/staged/2026-11-17/` — zh 315, ja 325 (67 shared), 35 categories (18 new: economics, finance, law, mathematics, psychology, …); T5–T6 weighted to economics, finance, history, science/tech, law, medicine. Importer-valid JSON per category + `manifest.{json,csv}` + `stamp_tiers.sql` (the importer still drops `target_age_tier`). Not imported.
@@ -7167,9 +7167,29 @@ Developer brief (2026-11-17): build exercises for Chinese (and Japanese if its o
 **Apply plan** (read-only checks on the live database, 2026-11-19 and 2026-11-22):
 - The packages write only `word_assets` and dictionary fields; exercises are created at render time by `scripts/render_existing_assets.py` through `store.write_sense` (ADR-049), so the cut-over does not change the packages.
 - Drift: every staged sense exists, 0 edited since the snapshot, 0 with assets or exercises; 28 zh senses are blocklisted (`calibration_anchor_blocklist`).
-- **Space is the blocker:** database 362 MB of 500 MB; applying everything adds ~330–380 MB (`word_assets` ~148, `exercises` ~129, `storage.objects` ~31, update churn ~15, judge logs ~43, topics ~13). Options in TASK-1034.
-- The part-of-speech migration was applied the same day (entry above), so zh POS UPDATEs land as standard labels; the 68 ja POS overwrites must still be dropped (TASK-1035).
+- **Space is the blocker:** database 362 MB of 500 MB; applying everything adds ~330–380 MB (`word_assets` ~148, `exercises` ~129, `storage.objects` ~31, update churn ~15, judge logs ~43, topics ~13). Options in TASK-1097.
+- The part-of-speech migration was applied the same day (entry above), so zh POS UPDATEs land as standard labels; the 68 ja POS overwrites must still be dropped (TASK-1100).
 
-**Filed:** [[tasklist/zh-ja-content-seeding.tasks]] (TASK-1034–1043, draft for owner review; two owner decisions gate the pilot). Tools committed: `scratch_offline/staging/staged_check.py` (read-only drift check), `overwrite_report.py`, `rest_snapshot.py`.
+**Filed:** [[tasklist/zh-ja-content-seeding.tasks]] (renumbered TASK-1097–1109 on 2026-11-23; draft for owner review; two owner decisions gate the pilot). Tools committed: `scratch_offline/staging/staged_check.py` (read-only drift check), `overwrite_report.py`, `rest_snapshot.py`.
 
 Pages created: 1 ([[tasklist/zh-ja-content-seeding.tasks]]). Pages updated: 3 ([[tasklist/master]] Not Started 47→55, awaiting decision 30→32; index; this log).
+
+## [2026-11-23] query + update | Inventory of every generated word and exercise asset not in the database; content-seeding plan rewritten
+Developer: "how many words and exercise assets have we generated that are not in the db? check this all code sessions", then "update the task list completely".
+
+**Method:** final turns of every LinguaLoop session that generated content, `data/` on all 58 remote branches against `main`, and the live database (read-only REST/SQL), compared by sense id or lemma. Not visible: anything a session kept only on its own container disk.
+
+**Found:**
+- **Final zh package never merged or applied.** Session "Chinese senses word assets pipeline" (2026-10-30 → 11-09) pushed its final package (16,361 senses, Opus/low second review of every sense; ~$745 first pass + $868 second review) as `e2747db` on `claude/zh-word-assets-10k` *after* PR #19 had been merged with the 11-07 interim commit `cfb6fd1`. 11,199 of its senses are not in the database (5,162 are; a 200-sense sample of those matches the final core in 129).
+- **Duplicate work in this effort:** 10,677 zh senses are in both that package and `upload_2026-11-19` (4,877 restored from the interim records, ~5,800 re-authored because the worklist came from the live database). The final versions win (stronger review). zh apply set: 11,174 from the final package + 4,940 from this effort = **16,114** after 32 blocklisted senses.
+- **4,913 new ja words** (4,996 lemmas; reading, POS, ja/en/zh definitions at two levels, example) in `data/sense_seeding/ja_5k/` on `main` since `f1c4c303` (2026-10-30), never loaded and never logged. The dictionary has 3,533 ja words. zh sense batches `wave_a` were all uploaded (133/133).
+- Topics: the 573 staged here are not in; the 11-14 zh HSK7/data-analysis topic lists are. The 100-test ja N5/N4 plan was never generated (ja still 5 tests at difficulty 1, 5 at 3).
+- Final-package UPDATEs on the draft zh list would replace 3,488 numbered pinyin with plain and 276 semantic classes (vs the 2026-11-17 snapshot); 2,608 of its not-live senses were edited after its 11-09 build.
+
+**Size:** ~+400 MB (~760 MB) to apply all of it except exercises for the new ja words, ~870 MB with them, against the 500 MB Free cap (database 362 MB).
+
+**Task list rewritten:** [[tasklist/zh-ja-content-seeding.tasks]] now TASK-1097–1109 (13 tasks): space and level_6 decisions; secure the final zh package (TASK-1099); build apply sets; REST applier; pilot; tranches; render; audio; topics; **load the ja 5k words (TASK-1107)**; **author their assets (TASK-1108)**; close-out. **Renumbered** from TASK-1034–1043 because the unmerged branches `claude/beautiful-planck-0fftk4` / `claude/busy-hawking-pvgz8d` (knowledge report) already use TASK-1034–1096; the 2026-11-22 entry above was renumbered in place.
+
+Committed: draft sense-id lists `data/exercise_seeding/apply_sets/` (zh 11,174 + 4,940, ja 3,298) and `scratch_offline/staging/package_updates.py` (parses a package's UPDATE lines, reports overwrites).
+
+Pages updated: 4 ([[tasklist/zh-ja-content-seeding.tasks]] rewritten; [[tasklist/master]] Not Started 55→58; index; this log).
