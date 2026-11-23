@@ -101,9 +101,11 @@ UNSEEDED_SKILL_MINUTES = 5
 # the distinction only matters to the Tier C resolver and the session runner.
 PLANNABLE_SURFACE_SKILLS = ('flashcards', 'dual_translation')
 
-# Explicitly outside the planner (ADR-021). Both ARE dim_test_types rows, which
-# is a modelling artefact, not an intent to schedule them — long-form
-# exploratory content does not belong in a minute budget. Pinned by
+# Explicitly outside the planner (ADR-021). These were long-form exploratory
+# features ("listening lab" and "mystery") that no longer exist: neither is a
+# dim_test_types row any more (the tables were dropped), so this constant only
+# guards against either name being scheduled again. Long-form exploratory
+# content does not belong in a minute budget. Read only by
 # tests/test_plannable_surfaces.py.
 UNPLANNED_TEST_TYPES = ('listening_lab', 'mystery')
 

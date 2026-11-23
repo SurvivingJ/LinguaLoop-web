@@ -40,7 +40,6 @@ bootstrap()
 from config import Config
 from services.supabase_factory import SupabaseFactory, get_supabase_admin
 from services.vocabulary.pipeline import VocabularyExtractionPipeline
-from services.vocabulary.frequency_service import compute_zipf_for_vocab_item
 
 logger = logging.getLogger(__name__)
 

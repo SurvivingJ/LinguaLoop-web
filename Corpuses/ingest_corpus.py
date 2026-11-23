@@ -91,7 +91,7 @@ def run_file_mode(args):
     filepath = os.path.join(CORPUSES_DIR, args.filename)
     if not os.path.isfile(filepath):
         print(f"Error: File not found: {filepath}")
-        print(f"Place your .txt file in the Corpuses/ folder and try again.")
+        print("Place your .txt file in the Corpuses/ folder and try again.")
         sys.exit(1)
 
     with open(filepath, 'r', encoding='utf-8') as f:
@@ -135,9 +135,9 @@ def run_file_mode(args):
 
     print()
     print("Verify results:")
-    print(f"  SELECT collocation_text, head_word, collocate, pmi_score, frequency, collocation_type")
+    print("  SELECT collocation_text, head_word, collocate, pmi_score, frequency, collocation_type")
     print(f"  FROM corpus_collocations WHERE corpus_source_id = {source_id}")
-    print(f"  ORDER BY pmi_score DESC LIMIT 30;")
+    print("  ORDER BY pmi_score DESC LIMIT 30;")
 
 
 def run_transcript_mode(args):
@@ -146,7 +146,7 @@ def run_transcript_mode(args):
     lang_name = LANGUAGE_NAMES[language_id]
 
     print(f"Language: {lang_name} (id={language_id})")
-    print(f"Source:   All active test transcripts")
+    print("Source:   All active test transcripts")
     print()
 
     db = _get_db()
@@ -180,9 +180,9 @@ def run_transcript_mode(args):
 
     print()
     print("Verify results:")
-    print(f"  SELECT collocation_text, head_word, collocate, pmi_score, frequency, collocation_type")
+    print("  SELECT collocation_text, head_word, collocate, pmi_score, frequency, collocation_type")
     print(f"  FROM corpus_collocations WHERE corpus_source_id = {source_id}")
-    print(f"  ORDER BY pmi_score DESC LIMIT 30;")
+    print("  ORDER BY pmi_score DESC LIMIT 30;")
 
 
 def main():

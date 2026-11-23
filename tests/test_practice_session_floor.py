@@ -10,7 +10,6 @@ What the floor must NOT do: invent material, duplicate an item already in the
 session, or turn a genuinely empty session into a fake one.
 """
 
-import pytest
 
 from services.practice_session_service import (
     PRACTICE_SESSION_MIN_ITEMS,

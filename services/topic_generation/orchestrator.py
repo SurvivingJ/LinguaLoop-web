@@ -21,8 +21,7 @@ from .database_client import (
     GenerationMetrics,
     TopicCandidate,
     Category,
-    Language,
-    Lens
+    Language
 )
 from .agents import (
     EmbeddingService,

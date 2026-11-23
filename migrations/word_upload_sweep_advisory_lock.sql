@@ -1,3 +1,16 @@
+-- #############################################################################
+-- ## STALE / UNSAFE - DO NOT APPLY THIS FILE (2026-11-23)                       ##
+-- ## Apply migrations/word_upload_sweep_advisory_lock_hardened.sql instead.     ##
+-- #############################################################################
+-- Never applied live (none of its objects exist, checked 2026-11-23). As
+-- written it would create two SECURITY DEFINER functions with Supabase's
+-- default EXECUTE for PUBLIC/anon/authenticated (no REVOKE/GRANT) and a public
+-- table with no row level security and default anon/authenticated privileges,
+-- and its '-infinity' seed makes the first sweep scan every test. The hardened
+-- file creates the same objects locked down to service_role. This file stays
+-- in migrations/ only because tests/test_migration_security_lint.py pins it in
+-- HISTORICAL_DEFINER_FILES / HISTORICAL_RLS_FILES.
+-- #############################################################################
 -- ============================================================================
 -- Word-upload recurring match-sweep — advisory-lock RPCs + cursor table
 -- Date: 2026-09-05

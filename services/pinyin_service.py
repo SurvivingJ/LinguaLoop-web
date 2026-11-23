@@ -13,9 +13,7 @@ Pipeline:
   4. Polyphone flagging for LLM fallback
 """
 
-import json
 import logging
-import re
 
 from pypinyin import pinyin, Style
 

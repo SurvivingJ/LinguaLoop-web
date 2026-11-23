@@ -47,20 +47,20 @@ def _targets(**kw):
     return t
 
 
-def test_supply_check_for_a_different_e_is_stale_and_rebuild_fires_again(governor):
+def test_supply_check_for_a_different_e_is_stale_and_rebuild_fires_again(governor):  # noqa: F811  (imported fixture)
     # Checked earlier today under E=3; the learner has since raised the quota to 5.
     db = QuotaDB(npd=5, evidence=_missed([1]), supply=_supply_for([1]),
                  targets=_targets(new_words_supply_checked_e=3))
     assert _admit(db)['needs_rebuild'] is True
 
 
-def test_supply_check_for_the_same_e_still_fires_only_once(governor):
+def test_supply_check_for_the_same_e_still_fires_only_once(governor):  # noqa: F811  (imported fixture)
     db = QuotaDB(npd=5, evidence=_missed([1]), supply=_supply_for([1]),
                  targets=_targets(new_words_supply_checked_e=5))
     assert _admit(db)['needs_rebuild'] is False
 
 
-def test_shortfall_write_records_the_e_it_was_checked_under(governor):
+def test_shortfall_write_records_the_e_it_was_checked_under(governor):  # noqa: F811  (imported fixture)
     db = QuotaDB(npd=5, evidence=_missed([1]), supply=_supply_for([1]))
     calls = []
     orig = db.rpc

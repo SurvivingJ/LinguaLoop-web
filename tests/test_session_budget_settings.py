@@ -4,7 +4,6 @@ Spec: wiki/features/session-budget-settings.tech.md (Testing Strategy, Worked
 Example), wiki/tasklist/session-budget-settings.tasks.md TASK-870 / TASK-874.
 """
 
-import math
 import re
 from fractions import Fraction
 from datetime import date

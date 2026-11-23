@@ -20,11 +20,6 @@ class VocabularyExtractRequest(BaseModel):
         return v.strip()
 
 
-class PaymentIntentRequest(BaseModel):
-    """Request body for POST /api/payments/create-intent."""
-    package_id: str
-
-
 class ErrorLogRequest(BaseModel):
     """Request body for POST /api/errors/log."""
     error_type: str = Field(min_length=1, max_length=100)

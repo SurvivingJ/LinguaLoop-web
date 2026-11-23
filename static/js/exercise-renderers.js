@@ -133,7 +133,7 @@ const ExRenderers = (function () {
   }
 
   function typeBadge(icon, label, cefr) {
-    return `<div class="exercise-type-badge"><i class="fas ${icon}" aria-hidden="true"></i> ${label}${cefr ? `<span class="exercise-cefr-badge">${cefr}</span>` : ''}</div>`;
+    return `<div class="exercise-type-badge"><i class="fas ${icon}" aria-hidden="true"></i> ${label}${cefr ? `<span class="exercise-cefr-badge">${escHtml(cefr)}</span>` : ''}</div>`;
   }
 
   function checkBtnHTML(id, extra) {
@@ -380,7 +380,7 @@ const ExRenderers = (function () {
     mcq(
       fmtType('semantic_discrimination'),
       ex.cefr_level,
-      i18n('exercises.instruction.which_sentence', { word: c.target_word || 'the word' }),
+      i18n('exercises.instruction.which_sentence', { word: escHtml(c.target_word || 'the word') }),
       '',
       c.sentences.map((s) => s.text),
       cor ? cor.text : '',

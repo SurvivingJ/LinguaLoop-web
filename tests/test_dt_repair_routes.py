@@ -17,7 +17,7 @@ def j(resp):
 
 
 @pytest.fixture
-def open_session(scenario):
+def open_session(scenario):  # noqa: F811  (imported fixture)
     submit(scenario)
     return scenario
 
@@ -81,7 +81,7 @@ def test_403(client, auth_headers, open_session):
     assert r.status_code == 403 and j(r)["error_code"] == "NOT_OWNER"
 
 
-def test_404(client, auth_headers, scenario):
+def test_404(client, auth_headers, scenario):  # noqa: F811  (imported fixture)
     r = client.post(f"{BASE}/items/1/hint", headers=auth_headers, json={"surface": "repair_pass", "expected_level": 1})
     assert r.status_code == 404 and j(r)["error_code"] == "NOT_FOUND"
     r = client.get(f"{BASE}/submissions/9001/session", headers=auth_headers)

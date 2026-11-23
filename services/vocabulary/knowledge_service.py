@@ -13,18 +13,12 @@ SQL functions called:
 """
 
 import logging
-import os
 
 from services.pinyin_format import format_pinyin
 from services.supabase_factory import get_supabase_admin
 from services.vocabulary.lexicon import mask_headword
 
 logger = logging.getLogger(__name__)
-
-
-def _batch_distractors_enabled() -> bool:
-    """QUIZ_DISTRACTORS_BATCH=1 once migrations/get_quiz_distractors_batch.sql is applied."""
-    return os.environ.get('QUIZ_DISTRACTORS_BATCH', '').strip().lower() in ('1', 'true', 'yes', 'on')
 
 
 def _just_became_known(r: dict) -> bool:
@@ -290,29 +284,13 @@ class VocabularyKnowledgeService:
         """get_distractors for each ``(sense_id, definition_language_id)``, in
         request order.
 
-        Default: one get_distractors call per request, run concurrently (call
-        this from the request thread, not from inside a pooled task). With
-        ``QUIZ_DISTRACTORS_BATCH`` set, one ``get_quiz_distractors_batch`` call
-        (migrations/get_quiz_distractors_batch.sql); any failure of that call
-        falls back to the per-word path.
+        One get_distractors call per request, run concurrently (call this from
+        the request thread, not from inside a pooled task). A single batched
+        RPC was measured at 6.5-13.8 s for 5 words against about 0.4 s wall for
+        this parallel path, so there is no batch path.
         """
         if not requests:
             return []
-        if _batch_distractors_enabled():
-            try:
-                response = self.db.rpc('get_quiz_distractors_batch', {
-                    'p_sense_ids': [sid for sid, _ in requests],
-                    'p_language_id': language_id,
-                    'p_count': count,
-                    'p_definition_language_ids': [lang for _, lang in requests],
-                }).execute()
-                by_position: dict[int, list[dict]] = {}
-                for row in (response.data or []):
-                    by_position.setdefault(row['out_position'], []).append(
-                        {'definition': row['out_definition'], 'lemma': row.get('out_lemma')})
-                return [by_position.get(i, []) for i in range(1, len(requests) + 1)]
-            except Exception as e:
-                logger.warning(f"get_quiz_distractors_batch failed, using per-word calls: {e}")
         from services.concurrency import run_parallel
         return run_parallel(*[
             (lambda sid=sid, lang=lang: self.get_distractors(

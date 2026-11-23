@@ -61,6 +61,7 @@ def test_split_into_chunks_all_punctuation_yields_no_chunks():
     assert _split_into_chunks(tokens) == []
 
 
+@pytest.mark.requires('jieba')
 def test_third_tone_sandhi_fires_within_a_clause():
     # 你好你好 -- no punctuation, first 好 sits before 你 (tone 3) -> sandhi fires
     tokens = process_passage("你好你好")
@@ -69,6 +70,7 @@ def test_third_tone_sandhi_fires_within_a_clause():
     assert tones[1] == 3  # last char of the string, nothing follows
 
 
+@pytest.mark.requires('jieba')
 def test_third_tone_sandhi_blocked_across_comma():
     # 你好，你好 -- comma separates the clauses; 好 before the comma must NOT
     # be treated as adjacent to 你 after the comma.
@@ -78,6 +80,7 @@ def test_third_tone_sandhi_blocked_across_comma():
     assert tones[1] == 3  # last char, nothing follows
 
 
+@pytest.mark.requires('jieba')
 def test_third_tone_sandhi_blocked_across_full_stop():
     tokens = process_passage("你好。你好")
     tones = _tones_by_char(tokens, "好")
@@ -85,6 +88,7 @@ def test_third_tone_sandhi_blocked_across_full_stop():
     assert tones[1] == 3
 
 
+@pytest.mark.requires('jieba')
 def test_yi_sandhi_blocked_across_punctuation():
     # 一，四 -- without the comma, 一 before a 4th tone (四) would become 2nd
     # tone. With the comma, 一 has no next_token in its own chunk.
@@ -93,12 +97,14 @@ def test_yi_sandhi_blocked_across_punctuation():
     assert yi_tone == 1  # default: no sandhi, end of its own clause
 
 
+@pytest.mark.requires('jieba')
 def test_yi_sandhi_still_fires_without_punctuation():
     tokens = process_passage("一四")
     yi_tone = _tones_by_char(tokens, "一")[0]
     assert yi_tone == 2  # 一 before a 4th tone -> 2nd tone
 
 
+@pytest.mark.requires('jieba')
 def test_bu_sandhi_blocked_across_punctuation():
     # 不，去 -- 去 is 4th tone; without the comma 不 would become 2nd tone.
     tokens = process_passage("不，去")
@@ -106,12 +112,14 @@ def test_bu_sandhi_blocked_across_punctuation():
     assert bu_tone == 4  # default: no sandhi, end of its own clause
 
 
+@pytest.mark.requires('jieba')
 def test_bu_sandhi_still_fires_without_punctuation():
     tokens = process_passage("不去")
     bu_tone = _tones_by_char(tokens, "不")[0]
     assert bu_tone == 2  # 不 before a 4th tone -> 2nd tone
 
 
+@pytest.mark.requires('jieba')
 def test_a_bu_a_pattern_does_not_false_positive_across_boundary():
     # 好，不好 -- 不's prev_token is None (start of its own clause), so the
     # duplicate-verb A-不-A check must not match against 好 on the far side
@@ -121,11 +129,13 @@ def test_a_bu_a_pattern_does_not_false_positive_across_boundary():
     assert bu_token["sandhi_rule"] != "'不' becomes neutral tone in an A不A question pattern (e.g., 好不好)."
 
 
+@pytest.mark.requires('jieba')
 def test_punctuation_only_input_does_not_raise():
     tokens = process_passage("。！")
     assert all(t["is_punctuation"] for t in tokens)
 
 
+@pytest.mark.requires('jieba')
 def test_leading_and_trailing_punctuation_does_not_raise():
     tokens = process_passage("，你好，")
     chars = [t["char"] for t in tokens]
@@ -147,6 +157,7 @@ def test_parse_tone_rejects_non_ascii_digit_lookalikes():
     assert _parse_tone("") == (5, "")
 
 
+@pytest.mark.requires('jieba')
 def test_process_passage_does_not_crash_on_embedded_subscript_digit():
     # Regression: a chemical formula fragment like H2O4-ish text embedded in
     # a transcript must not crash the whole pipeline.
@@ -156,12 +167,14 @@ def test_process_passage_does_not_crash_on_embedded_subscript_digit():
 
 
 @pytest.mark.parametrize("text", ["统一", "第一", "唯一"])
+@pytest.mark.requires('jieba')
 def test_yi_keeps_first_tone_in_fixed_words(text):
     # 一 is word-final here, but the exception must also hold mid-phrase.
     tokens = process_passage(text + "天")
     assert _tones_by_char(tokens, "一")[0] == 1
 
 
+@pytest.mark.requires('jieba')
 def test_tone_groups_use_the_checked_word_splitter():
     # jieba alone guesses 人用 as one word; the checked splitter (which the
     # word map also uses) splits it, so the tone game shows the same words.
@@ -172,6 +185,7 @@ def test_tone_groups_use_the_checked_word_splitter():
     assert words["手"] == "手机"
 
 
+@pytest.mark.requires('jieba')
 def test_regroup_changes_only_the_word_of_fake_words():
     import importlib.util
     import os

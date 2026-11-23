@@ -1,0 +1,43 @@
+-- ============================================================================
+-- drop_get_quiz_distractors_batch.sql — drop the unused batch word-quiz RPC
+-- Date: 2026-11-23   Review: pkg8 (database review, latency measurement)
+--
+-- APPLY ONLY AFTER the code change that deletes the QUIZ_DISTRACTORS_BATCH flag
+-- and its branch in services/vocabulary/knowledge_service.py is DEPLOYED.
+-- While that branch exists, an app started with QUIZ_DISTRACTORS_BATCH=1 would
+-- call this function; after the drop the call fails (PGRST202) and the code
+-- falls back to the per-word path (knowledge_service.py catches any failure of
+-- the batch call), so quizzes keep working.
+--
+-- WHAT: DROP FUNCTION public.get_quiz_distractors_batch(integer[], smallint,
+-- integer, smallint[]) — the only live signature (checked 2026-11-23).
+--
+-- WHY: measured 6.5-13.8 s for 5 words against about 0.4 s for the per-word
+-- get_quiz_distractors path, so the batch path was never switched on and is
+-- being removed from the code. No SQL function calls it (prosrc search
+-- 2026-11-23: none) and nothing depends on it in pg_depend.
+--
+-- WHAT A LEARNER OR THE APP WOULD NOTICE: nothing. The post-test "Quick Vocab
+-- Check" uses get_quiz_distractors per word, which is unchanged.
+--
+-- PRECONDITIONS: the code change above is deployed; live body unchanged since
+-- 2026-11-23 (first query below returns body_matches = true).
+--
+-- VERIFY BEFORE (read-only; expect one row, body_matches = true, sql_callers NULL):
+--   SELECT md5(regexp_replace(regexp_replace(p.prosrc, '--[^\n]*', '', 'g'), '\s', '', 'g'))
+--            = '6278cbcaa21d1e3dcc319ce1b247c8e9' AS body_matches,
+--          (SELECT string_agg(q.proname, ',') FROM pg_proc q
+--            WHERE q.pronamespace = 'public'::regnamespace AND q.oid <> p.oid
+--              AND q.prosrc ILIKE '%get_quiz_distractors_batch%') AS sql_callers
+--     FROM pg_proc p WHERE p.proname = 'get_quiz_distractors_batch';
+-- VERIFY AFTER (read-only; expect true):
+--   SELECT to_regprocedure('public.get_quiz_distractors_batch(integer[],smallint,integer,smallint[])') IS NULL AS dropped;
+--
+-- ROLLBACK: migrations/drop_get_quiz_distractors_batch_rollback.sql (recreates
+-- the function exactly as live on 2026-11-23, with its grants and comment).
+--
+-- Idempotent: DROP ... IF EXISTS; safe to re-run.
+-- The defining file moved to migrations/archive/get_quiz_distractors_batch.sql.
+-- ============================================================================
+
+DROP FUNCTION IF EXISTS public.get_quiz_distractors_batch(integer[], smallint, integer, smallint[]);

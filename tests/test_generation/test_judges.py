@@ -18,7 +18,6 @@ from pydantic import ValidationError
 from services.exercise_generation.judges import answer_entailment as ae_mod
 from services.exercise_generation.judges import distractor_plausibility as dp_mod
 from services.exercise_generation.judges.base import (
-    JudgeOutcome,
     JudgeUnavailable,
     batch_mode,
     classify,

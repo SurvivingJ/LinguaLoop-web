@@ -16,7 +16,7 @@ from datetime import datetime, timezone, date
 from uuid import UUID
 
 from services.day_boundary import (
-    local_day_start_utc, plan_row, plan_timezone, plan_today, plan_today_iso,
+    local_day_start_utc, plan_row, plan_timezone, plan_today_iso,
 )
 from typing import Optional, Dict, List, Any, Tuple
 
@@ -38,9 +38,7 @@ def daily_load_row_key(user_id, language_id, load_date) -> tuple:
 from services.dimension_service import (
     DimensionService,
     parse_language_id,
-    VALID_LANGUAGE_IDS,
     LANGUAGE_ID_TO_NAME,
-    LANGUAGE_NAME_TO_ID,
 )
 
 logger = logging.getLogger(__name__)

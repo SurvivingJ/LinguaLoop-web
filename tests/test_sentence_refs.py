@@ -21,11 +21,30 @@ def fixture():
         return json.load(fh)
 
 
-def test_regexes_match_passage_builder():
+def test_sentence_refs_is_the_only_segmenter():
+    """passage_builder used to carry a copy of the segmenter (kept identical by
+    this test); the copy was dead and is gone, so there is one implementation.
+    Both modules must still agree on which languages are written without
+    spaces (passage_builder.join_sentences joins windows of these sentences)."""
     pb = pytest.importorskip('services.dual_translation.passage_builder')
-    assert pb._CJK_SENTENCE_RE.pattern == sr._CJK_SENTENCE_RE.pattern
-    assert pb._LATIN_SENTENCE_RE.pattern == sr._LATIN_SENTENCE_RE.pattern
+    for name in ('segment_sentences', 'window_sentences', '_CJK_SENTENCE_RE', '_LATIN_SENTENCE_RE'):
+        assert not hasattr(pb, name), name
     assert pb._CJK_CODES == sr._CJK_CODES
+
+
+@pytest.mark.parametrize('text,code,expected', [
+    (None, 'en', []),
+    ('   ', 'en', []),
+    ('我喜欢猫。你呢？我也是！', 'zh', ['我喜欢猫。', '你呢？', '我也是！']),
+    ('第一句。第二句还没结束', 'zh', ['第一句。', '第二句还没结束']),
+    ('The cat sat. Where did it go? It ran away!', 'en',
+     ['The cat sat.', 'Where did it go?', 'It ran away!']),
+    ('Line one.\n  Line two.\n\nLine three.', 'en', ['Line one.', 'Line two.', 'Line three.']),
+    ('猫が好きです。犬も好きです。', 'ja', ['猫が好きです。', '犬も好きです。']),
+])
+def test_segment_sentences_boundaries(text, code, expected):
+    # moved from tests/test_dual_translation_passages.py with passage_builder's copy
+    assert sr.segment_sentences(text, code) == expected
 
 
 def test_closing_quotes_stay_with_their_sentence():

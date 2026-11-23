@@ -1,0 +1,215 @@
+/* Knowledge Report, "My vocabulary" (templates/knowledge.html, static/js/pages/knowledge.js).
+   wiki/features/knowledge-report.tech.md §10. Scoped under .kn-page (the sheet under .kn-sheet);
+   theme tokens only; touch targets at least 44 px; no horizontal scroll at 390 px. */
+
+.kn-page .kn-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.kn-page .kn-card__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.kn-page .kn-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.kn-page .kn-msg {
+  margin: 0;
+  padding: 16px 0;
+  text-align: center;
+}
+
+.kn-page .kn-body-text,
+.kn-page .kn-subtitle {
+  margin: 0;
+}
+
+.kn-page .kn-headline {
+  margin: 0;
+  font: 600 1.0625rem/1.4 var(--f-body);
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.kn-page .kn-headline--soft {
+  font-weight: 500;
+}
+
+.kn-page .kn-basis,
+.kn-page .kn-why,
+.kn-page .kn-sentence {
+  margin: 0;
+}
+
+/* A claim with its prefix: "MODEL  Rated known after a direct check: 69 words". */
+.kn-page .kn-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 8px;
+  margin: 0;
+  min-width: 0;
+}
+
+.kn-page .kn-line__text {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.kn-page .kn-prefix {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+
+.kn-page .kn-prefix--block {
+  margin: 0;
+}
+
+.kn-page .kn-estimate__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Range bar: track 0 → N, the interval as a band, the point as a tick (never printed). */
+.kn-page .kn-range-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.kn-page .kn-range {
+  position: relative;
+  height: 14px;
+  border-radius: 9px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+.kn-page .kn-range--thin {
+  height: 8px;
+}
+
+.kn-page .kn-range__fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-radius: 9px;
+  background: var(--brand-wash);
+  box-shadow: inset 0 0 0 1.5px var(--brand);
+}
+
+.kn-page .kn-range__tick {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--brand);
+}
+
+.kn-page .kn-range__ends {
+  display: flex;
+  justify-content: space-between;
+}
+
+.kn-page .kn-group,
+.kn-page .kn-skill {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+
+.kn-page .kn-group:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.kn-page .kn-group__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 8px;
+}
+
+.kn-page .kn-group__counts {
+  gap: 2px 14px;
+  color: var(--ink);
+}
+
+.kn-page .kn-pair {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.kn-page .kn-skill__pct {
+  font-weight: 700;
+}
+
+.kn-page .kn-stats .ld-stat small {
+  overflow-wrap: anywhere;
+}
+
+.kn-page .kn-seg > button {
+  min-height: 44px;
+}
+
+.kn-page .kn-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.kn-page .kn-actions > .ld-btn {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding-block: 10px;
+  white-space: normal;
+}
+
+.kn-page .kn-actions--stack {
+  flex-direction: column;
+}
+
+.kn-page .kn-link {
+  align-self: flex-start;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--brand);
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.kn-page .kn-pro__clauses {
+  margin: 0;
+}
+
+.kn-sheet .kn-how {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding-left: 1.1rem;
+}

@@ -1,0 +1,1678 @@
+{
+ "pipeline": {
+  "None": {
+   "calls": [
+    [
+     "p1.generate",
+     1
+    ],
+    [
+     "p2.generate",
+     1,
+     [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     [
+      [
+       3,
+       0
+      ],
+      [
+       4,
+       1
+      ],
+      [
+       5,
+       2
+      ],
+      [
+       6,
+       3
+      ],
+      [
+       7,
+       4
+      ],
+      [
+       8,
+       4
+      ],
+      [
+       9,
+       5
+      ]
+     ]
+    ],
+    [
+     "p2.generate",
+     1,
+     [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     [
+      [
+       3,
+       6
+      ],
+      [
+       4,
+       7
+      ],
+      [
+       5,
+       8
+      ],
+      [
+       6,
+       9
+      ],
+      [
+       7,
+       0
+      ],
+      [
+       8,
+       8
+      ],
+      [
+       9,
+       3
+      ]
+     ]
+    ],
+    [
+     "p3.generate",
+     1,
+     [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     [
+      0,
+      1,
+      2
+     ],
+     [
+      "action"
+     ]
+    ],
+    [
+     "p3.generate",
+     1,
+     [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     [
+      6,
+      7,
+      9
+     ],
+     [
+      "action"
+     ]
+    ],
+    [
+     "split.generate",
+     1,
+     [
+      [
+       3,
+       0
+      ],
+      [
+       4,
+       1
+      ],
+      [
+       5,
+       2
+      ],
+      [
+       6,
+       3
+      ],
+      [
+       7,
+       4
+      ],
+      [
+       8,
+       4
+      ],
+      [
+       9,
+       5
+      ]
+     ]
+    ],
+    [
+     "split.generate",
+     1,
+     [
+      [
+       3,
+       0
+      ],
+      [
+       4,
+       1
+      ],
+      [
+       5,
+       2
+      ],
+      [
+       6,
+       3
+      ],
+      [
+       7,
+       4
+      ],
+      [
+       8,
+       4
+      ],
+      [
+       9,
+       5
+      ]
+     ]
+    ],
+    [
+     "split.generate",
+     1,
+     [
+      [
+       3,
+       6
+      ],
+      [
+       4,
+       7
+      ],
+      [
+       5,
+       8
+      ],
+      [
+       6,
+       9
+      ],
+      [
+       7,
+       0
+      ],
+      [
+       8,
+       8
+      ],
+      [
+       9,
+       3
+      ]
+     ]
+    ],
+    [
+     "split.generate",
+     1,
+     [
+      [
+       3,
+       6
+      ],
+      [
+       4,
+       7
+      ],
+      [
+       5,
+       8
+      ],
+      [
+       6,
+       9
+      ],
+      [
+       7,
+       0
+      ],
+      [
+       8,
+       8
+      ],
+      [
+       9,
+       3
+      ]
+     ]
+    ],
+    [
+     "typed.generate",
+     1,
+     [
+      [
+       3,
+       0
+      ],
+      [
+       4,
+       1
+      ],
+      [
+       5,
+       2
+      ],
+      [
+       6,
+       3
+      ],
+      [
+       7,
+       4
+      ],
+      [
+       8,
+       4
+      ],
+      [
+       9,
+       5
+      ]
+     ],
+     null
+    ],
+    [
+     "typed.generate",
+     1,
+     [
+      [
+       3,
+       6
+      ],
+      [
+       4,
+       7
+      ],
+      [
+       5,
+       8
+      ],
+      [
+       6,
+       9
+      ],
+      [
+       7,
+       0
+      ],
+      [
+       8,
+       8
+      ],
+      [
+       9,
+       3
+      ]
+     ],
+     null
+    ]
+   ],
+   "result": {
+    "collocate_grounding": {
+     "reason": "no collocate asserted for this sense",
+     "status": "no_source"
+    },
+    "errors": [],
+    "sense_id": 1,
+    "status": "success",
+    "tier_gate": {
+     "rejected": 0,
+     "repaired": 0,
+     "screened": 2,
+     "still_failing": 0,
+     "tier": "T3"
+    },
+    "warnings": []
+   },
+   "stored": [
+    {
+     "asset_type": "llm_types_A",
+     "content": {},
+     "is_valid": true,
+     "model": "per-type (see prompt_templates)",
+     "validation_errors": null
+    },
+    {
+     "asset_type": "llm_types_B",
+     "content": {},
+     "is_valid": true,
+     "model": "per-type (see prompt_templates)",
+     "validation_errors": null
+    },
+    {
+     "asset_type": "prompt1_core",
+     "content": {
+      "collocate_grounding": {
+       "reason": "no collocate asserted for this sense",
+       "status": "no_source"
+      },
+      "definition": "to do a thing",
+      "morphological_forms": [
+       {
+        "form": "doing"
+       },
+       {
+        "form": "done"
+       }
+      ],
+      "pos": "verb",
+      "primary_collocate": "somewhat-unrelated-word",
+      "pronunciation": "/du\u02d0/",
+      "semantic_class": "action",
+      "sentences": [
+       {
+        "target": "does",
+        "text": "She does it every day."
+       },
+       {
+        "target": "did",
+        "text": "He did it yesterday."
+       }
+      ]
+     },
+     "is_valid": true,
+     "model": "m-core",
+     "validation_errors": null
+    },
+    {
+     "asset_type": "prompt2_exercises_A",
+     "content": {
+      "level_1": {
+       "marker": "p2-0"
+      }
+     },
+     "is_valid": true,
+     "model": "m-p2",
+     "validation_errors": null
+    },
+    {
+     "asset_type": "prompt2_exercises_B",
+     "content": {
+      "level_1": {
+       "marker": "p2-6"
+      }
+     },
+     "is_valid": true,
+     "model": "m-p2",
+     "validation_errors": null
+    },
+    {
+     "asset_type": "prompt3_transforms_A",
+     "content": {
+      "level_7": {
+       "correct_sentence_indices": [
+        0,
+        1,
+        2
+       ],
+       "corrected_sentence": "She does it every day.",
+       "error_description": "agreement",
+       "incorrect_sentence": "She do it every day."
+      }
+     },
+     "is_valid": true,
+     "model": "m-p3",
+     "validation_errors": null
+    },
+    {
+     "asset_type": "prompt3_transforms_B",
+     "content": {
+      "level_7": {
+       "correct_sentence_indices": [
+        6,
+        7,
+        9
+       ],
+       "corrected_sentence": "She does it every day.",
+       "error_description": "agreement",
+       "incorrect_sentence": "She do it every day."
+      }
+     },
+     "is_valid": true,
+     "model": "m-p3",
+     "validation_errors": null
+    }
+   ]
+  },
+  "{7}": {
+   "calls": [
+    [
+     "p1.generate",
+     1
+    ],
+    [
+     "p3.generate",
+     1,
+     [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     [
+      0,
+      1,
+      2
+     ],
+     [
+      "action"
+     ]
+    ],
+    [
+     "p3.generate",
+     1,
+     [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+     ],
+     [
+      6,
+      7,
+      9
+     ],
+     [
+      "action"
+     ]
+    ]
+   ],
+   "result": {
+    "collocate_grounding": {
+     "reason": "no collocate asserted for this sense",
+     "status": "no_source"
+    },
+    "errors": [
+     "[A] Missing level_4",
+     "[A] Missing level_8",
+     "[B] Missing level_4",
+     "[B] Missing level_8"
+    ],
+    "sense_id": 1,
+    "status": "partial",
+    "tier_gate": {
+     "rejected": 0,
+     "repaired": 0,
+     "screened": 2,
+     "still_failing": 0,
+     "tier": "T3"
+    },
+    "warnings": []
+   },
+   "stored": [
+    {
+     "asset_type": "prompt1_core",
+     "content": {
+      "collocate_grounding": {
+       "reason": "no collocate asserted for this sense",
+       "status": "no_source"
+      },
+      "definition": "to do a thing",
+      "morphological_forms": [
+       {
+        "form": "doing"
+       },
+       {
+        "form": "done"
+       }
+      ],
+      "pos": "verb",
+      "primary_collocate": "somewhat-unrelated-word",
+      "pronunciation": "/du\u02d0/",
+      "semantic_class": "action",
+      "sentences": [
+       {
+        "target": "does",
+        "text": "She does it every day."
+       },
+       {
+        "target": "did",
+        "text": "He did it yesterday."
+       }
+      ]
+     },
+     "is_valid": true,
+     "model": "m-core",
+     "validation_errors": null
+    },
+    {
+     "asset_type": "prompt3_transforms_A",
+     "content": {
+      "level_7": {
+       "correct_sentence_indices": [
+        0,
+        1,
+        2
+       ],
+       "corrected_sentence": "She does it every day.",
+       "error_description": "agreement",
+       "incorrect_sentence": "She do it every day."
+      }
+     },
+     "is_valid": false,
+     "model": "m-p3",
+     "validation_errors": [
+      "Missing level_4",
+      "Missing level_8"
+     ]
+    },
+    {
+     "asset_type": "prompt3_transforms_B",
+     "content": {
+      "level_7": {
+       "correct_sentence_indices": [
+        6,
+        7,
+        9
+       ],
+       "corrected_sentence": "She does it every day.",
+       "error_description": "agreement",
+       "incorrect_sentence": "She do it every day."
+      }
+     },
+     "is_valid": false,
+     "model": "m-p3",
+     "validation_errors": [
+      "Missing level_4",
+      "Missing level_8"
+     ]
+    }
+   ]
+  }
+ },
+ "render": {
+  "None": {
+   "judge_calls": [
+    [
+     "l1",
+     "run",
+     [
+      "ran",
+      "rum",
+      "rub",
+      "ruin"
+     ]
+    ],
+    [
+     "cloze",
+     "Marcus will ___ quickly number 0.",
+     "run",
+     [
+      "walk",
+      "jump",
+      "swim"
+     ]
+    ],
+    [
+     "l5",
+     "Marcus will run ___ number 0.",
+     "run",
+     "quickly",
+     [
+      "slowly",
+      "loudly",
+      "softly",
+      "tamely"
+     ]
+    ],
+    [
+     "sv",
+     "run",
+     [
+      [
+       "Wrong 0 sentence.",
+       "bad 0"
+      ],
+      [
+       "Wrong 1 sentence.",
+       "bad 1"
+      ],
+      [
+       "Wrong 2 sentence.",
+       "bad 2"
+      ],
+      [
+       "Wrong 3 sentence.",
+       "bad 3"
+      ]
+     ]
+    ],
+    [
+     "sv",
+     "run",
+     [
+      [
+       "Marcus run quickly.",
+       "agreement"
+      ]
+     ]
+    ],
+    [
+     "l8",
+     "Marcus will run quickly number 0.",
+     "run",
+     "quickly",
+     "hardly"
+    ],
+    [
+     "l1",
+     "run",
+     [
+      "ran",
+      "rum",
+      "rub",
+      "ruin"
+     ]
+    ],
+    [
+     "cloze",
+     "Marcus will ___ quickly number 5.",
+     "run",
+     [
+      "walk",
+      "jump",
+      "swim"
+     ]
+    ],
+    [
+     "l5",
+     "Marcus will run ___ number 5.",
+     "run",
+     "quickly",
+     [
+      "slowly",
+      "loudly",
+      "softly",
+      "tamely"
+     ]
+    ],
+    [
+     "sv",
+     "run",
+     [
+      [
+       "Wrong 0 sentence.",
+       "bad 0"
+      ],
+      [
+       "Wrong 1 sentence.",
+       "bad 1"
+      ],
+      [
+       "Wrong 2 sentence.",
+       "bad 2"
+      ],
+      [
+       "Wrong 3 sentence.",
+       "bad 3"
+      ]
+     ]
+    ],
+    [
+     "sv",
+     "run",
+     [
+      [
+       "Marcus run quickly.",
+       "agreement"
+      ]
+     ]
+    ],
+    [
+     "l8",
+     "Marcus will run quickly number 5.",
+     "run",
+     "quickly",
+     "hardly"
+    ]
+   ],
+   "rows": [
+    {
+     "complexity_tier": "T3",
+     "content": {
+      "audio_url": "audio://x",
+      "correct_answer": "run",
+      "distractor_explanations": {
+       "ran": "",
+       "rub": "",
+       "rum": ""
+      },
+      "distractor_source": "llm",
+      "explanation": "",
+      "ipa": "",
+      "options": [
+       "ran",
+       "rum",
+       "run",
+       "rub"
+      ],
+      "pronunciation": "r\u028cn",
+      "syllable_count": null,
+      "word": "run"
+     },
+     "exercise_type": "phonetic_recognition",
+     "is_active": true,
+     "ladder_level": 1,
+     "language_id": 2,
+     "source_type": "vocabulary",
+     "tags": {
+      "l1_distractor_judge": {
+       "kept": 3,
+       "rejected": 1
+      },
+      "ladder_level": 1,
+      "semantic_class": "action",
+      "variant": "A"
+     },
+     "word_asset_id": "asset-1",
+     "word_sense_id": 10
+    },
+    {
+     "complexity_tier": "T3",
+     "content": {
+      "correct_answer": "run",
+      "distractor_tags": {},
+      "explanation": "fits",
+      "options": [
+       "walk",
+       "swim",
+       "jump",
+       "run"
+      ],
+      "original_sentence": "Marcus will run quickly number 0.",
+      "sentence_with_blank": "Marcus will ___ quickly number 0.",
+      "target_word": "run",
+      "word_definition": "to move quickly on foot"
+     },
+     "exercise_type": "cloze_completion",
+     "is_active": true,
+     "ladder_level": 3,
+     "language_id": 2,
+     "source_type": "vocabulary",
+     "tags": {
+      "cloze_judge": {
+       "kept": 3,
+       "rejected": 0
+      },
+      "ladder_level": 3,
+      "semantic_class": "action",
+      "variant": "A"
+     },
+     "word_asset_id": "asset-1",
+     "word_sense_id": 10
+    },
+    {
+     "complexity_tier": "T3",
+     "content": {
+      "collocation": "run + quickly",
+      "correct": "quickly",
+      "options": [
+       "softly",
+       "loudly",
+       "tamely",
+       "quickly"
+      ],
+      "sentence": "Marcus will run ___ number 0."
+     },
+     "exercise_type": "collocation_gap_fill",
+     "is_active": true,
+     "ladder_level": 5,
+     "language_id": 2,
+     "source_type": "vocabulary",
+     "tags": {
+      "collocation_judge": {
+       "kept": 3,
+       "rejected": 1
+      },
+      "ladder_level": 5,
+      "semantic_class": "action",
+      "variant": "A"
+     },
+     "word_asset_id": "asset-1",
+     "word_sense_id": 10
+    },
+    {
+     "complexity_tier": "T3",
+     "content": {
+      "explanation": "bad 1 bad 2 bad 3",
+      "sentences": [
+       {
+        "explanation": "bad 3",
+        "is_correct": false,
+        "text": "Wrong 3 sentence."
+       },
+       {
+        "explanation": "bad 2",
+        "is_correct": false,
+        "text": "Wrong 2 sentence."
+       },
+       {
+        "is_correct": true,
+        "text": "Marcus will run quickly number 0."
+       },
+       {
+        "explanation": "bad 1",
+        "is_correct": false,
+        "text": "Wrong 1 sentence."
+       }
+      ],
+      "target_word": "run"
+     },
+     "exercise_type": "semantic_discrimination",
+     "is_active": true,
+     "ladder_level": 6,
+     "language_id": 2,
+     "source_type": "vocabulary",
+     "tags": {
+      "ladder_level": 6,
+      "semantic_class": "action",
+      "sentence_validity_judge": {
+       "kept": 3,
+       "rejected": 1,
+       "rejected_items": [
+        "Wrong 0 sentence."
+       ]
+      },
+      "variant": "A"
+     },
+     "word_asset_id": "asset-1",
+     "word_sense_id": 10
+    },
+    {
+     "complexity_tier": "T3",
+     "content": {
+      "sentences": [
+       {
+        "error_description": "agreement",
+        "is_correct": false,
+        "text": "Marcus run quickly."
+       },
+       {
+        "is_correct": true,
+        "text": "Marcus will run quickly number 2."
+       },
+       {
+        "is_correct": true,
+        "text": "Marcus will run quickly number 1."
+       },
+       {
+        "is_correct": true,
+        "text": "Marcus will run quickly number 0."
+       }
+      ]
+     },
+     "exercise_type": "spot_incorrect_sentence",
+     "is_active": true,
+     "ladder_level": 7,
+     "language_id": 2,
+     "source_type": "vocabulary",
+     "tags": {
+      "ladder_level": 7,
+      "semantic_class": "action",
+      "sentence_validity_judge": {
+       "confidence": 7.0,
+       "kept": 1,
+       "rejected": 0,
+       "verdict": "accept"
+      },
+      "variant": "A"
+     },
+     "word_asset_id": "asset-1",
+     "word_sense_id": 10
+    },
+    {
+     "complexity_tier": "T3",
+     "content": {
+      "correct_word": "quickly",
+      "error_word": "hardly",
+      "explanation": "ok",
+      "sentence_with_error": "Marcus will run hardly number 0."
+     },
+     "exercise_type": "collocation_repair",
+     "is_active": true,
+     "ladder_level": 8,
+     "language_id": 2,
+     "source_type": "vocabulary",
+     "tags": {
+      "collocation_judge": {
+       "confidence": 7.0,
+       "kept": 1,
+       "reason": "r",
+       "rejected": 0,
+       "verdict": "accept"
+      },
+      "ladder_level": 8,
+      "semantic_class": "action",
+      "variant": "A"
+     },
+     "word_asset_id": "asset-1",
+     "word_sense_id": 10
+    },
+    {
+     "complexity_tier": "T3",
+     "content": {
+      "answer": {
+       "accepted": [
+        "run"
+       ],
+       "accepted_normalized": [
+        "run"
+       ]
+      },
+      "input_mode": "text",
+      "normalization": {
+       "case": "fold",
+       "quotes": "straighten",
+       "script": null,
+       "trailing_punctuation": "strip",
+       "unicode": "NFKC",
+       "whitespace": "collapse+trim"
+      },
+      "original_sentence": "Marcus will run quickly number 1.",
+      "schema_version": 2,
+      "sentence_with_blank": "Marcus will ___ quickly number 1.",
+      "target_word": "run",
+      "word": "run"
+     },
+     "exercise_type": "cloze_typed",
+     "is_active": true,
+     "ladder_level": 4,
+     "language_id": 2,
+     "source_type": "vocabulary",
+     "tags": {
+      "generator": "deterministic",
+      "ladder_level": 4,
+      "semantic_class": "action",
+      "variant": "A"
+     },
+     "word_asset_id": "asset-1",
+     "word_sense_id": 10
+    },
+    {
+     "complexity_tier": "T3",
+     "content": {
+      "chunk_count": 4,
+      "chunks": [
+       "Marcus",
+       "will run",
+       "quickly",
+       "number 5"
+      ],
+      "correct_ordering": [
+       0,
+       1,
+       2,
+       3
+      ],
+      "original_sentence": "Marcus will run quickly number 5.",
+      "schema_version": 2,
+      "shuffled_chunks": [
+       "quickly",
+       "Marcus",
+       "number 5",
+       "will run"
+      ],
+      "target_word": "run"
+     },
+     "exercise_type": "jumbled_sentence",
+     "is_active": true,
+     "ladder_level": 9,
+     "language_id": 2,
+     "source_type": "vocabulary",
+     "tags": {
+      "generator": "deterministic",
+      "ladder_level": 9,
+      "semantic_class": "action",
+      "variant": "A"
+     },
+     "word_asset_id": "asset-1",
+     "word_sense_id": 10
+    },
+    {
+     "complexity_tier": "T3",
+     "content": {
+      "correct_answer": "run",
+      "distractor_tags": {},
+      "explanation": "fits",
+      "options": [
+       "swim",
+       "run",
+       "jump",
+       "walk"
+      ],
+      "original_sentence": "Marcus will run quickly number 5.",
+      "sentence_with_blank": "Marcus will ___ quickly number 5.",
+      "target_word": "run",
+      "word_definition": "to move quickly on foot"
+     },
+     "exercise_type": "cloze_completion",
+     "is_active": true,
+     "ladder_level": 3,
+     "language_id": 2,
+     "source_type": "vocabulary",
+     "tags": {
+      "cloze_judge": {
+       "kept": 3,
+       "rejected": 0
+      },
+      "ladder_level": 3,
+      "semantic_class": "action",
+      "variant": "B"
+     },
+     "word_asset_id": "asset-1",
+     "word_sense_id": 10
+    },
+    {
+     "complexity_tier": "T3",
+     "content": {
+      "collocation": "run + quickly",
+      "correct": "quickly",
+      "options": [
+       "tamely",
+       "loudly",
+       "softly",
+       "quickly"
+      ],
+      "sentence": "Marcus will run ___ number 5."
+     },
+     "exercise_type": "collocation_gap_fill",
+     "is_active": true,
+     "ladder_level": 5,
+     "language_id": 2,
+     "source_type": "vocabulary",
+     "tags": {
+      "collocation_judge": {
+       "kept": 3,
+       "rejected": 1
+      },
+      "ladder_level": 5,
+      "semantic_class": "action",
+      "variant": "B"
+     },
+     "word_asset_id": "asset-1",
+     "word_sense_id": 10
+    },
+    {
+     "complexity_tier": "T3",
+     "content": {
+      "explanation": "bad 1 bad 2 bad 3",
+      "sentences": [
+       {
+        "explanation": "bad 2",
+        "is_correct": false,
+        "text": "Wrong 2 sentence."
+       },
+       {
+        "explanation": "bad 3",
+        "is_correct": false,
+        "text": "Wrong 3 sentence."
+       },
+       {
+        "is_correct": true,
+        "text": "Marcus will run quickly number 5."
+       },
+       {
+        "explanation": "bad 1",
+        "is_correct": false,
+        "text": "Wrong 1 sentence."
+       }
+      ],
+      "target_word": "run"
+     },
+     "exercise_type": "semantic_discrimination",
+     "is_active": true,
+     "ladder_level": 6,
+     "language_id": 2,
+     "source_type": "vocabulary",
+     "tags": {
+      "ladder_level": 6,
+      "semantic_class": "action",
+      "sentence_validity_judge": {
+       "kept": 3,
+       "rejected": 1,
+       "rejected_items": [
+        "Wrong 0 sentence."
+       ]
+      },
+      "variant": "B"
+     },
+     "word_asset_id": "asset-1",
+     "word_sense_id": 10
+    },
+    {
+     "complexity_tier": "T3",
+     "content": {
+      "sentences": [
+       {
+        "is_correct": true,
+        "text": "Marcus will run quickly number 6."
+       },
+       {
+        "error_description": "agreement",
+        "is_correct": false,
+        "text": "Marcus run quickly."
+       },
+       {
+        "is_correct": true,
+        "text": "Marcus will run quickly number 7."
+       },
+       {
+        "is_correct": true,
+        "text": "Marcus will run quickly number 5."
+       }
+      ]
+     },
+     "exercise_type": "spot_incorrect_sentence",
+     "is_active": true,
+     "ladder_level": 7,
+     "language_id": 2,
+     "source_type": "vocabulary",
+     "tags": {
+      "ladder_level": 7,
+      "semantic_class": "action",
+      "sentence_validity_judge": {
+       "confidence": 7.0,
+       "kept": 1,
+       "rejected": 0,
+       "verdict": "accept"
+      },
+      "variant": "B"
+     },
+     "word_asset_id": "asset-1",
+     "word_sense_id": 10
+    },
+    {
+     "complexity_tier": "T3",
+     "content": {
+      "correct_word": "quickly",
+      "error_word": "hardly",
+      "explanation": "ok",
+      "sentence_with_error": "Marcus will run hardly number 5."
+     },
+     "exercise_type": "collocation_repair",
+     "is_active": true,
+     "ladder_level": 8,
+     "language_id": 2,
+     "source_type": "vocabulary",
+     "tags": {
+      "collocation_judge": {
+       "confidence": 7.0,
+       "kept": 1,
+       "reason": "r",
+       "rejected": 0,
+       "verdict": "accept"
+      },
+      "ladder_level": 8,
+      "semantic_class": "action",
+      "variant": "B"
+     },
+     "word_asset_id": "asset-1",
+     "word_sense_id": 10
+    },
+    {
+     "complexity_tier": "T3",
+     "content": {
+      "answer": {
+       "accepted": [
+        "run"
+       ],
+       "accepted_normalized": [
+        "run"
+       ]
+      },
+      "input_mode": "text",
+      "normalization": {
+       "case": "fold",
+       "quotes": "straighten",
+       "script": null,
+       "trailing_punctuation": "strip",
+       "unicode": "NFKC",
+       "whitespace": "collapse+trim"
+      },
+      "original_sentence": "Marcus will run quickly number 7.",
+      "schema_version": 2,
+      "sentence_with_blank": "Marcus will ___ quickly number 7.",
+      "target_word": "run",
+      "word": "run"
+     },
+     "exercise_type": "cloze_typed",
+     "is_active": true,
+     "ladder_level": 4,
+     "language_id": 2,
+     "source_type": "vocabulary",
+     "tags": {
+      "generator": "deterministic",
+      "ladder_level": 4,
+      "semantic_class": "action",
+      "variant": "B"
+     },
+     "word_asset_id": "asset-1",
+     "word_sense_id": 10
+    },
+    {
+     "complexity_tier": "T3",
+     "content": {
+      "chunk_count": 3,
+      "chunks": [
+       "Marcus",
+       "will run",
+       "quickly number 3"
+      ],
+      "correct_ordering": [
+       0,
+       1,
+       2
+      ],
+      "original_sentence": "Marcus will run quickly number 3.",
+      "schema_version": 2,
+      "shuffled_chunks": [
+       "Marcus",
+       "quickly number 3",
+       "will run"
+      ],
+      "target_word": "run"
+     },
+     "exercise_type": "jumbled_sentence",
+     "is_active": true,
+     "ladder_level": 9,
+     "language_id": 2,
+     "source_type": "vocabulary",
+     "tags": {
+      "generator": "deterministic",
+      "ladder_level": 9,
+      "semantic_class": "action",
+      "variant": "B"
+     },
+     "word_asset_id": "asset-1",
+     "word_sense_id": 10
+    }
+   ],
+   "skips": [
+    [
+     "definition_match",
+     "lexicon unavailable \u2014 cannot source distractors"
+    ],
+    [
+     "synonym_antonym_match",
+     "no generated asset for this variant"
+    ],
+    [
+     "definition_match",
+     "lexicon unavailable \u2014 cannot source distractors"
+    ],
+    [
+     "synonym_antonym_match",
+     "no generated asset for this variant"
+    ]
+   ]
+  },
+  "{8, 5, 6}": {
+   "judge_calls": [
+    [
+     "l5",
+     "Marcus will run ___ number 0.",
+     "run",
+     "quickly",
+     [
+      "slowly",
+      "loudly",
+      "softly",
+      "tamely"
+     ]
+    ],
+    [
+     "sv",
+     "run",
+     [
+      [
+       "Wrong 0 sentence.",
+       "bad 0"
+      ],
+      [
+       "Wrong 1 sentence.",
+       "bad 1"
+      ],
+      [
+       "Wrong 2 sentence.",
+       "bad 2"
+      ],
+      [
+       "Wrong 3 sentence.",
+       "bad 3"
+      ]
+     ]
+    ],
+    [
+     "l8",
+     "Marcus will run quickly number 0.",
+     "run",
+     "quickly",
+     "hardly"
+    ],
+    [
+     "l5",
+     "Marcus will run ___ number 5.",
+     "run",
+     "quickly",
+     [
+      "slowly",
+      "loudly",
+      "softly",
+      "tamely"
+     ]
+    ],
+    [
+     "sv",
+     "run",
+     [
+      [
+       "Wrong 0 sentence.",
+       "bad 0"
+      ],
+      [
+       "Wrong 1 sentence.",
+       "bad 1"
+      ],
+      [
+       "Wrong 2 sentence.",
+       "bad 2"
+      ],
+      [
+       "Wrong 3 sentence.",
+       "bad 3"
+      ]
+     ]
+    ],
+    [
+     "l8",
+     "Marcus will run quickly number 5.",
+     "run",
+     "quickly",
+     "hardly"
+    ]
+   ],
+   "rows": [
+    {
+     "complexity_tier": "T3",
+     "content": {
+      "collocation": "run + quickly",
+      "correct": "quickly",
+      "options": [
+       "loudly",
+       "softly",
+       "quickly",
+       "tamely"
+      ],
+      "sentence": "Marcus will run ___ number 0."
+     },
+     "exercise_type": "collocation_gap_fill",
+     "is_active": true,
+     "ladder_level": 5,
+     "language_id": 2,
+     "source_type": "vocabulary",
+     "tags": {
+      "collocation_judge": {
+       "kept": 3,
+       "rejected": 1
+      },
+      "ladder_level": 5,
+      "semantic_class": "action",
+      "variant": "A"
+     },
+     "word_asset_id": "asset-1",
+     "word_sense_id": 10
+    },
+    {
+     "complexity_tier": "T3",
+     "content": {
+      "explanation": "bad 1 bad 2 bad 3",
+      "sentences": [
+       {
+        "explanation": "bad 1",
+        "is_correct": false,
+        "text": "Wrong 1 sentence."
+       },
+       {
+        "explanation": "bad 3",
+        "is_correct": false,
+        "text": "Wrong 3 sentence."
+       },
+       {
+        "explanation": "bad 2",
+        "is_correct": false,
+        "text": "Wrong 2 sentence."
+       },
+       {
+        "is_correct": true,
+        "text": "Marcus will run quickly number 0."
+       }
+      ],
+      "target_word": "run"
+     },
+     "exercise_type": "semantic_discrimination",
+     "is_active": true,
+     "ladder_level": 6,
+     "language_id": 2,
+     "source_type": "vocabulary",
+     "tags": {
+      "ladder_level": 6,
+      "semantic_class": "action",
+      "sentence_validity_judge": {
+       "kept": 3,
+       "rejected": 1,
+       "rejected_items": [
+        "Wrong 0 sentence."
+       ]
+      },
+      "variant": "A"
+     },
+     "word_asset_id": "asset-1",
+     "word_sense_id": 10
+    },
+    {
+     "complexity_tier": "T3",
+     "content": {
+      "correct_word": "quickly",
+      "error_word": "hardly",
+      "explanation": "ok",
+      "sentence_with_error": "Marcus will run hardly number 0."
+     },
+     "exercise_type": "collocation_repair",
+     "is_active": true,
+     "ladder_level": 8,
+     "language_id": 2,
+     "source_type": "vocabulary",
+     "tags": {
+      "collocation_judge": {
+       "confidence": 7.0,
+       "kept": 1,
+       "reason": "r",
+       "rejected": 0,
+       "verdict": "accept"
+      },
+      "ladder_level": 8,
+      "semantic_class": "action",
+      "variant": "A"
+     },
+     "word_asset_id": "asset-1",
+     "word_sense_id": 10
+    },
+    {
+     "complexity_tier": "T3",
+     "content": {
+      "collocation": "run + quickly",
+      "correct": "quickly",
+      "options": [
+       "softly",
+       "loudly",
+       "tamely",
+       "quickly"
+      ],
+      "sentence": "Marcus will run ___ number 5."
+     },
+     "exercise_type": "collocation_gap_fill",
+     "is_active": true,
+     "ladder_level": 5,
+     "language_id": 2,
+     "source_type": "vocabulary",
+     "tags": {
+      "collocation_judge": {
+       "kept": 3,
+       "rejected": 1
+      },
+      "ladder_level": 5,
+      "semantic_class": "action",
+      "variant": "B"
+     },
+     "word_asset_id": "asset-1",
+     "word_sense_id": 10
+    },
+    {
+     "complexity_tier": "T3",
+     "content": {
+      "explanation": "bad 1 bad 2 bad 3",
+      "sentences": [
+       {
+        "explanation": "bad 3",
+        "is_correct": false,
+        "text": "Wrong 3 sentence."
+       },
+       {
+        "explanation": "bad 2",
+        "is_correct": false,
+        "text": "Wrong 2 sentence."
+       },
+       {
+        "is_correct": true,
+        "text": "Marcus will run quickly number 5."
+       },
+       {
+        "explanation": "bad 1",
+        "is_correct": false,
+        "text": "Wrong 1 sentence."
+       }
+      ],
+      "target_word": "run"
+     },
+     "exercise_type": "semantic_discrimination",
+     "is_active": true,
+     "ladder_level": 6,
+     "language_id": 2,
+     "source_type": "vocabulary",
+     "tags": {
+      "ladder_level": 6,
+      "semantic_class": "action",
+      "sentence_validity_judge": {
+       "kept": 3,
+       "rejected": 1,
+       "rejected_items": [
+        "Wrong 0 sentence."
+       ]
+      },
+      "variant": "B"
+     },
+     "word_asset_id": "asset-1",
+     "word_sense_id": 10
+    },
+    {
+     "complexity_tier": "T3",
+     "content": {
+      "correct_word": "quickly",
+      "error_word": "hardly",
+      "explanation": "ok",
+      "sentence_with_error": "Marcus will run hardly number 5."
+     },
+     "exercise_type": "collocation_repair",
+     "is_active": true,
+     "ladder_level": 8,
+     "language_id": 2,
+     "source_type": "vocabulary",
+     "tags": {
+      "collocation_judge": {
+       "confidence": 7.0,
+       "kept": 1,
+       "reason": "r",
+       "rejected": 0,
+       "verdict": "accept"
+      },
+      "ladder_level": 8,
+      "semantic_class": "action",
+      "variant": "B"
+     },
+     "word_asset_id": "asset-1",
+     "word_sense_id": 10
+    }
+   ],
+   "skips": [
+    [
+     "definition_match",
+     "lexicon unavailable \u2014 cannot source distractors"
+    ],
+    [
+     "synonym_antonym_match",
+     "no generated asset for this variant"
+    ],
+    [
+     "definition_match",
+     "lexicon unavailable \u2014 cannot source distractors"
+    ],
+    [
+     "synonym_antonym_match",
+     "no generated asset for this variant"
+    ]
+   ]
+  }
+ }
+}

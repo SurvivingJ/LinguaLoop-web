@@ -13,7 +13,7 @@ are mocked; no live Supabase is touched.
 """
 
 import json
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 
 def resp_json(resp):

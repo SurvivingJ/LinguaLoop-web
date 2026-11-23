@@ -16,7 +16,6 @@ import pytest
 from services.test_generation import stem_rotation
 from services.test_generation.stem_rotation import (
     ROTATED_QUESTION_TYPES,
-    STEM_POOLS,
     build_directive,
     pool_for,
     select_stem,

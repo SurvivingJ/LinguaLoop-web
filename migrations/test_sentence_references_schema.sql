@@ -182,8 +182,10 @@ SET search_path = public, pg_temp
 AS $$
 DECLARE
     v_l2_code  text;
-    v_han      constant text := '[一-鿿㐀-䶿豈-﫿\U00020000-\U0002A6DF]';
-    v_kana     constant text := '[぀-ゟ゠-ヿㇰ-ㇿｦ-ﾟ]';
+    -- Regex escapes, not literal characters: the apply path NFC-normalised a
+    -- literal U+F900 to U+8C48 (finding F-05). Keep this file ASCII-only here.
+    v_han      constant text := '[\u4E00-\u9FFF\u3400-\u4DBF\uF900-\uFAFF\U00020000-\U0002A6DF]';
+    v_kana     constant text := '[\u3040-\u309F\u30A0-\u30FF\u31F0-\u31FF\uFF66-\uFF9F]';
     v_pattern  text;
 BEGIN
     SELECT l.language_code INTO v_l2_code

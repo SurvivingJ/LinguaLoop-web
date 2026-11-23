@@ -85,6 +85,7 @@ def test_empty_inputs():
 # Real tokeniser integration (jieba) — ZH corpus matching is CJK-safe
 # ---------------------------------------------------------------------------
 
+@pytest.mark.requires('jieba')
 def test_chinese_processor_jieba_whole_word():
     p = ChineseProcessor()
     # jieba segments 椅子 as one token; 子 is never a standalone token here.
