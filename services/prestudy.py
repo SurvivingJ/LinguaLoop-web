@@ -42,6 +42,7 @@ import math
 import random
 from typing import Iterable, Optional
 
+from services.calibration_service import MODE_DEFINITION
 from services.concurrency import run_parallel
 from services.exercise_content import store
 from services.pagination import fetch_all
@@ -244,9 +245,14 @@ def _load_exercises(db, sense_ids: list[int], *, language_id: Optional[int] = No
 
 
 def _ability_zipf(db, user_id: str, language_id: int) -> float:
+    """The learner's definition-mode calibration ability, else the default.
+
+    ``user_calibration_state`` is keyed (user, language, mode); only the
+    definition mode measures word knowledge (a pronunciation ability measures
+    reading), so the other modes never feed this prior."""
     try:
         r = db.table('user_calibration_state').select('ability_zipf').eq('user_id', user_id) \
-            .eq('language_id', language_id).limit(1).execute().data
+            .eq('language_id', language_id).eq('mode', MODE_DEFINITION).limit(1).execute().data
         if r and r[0].get('ability_zipf') is not None:
             return float(r[0]['ability_zipf'])
     except Exception as e:  # optional signal; the prior falls back to the default
