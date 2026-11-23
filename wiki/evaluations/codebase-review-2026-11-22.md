@@ -1,0 +1,128 @@
+---
+title: Codebase Review, Clean-up and Wiki Sync (2026-11-22 to 2026-11-23)
+type: evaluation
+status: complete
+last_updated: 2026-11-23
+open_questions:
+  - "OPEN (TASK-1202): which dual-translation grader model pair is the production default, given that the two free defaults failed the gold set?"
+  - "OPEN (TASK-1203): re-grade or only mark the 21 live grades made by unvalidated models?"
+  - "OPEN (TASK-1206): accept ADR-061 (one transactional write per DT submission)?"
+  - "OPEN (TASK-1207): accept ADR-062 (retire dt_card review cards, choose the /next window in SQL)?"
+  - "OPEN (TASK-1208): accept ADR-063 (fat-seed as the bulk ladder path, nightly drain as the only top-up)?"
+  - "OPEN (TASK-1210): rebuild or retire the token economy?"
+  - "OPEN (TASK-1221): does any client outside the repository call the 28 routes marked 'no in-repo client'?"
+  - "OPEN (TASK-1224): keep or unschedule the nightly watchlist sweep?"
+  - "OPEN (TASK-1227): redo the removal of Mystery and Listening Lab (commit 82a80de) on the current code?"
+  - "OPEN (TASK-1231): the wiki structure decisions (index header, log order, duplicate ADR numbers, off-schema directories, rpcs.tech rewrite, dangling lesson links)."
+---
+
+# Codebase Review, Clean-up and Wiki Sync (2026-11-22 to 2026-11-23)
+
+## Purpose
+Records the second whole-codebase review of LinguaLoop (the first is
+[[evaluations/codebase-review-2026-11-13]]), the fixes that followed on branch
+`claude/busy-hawking-pvgz8d`, and the wiki sync. The review ran from 2026-11-22 to 2026-11-23.
+Nothing was deployed and no migration was applied; every database change is a file for the owner
+([[tasklist/review-2026-11-22.tasks]]).
+
+## Method
+An orchestrated multi-agent review: a recon pass; eight area reviewers (routes, dual translation,
+practice and ladder, LLM generation, frontend, database, scripts and skills, tests) plus two
+wiki-lint agents; every medium or high finding re-checked by a separate verifier given only the
+claim; ten fix packages in isolated worktrees, with a failing test first for each bug fix;
+integration one package at a time with the gates run after each merge; an independent review of the
+combined diff; one fix round; then the wiki sync in six batches.
+
+About 190 findings were raised. Three were refuted and dropped: "the `/next` fallback is dead
+code", "the difficulty badge class is undefined" and "the `is_admin` / `is_moderator` grants expose
+something". About a dozen were corrected in their numbers.
+
+## Results
+Before = start of the review (commit `e985875`); after = the pushed tip of the branch.
+
+| Measure | Before | After |
+|---|---|---|
+| Offline pytest | 5,805 passed, 1 failed, 1 collection error | 6,301 passed, 0 failed, 0 errors |
+| ruff | 112 errors, non-blocking | 0 errors, blocking CI gate |
+| ESLint warnings | 41 | 2 |
+| Frontend unit tests | 743 | 846 |
+| Database calls per practice answer | 12 (first attempt with a card), 10, 9, 5 | 2, 2, 1, 1 |
+| DT error-card generation | 2 + 8 round trips per queued entry | constant 9 |
+| DT submit: sequential reads before grading | 8 | 5 |
+| Failing headless LLM call | 6 subprocess runs | 3 |
+| Worst-case HTTP attempts per transient fault | 9 | 3 |
+| New-word supply check | 2-3 queries | 1 |
+| Fix packages alone | — | 143 files, +11,656 / -6,632 lines (services about -2,800, scripts about -1,100) |
+| Tables and views documented | about 50 of 108 | 108 of 108 |
+| Functions documented | about 104 of 214 | 214 of 214 |
+| Routes documented | partial | all 137 |
+
+Notes. The 6,301 count includes about 420 tests that arrived with the merged calibration branch.
+The suite can no longer reach Supabase: it gives identical results with and without credentials and
+in random order, except one order-dependent test that came from the merged branch (TASK-1219).
+Production timings were not measured; the round-trip numbers come from analysis and fake-latency
+runs. In the wiki, the six batches created 12 pages and updated 89 (dead repository paths fixed in
+every page touched), and this record, the task file, the index, the log and the lint fixes came on
+top.
+
+## What changed, by area
+- **Tests and CI:** the suite is offline and order-independent; ruff is a blocking gate; the test
+  write path that reached live was closed (see Incident). See [[features/routes-tests-package.tech]].
+- **Dual translation:** card generation batched (TASK-1003); the language filter in `cards.py`
+  fixed (a zh drill had been built from a ja error); submit reads reduced. Specs updated in
+  [[features/dual-translation.tech]] and [[features/dt-guided-self-repair.tech]]; proposed
+  [[decisions/ADR-061-one-transactional-write-per-dt-submission]] and
+  [[decisions/ADR-062-retire-dt-card-and-select-next-window-in-sql]].
+- **Practice and vocabulary ladder:** `record_exercise_attempt` is the only attempt path (1-2
+  database calls); the old multi-call path and its flag were deleted. See
+  [[features/practice-package.tech]] and [[features/study-session-package.tech]].
+- **LLM plumbing and generation:** fewer subprocess runs and HTTP retries on failure; bundle mode
+  and the batch distractor flag removed; routing and judging follow-ups are left for the owner
+  (TASK-1222). Proposed [[decisions/ADR-063-vocabulary-ladder-generation-paths]].
+- **Frontend:** ESLint warnings 41 to 2, 103 more unit tests; dead code removed; heavier changes
+  (page weight, CSP) not done. See [[features/web-package.tech]].
+- **Scripts and dead code:** about 1,100 net lines removed from scripts and about 2,800 from
+  services; deleted modules include parts of `model_arena`.
+- **Migrations (files written, none applied):** the nine pending files in
+  `migrations/PENDING-2026-11-23.md` (`drop_update_vocabulary_from_word_test_4arg`,
+  `test_sentence_references_l1_script_escapes`, `prestudy_plan_inputs_definition_mode`,
+  `skill_ratings_natural_key_unique`, `skill_ratings_writers_on_conflict`,
+  `drop_get_quiz_distractors_batch`, `data_fix_dt_cards_cross_language_20261123`,
+  `word_quiz_retake_fallback_hardened`, `word_upload_sweep_advisory_lock_hardened`); 13
+  `baseline_*.sql` definitions for live functions that had no repository definition; superseded
+  files moved to `migrations/archive/`. Order and checks: TASK-1201.
+- **Merged branch:** `claude/beautiful-planck-0fftk4` (62 commits: vocabulary placement and the
+  knowledge report) was merged; its specs are in [[features/vocab-placement.tech]] and the
+  knowledge-report pages.
+- **Evaluation:** the two free dual-translation grader models fail the gold set:
+  [[evaluations/dt-free-grader-goldset-2026-11-23]].
+- **Decisions recorded:** amendment of [[decisions/ADR-047-basic-word-knowledge-prior]] (repeated
+  recent misses override "known"; owner kept the code), a note on
+  [[decisions/ADR-028-exercise-gen-cost-under-1c]], and proposed ADR-061, ADR-062 and ADR-063.
+
+## Incident
+On 2026-11-23 at 00:31 UTC a review agent ran the test suite with credentials present and the
+network open. The suite's own write path wrote 38 test rows to the live database (26 `llm_calls`,
+12 `generation_stage_timings`). The cause was closed in the code. Cleanup SQL was given to the
+owner (TASK-1229).
+
+## Not done
+- FSRS local-day dating (TASK-1211): readers and writers must change together; no effect today
+  because all three live plans are UTC.
+- Lazy-loading `/session` assets and CSP enforcement (TASK-1215, TASK-1216): no E2E safety net in
+  the review environment.
+- Database size reductions (TASK-1217), payments and the token economy (TASK-1210), the uploader
+  `--apply` convention (TASK-1218).
+- Grader model choice, prompt text and judging logic: the owner's, validated against gold sets
+  (TASK-1202, TASK-1205).
+- Nothing was deployed and no migration was applied by the review.
+
+## Related Pages
+- [[tasklist/review-2026-11-22.tasks]]
+- [[evaluations/codebase-review-2026-11-13]]
+- [[evaluations/dt-free-grader-goldset-2026-11-23]]
+- [[database/schema.tech]]
+- [[api/rpcs.tech]]
+- [[decisions/ADR-061-one-transactional-write-per-dt-submission]]
+- [[decisions/ADR-062-retire-dt-card-and-select-next-window-in-sql]]
+- [[decisions/ADR-063-vocabulary-ladder-generation-paths]]
