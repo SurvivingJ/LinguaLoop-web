@@ -6,7 +6,7 @@ tech_page: ./dual-translation.tech.md
 last_updated: 2026-11-23
 open_questions:
   - "OPEN (owner, 2026-11-23): grading currently uses two free models that failed the gold-set check ([[evaluations/dt-free-grader-goldset-2026-11-23]]); revert to the validated pair? See [[decisions/ADR-044-dt-single-call-generative-grader]]."
-  - "OPEN (owner, 2026-11-23): two proposals are not decided: [[decisions/ADR-051-one-transactional-write-per-dt-submission]] and [[decisions/ADR-052-retire-dt-card-and-select-next-window-in-sql]]."
+  - "OPEN (owner, 2026-11-23): two proposals are not decided: [[decisions/ADR-061-one-transactional-write-per-dt-submission]] and [[decisions/ADR-062-retire-dt-card-and-select-next-window-in-sql]]."
   - "RESOLVED 2026-11-17 (TASK-989): 'all done' screen first, with an explicit 'Translate an earlier passage again' action that re-serves the least recently graded passage; a repeat is graded but kept out of the error profile."
   - "OPEN (2026-11-17): spoiler rule — should the first rated attempt of a test whose passage was translated beforehand count at half weight, as a prestudied attempt does? Needs a hook in routes/tests/submit.py (TASK-1001)."
   - "OPEN (2026-11-17): confirm what a repeat counts towards — today study minutes, the daily token budget and prestudy Produce bookkeeping, but not the error profile, trends, error cards, guided repair or word-knowledge evidence (TASK-1001)."
@@ -140,6 +140,6 @@ error-vs-mistake gate, and promotion threshold.
 - [[features/dt-guided-self-repair]] — the result screen is a guided self-repair flow (live since 2026-11-16)
 - [[decisions/ADR-044-dt-single-call-generative-grader]], [[decisions/ADR-045-dt-guided-self-repair]]
 - [[evaluations/dt-free-grader-goldset-2026-11-23]] — gold-set check of the free models in use
-- [[decisions/ADR-051-one-transactional-write-per-dt-submission]] and [[decisions/ADR-052-retire-dt-card-and-select-next-window-in-sql]] — proposals
+- [[decisions/ADR-061-one-transactional-write-per-dt-submission]] and [[decisions/ADR-062-retire-dt-card-and-select-next-window-in-sql]] — proposals
 - [[features/flashcards]] — reuses FSRS-4 for remediation card scheduling
 - [[decisions/ADR-014-reference-first-grading]], [[decisions/ADR-015-eager-error-explanations]], [[decisions/ADR-016-per-pair-error-taxonomy]], [[decisions/ADR-017-dual-translation-standalone-l1l2-mvp]]

@@ -1,10 +1,10 @@
 ---
-title: "ADR-052: Retire dt_card review cards in favour of repair daily practice, and select the /next window in SQL"
+title: "ADR-062: Retire dt_card review cards in favour of repair daily practice, and select the /next window in SQL"
 status: proposed
 date: 2026-11-23
 ---
 
-# ADR-052: Retire dt_card review cards in favour of repair daily practice, and select the /next window in SQL
+# ADR-062: Retire dt_card review cards in favour of repair daily practice, and select the /next window in SQL
 
 **Proposal. Not decided. This needs the owner's decision; nothing described under "Decision" has been built.** Two related simplifications are bundled because both remove code from `GET /api/dual-translation/next`; the owner may accept one and not the other.
 
@@ -42,5 +42,5 @@ Nobody has reviewed a `dt_card` yet. The card path also costs code and risk: car
 - [[features/dual-translation-remediation.tech]] — the card system proposed for retirement
 - [[features/dt-guided-self-repair.tech]] — the system that would remain
 - [[decisions/ADR-045-dt-guided-self-repair]]
-- [[decisions/ADR-051-one-transactional-write-per-dt-submission]] — the companion proposal
+- [[decisions/ADR-061-one-transactional-write-per-dt-submission]] — the companion proposal
 - [[api/rpcs.tech]] — `dt_next_inputs`

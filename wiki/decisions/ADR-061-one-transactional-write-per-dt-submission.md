@@ -1,10 +1,10 @@
 ---
-title: "ADR-051: One transactional write per Dual Translation submission"
+title: "ADR-061: One transactional write per Dual Translation submission"
 status: proposed
 date: 2026-11-23
 ---
 
-# ADR-051: One transactional write per Dual Translation submission
+# ADR-061: One transactional write per Dual Translation submission
 
 **Proposal. Not decided. This needs the owner's decision; nothing described under "Decision" has been built.**
 
@@ -19,8 +19,7 @@ A graded Dual Translation (DT) submission is saved by several separate statement
 4. insert the `dt_grading_call` rows (best-effort);
 5. create the repair session (`dt_repair_session`, UNIQUE `submission_id`), then insert its items (`dt_repair_item`) in a second statement.
 
-Correctness therefore depends on statement order, on the browser's double-click guard and, since 2026-11-23, on two pieces of application code
-(branch `review/integration`, not yet on `main` when this was written):
+Correctness therefore depends on statement order, on the browser's double-click guard and, since 2026-11-23, on two pieces of application code:
 
 - a per-submission lock held **inside one process** (`_SubmissionLock`, 90 s wait);
 - cleanup-on-conflict: when the `dt_grade` insert loses a race, the loser deletes only the error rows it inserted (`_discard_error_rows`) and returns the stored grade.
@@ -28,8 +27,9 @@ Correctness therefore depends on statement order, on the browser's double-click 
 Known gaps that remain:
 
 - `Procfile` runs `gunicorn ... --workers 2 --worker-class gthread --threads 8`. A double submit that lands on the other worker is not covered by the in-process lock: both grade, and the grader (a paid or rate-limited model call) is paid twice. The loser's rows are cleaned up afterwards.
-- A failed items insert leaves a repair session with no items. This needs self-healing: the next cached submit rebuilds the items (`hooks._recreate_items`, `review/integration`), or serves the full grade.
-- `dt_repair_item` has no unique constraint (checked live 2026-11-23: primary key only), so two simultaneous re-submits on a session with no items could insert the items twice.
+- A failed items insert leaves a repair session with no items. This needs self-healing: the next cached submit rebuilds the items (`hooks._recreate_items`, re-planned with the current planner under the old session's status), or serves the full grade.
+- A losing duplicate submit overwrites `dt_submission.reproduction` and `idempotency_key` before its grade insert fails (pre-existing), leaving the row with the loser's text beside the winner's grade.
+- `dt_repair_item` has no unique constraint (checked live 2026-11-23: primary key only), so two cached re-submits on a session with no items, on different workers, could insert the items twice.
 - Failure modes are handled in several places (persist order, the lock, the cleanup, the rebuild), each with its own tests; a new write added later has to remember all of them.
 
 ## Decision (proposed)
@@ -61,5 +61,5 @@ The grader call stays outside the transaction (it is slow); the second worker st
 - [[features/dual-translation.tech]] — submit flow and the known limit
 - [[features/dt-guided-self-repair.tech]] — session and item inserts, known issues
 - [[decisions/ADR-045-dt-guided-self-repair]]
-- [[decisions/ADR-052-retire-dt-card-and-select-next-window-in-sql]] — the companion proposal
+- [[decisions/ADR-062-retire-dt-card-and-select-next-window-in-sql]] — the companion proposal
 - [[database/schema.tech]]

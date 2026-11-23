@@ -5,10 +5,9 @@ status: in-progress
 prose_page: ./dual-translation.md
 last_updated: 2026-11-23
 open_questions:
+  - "OPEN: a losing duplicate submit still overwrites dt_submission.reproduction (and idempotency_key) before its grade insert fails; proposed fix [[decisions/ADR-061-one-transactional-write-per-dt-submission]]. Owner decision."
   - "OPEN (owner): production grades with two free models that failed the gold-set check ([[evaluations/dt-free-grader-goldset-2026-11-23]]). Revert the defaults to the validated pair? See the status note in [[decisions/ADR-044-dt-single-call-generative-grader]]."
-  - "OPEN: the submit duplicate handling, concurrent reads, /next card batching and dead-code removal described below exist on branch `review/integration` (commits of 2026-11-23), not at `main` HEAD e9858759 when this page was written. Confirm the merge before treating them as live."
-  - "OPEN: the 8 -> 5 sequential-wave figure for submit comes from the commit message of d0145a1e, and the /next round-trip counts from a code count (2026-11-23 review); neither was traced at run time."
-  - "OPEN: proposed [[decisions/ADR-051-one-transactional-write-per-dt-submission]] and [[decisions/ADR-052-retire-dt-card-and-select-next-window-in-sql]] need the owner's decision."
+  - "OPEN: proposed [[decisions/ADR-061-one-transactional-write-per-dt-submission]] and [[decisions/ADR-062-retire-dt-card-and-select-next-window-in-sql]] need the owner's decision."
 dependencies:
   - "table: tests (transcript) and mysteries/mystery_scenes — L2 source for passages"
   - "table: dim_languages (1=ZH, 2=EN, 3=JA), users, user_languages"
@@ -332,12 +331,11 @@ tiers and **hidden at the lowest age tiers** (1–2) to avoid demotivation.
 - **Error cards:** due cards are interleaved only when the study language is known (TASK-991), and
   filtered to it (`_card_ids_for_language`). `/next` can therefore **write on a GET**: when it serves the
   error-card branch it first materialises newly queued profile entries
-  (`dt_cards.generate_cards_for_queued_entries`). *At `main` HEAD* this costs about 8 round trips per queued
-  entry (one Japanese call that built three cards took 8.5 s on 2026-11-17; TASK-1003). *On `review/integration`
-  (commits ad55bd4d, 15049d63)* it is batched: all reads for all entries first (submissions and passages in the
+  (`dt_cards.generate_cards_for_queued_entries`). Before 2026-11-23 this cost about 8 round trips per queued
+  entry (one Japanese call that built three cards took 8.5 s on 2026-11-17; TASK-1003). It is now batched (`cards.py`): all reads for all entries first (submissions and passages in the
   entries' languages, latest errors per (subtype, language), window sentences, references, taxonomy stamp), then one
-  multi-row insert of the cards and one update flipping the entries to `drilling`: a constant 9 round trips (10 with
-  `DT_TAXONOMY_COLUMNS` on), 2 when nothing is uncarded. All reads happen before any write. An entry is set to
+  multi-row insert of the cards and one update flipping the entries to `drilling`: a constant 9 round trips whatever the number of queued entries (asserted by
+  `tests/test_dual_translation_cards.py`: 9 for 1, 3 and 8 entries; 2 when nothing is uncarded; the taxonomy-stamp read adds one when `DT_TAXONOMY_COLUMNS` is on and the stamp is not cached). All reads happen before any write. An entry is set to
   `drilling` only after its cards are written (if a batch write fails, each entry is retried on its own). The error
   a card is built from is now the latest one **in the entry's own language**; before, a Chinese entry could be carded
   from a Japanese error (live `dt_card` ids 11 and 12 are two such cards; a one-off data-fix migration written
@@ -351,12 +349,12 @@ tiers and **hidden at the lowest age tiers** (1–2) to avoid demotivation.
   **every** candidate test although `_choose_next` uses only the first eligible window: about 176 KB
   (175,771 bytes) for zh (274 tests) for the test account, measured 2026-11-23 (server execution 313 ms zh,
   595 ms en); it was 77.6 KB zh / 41.2 KB ja on 2026-11-17, before more references were reviewed.
-- **Round trips (code count, 2026-11-23):** on the RPC path `/next` makes 1 to 5 database calls, typically 2 to 3
+- **Round trips (read from the code at the merged HEAD, 2026-11-23):** on the RPC path `/next` makes 1 to 5 database calls, typically 2 to 3
   after the RPC itself: the RPC (1), 0-2 for a window-text read miss, 0-1 to create the window's `dt_passage`,
   0-1 to open or create the `dt_submission` (0 on resume). It makes **no LLM call**. The error-card branch (1
   `/next` in 4, `DT_ERROR_CARD_INTERLEAVE_EVERY`) adds the card queries above. The per-table fallback path
   (`_TableInputs`) costs roughly 15 to 30 round trips and duplicates the RPC path's logic by hand; see the proposed
-  [[decisions/ADR-052-retire-dt-card-and-select-next-window-in-sql]].
+  [[decisions/ADR-062-retire-dt-card-and-select-next-window-in-sql]].
 - **Latency (HTTP from gunicorn next to a remote DB, test account, 2026-11-17):** zh 2.65 / 1.20 /
   1.45 s, ja 0.92 / 0.77 / 8.54 s (the last one materialised error cards, above); before the RPC:
   17–19 round trips, 5.5–6.4 s.
@@ -680,10 +678,7 @@ tables (`migrations/dt_guided_self_repair.sql`, **applied; live since 2026-11-16
 The only edits it makes to this route file are the submit hook (`repair.hooks.after_grade` /
 `for_cached`) and `_tokens_used_today` adding re-check tokens.
 
-### Submit flow and duplicate submits (code state: `review/integration`, 2026-11-23)
-
-> Code state: the lock, the concurrent reads and the cleanup below are on branch `review/integration`
-> (commits d0145a1e, be2921c0). `main` HEAD e9858759 still runs the reads serially and has no lock or cleanup.
+### Submit flow and duplicate submits (code as of 2026-11-23)
 
 `submit()` in order:
 
@@ -694,8 +689,9 @@ The only edits it makes to this route file are the submit hook (`repair.hooks.af
    request holds or waits for it.
 3. `_cached_grade`: a stored grade is returned through `_cached_response` (repair hook `for_cached`).
 4. **One concurrent wave** (`services.concurrency.run_parallel`): `_get_passage`, `_repeat_of`, `_tokens_used_today`.
-   Results are unpacked in the old serial order so a failure surfaces where it did. Sequential waves before the
-   grading call: 8 to 5 (figure from the commit message).
+   Results are unpacked in the old serial order so a failure surfaces where it did. Counted in the code:
+   the sequential database round trips before the grading call are now 5 (submission, cached grade, then the slowest
+   of the three parallel reads, the token-budget read with 3 queries; `_repeat_of` takes 1-2, `_get_passage` 1), down from 8.
 5. Grade (`grade_submission` under `provider_errors.capture()`), sanitise, then `_persist_grade`: update the
    submission's reproduction, insert the `dt_error_instance` rows, insert `dt_grade` **last** (UNIQUE `submission_id`),
    so a failed error insert leaves no grade behind (ADR-019).
@@ -708,16 +704,18 @@ The only edits it makes to this route file are the submit hook (`repair.hooks.af
 **Known limit.** `Procfile` starts `gunicorn wsgi:app --workers 2 --worker-class gthread --threads 8`. The lock is per
 process, so a double submit that lands on the other worker passes `_cached_grade` in both and **grades twice** (two grader
 calls are paid); the loser is cleaned up by step 6. The error rows, the grade, the repair session and its items remain
-separate statements with no transaction. Proposed fix:
-[[decisions/ADR-051-one-transactional-write-per-dt-submission]].
+separate statements with no transaction. A **losing duplicate submit still overwrites `dt_submission.reproduction`
+(and `idempotency_key`)** in `_persist_grade` before its grade insert fails (pre-existing behaviour): the stored grade then belongs to
+the winner's text while the row holds the loser's. Proposed fix:
+[[decisions/ADR-061-one-transactional-write-per-dt-submission]].
 
-### Retired code in `passage_builder.py` (`review/integration`, commit 39a56023)
+### Retired code in `passage_builder.py` (commit 39a56023)
 
 The whole-passage builders (`build_passages_for_test`, `select_new_passages`, `generate_l1_reference`, the reference
 prompt, the dedupe helpers) and the module's own copy of the sentence segmenter were deleted. Kept:
 `difficulty_to_age_tier`, `join_sentences`, `MAX_WINDOW` / `MIN_WINDOW`, `SOURCE_KIND`, `DEFAULT_STATUS`,
 `select_window_for_primed`, `window_meets_floor`. `services/dual_translation/sentence_refs.py` holds the only segmenter.
-At `main` HEAD the dead code is still present.
+
 
 ### Verification
 
@@ -743,5 +741,5 @@ At `main` HEAD the dead code is still present.
 - [[features/test-prestudy]] — Produce shares the sentence-window rules
 - [[features/model-arena.tech]] — OpenRouter pricing/runner pattern reused for the router
 - [[evaluations/dt-free-grader-goldset-2026-11-23]] — gold-set check of the two free models production uses
-- [[decisions/ADR-051-one-transactional-write-per-dt-submission]] — proposed: one atomic write per graded submission
-- [[decisions/ADR-052-retire-dt-card-and-select-next-window-in-sql]] — proposed: one remediation system, window chosen in SQL
+- [[decisions/ADR-061-one-transactional-write-per-dt-submission]] — proposed: one atomic write per graded submission
+- [[decisions/ADR-062-retire-dt-card-and-select-next-window-in-sql]] — proposed: one remediation system, window chosen in SQL

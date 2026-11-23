@@ -25,7 +25,7 @@ Everything the learner does along the way is recorded for later design and tunin
 frontend run against each other, in a real browser over a local test database); the database migration was applied and the
 flag `DT_GUIDED_REPAIR` defaults to on. On 2026-11-23 the database holds 22 repair sessions and 26 repair items. If a session
 exists but has no steps (a failed save), the next time the learner opens the result the steps are rebuilt, or the full result is
-shown instead of a result with nothing to repair (this fix is written and tested but was still on a review branch, not on the main branch, on 2026-11-23). See [[decisions/ADR-045-dt-guided-self-repair]].
+shown instead of a result with nothing to repair. See [[decisions/ADR-045-dt-guided-self-repair]].
 
 The owner chose this design on 2026-11-14 ("the guided process in mockup two is the way to go").
 Design source: [[design/dt-feedback/option-2-guided-self-repair/SPEC]] (Revision 2 governs) and
@@ -158,5 +158,5 @@ See frontmatter. All other choices in this page are design defaults recorded in 
 - [[decisions/ADR-044-dt-single-call-generative-grader]]
 - [[evaluations/dt-decision-grading-2026-11-14]]
 - [[features/study-plans.tech]] — the daily session queue
-- [[decisions/ADR-051-one-transactional-write-per-dt-submission]] — proposed: atomic write of grade, errors, session and items
-- [[decisions/ADR-052-retire-dt-card-and-select-next-window-in-sql]] — proposed: retire the `dt_card` system kept alongside
+- [[decisions/ADR-061-one-transactional-write-per-dt-submission]] — proposed: atomic write of grade, errors, session and items
+- [[decisions/ADR-062-retire-dt-card-and-select-next-window-in-sql]] — proposed: retire the `dt_card` system kept alongside

@@ -6,8 +6,7 @@ prose_page: ./dt-guided-self-repair.md
 last_updated: 2026-11-23
 open_questions:
   - "OPEN: the three known issues in section 15 (re-check prompt variant, missing injection protection, stricter JSON parsing) concern grading logic that is validated and was deliberately not changed; fixing them needs a gold-set re-validation. Owner decision."
-  - "OPEN: session and items are still two inserts with no transaction, and dt_repair_item has no unique constraint; proposed fix is [[decisions/ADR-051-one-transactional-write-per-dt-submission]] (needs the owner's decision)."
-  - "OPEN: the rebuild of an item-less session (hooks._recreate_items) is on branch review/integration (commit 398a7697), not at main HEAD e9858759; confirm the merge."
+  - "OPEN: session and items are still two inserts with no transaction, and dt_repair_item has no unique constraint; proposed fix is [[decisions/ADR-061-one-transactional-write-per-dt-submission]] (needs the owner's decision)."
   - "OPEN: tests/e2e/dt-repair.spec.js, named in section 10 and 14, is not in the repository at HEAD; only the harness under tests/e2e/dt-repair/ remains."
 dependencies:
   - "design: wiki/design/dt-feedback/option-2-guided-self-repair/SPEC.md (Revision 2) + mockup.html + verify.cjs"
@@ -251,11 +250,11 @@ so applying the migration needs no restart.
 path of `submit()` (`_cached_grade` returned non-None): if a session exists and is `open` →
 redacted contract + current session payload; if it exists and is closed → full contract + payload;
 if none exists → `after_grade` semantics (creates it; covers a crash between grade and session).
-**Session with no items (`review/integration`, commit 398a7697, finding B-05):** the session row and its items are two separate inserts
+**Session with no items (commit 398a7697, finding B-05):** the session row and its items are two separate inserts
 with no transaction, so a failed items insert left an open session with zero items, served as a redacted grade with no steps until the session went
 stale (24 h). `for_cached` now re-runs `start_session` for an open session that has no items (`hooks._recreate_items`: it reuses the existing row and
 inserts the planned items); if that yields no items the **full unredacted grade** is served. A healthy open session costs no extra query (its items are
-passed to the payload); finished, clean and bypassed sessions are untouched. At `main` HEAD this rebuild does not exist yet.
+passed to the payload); finished, clean and bypassed sessions are untouched. The rebuild re-plans with the **current** planner while keeping the **old session row and its status** (`insert_session` returns the existing row on the UNIQUE conflict), so the rebuilt items can differ from what the first plan would have produced, and a session already stored as clean or bypassed gets none.
 
 `redact(contract)` returns `{scores, overall_band, provisional, target_words (if present),
 errors: [], diff: [], highlights: [], redacted: true, n_errors: len(errors)}` — no
@@ -1621,9 +1620,10 @@ These concern grading logic that is validated and was deliberately not changed. 
 3. **Stricter JSON parsing.** The re-check parses the model answer with `json.loads(clean_json_response(raw))`; grading uses the tolerant
    `output_sanitizer.extract_json_object` (fences, prose, `<think>` blocks, BOM). Output the grader accepts can therefore be rejected as `malformed` by the re-check
    (the module docstring says the parsing is mirrored; it is not).
-4. **Session and items are two inserts with no transaction** (see §3.3 for the rebuild of an item-less session, which is on `review/integration`, not at `main` HEAD).
-5. **`dt_repair_item` has no unique constraint**, so two simultaneous re-submits on a session that has no items (the broken case in item 4) could each insert the items, giving duplicates.
-   `dt_repair_session.submission_id` is unique, so only one session exists. Proposed: [[decisions/ADR-051-one-transactional-write-per-dt-submission]].
+4. **Session and items are two inserts with no transaction** (see §3.3 for the rebuild of an item-less session on the next cached submit).
+5. **`dt_repair_item` has no unique constraint**, so two cached re-submits on a session that has no items (the broken case in item 4) arriving on **different workers**
+   (the submit lock is per process) could each run the rebuild and insert the items, giving duplicates.
+   `dt_repair_session.submission_id` is unique, so only one session exists. Proposed: [[decisions/ADR-061-one-transactional-write-per-dt-submission]].
 
 ## Related Pages
 - [[decisions/ADR-045-dt-guided-self-repair]] — decision record
@@ -1636,5 +1636,5 @@ These concern grading logic that is validated and was deliberately not changed. 
 - [[evaluations/dt-decision-grading-2026-11-14]]
 - [[features/study-plans.tech]] — session queue
 - [[database/schema.tech]] · [[api/rpcs.tech]]
-- [[decisions/ADR-051-one-transactional-write-per-dt-submission]] — proposed: atomic write of grade, errors, session and items
-- [[decisions/ADR-052-retire-dt-card-and-select-next-window-in-sql]] — proposed: retire `dt_card`
+- [[decisions/ADR-061-one-transactional-write-per-dt-submission]] — proposed: atomic write of grade, errors, session and items
+- [[decisions/ADR-062-retire-dt-card-and-select-next-window-in-sql]] — proposed: retire `dt_card`
