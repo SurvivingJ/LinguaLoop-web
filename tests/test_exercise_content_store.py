@@ -334,19 +334,44 @@ def test_conftest_installs_a_fresh_in_memory_backend():
     assert backend.paths() == [] and backend.calls == []
 
 
-_LEAK: dict = {}
+_LEAK_PAIR = """
+import logging
+from services.exercise_content import store
+
+_LEAK = {}
 
 
-def test_state_leaks_into_the_next_test_part_1_of_2():
+def test_part_1_dirties_the_store():
     _LEAK['backend'] = store.backend()
     store.backend().seed('zh/1.v0.json', b'{}')
     store._warn_once(('leak-check',), logging.INFO, 'leak check')
 
 
-def test_state_leaks_into_the_next_test_part_2_of_2():
+def test_part_2_starts_clean():
     assert store.backend() is not _LEAK['backend']
     assert store.backend().paths() == []
     assert ('leak-check',) not in store._warned
+"""
+
+
+def test_state_does_not_leak_into_the_next_test(tmp_path):
+    """The conftest fixture resets the store between tests.
+
+    The two halves must run back to back in one process, in this order, so
+    they run as a child pytest session with this suite's conftest (in the
+    main session the order is not guaranteed).
+    """
+    (tmp_path / 'conftest.py').write_text("pytest_plugins = ['tests.conftest']\n")
+    (tmp_path / 'test_leak_pair.py').write_text(_LEAK_PAIR)
+    env = _clean_env(PYTHONPATH=os.pathsep.join([str(REPO_ROOT), os.environ.get('PYTHONPATH', '')]))
+    env.pop('PYTEST_ADDOPTS', None)
+    result = subprocess.run(
+        [sys.executable, '-m', 'pytest', '-q', '-p', 'no:cacheprovider', '-p', 'no:randomly',
+         '--rootdir', str(tmp_path), '-c', os.devnull, str(tmp_path / 'test_leak_pair.py')],
+        cwd=str(tmp_path), env=env, capture_output=True, text=True, timeout=120,
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert '2 passed' in result.stdout
 
 
 # ---------------------------------------------------------------------------
