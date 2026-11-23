@@ -140,8 +140,8 @@ vocab/math labs and must be validated on our own remediation data.
 - **Returns:** `[{subtype, count, severity_rank, trend, remediation_status}]`.
 - **Note:** gamify the *shrinking profile*, never the score (Black & Wiliam reward-chasing warning).
 
-### `GET /api/dual-translation/cards/due` / `POST /api/dual-translation/cards/<id>/review`
-- Mirror the existing flashcards endpoints; interleave subtypes in the due queue.
+### `POST /api/dual-translation/cards/<id>/review` (`GET /cards/due` removed 2026-11-23, TASK-1221)
+- Due cards reach the client through `GET /next` and the practice engine (subtypes are interleaved there); the separate `GET /cards/due` route had no caller and was removed.
 - `review` updates FSRS state via the reused scheduler and appends `dt_card_review`.
 
 ## Key Architectural Decisions

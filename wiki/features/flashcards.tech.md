@@ -39,14 +39,12 @@ Routes are in `routes/flashcards.py` (blueprint `/api/flashcards`). The learner-
 - **Body:** `{card_id, rating}`; `rating` is 1 again, 2 hard, 3 good, 4 easy. Optional `active_ms` and `client_event_id` credit the study-time ledger (see [[features/weekly-minutes.tech]]).
 - **Side effects:** Updates FSRS parameters, recalculates `due_date`
 
-### Other endpoints
-- `GET /api/flashcards/stats?language_id=` — per-user flashcard statistics.
-- `POST /api/flashcards/skip` — delete/archive a card the learner does not want.
-- `GET /api/flashcards/page` — renders `flashcards.html` (a JWT-protected template route under the API prefix; not the learner-facing URL).
+### Removed endpoints (2026-11-23, TASK-1221)
+`GET /api/flashcards/stats`, `POST /api/flashcards/skip` and `GET /api/flashcards/page` were removed: no page, player or script called them. The blueprint now has two routes, `/due` and `/review`. The learner-facing page is `/flashcards` (`web/pages.py`); `/api/flashcards/page` only rendered the same template.
 
 ## Session player link (fixed 2026-11-23)
 
-When the daily-session flashcards player cannot load cards (`renderUnavailable` in `static/js/session/players/flashcards.js`), it offers an "Open page" button. It used to link to `/flashcards/page`, which is not a page route (the template route is `/api/flashcards/page`), so the learner landed on the login page. It now links to `/flashcards`, the real page.
+When the daily-session flashcards player cannot load cards (`renderUnavailable` in `static/js/session/players/flashcards.js`), it offers an "Open page" button. It used to link to `/flashcards/page`, which is not a page route (the template route was `/api/flashcards/page`, since removed), so the learner landed on the login page. It now links to `/flashcards`, the real page.
 
 ## Review day (TASK-1211)
 

@@ -1510,7 +1510,7 @@ Full spec: [[tasklist/review-2026-11-22.tasks]]. Record: [[evaluations/codebase-
 | TASK-1218 | codebase-review-2026-11-22 | Pipeline script safety: align write conventions and fix the skill text | [ ] | L | — |
 | TASK-1219 | codebase-review-2026-11-22 | Test-suite follow-ups | [ ] | L | — |
 | TASK-1220 | codebase-review-2026-11-22 | Unknown test slug on the submit routes probably returns 500 instead of 404 | [ ] | S | — |
-| TASK-1221 | codebase-review-2026-11-22 | Remove routes with no in-repo client | [?] | M | — |
+| TASK-1221 | codebase-review-2026-11-22 | Remove routes with no in-repo client | Done (repo) — 20 unused routes removed 2026-11-23, `/api/health` and `/api/tests/` kept | M | — |
 | TASK-1222 | codebase-review-2026-11-22 | LLM plumbing follow-ups that touch routing or judging | [ ] | L | — |
 | TASK-1223 | codebase-review-2026-11-22 | `llm_calls` retention | [ ] | M | — |
 | TASK-1224 | codebase-review-2026-11-22 | Watchlist sweep: keep or unschedule | [?] | XS | TASK-1201 item 9 |

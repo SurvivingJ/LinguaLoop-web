@@ -203,7 +203,8 @@ from the authored document in `docs/` when the reviewed copy lacks them (reviewe
   submitted (same withholding rule as `?mode=dictation`).
 - **Auth:** JWT. **Errors:** 404 unknown test; 409 if sentence hash ≠ transcript hash (stale).
 
-### `POST /api/dual-translation/passage-from-sentences`
+### `POST /api/dual-translation/passage-from-sentences` — removed 2026-11-23 (TASK-1221)
+The HTTP route had no caller and was removed; its core is `routes.dual_translation.open_range_passage`, which the prestudy Produce route calls (`POST /api/tests/<id>/prestudy/produce`). The contract below still describes `open_range_passage`.
 - **Body:** `{test_id, sentence_start, sentence_end, l1_language_id, primed_sense_ids[]}`
 - **Purpose:** find or create the `dt_passage` for the range, verify every sentence has an
   active `pass`/`rewritten` reference for that L1, store `primed_sense_ids` on the session.
@@ -278,7 +279,7 @@ Reviewer and author documents are repository files, never executed.
   class with a named reason; window selector picks the expected range on the demo fixtures;
   tightness computation equals the dictation grader's normalisation.
 - Integration: `export → brief → check → review-pack → assemble → upload --dry-run` on an
-  8-test slice with hand-written docs; `passage-from-sentences` creates once and reuses.
+  8-test slice with hand-written docs; `open_range_passage` (formerly `passage-from-sentences`) creates once and reuses.
 - Pilot report as the acceptance gate for the full run.
 
 ## Related Pages
