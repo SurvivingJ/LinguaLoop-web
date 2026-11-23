@@ -110,8 +110,8 @@ Three owner decisions, each on its own branch and merged with the gates re-run (
 - **Mystery and Listening Lab removed (TASK-1227, Done):** done by hand, not by cherry-picking
   82a80de; `UNPLANNED_TEST_TYPES` and its 8 guard tests are gone (6,304 to 6,296). Nothing was
   live, so no migration.
-- **FSRS review day at midnight AEST (TASK-1211, code done, SQL pending):** one app-wide review
-  zone (`services/day_boundary.py` `REVIEW_TIMEZONE`, `Australia/Brisbane`) for the schedule and the
+- **FSRS review day at midnight Sydney time (TASK-1211, code done, SQL pending):** one app-wide review
+  zone (`services/day_boundary.py` `REVIEW_TIMEZONE`, `Australia/Sydney`; first set as AEST/Brisbane, changed to Sydney by a later owner decision the same day) for the schedule and the
   `last_review` stamp; the per-learner local-day design is not pursued. 15 tests added (6,296 to
   6,311). `migrations/fsrs_review_day_aest.sql` (with a rollback) is group 10 of
   `migrations/PENDING-2026-11-23.md` and is applied together with the deploy.

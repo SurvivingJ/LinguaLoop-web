@@ -1500,7 +1500,7 @@ Full spec: [[tasklist/review-2026-11-22.tasks]]. Record: [[evaluations/codebase-
 | TASK-1208 | codebase-review-2026-11-22 | Decide ADR-063: ladder generation paths | [?] | XL | — |
 | TASK-1209 | codebase-review-2026-11-22 | Generation queue health and requeue policy | [ ] | M | — |
 | TASK-1210 | codebase-review-2026-11-22 | Token economy: rebuild or retire | Done (repo) — retired 2026-11-23, future implementation proposed | L | — |
-| TASK-1211 | codebase-review-2026-11-22 | FSRS review dating on one app-wide review day (midnight AEST); code done, `fsrs_review_day_aest.sql` awaiting live apply with the deploy | [?] Done (repo), awaiting live apply | M | — |
+| TASK-1211 | codebase-review-2026-11-22 | FSRS review dating on one app-wide review day (midnight Sydney time); code done, `fsrs_review_day_aest.sql` awaiting live apply with the deploy | [?] Done (repo), awaiting live apply | M | — |
 | TASK-1212 | codebase-review-2026-11-22 | Make two submission functions return the generic error like the other three | [ ] | S | — |
 | TASK-1213 | codebase-review-2026-11-22 | Database leftovers: ambiguous overloads, documented-as-dropped functions, backups | [ ] | M | TASK-1201 |
 | TASK-1214 | codebase-review-2026-11-22 | Audit EXECUTE grants on public functions | [ ] | S | — |
