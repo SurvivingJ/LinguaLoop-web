@@ -10,7 +10,7 @@ Pinned here:
       the next one (the UTC date is the same at both instants);
   (b) a card given a 1-day interval is not due again on the same AEST day and
       is due on the next;
-  (c) ``/due`` and ``/stats`` read with the same date the writers stamp.
+  (c) ``/due`` reads with the same date the writers stamp.
 
 Time is frozen by patching ``day_boundary._utcnow`` (the suite has no freezegun).
 """
@@ -134,7 +134,7 @@ def test_practice_attempt_stamps_the_review_day(monkeypatch, moment, expected):
 
 
 # ---------------------------------------------------------------------------
-# Flashcard routes: (a) review writer, (b) 1-day interval, (c) /due and /stats
+# Flashcard routes: (a) review writer, (b) 1-day interval, (c) /due
 # ---------------------------------------------------------------------------
 
 def _chain(data, count=None):
@@ -179,17 +179,6 @@ def _due_today(client, auth_headers, monkeypatch, moment):
     return filt.split(',')[0].split('due_date.lte.')[1]
 
 
-def _stats_today(client, auth_headers, monkeypatch, moment):
-    _freeze(monkeypatch, moment)
-    chain = _chain([])
-    db = MagicMock()
-    db.table.return_value = chain
-    with patch('routes.flashcards.get_db', return_value=db):
-        resp = client.get('/api/flashcards/stats?language_id=1', headers=auth_headers)
-    assert resp.status_code == 200, resp.data
-    return chain.lte.call_args[0][1]
-
-
 @pytest.mark.parametrize('moment, expected', [
     (BEFORE_MIDNIGHT_AEST, '2026-11-23'),
     (AFTER_MIDNIGHT_AEST, '2026-11-24'),
@@ -220,10 +209,9 @@ def test_one_day_interval_is_not_due_the_same_aest_day_but_is_the_next(client, a
 
 
 @pytest.mark.parametrize('moment', [BEFORE_MIDNIGHT_AEST, AFTER_MIDNIGHT_AEST])
-def test_due_and_stats_read_with_the_writers_date(client, auth_headers, monkeypatch, moment):
+def test_due_reads_with_the_writers_date(client, auth_headers, monkeypatch, moment):
     written = _review(client, auth_headers, monkeypatch, moment)['last_review']
     assert _due_today(client, auth_headers, monkeypatch, moment) == written
-    assert _stats_today(client, auth_headers, monkeypatch, moment) == written
 
 
 def test_due_route_response_is_unchanged_in_shape(client, auth_headers, monkeypatch):

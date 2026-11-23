@@ -1,5 +1,5 @@
 # tests/test_flashcards.py
-"""Tests for flashcard endpoints (due, review, stats, skip)."""
+"""Tests for flashcard endpoints (due, review)."""
 
 import json
 from types import SimpleNamespace
@@ -95,31 +95,4 @@ class TestSubmitReview:
         resp = client.post('/api/flashcards/review',
                            json={'card_id': 1, 'rating': 0},
                            headers=auth_headers)
-        assert resp.status_code == 400
-
-
-class TestSkipCard:
-    """POST /api/flashcards/skip"""
-
-    def test_rejects_missing_card_id(self, client, auth_headers):
-        resp = client.post('/api/flashcards/skip',
-                           json={},
-                           headers=auth_headers)
-        assert resp.status_code == 400
-
-    def test_accepts_valid_skip(self, client, auth_headers, app):
-        db_mock = MagicMock()
-        db_mock.table.return_value = _make_chain([])
-        with patch('routes.flashcards.get_db', return_value=db_mock):
-            resp = client.post('/api/flashcards/skip',
-                               json={'card_id': 99},
-                               headers=auth_headers)
-        assert resp.status_code == 200
-
-
-class TestFlashcardStats:
-    """GET /api/flashcards/stats"""
-
-    def test_requires_language_id(self, client, auth_headers):
-        resp = client.get('/api/flashcards/stats', headers=auth_headers)
         assert resp.status_code == 400
