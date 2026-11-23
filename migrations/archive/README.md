@@ -261,3 +261,9 @@ migrations-only package). It also holds the only `ALTER TYPE exercise_source_typ
 | Archived file | Object | New canonical file | Live marker checked |
 |---|---|---|---|
 | `get_quiz_distractors_batch.sql` | `get_quiz_distractors_batch(integer[],smallint,integer,smallint[])` | *(to be dropped by `drop_get_quiz_distractors_batch.sql`; the recreate is `drop_get_quiz_distractors_batch_rollback.sql`)* | **still live when archived**: body md5 (no comments/whitespace) `6278cbcaa21d1e3dcc319ce1b247c8e9` = this file, 2026-11-23. Archived ahead of the drop at the developer's request; until the drop is applied the live definition is recorded in the rollback file |
+
+## 2026-11-23 — word_quiz_retake_fallback.sql (never applied, unsafe as written)
+
+| Archived file | Object | New canonical file | Live marker checked |
+|---|---|---|---|
+| `word_quiz_retake_fallback.sql` | `get_word_quiz_candidates(uuid,integer[],smallint,integer)` (tiered retake fallback) | `word_quiz_retake_fallback_hardened.sql` (same query logic, body md5 `d2d821195ae59177987bc518cf1d5c6c`, plus STABLE / SECURITY DEFINER / pinned search_path / service_role-only grant) — **pending a developer decision, not applied** | never applied: live body md5 `7670f2d5b030e5944aa3b182d8a98d90` = `phase6_security_hardening.sql`, no `Tier 2` in prosrc (2026-11-23). Archived because applying it as written would strip SECURITY DEFINER and the pinned search_path |
