@@ -270,7 +270,7 @@ class TestObservedP50:
 
 @pytest.fixture
 def static_app(tmp_path):
-    from flask import render_template_string, url_for
+    from flask import render_template_string
     from services.static_assets import ONE_YEAR, init_static_assets
     (tmp_path / 'app.css').write_text('body{color:red}' * 200)
     (tmp_path / 'i18n').mkdir()

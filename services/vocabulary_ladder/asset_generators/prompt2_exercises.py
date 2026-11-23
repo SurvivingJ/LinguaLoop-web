@@ -13,12 +13,10 @@ concrete noun, the prompt simply omits Level 5 entirely.
 import json
 import logging
 
-from config import Config
 from services.llm_service import call_llm, ladder_qwen_reasoning_mode
 from services.prompt_service import get_template_config
 from services.vocabulary_ladder.config import (
-    PROMPT2_LEVELS, OPTION_KEY_MAP, DEFAULT_SENTENCE_ASSIGNMENTS,
-    SENTENCE_ASSIGNMENTS_A, get_sentence_target, remap_keys,
+    PROMPT2_LEVELS, OPTION_KEY_MAP, SENTENCE_ASSIGNMENTS_A, get_sentence_target, remap_keys,
 )
 from services.vocabulary_ladder.asset_generators._renderer import render_template
 

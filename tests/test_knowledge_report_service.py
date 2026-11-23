@@ -7,7 +7,7 @@ Tech spec: wiki/features/knowledge-report.tech.md §6.3, §6.4, §9, §13. RPCs 
 from __future__ import annotations
 
 import logging
-from datetime import date, datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone
 
 import pytest
 from flask import Flask

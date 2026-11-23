@@ -16,7 +16,6 @@ fail-open default. The hardened behavior is:
 import json
 from unittest.mock import MagicMock, patch
 
-import pytest
 
 from services.ai_service import ModerationServiceError
 

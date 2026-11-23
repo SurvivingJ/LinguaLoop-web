@@ -3,9 +3,8 @@
 import datetime as dt
 from types import SimpleNamespace
 
-import pytest
 
-from tests.study_plan_route_harness import FakeDB, install, make_fake_service_module, plan_tables
+from tests.study_plan_route_harness import FakeDB, install, plan_tables
 
 LEDGER = {'test': 900, 'practice': 600, 'flashcard': 300, 'dual_translation': 240, 'drill': 0}
 

@@ -9,7 +9,7 @@ or the network.
 import copy
 import itertools
 import json
-from datetime import date, datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone
 
 import pytest
 

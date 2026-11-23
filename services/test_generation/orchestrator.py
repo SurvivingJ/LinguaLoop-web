@@ -18,7 +18,7 @@ import threading
 from concurrent.futures import as_completed
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import Callable, List, Optional
+from typing import Callable, Optional
 from uuid import UUID, uuid4
 
 from .config import get_test_gen_config

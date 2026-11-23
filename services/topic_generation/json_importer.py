@@ -161,7 +161,7 @@ class JSONTopicImporter:
         # Validate first
         errors = self.validate_json(file_path)
         if errors:
-            raise ValueError(f"JSON validation failed:\n" + "\n".join(errors))
+            raise ValueError("JSON validation failed:\n" + "\n".join(errors))
 
         # Parse
         try:

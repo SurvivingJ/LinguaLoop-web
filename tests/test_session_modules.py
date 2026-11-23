@@ -18,7 +18,6 @@ from services.study_plan_service import (
     apply_module_exclusions,
 )
 from tests._study_plan_fakes import (
-    ZH30_PRACTICE_TOTAL,
     ZH30_WEEKLY_COUNTS,
     minutes_of,
     zh30_db,

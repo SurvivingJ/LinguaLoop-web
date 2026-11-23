@@ -40,7 +40,7 @@ import time
 from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Callable, Iterator, Optional
+from typing import Callable, Iterator
 
 import httpx
 from openai import OpenAI, APIConnectionError, RateLimitError, APITimeoutError, NotFoundError

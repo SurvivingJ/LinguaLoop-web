@@ -1,6 +1,6 @@
 """TASK-882 route hardening: answer keys, timing/count bounds, gate trust."""
 
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from unittest.mock import MagicMock
 
 import pytest

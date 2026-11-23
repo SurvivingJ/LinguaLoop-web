@@ -145,8 +145,8 @@ def test_summary_envelope_and_headers(learner, client, fake_db):
 
 
 def test_p_user_id_is_always_the_callers(learner, client, fake_db):
-    resp = _get(client, f'/api/knowledge/summary?language_id=3&user_id=00000000-0000-0000-0000-000000000000'
-                        f'&p_user_id=00000000-0000-0000-0000-000000000000')
+    resp = _get(client, '/api/knowledge/summary?language_id=3&user_id=00000000-0000-0000-0000-000000000000'
+                        '&p_user_id=00000000-0000-0000-0000-000000000000')
     assert resp.status_code == 200
     calls = fake_db.rpc_calls('knowledge_report_summary')
     assert calls == [{'p_user_id': USER, 'p_language_id': 3, 'p_cal_since': []}]

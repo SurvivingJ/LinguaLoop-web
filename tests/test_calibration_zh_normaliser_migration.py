@@ -98,7 +98,7 @@ def test_tone_placement_patterns_match_python():
     marks = {1: "\\u0304", 2: "\\u0301", 3: "\\u030c", 4: "\\u0300"}
     for tone, mark in marks.items():
         assert f"'{mark}{pt._AFTER_MARK}', '\\1{tone}', 'g')" in fn, tone
-    assert f"'([a-zü])(?=[\\s''·-]|$)', '\\15', 'g')" in fn
+    assert "'([a-zü])(?=[\\s''·-]|$)', '\\15', 'g')" in fn
     assert "'[\\s''·-]+', '', 'g')" in fn
     assert pt._SEPARATORS == "[\\s'·-]"
 
