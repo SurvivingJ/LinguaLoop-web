@@ -9,7 +9,7 @@ dependencies:
   - "Flask 3.0 + Gunicorn (2 workers x 8 threads)"
   - "Flask-Limiter, Flask-Compress, Flask-Cors"
   - "OpenRouter (LLM inference, multi-model routing)"
-  - "OpenAI (moderation + embeddings)"
+  - "OpenAI (embeddings)"
   - "Azure Cognitive Services (TTS for listening tests + vocab L1)"
   - "Cloudflare R2 (audio storage)"
   - "Stripe SDK (configured at start-up; no payment route is registered)"
@@ -40,7 +40,7 @@ Verified 2026-11-23 against the merged code at commit `0d345e98` and, for the da
 │  │                                                        │  │
 │  │  web/            pages, error envelope, security       │  │
 │  │                  headers, rate limits, scheduler       │  │
-│  │  routes/         20 route modules (routes/tests/ is    │  │
+│  │  routes/         18 route modules (routes/tests/ is    │  │
 │  │                  a package)                            │  │
 │  │  middleware/     JWT + tier decorators                 │  │
 │  │  services/       business logic, engines, pipelines    │  │
@@ -74,7 +74,7 @@ Offline work (content generation, backfills, evaluation) runs from `scripts/` an
 | **Database** | PostgreSQL 17.4 via Supabase | Live 2026-11-23: 100 tables in `public`, all with RLS on; 214 non-extension functions in `public` (196 non-trigger). |
 | **Exercise content** | Supabase Storage bucket `exercise-content` | One immutable JSON file per sense and version; `exercises.content` no longer exists ([[decisions/ADR-049-exercise-content-in-storage]]). |
 | **Auth** | Supabase Auth (OTP) + JWT | `middleware/auth.py`; optional local HS256 verification (`SUPABASE_JWT_SECRET`); batch identity via `BATCH_SERVICE_TOKEN` (the service-role key no longer authenticates HTTP requests). Trusted-device and refresh cookies are HttpOnly. |
-| **AI / LLM** | OpenRouter primary; OpenAI for moderation + embeddings; headless `claude -p` transport for backfills | Per-task model assignment in `prompt_templates.model`. |
+| **AI / LLM** | OpenRouter primary; OpenAI for embeddings (the moderation route was removed 2026-11-23); headless `claude -p` transport for backfills | Per-task model assignment in `prompt_templates.model`. |
 | **TTS** | Azure Cognitive Services | `dim_languages.tts_voice_ids` is the voice catalogue. |
 | **File storage** | Cloudflare R2 | Audio at `audio.linguadojo.com`. |
 | **Payments** | Stripe SDK configured at start-up | **No payment route besides `GET /api/payments/token-packages`.** `POST /api/payments/create-intent` was removed; it returns with a verified webhook ([[api/rpcs.tech]]). |
@@ -92,7 +92,7 @@ Counts are physical lines of `.py` (or the extension noted) found 2026-11-23, `_
 |---|---|---|
 | `app.py`, `wsgi.py`, `config.py` | 359 / 14 / 593 | `create_app()` factory and the four inline core routes; the WSGI entry point; the single `Config` class read from environment variables. |
 | `web/` | 6 files / 504 | App wiring extracted from `app.py`: `pages.py` (page routes), `errors.py` (error envelope and 404 redirect), `security.py` (headers, report-only CSP, body-size limit), `rate_limits.py`, `scheduler.py`. See [[features/web-package]]. |
-| `routes/` | 27 files / 7,400 | One Flask blueprint per module: `auth`, `calibration`, `corpus`, `drills` (builds two blueprints), `dt_repair`, `dual_translation` (2,482 lines), `flashcards`, `knowledge`, `payments`, `practice`, `reports`, `study_plan`, `study_session`, `test_intros`, `users`, `vocab_admin`, `vocab_dojo`, `vocabulary`, `word_list_import`, the package `tests/` (6 files / 1,398 lines; [[features/routes-tests-package]]) and the helper `common.py`. |
+| `routes/` | 25 files / 6,650 | One Flask blueprint per module: `auth`, `calibration`, `drills` (builds two blueprints), `dt_repair`, `dual_translation` (2,409 lines), `flashcards`, `knowledge`, `practice`, `reports`, `study_plan`, `study_session`, `test_intros`, `users`, `vocab_admin`, `vocab_dojo`, `vocabulary`, `word_list_import`, the package `tests/` (6 files / 1,353 lines; [[features/routes-tests-package]]) and the helper `common.py`. |
 | `middleware/` | 2 files / 389 | `auth.py`: `jwt_required`, `admin_required`, `tier_required`, `get_optional_user_id`, token cache and revocation. |
 | `models/`, `utils/` | 3 / 227, 5 / 423 | Pydantic request models; response helpers (`responses.py`), validation, question and answer normalisation. |
 | `services/` | 257 files / 73,441 | All business logic. 49 top-level modules (auth, test, study plan, attempts, prestudy, calibration, knowledge snapshots, LLM client, Supabase factory, static assets, ...) plus the packages below. |
@@ -180,7 +180,7 @@ Read from the environment through `config.py` unless noted. Defaults as in code.
    - Rationale: managed Postgres with auth, RLS and Storage; exercise content moved into Storage to keep the database small ([[decisions/ADR-049-exercise-content-in-storage]]).
    - Alternatives rejected: self-hosted Postgres with custom auth.
 
-3. **OpenRouter for LLM routing.** Per-task model assignment lives on `prompt_templates.model`; OpenAI is used for moderation and embeddings. Alternatives rejected: direct OpenAI only.
+3. **OpenRouter for LLM routing.** Per-task model assignment lives on `prompt_templates.model`; OpenAI is used for embeddings. Alternatives rejected: direct OpenAI only.
 
 4. **DimensionService caching.** Languages, test types and similar rarely change; cached at start-up through the service-role client (also inlined into every page as `window.LINGUA_METADATA`).
 

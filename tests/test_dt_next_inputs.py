@@ -396,12 +396,14 @@ class TestRetiredWindows:
         passage = next(p for p in rpc_app.tables['dt_passage'] if p['id'] == data['passage_id'])
         assert passage['status'] == 'active' and passage['sentence_start'] >= 2
 
-    def test_passage_from_sentences_refuses_a_retired_range(self, client, auth_headers, rpc_app):
+    def test_open_range_passage_refuses_a_retired_range(self, app, rpc_app):
         self._retire(rpc_app, 0, 1)
-        resp = client.post('/api/dual-translation/passage-from-sentences', headers=auth_headers, json={
-            'test_id': JA_TEST, 'sentence_start': 0, 'sentence_end': 1, 'l1_language_id': EN})
-        assert resp.status_code == 409
-        assert json.loads(resp.data)['error_code'] == 'PASSAGE_RETIRED'
+        with app.test_request_context():
+            response, status = dt_routes.open_range_passage(
+                rpc_app, 'test-user-id-123', JA_TEST, 0, 1, EN, [])
+            body = json.loads(response.get_data(as_text=True))
+        assert status == 409
+        assert body['error_code'] == 'PASSAGE_RETIRED'
         assert rpc_app.tables['dt_submission'] == []
 
 

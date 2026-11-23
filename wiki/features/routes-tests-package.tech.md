@@ -18,7 +18,7 @@ open_questions:
 
 # The Tests Route Package — Technical Specification
 
-Verified 2026-11-23 against commit `0d345e98`. Package `routes/tests/`: six files, 1,398 lines (`__init__.py` 48, `blueprint.py` 5, `catalog.py` 353, `prestudy.py` 334, `sentences.py` 154, `submit.py` 504). 21 routes on one blueprint. The route table with auth and clients is in [[api/rpcs.tech]]; this page is the module map and the submit flow. Prose: [[features/routes-tests-package]].
+Verified 2026-11-23 against commit `0d345e98`. Package `routes/tests/`: six files, 1,353 lines (`__init__.py` 48, `blueprint.py` 5, `catalog.py` 308, `prestudy.py` 334, `sentences.py` 154, `submit.py` 504). 20 routes on one blueprint (`POST /moderate` was removed 2026-11-23, TASK-1221). The route table with auth and clients is in [[api/rpcs.tech]]; this page is the module map and the submit flow. Prose: [[features/routes-tests-package]].
 
 ## Architecture Overview
 
@@ -27,7 +27,7 @@ app.py ── from routes.tests import tests_bp ── register_blueprint(url_pr
 routes/tests/__init__.py   imports blueprint, then catalog, submit, sentences, prestudy (registering their routes)
         │
         ├─ blueprint.py   tests_bp = Blueprint("tests", "routes.tests")
-        ├─ catalog.py     list / open / recommend / daily load / history / moderate
+        ├─ catalog.py     list / open / recommend / daily load / history
         ├─ submit.py      4 submit routes + submission RPC wrappers
         ├─ sentences.py   GET /<identifier>/sentences
         └─ prestudy.py    7 prestudy routes
@@ -36,7 +36,7 @@ routes/tests/__init__.py   imports blueprint, then catalog, submit, sentences, p
    services/test_service.py   services/attempts.py   services/prestudy.py   services/dictation/
 ```
 
-The blueprint name `tests` (and so every endpoint name `tests.<function>`) and every URL are unchanged by the split; `web/rate_limits.py` still refers to `tests.moderate_content`. `routes/tests/__init__.py` re-exports names that other modules and tests import with `from routes.tests import ...`; keep them importable: `tests_bp`, `DimensionService`, `TestService`, `get_test_service`, `normalize_audio_url`, `_apply_timing_and_progress`, `_attach_explanations`, `_build_submission_response`, `_call_dictation_submission_rpc`, `_call_pinyin_submission_rpc`, `_call_pitch_accent_submission_rpc`, `_call_submission_rpc`, `_complete_daily_slot`, `_credit_attempt_window`, `_is_missing_function_error`, `_normalize_timing`, `_submission_failure_response`, `_unwrap_rpc_response`, `_update_vocabulary_tracking`, `_has_attempt_today`, `_load_active_references`, `_load_sentence_rows`, `_resolve_sentence_l1`, `build_sentence_payload`, `_PRESTUDY_MAX_ANSWERS`, `_PRESTUDY_MAX_EXERCISE_ANSWERS`. The only production importer is `routes/drills.py` (`_apply_timing_and_progress`, imported lazily because of a circular import).
+The blueprint name `tests` (and so every endpoint name `tests.<function>`) and every URL are unchanged by the split; `web/rate_limits.py` names no `tests.*` endpoint. `routes/tests/__init__.py` re-exports names that other modules and tests import with `from routes.tests import ...`; keep them importable: `tests_bp`, `DimensionService`, `TestService`, `get_test_service`, `normalize_audio_url`, `_apply_timing_and_progress`, `_attach_explanations`, `_build_submission_response`, `_call_dictation_submission_rpc`, `_call_pinyin_submission_rpc`, `_call_pitch_accent_submission_rpc`, `_call_submission_rpc`, `_complete_daily_slot`, `_credit_attempt_window`, `_is_missing_function_error`, `_normalize_timing`, `_submission_failure_response`, `_unwrap_rpc_response`, `_update_vocabulary_tracking`, `_has_attempt_today`, `_load_active_references`, `_load_sentence_rows`, `_resolve_sentence_l1`, `build_sentence_payload`, `_PRESTUDY_MAX_ANSWERS`, `_PRESTUDY_MAX_EXERCISE_ANSWERS`. The only production importer is `routes/drills.py` (`_apply_timing_and_progress`, imported lazily because of a circular import).
 
 ### Where the old single-file tests route module went
 
@@ -44,7 +44,7 @@ Commit `6797632b` (2026-11-14) split the 1,361-line single file with no behaviou
 
 | Old responsibility (in the single file) | Now |
 |---|---|
-| `normalize_audio_url`, moderation, random/recommended, daily load, list, open by slug, open by id, history | `catalog.py` |
+| `normalize_audio_url`, random/recommended, daily load, list, open by slug, open by id, history | `catalog.py` |
 | The catalogue query for the list | `services/test_service.list_tests_with_ratings` (moved in the same commit) |
 | Static test content with a short cache; ratings | `services/test_service.get_test_content` (TTL 120 s, `TEST_CONTENT_TTL_SECONDS`), `get_test_skill_ratings` |
 | Submission RPC wrappers and the four submit handlers | `submit.py` |
@@ -58,7 +58,7 @@ Reads: `tests`, `questions`, `dim_word_senses` (through the cached content), `te
 
 ## API / RPC Surface
 
-### `catalog.py` (353 lines)
+### `catalog.py` (308 lines)
 
 - `normalize_audio_url(test_data)`: an `audio_url` without `http` becomes `Config.get_audio_url(<slug part>)`; empty falls back to the slug-based CDN URL.
 - `GET /` `get_tests_with_ratings` (JWT): `list_tests_with_ratings(db, language_id?, difficulty?, limit=50)`.
@@ -67,7 +67,7 @@ Reads: `tests`, `questions`, `dim_word_senses` (through the cached content), `te
 - `GET /random`, `GET /recommended`: RPCs `get_recommended_test` and `get_recommended_tests(p_user_id, p_language_id)`; `language_id` via `parse_language_id` (`400` invalid); random answers `404` when empty. Recommended returns `{recommended_tests}`.
 - `GET /daily-load`, `POST /daily-load/complete`: `get_or_create_daily_load(user_id, language_id)`; `mark_daily_test_complete(user_id, language_id, test_id)` (`400 No attempt recorded today for this test` on `NoMatchingAttemptError`).
 - `GET /history`: `attempts.list_test_history(db, db, user_id, language_id?, test_type_id?, limit ≤ 100 (25), offset ≥ 0)` → `{tests: [...]}`.
-- `POST /moderate`: needs `app.openai_service` (`500 OpenAI service not available`); `content` required (`400`); `ModerationServiceError` → `503 moderation_unavailable` with **no** audit row (fail closed); unsafe content → `record_flagged_input(email, content, categories)`; returns `{is_safe, flagged_categories}`. Rate limit 20/min. Has no `@api_errors`; its own `except` answers `500 Moderation failed: <text>` (the one place an exception text reaches the client).
+- `POST /moderate` was removed 2026-11-23 (TASK-1221; no caller). `AIService.moderate_content`, `ModerationServiceError`, `TestService.record_flagged_input` and the `tests.moderate_content` rate limit went with it; `AIService` remains only as the holder of the shared OpenAI-compatible client.
 
 ### `submit.py` (504 lines)
 
@@ -117,7 +117,7 @@ All writes require a valid token; `g.current_user_id` only. Opening a test is pu
 
 ## Testing Strategy
 
-Existing tests: `test_tests_routes_refactor.py` (split and re-exports), `test_submission_rpc_error_envelope.py`, `test_moderation_route.py`, `test_sentence_endpoints.py`, `test_prestudy*.py`, `test_daily_slot_on_submit.py`, `test_study_time_tests_route.py`, `test_classifier_drill_progress.py`, `test_pinyin_display_surfaces.py`, `test_security_route_hardening.py`. Edge cases to keep covered: missing `p_prestudied` function (retry without it); `success:false` payload rescued from an exception; idempotent double submit; forged `started_at`; pinyin total above the real count; unknown slug (see open question); dictation 10× length; deferred task raising.
+Existing tests: `test_tests_routes_refactor.py` (split and re-exports), `test_submission_rpc_error_envelope.py`, `test_sentence_endpoints.py`, `test_prestudy*.py`, `test_daily_slot_on_submit.py`, `test_study_time_tests_route.py`, `test_classifier_drill_progress.py`, `test_pinyin_display_surfaces.py`, `test_security_route_hardening.py`. Edge cases to keep covered: missing `p_prestudied` function (retry without it); `success:false` payload rescued from an exception; idempotent double submit; forged `started_at`; pinyin total above the real count; unknown slug (see open question); dictation 10× length; deferred task raising.
 
 ## Related Pages
 

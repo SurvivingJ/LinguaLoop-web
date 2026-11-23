@@ -275,7 +275,6 @@ TASK-747's (the guarded rating writer), each with its own guards.
 | `POST /api/calibration/start` | `{word_language_id, definition_language_id}` |
 | `GET /api/calibration/next` | `item: null` + `exhausted: true` when the pair runs out |
 | `POST /api/calibration/answer` | `position` may be `null` (skip → recorded incorrect) |
-| `GET /api/calibration/ability` | the curve so far |
 | `POST /api/calibration/end` | closes the session, returns the final report |
 
 Ownership is checked in `calibration_service.get_session()` rather than left to

@@ -35,9 +35,9 @@ Verified 2026-11-23 against commit `0d345e98`. `web/` is six files, 504 lines: `
 | 5 | `init_static_assets(app)` — content-hash `?v=` on `url_for('static')`, one-year cache for versioned and `static/vendor/` files, Flask-Compress | `services/static_assets.py` |
 | 6 | `_initialize_services(app)` — Supabase factory, `DimensionService` cache, `TestService` and `PracticeSessionService` singletons, OpenAI, R2, Stripe key, vocabulary pipeline | `app.py` |
 | 7 | `init_scheduler(app)` unless `app.config['TESTING']` | `web/scheduler.py` |
-| 8 | `_register_blueprints(app)` — 21 `register_blueprint` calls (the two `test_intros` and `word_list_import` blueprints carry their own URL prefix) | `app.py` |
+| 8 | `_register_blueprints(app)` — 20 `register_blueprint` calls (the two `test_intros` and `word_list_import` blueprints carry their own URL prefix) | `app.py` |
 | 9 | `register_error_handlers(app)` | `web/errors.py` |
-| 10 | `_register_core_routes(app)` — `/api/health`, `/api/config`, `/api/metadata`, `/api/vocabulary/extract`, `/api/errors/log` and the `_inline_metadata` context processor | `app.py` |
+| 10 | `_register_core_routes(app)` — `/api/health`, `/api/metadata` and the `_inline_metadata` context processor | `app.py` |
 | 11 | `register_pages(app)` | `web/pages.py` |
 | 12 | `init_rate_limits(app)` — **last**, because limits attach by endpoint name | `web/rate_limits.py` |
 
@@ -91,14 +91,10 @@ Key functions: `client_ip()` = `ip:<get_remote_address()>`; `user_or_ip()` = `us
 | `auth.device_restore` | 30/min (IP) |
 | `auth.refresh_token` | 60/min (IP) |
 | `word_list_import.submit` | 5/h and 20/day (user) |
-| `extract_vocabulary` | 10/min and 100/day (user) |
 | `dual_translation.submit` | 10/min and 120/h (user) |
 | `dt_repair.check` | 20/min and 300/h (user) |
 | `dt_repair.hint` | 60/min (user) |
 | `dt_repair.practice_due` | 30/min (user) |
-| `tests.moderate_content` | 20/min (user) |
-| `corpus.ingest_corpus`, `corpus.analyze_style` | 10/h (user) each |
-| `vocab_admin.generate_assets`, `.render_exercises`, `.upload_words` | 30/h (user) each |
 | `knowledge.summary` | 30/min and 600/h (user) |
 | `knowledge.prestudy_suggestion` | 30/min and 300/h (user) |
 | `calibration.placement_start` | 10/day (user); a further cap of 3 starts per language per day is enforced in `services/calibration_placement.start()` |

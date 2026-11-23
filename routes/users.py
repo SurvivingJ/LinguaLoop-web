@@ -9,7 +9,7 @@ from middleware.auth import jwt_required as supabase_jwt_required
 from routes.common import get_db
 from services.dimension_service import parse_language_id
 from services.test_service import get_test_service
-from utils.responses import api_errors, api_success, bad_request, not_found, ApiResponse
+from utils.responses import api_errors, api_success, bad_request, ApiResponse
 from utils.validation import json_body
 
 logger = logging.getLogger(__name__)
@@ -23,30 +23,6 @@ def get_user_elo_ratings() -> ApiResponse:
     """Get user's ELO ratings across all languages and skills."""
     ratings = get_test_service().get_user_elo_summary(g.current_user_id)
     return api_success({'ratings': ratings})
-
-
-@users_bp.route('/profile', methods=['GET'])
-@supabase_jwt_required
-@api_errors("Failed to get profile")
-def get_user_profile() -> ApiResponse:
-    """Get user profile information."""
-    user_id = g.current_user_id
-
-    user_result = get_db().table('users')\
-        .select(
-            'id, email, display_name, email_verified, '
-            'total_tests_taken, total_tests_generated, '
-            'last_activity_at, subscription_tier_id, '
-            'created_at, last_login'
-        )\
-        .eq('id', user_id)\
-        .single()\
-        .execute()
-
-    if not user_result.data:
-        return not_found("User not found")
-
-    return api_success({"profile": user_result.data})
 
 
 @users_bp.route('/preferences', methods=['GET'])

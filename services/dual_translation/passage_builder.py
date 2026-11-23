@@ -75,7 +75,7 @@ def _join_sentences(sentences: list[str], language_code: str) -> str:
 
 def join_sentences(sentences: list[str], language_code: str) -> str:
     """Public alias of ``_join_sentences`` for callers outside this module
-    (TASK-909: ``passage-from-sentences`` assembles a window's ``l2_text`` and
+    (TASK-909: ``open_range_passage`` assembles a window's ``l2_text`` and
     ``l1_text`` with exactly the convention the batch builder uses)."""
     return _join_sentences(sentences, language_code)
 

@@ -121,16 +121,16 @@ def test_verify_otp_is_limited_per_ip(limited):
 
 
 def test_user_limit_is_keyed_on_the_verified_user_not_the_ip(limited):
-    def extract(user, ip):
-        return limited.post('/api/vocabulary/extract', json={},
+    def submit(user, ip):
+        return limited.post('/api/word-list/submit', json={},
                             headers={**_bearer(user), 'X-Forwarded-For': ip}).status_code
 
-    # An endpoint with its own limit (10/min) is not also bound by the API default.
-    assert [extract('user-a', '192.0.2.1') for _ in range(10)] == [400] * 10
-    assert extract('user-a', '192.0.2.1') == 429
+    # An endpoint with its own limit (5/hour) is not also bound by the API default.
+    assert 429 not in [submit('user-a', '192.0.2.1') for _ in range(5)]
+    assert submit('user-a', '192.0.2.1') == 429
     # Same user from another IP is still limited; another user on the first IP is not.
-    assert extract('user-a', '192.0.2.2') == 429
-    assert extract('user-b', '192.0.2.1') == 400
+    assert submit('user-a', '192.0.2.2') == 429
+    assert submit('user-b', '192.0.2.1') != 429
 
 
 def test_word_list_submit_has_its_own_per_user_limit(limited):

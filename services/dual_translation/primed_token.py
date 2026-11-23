@@ -1,6 +1,6 @@
 """Signed primed-sense tokens for the prestudy Produce stage (TASK-909/910).
 
-``POST /api/dual-translation/passage-from-sentences`` is handed the sense ids
+``routes.dual_translation.open_range_passage`` is handed the sense ids
 the learner primed in Study; the grader needs them back at submit time as
 target words. Rather than a per-user cache table, the server signs them into a
 token the client echoes on ``POST /<submission_id>/submit`` — the same

@@ -1,7 +1,7 @@
-"""Test catalogue: moderation, recommendations, daily load, lists, opening a
+"""Test catalogue: recommendations, daily load, lists, opening a
 test and attempt history."""
 
-from flask import request, current_app, g
+from flask import request, g
 import logging
 
 from config import Config
@@ -9,14 +9,12 @@ from middleware.auth import jwt_required as supabase_jwt_required
 from routes.common import get_db
 from services.pinyin_format import display_pronunciation
 from services import attempts
-from services.ai_service import ModerationServiceError
 from services.test_service import (
     TestService, NoMatchingAttemptError, get_test_service, parse_language_id,
     get_test_content, get_test_skill_ratings, list_tests_with_ratings,
 )
 from utils.responses import (
-    api_errors, api_success, bad_request, not_found, server_error,
-    service_unavailable, unauthorized,
+    api_errors, api_success, bad_request, not_found, unauthorized,
 )
 from utils.validation import json_body
 
@@ -36,49 +34,6 @@ def normalize_audio_url(test_data):
         test_data['audio_url'] = Config.get_audio_url(test_data.get('slug', ''))
     return test_data
 
-
-@tests_bp.route('/moderate', methods=['POST'])
-@supabase_jwt_required
-def moderate_content():
-    """Check content using OpenAI moderation API via OpenAI service"""
-    try:
-        if not current_app.openai_service:
-            return server_error("OpenAI service not available")
-
-        data = json_body(silent=True)
-        content = data.get('content', '').strip()
-
-        if not content:
-            return bad_request("No content provided")
-
-        try:
-            moderation_result = current_app.openai_service.moderate_content(content)
-        except ModerationServiceError as e:
-            # CR-03: moderation service unavailable. Fail closed by returning
-            # 503 — DO NOT record a flagged_input audit row (would be a false
-            # positive against the user).
-            logger.error("Moderation service unavailable: %s", e)
-            return service_unavailable("moderation_unavailable")
-
-        is_safe = moderation_result['is_safe']
-
-        if not is_safe:
-            current_user_email = g.supabase_claims.get('email')
-            test_service = get_test_service()
-            test_service.record_flagged_input(
-                current_user_email,
-                content,
-                moderation_result.get('flagged_categories', [])
-            )
-
-        return api_success(data={
-            "is_safe": is_safe,
-            "flagged_categories": moderation_result.get('flagged_categories', []),
-        })
-
-    except Exception as e:
-        logger.error(f"Moderation endpoint error: {e}")
-        return server_error(f"Moderation failed: {str(e)}")
 
 @tests_bp.route('/random', methods=['GET'])
 @supabase_jwt_required

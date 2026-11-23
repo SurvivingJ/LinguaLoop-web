@@ -6,7 +6,6 @@ Extracted from routes/tests.py to maintain separation of concerns.
 
 import copy
 import json
-import hashlib
 import logging
 import threading
 import time
@@ -1112,30 +1111,6 @@ class TestService:
             .execute()
         request_cache.invalidate('daily_load_row', str(user_id))
         return True
-
-    # -------------------------------------------------------------------------
-    # CONTENT MODERATION
-    # -------------------------------------------------------------------------
-
-    def record_flagged_input(self, user_email: str, content: str,
-                             flagged_categories: List[str] = None) -> None:
-        """Record flagged input for analytics."""
-        if not self.admin:
-            return
-
-        try:
-            record = {
-                'user_email': user_email,
-                'content_hash': hashlib.sha256(content.encode()).hexdigest()[:32],
-                'flagged_at': datetime.now(timezone.utc).isoformat(),
-                'content_type': 'test_generation',
-                'flagged_categories': json.dumps(flagged_categories or []),
-                'content_length': len(content),
-            }
-
-            self.admin.table('flagged_inputs').insert(record).execute()
-        except Exception as e:
-            logger.warning(f"Failed to record flagged input: {e}")
 
     def get_user_elo_summary(self, user_id: str) -> Dict[str, Any]:
         """Aggregate ELO ratings across all languages and skills for a user.

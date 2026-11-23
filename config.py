@@ -354,7 +354,6 @@ class Config:
     MAX_DAILY_TESTS = 3
     POOR_PERFORMANCE_THRESHOLD = 70  # percentage
     DAILY_TEST_COOLDOWN_SECONDS = 86400
-    MAX_INPUT_LENGTH = 2000
 
     # ==========================================================================
     # VOCABULARY LADDER PIPELINE

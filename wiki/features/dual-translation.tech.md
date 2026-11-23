@@ -327,7 +327,7 @@ tiers and **hidden at the lowest age tiers** (1–2) to avoid demotivation.
   `dt_submission` (six HTTP calls gave subs 114–119). Growth is bounded by the passage pool, not the
   call count. Whether to resume the newest never-started passage first is an owner decision.
 - **Retired windows (TASK-991):** `/next` never opens a non-active window passage, and
-  `POST /passage-from-sentences` answers **409 `PASSAGE_RETIRED`** before creating a submission.
+  `open_range_passage` (behind `POST /api/tests/<id>/prestudy/produce`) answers **409 `PASSAGE_RETIRED`** before creating a submission.
 - **Error cards:** due cards are interleaved only when the study language is known (TASK-991), and
   filtered to it (`_card_ids_for_language`). `/next` can therefore **write on a GET**: when it serves the
   error-card branch it first materialises newly queued profile entries

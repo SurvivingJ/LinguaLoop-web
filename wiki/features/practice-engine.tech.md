@@ -504,7 +504,7 @@ The zone is configured in exactly two places; change both together (a test, `tes
 
 | Side | Writers (stamp the review date) | Readers (decide what is due) |
 |---|---|---|
-| Python (code done) | `fsrs.schedule_review` default, `attempt_recording._apply_fsrs_review`, `POST /api/flashcards/review` | `GET /api/flashcards/due`, `/stats` |
+| Python (code done) | `fsrs.schedule_review` default, `attempt_recording._apply_fsrs_review`, `POST /api/flashcards/review` | `GET /api/flashcards/due` (`GET /stats` removed 2026-11-23) |
 | SQL (**pending apply**, PENDING-2026-11-23 group 10) | `ladder_graduate`, `ladder_record_attempt` (FSRS lapse path only) | `get_practice_session` (new `v_review_today`), `get_session_senses`, `compute_weekly_plan_load_signals`, `review_governor_state` and `build_daily_session` (their `user_flashcards` comparisons use `review_today()` instead of the plan-local `p_date`; `new_word_state_inputs` reaches them through `review_governor_state`) |
 
 Stays on the UTC date on purpose (not FSRS): `get_practice_session`'s anti-repetition `v_today` (compared with `user_exercise_history.session_date`, whose default is `CURRENT_DATE`), and the ladder's own `family_success_dates`, `review_due_at` and `last_success_session_date` in `ladder_record_attempt`. `last_review` is `timestamptz`; both old and new rows store the calendar date at 00:00 UTC.
