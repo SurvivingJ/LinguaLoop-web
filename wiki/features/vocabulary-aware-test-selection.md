@@ -3,7 +3,7 @@ title: Vocabulary-Aware Test Selection
 type: feature
 status: in-progress
 tech_page: vocabulary-aware-test-selection.tech.md
-last_updated: 2026-09-10
+last_updated: 2026-11-23
 open_questions:
   - "OPEN: what unknown-word target `u*` is actually right for a learner? The dropped RPC aimed at 3-7%; live JA content cannot reach that band today (best available is ~27% unknown at difficulty 1). Shipping with u* = 0.15 as a reachable interim."
   - "OPEN/BLOCKING: what exactly is `ability_zipf`? The tier ladder it maps onto is the native-speaker AGE tier (ADR-003), whose Zipf anchors are passage means; ability_zipf is a learner knowledge threshold. On live data an 85%-known threshold maps to 1250 and a 50% crossover to 1681 — a 430-point swing from the definition alone. Contract must be pinned with the parallel Calibration build before the seed ships."

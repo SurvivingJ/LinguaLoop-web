@@ -3,7 +3,7 @@ title: Vocab Dojo — Technical Specification
 type: feature-tech
 status: deprecated
 prose_page: ./vocab-dojo.md
-last_updated: 2026-05-21
+last_updated: 2026-11-23
 dependencies:
   - "migrations/phase8_momentum_bands.sql — get_ladder_session, ladder_record_attempt, ladder_pass_gate, ladder_graduate"
   - "services/vocabulary_ladder/ladder_service.py — Python wrapper + battery assembly"
@@ -14,12 +14,14 @@ dependencies:
   - "user_flashcards table"
   - "user_exercise_history table (anti-repetition)"
   - "exercises, dim_word_senses, dim_vocabulary tables"
+open_questions:
+  - "OPEN: confirm what /api/vocab-dojo/session answers today. routes/vocab_dojo.py defines only gate, gate/result, stress-test and stress-test/result; the prose page says the session endpoint 302s to /api/practice/session?mode=acquisition, but no such redirect exists in the code at HEAD."
 breaking_change_risk: medium
 ---
 
 # Vocab Dojo — Technical Specification
 
-> **DEPRECATED — see [[features/practice-engine.tech]].** The session-time selection logic described here (`get_ladder_session` and its Python orchestration) is replaced by `get_practice_session('acquisition', ...)` as of 2026-05-21. Ladder mechanics — rings, families, gates A/B, stress test, ring demotion — are preserved verbatim and still drive Acquisition mode. `get_ladder_session` remains as a deprecation wrapper for one release. See [[decisions/ADR-007-merge-exercises-vocab-dojo]] and [[features/practice-engine.tech#acquisition-mode-sql--iteration]].
+> **DEPRECATED — see [[features/practice-engine.tech]].** The session-time selection logic described here (`get_ladder_session` and its Python orchestration) is replaced by `get_practice_session('acquisition', ...)` as of 2026-05-21. Ladder mechanics — rings, families, gates A/B, stress test, ring demotion — are preserved verbatim and still drive Acquisition mode. The `get_ladder_session` wrapper has since been dropped: it does not exist live (checked 2026-11-23, `pg_proc`), while `ladder_record_attempt`, `ladder_pass_gate` and `ladder_graduate` do. See [[decisions/ADR-007-merge-exercises-vocab-dojo]] and [[features/practice-engine.tech#acquisition-mode-sql--iteration]].
 
 ## Architecture Overview
 
@@ -226,6 +228,8 @@ P3_B uses sentences[7, 0, 8] for L4/L7/L8
 (Full assignments in [services/vocabulary_ladder/config.py SENTENCE_ASSIGNMENTS_A/B](../../services/vocabulary_ladder/config.py).)
 
 ## Endpoint Surface
+
+**Status at HEAD (2026-11-23):** `routes/vocab_dojo.py` implements only the four `gate` / `stress-test` endpoints. The `session`, `attempt` and `word/<sense_id>/exercises` rows below describe the retired page and are historical; the live equivalents are `/api/practice/session`, `/api/practice/attempt` (`routes/practice.py`) and `/api/admin/vocab/word/<sense_id>/preview` (`routes/vocab_admin.py`).
 
 | Method | Path | Body / params | Purpose |
 |--------|------|---------------|---------|

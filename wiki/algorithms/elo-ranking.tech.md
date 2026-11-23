@@ -3,7 +3,7 @@ title: ELO Ranking — Technical Specification
 type: algorithm-tech
 status: complete
 prose_page: ./elo-ranking.md
-last_updated: 2026-05-15
+last_updated: 2026-11-23
 dependencies:
   - "calculate_elo_rating() function"
   - "calculate_volatility_multiplier() function"
@@ -63,8 +63,7 @@ User submits test
         - Repeat + not eligible:        skip ELO update entirely (factor = 0)
     → new_user_elo = calculate_elo_rating(user_elo, test_elo, percentage, 32, volatility × factor)
     → new_test_elo = calculate_elo_rating(test_elo, user_elo, 1-percentage, 16, 1.0 × factor)
-    → UPSERT user_skill_ratings (if factor > 0)
-    → UPSERT test_skill_ratings (if factor > 0)
+    → read both rating rows FOR UPDATE; INSERT a row only if none exists, else UPDATE (if factor > 0)
     → INSERT test_attempts with elo_before/elo_after snapshots + elo_reduction_factor
 ```
 
@@ -74,7 +73,7 @@ User K=32, Test K=16. Tests move at half the rate of users because each test is 
 
 ### Retry-Slot Reduced-Volatility Factor (2026-05-15)
 
-Implemented in [migrations/process_test_submission_reduced_repeats.sql](../../migrations/process_test_submission_reduced_repeats.sql). A repeat attempt earns reduced ELO iff all of:
+Implemented in [migrations/archive/process_test_submission_reduced_repeats.sql](../../migrations/archive/process_test_submission_reduced_repeats.sql) (archived; the live function body is now in [migrations/process_test_submission_set_based_grading.sql](../../migrations/process_test_submission_set_based_grading.sql)). A repeat attempt earns reduced ELO iff all of:
 
 1. `is_first_attempt = false` (counted from `test_attempts`).
 2. The test currently appears in today's `daily_test_loads.test_ids` for this user and language with `slot_type = 'retry'` (JSONB element scan via `jsonb_array_elements`).
@@ -103,7 +102,7 @@ Notable factor values:
 - 60+ days later: factor = 1.0 (effectively a fresh first attempt).
 - Same-day retry with 50% → 80% breakthrough: factor ≈ 0.45 (0.20 + 0.25).
 
-The applied factor is persisted to `test_attempts.elo_reduction_factor` (numeric, nullable). NULL means no factor was applied (first attempt at full K, or non-eligible repeat at 0 K). The submission response (`_build_submission_response` in [routes/tests.py](../../routes/tests.py)) and `/api/tests/history` both surface this column to the client.
+The applied factor is persisted to `test_attempts.elo_reduction_factor` (numeric, nullable). NULL means no factor was applied (first attempt at full K, or non-eligible repeat at 0 K). The submission response (`_build_submission_response` in [services/attempts.py](../../services/attempts.py), called from [routes/tests/submit.py](../../routes/tests/submit.py)) and `/api/tests/history` both surface this column to the client.
 
 ## Test Recommendation Algorithm
 
@@ -130,14 +129,16 @@ Ranked multi-test recommendation:
 ## Tables
 
 ### `user_skill_ratings`
-- Unique: `(user_id, language_id, test_type_id)`
+- Key: surrogate `id` only. There is **no** unique constraint on `(user_id, language_id, test_type_id)` live (verified 2026-11-23); the unique index is pending in `migrations/skill_ratings_natural_key_unique.sql`.
 - `elo_rating` default 1200, CHECK [400, 3000]
 - `tests_taken` counter
 
 ### `test_skill_ratings`
-- Unique: `(test_id, test_type_id)`
+- Key: surrogate `id` only. There is **no** unique constraint on `(test_id, test_type_id)` live; same pending migration.
 - `elo_rating` default 1400, CHECK [400, 3000]
 - `total_attempts` counter
+
+Concurrency: `process_test_submission` reads both rating rows `FOR UPDATE`, so simultaneous submissions against existing rows queue up. A first-ever simultaneous submission has no row to lock and can insert a duplicate (none exist live). Fix pending: `migrations/skill_ratings_writers_on_conflict.sql` (after the unique-index migration). Details: [[algorithms/elo-implementation-analysis.tech]].
 
 ### `test_attempts.elo_reduction_factor` (added 2026-05-15)
 - `numeric NULL` — populated only when reduced-volatility ELO fired on a repeat attempt; NULL otherwise.

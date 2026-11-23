@@ -3,7 +3,7 @@ title: Pinyin Tone Trainer — Technical Specification
 type: feature-tech
 status: complete
 prose_page: ./pinyin-trainer.md
-last_updated: 2026-05-15
+last_updated: 2026-11-23
 dependencies:
   - "tests table (pinyin_payload JSONB column)"
   - "dim_test_types (pinyin row, id=11)"
@@ -13,6 +13,9 @@ dependencies:
   - "pypinyin library"
   - "jieba library"
   - "DeepSeek LLM (optional polyphone resolution)"
+open_questions:
+  - "OPEN: the pending skill-rating migrations (migrations/skill_ratings_natural_key_unique.sql, then migrations/skill_ratings_writers_on_conflict.sql) are not applied live (checked 2026-11-23); a first-ever simultaneous pinyin submission could insert a duplicate rating row."
+  - "OPEN: the UI component section below still describes the pre-extraction inline-JS template (test_pinyin.html:LINE references are historical); the game now lives in static/js/session/players/pinyin.js. Needs a rewrite against that file."
 breaking_change_risk: low
 ---
 
@@ -83,21 +86,21 @@ Each element in the `pinyin_payload` JSON array:
 ### `GET /test/{slug}/pinyin` (page route)
 
 - **Purpose:** Render the pinyin trainer game page
-- **Handler:** `app.py:303-306` → `pinyin_test_page()`
+- **Handler:** `pinyin_test_page`, registered from the page table in `web/pages.py` (`('/test/<slug>/pinyin', 'pinyin_test_page', 'test_pinyin.html')`)
 - **Auth:** JWT required (checked client-side)
-- **Returns:** Rendered `test_pinyin.html` template
+- **Returns:** Rendered `test_pinyin.html` template, a 34-line shell; the game itself is `static/js/session/players/pinyin.js`, mounted by `static/js/pages/test-pinyin.js`
 
 ### `GET /api/tests/test/{slug}` (existing, enhanced)
 
 - **Purpose:** Fetch test content including pinyin payload
-- **Handler:** `routes/tests.py:960-1041`
+- **Handler:** `get_test_with_ratings` in `routes/tests/catalog.py` (adds `pinyin_payload` to the response when present)
 - **Enhancement:** For Chinese tests, includes `pinyin_payload` in response if present
 - **Returns:** `{test_data, questions_data, skill_ratings, pinyin_payload?}`
 
 ### `POST /api/tests/{slug}/submit-pinyin`
 
 - **Purpose:** Submit pinyin game results and update ELO
-- **Handler:** `routes/tests.py:871-960` (`submit_pinyin_attempt`)
+- **Handler:** `submit_pinyin_attempt` in `routes/tests/submit.py` (shared skeleton `_submit_counted`; counts are validated against the test's real character count, `services/attempts.pinyin_item_count`)
 - **Auth:** JWT required
 - **Arguments:**
   - `correct_chars: int` — count of characters that **never received an incorrect guess**, computed client-side as `max(0, total_chars - error_count)`. Despite the field name, this is **not** `state.correctCount` (which always equals `total_chars` at game end because wrong answers retry in place).
@@ -194,7 +197,7 @@ Applied in order, each rule checks consecutive token pairs:
 - Pinyin romanisation revealed below each character on correct answer **with the proper diacritical tone mark applied to the correct vowel** (ā á ǎ à for tones 1–4, no mark for neutral). See *Tone-mark rendering* below.
 - Error modal overlays game with character, word context, the correctly-marked pinyin, the available tones, and the sandhi explanation if any.
 
-**Tone-mark rendering — `applyToneMark(syllable, tone)` (`test_pinyin.html:547-572`):**
+**Tone-mark rendering — `applyToneMark(syllable, tone)` (now in `static/js/session/players/pinyin.js`):**
 
 A precomposed Unicode glyph table maps each vowel × tone (1–4) to the one-character precomposed form. The function picks which vowel to mark using standard pinyin orthography rules:
 
@@ -240,10 +243,10 @@ Usage:
 
 ## Integration Points
 
-1. **Test creation** (`test_service.py:283-294`, `orchestrator.py:438-448`) — automatically generates `pinyin_payload` for Chinese tests on save. Fails gracefully (non-blocking).
-2. **Skill ratings** (`test_service.py:311-315`, `database_client.py:737`) — includes pinyin test_type in initial `test_skill_ratings` for Chinese tests.
-3. **Test retrieval** (`routes/tests.py:960-1041`) — includes `pinyin_payload` in API response for Chinese tests when present.
-4. **Test preview** (`test_preview.html:497-498`) — shows pinyin mode button when `language === 'cn' OR language_id === 1`.
+1. **Test creation** (`services/test_generation/orchestrator.py`, which calls `process_passage` from `services/pinyin_service.py` after inserting the test) — automatically generates `pinyin_payload` for Chinese tests on save. Fails gracefully (non-blocking).
+2. **Skill ratings** (`insert_test_skill_ratings` in `services/test_generation/database_client.py`, filtered by `Config.test_type_applies_to_language`) — includes pinyin test_type in initial `test_skill_ratings` for Chinese tests.
+3. **Test retrieval** (`get_test_with_ratings` in `routes/tests/catalog.py`) — includes `pinyin_payload` in API response for Chinese tests when present.
+4. **Test preview** (`static/js/pages/test-preview.js`, which un-hides `pinyinOptionWrapper` in `templates/test_preview.html`) — shows the pinyin mode button when `language === 'zh' || language_id === 1`.
 
 ## Key Architectural Decisions
 
@@ -270,7 +273,18 @@ Usage:
 - No user-supplied text processed — only pre-computed payloads from admin-generated tests
 - LLM calls only in batch script (admin-only), not in user-facing request path
 
+## `process_pinyin_submission` — behaviour changes (live 2026-11-23)
+
+Source: `migrations/process_pinyin_submission.sql` (matches the live body). Not visible to learners.
+- A call with a NULL `p_user_id`, or from a caller that is neither that user nor `service_role`, returns `{success:false, error_code:'unauthorized'}` (the route turns it into HTTP 403). A missing user is rejected, never silently accepted.
+- A database error no longer returns the Postgres message: the message and SQLSTATE are written to the database log (`RAISE WARNING`) and the caller gets `{success:false, error_code:'submission_failed', sqlstate}`. The route logs and returns HTTP 500 `submission_failed` without database text.
+- EXECUTE is granted to `service_role` only; `search_path = public, pg_temp`.
+- Known limitation: the user and test rating rows are created with a plain SELECT-then-INSERT, and neither table has a unique key on its natural key live (checked 2026-11-23), so two simultaneous first-ever pinyin submissions could create duplicate rows (none exist). Fix pending: `migrations/skill_ratings_natural_key_unique.sql` then `migrations/skill_ratings_writers_on_conflict.sql`. See [[algorithms/elo-implementation-analysis.tech]].
+
 ## Testing Strategy
+
+The pytest suite is hermetic: Supabase is unreachable unless a test is marked `live` (run those with `pytest -m live`). Relevant offline tests: `tests/test_pinyin_format.py`, `tests/test_pinyin_service_sandhi.py`, `tests/test_pinyin_display_payloads.py`, `tests/test_pinyin_display_surfaces.py`, `tests/test_submission_rpc_error_envelope.py`.
+
 
 - Unit test: sandhi rule application with known character sequences
 - Unit test: token generation from sample Chinese passages

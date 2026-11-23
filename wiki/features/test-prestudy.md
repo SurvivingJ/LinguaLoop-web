@@ -367,7 +367,7 @@ Built and live (the ELO migration is applied: `test_attempts.prestudied` exists 
   `update_from_word_tests_batch(side_effects=False)`, so nothing is admitted to the ladder or
   counted against `new_words_per_day`.
 - **ELO 0.5.** "Take the test" leaves a `sessionStorage` marker (6 h); `test.html` then submits
-  `prestudied: true`. `routes/tests/submit.py` passes `p_prestudied` to `process_test_submission` only when
+  `prestudied: true`. `submit_test_attempt` in `routes/tests/submit.py` passes `p_prestudied` to `process_test_submission` only when
   true and falls back to the call without it if the function has no such parameter (PGRST202; kept as a guard, no longer needed live).
   `migrations/prestudy_elo_factor.sql` adds `test_attempts.prestudied` and the 9-argument function
   (first attempt: user and test K × 0.5, `elo_reduction_factor = 0.5`). Skipping from the preview

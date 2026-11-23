@@ -3,7 +3,7 @@ title: Flashcards — Technical Specification
 type: feature-tech
 status: in-progress
 prose_page: ./flashcards.md
-last_updated: 2026-04-10
+last_updated: 2026-11-23
 dependencies:
   - "user_flashcards table"
   - "dim_word_senses table"
@@ -24,6 +24,8 @@ breaking_change_risk: low
 
 ## API / RPC Surface
 
+Routes are in `routes/flashcards.py` (blueprint `/api/flashcards`). The learner-facing page is `/flashcards`, rendered from the page table in `web/pages.py`.
+
 ### `GET /api/flashcards/due`
 - **Purpose:** Fetch cards due for review
 - **Auth:** JWT required
@@ -33,8 +35,17 @@ breaking_change_risk: low
 ### `POST /api/flashcards/review`
 - **Purpose:** Submit review result and reschedule card
 - **Auth:** JWT required
-- **Body:** `{flashcard_id, rating}` (rating = recall quality)
+- **Body:** `{card_id, rating}`; `rating` is 1 again, 2 hard, 3 good, 4 easy. Optional `active_ms` and `client_event_id` credit the study-time ledger (see [[features/weekly-minutes.tech]]).
 - **Side effects:** Updates FSRS parameters, recalculates `due_date`
+
+### Other endpoints
+- `GET /api/flashcards/stats?language_id=` — per-user flashcard statistics.
+- `POST /api/flashcards/skip` — delete/archive a card the learner does not want.
+- `GET /api/flashcards/page` — renders `flashcards.html` (a JWT-protected template route under the API prefix; not the learner-facing URL).
+
+## Session player link (fixed 2026-11-23)
+
+When the daily-session flashcards player cannot load cards (`renderUnavailable` in `static/js/session/players/flashcards.js`), it offers an "Open page" button. It used to link to `/flashcards/page`, which is not a page route (the template route is `/api/flashcards/page`), so the learner landed on the login page. It now links to `/flashcards`, the real page.
 
 ## FSRS Implementation
 

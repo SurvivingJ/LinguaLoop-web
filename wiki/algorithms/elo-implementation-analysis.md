@@ -3,9 +3,10 @@ title: ELO System — Implementation Analysis & Improvements
 type: algorithm
 status: in-progress
 tech_page: ./elo-implementation-analysis.tech.md
-last_updated: 2026-05-15
+last_updated: 2026-11-23
 open_questions:
   - "Is Glicko-2 worth the complexity over standard ELO for this use case?"
+  - "OPEN: apply the two pending migrations (skill_ratings_natural_key_unique.sql, then skill_ratings_writers_on_conflict.sql) so a first-ever simultaneous submission cannot create duplicate rating rows? Checked live 2026-11-23: neither is applied, no duplicates exist."
   - "Should mystery ELO and test ELO share a unified skill rating model?"
 ---
 
@@ -29,13 +30,17 @@ The most significant discrepancy between documentation and code has a historical
 
 **V1 (`migrations/elo_functions.sql`)** correctly called both `calculate_elo_rating()` and `calculate_volatility_multiplier()`, with an asymmetric K-factor (32 for users, 16 for tests) and text-based columns (`language`, `skill_type`).
 
-**V2 (`migrations/process_test_submission_v2.sql`)** rewrote the function to add server-side answer grading. In the process, volatility was **dropped** and the ELO calc was inlined with symmetric K=32 for both user and test. The helper functions were not deleted from the database, creating the appearance of dead code that was actually intentionally disconnected.
+**V2 (`migrations/archive/process_test_submission_v2.sql`)** rewrote the function to add server-side answer grading. In the process, volatility was **dropped** and the ELO calc was inlined with symmetric K=32 for both user and test. The helper functions were not deleted from the database, creating the appearance of dead code that was actually intentionally disconnected.
 
 **V3 (`migrations/wire_volatility_and_exclude_attempted.sql`)** restores volatility on the user side (multiplier applied to K=32 when user has <10 tests or is >90 days inactive) and reintroduces the asymmetric K-factor for tests (K=16, no volatility — tests don't go rusty). The inlined math is replaced with calls to the existing `calculate_volatility_multiplier()` and `calculate_elo_rating()` helpers.
 
 ### Test ELO Seeding
 
-A backfill script (`scripts/backfill_test_skill_ratings.py`) seeds initial test ELO from difficulty level using a `DIFFICULTY_ELO_MAP` (difficulty 1→ELO 800, difficulty 5→1400, difficulty 9→2000 in ~150 ELO steps). This gives new tests a reasonable starting ELO that skips the cold-start convergence problem.
+A test gets its initial rating when it is generated. The generation pipeline starts from the midpoint ELO of the topic's age tier (`dim_complexity_tiers.initial_elo`) and nudges it up or down by a small lexical-complexity score of the passage (`seed_test_elo` in `services/test_generation/difficulty_scorer.py`); if the scorer fails, the tier midpoint is used. The orchestrator then writes one `test_skill_ratings` row per applicable test type (`insert_test_skill_ratings` in `services/test_generation/database_client.py`). Checked live 2026-11-23: all 488 active tests have rating rows, so no backfill is needed. The older scripts/backfill_test_skill_ratings.py (which mapped difficulty 1 to 9 onto ELO 800 to 2000) has been **deleted**: it was obsolete, and because the tables have no uniqueness on the natural key it could have inserted duplicate rows. Sentinel tests used by the drill trainers (such as the measure-word drill) get their rating row from the submission function on first use (test ELO 1400). Users start at 1200 on their first submission per language and test type.
+
+### Known limitation: duplicate rating rows on a simultaneous first submission
+
+`user_skill_ratings` and `test_skill_ratings` have only a surrogate primary key (`id`). Nothing in the database makes `(user_id, language_id, test_type_id)` or `(test_id, test_type_id)` unique. `process_test_submission` now reads these rows with `FOR UPDATE`, which serialises submissions that find an existing row, but a lock cannot cover a row that does not exist yet, so two simultaneous first-ever submissions can each insert one. Checked live 2026-11-23: no duplicates exist. Two migrations that close this are written and **pending** (not applied): `migrations/skill_ratings_natural_key_unique.sql` (unique indexes) and `migrations/skill_ratings_writers_on_conflict.sql` (the submission functions use `ON CONFLICT`); they must be applied in that order. See [[algorithms/elo-implementation-analysis.tech]].
 
 ## Other Discrepancies
 
@@ -63,7 +68,7 @@ A backfill script (`scripts/backfill_test_skill_ratings.py`) seeds initial test 
 
 ## Recently Fixed (2026-05-15)
 
-`migrations/process_test_submission_reduced_repeats.sql` closes the **zero-ELO-on-retry** pedagogical gap:
+`migrations/archive/process_test_submission_reduced_repeats.sql` closes the **zero-ELO-on-retry** pedagogical gap:
 
 - **Retry-slot reduced-volatility repeats** — when the daily-load retry slot resurfaces a sub-70% test, retaking it now grants ELO at a time-decay factor `clamp(0.20, days_since_last/60, 1.0)` plus a `+0.25` improvement bonus if the user gains 15+ percentage points over their prior best. Applied symmetrically to user (K=32 × volatility × factor) and test (K=16 × factor). Off-recommendation repeats keep their status-quo 0 ELO. Anti-grind: at most one reduced-ELO submission per `(user, test)` per day, enforced via `test_attempts.elo_reduction_factor IS NOT NULL` sentinel. See [[decisions/ADR-006-retry-slot-reduced-elo]].
 

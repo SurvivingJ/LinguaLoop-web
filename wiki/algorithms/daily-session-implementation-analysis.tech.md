@@ -3,10 +3,10 @@ title: Daily Session Implementation Analysis — Technical Evidence
 type: algorithm-tech
 status: complete
 prose_page: daily-session-implementation-analysis.md
-last_updated: 2026-08-07
+last_updated: 2026-11-23
 dependencies:
-  - "build_daily_session RPC (migrations/phase13_build_daily_session_classifier_drill.sql — canonical)"
-  - "get_recommended_tests RPC (migrations/add_pitch_accent_to_get_recommended_tests.sql — canonical)"
+  - "build_daily_session RPC (migrations/build_daily_session_dt_agreed.sql — canonical since 2026-11-17; live md5(prosrc) 43a63508… verified 2026-11-23)"
+  - "get_recommended_tests RPC (migrations/dictation_cap_cjk_word_count.sql — canonical; live md5(prosrc) 1e110653… verified 2026-11-23)"
   - "services/study_plan_service.py, services/test_service.py, routes/study_session.py"
   - "static/js/session/* , templates/study_session.html"
 breaking_change_risk: low
@@ -15,7 +15,7 @@ breaking_change_risk: low
 # Daily Session Implementation Analysis — Technical Evidence
 
 Findings F1–F16, each with evidence and a fix sketch. Severity: C=critical,
-H=high, M=medium, L=low. Remediation tasks: [[tasklist/daily-session-hardening.tasks]].
+H=high, M=medium, L=low. Remediation tasks: [[tasklist/archive/daily-session-hardening.tasks]].
 
 ## Architecture Map (as-built)
 
@@ -197,16 +197,18 @@ Feedback: submit handlers → apply_attempt_timing_and_progress →
   change both or totals ≠ hydration. Consolidate into one pass that records
   per-skill counts as it selects.
 - **Resolved:** the second loop was removed and `skill_counts` is now populated
-  in-pass by the single budget loop (`task702_build_daily_session.sql`, applied
-  live). Proven output-identical on a 20-scenario rollback-only fixture matrix
+  in-pass by the single budget loop (`migrations/archive/task702_build_daily_session.sql`, applied
+  live; since superseded). Proven output-identical on a 20-scenario rollback-only fixture matrix
   (`g_old` two-loop vs `g_new` one-loop, 0 mismatches) plus an end-to-end rollback
-  smoke call. See [[tasklist/daily-session-hardening.tasks]] TASK-710.
+  smoke call. See [[tasklist/archive/daily-session-hardening.tasks]] TASK-710.
 
 ### F13 (L) — Migration/live drift risk on build_daily_session — 🟡 MITIGATED, not eliminated (TASK-710, 2026-08-07)
-- Two non-archived files define pieces of the pipeline:
-  `phase13_build_daily_session.sql` (also holds `test_time_estimate`,
-  `week_start_for`) and `phase13_build_daily_session_classifier_drill.sql`
-  (canonical for the function). Precedent (`process_test_submission` CR-04
+- Update 2026-11-23: the canonical definition of the function is now
+  `migrations/build_daily_session_dt_agreed.sql` (live body checked by md5);
+  the older definitions, including `migrations/archive/phase13_build_daily_session_classifier_drill.sql`,
+  are in `migrations/archive/`. `migrations/phase13_build_daily_session.sql`
+  stays because it also holds `test_time_estimate` and `week_start_for`.
+  At the time of the original finding, two non-archived files defined pieces of the pipeline. Precedent (`process_test_submission` CR-04
   drift) says verify the live definition via `pg_get_functiondef` before
   trusting repo SQL.
 
@@ -267,7 +269,7 @@ Feedback: submit handlers → apply_attempt_timing_and_progress →
   is stored.
 
 ### F16 (L) — Wiki hygiene — ✅ RESOLVED (TASK-713, 2026-08-07)
-- [[tasklist/study-plans.tasks]] shows TASK-201…220 all "Not Started" while the
+- [[tasklist/archive/study-plans.tasks]] shows TASK-201…220 all "Not Started" while the
   code is live; `tasklist/master.md` has no Phase-13/session-runner section;
   [[pages/pages-overview]] lacks `/session`; the runner's design doc is an
   out-of-repo plan file (`~/.claude/plans/we-now-have-the-swirling-haven.md`)
@@ -296,6 +298,6 @@ Feedback: submit handlers → apply_attempt_timing_and_progress →
 
 ## Related Pages
 - [[algorithms/daily-session-implementation-analysis]] — prose verdicts
-- [[tasklist/daily-session-hardening.tasks]] — remediation tasks TASK-700+
+- [[tasklist/archive/daily-session-hardening.tasks]] — remediation tasks TASK-700+
 - [[features/study-plans.tech]], [[algorithms/study-plan-adaptation.tech]]
 - [[decisions/ADR-006-retry-slot-reduced-elo]], [[decisions/ADR-013-global-feature-flag-rollout]]

@@ -188,6 +188,12 @@ See [[decisions/ADR-049-exercise-content-in-storage]] (open question 1).
 - TASK-1029 measured Storage-read latency during the cut-over (see
   [[decisions/ADR-049-exercise-content-in-storage]] "Cut-over completed").
 
+## Test submission and word quiz (2026-11-23)
+
+`submit_test_attempt` (`routes/tests/submit.py`) treats an attempt as prestudied when a completed prime for the test exists in the last 6 hours (`find_prestudy_for_attempt`, server-verified); the client flag only counts while `prestudy_sessions` does not exist. It passes `p_prestudied` to `process_test_submission` only when true, and repeats the call without it if PostgREST reports the function missing (PGRST202). Live (checked 2026-11-23): the 9-argument function and `test_attempts.prestudied` exist. That function now grades in one set-based query and reads the rating rows `FOR UPDATE` ([[algorithms/elo-implementation-analysis.tech]]).
+
+The post-test word quiz (`word_quiz`) uses `get_word_quiz_candidates`, which live offers only words with `p_known` between 0.25 and 0.75; a retake can get zero candidates and no quiz. The tiered fallback was never applied (`migrations/word_quiz_retake_fallback_hardened.sql` is pending a decision). See [[features/comprehension-tests.tech]].
+
 ## Related Pages
 
 - [[features/test-prestudy]] — prose page

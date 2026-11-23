@@ -1,9 +1,9 @@
 ---
 title: Vocabulary-Aware Test Selection — Technical Specification
 type: feature-tech
-status: planned
+status: in-progress
 prose_page: vocabulary-aware-test-selection.md
-last_updated: 2026-09-16
+last_updated: 2026-11-23
 dependencies:
   - "table: user_vocabulary_knowledge (p_known, status, language_id)"
   - "table: user_calibration_state (ability_zipf, ability_se, band_accuracies, items_answered, sessions_pooled, mode, last_run_at), PK (user_id, language_id, mode) — BUILT 2026-09-09 by Calibration Phase 4, APPLIED LIVE (TASK-765, verified 2026-09-10). Selection reads mode='definition' ONLY."
@@ -14,8 +14,13 @@ dependencies:
   - "RPC: get_recommended_tests (LIVE SIGNATURE IS 3-ARG — see §1)"
   - "module: services/test_generation/difficulty_scorer.py (_REF_ZIPF anchors)"
   - "CONTRACT SATISFIED 2026-09-09: Calibration ships ability_zipf as the 85% KNOWN-share crossing, with the 1-in-4 guess floor removed by the estimator so it is knowledge and not accuracy. Verified 5.00 -> 1250 and 3.85 -> 1681, a 431-point swing. See features/calibration.tech Phase 4."
+open_questions:
+  - "OPEN: per-test-type ELO offsets (TASK-750, blocked on data) and per-type test ELO reseed (TASK-751, design awaiting a decision) are not built."
+  - "OPEN: apply_calibration_to_skill_ratings inserts rating rows with a plain SELECT-then-INSERT; the pending migration migrations/skill_ratings_writers_on_conflict.sql (after migrations/skill_ratings_natural_key_unique.sql) changes it to ON CONFLICT. Neither is applied live as of 2026-11-23."
 breaking_change_risk: medium
 ---
+
+> **Implementation status (verified live 2026-11-23).** The design below was built and applied: `selection_tuning` (migration `task744_selection_tuning_table.sql`), `calibration_zipf_to_elo` (inside `calibration_user_state_and_zipf_to_elo.sql`, which replaces the never-written `task745` file named in section 8), `user_skill_rating_adjustments` (`task746_user_skill_rating_adjustments.sql`, 23 audit rows live), `apply_calibration_to_skill_ratings` (`task747_apply_calibration_to_skill_ratings.sql`) and the vocabulary-aware `get_recommended_tests` (`task748_get_recommended_tests_vocab_aware.sql`; the live body is now the one in `dictation_cap_cjk_word_count.sql`). Live `selection_tuning`: `elo_weight` 1.0, `unknown_target` 0.15, `unknown_tolerance` 0.10, `tier_ceiling_offset` 2, `combine_mode` `sum`, `vocab_weight` 1 (switched on 2026-09-16; text below saying it ships inert at 0 describes the arrival state). Sections in the future tense are the original plan.
 
 # Vocabulary-Aware Test Selection — Technical Specification
 
@@ -41,7 +46,7 @@ added by TASK-740 phase5b. Every ranking claim in the briefing still holds
 exactly — ELO-only ranking, no `difficulty` filter, no `vocab_sense_ids` read,
 no `user_vocabulary_knowledge` — but **any migration must be built on the live
 3-arg body**, captured via `pg_get_functiondef`, not on the archive file. This
-is the same class of drift recorded in [[process-test-submission-cr04-drift]].
+is the same class of drift recorded in the CR-04 drift between repo and live bodies of `process_test_submission`.
 
 **STALE — the learner is not a cold start.** The briefing says "user has ~no ja
 attempts, so `elo_rating` sits at the 1200 default". That was true when TASK-732
@@ -232,7 +237,7 @@ Anchor points, monotone decreasing in Zipf (rarer vocabulary → higher ELO):
 Piecewise-linear interpolation between anchors; **clamp to [875, 1925]** — do
 not extrapolate past the ladder, because outside it there is no calibration.
 
-> **Single source of truth.** [[two-difficulty-to-tier-maps]] records that three
+> **Single source of truth.** The note on the two difficulty-to-tier maps (one Python, one SQL) records that three
 > copies of the difficulty→tier bands must already be kept in step. Do not add a
 > fourth. The anchor table lives in **SQL only**, as
 > `public.calibration_zipf_to_elo(numeric) RETURNS integer`, seeded from
@@ -329,9 +334,9 @@ the before/after check in §5.
 
 `process_test_submission` is **not modified**. Not to add a calibration read,
 not to change K, not to add a guard. Live has drifted from repo
-([[process-test-submission-cr04-drift]]); the canonical body is the partG
+(the CR-04 drift); the canonical body was the partG
 migration and the live definition must be re-read via `pg_get_functiondef`
-before anyone touches it. This feature does not need to.
+before anyone touches it. This feature does not need to. Update 2026-11-23: the repo and live bodies now agree; the canonical file is `migrations/process_test_submission_set_based_grading.sql` (live; set-based grading, rating rows read `FOR UPDATE`).
 
 ---
 
@@ -397,7 +402,7 @@ neutral).
 > that actually runs today.**
 
 > **Do not read `frequency_rank` as a rank.** It is a Zipf score, higher = more
-> common ([[lexicon.py:266]]). The sign convention above is deliberate: a sense
+> common (see section 0). The sign convention above is deliberate: a sense
 > *more common* than the learner's ability is likely known.
 
 ### 3.3 Combined ranking
@@ -626,7 +631,7 @@ M3 is the metric that will show it.
 
 Run with `PYTHONPATH=. pytest tests/ ...` — an explicit `tests/` path is
 required, and "no tests collected" is a hidden import error, not a missing
-suite ([[webapp-pytest-needs-pythonpath]]).
+suite (a known environment quirk). The suite is hermetic: Supabase is unreachable unless a test is marked `live` (`pytest -m live`).
 
 **Unit**
 - `calibration_zipf_to_elo`: monotone decreasing; exact hits on all six anchors;
@@ -704,7 +709,7 @@ safety, plus an `APPLIED LIVE` line, mirroring
 | order | migration | supersedes |
 |---|---|---|
 | 1 | `task744_selection_tuning_table.sql` | — |
-| 2 | `task745_calibration_zipf_to_elo.sql` | — |
+| 2 | `calibration_user_state_and_zipf_to_elo.sql` (the planned `task745` file was never written) | — |
 | 3 | `task746_user_skill_rating_adjustments.sql` | — |
 | 4 | `task747_apply_calibration_to_skill_ratings.sql` | — |
 | 5 | `task748_get_recommended_tests_vocab_aware.sql` | archives the live 3-arg body |

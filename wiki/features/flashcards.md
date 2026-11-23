@@ -3,7 +3,7 @@ title: Flashcards (FSRS)
 type: feature
 status: in-progress
 tech_page: ./flashcards.tech.md
-last_updated: 2026-04-10
+last_updated: 2026-11-23
 open_questions: []
 ---
 
@@ -37,6 +37,7 @@ A learner navigates to `/flashcards`. The system shows cards due for review toda
 
 - Flashcard creation is automatic upon vocabulary encounter — no manual card creation by users.
 - Review sessions show all due cards for the selected language.
+- If the daily session cannot load the learner's review cards, its "Open page" button now takes them to the `/flashcards` page (it used to go to a non-existent address and land on the login screen).
 
 ## Related Pages
 
