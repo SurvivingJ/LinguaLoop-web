@@ -66,9 +66,6 @@ bootstrap()
 from services.supabase_factory import SupabaseFactory, get_supabase_admin
 from services.vocabulary.language_detection import check_text_language
 
-if not SupabaseFactory.is_initialized():
-    SupabaseFactory.initialize()
-
 logger = logging.getLogger(__name__)
 
 DEFAULT_SOURCE_MODEL = 'claude-code:cross-language-glosses'
@@ -300,6 +297,11 @@ def main() -> int:
     parser.add_argument('--skip-invalid', action='store_true')
     parser.add_argument('--source-model', default=DEFAULT_SOURCE_MODEL)
     args = parser.parse_args()
+
+    # Here, not at import: tests import check_gloss_shape/validate from this
+    # module and must not need (or build clients from) Supabase credentials.
+    if not SupabaseFactory.is_initialized():
+        SupabaseFactory.initialize()
 
     with open(args.batch_file, encoding='utf-8') as fh:
         batch = json.load(fh)
