@@ -70,62 +70,6 @@ class TestGetUserProfile:
         assert 'password_hash' not in json.dumps(data)
 
 
-class TestGetTokenBalance:
-    """GET /api/users/tokens"""
-
-    def test_returns_token_balance(self, client, auth_headers, app):
-        # Mock the RPC call
-        rpc_chain = MagicMock()
-        rpc_chain.execute.return_value = SimpleNamespace(data={})
-        app.mock_supabase.rpc.return_value = rpc_chain
-
-        # Mock the table query — single() means data is a dict
-        app.mock_supabase.table.return_value = _make_chain({
-            'tokens': 50,
-            'last_free_token_date': '2026-03-17',
-        })
-
-        resp = client.get('/api/users/tokens', headers=auth_headers)
-        assert resp.status_code == 200
-        data = resp_json(resp)
-        assert data['status'] == 'success'
-        assert data['total_tokens'] == 50
-
-    def test_returns_404_when_user_missing(self, client, auth_headers, app):
-        rpc_chain = MagicMock()
-        rpc_chain.execute.return_value = SimpleNamespace(data={})
-        app.mock_supabase.rpc.return_value = rpc_chain
-
-        app.mock_supabase.table.return_value = _make_chain(None)
-
-        resp = client.get('/api/users/tokens', headers=auth_headers)
-        assert resp.status_code == 404
-
-    def test_fails_closed_without_service_client(self, client, auth_headers, app):
-        """Never fall back to the anon client when the service client is missing."""
-        anon = MagicMock()
-        app.supabase = anon
-        app.supabase_service = None
-
-        resp = client.get('/api/users/tokens', headers=auth_headers)
-        assert resp.status_code == 500
-        anon.rpc.assert_not_called()
-        anon.table.assert_not_called()
-
-    def test_uses_service_client_for_rpc_and_read(self, client, auth_headers, app):
-        anon = MagicMock()
-        app.supabase = anon
-        app.mock_supabase.table.return_value = _make_chain({
-            'tokens': 7, 'last_free_token_date': '2026-03-17',
-        })
-
-        resp = client.get('/api/users/tokens', headers=auth_headers)
-        assert resp.status_code == 200
-        app.mock_supabase.rpc.assert_called_once()
-        anon.rpc.assert_not_called()
-        anon.table.assert_not_called()
-
-
 class TestProfileFailsClosed:
     def test_profile_without_service_client_returns_500(self, client, auth_headers, app):
         anon = MagicMock()

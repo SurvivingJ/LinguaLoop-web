@@ -464,35 +464,6 @@ class Config:
         return allowed is None or language_id in allowed
 
     # ==========================================================================
-    # TOKEN ECONOMY - Single source of truth
-    # ==========================================================================
-    TOKEN_COSTS = {
-        'take_test': 1,
-        'generate_test': 5,
-    }
-    DAILY_FREE_TOKENS = int(os.environ.get('DAILY_FREE_TOKENS', '2'))
-
-    TOKEN_PACKAGES = {
-        'starter_10': {
-            'tokens': 10, 'price_cents': 199, 'price_dollars': 1.99,
-            'description': 'Starter pack - try the platform',
-        },
-        'popular_50': {
-            'tokens': 50, 'price_cents': 799, 'price_dollars': 7.99,
-            'description': 'Most popular - great value',
-        },
-        'premium_200': {
-            'tokens': 200, 'price_cents': 1999, 'price_dollars': 19.99,
-            'description': 'Premium pack - best value',
-        },
-    }
-
-    # ==========================================================================
-    # PAYMENTS (STRIPE)
-    # ==========================================================================
-    STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')
-
-    # ==========================================================================
     # STORAGE (CLOUDFLARE R2)
     # ==========================================================================
     R2_ACCESS_KEY_ID = os.environ.get('R2_ACCESS_KEY_ID')

@@ -40,7 +40,6 @@ from routes.vocabulary import vocabulary_bp
 from routes.flashcards import flashcards_bp
 from routes.corpus import corpus_bp
 from routes.users import users_bp
-from routes.payments import payments_bp
 from routes.vocab_dojo import vocab_dojo_bp
 from routes.vocab_admin import vocab_admin_bp
 from routes.calibration import calibration_bp
@@ -237,7 +236,6 @@ def _register_blueprints(app):
     app.register_blueprint(flashcards_bp, url_prefix='/api/flashcards')
     app.register_blueprint(corpus_bp, url_prefix='/api/corpus')
     app.register_blueprint(users_bp, url_prefix='/api/users')
-    app.register_blueprint(payments_bp, url_prefix='/api/payments')
     app.register_blueprint(vocab_dojo_bp, url_prefix='/api/vocab-dojo')
     app.register_blueprint(vocab_admin_bp, url_prefix='/api/admin/vocab')
     app.register_blueprint(calibration_bp, url_prefix='/api/calibration')
@@ -272,7 +270,6 @@ def _register_core_routes(app):
                 "supabase": app.supabase is not None,
                 "auth": app.auth_service is not None,
                 "r2": app.r2_service is not None,
-                "stripe": Config.STRIPE_SECRET_KEY is not None,
                 "vocabulary": app.vocab_pipeline is not None
             }
         })
@@ -284,11 +281,8 @@ def _register_core_routes(app):
             "features": {
                 "ai_generation": app.openai_service is not None,
                 "database": app.supabase is not None,
-                "payments": Config.STRIPE_SECRET_KEY is not None,
                 "audio_generation": app.openai_service is not None
-            },
-            "token_costs": Config.TOKEN_COSTS if hasattr(Config, 'TOKEN_COSTS') else {},
-            "daily_free_tokens": Config.DAILY_FREE_TOKENS if hasattr(Config, 'DAILY_FREE_TOKENS') else 0
+            }
         })
 
     @app.context_processor

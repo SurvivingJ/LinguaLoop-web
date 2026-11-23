@@ -1,5 +1,5 @@
 # routes/users.py
-"""User routes — ELO ratings, token balance, profile."""
+"""User routes — ELO ratings, profile."""
 
 from flask import Blueprint, g
 import logging
@@ -23,34 +23,6 @@ def get_user_elo_ratings() -> ApiResponse:
     """Get user's ELO ratings across all languages and skills."""
     ratings = get_test_service().get_user_elo_summary(g.current_user_id)
     return api_success({'ratings': ratings})
-
-
-@users_bp.route('/tokens', methods=['GET'])
-@supabase_jwt_required
-@api_errors("Failed to get token balance")
-def get_token_balance() -> ApiResponse:
-    """Get user's current token balance, atomically granting daily free tokens."""
-    user_id = g.current_user_id
-
-    # Atomic RPC: grants daily free tokens if not yet granted today
-    client = get_db()
-    client.rpc('grant_daily_free_tokens', {'p_user_id': user_id}).execute()
-
-    # Read updated balance
-    user_result = client.table('users')\
-        .select('tokens, last_free_token_date')\
-        .eq('id', user_id)\
-        .single()\
-        .execute()
-
-    if not user_result.data:
-        return not_found("User not found")
-
-    return api_success({
-        "total_tokens": user_result.data.get('tokens', 0),
-        "free_tokens_today": Config.DAILY_FREE_TOKENS,
-        "last_free_token_date": user_result.data.get('last_free_token_date', ''),
-    })
 
 
 @users_bp.route('/profile', methods=['GET'])

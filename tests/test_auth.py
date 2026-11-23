@@ -7,7 +7,6 @@ import pytest
 # A sample of JWT-protected endpoints and their methods
 PROTECTED_ENDPOINTS = [
     ('GET', '/api/users/elo?language_id=1'),
-    ('GET', '/api/users/tokens'),
     ('GET', '/api/users/profile'),
     ('GET', '/api/flashcards/due?language_id=1'),
     ('GET', '/api/flashcards/stats?language_id=1'),

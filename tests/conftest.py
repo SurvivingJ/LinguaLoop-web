@@ -205,7 +205,6 @@ class TestConfig(Config):
     SUPABASE_KEY = 'fake-anon-key'
     SUPABASE_SERVICE_ROLE_KEY = 'fake-service-role-key'
     OPENAI_API_KEY = None
-    STRIPE_SECRET_KEY = None
     R2_ACCESS_KEY_ID = None
 
 
