@@ -119,10 +119,10 @@ the every-lemma rule and costs nothing.
 python scripts/upload_senses.py --batch-file data/sense_seeding/ja/batch_001.json \
   --senses-file data/sense_seeding/ja/batch_001.senses.json --dry-run
 python scripts/upload_senses.py --batch-file data/sense_seeding/ja/batch_001.json \
-  --senses-file data/sense_seeding/ja/batch_001.senses.json
+  --senses-file data/sense_seeding/ja/batch_001.senses.json --apply
 ```
 
-Dry-run first, every time — it prints each definition as it will be written, and
+Dry-run first, every time (nothing is written without `--apply`) — it prints each definition as it will be written, and
 reading them back is the last chance to catch a register or language slip.
 
 Writes go through `SenseGenerator._write_two_levels`, which pairs the two rows at

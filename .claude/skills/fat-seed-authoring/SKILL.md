@@ -135,9 +135,10 @@ Configuration lives in `scratch_offline/nt_pipeline.py` (`AUTHOR_ARGS`,
   git: commit the chunks, or `gzip -9` the SQL (≈7× smaller). Archive the
   JSON records (`words/`, `reviewed/`, `review/`, `senses.csv`) as a tar.gz.
 - **Upload and render** stay exactly as the staged chain: `--source-model
-  claude-code:fat-seed`, core before exercises, `--no-render`. Then
+  claude-code:fat-seed`, core before exercises, `--no-render`, a dry run and
+  then `--apply` (the uploader writes nothing without it). Then
   `python scripts/exercise_stage_runner.py prepare RUN --stage 8`, hand off
-  to `batch-exercise-judging`, then `collect`, `render --dry-run`, `render`.
+  to `batch-exercise-judging`, then `collect`, `render --dry-run`, `render --apply`.
   Verify `count(*) = count(word_asset_id)` on `exercises`.
 
 ## New language

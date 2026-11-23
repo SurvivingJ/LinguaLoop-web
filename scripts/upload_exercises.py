@@ -38,7 +38,11 @@ Usage:
 
     python scripts/upload_exercises.py --stage exercises \\
         --batch-file data/exercise_seeding/ja/batch_001.json \\
-        --answers-file data/exercise_seeding/ja/batch_001.exercises.json
+        --answers-file data/exercise_seeding/ja/batch_001.exercises.json --apply
+
+Nothing is written unless --apply is given: without it (or with the explicit
+--dry-run) the batch is validated and reported only. --apply with --dry-run is
+an error.
 """
 
 import sys
@@ -48,17 +52,14 @@ import argparse
 import logging
 
 try:
-    from _common import bootstrap
+    from _common import base_parser, bootstrap
 except ImportError:  # run or imported as scripts.<name>
-    from scripts._common import bootstrap
+    from scripts._common import base_parser, bootstrap
 
 bootstrap()
 
 
 from services.supabase_factory import SupabaseFactory, get_supabase_admin
-
-if not SupabaseFactory.is_initialized():
-    SupabaseFactory.initialize()
 
 from services.exercise_generation.schemas import (
     SchemaError, error_escape, validate_ladder_output,
@@ -437,12 +438,11 @@ def apply_exercises(db, batch: dict, ready: list[dict], args) -> dict:
 # ---------------------------------------------------------------------------
 
 def main() -> int:
-    parser = argparse.ArgumentParser(
+    parser = base_parser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('--stage', required=True, choices=['core', 'exercises'])
     parser.add_argument('--batch-file', required=True)
     parser.add_argument('--answers-file', required=True)
-    parser.add_argument('--dry-run', action='store_true')
     parser.add_argument('--skip-invalid', action='store_true')
     parser.add_argument('--no-render', action='store_true',
                         help='stage=exercises: store assets without rendering '
@@ -450,6 +450,11 @@ def main() -> int:
     parser.add_argument('--source-model', default=DEFAULT_SOURCE_MODEL)
     args = parser.parse_args()
 
+    # Here, not at import: --help and the tests must not need Supabase credentials.
+    # (exercise_stage_runner and fat_seed_runner import this module; their own
+    # db_and_language() initialises the factory through export_exercise_worklist.)
+    if not SupabaseFactory.is_initialized():
+        SupabaseFactory.initialize()
     db = get_supabase_admin()
     batch = load_json(args.batch_file)
 

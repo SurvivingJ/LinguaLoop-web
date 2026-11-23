@@ -35,8 +35,8 @@ Read its "The things that actually fail" and stage-5 sections before starting.
 | 4 | transforms (P3) A/B | **you** | `prepare`/answer/`collect --stage 4` |
 | 5 | split L4/L8 + typed | **you** | `prepare`/answer/`collect --stage 5` |
 | 6 | judge items | *judging skill* | `prepare RUN --stage 6` → **hand off** → `collect RUN --stage 6` |
-| 7 | assemble + upload assets | runner | `assemble RUN`, then `upload_exercises.py … --no-render` |
-| 8 | renderer judges → render | *judging skill*, then runner | `prepare/collect --stage 8` (repeat until dry run is clean) → `render RUN` |
+| 7 | assemble + upload assets | runner | `assemble RUN`, then `upload_exercises.py … --no-render --apply` |
+| 8 | renderer judges → render | *judging skill*, then runner | `prepare/collect --stage 8` (repeat until dry run is clean) → `render RUN --apply` |
 
 **Every model call in this chain is a Claude subagent or this session. No step
 calls a hosted model API.**
@@ -44,8 +44,10 @@ calls a hosted model API.**
 All runner commands are `PYTHONIOENCODING=utf-8 python scripts/exercise_stage_runner.py <cmd> …`.
 `status RUN` shows where every stage stands.
 
-Stage 0 reads the database; 2-prepare, 2b and 6-prepare read it; nothing but
-`upload_exercises.py` writes it. The level plan (`active_levels`,
+Stage 0 reads the database; 2-prepare, 2b and 6-prepare read it. Two steps
+write it, and only with `--apply`: `upload_exercises.py` writes `word_assets`
+(stage 7), and the runner's `render` writes the `exercises` rows and their
+content files in Storage (stage 8). The level plan (`active_levels`,
 `p3_expected_levels`, the collocate grade) cannot be known before P1 is
 answered — it is a function of P1's semantic_class, morphology and collocate —
 so it appears at 2b, in `RUN/plan.csv`, not in `senses.csv`.
@@ -138,11 +140,11 @@ the hosted judge models over the API; this workflow makes no API calls.
 python scripts/upload_exercises.py --stage core \
   --batch-file RUN/07_upload/batch_001.core.batch.json \
   --answers-file RUN/07_upload/batch_001.core.json --dry-run
-python scripts/upload_exercises.py --stage core  …(same, no --dry-run)
+python scripts/upload_exercises.py --stage core  …(same, --apply instead of --dry-run)
 python scripts/upload_exercises.py --stage exercises --no-render \
   --batch-file RUN/07_upload/batch_001.exercises.batch.json \
   --answers-file RUN/07_upload/batch_001.exercises.json --dry-run
-python scripts/upload_exercises.py --stage exercises --no-render  …(same, no --dry-run)
+python scripts/upload_exercises.py --stage exercises --no-render  …(same, --apply instead of --dry-run)
 ```
 
 ## Stage 8 — the renderer's judges, then render (no API)
@@ -159,7 +161,7 @@ those judges are answered by a subagent and replayed:
    normal for a first pass, since some requests only appear once an earlier
    verdict is known. Repeat step 1 (it asks only the new requests) until the
    dry run reports `0 sense(s) blocked`.
-3. `render RUN`: inserts the rows. It refuses any sense that already has
+3. `render RUN --apply`: inserts the rows. It refuses any sense that already has
    exercise rows.
 
 The runner seeds Python's `random` per sense for both capture and render,
@@ -177,8 +179,8 @@ The two counts must be equal.
 
 ## Hard rules
 
-- **Never insert into `exercises`.** Only `upload_exercises.py` writes, and it
-  writes `word_assets`; the renderer makes the rows and attaches
+- **Never insert into `exercises`.** `upload_exercises.py --apply` writes
+  `word_assets`; the renderer (`render RUN --apply`) makes the rows and attaches
   `word_asset_id` (TASK-512).
 - **Never re-render a sense that already has rows.** `render_all` has no
   de-duplication. Clear the old rows first or pass `--no-render`.
