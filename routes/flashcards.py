@@ -7,6 +7,7 @@ import logging
 
 from middleware.auth import jwt_required as supabase_jwt_required
 from routes.common import get_db
+from services.day_boundary import review_today, review_today_iso
 from services.study_time import clamp_active_ms, credit_study_time, parse_client_event_id
 from services.vocabulary.fsrs import CardState, schedule_review
 from services.pinyin_format import display_pronunciation
@@ -41,7 +42,9 @@ def get_due_cards(language_id: int) -> ApiResponse:
     current_user_id = g.current_user_id
 
     db = get_db()
-    today = date.today().isoformat()
+    # FSRS review calendar (one app-wide time zone, TASK-1211): the same
+    # date the review writer stamps.
+    today = review_today_iso()
 
     response = db.table('user_flashcards') \
         .select(
@@ -153,13 +156,14 @@ def submit_review() -> ApiResponse:
         state=row.get('state', 'new'),
     )
 
-    new_card = schedule_review(card, rating)
+    today = review_today()
+    new_card = schedule_review(card, rating, today)
 
     update_data = {
         'stability': new_card.stability,
         'difficulty': new_card.difficulty,
         'due_date': new_card.due_date.isoformat() if new_card.due_date else None,
-        'last_review': date.today().isoformat(),
+        'last_review': today.isoformat(),
         'reps': new_card.reps,
         'lapses': new_card.lapses,
         'state': new_card.state,
@@ -207,7 +211,9 @@ def get_stats(language_id: int) -> ApiResponse:
     current_user_id = g.current_user_id
 
     db = get_db()
-    today = date.today().isoformat()
+    # FSRS review calendar (one app-wide time zone, TASK-1211): the same
+    # date the review writer stamps.
+    today = review_today_iso()
 
     all_resp = db.table('user_flashcards') \
         .select('state', count='exact') \

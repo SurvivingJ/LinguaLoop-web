@@ -17,6 +17,7 @@ from datetime import date, datetime, timezone
 from typing import Any, Dict, Optional
 
 from config import Config
+from services.day_boundary import review_today
 from services.vocabulary.knowledge_service import VocabularyKnowledgeService
 from services.vocabulary.fsrs import CardState, schedule_review, AGAIN, GOOD, EASY
 from services.practice.constants import (
@@ -405,14 +406,17 @@ class AttemptRecordingMixin:
             else:
                 rating = GOOD
 
-            new_card = schedule_review(card, rating)
+            # One FSRS review day (app-wide review time zone, TASK-1211) for
+            # both the schedule and the last_review stamp.
+            today = review_today()
+            new_card = schedule_review(card, rating, today)
             self.db.table('user_flashcards').update({
                 'stability':   new_card.stability,
                 'difficulty':  new_card.difficulty,
                 'due_date':    (
                     new_card.due_date.isoformat() if new_card.due_date else None
                 ),
-                'last_review': date.today().isoformat(),
+                'last_review': today.isoformat(),
                 'reps':        new_card.reps,
                 'lapses':      new_card.lapses,
                 'state':       new_card.state,
