@@ -192,3 +192,21 @@ removed from the code.
 ## Related Pages
 - [[features/knowledge-report]] · [[features/vocab-placement]]
 - [[tasklist/master]]
+
+### 2026-11-23 — JLPT N5/N4 seeding (OQ31)
+
+- Coverage report of the owner's JLPT list (7,972 entries, 7,836 spellings): 2,233 (28%) in the dictionary before;
+  5,718 missing (5,540 words + 178 affixes). Lists: `data/sense_seeding/ja_jlpt/`.
+- **N5 + N4 seeded live**: 694 words (`scripts/load_vocab_list.py`), 1,388 ja definitions (480 ja_5k drafts, 53 of them
+  fixed in review, + 214 written), 2,776 en/zh glosses, embeddings (OpenRouter `openai/text-embedding-3-small`,
+  verified identical to a stored vector), pronunciations on the native rows. ja pool refreshed; caches filled.
+- ja gates after seeding: (3,1) 97.2%, (3,2) 98.8%, (3,3) 98.8% — all PASS (frame 3,241 → 3,935).
+- Exercises: fat-seed pipeline (`claude -p`, $28.51 notional) → 673 of 694 senses, 4,711 word assets, 8,272 exercise
+  rows. Rendering judges were first on OpenRouter, whose key hit its total limit mid-run (judges fail open), so every
+  new sense was re-rendered with all judges on Claude (`claude_cli`, Sonnet; 5,378 judge calls), replacing the old
+  rows in one `write_sense` each. The ja spaCy model and the ja mora trie were installed/built in the container, so
+  jumbled_sentence (106) and phonetic_recognition (569) are included. particle_selection is absent: the plan only
+  offers it for words with mined corpus sentences.
+- 21 senses without exercises: 13 definitions span 2+ meanings (split the sense first), 4 reviewer no-ops, 3 missing
+  level_6 blocks, 1 proper noun (`n5n4_exercise_issues.csv`).
+- Database: 368.96 MB before → 394.72 MB after (owner's stop line: 475 MB).
