@@ -6,11 +6,11 @@ prose_page: ./rpcs.md
 last_updated: 2026-11-23
 dependencies:
   - "Flask app factory `create_app()` in `app.py`, wired by the `web/` package (see [[features/web-package.tech]])"
-  - "20 route modules in `routes/` (the `routes/tests/` package is one of them; see [[features/routes-tests-package.tech]])"
+  - "19 route modules in `routes/` (the `routes/tests/` package is one of them; see [[features/routes-tests-package.tech]])"
   - "Supabase JWT middleware (`middleware/auth.py`)"
   - "Supabase Python client (PostgREST tables + RPC), service-role client from `routes/common.get_db()`"
   - "Flask-Limiter (`web/rate_limits.py`)"
-  - "Stripe SDK (configured at start-up; no payment route uses it any more)"
+  - "Stripe SDK: removed 2026-11-23 with the token economy (TASK-1210); no route or service uses it"
 breaking_change_risk: medium
 open_questions:
   - "OPEN: `routes/tests/submit.py` looks the test up with `find_active_test_by_slug`, which ends in `.single().execute()`. For an unknown or inactive slug that call raises (PostgREST 'no rows') instead of returning None, so the handler's `404 Test not found` branch is probably never reached and the client sees a 500. Not exercised against the live API; confirm and fix or document."
@@ -57,8 +57,8 @@ Rate limits (`web/rate_limits.py`): every `/api/` route is limited to `300 per m
 
 | Method | Path | Handler | Auth | Reaches | Client |
 |---|---|---|---|---|---|
-| GET | `/api/health` | `app.health_check` | none | `{status, timestamp, version:"2.2.0", services:{openai, supabase, auth, r2, stripe, vocabulary}}`; no database call | no in-repo client |
-| GET | `/api/config` | `app.get_config` | none | `Config.TOKEN_COSTS`, `Config.DAILY_FREE_TOKENS`, feature booleans | no in-repo client |
+| GET | `/api/health` | `app.health_check` | none | `{status, timestamp, version:"2.2.0", services:{openai, supabase, auth, r2, vocabulary}}`; no database call | no in-repo client |
+| GET | `/api/config` | `app.get_config` | none | feature booleans only (`ai_generation`, `database`, `audio_generation`); the token fields and the `payments` flag were removed 2026-11-23 (TASK-1210) | no in-repo client |
 | GET | `/api/metadata` | `app.get_metadata` | none | `DimensionService` in-memory cache (languages, test types). Since 2026-11 the same object is embedded in every page as `window.LINGUA_METADATA` by the context processor `_inline_metadata`, so the client usually needs no request. | `static/js/utils.js` |
 | POST | `/api/vocabulary/extract` | `app.extract_vocabulary` | JWT; limit 10/min, 100/day | `VocabularyExtractionPipeline.extract` (`app.vocab_pipeline`; `503` when OpenAI or Supabase is not configured). Body `VocabularyExtractRequest {text, language_code}` | no in-repo client |
 | POST | `/api/errors/log` | `app.log_error` | JWT | inserts `app_error_logs`; body `ErrorLogRequest {error_type, error_message, url?, metadata?}`; `201` | no in-repo client |
@@ -104,10 +104,10 @@ OTP passwordless login. `auth_bp.auth_service` (`AuthService`) and `auth_bp.devi
 | Method | Path | Handler | Auth | Notes | Client |
 |---|---|---|---|---|---|
 | POST | `/api/auth/send-otp` | `auth.send_otp` | none; limit 5/min, 20/h per IP and 3/10 min, 10/day per email | `{email, is_registration?}` → Supabase Auth OTP. `400` bad email or failed send. | `login.js` |
-| POST | `/api/auth/verify-otp` | `auth.verify_otp` | none; 10/min, 60/h per IP and 10/10 min per email | `{email, otp_code, remember_device?}` → `{success, user{id,email,emailVerified,subscriptionTier,tokenBalance,totalTestsTaken,totalTestsGenerated,hasSeenWelcome}, jwt_token, remembered}`; sets the refresh cookie (persistent only when `remember_device`) and, if remembered, the device cookie. Creates the `users` row on first login (`AuthService._get_user_data`; see the `grant_daily_free_tokens` note below). | `login.js` |
+| POST | `/api/auth/verify-otp` | `auth.verify_otp` | none; 10/min, 60/h per IP and 10/10 min per email | `{email, otp_code, remember_device?}` → `{success, user{id,email,emailVerified,subscriptionTier,totalTestsTaken,totalTestsGenerated,hasSeenWelcome}, jwt_token, remembered}`; sets the refresh cookie (persistent only when `remember_device`) and, if remembered, the device cookie. Creates the `users` row on first login (`AuthService._get_user_data`; no token grant is attempted since 2026-11-23, and `tokenBalance` was removed from the payload, TASK-1210). | `login.js` |
 | POST | `/api/auth/refresh-token` | `auth.refresh_token` | none (cookie); 60/min per IP | Reads the refresh cookie, rotates it, returns `{success, jwt_token}`. `400` no cookie, `401` rejected. | `base.js` |
 | POST | `/api/auth/device-restore` | `auth.device_restore` | none (device cookie); 30/min per IP | Validates and rotates the trusted-device cookie, mints a session (`mint_session_for_user`), returns the user and `jwt_token`; `401` clears the device cookie. `503` when the device service is missing. | `base.js` |
-| GET | `/api/auth/profile` | `auth.get_profile` | JWT | `AuthService.get_user_profile` (reads `users`, RPC `get_token_balance`). `404` when no row. | `login.js` |
+| GET | `/api/auth/profile` | `auth.get_profile` | JWT | `AuthService.get_user_profile` (reads `users`). `404` when no row. | `login.js` |
 | POST | `/api/auth/mark-welcome-seen` | `auth.mark_welcome_seen` | JWT | Idempotent flag on `users`. | `onboarding.js` |
 | POST | `/api/auth/logout` | `auth.logout` | JWT | Revokes the device row, signs the session out (not for the batch identity), clears both cookies. | `base.js` |
 
@@ -146,22 +146,17 @@ All `@jwt_required`.
 | Method | Path | Handler | Reaches | Client |
 |---|---|---|---|---|
 | GET | `/api/users/elo` | `users.get_user_elo_ratings` | `TestService.get_user_elo_summary` (`user_skill_ratings`) | yes |
-| GET | `/api/users/tokens` | `users.get_token_balance` | RPC `grant_daily_free_tokens`, then `users.tokens` | no in-repo client |
 | GET | `/api/users/profile` | `users.get_user_profile` | `users` (`.single()`) | no in-repo client |
 | GET | `/api/users/preferences` | `users.get_preferences` | `users.exercise_preferences` | yes |
 | PATCH | `/api/users/preferences` | `users.update_preferences` | merges `session_size` (`MIN..MAX_EXERCISE_SESSION_SIZE`), `furigana_enabled` (bool), `script_variant` (`VALID_VARIANTS`) into `users.exercise_preferences` | yes |
 | GET | `/api/users/native-language` | `users.get_native_language` | `users.native_language_id` (null = not set) | yes |
 | PATCH | `/api/users/native-language` | `users.update_native_language` | `{language_id}` ∈ `Config.VALID_LANGUAGE_IDS` | yes |
 
-> **`GET /api/users/tokens` is broken in production, and the daily free-token grant never happens.** The handler calls the RPC `grant_daily_free_tokens` unconditionally, and that function **does not exist** in the live database (checked `pg_proc` 2026-11-23) **and is in no migration** (`migrations/security_function_grants_group_a.sql` records it as "NOT in the live DB"). PostgREST answers function-not-found, the call raises, and the route returns `500 {"status":"error","error":"Failed to get token balance","error_code":"SERVER_ERROR"}`. No code path grants daily free tokens, so `Config.DAILY_FREE_TOKENS` is never applied. `AuthService._get_user_data` makes the same call when it creates a first-login `users` row; it sits inside a `try/except`, so login still works and returns the hard-coded `token_balance` 2. Fixing it needs a new migration that creates the function (and a decision on the token economy), not a code change; it is a follow-up, not something this page can resolve.
+> **`GET /api/users/tokens` was removed 2026-11-23** (TASK-1210; the token economy is retired, [[features/token-economy.tech]]). It returned 500 (the RPC `grant_daily_free_tokens` never existed live) and had no in-repo client. A request now gets the generic `404 NOT_FOUND` envelope. The first-login row creation in `AuthService._get_user_data` no longer calls any grant function.
 
-## `/api/payments` — [routes/payments.py](../../routes/payments.py)
+## `/api/payments` — removed 2026-11-23
 
-| Method | Path | Handler | Auth | Notes | Client |
-|---|---|---|---|---|---|
-| GET | `/api/payments/token-packages` | `payments.get_token_packages` | none | `{packages: Config.TOKEN_PACKAGES}` (static; keys such as `popular_50`, each with `price_cents`, `price_dollars`, `tokens`, `description`) | no in-repo client |
-
-**`POST /api/payments/create-intent` has been removed.** The route is no longer registered: a request now gets the generic JSON `404 {"status":"error","error":"Endpoint not found","error_code":"NOT_FOUND"}` (checked with the Flask test client, 2026-11-23, for POST and GET). Reason, recorded in the module comment: no verified webhook route exists to credit tokens after a payment, so a paid intent would never be fulfilled. It comes back together with a Stripe webhook that verifies the signature with `stripe.Webhook.construct_event` and calls `PaymentService.handle_successful_payment`. The credit RPCs (`process_stripe_payment`, `add_tokens_atomic`, `get_token_balance`) exist live; nothing in HTTP reaches `process_stripe_payment`. `models/requests.PaymentIntentRequest` was deleted with the route.
+No `/api/payments/*` route exists. `routes/payments.py`, its blueprint registration and `services/payment_service.py` were deleted with the token economy (TASK-1210, owner decision: retired, proposed as a future implementation). `GET /api/payments/token-packages` (static `Config.TOKEN_PACKAGES`, no client) is gone; `POST /api/payments/create-intent` had been removed earlier because no verified Stripe webhook existed. A request to either now gets the generic `404 NOT_FOUND` envelope. The live database functions `process_stripe_payment`, `add_tokens_atomic` and `get_token_balance` still exist but nothing in HTTP or Python reaches them. If rebuilt: [[features/token-economy.tech]] (section 'If rebuilt') and [[decisions/ADR-047-credits-and-subscription-model]].
 
 ## `/api/reports` — [routes/reports.py](../../routes/reports.py)
 
@@ -331,7 +326,7 @@ All `@admin_required` (the page `/admin/vocab-preview` is public, the API behind
 
 ## RPC call-site map
 
-Every RPC name that Python (outside `scripts/`, `tests/` and archives) calls, with its caller, rebuilt on 2026-11-23 by an AST scan for `.rpc('<name>')` plus the call sites that pass the name in a variable. All were checked in `pg_proc` the same day: **all exist except `grant_daily_free_tokens`**. Definitions and signatures: [[database/rpcs.tech]].
+Every RPC name that Python (outside `scripts/`, `tests/` and archives) calls, with its caller, rebuilt on 2026-11-23 by an AST scan for `.rpc('<name>')` plus the call sites that pass the name in a variable. All were checked in `pg_proc` the same day: all exist (the missing `grant_daily_free_tokens` call and the `get_token_balance` call were removed from Python 2026-11-23, TASK-1210). Definitions and signatures: [[database/rpcs.tech]].
 
 | RPC | Called from |
 |---|---|
@@ -360,8 +355,6 @@ Every RPC name that Python (outside `scripts/`, `tests/` and archives) calls, wi
 | `knowledge_report_summary`, `knowledge_frame_bands` | `services/vocabulary/knowledge_report.py` (through `call_bundle`); `knowledge_active_pairs`, `knowledge_snapshots_prune`, `knowledge_report_summary` also in `services/knowledge_snapshots.py` |
 | `prestudy_plan_inputs` | `services/prestudy.py` (through `call_bundle`) |
 | `exercise_content_begin`, `exercise_content_commit` | `services/exercise_content/writer.py` (ADR-049); `exercise_content_live_versions` from `scripts/sweep_exercise_content.py` |
-| `get_token_balance` | `services/auth_service.py` |
-| `grant_daily_free_tokens` | `routes/users.py: get_token_balance`, `services/auth_service.py: _get_user_data` — **function absent live** (see `/api/users`) |
 | `irt_try_lock`, `irt_release_lock`, `irt_apply_calibration` | `services/irt/calibrator.py` |
 | `match_topics`, `match_topics_global`, `get_next_category`, `get_active_languages` | `services/topic_generation/database_client.py` |
 | `match_test_passages_by_topic_tier` | `services/test_generation/dedup.py` |
@@ -371,11 +364,11 @@ Every RPC name that Python (outside `scripts/`, `tests/` and archives) calls, wi
 | `pg_try_advisory_lock_for_queue_drain` / `pg_advisory_unlock_for_queue_drain` | `services/vocabulary_ladder/queue_drain.py` |
 | `pg_try_advisory_lock_for_word_upload_sweep` / `pg_advisory_unlock_for_word_upload_sweep` | `services/word_list_import/sweep_cron.py` — **absent live** (migration pending, see [[overview/project.tech]] scheduler) |
 
-**No Python caller left** (still live in the database, listed in [[database/rpcs.tech]]): `get_quiz_distractors_batch` (its flag `QUIZ_DISTRACTORS_BATCH` was removed; the drop is pending), `bkt_update_comprehension`, `bkt_update_word_test`, `bkt_update_exercise`, `add_tokens_atomic`, `process_stripe_payment`, `can_use_free_test`, `get_vocab_recommendations`, `batch_lookup_lemmas`, `irt_compute_user_theta`. **Dropped or archived** (absent live): `get_ladder_session`, `get_exercise_session` (ADR-049 clean-up, 2026-11-17), `process_mystery_submission`, `get_recommended_mysteries`, `get_packs_with_user_selection` (module archive of 2026-09-21).
+**No Python caller left** (still live in the database, listed in [[database/rpcs.tech]]): `get_quiz_distractors_batch` (its flag `QUIZ_DISTRACTORS_BATCH` was removed; the drop is pending), `bkt_update_comprehension`, `bkt_update_word_test`, `bkt_update_exercise`, `add_tokens_atomic`, `get_token_balance`, `process_stripe_payment`, `can_use_free_test`, `get_vocab_recommendations`, `batch_lookup_lemmas`, `irt_compute_user_theta`. **Dropped or archived** (absent live): `get_ladder_session`, `get_exercise_session` (ADR-049 clean-up, 2026-11-17), `process_mystery_submission`, `get_recommended_mysteries`, `get_packs_with_user_selection` (module archive of 2026-09-21).
 
 ## Removed routes (history)
 
-For readers of older pages: the exercises route module (`/api/exercises/*`) and the exercise-session service were deleted, their behaviour now lives in `services/practice/` and `services/study_session/` (the daily session is `GET /api/study-session` plus `/api/practice/*`); the mystery and conversations route modules and the pack endpoints of `routes/corpus.py` were archived 2026-09-21 (`archive/modules/*.zip`, tables dropped 2026-09-22); the Model Arena and local-admin route modules, the local admin app and its task-runner service no longer exist, so no `/admin/*` API remains (the only `/admin/` URL is the public page `/admin/vocab-preview`); `GET /api/vocab-dojo/session`, `/attempt` and `/word/<id>/exercises` were removed with the per-word dojo UI; `POST /api/payments/create-intent` was removed (above).
+For readers of older pages: the exercises route module (`/api/exercises/*`) and the exercise-session service were deleted, their behaviour now lives in `services/practice/` and `services/study_session/` (the daily session is `GET /api/study-session` plus `/api/practice/*`); the mystery and conversations route modules and the pack endpoints of `routes/corpus.py` were archived 2026-09-21 (`archive/modules/*.zip`, tables dropped 2026-09-22); the Model Arena and local-admin route modules, the local admin app and its task-runner service no longer exist, so no `/admin/*` API remains (the only `/admin/` URL is the public page `/admin/vocab-preview`); `GET /api/vocab-dojo/session`, `/attempt` and `/word/<id>/exercises` were removed with the per-word dojo UI; `/api/payments/*` and `GET /api/users/tokens` were removed with the token economy (2026-11-23).
 
 ## Contract notes that callers still depend on
 
