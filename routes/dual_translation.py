@@ -40,7 +40,7 @@ import logging
 import time
 import os
 import random
-from datetime import date, datetime, time as dtime, timezone
+from datetime import date, datetime, timezone
 from typing import Optional
 
 from flask import Blueprint, request, g, current_app
