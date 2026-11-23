@@ -7,7 +7,6 @@ from flask import Flask, request, jsonify, make_response
 from flask_cors import CORS
 from werkzeug.middleware.proxy_fix import ProxyFix
 from datetime import datetime, timezone
-import stripe
 from services.supabase_factory import (
     SupabaseFactory, SupabaseConfigError, get_supabase, get_supabase_admin,
 )
@@ -182,15 +181,6 @@ def _initialize_services(app, config_class=Config):
     except Exception as e:
         app.logger.error(f"R2 service error: {e}")
         app.r2_service = None
-
-    try:
-        if config_class.STRIPE_SECRET_KEY:
-            stripe.api_key = config_class.STRIPE_SECRET_KEY
-            app.logger.info("Stripe configured")
-        else:
-            app.logger.warning("Stripe not configured")
-    except Exception as e:
-        app.logger.error(f"Stripe initialization error: {e}")
 
     # Vocabulary extraction pipeline
     try:
