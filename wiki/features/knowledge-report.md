@@ -33,7 +33,7 @@ open_questions:
   - "OQ26 OPEN: Write a snapshot row every day for inactive learners? Default: yes, with pruning."
   - "OQ27 OPEN: Is 'rated known after a direct check' strict enough? Default: more correct than wrong direct checks and a rating of at least 0.75; measured later."
   - "OQ28 OPEN: Accept the Pro launch gate: no enforcement or Pro marketing of the report until HSK lists, the add-to-word-list action, filtered export and evidence-first rows ship? Default: yes."
-  - "OQ29 OPEN: Refresh the Chinese vocabulary-check word pool (stale since the October-November seeding, about 5-7 MB) before or after the Chinese launch? Default: after the size gate."
+  - "OQ29 ANSWERED (2026-11-23): refresh now, before the Chinese launch and before any snapshot exists, so no learner sees a jump. Done 2026-11-23: zh/zh frame 12,711 words (was ~3,600); zh/en and zh/ja frames 3,909 (limited by English/Japanese definitions)."
   - "OQ30 OPEN: May 'Add these words' grow the database (exercise generation; new words at 8 credits each)? Default: dictionary words only in v1."
   - "OQ31 OPEN: Seed the ~722 missing JLPT N5-N4 words (about 3.4 MB) after the size gate? Default: a separate content task."
   - "OQ32 OPEN: Add a Pro 'Upcoming tests' card showing how many key words of each recommended test are known? Default: deferred."

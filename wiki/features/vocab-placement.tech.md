@@ -1150,6 +1150,7 @@ and results are filed under `wiki/evaluations/`.
 | PQ20 | "Practise these readings" for every tier? | It is the owner's target case. | **Yes**, all tiers, in v1. |
 | PQ21 | Which sense row placement BKT writes, and which row admission uses | ADR-047 problem 3: one meaning has several rows; exercises live on the native row (E16). | **BKT on the anchor row (as the check); admission on the native rank-1 row.** |
 | PQ22 | Seed a reviewed heteronym list for single-character zh lemmas? | 14 real readings (强 qiǎng, 数 shǔ, 可 kè, …) are not attested by any dictionary word, so they can appear as wrong tone options (§23). | **Yes, before the zh launch** (TASK-1096). |
+| PQ23 | Long words with no buildable reading item drop out of the placement (gate fails on the length check). | Fixed length rule vs per-word meaning-only. | **Per-word meaning-only** (owner 2026-11-23; §23b). |
 
 ## 23. Build notes (2026-11-19) — where the code differs from or fills gaps in this page
 
@@ -1199,6 +1200,30 @@ Built on `claude/beautiful-planck-0fftk4`; nothing applied live. Apply order: [[
   readings, so the prestudy page and the intro drill both get it.
 
 ---
+
+### 23b. Meaning-only words (PQ23, owner 2026-11-23; applied live the same day)
+
+The live gates failed on the length check: words of ≥ 3 characters often have no cached wrong reading with the same
+syllable / mora count (rule 3) or, in ja, consistent with the visible kana (rule 3b), so they were never drawn.
+Live counts by shape (zh 1:2): 1 char 247/263 reading-ready, 2 chars 2,501/2,522, 3 chars 440/470, 4 chars 220/290,
+5+ 0/4; ja 3:2: 2-kanji words ≥ 99%, 3+ character words with kana endings 192/470, 5+ mora readings mostly not.
+A fixed length rule would have dropped ≈ 850 working reading items, so the owner chose the per-word rule:
+
+- **A word whose reading item cannot be built is asked the meaning question only** (like en words and ja kana-only
+  lemmas). `calibration_responses.reading_exempt` (boolean, NULL on older rows and on reading/probe rows) is set on
+  each scored meaning row when it is served: `calibration_placement_reading_exempt(lemma) OR NOT
+  calibration_placement_reading_ready(vocab, L, lemma)`.
+- `calibration_placement_draw` and `_band_has_word` need only a meaning-ready word; `_build_meaning` writes the flag.
+- `_answer`, `_tallies`, `knowledge_calibration_inputs` and `services/calibration_placement._word_outcomes` read the
+  stored flag, falling back to the lemma rule when it is NULL.
+- zh pair tallies `[n', pc, pkt, pf]`: a meaning-only word answered right counts in `pc` (combined-correct), as ja
+  kana-only words already did in `[n', pc, prw]`; answered wrong it counts in `n'` only.
+- `calibration_placement_ready_counts`: `ready` = meaning-ready (every such word can be served); new
+  `meaning_only_n` per band. The launch gate is unchanged.
+- Consequence: the reading half of the estimate rests on the words that do have reading items, which under-represents
+  long words; the meaning half covers the whole frame.
+
+Result on live (2026-11-23): ja (3, 2) 3,194 / 3,241 ready (98.5%), PASS, every band ≥ 95% (≈ 330 words meaning-only).
 
 ## Appendix A — Review outcomes
 
