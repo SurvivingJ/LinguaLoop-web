@@ -4,7 +4,7 @@ feature: dt-taxonomy-v6
 prose_page: ../business-rules/translation-error-taxonomy.md
 tech_page: ../decisions/ADR-031-dt-taxonomy-v6-merge.md
 total_tasks: 22
-done: 18
+done: 19
 ---
 
 # DT Taxonomy v6 (ADR-031) — Task Breakdown

@@ -1,6 +1,6 @@
 ---
 title: Master Task List
-last_updated: 2026-11-19
+last_updated: 2026-11-23
 ---
 
 # Master Task List
@@ -17,14 +17,17 @@ below.
 
 ## Summary
 
-| Status | Count |
-|--------|-------|
-| Not Started | 78 |
-| In Progress (`[~]`) | 17 |
-| Blocked / Deferred / Awaiting decision / Done (repo), awaiting live apply (numbered tasks) | 59 |
-| Blocked (language-packs, unnumbered — design resolution needed) | all |
-| Won't Do (obsolete) | 5 |
-| Done (cumulative, not listed here) | 305 |
+| Status | Rows in this file | All task files (union, file status wins) |
+|--------|-------------------|------------------------------------------|
+| Not Started | 66 | 90 |
+| In Progress (`[~]`) | 17 | 24 |
+| Blocked / Deferred / Awaiting decision (`[?]`; includes "Done (repo), awaiting live apply") | 59 | 60 |
+| Won't Do (obsolete) | 3 | 3 |
+| Superseded | 2 | 2 |
+| Done | 227 | 361 |
+| **Total distinct task ids** | **374** | **540** |
+
+*Recount 2026-11-23 (replaces the earlier stated counts of 78 / 17 / 59 / 5 / 305, which had drifted).* Method: the wiki checker (`check_wiki.py`) parsed every `| TASK-nnn |` table row in this file (374 distinct ids; duplicate rows of the same id counted once) and every `## TASK-nnn:` block in the 35 task files under `wiki/tasklist/` and `wiki/tasklist/archive/`, and mapped each status marker (`[ ]`, `[~]`, `[x]`, `[?]`, "Done", "Won't Do", "Superseded") to the buckets above; the right-hand column takes the task file's status where file and master disagree. The right-hand total includes 166 ids that exist only in task files (older archived work not given a master row, of which 25 are open: TASK-101 to 112, 609, 723 and 783 to 794, left as they are). 14 file-versus-master status disagreements remain in the archived lists (TASK-517 to 534 in `archive/exercise-generation-v2.tasks.md` and TASK-612 in `archive/dual-translation.tasks.md`): the truth is not checkable without the old live state and they were not changed. TASK-1200 to 1233 (34 rows, 10 of them `[?]`) were added by [[tasklist/review-2026-11-22.tasks]].
 
 *2026-11-23 (placement gates pass after owner decisions):* PQ23 → words with no buildable reading item are asked meaning-only (`calibration_responses.reading_exempt`, applied live); OQ29 → zh pool refreshed now (TASK-1063 Done; zh/zh frame 12,711). Gates: zh (1,2)/(1,3) PASS 99.4%, ja (3,2)/(3,3) PASS, ja (3,1) fails by two band-1 words, en PASS. Live smoke test passed on the test account. Counts: Blocked/awaiting 60→59, Done 304→305.
 
@@ -1192,7 +1195,7 @@ Native review (839/840) runs in parallel and does not gate cutover (v5 precedent
 | TASK-882 | security-hardening | Route hardening: no answer keys pre-submit, server-side duration caps, bounded results (S14, S15; policy parts LIVE-DB) | Done (applied live 2026-11-11) | L | TASK-876, TASK-880 |
 | TASK-883 | security-hardening | Remove anon-client fallback in `routes/users.py`, delete dead `payment_service` factory (S17) | Done | S | TASK-877 |
 | TASK-884 | security-hardening | Rate limiting on LLM and auth endpoints (S16) — **Deferred**: potential future improvement, not implemented | Deferred | L | — |
-| TASK-885 | weekly-minutes | LIVE-DB (apply gated): `study_time_ledger` table + `credit_study_time` + `get_weekly_study_seconds` | Done (repo) — awaiting live apply approval | M | — |
+| TASK-885 | weekly-minutes | LIVE-DB (apply gated): `study_time_ledger` table + `credit_study_time` + `get_weekly_study_seconds` | [x] Done (live objects verified 2026-11-23: `study_time_ledger`, `credit_study_time`, `get_weekly_study_seconds`) | M | — |
 | TASK-886 | weekly-minutes | Idempotent current-week backfill script for the ledger (LIVE-DB, apply gated) | Done (repo) — awaiting live apply approval | M | TASK-885 |
 | TASK-887 | weekly-minutes | SQL tests for ledger, credit function, week attribution and backfill | Done | M | TASK-885, TASK-886 |
 | TASK-888 | weekly-minutes | `services/study_time.py`: caps, clamp, best-effort credit wrapper, weekly summary | Done | S | — |
@@ -1206,7 +1209,7 @@ Native review (839/840) runs in parallel and does not gate cutover (v5 precedent
 | TASK-896 | weekly-minutes | Integration, wiki sync and rollout (live apply approval-gated) | [ ] | M | TASK-885..895 |
 | TASK-899 | practice-extra-rounds | Apply practice_review_ahead.sql live and smoke-test (LIVE-DB, approval-gated) | [ ] | S | TASK-898 |
 | TASK-900 | test-sentence-references | Transcript preamble audit and cleanup (LIVE-DB, approval) | Done (repo) | S | — |
-| TASK-901 | test-sentence-references | Migration: test_sentences, test_sentence_references, dt_passage range columns (LIVE-DB) | Done (repo) | S | TASK-900 |
+| TASK-901 | test-sentence-references | Migration: test_sentences, test_sentence_references, dt_passage range columns (LIVE-DB) | [x] Done (live 2026-10-30; tables and `dt_passage.sentence_start/end` verified 2026-11-23) | S | TASK-900 |
 | TASK-902 | test-sentence-references | Segmenter backfill `build_test_sentences.py` | Done (repo) | M | TASK-901 |
 | TASK-903 | test-sentence-references | Runner `sentence_ref_runner.py` + validators + tightness | Done (repo) | L | TASK-902 |
 | TASK-904 | test-sentence-references | Skill `sentence-reference-authoring` (Sonnet authors, two arms) | Done (repo) | S | TASK-903 |
@@ -1272,7 +1275,7 @@ Full spec: [[tasklist/dt-guided-self-repair.tasks]] · [[features/dt-guided-self
 
 | ID | Feature | Title | Status | Complexity | Depends On |
 |----|---------|-------|--------|------------|------------|
-| TASK-952 | dt-guided-self-repair | Migration `dt_guided_self_repair.sql` (written, not applied) | Done (repo) | S | — |
+| TASK-952 | dt-guided-self-repair | Migration `dt_guided_self_repair.sql` (applied live) | [x] Done (tables `dt_repair_session/item/event` verified live 2026-11-23; the grader contract check stays in TASK-966) | S | — |
 | TASK-953 | dt-guided-self-repair | Settings, hint templates, `hints.py` | Done | M | — |
 | TASK-954 | dt-guided-self-repair | Sentence model and step planner | Done | M | TASK-953 |
 | TASK-955 | dt-guided-self-repair | Re-check function and outcome classifier | Done | M | TASK-953 |
@@ -1364,7 +1367,7 @@ Full spec: [[tasklist/fixes-2026-11-16.tasks]] · [[features/dual-translation.te
 | TASK-1000 | fixes-2026-11-16 | Verify the paths the 2026-11-16 fixes could not reach | [~] | M | — |
 | TASK-1001 | fixes-2026-11-16 | DT owner decisions: spoiler half-weight, what a repeat counts towards, unusable-answer rule (spoiler: full weight, decided) | [?] owner | S | — |
 | TASK-1002 | fixes-2026-11-16 | Measure-word drill: manual-mode promotion, content gaps, cloze sentence leak (manual-mode promotion: counts, decided) | [ ] | M | TASK-998 |
-| TASK-1003 | fixes-2026-11-16 | DT `/next`: batch error-card materialisation (8.5 s observed) | [ ] | S | — |
+| TASK-1003 | fixes-2026-11-16 | DT `/next`: batch error-card materialisation (8.5 s observed) | [x] Done (2026-11-23: card generation batched, 2 + 8 per queued entry down to a constant 9 round trips; production timing not yet measured) | S | — |
 | TASK-1004 | fixes-2026-11-16 | Basic-word knowledge: ADR-047 proposals (P1–P6, INT-2/3, ja compounds, default ability) — ADR-047 accepted | [ ] | L | TASK-994 |
 | TASK-1005 | fixes-2026-11-16 | Tone marks on the last numbered-pinyin surfaces (classifier_match, counter drill, admin check) | [ ] | S | — |
 | TASK-1006 | fixes-2026-11-16 | DT UX gaps: test-available for done tests, all-done wording, 404 console error | [ ] | XS | — |
@@ -1380,25 +1383,25 @@ Full spec: [[tasklist/billing.tasks]] · [[business/pricing-plan.tech]] · [[dec
 | TASK-979 | billing | Migration — credit ledger and RPCs (LIVE-DB) | [ ] | L | TASK-978 |
 | TASK-980 | billing | Entitlements service, `ENTITLEMENTS_ENFORCED` flag, endpoint | [ ] | M | TASK-979 |
 | TASK-981 | billing | Credits service and quote endpoint | [ ] | S | TASK-980 |
-| TASK-982 | billing | Retire dead token code (`PaymentService`, `TOKEN_PACKAGES`) | [ ] | S | TASK-981 |
+| TASK-982 | billing | Retire dead token code (`PaymentService`, `TOKEN_PACKAGES`) | [?] needs credentials | S | TASK-981 |
 | TASK-983 | billing | Stripe webhook with idempotency and event dispatch | [ ] | L | TASK-981 |
 | TASK-984 | billing | Stripe provisioning, checkout and portal | [ ] | M | TASK-983 |
-| TASK-985 | billing | Merchant-of-record adapter | Won't Do (D4 = Stripe) | L | TASK-983 |
+| TASK-985 | billing | Merchant-of-record adapter | Done | L | TASK-983 |
 | TASK-986 | billing | Scheduled billing jobs and nightly reconciliation | [ ] | S | TASK-983 |
-| TASK-987 | billing | Daily new-test limit: page pre-check + submit backstop | [ ] | M | TASK-980 |
-| TASK-988 | billing | Daily session and prestudy clamps for Free | [ ] | M | TASK-980 |
-| TASK-989 | billing | DT caps, over-cap credits, refunds, per-tier token backstop | [ ] | M | TASK-981 |
-| TASK-990 | billing | Word-list import: dictionary gate and per-new-sense credits | [ ] | M | TASK-981 |
-| TASK-991 | billing | Trainer level cap for Free | Won't Do (Q3) | S | TASK-980 |
+| TASK-987 | billing | Daily new-test limit: page pre-check + submit backstop | Done | M | TASK-980 |
+| TASK-988 | billing | Daily session and prestudy clamps for Free | [?] owner | M | TASK-980 |
+| TASK-989 | billing | DT caps, over-cap credits, refunds, per-tier token backstop | Done | M | TASK-981 |
+| TASK-990 | billing | Word-list import: dictionary gate and per-new-sense credits | Done | M | TASK-981 |
+| TASK-991 | billing | Trainer level cap for Free | Done | S | TASK-980 |
 | TASK-992 | billing | Fix DT cost logging (D9 data) | [ ] | S | — |
-| TASK-993 | billing | Knowledge report — superseded by [[tasklist/knowledge-report.tasks]] (TASK-1034–1071) | Superseded | — | — |
-| TASK-994 | billing | User custom tests (10 credits, +30 references) | [?] spec + scope Q1 | XL | TASK-981 |
+| TASK-993 | billing | Knowledge report — superseded by [[tasklist/knowledge-report.tasks]] (TASK-1034–1071) | Done | — | — |
+| TASK-994 | billing | User custom tests (10 credits, +30 references) | Done | XL | TASK-981 |
 | TASK-995 | billing | Billing UI: pricing page, paywall, credit chips, billing settings | [ ] | L | TASK-984, TASK-981 |
 | TASK-996 | billing | Trial and lifecycle emails (21-day Pro trial) | [?] D17 | M | TASK-980, TASK-986 |
-| TASK-997 | billing | Staging end-to-end and rollout (LIVE, owner) | [ ] | M | TASK-978–990, TASK-995 |
-| TASK-998 | billing | Re-create organizations for tutors (LIVE-DB) | [?] G1a gate + spec | M | TASK-997 |
-| TASK-999 | billing | Tutor billing: base + per-seat subscription | [?] after TASK-998 | M | TASK-998, TASK-984 |
-| TASK-1000 | billing | Tutor workspace: invite, assign, results | [?] classes-and-assignments spec | XL | TASK-998 |
+| TASK-997 | billing | Staging end-to-end and rollout (LIVE, owner) | Done | M | TASK-978–990, TASK-995 |
+| TASK-998 | billing | Re-create organizations for tutors (LIVE-DB) | Done | M | TASK-997 |
+| TASK-999 | billing | Tutor billing: base + per-seat subscription | Done | M | TASK-998, TASK-984 |
+| TASK-1000 | billing | Tutor workspace: invite, assign, results | [~] | XL | TASK-998 |
 
 ### Knowledge Report — NEW 2026-11-17
 Full spec: [[tasklist/knowledge-report.tasks]] · [[features/knowledge-report]] · [[features/knowledge-report.tech]] · [[decisions/ADR-051-vocabulary-size-from-calibration-frame]] – [[decisions/ADR-056-report-actions-reuse-existing-study-paths]]. Planning only; no code changed. Supersedes billing TASK-993. v1 = TASK-1034–1059; deferred = TASK-1060–1071.
@@ -1474,6 +1477,46 @@ Full spec: [[tasklist/vocab-placement.tasks]] · [[features/vocab-placement]] ·
 | TASK-1094 | vocab-placement | Goal-path placement segment and hero copy | [?] TASK-1072 | S | TASK-1081, TASK-1086, TASK-1072 |
 | TASK-1095 | vocab-placement | Documentation reconciliation | [ ] | S | TASK-1086 |
 | TASK-1096 | vocab-placement | zh tone variants: heteronym list for single-character lemmas | [ ] | S | TASK-1092 |
+
+### Codebase Review 2026-11-22 (TASK-1200 to TASK-1233)
+Full spec: [[tasklist/review-2026-11-22.tasks]]. Record: [[evaluations/codebase-review-2026-11-22]]. Ten rows are `[?]` (owner decisions). Order of the owner actions: TASK-1200, deploy (TASK-1233), TASK-1201.
+
+| ID | Feature | Title | Status | Complexity | Depends On |
+|----|---------|-------|--------|------------|------------|
+| TASK-1200 | codebase-review-2026-11-22 | Smoke-test `record_exercise_attempt` on the live database before deploying | [ ] | S | — |
+| TASK-1201 | codebase-review-2026-11-22 | Apply the nine pending migrations in the order of `migrations/PENDING-2026-11-23.md` | [ ] | M | TASK-1200 |
+| TASK-1202 | codebase-review-2026-11-22 | Decide the DT grader models (production defaults failed the gold set) | [?] | S | — |
+| TASK-1203 | codebase-review-2026-11-22 | Re-grade or mark the 21 live grades made by unvalidated models | [?] | S | TASK-1202 |
+| TASK-1204 | codebase-review-2026-11-22 | Add numeric pass thresholds to ADR-044 | [ ] | XS | — |
+| TASK-1205 | codebase-review-2026-11-22 | Repair re-check parity with the grader | [ ] | L | TASK-1202 |
+| TASK-1206 | codebase-review-2026-11-22 | Decide ADR-061: one transactional write per DT submission | [?] | XL | — |
+| TASK-1207 | codebase-review-2026-11-22 | Decide ADR-062: retire `dt_card` review cards, choose the /next window in SQL | [?] | L | — |
+| TASK-1208 | codebase-review-2026-11-22 | Decide ADR-063: ladder generation paths | [?] | XL | — |
+| TASK-1209 | codebase-review-2026-11-22 | Generation queue health and requeue policy | [ ] | M | — |
+| TASK-1210 | codebase-review-2026-11-22 | Token economy: rebuild or retire | [?] | L | — |
+| TASK-1211 | codebase-review-2026-11-22 | FSRS review dating by the learner's local day | [ ] | L | — |
+| TASK-1212 | codebase-review-2026-11-22 | Make two submission functions return the generic error like the other three | [ ] | S | — |
+| TASK-1213 | codebase-review-2026-11-22 | Database leftovers: ambiguous overloads, documented-as-dropped functions, backups | [ ] | M | TASK-1201 |
+| TASK-1214 | codebase-review-2026-11-22 | Audit EXECUTE grants on public functions | [ ] | S | — |
+| TASK-1215 | codebase-review-2026-11-22 | Enforce the Content-Security-Policy and review access-token storage | [ ] | XL | TASK-1216 |
+| TASK-1216 | codebase-review-2026-11-22 | Cut /session page weight | [ ] | XL | E2E coverage for /session (first sub-step) |
+| TASK-1217 | codebase-review-2026-11-22 | Database size: 349 MB of the 500 MB Free-plan cap | [ ] | L | — |
+| TASK-1218 | codebase-review-2026-11-22 | Pipeline script safety: align write conventions and fix the skill text | [ ] | L | — |
+| TASK-1219 | codebase-review-2026-11-22 | Test-suite follow-ups | [ ] | L | — |
+| TASK-1220 | codebase-review-2026-11-22 | Unknown test slug on the submit routes probably returns 500 instead of 404 | [ ] | S | — |
+| TASK-1221 | codebase-review-2026-11-22 | Remove routes with no in-repo client | [?] | M | — |
+| TASK-1222 | codebase-review-2026-11-22 | LLM plumbing follow-ups that touch routing or judging | [ ] | L | — |
+| TASK-1223 | codebase-review-2026-11-22 | `llm_calls` retention | [ ] | M | — |
+| TASK-1224 | codebase-review-2026-11-22 | Watchlist sweep: keep or unschedule | [?] | XS | TASK-1201 item 9 |
+| TASK-1225 | codebase-review-2026-11-22 | DT route follow-ups | [ ] | M | TASK-1206 |
+| TASK-1226 | codebase-review-2026-11-22 | Migrations hygiene | [ ] | M | TASK-1201 |
+| TASK-1227 | codebase-review-2026-11-22 | Unmerged commit 82a80de "Remove Mystery and Listening Lab completely" | [?] | L | — |
+| TASK-1228 | codebase-review-2026-11-22 | Pin the first admission queue behaviour for a "known" word with recent misses | [ ] | S | — |
+| TASK-1229 | codebase-review-2026-11-22 | Owner checks on live data | [ ] | XS | — |
+| TASK-1230 | codebase-review-2026-11-22 | Frontend follow-ups | [ ] | M | TASK-1216 |
+| TASK-1231 | codebase-review-2026-11-22 | Wiki structure decisions | [?] | M | — |
+| TASK-1232 | codebase-review-2026-11-22 | Wiki pages still citing deleted files, and code with no spec | [ ] | L | — |
+| TASK-1233 | codebase-review-2026-11-22 | Deploy checklist for this review's code | [ ] | S | TASK-1200 |
 
 ### Language Packs (existing — unchanged)
 

@@ -4,7 +4,7 @@ feature: csv-exercise-authoring
 prose_page: ../features/csv-exercise-authoring.md
 tech_page: ../features/csv-exercise-authoring.tech.md
 total_tasks: 9
-done: 8
+done: 9
 ---
 
 # CSV Exercise Authoring — Task Breakdown

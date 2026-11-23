@@ -4,7 +4,7 @@ feature: exercise-gen-cost
 prose_page: ../features/exercise-generation-v2.md
 tech_page: ../decisions/ADR-028-exercise-gen-cost-under-1c.md
 total_tasks: 21
-done: 10
+done: 12
 ---
 
 # Exercise Generation Cost Reduction — Task Breakdown

@@ -39,7 +39,7 @@ Shared rule for WP-BE: do not edit `services/dual_translation/single_call_grader
 
 ## TASK-952: Migration `dt_guided_self_repair.sql`
 
-**Status:** [x] Done (repo) — written and statically tested (`tests/test_dt_repair_migration.py`, security lint); NOT applied: applying it is TASK-966 (owner decision)
+**Status:** [x] Done — written and statically tested (`tests/test_dt_repair_migration.py`, security lint); live objects verified 2026-11-23 (`dt_repair_session`, `dt_repair_item`, `dt_repair_event` exist); verifying the grader contract live remains TASK-966
 **Feature:** dt-guided-self-repair
 **Type:** infra
 **Complexity:** S (1-3h)

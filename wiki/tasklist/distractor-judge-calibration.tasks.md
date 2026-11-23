@@ -6,7 +6,7 @@ tech_page: ../features/comprehension-tests.tech.md
 analysis_page: ../evaluations/distractor-judge-language-divergence-2026-08-16.md
 two_axis_page: ../evaluations/distractor-judge-two-axis-2026-08-20.md
 total_tasks: 10
-done: 8
+done: 7
 last_updated: 2026-08-20
 ---
 
