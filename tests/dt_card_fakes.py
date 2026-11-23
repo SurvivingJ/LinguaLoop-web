@@ -84,7 +84,10 @@ class FilteringQuery:
         self._db.round_trips += 1
         self._db.log.append((self._name, self._op))
         if self._db.fail is not None:
-            self._db.fail(self._name, self._op, self._payload)
+            # fail(table, op, payload, ids of the rows an update would touch)
+            hit_ids = [r.get('id') for r in self._db.tables.get(self._name, [])
+                       if all(f(r) for f in self._filters)] if self._op == 'update' else []
+            self._db.fail(self._name, self._op, self._payload, hit_ids)
         if self._op == 'insert':
             payload = self._payload if isinstance(self._payload, list) else [self._payload]
             stored = []
@@ -214,6 +217,40 @@ def scenario_tables():
              'review_verdict': 'fail', 'l1_text': 'Then she read.'},
         ],
     }
+
+
+def uniform_tables(k, *, extra_submissions=0):
+    """``k`` queued entries for u1, each with its own subtype, error, passage
+    and two-sentence window with L1 references. ``extra_submissions`` adds
+    error-free submissions listed BEFORE the real ones (to push past a
+    max-rows cap)."""
+    tables = {'dt_error_profile_entry': [], 'dt_card': [], 'dt_passage': [],
+              'dt_submission': [], 'dt_error_instance': [], 'test_sentences': [],
+              'test_sentence_references': []}
+    for j in range(extra_submissions):
+        tables['dt_submission'].append(
+            {'id': 10_000 + j, 'user_id': 'u1', 'passage_id': 1, 'l1_language_id': 2})
+    for i in range(k):
+        test_id = f'T{i}'
+        tables['dt_error_profile_entry'].append(
+            {'id': 100 + i, 'user_id': 'u1', 'subtype': f'sub{i}', 'l1_language_id': 2,
+             'l2_language_id': 1, 'remediation_status': 'queued'})
+        tables['dt_passage'].append(
+            {'id': 200 + i, 'l2_language_id': 1, 'l2_text': f'The cat sat {i}. It slept.',
+             'source_ref_id': test_id, 'sentence_start': 0, 'sentence_end': 1})
+        tables['dt_submission'].append(
+            {'id': 300 + i, 'user_id': 'u1', 'passage_id': 200 + i, 'l1_language_id': 2})
+        tables['dt_error_instance'].append(
+            {'id': 400 + i, 'submission_id': 300 + i, 'subtype': f'sub{i}',
+             'span_reference': [4, 7], 'corrected_form': 'cat', 'learner_form': 'dog',
+             'created_at': f'2026-07-{i + 1:02d}T00:00:00+00:00'})
+        for idx in (0, 1):
+            sid = f'{test_id}-{idx}'
+            tables['test_sentences'].append({'id': sid, 'test_id': test_id, 'idx': idx})
+            tables['test_sentence_references'].append(
+                {'sentence_id': sid, 'l1_language_id': 2, 'is_active': True,
+                 'review_verdict': 'pass', 'l1_text': f'L1 {i}.{idx}'})
+    return tables
 
 
 def written(db):

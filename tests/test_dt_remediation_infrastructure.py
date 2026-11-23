@@ -71,6 +71,12 @@ class _FakeQuery:
     def limit(self, *a, **k):
         return self
 
+    def range(self, *a, **k):
+        return self
+
+    def lte(self, *a, **k):
+        return self
+
     def insert(self, payload):
         self._recorder.append(('insert', self._table_name, payload))
         return self

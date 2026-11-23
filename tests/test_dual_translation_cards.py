@@ -282,6 +282,15 @@ class _FakeQuery:
     def limit(self, *a, **k):
         return self
 
+    def range(self, *a, **k):
+        return self
+
+    def gte(self, *a, **k):
+        return self
+
+    def lte(self, *a, **k):
+        return self
+
     def insert(self, payload):
         self._recorder.append((self._table_name, 'insert', payload))
         return self
@@ -312,7 +321,7 @@ def _base_tables(**overrides):
             'id': 900, 'submission_id': 5, 'span_reference': [4, 7],
             'corrected_form': 'the cat', 'learner_form': 'cat', 'subtype': 'article',
         }],
-        'dt_passage': [{'l2_text': 'The cat sat on the mat.'}],
+        'dt_passage': [{'id': 9, 'l2_text': 'The cat sat on the mat.'}],
     }
     tables.update(overrides)
     return tables
@@ -530,26 +539,53 @@ class TestSelectErrorExercisesForPractice:
 class TestWindowL1Text:
     """The L1 context of a card comes from the passage's sentence references."""
 
-    def test_a_window_passage_joins_its_sentence_references(self, monkeypatch):
-        from services.dual_translation.repair import sentences as repair_sentences
-        seen = {}
+    @staticmethod
+    def _windows():
+        from tests import dt_card_fakes
+        tables = dt_card_fakes.scenario_tables()
+        passages = {p['id']: p for p in tables['dt_passage']}
+        # (passage, l1): full refs, rejected ref, no range, other L1, no L1
+        return tables, [(passages[9], 2), (passages[11], 2), (passages[10], 2),
+                        (passages[9], 1), (passages[12], 2), (passages[12], None)]
 
-        def fake(db, test_id, start, end, l1):
-            seen['args'] = (test_id, start, end, l1)
-            return ['The cat sat.', 'It was sleepy.']
+    def test_a_window_passage_joins_its_sentence_references(self):
+        from tests import dt_card_fakes
+        tables, windows = self._windows()
+        db = dt_card_fakes.FilteringDB(tables)
+        assert cards._window_l1_texts(db, windows) == {
+            (9, 2): 'The cat sat on the mat. It was sleepy.',
+            (12, 2): 'I eat apples every day.',
+        }
+        assert db.round_trips == 2
 
-        monkeypatch.setattr(repair_sentences, '_range_l1_texts', fake)
-        passage = {'l2_text': 'x', 'source_ref_id': 'test-1', 'sentence_start': 2, 'sentence_end': 3}
-        assert cards._window_l1_text(None, passage, 2) == 'The cat sat. It was sleepy.'
-        assert seen['args'] == ('test-1', 2, 3, 2)
+    def test_matches_the_per_window_range_lookup(self):
+        """Same answer as repair.sentences._range_l1_texts, window by window
+        (the query the per-entry loop used to run)."""
+        from services.dual_translation.passage_builder import join_sentences
+        from services.dual_translation.repair.sentences import _range_l1_texts
+        from services.dual_translation.sentence_refs import LANG_CODE
+        from tests import dt_card_fakes
+        tables, windows = self._windows()
+        batched = cards._window_l1_texts(dt_card_fakes.FilteringDB(tables), windows)
+        for passage, l1 in windows:
+            expected = ''
+            if passage['sentence_start'] is not None and l1 is not None:
+                texts = _range_l1_texts(dt_card_fakes.FilteringDB(tables), passage['source_ref_id'],
+                                        passage['sentence_start'], passage['sentence_end'], l1)
+                expected = join_sentences(texts, LANG_CODE.get(l1, 'en')) if texts else ''
+            assert batched.get((passage['id'], l1), '') == expected
 
-    def test_no_sentence_range_or_missing_reference_gives_an_empty_context(self, monkeypatch):
-        from services.dual_translation.repair import sentences as repair_sentences
-        monkeypatch.setattr(repair_sentences, '_range_l1_texts', lambda *a: None)
-        window = {'l2_text': 'x', 'source_ref_id': 'test-1', 'sentence_start': 0, 'sentence_end': 1}
-        assert cards._window_l1_text(None, window, 2) == ''
-        whole = {'l2_text': 'x', 'source_ref_id': 'test-1', 'sentence_start': None, 'sentence_end': None}
-        assert cards._window_l1_text(None, whole, 2) == ''
+    def test_no_window_needs_no_query_and_a_failed_read_gives_empty_contexts(self):
+        from tests import dt_card_fakes
+        tables, windows = self._windows()
+        db = dt_card_fakes.FilteringDB(tables)
+        assert cards._window_l1_texts(db, [windows[2], windows[5]]) == {}
+        assert db.round_trips == 0
+
+        def fail(*a):
+            raise RuntimeError('down')
+
+        assert cards._window_l1_texts(dt_card_fakes.FilteringDB(tables, fail=fail), windows) == {}
 
 
 # ---------------------------------------------------------------------------
@@ -616,3 +652,73 @@ class TestBatchedCardGeneration:
 
         assert cards.generate_cards_for_queued_entries(db, 'u1') == 0
         assert dt_card_fakes.written(db) == before
+
+    def test_round_trips_do_not_grow_with_the_number_of_queued_entries(self):
+        trips = {}
+        for k in (1, 3, 8):
+            db = dt_card_fakes.FilteringDB(dt_card_fakes.uniform_tables(k))
+            assert cards.generate_cards_for_queued_entries(db, 'u1') == k
+            assert len(dt_card_fakes.written(db)[0]) == 2 * k
+            trips[k] = db.round_trips
+        # queued, existing cards, submissions, errors, passages,
+        # test_sentences, references, one insert, one update.
+        assert trips == {1: 9, 3: 9, 8: 9}
+
+    def test_nothing_uncarded_stops_after_two_reads(self):
+        tables = dt_card_fakes.uniform_tables(3)
+        tables['dt_card'] = [{'id': 1, 'profile_entry_id': 100 + i} for i in range(3)]
+        db = dt_card_fakes.FilteringDB(tables)
+        assert cards.generate_cards_for_queued_entries(db, 'u1') == 0
+        assert db.round_trips == 2
+
+    def test_submission_history_past_the_row_cap_is_still_searched(self, monkeypatch):
+        """The learner's submission ids are paged, not cut at PostgREST's
+        max-rows (here 5; the real cap is 1000): the only submission with an
+        error is past the cap."""
+        monkeypatch.setattr(cards, '_PAGE', 5, raising=False)
+        db = dt_card_fakes.FilteringDB(dt_card_fakes.uniform_tables(1, extra_submissions=7),
+                                       max_rows=5)
+        assert cards.generate_cards_for_queued_entries(db, 'u1') == 1
+        assert {r['origin_error_id'] for r in dt_card_fakes.written(db)[0]} == {400}
+
+    def test_card_insert_failing_for_one_entry_still_cards_the_others(self):
+        """Before batching, a failed insert for entry 101 aborted the loop:
+        100 was carded, 101 and every later entry were left for the next call.
+        Now the batch insert falls back to per-entry inserts, so only 101 is
+        left queued (no cards, not drilling), and the error is still raised."""
+        def fail(table, op, payload, ids):
+            if table == 'dt_card' and op == 'insert' and any(
+                    r['profile_entry_id'] == 101 for r in payload):
+                raise RuntimeError('insert failed')
+
+        db = dt_card_fakes.FilteringDB(dt_card_fakes.scenario_tables(), fail=fail)
+        with pytest.raises(RuntimeError):
+            cards.generate_cards_for_queued_entries(db, 'u1')
+
+        new_cards, statuses = dt_card_fakes.written(db)
+        assert new_cards == [r for r in EXPECTED_CARDS_PRE_B02 if r['profile_entry_id'] != 101]
+        assert statuses == {**EXPECTED_STATUSES_PRE_B02, 101: 'queued'}
+
+    def test_status_update_failing_for_one_entry_never_marks_it_drilling(self):
+        def fail(table, op, payload, ids):
+            if table == 'dt_error_profile_entry' and op == 'update' and 101 in ids:
+                raise RuntimeError('update failed')
+
+        db = dt_card_fakes.FilteringDB(dt_card_fakes.scenario_tables(), fail=fail)
+        with pytest.raises(RuntimeError):
+            cards.generate_cards_for_queued_entries(db, 'u1')
+
+        new_cards, statuses = dt_card_fakes.written(db)
+        assert new_cards == EXPECTED_CARDS_PRE_B02
+        assert statuses == {**EXPECTED_STATUSES_PRE_B02, 101: 'queued'}
+
+    def test_a_failed_read_writes_nothing(self):
+        def fail(table, op, payload, ids):
+            if table == 'test_sentence_references':
+                raise RuntimeError('read failed')
+
+        db = dt_card_fakes.FilteringDB(dt_card_fakes.scenario_tables(), fail=fail)
+        # the L1 context is optional: a failed reference read degrades it to ''
+        cards.generate_cards_for_queued_entries(db, 'u1')
+        new_cards, _ = dt_card_fakes.written(db)
+        assert {r['prompt_payload']['l1_context'] for r in new_cards} == {''}
