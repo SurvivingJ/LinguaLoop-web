@@ -439,8 +439,10 @@ class TestGenerationOrchestrator:
         except JevError:
             # Tier assignment failed after retries (ADR-029). There is no
             # fallback tier, so this test must not be written; propagating
-            # marks the queue item *failed* (retryable) instead of completing
-            # it with zero tests.
+            # marks the queue item failed (mark_queue_failed sets status 'rejected'
+            # with the error in error_log) instead of completing it with zero
+            # tests. A rejected item is NOT picked up again: only 'pending'
+            # items are selected, so it stays rejected until someone resets it.
             logger.error(
                 "Tier assignment failed for queue item %s (topic tier %s); "
                 "no test written", item.id, tier_id,
@@ -449,9 +451,10 @@ class TestGenerationOrchestrator:
 
         except Exception as e:
             # Generation raised, so zero tests were produced: propagate so the
-            # run loop marks the item failed (retryable) instead of completing
-            # it with 0 tests. A legitimate rejection returns False and still
-            # completes below.
+            # run loop marks the item failed (status 'rejected', error in
+            # error_log; not selected again, only 'pending' items are) instead
+            # of completing it with 0 tests. A legitimate rejection returns
+            # False and still completes below.
             logger.error(
                 f"Failed to generate test at tier {tier_id}: {e}"
             )
