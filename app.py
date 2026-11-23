@@ -33,7 +33,6 @@ from routes.tests import tests_bp
 from routes.reports import reports_bp
 from routes.vocabulary import vocabulary_bp
 from routes.flashcards import flashcards_bp
-from routes.corpus import corpus_bp
 from routes.users import users_bp
 from routes.vocab_dojo import vocab_dojo_bp
 from routes.vocab_admin import vocab_admin_bp
@@ -228,7 +227,6 @@ def _register_blueprints(app):
     app.register_blueprint(reports_bp, url_prefix='/api/reports')
     app.register_blueprint(vocabulary_bp, url_prefix='/api/vocabulary')
     app.register_blueprint(flashcards_bp, url_prefix='/api/flashcards')
-    app.register_blueprint(corpus_bp, url_prefix='/api/corpus')
     app.register_blueprint(users_bp, url_prefix='/api/users')
     app.register_blueprint(vocab_dojo_bp, url_prefix='/api/vocab-dojo')
     app.register_blueprint(vocab_admin_bp, url_prefix='/api/admin/vocab')
