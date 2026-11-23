@@ -24,10 +24,12 @@ below.
 | Blocked / Deferred / Awaiting decision (`[?]`; includes "Done (repo), awaiting live apply") | 58 | 59 |
 | Won't Do (obsolete) | 3 | 3 |
 | Superseded | 2 | 2 |
-| Done | 228 | 362 |
+| Done | 229 | 363 |
 | **Total distinct task ids** | **374** | **540** |
 
 *Recount 2026-11-23 (replaces the earlier stated counts of 78 / 17 / 59 / 5 / 305, which had drifted).* Method: the wiki checker (`check_wiki.py`) parsed every `| TASK-nnn |` table row in this file (374 distinct ids; duplicate rows of the same id counted once) and every `## TASK-nnn:` block in the 35 task files under `wiki/tasklist/` and `wiki/tasklist/archive/`, and mapped each status marker (`[ ]`, `[~]`, `[x]`, `[?]`, "Done", "Won't Do", "Superseded") to the buckets above; the right-hand column takes the task file's status where file and master disagree. The right-hand total includes 166 ids that exist only in task files (older archived work not given a master row, of which 25 are open: TASK-101 to 112, 609, 723 and 783 to 794, left as they are). 14 file-versus-master status disagreements remain in the archived lists (TASK-517 to 534 in `archive/exercise-generation-v2.tasks.md` and TASK-612 in `archive/dual-translation.tasks.md`): the truth is not checkable without the old live state and they were not changed. TASK-1200 to 1233 (34 rows, 10 of them `[?]`) were added by [[tasklist/review-2026-11-22.tasks]].
+
+*2026-11-23 (after merging the three owner-decision branches):* summary recounted from the task rows with the checker, not summed from the branch deltas: Not Started 65 (file union 89), In Progress 17 (24), Blocked/awaiting 58 (59), Done 229 (363). TASK-1210 and TASK-1227 Done, TASK-1211 awaiting live apply.
 
 *2026-11-23 (TASK-1227 Done):* the owner decided to remove Mystery and Listening Lab; the last code references, the `UNPLANNED_TEST_TYPES` constant and its guard tests were removed by hand (82a80de not cherry-picked); nothing remained live, so no migration. Counts: Blocked/awaiting 59→58 (file union 60→59), Done 227→228 (361→362).
 
@@ -1483,7 +1485,7 @@ Full spec: [[tasklist/vocab-placement.tasks]] · [[features/vocab-placement]] ·
 | TASK-1096 | vocab-placement | zh tone variants: heteronym list for single-character lemmas | [ ] | S | TASK-1092 |
 
 ### Codebase Review 2026-11-22 (TASK-1200 to TASK-1233)
-Full spec: [[tasklist/review-2026-11-22.tasks]]. Record: [[evaluations/codebase-review-2026-11-22]]. Nine rows are `[?]` (owner decisions; TASK-1210 was decided 2026-11-23: retired). Order of the owner actions: TASK-1200, deploy (TASK-1233), TASK-1201.
+Full spec: [[tasklist/review-2026-11-22.tasks]]. Record: [[evaluations/codebase-review-2026-11-22]]. Nine rows are `[?]` (eight owner decisions, plus TASK-1211 done in the repo and awaiting its live SQL; TASK-1210, 1211 and 1227 were decided 2026-11-23). Order of the owner actions: TASK-1200, deploy (TASK-1233), TASK-1201.
 
 | ID | Feature | Title | Status | Complexity | Depends On |
 |----|---------|-------|--------|------------|------------|
