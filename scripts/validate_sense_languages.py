@@ -7,23 +7,23 @@ for Chinese words, etc.). Example sentences should also be in the target languag
 Uses LLM to regenerate bad entries when --fix is specified.
 
 Usage:
-    python scripts/validate_sense_languages.py --language cn [--limit 100] [--fix] [--dry-run]
+    python scripts/validate_sense_languages.py --language cn [--limit 100] [--fix] [--apply]
 
 Options:
     --language CODE   Required. Language code: cn, en, jp
     --limit N         Process at most N senses (default: all)
-    --fix             Actually update bad entries via LLM (default: report only)
-    --dry-run         Show what would be fixed without writing to DB
+    --fix             Regenerate bad entries via LLM (default: report only)
+    --apply           With --fix, write the regenerated entries (default: dry run)
+    --dry-run         Show what would be fixed without writing to DB (the default)
 """
 
-import argparse
 import logging
 import json
 
 try:
-    from _common import bootstrap
+    from _common import base_parser, bootstrap
 except ImportError:  # run or imported as scripts.<name>
-    from scripts._common import bootstrap
+    from scripts._common import base_parser, bootstrap
 
 bootstrap()
 
@@ -239,7 +239,7 @@ def run_validation(language_code: str, limit: int = 0, fix: bool = False,
 
     if not fix:
         if bad_definitions or bad_examples:
-            logger.info("Run with --fix to regenerate bad entries via LLM")
+            logger.info("Run with --fix to regenerate bad entries via LLM (--fix --apply writes them)")
         return
 
     # Fix bad entries
@@ -319,8 +319,10 @@ def run_validation(language_code: str, limit: int = 0, fix: bool = False,
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description='Validate and fix word sense definitions/examples language'
+    parser = base_parser(
+        description='Validate and fix word sense definitions/examples language',
+        apply_help='with --fix, write the regenerated entries (default: dry run)',
+        dry_run_help='Show what would be fixed without writing to DB (the default)',
     )
     parser.add_argument('--language', required=True, choices=['zh', 'en', 'ja'],
                         help='Language code to validate')
@@ -328,8 +330,6 @@ def main():
                         help='Max number of senses to process (0=all)')
     parser.add_argument('--fix', action='store_true',
                         help='Regenerate bad entries via LLM')
-    parser.add_argument('--dry-run', action='store_true',
-                        help='Show what would be fixed without writing to DB')
 
     args = parser.parse_args()
 

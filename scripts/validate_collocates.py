@@ -25,25 +25,26 @@ outcome for a sense with no attested collocate is the ``llm_asserted`` tag,
 which the report surfaces and an operator can act on.
 
 Usage:
-    python scripts/validate_collocates.py --language en [options]
+    python scripts/validate_collocates.py --language en [options]          # dry run
+    python scripts/validate_collocates.py --language en --apply [options]  # write tags
 
 Options:
     --language CODE   Required: zh | en | ja (or "all")
-    --dry-run         Report only; write no tags and make no LLM calls
-    --repair          Re-prompt P1 once per unattested collocate
+    --apply           Write the grounding tags (and, with --repair, the repairs)
+    --dry-run         Report only; write no tags and make no LLM calls (the default)
+    --repair          Re-prompt P1 once per unattested collocate (needs --apply)
     --limit N         Stop after N senses per language (0 = all)
     --only-untagged   Skip senses that already carry a grounding tag
 """
 
-import argparse
 import logging
 import sys
 from collections import Counter
 
 try:
-    from _common import admin_db, bootstrap
+    from _common import admin_db, base_parser, bootstrap
 except ImportError:  # run or imported as scripts.<name>
-    from scripts._common import admin_db, bootstrap
+    from scripts._common import admin_db, base_parser, bootstrap
 
 bootstrap(log_format='%(asctime)s %(levelname)-7s %(message)s')
 
@@ -246,14 +247,14 @@ class CollocateValidationRun:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(
+    parser = base_parser(
         description='Grade generated collocates against a frequency source',
+        apply_help='write the grounding tags (default: dry run)',
+        dry_run_help='Report only: write no tags and make no LLM calls (the default)',
     )
     parser.add_argument('--language', required=True,
                         choices=[*LANGUAGE_CODES, 'all'],
                         help='Language code to process')
-    parser.add_argument('--dry-run', action='store_true',
-                        help='Report only: write no tags and make no LLM calls')
     parser.add_argument('--repair', action='store_true',
                         help='Re-prompt P1 once per unattested collocate')
     parser.add_argument('--limit', type=int, default=0,

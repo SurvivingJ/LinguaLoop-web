@@ -8,14 +8,21 @@ trusted_devices) and logs are kept.
 Env: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, TEST_USER_EMAIL, [TEST_USER_ID].
 
 Usage:
-    python scripts/reset_test_user.py --dry-run   # show row counts only
-    python scripts/reset_test_user.py
+    python scripts/reset_test_user.py             # dry run: show row counts only
+    python scripts/reset_test_user.py --apply     # delete the rows
+
+Nothing is deleted without --apply (--dry-run is accepted as an explicit alias).
 """
 
 import os
 import sys
 
 import requests
+
+try:
+    from _common import base_parser
+except ImportError:  # imported as scripts.<name>
+    from scripts._common import base_parser
 
 # Children before parents; anything blocked by a FK is retried on a later pass.
 ACTIVITY_TABLES = [
@@ -52,7 +59,7 @@ def _env(name: str) -> str:
     return value
 
 
-def main(dry_run: bool) -> None:
+def reset(dry_run: bool) -> None:
     base = _env('SUPABASE_URL').rstrip('/')
     key = _env('SUPABASE_SERVICE_ROLE_KEY')
     email = _env('TEST_USER_EMAIL')
@@ -99,5 +106,13 @@ def main(dry_run: bool) -> None:
     print(f'reset_test_user: done for {email} ({user_id})')
 
 
+def main(argv=None) -> None:
+    parser = base_parser(description="Wipe the test account's activity (dry run unless --apply).",
+                         apply_help="delete the test user's activity rows",
+                         dry_run_help='show row counts only (the default)')
+    args = parser.parse_args(argv)
+    reset(dry_run=args.dry_run)
+
+
 if __name__ == '__main__':
-    main(dry_run='--dry-run' in sys.argv)
+    main()
