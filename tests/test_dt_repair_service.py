@@ -339,6 +339,80 @@ class TestStart:
                                  passage=scenario.store.passages[9], contract=c, reproduction=REPRO) is c
 
 
+class TestCachedSessionWithoutItems:
+    """B-05: the session row and its items are two inserts. When the items
+    insert fails, the open session is left with no items; the cached re-submit
+    path used to serve it as a redacted grade with zero steps for 24 h."""
+
+    @staticmethod
+    def _fail_items_once(scenario, monkeypatch, times=1):
+        real = scenario.store.insert_items
+        left = {"n": times}
+
+        def flaky(db, rows):
+            if left["n"]:
+                left["n"] -= 1
+                raise RuntimeError("items insert failed")
+            return real(db, rows)
+        monkeypatch.setattr(store, "insert_items", flaky)
+
+    def test_items_are_recreated_on_the_cached_path(self, scenario, monkeypatch):
+        self._fail_items_once(scenario, monkeypatch)
+        first = submit(scenario)
+        assert "repair" not in first and "redacted" not in first  # full grade, as today
+        [session] = scenario.store.sessions.values()
+        assert session["status"] == "open" and scenario.store.items == {}
+
+        c = contract_for(error_rows())
+        resp = hooks.for_cached(None, USER, 9001, c)
+        assert resp["redacted"] is True
+        assert resp["repair"]["session_id"] == session["id"]
+        assert [s["sentence_index"] for s in resp["repair"]["steps"]] == [0, 2]
+        assert len(scenario.store.sessions) == 1 and len(scenario.store.items) == 2
+        assert_no_secrets(resp)
+
+    def test_full_grade_when_the_items_cannot_be_recreated(self, scenario, monkeypatch):
+        self._fail_items_once(scenario, monkeypatch, times=2)
+        submit(scenario)
+        c = contract_for(error_rows())
+        resp = hooks.for_cached(None, USER, 9001, c)
+        assert resp == c and "redacted" not in resp
+        assert scenario.store.items == {}
+
+    def test_full_grade_when_the_replan_finds_nothing_to_insert(self, scenario, monkeypatch):
+        self._fail_items_once(scenario, monkeypatch)
+        submit(scenario)
+        scenario.store.errors[9001] = []  # the error rows are gone: nothing to plan
+        c = contract_for(error_rows())
+        resp = hooks.for_cached(None, USER, 9001, c)
+        assert "redacted" not in resp and resp["errors"] == c["errors"]
+        assert scenario.store.items == {}
+
+    def test_a_clean_session_without_items_is_left_alone(self, scenario, monkeypatch):
+        submit(scenario, rows=[])
+        [session] = scenario.store.sessions.values()
+        assert session["status"] == "finished" and scenario.store.items == {}
+        before = copy.deepcopy(scenario.store.sessions)
+
+        def no_insert(db, rows):
+            raise AssertionError("a finished session must not be re-planned")
+        monkeypatch.setattr(store, "insert_items", no_insert)
+        resp = hooks.for_cached(None, USER, 9001, contract_for([]))
+        assert resp["repair"]["clean"] is True and "redacted" not in resp
+        assert scenario.store.sessions == before
+
+    def test_an_open_session_with_items_makes_no_extra_writes(self, scenario, monkeypatch):
+        submit(scenario)
+        n_items = len(scenario.store.items)
+
+        def no_insert(db, rows):
+            raise AssertionError("no re-plan for a healthy session")
+        monkeypatch.setattr(store, "insert_items", no_insert)
+        resp = hooks.for_cached(None, USER, 9001, contract_for(error_rows()))
+        assert resp["redacted"] is True and len(resp["repair"]["steps"]) == 2
+        assert len(scenario.store.items) == n_items
+
+
 # ---------------------------------------------------------------------------
 # Steps
 # ---------------------------------------------------------------------------
