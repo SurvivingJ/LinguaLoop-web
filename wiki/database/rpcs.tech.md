@@ -2,8 +2,8 @@
 title: "RPC & Functions — Technical Specification"
 type: api-tech
 status: complete
-prose_page: ../database/rpcs.md
-last_updated: 2026-09-22
+prose_page: ../api/rpcs.md
+last_updated: 2026-11-23
 dependencies:
   - "All tables in schema.tech.md"
   - "migrations/phase8_momentum_bands.sql — vocabulary ladder RPCs"
@@ -12,13 +12,20 @@ dependencies:
   - "migrations/phase11_irt_selection.sql — IRT-aware get_exercise_session"
   - "migrations/restore_get_distractors_auth_check.sql — re-adds auth.role() guard on get_distractors (2026-05-15)"
   - "migrations/add_test_attempts_idempotency_index.sql — partial index for process_test_submission idempotency lookup (2026-05-15)"
-  - "migrations/drop_unused_rpcs.sql — drops 4 dead RPCs (2026-05-15)"
+  - "migrations/drop_unused_rpcs.sql — drops 4 dead RPCs (2026-05-15; three of them are live, see Live Function Reference)"
+  - "migrations/PENDING-2026-11-23.md — function changes written but not applied"
+open_questions:
+  - "Calls whose function name is built at run time (for example a name held in a variable) may be missing from the 'called by the application' count; the grep covered `.rpc(` literals, the `call_bundle` / `optional_rpc` helpers, the drill session config and `services/calibration_placement.py`."
+  - "process_classifier_drill_submission and process_test_submission still return SQLERRM in their error reply; the 2026-11-23 change note said the four non-test submission RPCs send a generic reply with the message logged only: true live for pinyin, pitch accent and dictation, not for the classifier drill. Decide whether to make the classifier drill match."
+  - "grant_daily_free_tokens is called by routes/users.py and services/auth_service.py but exists neither live nor in any migration; the balance route and signup welcome grant cannot work as written. Owner decision needed (create the function, or change the callers)."
+  - "can_use_free_test, get_model_for_task and get_prompt_template were documented as dropped on 2026-05-15 but are live; get_model_for_task fails when called (it reads the dropped table language_model_config). Drop them, or confirm they are kept on purpose."
+  - "Argument default values are shown as '=d' in the live reference; the value is in the canonical migration file, not repeated here."
 breaking_change_risk: high
 ---
 
 # RPC & Functions — Technical Specification
 
-> **Planned additions (2026-05-21) — Study Plans + Practice Engine merger.** Full signatures and bodies are spec'd in [[features/practice-engine.tech]] and [[features/study-plans.tech]]; this note enumerates what's coming so the catalog stays current.
+> **Historical note (2026-05-21) — Study Plans + Practice Engine merger; every RPC listed here is now live (see the Live Function Reference below).** Full signatures and bodies are spec'd in [[features/practice-engine.tech]] and [[features/study-plans.tech]]; this note enumerates what's coming so the catalog stays current.
 >
 > **New RPCs:**
 > - `get_practice_session(p_user_id uuid, p_language_id smallint, p_mode text='auto', p_target_minutes smallint=15, p_user_theta numeric=NULL) RETURNS jsonb` — unified Practice surface. Mode dispatch (`acquisition`|`maintenance`|`auto`), candidate-pool composition, unified-score ranking, mid-session fall-through. Errors: `language_not_active`, `invalid_mode`, `target_minutes_out_of_range`. See [[features/practice-engine.tech#rpc-get_practice_session]].
@@ -45,11 +52,246 @@ breaking_change_risk: high
 > - New job `study_plan_weekly_recompute` — Sundays at 23:00 UTC; iterates `user_study_plans`, calls `compute_weekly_plan` per row under an advisory lock (same pattern as `irt_calibration_nightly`).
 > - New job `exercise_time_estimate_refresh` — 04:05 UTC daily; refreshes `dim_exercise_types.expected_seconds_p50` and `dim_test_types.expected_minutes_p50` from observed P50s (≥ 30 samples required).
 
-## Overview
+## Live Function Reference (verified against the live database, 2026-11-23)
+
+This section is the authoritative, current reference. Every row was generated from `pg_proc` of project `kpfqrjtfxmujzolwsvdq` (schema `public`, functions owned by the application, i.e. not extension members) on 2026-11-23; the per-function sections further down are the older DDL-level notes and are kept for history, with their status corrected in place where it was wrong. Where a per-function section below and this section disagree, this section wins.
+
+**Totals (live):** 214 functions: 85 SECURITY DEFINER, 129 SECURITY INVOKER; 4 names are overloaded (`bkt_apply_decay`, `bkt_effective_p_known`, `update_vocabulary_from_word_test`, `test_time_estimate`). 94 distinct names are called by the application (directly by name from `routes/`, `services/`, `scripts/`, or through the helpers `call_bundle`, `optional_rpc`, the drill session config in `services/drill_service.py`, and `services/calibration_placement.py`), 72 more are called only by those functions, and 44 are neither (94 + 72 + 44 = 210 names; 214 rows because of the 4 overloads) (triggers, helpers for the app-less admin tasks, history). Counts of "called by the app" come from a grep of `.rpc(` and dynamic names in the repo at HEAD, so a name built at run time that the grep could not see may be missing (see `open_questions`).
+
+**Who may execute (`has_function_privilege`, all 214 checked):** `service_role` can execute every function; `anon` and `authenticated` can execute only `is_admin(uuid)` and `is_moderator(uuid)` (RLS helpers; they answer only for the caller's own JWT subject). Everything else is service-role only, so the Flask backend must use the service key to call them (the per-user JWT cannot). Default privileges on new functions still grant EXECUTE to `anon`/`authenticated` (see `pg_default_acl`), so every new function needs an explicit REVOKE in its migration.
+
+**Security column legend:** `D` = SECURITY DEFINER with `search_path = public, pg_temp` (every DEFINER function pins a search path); `I` = SECURITY INVOKER. Exceptions to the standard search path: `search_path = public` for `apply_calibration_to_skill_ratings`, `get_counter_drill_session`, `get_recommended_tests`, `get_replay_tests`, `irt_apply_calibration`, `irt_release_lock`, `irt_try_lock`, the eight `pg_try_advisory_lock_for_*`/`pg_advisory_unlock_for_*` functions, `recommended_tests_ranked`, `selection_vocab_ability`, `trg_blocklist_retire_exercises`, and (INVOKER) `is_sense_quarantined`, `trg_exercises_sense_quarantine`, `trg_generation_queue_sense_quarantine`; `public, extensions, pg_temp` for `pronunciation_distractors`; `public, pg_temp` plus `plan_cache_mode = force_custom_plan` for `semantic_distractors`; `public, pg_temp` plus `statement_timeout = 600s` for `calibration_cache_distractors_chunk`. INVOKER functions without a letter suffix have no pinned path (62 functions), those marked `I*` have `search_path = public, pg_temp`.
+
+**Reads / writes** are a static scan of each function body (`INSERT INTO`, `UPDATE`, `DELETE FROM` = write; `FROM`, `JOIN` = read); a table reached only through a called function is not listed. **File** is the newest non-archive file in `migrations/` that defines the function; for the six functions with a pending replacement (see "Pending function changes" below) the file that matches the live body is named, not the pending file. Argument defaults are written `=d` (the value is in the file). `†` marks files the page could not tie to the live body byte for byte (the file is the latest definition by git history, not proven identical).
+
+### Application contract that changed on 2026-11-23
+
+**`record_exercise_attempt` is the only path that records a practice attempt.** `services/practice/attempt_recording.py` makes one `rpc('record_exercise_attempt')` call per answer; the old Python per-step path (separate inserts and updates for the attempt, counters, BKT, ladder, study time, plan progress) and the `PRACTICE_ATTEMPT_RPC_ENABLED` flag are gone (`tests/test_practice_attempt_recording.py::test_the_retired_env_flag_is_ignored` asserts the env variable is ignored).
+
+- Signature: `record_exercise_attempt(p_user_id uuid, p_exercise_id uuid, p_is_correct boolean, p_user_response jsonb=d, p_time_taken_ms integer=d, p_language_id smallint=d, p_credit_seconds integer=d, p_plan_kind text=d, p_is_tail boolean=d, p_exercise_context text=d) RETURNS jsonb`. SECURITY INVOKER, `search_path = public, pg_temp`, VOLATILE, EXECUTE service_role only. File `migrations/record_exercise_attempt.sql`.
+- One transaction, in this order: (1) read the exercise's type, sense and language (returns `{"error":"exercise_not_found"}` if missing); (2) `pg_advisory_xact_lock(hashtextextended(user_id || ':' || exercise_id, 0))`, which serialises concurrent answers to the same exercise by the same learner so the first-attempt decision cannot race; (3) `is_first_attempt` = no earlier `exercise_attempts` row for (user, exercise); (4) insert the `exercise_attempts` row; (5) bump `exercises.attempt_count` and `correct_count`; (6) complete open `prestudy_followups` for the sense; (7) on a first attempt with a sense: `update_vocabulary_from_word_test(..., exercise_type)` (BKT), then `bkt_infer_from_frequency` when p_known crosses 0.90 upward, then store `p_known_before/after` on the attempt row; (8) `ladder_apply_progress` (context limited to `standard`, `gate`, `stress_test`); (9) `credit_study_time(... 'practice' ...)` when `p_credit_seconds > 0`; (10) `record_session_progress` when `p_plan_kind` is `practice_acq` or `practice_maint`; (11) read back the learner's `user_flashcards` row. Steps 6 to 10 each run in their own exception block: a failure is appended to the returned `warnings` array (`step`, `error`) and does not roll back the attempt.
+- Returns `jsonb`: `attempt_id`, `is_first_attempt`, `exercise_type`, `sense_id`, `language_id`, `bkt_update`, `ladder`, `flashcard` (id, stability, difficulty, due_date, last_review, reps, lapses, state), `warnings`.
+- **Still in Python after the RPC returns:** the FSRS scheduling write (`_apply_fsrs_review` updates `user_flashcards` using `services/vocabulary/fsrs.py`, working on the `flashcard` row the RPC returned), and, when FSRS reports a lapse, the BKT lapse penalty (`rpc('bkt_apply_lapse_penalty')`), plus the new-word-drill restart and the response shaping. These are not in the transaction: an FSRS or lapse failure is logged and does not undo the attempt.
+
+### The six functions changed live on 2026-11-23 (what the live bodies do)
+
+Read from `pg_proc.prosrc` on 2026-11-23. Common to the five submission RPCs (`process_test_submission`, `process_pinyin_submission`, `process_pitch_accent_submission`, `process_dictation_submission`, `process_classifier_drill_submission`; all SECURITY DEFINER, VOLATILE, service_role only):
+
+- **Caller check.** First statement: if `p_user_id IS NULL`, or (`auth.uid()` is distinct from `p_user_id` and `auth.role()` is not `service_role`), return `{"success": false, "error_code": "unauthorized"}` (RETURN, not RAISE, so the catch-all handler cannot flatten it). A missing user is therefore rejected, where the old `p_user_id != auth.uid()` test passed when `auth.uid()` was NULL (see `migrations/sec_submission_rpcs_auth_gate.sql`).
+- **Error reply, per function (these differ):** `process_pinyin_submission`, `process_pitch_accent_submission`, `process_dictation_submission`: the catch-all handler logs `RAISE WARNING '<fn> failed: % (SQLSTATE=%)', SQLERRM, SQLSTATE` and returns only `{"success": false, "error_code": "submission_failed", "sqlstate": <code>}`: the Postgres message goes to the log, not to the client. `process_test_submission` and `process_classifier_drill_submission`: the handler returns `{"success": false, "error": SQLERRM, "error_detail": SQLSTATE}`, i.e. the Postgres message is still in the reply (no log line). The change description given to this page said all four non-test functions send a generic reply; the live classifier body does not, see `open_questions`.
+- **Idempotency:** if `p_idempotency_key` matches an existing attempt of the user, the stored result is returned with `cached: true` and nothing is written.
+- Writes: `test_attempts`, `user_skill_ratings` (get-or-create, then update), `test_skill_ratings`, `user_languages` (`ON CONFLICT (user_id, language_id)` upsert). The rating rows are still created with a plain `INSERT` after a failed lookup; the `ON CONFLICT` writers are pending (see below).
+
+`process_test_submission(p_user_id uuid, p_test_id uuid, p_language_id smallint, p_test_type_id smallint, p_responses jsonb, p_was_free_test boolean=d, p_idempotency_key uuid=d, p_furigana_used boolean=d, p_prestudied boolean=d) RETURNS jsonb` (file `migrations/process_test_submission_set_based_grading.sql`):
+- Rejects an empty `p_responses` (`RAISE EXCEPTION 'No responses provided'`, caught by the handler above).
+- **Row locks:** `SELECT ... FROM user_skill_ratings ... FOR UPDATE` on the learner's rating row (two submissions by one learner for the same language and test type now run one after the other; a learner's very first submission has no row to lock) and `FOR UPDATE` on the `test_skill_ratings` row (concurrent first attempts by different learners no longer overwrite each other's test-ELO change).
+- **Set-based grading in one query:** a `resp` CTE de-duplicates the payload (`DISTINCT ON question_id`, first entry wins), a `graded` CTE joins every `questions` row of the test (numbered by `created_at`) to it with a LEFT JOIN (unanswered counts as `''` and is wrong), and a single `SELECT COUNT(*), COUNT(*) FILTER (WHERE is_correct), jsonb_agg(...)` yields total, score and the per-question result array. No temp table, no per-question lookup.
+- ELO: first attempt moves both ratings (user K = 32, x0.5 furigana dampener when `p_furigana_used`, x0.5 when `p_prestudied`; test K = 48 below 20 attempts, 24 below 50, else 16, x0.5 when prestudied; clamped 400..3000); a repeat moves ratings only in today's retry slot (`daily_test_loads`, reduced-volatility factor, once per day), otherwise ELO is unchanged. `elo_reduction_factor` records the prestudy or retry factor. Per-question outcomes are written to `question_attempt_results` inside a nested block whose failure only logs a warning.
+- Returns `success`, `attempt_id`, `attempt_number`, `is_first_attempt`, the ELO before/after/change pairs, `elo_reduction_factor`, `tokens_cost`, `score`, `total_questions`, `percentage`, `question_results`, `message`. (The older section below lacks `p_furigana_used` and `p_prestudied`.)
+
+`get_quiz_distractors(p_sense_id integer, p_language_id smallint, p_count integer=d, p_definition_language_id smallint=d) RETURNS TABLE(definition text, lemma text)` (SECURITY DEFINER, VOLATILE, file `migrations/get_quiz_distractors_sample_ids_first.sql`): rejects any caller whose `auth.role()` is not `authenticated` or `service_role` (42501). **Ids first:** a `cand` CTE (MATERIALIZED) selects only ids for every eligible sense (same language, definition language = `p_definition_language_id` or the word language, rank-1 `standard`-level definition that is not null, a different headword) together with a `random()` value and a same-part-of-speech flag (the asked word's class, computed once from the distinct tags so `pos_class` is not called per row); `picked` keeps one row per headword (its smallest random number), same class first, capped at `LEAST(p_count, 10)`; only then are definitions and lemmas fetched for the picked senses. The old version sampled over rows that carried the definition text.
+
+### Functions removed or never created
+
+- **Absent live (checked 2026-11-23):** `is_org_member`, `get_org_role` (organizations dropped 2026-09-22), `get_recommended_mysteries`, `process_mystery_submission` (mystery mode dropped 2026-09-22), `get_packs_with_user_selection` (packs dropped 2026-09-22), `get_ladder_session`, `get_exercise_session` (dropped 2026-11-17, ADR-049). Their per-function sections below are history only.
+- **Documented as dropped but live:** `can_use_free_test(uuid)`, `get_model_for_task(smallint)`, `get_prompt_template(varchar, integer)`: the 2026-05-15 drop (`migrations/drop_unused_rpcs.sql`) did not take effect for these three (or was reverted); they exist, are INVOKER, service-role only, and have no caller in the application (the Python method `get_prompt_template` in `services/vocabulary/*` is unrelated).
+- **`grant_daily_free_tokens` does not exist** (not in the live database, not in any migration; only the grant migrations `migrations/security_function_grants_group_a.sql` and `_group_b.sql` mention it, to say so). The application calls it in `routes/users.py` (`GET` token balance, line 37) and `services/auth_service.py` (welcome tokens on signup, line 219). Both calls fail at runtime against the live database; `routes/users.py` then reads `users.tokens` and `users.last_free_token_date`, columns that also do not exist on live `users`. Needs an owner decision (see follow-ups in the batch report and `open_questions`).
+- **Never created (called but absent):** `pg_try_advisory_lock_for_word_upload_sweep`, `pg_advisory_unlock_for_word_upload_sweep` (called by `services/word_list_import/sweep_cron.py`; pending, see below) and `exercise_content_sweep` (the name is only a directory in `scripts/sweep_exercise_content.py`; not an RPC).
+
+### Functions the application calls (94 names)
+
+Sec: D/I as in the legend. "File" paths are in `migrations/`.
+
+| Function (arguments) | Returns | Sec | Purpose | Reads / Writes | File |
+|---|---|---|---|---|---|
+| `apply_attempt_timing_and_progress(p_attempt_id uuid, p_started_at timestamptz=d, p_finished_at timestamptz=d)` | jsonb | D | Post-submit hook: stores `started_at`/`duration_ms` on the attempt and credits weekly-plan progress | R `dim_test_types`, `test_attempts` / W `test_attempts` | `phase13_apply_attempt_timing_and_progress` |
+| `apply_calibration_to_skill_ratings(p_user_id uuid, p_language_id smallint)` | jsonb | D | Only path by which placement moves `user_skill_ratings` (seed or correct ELO from ability) | R `user_calibration_state`, `test_attempts`, `user_skill_ratings`, `test_skill_ratings`, `tests`, `dim_test_types` / W `user_skill_ratings`, `user_skill_rating_adjustments` | `task747_apply_calibration_to_skill_ratings` |
+| `apply_jev_retier(p_rows jsonb)` | integer | I | Applies a JEV tier re-assignment to `tests` | R `dim_complexity_tiers` / W `tests` | `task821_tier_calibration` |
+| `apply_study_plan_template(p_user_id uuid, p_language_id smallint, p_template_id smallint)` | user_study_plans | D | Idempotent upsert of a plan from a template (copies daily minutes, keeps user edits) | R `dim_study_plan_templates` / W `user_study_plans` | `phase13_apply_study_plan_template` |
+| `bkt_apply_lapse_penalty(p_user_id uuid, p_sense_id integer)` | void | I | Lowers p_known after an FSRS lapse | W `user_vocabulary_knowledge` | `phase7_bkt_improvements` |
+| `bkt_contextual_inference(p_user_id uuid, p_language_id smallint, p_contextual_sense_ids integer[], p_score_ratio numeric)` | integer | I | Moves p_known of senses seen in a test by the score ratio | R/W `user_vocabulary_knowledge` | `phase7_bkt_improvements` |
+| `bkt_infer_from_frequency(p_user_id uuid, p_language_id smallint, p_known_sense_id integer, p_new_p_known numeric)` | integer | I | Raises p_known of more frequent words when a rarer word is known | R/W `user_vocabulary_knowledge` | `phase7_bkt_improvements` |
+| `build_daily_session(p_user_id uuid, p_language_id smallint, p_date date=d)` | jsonb | D | Builds and stores the day's test slots (daily load) | R plan, tests, attempts, sentence refs, DT tables / W `daily_test_loads`, `daily_test_load_items`, `user_word_watchlist` | `word_upload_slot_scheduling` |
+| `calibration_ability(p_session_id uuid, p_min_band_n integer=d)` | jsonb | D | Pooled ability estimate of a session | R `calibration_responses` | `calibration_sessions_and_ability` |
+| `calibration_build_items(p_session_id uuid, p_user_id uuid, p_word_language_id smallint, p_definition_language_id smallint, p_mode text=d, p_count integer=d, p_max_fill integer=d)` | jsonb | D | Builds up to `p_count` placement items (anchors, cached distractors) in one round trip | W `calibration_responses`, `calibration_response_options`, `calibration_sessions` | `calibration_distractor_cache_packed` |
+| `calibration_cache_distractors_chunk(p_word_language_id smallint, p_definition_language_id smallint, p_mode text=d, p_batch integer=d)` | TABLE(anchors_processed, anchors_filled, anchors_short) | D | Fills the distractor cache for a batch of untried anchors | R pool, cache, misses / W `calibration_distractor_cache_misses` (+ cache via helper) | `task773b_calibration_distractor_cache_misses` |
+| `calibration_discard_unanswered(p_session_id uuid, p_user_id uuid)` | integer | D | Deletes served-but-unanswered items and fixes `items_served` | W `calibration_responses`, `calibration_response_options`, `calibration_sessions` | `task770_calibration_build_items` |
+| `calibration_distractor_cache_coverage()` | TABLE | D | Cached vs total anchors per language pair and mode | R pool, cache | `task773_calibration_distractor_cache` |
+| `calibration_placement_answer(p_user_id uuid, p_session_id uuid, p_response_id bigint, p_position smallint, p_latency_ms integer, p_next_band smallint, p_draws jsonb)` | jsonb | D | Grades one placement answer and returns the next item in one round trip | R/W `calibration_responses`, `calibration_sessions` | `calibration_placement_rpcs` |
+| `calibration_placement_close(p_user_id uuid, p_session_id uuid, p_reason text)` | jsonb | D | Closes a placement session and builds its result | R/W `calibration_responses`, `calibration_sessions` | `calibration_placement_rpcs` |
+| `calibration_placement_close_stale(p_user_id uuid, p_older_than interval=d)` | uuid[] | D | Closes the learner's abandoned placement sessions (nightly job) | R/W same | `calibration_placement_rpcs` |
+| `calibration_placement_meaning_parts(p_anchor_sense_id integer, p_word_language_id smallint, p_definition_language_id smallint, p_lemma text, p_key text, OUT status text, OUT sense_ids integer[], OUT texts text[])` | record | I* | Option set for a meaning item | (helpers only) | `calibration_placement_rpcs` |
+| `calibration_placement_next_item(p_user_id uuid, p_session_id uuid, p_band smallint, p_exclude_days integer=d)` | jsonb | D | Picks and inserts the next placement item | R `calibration_responses`, `calibration_sessions` | `calibration_placement_rpcs` |
+| `calibration_placement_reading_ready(p_vocab_id integer, p_word_language_id smallint, p_lemma text)` | boolean | I* | Whether a reading item can be built for the word | none | `calibration_placement_rpcs` |
+| `calibration_placement_ready_counts(p_word_language_id smallint, p_definition_language_id smallint)` | jsonb | I* | Counts of placement-ready words per band | R pool, blocklist, `dim_word_senses` | `calibration_placement_rpcs` |
+| `calibration_placement_reveal_reading(p_vocab_id integer, p_word_language_id smallint)` | text | I* | The word's reading, shown after a miss | R `dim_word_senses` | `calibration_placement_rpcs` |
+| `calibration_record_answer(p_response_id bigint, p_user_id uuid, p_session_id uuid, p_position integer=d, p_latency_ms integer=d)` | jsonb | D | Grades one (non-placement) calibration answer, returns running counts | R/W `calibration_responses`, `calibration_response_options`, `calibration_sessions` | `task769_calibration_record_answer` |
+| `calibration_refresh_anchor_pool(p_word_language_id smallint=d)` | integer | D | Rebuilds `calibration_anchor_pool` | R/W `calibration_anchor_pool`; R vocab, senses | `calibration_pool_refresh_language_and_katakana` |
+| `calibration_zh_tone_variants(p_pronunciation text, p_vocab_id integer)` | text[] | I* | Valid tone variants of a Chinese reading | R `calibration_zh_char_readings`, `calibration_zh_tone_inventory` | `calibration_zh_tones` |
+| `calibration_zipf_to_elo(p_ability_zipf numeric)` | integer | I* | Maps ability (Zipf) to the age-tier ELO ladder | R `dim_complexity_tiers` | `calibration_user_state_and_zipf_to_elo` |
+| `compute_weekly_plan_load_signals(p_user_id uuid, p_language_id smallint, p_week_start date)` | jsonb | D | Inputs for the weekly plan in one call | R attempts, ratings, vocab, flashcards, ladder, `weekly_plan_states` | `phase13_compute_weekly_plan_helpers` |
+| `compute_weekly_plan_persist(p_user_id uuid, p_language_id smallint, p_week_start date, p_computed jsonb)` | jsonb | D | Atomic upsert of the computed week (keeps progress counters) | W `weekly_plan_states` | `session_module_exclusions` |
+| `credit_study_time(p_user_id uuid, p_language_id smallint, p_kind text, p_seconds integer, p_source_table text, p_source_id text)` | boolean | D | Credits measured seconds to the learner-local week once per source row (ADR-035) | W `study_time_ledger` | `prestudy_workflow` |
+| `dt_next_inputs(p_user_id uuid, p_l2 integer, p_l1 integer)` | jsonb | I* | Read bundle for the dual-translation `/next` route | R `dt_grade`, `dt_passage`, `dt_submission`, `test_*`, ratings, `users` | `dt_next_inputs` |
+| `exercise_content_begin(p_sense_id integer)` | jsonb | I* | Step 1 of the Storage content write: current version and ids (ADR-049) | R `exercises` | `exercise_content_storage` |
+| `exercise_content_commit(p_sense_id integer, p_expected_version integer, p_expected_ids uuid[], p_new_version integer, p_delete_ids uuid[]=d, p_insert_rows jsonb=d, p_update_contents jsonb=d)` | jsonb | I* | Compare-and-swap commit of one sense's exercise rows | R/W `exercises` | `exercise_content_drop_column` |
+| `exercise_content_live_versions(p_language_id integer)` | jsonb | I* | `{sense_id: [versions]}` of active rows, for the sweep | R `exercises` | `exercise_content_storage` |
+| `get_active_languages()` | TABLE | D | Active languages | R `dim_languages` | `phase6_security_hardening` |
+| `get_classifier_drill_session(p_user_id uuid, p_language_id smallint, p_count integer=d)` | TABLE | D | Classifier drill items (v1, fallback) | R classifier tables, senses | `get_classifier_drill_session` |
+| `get_classifier_drill_session_v2(p_user_id uuid, p_language_id smallint, p_count integer=d)` | TABLE | D | Classifier drill items by mastery level | R classifier tables, `user_classifier_mastery`, vocab | `task998_classifier_drill_levels` |
+| `get_counter_drill_session(p_user_id uuid, p_language_id smallint, p_count integer=d)` | TABLE | D | Counter drill items (ja) | R counter tables, senses | `counter_drill` |
+| `get_distractors(p_sense_id integer, p_language_id smallint, p_count integer=d, p_definition_language_id smallint=d)` | TABLE | D | Exercise distractor definitions | R vocab, senses | `phase3_rpc_fixes` |
+| `get_next_category()` | TABLE | D | Next topic category to generate for | R `categories`, `dim_status` | `phase6_security_hardening` |
+| `get_practice_session(p_user_id uuid, p_language_id smallint, p_mode text=d, p_target_minutes smallint=d, p_user_theta numeric=d, p_include_content boolean=d)` | jsonb | I* | Unified Practice session builder (mode, time budget, score) | R exercises, history, flashcards, knowledge, ladder, modes | `exercise_content_drop_column` |
+| `get_quiz_distractors(...)` | TABLE | D | See "The six functions changed" | R vocab, senses | `get_quiz_distractors_sample_ids_first` |
+| `get_recommended_test(p_user_id uuid, p_language_id integer)` | SETOF tests | D | Single recommended test (older route) | R tests, ratings, attempts | `wire_volatility_and_exclude_attempted` |
+| `get_recommended_tests(p_user_id uuid, p_language_id smallint, p_topic_recency_days smallint=d)` | TABLE | D | Ranked recommended tests | R tests, ratings, `selection_tuning`, tiers | `dictation_cap_cjk_word_count` |
+| `get_review_ahead_items(p_user_id uuid, p_language_id smallint, p_limit integer=d, p_exclude_recent_minutes integer=d, p_exclude_sense_ids integer[]=d, p_include_content boolean=d)` | jsonb | I* | Review-ahead items for extra rounds | R exercises, attempts, flashcards, knowledge | `exercise_content_drop_column` |
+| `get_token_balance(p_user_id uuid)` | integer | D | Token balance (purchased + bonus) | R `user_tokens` | `phase3_rpc_fixes` |
+| `get_weekly_study_seconds(p_user_id uuid, p_language_id smallint, p_week_start date)` | jsonb | D | Ledger seconds per kind for a week | R `study_time_ledger` | `prestudy_workflow` |
+| `get_word_quiz_candidates(p_user_id uuid, p_sense_ids integer[], p_language_id smallint, p_max_words integer=d)` | TABLE | D | Words for the post-test word quiz | R vocab, senses, knowledge | `archive/word_quiz_retake_fallback` (live; archived) |
+| `intro_commit_word(p_user_id uuid, p_sense_id integer, p_stage smallint, p_attempts jsonb, p_update jsonb)` | boolean | I* | Commits a new-word-drill stage (attempts + ladder row) | R/W `user_word_ladder`, W `exercise_attempts` | `intro_commit_word` |
+| `irt_apply_calibration(p_exercise_id uuid, p_discrimination numeric, p_difficulty numeric, p_se_difficulty numeric, p_n_attempts integer)` | void | D | Stores IRT parameters on an exercise | W `exercises` | `add_irt_calibration_metadata` |
+| `irt_release_lock()`, `irt_try_lock()` | boolean | D | Advisory lock around the nightly IRT job | none | `add_irt_calibration_metadata` |
+| `knowledge_active_pairs(p_since timestamptz)` | jsonb | I* | (learner, language) pairs active since a time, for the nightly snapshot job | R calibration, knowledge | `knowledge_report_foundation` |
+| `knowledge_calibration_inputs(p_user_id uuid, p_language_id smallint, p_as_of timestamptz=d, p_window_days integer=d, p_definition_language_id smallint=d, p_session_id uuid=d)` | jsonb | I* | Estimator inputs from placement and calibration | R calibration, pool, blocklist, knowledge | `knowledge_calibration_inputs` |
+| `knowledge_frame_bands()` | jsonb | I* | Frame sizes per language and Zipf band | R pool, blocklist, senses | `knowledge_report_foundation` |
+| `knowledge_report_summary(p_user_id uuid, p_language_id smallint, p_as_of timestamptz=d, p_window_days integer=d, p_cal_since timestamptz[]=d)` | jsonb | I* | Knowledge Report summary aggregates | R calibration, vocab, attempts, knowledge, watchlist, word quiz | `knowledge_report_summary` |
+| `knowledge_report_words(p_user_id uuid, p_language_id smallint, p_definition_language_id smallint, p_filters jsonb=d, p_sort text=d, p_cursor jsonb=d, p_limit integer=d, p_as_of timestamptz=d)` | jsonb | I* | One keyset page of the report's word table | R vocab, senses, exercises, ladder, watchlist, flashcards, knowledge | `knowledge_report_words` |
+| `knowledge_snapshots_prune(p_keep_daily_days integer=d)` | integer | I* | Deletes old snapshots (retention) | R/W `user_knowledge_snapshots` | `knowledge_report_foundation` |
+| `ladder_graduate(p_user_id uuid, p_sense_id integer, p_stress_test_score real, p_language_id smallint)` | jsonb | I | Graduates a word to review and creates its flashcard | W `user_flashcards`, `user_word_ladder` | `phase8_momentum_bands` |
+| `ladder_new_word_state(p_user_id uuid, p_language_id smallint, p_day_start timestamptz)` | jsonb | D | Unstarted / started-today words for the new-word quota | R vocab, senses, attempts, exercises, ladder | `new_word_drill` |
+| `ladder_pass_gate(p_user_id uuid, p_sense_id integer, p_gate_name text)` | jsonb | I | Marks a ladder gate passed | R/W `user_word_ladder` | `phase8_momentum_bands` |
+| `ladder_record_attempt(p_user_id uuid, p_sense_id integer, p_exercise_id uuid, p_is_correct boolean, p_is_first_attempt boolean, p_time_taken_ms integer=d, p_language_id smallint=d, p_exercise_type text=d, p_ladder_level integer=d, p_exercise_context text=d)` | jsonb | I | Ladder attempt write (family BKT, momentum bands); used by the ladder service, not by Practice | R/W attempts, flashcards, knowledge, ladder | `phase8_momentum_bands` |
+| `match_test_passages_by_topic_tier(p_topic_id uuid, p_tier_id smallint, query_embedding vector, match_threshold double precision=d, match_count integer=d)` | TABLE | D | Nearest existing passages for dedup | R `tests` | `task740_phase5_question_passage_dedup` |
+| `match_topics(query_category integer, query_embedding vector, match_threshold double precision=d, match_count integer=d)`, `match_topics_global(query_embedding vector, match_threshold double precision=d, match_count integer=d)` | TABLE | D | Topic similarity search | R `topics` | `phase6_security_hardening`, `task740_collapse_difficulty_to_tier_schema` |
+| `pg_try_advisory_lock_for_dt_synthesis()` / `pg_advisory_unlock_for_dt_synthesis()` and the same pairs for `model_health`, `queue_drain`, `study_plan` | boolean | D | Session-level advisory locks so the nightly jobs run once (eight functions) | none | `dt_synthesis_advisory_lock`, `task510_model_health_advisory_lock`, `task517_queue_drain_advisory_lock`, `study_plan_advisory_lock` |
+| `prestudy_plan_inputs(p_user_id uuid, p_language_id smallint, p_test_ids uuid[])` | jsonb | I* | Prestudy inputs bundle (called via `call_bundle`) | R tests, knowledge, ability | `latency_2026_11_session_merges` |
+| `new_word_state_inputs(p_user_id uuid, p_language_id smallint, p_date date, p_day_start timestamptz, p_with_governor boolean)` | jsonb | I* | New-word state bundle (called via `call_bundle`) | R ladder, plan, ... | `latency_2026_11_session_merges` |
+| `process_classifier_drill_submission(p_user_id uuid, p_test_id uuid, p_language_id smallint, p_test_type_id smallint, p_correct_items integer, p_total_items integer, p_was_free_test boolean=d, p_idempotency_key uuid=d)` | jsonb | D | Records a classifier-drill session and moves ELO on the first attempt | see "changed" section | `process_classifier_drill_submission` |
+| `process_dictation_submission(p_user_id uuid, p_test_id uuid, p_language_id smallint, p_test_type_id smallint, p_word_correct integer, p_word_total integer, p_replay_count smallint, p_diff_payload jsonb, p_was_free_test boolean=d, p_idempotency_key uuid=d)` | jsonb | D | Records a dictation attempt (replay penalty, retry slot) | R also `daily_test_loads` | `process_dictation_submission` |
+| `process_pinyin_submission(p_user_id uuid, p_test_id uuid, p_language_id smallint, p_test_type_id smallint, p_correct_chars integer, p_total_chars integer, p_was_free_test boolean=d, p_idempotency_key uuid=d)` | jsonb | D | Records a pinyin attempt | see "changed" section | `process_pinyin_submission` |
+| `process_pitch_accent_submission(p_user_id uuid, p_test_id uuid, p_language_id smallint, p_test_type_id smallint, p_correct_units integer, p_total_units integer, p_was_free_test boolean=d, p_idempotency_key uuid=d, p_furigana_used boolean=d)` | jsonb | D | Records a pitch-accent attempt | see "changed" section | `process_pitch_accent_submission` |
+| `process_test_submission(...)` | jsonb | D | See "The six functions changed" | W `question_attempt_results` too | `process_test_submission_set_based_grading` |
+| `recommended_tests_ranked(p_user_id uuid, p_language_id smallint, p_topic_recency_days smallint, p_vocab_weight numeric, p_as_of timestamptz=d)` | TABLE | D | Every eligible test with its score decomposition (vocab-aware ranker) | R tests, ratings, vocab, `selection_tuning` | `dictation_cap_cjk_word_count` |
+| `record_exercise_attempt(...)` | jsonb | I* | See "Application contract that changed" | W attempts, `exercises`, `prestudy_followups` | `record_exercise_attempt` |
+| `record_session_progress(p_user_id uuid, p_language_id smallint, p_attempt_id uuid, p_kind text, p_skill text, p_delta_count integer=d, p_delta_minutes integer=d, p_delta_seconds integer=d, p_sense_id bigint=d, p_is_tail boolean=d)` | boolean | D | Idempotently credits one completion to the current week | R/W `weekly_plan_states` | `task716_local_day_boundary` |
+| `refresh_new_word_minutes()` | jsonb | D | Nightly estimate of minutes per new word | W `dim_languages` | `new_word_minutes_estimate` |
+| `refresh_practice_time_estimates()` | jsonb | D | Nightly p50 seconds/minutes per exercise and test type | W `dim_exercise_types`, `dim_test_types` | `phase13_refresh_practice_time_estimates` |
+| `review_governor_state(p_user_id uuid, p_language_id smallint, p_date date)` | jsonb | D | Review backlog and governor level (normal, reduced, paused) | R plan, flashcards, ladder, vocab | `new_word_drill_governor` |
+| `selection_vocab_ability(p_user_id uuid, p_language_id smallint, p_as_of timestamptz=d)` | TABLE | D | Ability (Zipf) behind the untested-sense prior | R `user_calibration_state`, knowledge, vocab | `task748_get_recommended_tests_vocab_aware` |
+| `semantic_distractors(p_sense_id integer, p_word_language_id smallint, p_definition_language_id smallint, p_count integer=d, p_cos_min real=d, p_cos_max real=d, p_freq_band real=d, p_definition_level text=d, p_pool integer=d, p_exclude_stem_variants boolean=d)` | TABLE | D | Embedding-neighbour distractors inside a cosine band | R `dim_distractor_bands`, vocab, senses | `sense_vectors_native_standard_512` |
+| `sense_similarity_to_lemmas(p_sense_id integer, p_language_id smallint, p_lemmas text[])` | TABLE | D | Similarity of a sense to a list of lemmas | R vocab, senses | `sense_vectors_native_standard_512` |
+| `set_new_words_shortfall(p_user_id uuid, p_language_id smallint, p_date date, p_shortfall integer, p_checked_e integer=d)` | boolean | D | Records how many new words the day could not fill | W `daily_test_loads` | `session_module_exclusions_build_daily_session` |
+| `tests_containing_sense(p_sense_id integer, p_language_id integer)` | TABLE | I | Tests whose transcript includes a sense | R `tests`, `dim_languages` | `exercise_generation_schema` |
+| `update_classifier_mastery(p_user_id uuid, p_classifier_id smallint, p_is_correct boolean)` | jsonb | D | Updates classifier mastery and promotes after 5 answers at a level | R/W `user_classifier_mastery` | `task998_classifier_drill_levels` |
+| `update_vocabulary_from_placement_batch(p_user_id uuid, p_language_id smallint, p_items jsonb)` | TABLE | I* | Writes placement evidence to BKT (own evidence kind) | R/W `user_vocabulary_knowledge` | `baseline_update_vocabulary_from_placement_batch` |
+| `update_vocabulary_from_test(p_user_id uuid, p_language_id smallint, p_question_results jsonb)` | TABLE | I | BKT update from a comprehension test's per-question results | R `questions`; W `user_vocabulary_knowledge` | `bkt_vocabulary_tracking` |
+| `update_vocabulary_from_word_test(p_user_id uuid, p_sense_id integer, p_is_correct boolean, p_language_id smallint, p_exercise_type text=d)` | TABLE | I | BKT update from one word-test or exercise answer (5-argument form; the 4-argument overload is pending removal) | R/W `user_vocabulary_knowledge` | `phase5_algorithm_fixes` |
+| `update_vocabulary_from_word_tests_batch(p_user_id uuid, p_language_id smallint, p_results jsonb)` | TABLE | I | Batch form of the word-test BKT update | R/W `user_vocabulary_knowledge` | `bkt_word_test_batch` |
+
+### Functions called only by other functions (72)
+
+Same legend. Not callable usefully from the client (service-role only).
+
+| Function (arguments) | Returns | Sec | Purpose | Called by / reads, writes | File |
+|---|---|---|---|---|---|
+| `bkt_apply_decay(p_known numeric, p_last_evidence_at timestamptz, p_half_life_days numeric=d)` | numeric | I | Time decay of p_known, half-life form | pure | `phase7_bkt_improvements` |
+| `bkt_apply_decay(p_known numeric, p_last_evidence_at timestamptz, p_stability real=d, p_evidence_count integer=d)` | numeric | I | Decay using FSRS stability when known (the form documented below) | pure | `phase7_bkt_improvements` |
+| `bkt_effective_p_known(p_known numeric, p_last_evidence_at timestamptz)` | numeric | I | p_known after decay, default parameters | pure | `phase7_bkt_improvements` |
+| `bkt_effective_p_known(p_known numeric, p_last_evidence_at timestamptz, p_stability real=d, p_evidence_count integer=d)` | numeric | I | p_known after decay with stability (the form documented below) | pure | `phase7_bkt_improvements` |
+| `bkt_status(p_known numeric)` | text | I | Status label from p_known | pure | `bkt_vocabulary_tracking` |
+| `bkt_update(p_current numeric, p_correct boolean, p_slip numeric=d, p_guess numeric=d)`, `bkt_update_comprehension(p_current, p_correct)`, `bkt_update_exercise(p_current, p_correct, p_exercise_type text)`, `bkt_update_word_test(p_current, p_correct)` | numeric | I | One Bayesian update step with per-source slip/guess | pure | `bkt_vocabulary_tracking`, `phase7_bkt_improvements` |
+| `calculate_elo_rating(current_rating integer, opposing_rating integer, actual_score numeric, k_factor integer=d, volatility_multiplier numeric=d)`, `calculate_volatility_multiplier(attempts integer, last_date date=d, base_volatility numeric=d)` | integer / numeric | I | ELO and volatility helpers (used by the dictation RPC) | pure | `elo_functions` |
+| `calibration_band_midpoint(p_band smallint)`, `calibration_zipf_band(p_zipf real)` | real / smallint | I | Zipf band helpers | pure | `calibration_sessions_and_ability` |
+| `calibration_cached_options(p_mode text, p_anchor_sense_id integer)` | TABLE | I* | Cached foils for an anchor, ranked | R cache, vocab, senses | `calibration_distractor_cache_packed` |
+| `calibration_display_pronunciation(p_pronunciation text, p_language_id smallint)`, `calibration_normalise_pronunciation(p_pronunciation text, p_language_id smallint)`, `calibration_syllable_count(p_normalised text, p_language_id smallint)` | text / integer | I / I* | Pronunciation display, comparison form, syllable or mora count | pure | `calibration_pronunciation_mode`, `calibration_zh_normaliser_fix` |
+| `calibration_fill_distractor_cache(p_anchor_sense_id integer, p_word_language_id smallint, p_definition_language_id smallint, p_mode text=d)` | integer | D | Fills the cache for one anchor | R/W `calibration_distractor_cache` | `calibration_distractor_cache_packed` |
+| `calibration_next_anchors(p_session_id uuid, p_word_language_id smallint, p_definition_language_id smallint, p_mode text=d, p_count integer=d)` | TABLE | D | Unserved anchors for a session, round-robin by band | R pool, blocklist, responses | `task772_calibration_anchor_pool` |
+| `calibration_placement_*` helpers (19): `band_has_word`, `build_meaning`, `build_reading`, `build_recheck`, `candidates`, `draw`, `insert_item`, `item_payload`, `kana_pattern`, `mora_skeleton`, `option_texts`, `own_readings`, `reading_exempt`, `reading_foil_counts`, `reading_key`, `reading_parts`, `reveal`, `strip_definition`, `tallies`, `toneless`, `unit`, `units`, `well_formed_reading` | jsonb / text / TABLE / boolean | I* (`build_meaning`, `build_reading`, `build_recheck`, `draw`, `insert_item` are VOLATILE) | Item building, readiness, tallies for placement; `build_meaning` and `insert_item` write `calibration_responses` (and `insert_item` `calibration_sessions`) | called by `calibration_placement_next_item`, `_answer`, `_close` | `calibration_placement_rpcs` |
+| `calibration_zh_mark_syllable(p_base text, p_tone integer)`, `calibration_zh_parse_pinyin(p_pronunciation text)` | text / TABLE | I* | Pinyin tone-mark helpers | pure | `calibration_zh_tones` |
+| `definition_head_glosses(p_definition text)`, `shared_prefix_len(a text, b text)` | text[] / integer | I | Distractor headword guard helpers | pure | `calibration_distractor_headword_guard`, `calibration_semantic_distractors` |
+| `dictation_max_words(p_difficulty integer)`, `transcript_word_count(p_text text)` | integer | I | Dictation transcript length cap | R `dim_complexity_tiers` | `task715_test_time_estimate_tiered`, `dictation_cap_cjk_word_count` |
+| `fsrs_schedule_review(p_stability real, p_difficulty real, p_last_review date, p_reps integer, p_lapses integer, p_state text, p_rating integer, p_review_date date=d)` | jsonb | I | SQL FSRS step (the Python scheduler is the one in use) | pure | `phase8_momentum_bands` |
+| `get_replay_tests(p_user_id uuid, p_language_id smallint, p_test_type text, p_min_age_days integer=d, p_exclude uuid[]=d, p_limit integer=d)` | TABLE | D | Tests the learner may replay | R tests, ratings, attempts | `get_replay_tests` |
+| `get_test_token_cost(p_user_id uuid)` | integer | D | Token cost of a test for the user's tier | R `dim_subscription_tiers`, `users` | `baseline_get_test_token_cost` |
+| `irt_compute_user_theta(p_user_id uuid, p_language_id smallint)` | numeric | I | Ability from exercise history | R `user_exercise_history` | `add_irt_calibration_metadata` |
+| `is_admin(p_user_id uuid)`, `is_moderator(p_user_id uuid)` | boolean | D | RLS helpers; the only functions `anon` and `authenticated` may execute | R `users`, `dim_subscription_tiers` | `security_function_auth_checks` |
+| `ladder_apply_progress(p_user_id uuid, p_sense_id integer, p_exercise_id uuid, p_is_correct boolean, p_is_first_attempt boolean, p_exercise_context text=d)` | jsonb | I* | Ladder progress write used by `record_exercise_attempt` | R `exercises`; R/W `user_word_ladder` | `ladder_apply_progress` |
+| `ladder_compute_p_known(p_fc jsonb)`, `ladder_compute_priority(...)`, `ladder_get_family(p_level integer)`, `ladder_ring_families(p_ring integer, p_active_levels integer[])` | numeric / text / text[] | I | Ladder helpers | pure | `phase8_momentum_bands`, `phase12_get_practice_session` |
+| `max_unlocked_tier(p_user_id uuid, p_language_id smallint)` | smallint | D | Highest classifier tier the learner has unlocked | R `dim_classifiers`, `user_classifier_mastery` | `baseline_max_unlocked_tier` |
+| `new_word_minutes(p_language_id smallint)`, `new_words_effective(p_quota integer, p_level text)`, `new_words_for_day(p_new_words_per_day integer, p_weight numeric)` | numeric / integer | I | New-word budget arithmetic | R `dim_languages` (first) | `session_module_exclusions`, `review_governor` |
+| `plan_local_date(p_user_id uuid, p_language_id smallint, p_at timestamptz=d)`, `plan_local_day_start(p_user_id uuid, p_language_id smallint)`, `resolve_plan_timezone(p_tz text)`, `week_start_for(p_date date)` | date / timestamptz / text | D / I | Learner-local day boundary (ADR-022) | R `user_study_plans`, `tz_names` | `task716_local_day_boundary`, `new_words_completed_accrual`, `latency_2026_11_db`, `phase13_build_daily_session` |
+| `pos_class(p_pos text)` | text | I* | Part-of-speech class used for same-class distractors | pure | `get_quiz_distractors` |
+| `practice_unified_score(p_a numeric, p_b numeric, p_theta numeric, p_p_known numeric, p_due_date date, p_stability real, p_today date, p_ladder_priority numeric, p_alpha numeric, p_beta numeric, p_gamma numeric, p_delta numeric)` | numeric | I | Practice ranking score | pure | `phase12_practice_unified_score` |
+| `pronunciation_distractors(p_sense_id integer, p_word_language_id smallint, p_count integer=d, p_max_distance integer=d, p_max_ratio real=d)` | TABLE | D | Reading distractors by edit distance | R vocab, senses | `pronunciation_distractors_ja_kana_pattern` |
+| `review_governor_level(p_backlog_min numeric, p_threshold_min numeric)`, `review_item_seconds(p_user_id uuid, p_language_id smallint)` | text / numeric | I / D | Governor level and per-item review time | R attempts, vocab | `review_governor` |
+| `sense_embedding(p_sense_id integer)` | halfvec | I* | A sense's 512-d vector | R `dim_word_senses` | `sense_vectors_native_standard_512` |
+| `test_time_estimate(p_skill text)`, `test_time_estimate(p_skill text, p_difficulty integer)` | numeric | I | Expected minutes per test slot | R `dim_test_types` | `task715_test_time_estimate_tiered` |
+
+### Live functions the application does not call (44 names)
+
+Service-role only unless stated. Trigger functions are attached as listed in the Triggers section of [[database/schema.tech]].
+
+| Function | Returns | Canonical file | Purpose |
+|---|---|---|---|
+| `add_tokens_atomic(p_user_id, p_tokens_to_add integer, p_action, p_idempotency_key text, p_payment_intent_id=d, p_package_id=d)` | boolean (D) | `baseline_add_tokens_atomic` | Idempotent token credit (payments) |
+| `anonymize_user_data(p_user_id uuid)` | void (D) | `baseline_anonymize_user_data` | GDPR anonymisation of a user row |
+| `batch_lookup_lemmas(p_lemmas text[], p_language_id integer)` | TABLE (D) | `baseline_batch_lookup_lemmas` | Bulk lemma to vocab id lookup |
+| `bkt_phase(p_known numeric)`, `bkt_phase_thresholds()` | text / TABLE | `phase5_algorithm_fixes` | BKT phase label and its thresholds |
+| `calibration_clear_distractor_cache_misses(p_mode text=d)` | integer (D) | `task773b_calibration_distractor_cache_misses` | Forget miss markers so the builder retries |
+| `calibration_next_anchor(p_session_id, p_word_language_id, p_definition_language_id, p_mode=d)` | TABLE | `task772_calibration_anchor_pool` | One-anchor wrapper of `calibration_next_anchors` |
+| `calibration_refresh_zh_tone_inventory()` | integer (D) | `calibration_zh_tones` | Rebuilds `calibration_zh_tone_inventory` and `calibration_zh_char_readings` |
+| `can_use_free_test(p_user_id uuid)` | boolean (D) | `phase3_rpc_fixes` | Free-test eligibility (live, no caller) |
+| `create_user_dependencies()` | trigger | `baseline_create_user_dependencies` | After insert on `users`: creates token and language rows |
+| `exercise_type_phase_weight(p_exercise_type text, p_phase text)`, `tier_to_phase(p_tier text)`, `tier_window_for_p_known(p_avg numeric)` | numeric / text / text[] | `phase9_get_exercise_session` | Helpers of the removed `get_exercise_session`, still live |
+| `get_daily_free_test_limit(p_user_id uuid)` | integer (D) | `baseline_get_daily_free_test_limit` | Daily free tests of the user's tier |
+| `get_model_for_task(p_task_key text, p_language_id smallint)` | text | `phase4_schema_evolution` | Live though documented dropped; its body reads `language_model_config`, a table that no longer exists, so any call fails (verified 2026-11-23) |
+| `get_prompt_template(p_task_name varchar, p_language_id integer=d)` | text | `phase1_quick_wins` | Prompt lookup (live, no caller) |
+| `get_quiz_distractors_batch(p_sense_ids integer[], p_language_id smallint, p_count integer=d, p_definition_language_ids smallint[]=d)` | TABLE (D) | `archive/get_quiz_distractors_batch` | Batch form; no SQL or app caller; drop pending |
+| `get_session_senses(p_user_id, p_language_id, p_due_limit=d, p_learning_limit=d, p_new_limit=d)` | TABLE | `phase7_bkt_improvements` | Senses for an old session builder |
+| `get_top_collocations_for_sources(p_source_ids integer[], p_min_pmi double precision, p_top_n integer)` | TABLE | `corpus_rpcs` | Top collocations per corpus source |
+| `get_vocab_recommendations(p_user_id, p_language_id integer, p_target_unknown_min=d, p_target_unknown_max=d, p_limit=d)` | TABLE (D) | `phase6_security_hardening` | Vocabulary recommendations |
+| `handle_new_user()` | trigger (D) | `baseline_handle_new_user` | Auth trigger that creates the `users` profile |
+| `is_sense_quarantined(p_sense_id integer)` | boolean | `task767_sense_quarantine_guards` | True when a sense is on `calibration_anchor_blocklist` |
+| `ladder_get_ring(p_level integer)` | integer | `phase8_momentum_bands` | Ring of a ladder level |
+| `normalize_pos(p_tag text)`, `pos_tag_lookup(t text)` | text | `standardise_part_of_speech` | Part-of-speech normalisation |
+| `process_stripe_payment(p_user_id, p_tokens_to_add, p_payment_intent_id, p_package_id, p_amount_cents)` | boolean (D) | `baseline_process_stripe_payment` | Credits tokens for a Stripe payment |
+| `propagate_vocab_language_to_senses()`, `set_sense_word_language()` | trigger (D) | `calibration_sense_word_language_and_partial_hnsw` | Keep `dim_word_senses.word_language_id` in step with the vocabulary |
+| `purge_old_log_rows(p_llm_raw_response_days=d, p_stage_timings_days=d, p_error_logs_days=d, p_batch_limit=d, p_dry_run=d)` | jsonb | `log_retention_purge` | Retention for `llm_calls.raw_response`, `generation_stage_timings`, `app_error_logs` |
+| `selection_tuning_touch()`, `touch_user_study_plans_updated_at()`, `update_updated_at_column()` | trigger | `task744_selection_tuning_table`, `phase13_user_study_plans`, `baseline_update_updated_at_column` | `updated_at` maintenance |
+| `semdisc_note_is_vague(n text)` | boolean | `baseline_semdisc_note_is_vague` | Judge-note helper |
+| `sync_exercise_history()` | trigger | `phase4_schema_evolution` | Copies `exercise_attempts` to `user_exercise_history` |
+| `test_sentence_references_check_l1_script()`, `test_sentences_check_l2_text()` | trigger | `test_sentence_references_schema` | Reference-table guards (L1 script check has a wrong range, fix pending) |
+| `trg_blocklist_retire_exercises()`, `trg_exercises_sense_quarantine()`, `trg_generation_queue_sense_quarantine()` | trigger | `task767_sense_quarantine_guards` | Quarantine guards |
+| `trg_dim_vocabulary_normalize_pos()` | trigger | `standardise_part_of_speech` | Normalises POS on write |
+| `update_skill_attempts_count()`, `update_test_attempts_count()` | trigger | `phase3_rpc_fixes` | O(1) attempt counters |
+| `update_user_vocab_stats()` | trigger | `baseline_update_user_vocab_stats` | Vocabulary stats on `users`; no trigger uses it (verified 2026-11-23), so it is dead |
+| `usra_refuse_update()` | trigger | `task746_user_skill_rating_adjustments` | Blocks UPDATE on the append-only adjustments table |
+
+### Pending function changes (migrations written, NOT applied; verified against live 2026-11-23)
+
+Apply sheet: `migrations/PENDING-2026-11-23.md` (order, pre/post checks, rollbacks). Each row was re-checked against live on 2026-11-23: the pre-check hash in the sheet equals the live body's hash (`md5` of the body without comments and whitespace), so none of these has been applied.
+
+| # | File | Effect when applied | Live today |
+|---|---|---|---|
+| 1 | `drop_update_vocabulary_from_word_test_4arg.sql` | Drops the 4-argument overload | Both overloads exist (`(uuid,integer,boolean,smallint)` and the 5-argument form) |
+| 2 | `test_sentence_references_l1_script_escapes.sql` | L1-script trigger with escaped code points, Han range from U+F900 | Live trigger function hash `fd8764ea...`: the range starts at U+8C48 (wrongly rejects some Hangul / Yi) |
+| 3 | `prestudy_plan_inputs_definition_mode.sql` | Adds `ucs.mode = 'definition'` to the ability lookup | Live body has no such filter |
+| 4 | `skill_ratings_natural_key_unique.sql` | Unique indexes `(user_id, language_id, test_type_id)` on `user_skill_ratings` and `(test_id, test_type_id)` on `test_skill_ratings` | Only `id` primary keys and non-unique indexes exist |
+| 5 | `skill_ratings_writers_on_conflict.sql` | The five submission RPCs and `apply_calibration_to_skill_ratings` use `ON CONFLICT` on those keys; must follow #4 | Plain `INSERT` after a failed lookup (as read above); hashes unchanged |
+| 6 | `drop_get_quiz_distractors_batch.sql` | Drops `get_quiz_distractors_batch` (after the code that removed `QUIZ_DISTRACTORS_BATCH` is deployed) | Function exists |
+| 7 | `data_fix_dt_cards_cross_language_20261123.sql` | One-off: deletes `dt_card` 11 and 12 and re-queues profile entry 10 | Both cards exist |
+| 8 | `word_quiz_retake_fallback_hardened.sql` | `get_word_quiz_candidates` tier-2 fill (decision required) | Live hash `7670f2d5...` equals the sheet's pre-check |
+| 9 | `word_upload_sweep_advisory_lock_hardened.sql` | Creates `word_upload_sweep_state` and the two sweep advisory-lock functions (decision required: watermark seed) | `to_regclass('public.word_upload_sweep_state')` is NULL; neither lock function exists; `services/word_list_import/sweep_cron.py` therefore errors at its 04:20 UTC run |
+
+---
+
+## Overview (2026-05 snapshot; superseded by the Live Function Reference above)
 
 | Metric | Value |
 |--------|-------|
-| Total application functions | 61 (was 65 — four dropped by `drop_unused_rpcs.sql` 2026-05-15) |
+| Total application functions | 214 live on 2026-11-23 (the 61 below is the 2026-05 count; see Live Function Reference) |
 | SECURITY DEFINER | 25 |
 | SECURITY INVOKER | 36 |
 | Trigger functions | 6 |
@@ -61,19 +303,19 @@ breaking_change_risk: high
 
 | Category | Count | Functions |
 |----------|-------|-----------|
-| Auth & User Management | 7 | `is_admin`, `is_moderator`, `is_org_member`, `get_org_role`, `handle_new_user`, `create_user_dependencies`, `anonymize_user_data` |
-| Token Economy | 4 | `add_tokens_atomic`, `get_token_balance`, `get_test_token_cost`, `get_daily_free_test_limit` (`can_use_free_test` dropped 2026-05-15 — no callers) |
+| Auth & User Management | 7 | `is_admin`, `is_moderator`, `is_org_member` (ABSENT live), `get_org_role` (ABSENT live), `handle_new_user`, `create_user_dependencies`, `anonymize_user_data` |
+| Token Economy | 4 | `add_tokens_atomic`, `get_token_balance`, `get_test_token_cost`, `get_daily_free_test_limit` (`can_use_free_test` is LIVE although documented dropped 2026-05-15; no callers) |
 | Payment Processing | 1 | `process_stripe_payment` |
 | ELO / Skill Rating | 3 | `calculate_elo_rating`, `calculate_volatility_multiplier`, `update_skill_attempts_count` |
 | Test & Content | 6 | `get_recommended_test`, `get_recommended_tests`, `get_replay_tests`, `process_test_submission`, `update_test_attempts_count`, `tests_containing_sense` |
 | Vocabulary & Knowledge (BKT) | 13 | `bkt_update`, `bkt_status`, `bkt_update_comprehension`, `bkt_update_word_test`, `bkt_update_exercise`, `bkt_apply_decay`, `bkt_effective_p_known`, `bkt_phase`, `bkt_phase_thresholds`, `update_vocabulary_from_test`, `update_vocabulary_from_word_test`, `get_word_quiz_candidates`, `update_user_vocab_stats` (`get_vocab_recommendations` dropped 2026-05-15 — no callers) |
 | Vocabulary Lookup | 2 | `batch_lookup_lemmas`, `get_distractors` |
-| Mystery System | 2 | `get_recommended_mysteries`, `process_mystery_submission` |
-| Packs & Content Discovery | 2 | `get_packs_with_user_selection`, `get_active_languages` |
-| Model Config | 0 | (`get_model_for_task` dropped 2026-05-15 — no callers; model selection is in Python via `services/prompt_service.py`) |
+| Mystery System | 2 | `get_recommended_mysteries`, `process_mystery_submission` (both ABSENT live: mystery mode dropped 2026-09-22) |
+| Packs & Content Discovery | 2 | `get_packs_with_user_selection` (ABSENT live), `get_active_languages` |
+| Model Config | 1 | (`get_model_for_task` is LIVE although documented dropped 2026-05-15 — no callers, and it fails when called; model selection is in Python via `services/prompt_service.py`) |
 | Corpus & Collocations | 1 | `get_top_collocations_for_sources` |
 | Category / Topic Matching | 2 | `get_next_category`, `match_topics` |
-| Prompt Templates | 0 | (`get_prompt_template` dropped 2026-05-15 — no callers; the Python method of the same name on `conversation_generation/database_client.py` is unrelated and remains) |
+| Prompt Templates | 1 | (`get_prompt_template` is LIVE although documented dropped 2026-05-15 — no callers; the Python method of the same name on `conversation_generation/database_client.py` is unrelated and remains) |
 | Utility / Triggers | 2 | `update_updated_at_column`, `sync_exercise_history` |
 | Vocabulary Ladder (Phase 8) | 9 | `ladder_get_family`, `ladder_get_ring`, `ladder_ring_families`, `ladder_compute_p_known`, `fsrs_schedule_review`, `ladder_record_attempt`, `ladder_pass_gate`, `ladder_graduate`, `get_ladder_session` |
 | Exercise Session (Phase 9 + 11) | 4 | `exercise_type_phase_weight`, `tier_window_for_p_known`, `tier_to_phase`, `get_exercise_session` (Phase 11 adds the `p_user_theta` parameter and Gaussian IRT weight) |
@@ -135,6 +377,8 @@ $function$
 
 ### `is_org_member(p_user_id uuid, p_org_id uuid): boolean`
 
+> **ABSENT LIVE (checked 2026-11-23): this function no longer exists in the database. The section is kept as history.**
+
 > **ARCHIVED 2026-09-21.** Never called; dropped with organizations. Code and DDL are in `archive/db_backups/stage1-unused-tables-2026-09-21.zip`; dropped by `migrations/archive_unused_modules_2026_09_21.sql` (applied 2026-09-22). Kept for history.
 
 
@@ -159,6 +403,8 @@ $function$
 ---
 
 ### `get_org_role(p_user_id uuid, p_org_id uuid): text`
+
+> **ABSENT LIVE (checked 2026-11-23): this function no longer exists in the database. The section is kept as history.**
 
 > **ARCHIVED 2026-09-21.** Never called; dropped with organizations. Code and DDL are in `archive/db_backups/stage1-unused-tables-2026-09-21.zip`; dropped by `migrations/archive_unused_modules_2026_09_21.sql` (applied 2026-09-22). Kept for history.
 
@@ -446,7 +692,7 @@ $function$
 
 ### `can_use_free_test(p_user_id uuid): boolean`
 
-> **DROPPED 2026-05-15** by `migrations/drop_unused_rpcs.sql`. Zero Python and SQL callers verified before drop. Reference retained for history.
+> **LIVE on 2026-11-23 (this section previously said DROPPED 2026-05-15).** `migrations/drop_unused_rpcs.sql` did not remove it (or it was restored); no application caller.
 
 - **Security:** DEFINER
 - **Language:** plpgsql
@@ -838,7 +1084,9 @@ $function$
 
 ---
 
-### `process_test_submission(p_user_id uuid, p_test_id uuid, p_language_id smallint, p_test_type_id smallint, p_responses jsonb, p_was_free_test boolean DEFAULT true, p_idempotency_key uuid DEFAULT NULL): jsonb`
+### `process_test_submission(p_user_id uuid, p_test_id uuid, p_language_id smallint, p_test_type_id smallint, p_responses jsonb, p_was_free_test boolean DEFAULT true, p_idempotency_key uuid DEFAULT NULL, p_furigana_used boolean DEFAULT false, p_prestudied boolean DEFAULT false): jsonb`
+
+> **Live signature has two more arguments than the first line of the older text below (`p_furigana_used`, `p_prestudied`); the body below predates set-based grading and the row locks: see the Live Function Reference.**
 
 - **Security:** DEFINER
 - **Language:** plpgsql
@@ -1150,6 +1398,8 @@ $function$
 
 ### `bkt_apply_decay(p_known numeric, p_last_evidence_at timestamptz, p_stability real DEFAULT NULL, p_evidence_count integer DEFAULT 0): numeric`
 
+> **Overloaded live:** the heading shows one of two live signatures; the other is listed in the Live Function Reference.
+
 - **Security:** INVOKER
 - **Language:** plpgsql (IMMUTABLE)
 - **Description:** **(Phase 7, supersedes Phase 5)** FSRS stability-informed temporal decay. Two-path model:
@@ -1160,6 +1410,8 @@ $function$
 ---
 
 ### `bkt_effective_p_known(p_known numeric, p_last_evidence_at timestamptz, p_stability real DEFAULT NULL, p_evidence_count integer DEFAULT 0): numeric`
+
+> **Overloaded live:** the heading shows one of two live signatures; the other is listed in the Live Function Reference.
 
 - **Security:** INVOKER
 - **Language:** SQL (IMMUTABLE)
@@ -1616,6 +1868,8 @@ $function$
 
 ### `get_recommended_mysteries(p_user_id uuid, p_language_id integer): SETOF jsonb`
 
+> **ABSENT LIVE (checked 2026-11-23): this function no longer exists in the database. The section is kept as history.**
+
 - **Security:** DEFINER
 - **Language:** plpgsql
 - **Description:** Returns up to 10 recommended mystery games for a user, matched by ELO proximity (within 200 points). Returns JSONB objects with mystery metadata, both ELO ratings, and the ELO gap.
@@ -1674,6 +1928,8 @@ $function$
 ---
 
 ### `process_mystery_submission(p_user_id uuid, p_mystery_id uuid, p_language_id smallint, p_test_type_id smallint, p_responses jsonb, p_idempotency_key uuid DEFAULT NULL): jsonb`
+
+> **ABSENT LIVE (checked 2026-11-23): this function no longer exists in the database. The section is kept as history.**
 
 - **Security:** DEFINER
 - **Language:** plpgsql
@@ -1971,6 +2227,8 @@ $function$
 
 ### `get_packs_with_user_selection(p_language_id integer, p_user_id uuid): TABLE(...)`
 
+> **ABSENT LIVE (checked 2026-11-23): this function no longer exists in the database. The section is kept as history.**
+
 > **ARCHIVED 2026-09-21.** Dropped with the language-packs archive. Code and DDL are in `archive/modules/language-packs-2026-09-21.zip`; dropped by `migrations/archive_unused_modules_2026_09_21.sql` (applied 2026-09-22). Kept for history.
 
 
@@ -2168,7 +2426,7 @@ $function$
 
 ### `get_model_for_task(p_task_key text, p_language_id smallint): text`
 
-> **DROPPED 2026-05-15** by `migrations/drop_unused_rpcs.sql`. Zero Python and SQL callers verified before drop. Model selection is handled in Python via `services/prompt_service.py:get_template_config()`, which reads `prompt_templates.model` / `.provider` directly. Reference retained for history.
+> **LIVE on 2026-11-23 (this section previously said DROPPED 2026-05-15).** `migrations/drop_unused_rpcs.sql` did not remove it (or it was restored); no application caller. Its body reads `language_model_config`, which no longer exists, so a call fails.
 
 - **Security:** INVOKER (STABLE)
 - **Language:** plpgsql
@@ -2209,7 +2467,7 @@ $function$
 
 ### `get_prompt_template(p_task_name character varying, p_language_id integer DEFAULT 2): text`
 
-> **DROPPED 2026-05-15** by `migrations/drop_unused_rpcs.sql`. Zero Python and SQL callers verified before drop. Note: `conversation_generation/database_client.py` has a Python method of the same name that reads `prompt_templates` directly and is unrelated to this RPC. Reference retained for history.
+> **LIVE on 2026-11-23 (this section previously said DROPPED 2026-05-15).** `migrations/drop_unused_rpcs.sql` did not remove it (or it was restored); no application caller.
 
 - **Security:** INVOKER
 - **Language:** plpgsql (STABLE)
@@ -2479,6 +2737,8 @@ Rounds to 4 decimals.
 
 ### `get_ladder_session(p_user_id uuid, p_language_id smallint, p_count integer DEFAULT 20): TABLE(...)`
 
+> **ABSENT LIVE (checked 2026-11-23); dropped 2026-11-17 by ADR-049.**
+
 - **Security:** INVOKER
 - **Language:** plpgsql (STABLE)
 - **Description:** The Vocab Dojo session builder. Single SQL function: scores candidate words by priority, picks top N, picks one exercise per word preferring target-family + unseen variant + not-seen-today.
@@ -2556,6 +2816,8 @@ T1, T2 → A    T3 → B    T4 → C    T5, T6 → D
 ---
 
 ### `get_exercise_session(p_user_id uuid, p_language_id smallint, p_session_size integer DEFAULT 20, p_user_theta numeric DEFAULT 0.0): TABLE(...)`
+
+> **ABSENT LIVE (checked 2026-11-23); dropped 2026-11-17 by ADR-049.**
 
 - **Security:** INVOKER
 - **Language:** plpgsql (STABLE)
@@ -2650,7 +2912,7 @@ Source: [migrations/add_irt_calibration_metadata.sql](../../migrations/add_irt_c
 
 ## Security Summary
 
-The following table lists all 48 application functions and their security model:
+The following table lists 48 application functions and their security model as of 2026-05 (stale: 214 functions are live, 85 SECURITY DEFINER; see the Live Function Reference for the current security column and execute privileges):
 
 | # | Function | Security | Auth Check |
 |---|----------|----------|------------|
