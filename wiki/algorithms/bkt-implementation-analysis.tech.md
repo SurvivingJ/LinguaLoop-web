@@ -3,7 +3,7 @@ title: BKT System — Implementation Analysis (Technical)
 type: algorithm-tech
 status: complete
 prose_page: ./bkt-implementation-analysis.md
-last_updated: 2026-04-16
+last_updated: 2026-11-23
 dependencies:
   - "bkt_update() — plpgsql IMMUTABLE"
   - "bkt_status() — plpgsql IMMUTABLE"
@@ -24,13 +24,15 @@ dependencies:
   - "get_vocab_recommendations() — plpgsql DEFINER"
   - "services/vocabulary/knowledge_service.py — VocabularyKnowledgeService"
   - "services/vocabulary/fsrs.py — FSRS scheduler"
-  - "services/exercise_session_service.py — session builder (RPC consumer)"
+  - "services/practice_session_service.py + services/practice/ — session builder (RPC consumer); services/exercise_session_service.py no longer exists"
   - "services/test_generation/orchestrator.py — per-question sense_ids"
   - "user_vocabulary_knowledge table"
   - "user_flashcards table"
   - "dim_word_senses table"
   - "dim_vocabulary table"
 breaking_change_risk: low
+open_questions:
+  - "Do the four SQL callers of bkt_effective_p_known pass four arguments? Not read individually (a two-argument call is ambiguous live, 2026-11-23)."
 ---
 
 # BKT System — Implementation Analysis (Technical)
@@ -146,7 +148,7 @@ upserted:         INSERT ... ON CONFLICT → upsert with evidence counters
 
 Two different phase threshold maps exist in the codebase:
 
-**ExerciseSessionService** (`services/exercise_session_service.py:28`):
+**ExerciseSessionService** (formerly `services/exercise_session_service.py`, since replaced by `PracticeSessionService` in `services/practice_session_service.py` and `services/practice/attempt_recording.py`):
 ```python
 _PHASE_THRESHOLDS = [(0.30, 'A'), (0.55, 'B'), (0.80, 'C')]  # else D
 ```
@@ -177,6 +179,8 @@ ELSE 'D'
 
 Called by `update_vocabulary_from_word_test()` when `p_exercise_type IS NOT NULL`.
 
+**Two live overloads (checked 2026-11-23).** `update_vocabulary_from_word_test` exists as `(p_user_id, p_sense_id, p_is_correct, p_language_id)` and as `(…, p_exercise_type text DEFAULT NULL)`. A four-argument call is ambiguous (the app's `update_from_word_test` sends four arguments when `exercise_type` is None and swallows the error, losing that knowledge update). Dropping the four-argument overload is written (`migrations/drop_update_vocabulary_from_word_test_4arg.sql`) but **not applied**. See [[features/vocabulary-knowledge.tech]] for the full list, the removed batch quiz-distractor path and the word-quiz retake band (0.25-0.75, no fallback; hardened fallback migration not applied).
+
 ### 2. FSRS Stability-Informed Decay — ✅ IMPLEMENTED (Phase 7, supersedes Phase 5)
 
 **`bkt_apply_decay(p_known, p_last_evidence_at, p_stability, p_evidence_count)`** — IMMUTABLE. Two-path decay:
@@ -186,6 +190,11 @@ Called by `update_vocabulary_from_word_test()` when `p_exercise_type IS NOT NULL
 - Floor: 0.10. No decay within 1 day.
 
 **`bkt_effective_p_known(p_known, p_last_evidence_at, p_stability, p_evidence_count)`** — IMMUTABLE convenience wrapper.
+
+**Two live overloads each (checked live 2026-11-23).** Both functions still carry a legacy overload next to the Phase 7 one:
+- `bkt_apply_decay(p_known numeric, p_last_evidence_at timestamptz, p_half_life_days numeric DEFAULT 60.0)` — fixed half-life decay toward 0.10; and `bkt_apply_decay(p_known numeric, p_last_evidence_at timestamptz, p_stability real DEFAULT NULL, p_evidence_count integer DEFAULT 0)` — the two-path version above.
+- `bkt_effective_p_known(p_known numeric, p_last_evidence_at timestamptz)` — SQL wrapper calling the 60-day overload; and the four-argument wrapper above.
+- A two-argument `bkt_effective_p_known` call fails as "not unique" (42725) because the four-argument overload matches through its defaults. The SQL callers (`get_session_senses`, `get_practice_session`, `get_review_ahead_items`, `compute_weekly_plan_load_signals`) must therefore pass four arguments; each body was not individually read (open question).
 
 **`get_session_senses(p_user_id, p_language_id, ...)`** — STABLE. Single RPC for session building that returns `(sense_id, effective_p_known, bucket, entropy)` with all decay computed in SQL. Session builders no longer do BKT math in Python.
 

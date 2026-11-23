@@ -1,12 +1,12 @@
 ---
 title: Security Hardening (database and API access)
 type: feature
-status: planned
+status: in-progress
 tech_page: ./security-hardening.tech.md
-last_updated: 2026-10-14
+last_updated: 2026-11-23
 open_questions:
   - "OPEN: TASK-884 (rate limiting) is deferred. Which shared store (for example Redis) and which per-route limits suit normal use must be answered before it can start."
-  - "OPEN: what the TASK-875 audit and the TASK-878 tampering check actually find in live data. Nothing has been queried or fixed yet."
+  - "OPEN: what the TASK-875 audit and the TASK-878 tampering check actually find in live data. TASK-878 is still not started; no result is recorded."
   - "ANSWERED 2026-10-14: admin operations go through the server with the service role; the admin policy on the users table is dropped."
   - "ANSWERED 2026-10-14: no admin session rotation, even if the audit finds unexpected admins."
   - "ANSWERED 2026-10-14: the users table loses all client write rights (no per-column allowlist)."
@@ -14,6 +14,8 @@ open_questions:
 ---
 
 # Security Hardening (database and API access)
+
+> **Status note 2026-11-23:** the database lock-down described here is applied live (checked read-only): every public table has row-level security, the browser roles cannot write any table, and the answer keys, tests and reports are server-only. Still open: rate limiting (deferred), the live audit queries, and two browser-side gaps. The content-security rule is report-only and does not block anything yet, and the login token is kept in browser storage. See [[features/security-hardening.tech]].
 
 ## Purpose
 A 2026-10-14 security audit found that the public database API let any logged-in (and in some cases anonymous) caller

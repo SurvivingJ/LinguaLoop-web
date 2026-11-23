@@ -3,12 +3,16 @@ title: Token Economy & Payments
 type: feature
 status: in-progress
 tech_page: ./token-economy.tech.md
-last_updated: 2026-04-10
+last_updated: 2026-11-23
 open_questions:
+  - "The token economy is not working end to end as of 2026-11-23 (see the status note below). Rebuild or retire? No decision is recorded in the wiki."
   - "Future subscription plans — what features will be gated? Translation practice, vocab tracking mentioned"
 ---
 
 # Token Economy & Payments
+
+> **Status note 2026-11-23:** the description below is the intended design, not today's behaviour. Learners do not receive the daily free tokens (the database function the app calls for it does not exist), the balance endpoint fails, and no purchase can complete: the payment-intent route was removed because nothing credited tokens after a payment. Only the token-package list is still served. Details: [[features/token-economy.tech]].
+
 
 ## Purpose
 

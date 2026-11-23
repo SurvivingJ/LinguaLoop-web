@@ -2,12 +2,16 @@
 title: Vocabulary Exercise Generation Pipeline — Design Plan (v2)
 type: feature
 status: planned
-tech_page: null
-last_updated: 2026-06-11
-open_questions: []
+tech_page: ./exercise-generation-prompts.md
+last_updated: 2026-11-23
+open_questions:
+  - "STATUS 2026-11-23: still `planned` in frontmatter although the pipeline it designs runs live (10,958 senses have word_assets; tasks are in tasklist/archive/exercise-generation-v2.tasks.md, whose per-task states disagree with tasklist/master.md). Confirm with the owner whether this plan is `complete` before changing the status."
+  - "STRUCTURE 2026-11-23: no .tech.md twin exists; tech_page points at the verbatim prompt reference [[features/exercise-generation-prompts]] and the chain spec is [[features/exercises.tech]]."
 ---
 
 # Vocabulary Exercise Generation Pipeline — Design Plan
+
+> **Note 2026-11-23:** this 2026-06 design predates later work. Generation grew into several overlapping pipelines, one of them (bundle mode) deleted on 2026-11-23; see [[decisions/ADR-053-vocabulary-ladder-generation-paths]] (proposed) for the comparison and the proposed consolidation.
 
 > Prepared 2026-06-11 from full wiki discovery + live Supabase inspection (project `kpfqrjtfxmujzolwsvdq`).
 > **Revision 2 (same day):** operator decisions incorporated — single ladder factory, JA now, top-1,000 senses/language,

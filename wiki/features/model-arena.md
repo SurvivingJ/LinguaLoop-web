@@ -1,13 +1,15 @@
 ---
 title: Model Arena
 type: feature
-status: complete
+status: deprecated
 tech_page: ./model-arena.tech.md
-last_updated: 2026-05-07
+last_updated: 2026-11-23
 open_questions: []
 ---
 
 # Model Arena
+
+> **DEPRECATED (route removed 2026-11-14, modules deleted 2026-11-23).** The arena's HTTP blueprint `routes/model_arena.py` was removed on 2026-11-14 (repository change "Harden auth flows, uploads, corpus fetch and retired routes"), so `/api/models` and `/api/run/arena*` no longer exist. On 2026-11-23 three unused modules were deleted from `services/model_arena/` (`arena_service.py`, `judge_prompts.py`, `models.py`); the package now holds only `llm_runner.py` and `pricing.py`, which are **still in use** by the dual-translation grader and router (`call_model_with_usage`, `fetch_model_list`; see [[features/dual-translation.tech]]) and referenced in the topic-generation config. No arena table exists live (checked 2026-11-23). The text below describes the removed tool and is kept for history.
 
 ## Purpose
 

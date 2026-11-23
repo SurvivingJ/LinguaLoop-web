@@ -3,13 +3,15 @@ title: Daily Session Implementation Analysis — Technical Evidence
 type: algorithm-tech
 status: complete
 prose_page: daily-session-implementation-analysis.md
-last_updated: 2026-08-07
+last_updated: 2026-11-23
 dependencies:
-  - "build_daily_session RPC (migrations/phase13_build_daily_session_classifier_drill.sql — canonical)"
-  - "get_recommended_tests RPC (migrations/add_pitch_accent_to_get_recommended_tests.sql — canonical)"
+  - "build_daily_session RPC (migrations/archive/phase13_build_daily_session_classifier_drill.sql: moved to the archive; later definitions in migrations/build_daily_session_dt_agreed.sql and migrations/session_module_exclusions_build_daily_session.sql, which one is the live body was not verified 2026-11-23)"
+  - "get_recommended_tests RPC (migrations/archive/add_pitch_accent_to_get_recommended_tests.sql: moved to the archive; later definitions in migrations/task748_get_recommended_tests_vocab_aware.sql and migrations/dictation_cap_cjk_word_count.sql, live body not verified 2026-11-23)"
   - "services/study_plan_service.py, services/test_service.py, routes/study_session.py"
   - "static/js/session/* , templates/study_session.html"
 breaking_change_risk: low
+open_questions:
+  - "Which migration file holds the live body of build_daily_session and get_recommended_tests? The two files this page called canonical were moved to migrations/archive/. Compare md5(prosrc) live against the later files before naming one."
 ---
 
 # Daily Session Implementation Analysis — Technical Evidence
@@ -48,7 +50,7 @@ Feedback: submit handlers → apply_attempt_timing_and_progress →
   ago**. The upcoming week's `weekly_plan_states` row is never created.
 - `build_daily_session` returns `E_NOWEEK` (RPC lines 81-88) → `test_service.py:498-504`
   logs and falls back to legacy — silent for the user, all week.
-- `apply_study_plan_template` (phase13_apply_study_plan_template.sql) inserts
+- `apply_study_plan_template` (`migrations/phase13_apply_study_plan_template.sql`) inserts
   only `user_study_plans`; `templates/study_plan.html:324-336` applyTemplate
   does not call `/api/study-plan/recompute`. Cold-start users have no week row
   until the (mistargeted) cron or a manual button press.

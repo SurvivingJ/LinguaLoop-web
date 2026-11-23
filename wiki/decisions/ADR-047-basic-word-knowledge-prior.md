@@ -191,3 +191,18 @@ Combined approach, in this order:
 - [[database/schema.tech]] — `dim_vocabulary.frequency_rank` (Zipf), live changes 2026-11-17
 - [[decisions/ADR-002-bkt-per-sense]] — knowledge per word sense
 - [[tasklist/fixes-2026-11-16.tasks]] — TASK-994 (done), TASK-1004 (the open proposals)
+
+## Amendment 2026-11-23: what the admission veto does in the code
+
+*Notes only; the Decision above is unchanged.* Read from `services/practice/new_word_admission.py` and `services/practice/constants.py` (code tip, 2026-11-23); the live count was taken read-only the same day.
+
+The Context says "New-word admission vetoes words that are known or probably_known, and admits on evidence when p <= 0.40". The code applies the veto in only one of the two main queues:
+
+- **Queue A1 (recent test and word-quiz evidence), no status veto.** `_evidence_candidates` reads knowledge rows that are `status in (unknown, learning)` or have `word_test_wrong > 0` or `comprehension_wrong > 0`. After subtracting calibration and placement evidence, a row is admitted when `evidence_count >= LADDER_EVIDENCE_MIN_COUNT` (2) **or** `p_known <= LADDER_EVIDENCE_P_KNOWN_MAX` (0.40). A sense with no row (or any row) is also admitted once at least 2 distinct missed questions carry it (`question_attempt_results`). A1 only nominates senses carried by a test taken within `RECENT_TEST_WINDOW_DAYS` (28), and the sense must still pass the supply gate (`LADDER_MIN_EXERCISES_PER_SENSE` = 3). Status is never checked. Note the first threshold counts evidence of any kind (correct or wrong), not misses: a "known" row with at least one recorded wrong and `evidence_count >= 2` qualifies.
+- **Queue A2 (calibration wrongs), veto applied.** `_calibration_wrong_candidates` drops senses whose current status is `known` or `probably_known`, and fails closed (returns nothing) when the status read fails. The vocabulary-placement candidates (labelled "ADR-059" in the code; no wiki ADR has that number) apply the same veto.
+
+Result: a word marked known can be admitted when A1 sees it, so repeated recent evidence of failure overrides "known". Checked live 2026-11-23: 64 `user_vocabulary_knowledge` rows have `status in (known, probably_known)`, `evidence_count >= 2` and at least one wrong answer on record (27 have two or more wrongs); how many of those are in a recent test window was not measured.
+
+**Owner's decision 2026-11-23: keep the code.** Repeated recent misses override "known"; the veto is not added to A1. The Context sentence above should be read as describing queue A2 and placement only.
+
+**Calibration-mode bug named in the Context** (the preview reading a pronunciation-mode ability): fixed on the Python side, where `services/prestudy.py::_ability_zipf` now filters `mode = definition`. **Not fixed in SQL:** live `prestudy_plan_inputs` still takes any one `user_calibration_state` row for the learner and language (`LIMIT 1`, no mode filter; verified in the live body 2026-11-23). The fix, `migrations/prestudy_plan_inputs_definition_mode.sql`, is written and not applied, so the RPC path and the Python fallback path disagree until it is.
