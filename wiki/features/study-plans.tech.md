@@ -43,16 +43,13 @@ Canonical reference for **which surfaces the planner owns**. Decided in
 | Practice (acq + maint) | ✅ live | The Practice budget; chunked ≤10 min by the runner. |
 | `flashcards` | ✅ live (TASK-714, 2026-08-07) | FSRS reviews are due-driven and inherently daily — the largest source of under-counted study time. Queue `kind='flashcards'`; one slot = one block of 15 due cards @ 7.0 min. |
 | `dual_translation` | ✅ live (TASK-714, 2026-08-07) | Graded production work competing directly with test time; excluding it makes the Tests budget dishonest. Queue `kind='dual_translation'`; one slot = one passage @ 12.0 min. |
-| `listening_lab` | ❌ **deliberately outside** | Long-form, exploratory, self-directed; a daily minute budget fights its design. |
-| `mystery` | ❌ **deliberately outside** | 5-scene gated narrative; session length is set by the story, not the budget. |
 
-> ⚠️ Neither `listening_lab` nor `mystery` exists as a `dim_test_types.type_code` row (live
-> check 2026-11-23: the table holds classifier_drill, counter_drill, dictation, grammar, listening,
-> pinyin, pitch_accent, reading, speaking, vocabulary, writing). An earlier version of this page
-> and of a comment in `study_plan_service.py` said they did; that was wrong and the comment was
-> corrected. `UNPLANNED_TEST_TYPES = ('listening_lab', 'mystery')` stays in `study_plan_service.py`
-> only as a name list read by `tests/test_plannable_surfaces.py`, which pins that the planner never
-> adopts them.
+> **Removed features (2026-11-23).** ADR-021 also listed `listening_lab` and `mystery` as
+> deliberately outside the planner. Both features were removed from the codebase on 2026-11-23
+> (TASK-1227): neither is a `dim_test_types.type_code` row (live check 2026-11-23: the table holds
+> classifier_drill, counter_drill, dictation, grammar, listening, pinyin, pitch_accent, reading,
+> speaking, vocabulary, writing), and the `UNPLANNED_TEST_TYPES` constant and its four guard tests
+> in `tests/test_plannable_surfaces.py` were deleted with them.
 
 > ⚠️ **Adding a surface requires seeding its time estimate.** `test_time_estimate(p_skill text)`
 > COALESCEs `dim_test_types.expected_minutes_p50` (NULL for all 12 type codes as of 2026-08-07)

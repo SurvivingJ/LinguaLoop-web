@@ -5,7 +5,7 @@ status: complete
 tech_page: daily-session-implementation-analysis.tech.md
 last_updated: 2026-11-23
 open_questions:
-  - "Should listening_lab / mystery / dual_translation / flashcards ever be plannable session items, or stay standalone surfaces? (Needs a product decision before TASK-711.)"
+  - "ANSWERED 2026-08-07 (ADR-021): dual_translation and flashcards are plannable; listening_lab and mystery stayed outside and were removed from the codebase 2026-11-23."
   - "Should the session day boundary follow user_study_plans.timezone instead of UTC?"
 ---
 
