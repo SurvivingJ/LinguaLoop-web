@@ -69,6 +69,37 @@ def test_a_test_can_supply_its_own_fake(monkeypatch):
     assert supabase_factory.get_supabase_admin() == 'fake'
 
 
+def test_app_fixture_and_a_test_monkeypatch_do_not_leak_a_mock(tmp_path):
+    """H-01: a test that monkeypatches a name the `app` fixture also patches.
+
+    Teardown used to restore the real function (app's ``patch()``) and then put
+    the app fixture's MagicMock back (monkeypatch's undo, which outlives
+    ``app`` because autouse fixtures request monkeypatch first). Runs the pair
+    in a child pytest so the leak cannot reach this session.
+    """
+    (tmp_path / 'conftest.py').write_text("pytest_plugins = ['tests.conftest']\n")
+    (tmp_path / 'test_pair.py').write_text(
+        'from unittest.mock import Mock\n'
+        'import services.supabase_factory as f\n'
+        'REAL = (f.get_supabase, f.get_supabase_admin, f.SupabaseFactory)\n'
+        'def test_1_patches_over_the_app_mock(app, monkeypatch):\n'
+        '    monkeypatch.setattr("services.supabase_factory.get_supabase_admin", lambda: "x")\n'
+        '    monkeypatch.setattr("services.supabase_factory.get_supabase", lambda: "x")\n'
+        'def test_2_sees_the_real_functions():\n'
+        '    assert not any(isinstance(o, Mock) for o in '
+        '(f.get_supabase, f.get_supabase_admin, f.SupabaseFactory))\n'
+        '    assert (f.get_supabase, f.get_supabase_admin, f.SupabaseFactory) == REAL\n'
+    )
+    env = {k: v for k, v in os.environ.items() if k != 'PYTEST_ADDOPTS'}
+    env['PYTHONPATH'] = os.pathsep.join([REPO_ROOT, env.get('PYTHONPATH', '')])
+    out = subprocess.run(
+        [sys.executable, '-m', 'pytest', '-q', '-p', 'no:cacheprovider', '-p', 'no:randomly',
+         '--rootdir', str(tmp_path), '-c', os.devnull, str(tmp_path / 'test_pair.py')],
+        cwd=tmp_path, env=env, capture_output=True, text=True)
+    assert out.returncode == 0, out.stdout + out.stderr
+    assert '2 passed' in out.stdout
+
+
 def test_config_skips_dotenv_when_asked(tmp_path):
     """LINGUADOJO_SKIP_DOTENV keeps config.py from loading .env; unset, it loads it."""
     (tmp_path / '.env').write_text('LINGUADOJO_DOTENV_PROBE=loaded\n')

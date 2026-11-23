@@ -29,7 +29,7 @@ _CONFIG_CREDENTIALS = {
 _LIVE_CREDENTIALS = {name: os.environ.pop(name) for name in _CREDENTIAL_VARS if name in os.environ}
 
 import pytest  # noqa: E402
-from unittest.mock import MagicMock, patch  # noqa: E402
+from unittest.mock import MagicMock  # noqa: E402
 from types import SimpleNamespace  # noqa: E402
 
 from config import Config  # noqa: E402
@@ -247,39 +247,50 @@ def mock_supabase():
 
 
 @pytest.fixture()
-def app(mock_supabase):
-    """Create a Flask test app with all external services mocked out."""
+def app(mock_supabase, monkeypatch):
+    """Create a Flask test app with all external services mocked out.
 
-    with patch('services.supabase_factory.SupabaseFactory') as MockFactory, \
-         patch('services.supabase_factory.get_supabase', return_value=mock_supabase), \
-         patch('services.supabase_factory.get_supabase_admin', return_value=mock_supabase), \
-         patch('services.dimension_service.DimensionService') as MockDimSvc, \
-         patch('app.DimensionService') as MockDimSvcApp, \
-         patch('app.ServiceFactory'), \
-         patch('app.R2Service'), \
-         patch('app.AuthService'):
+    Every replacement goes through ``monkeypatch``, never ``patch()``: a test
+    that monkeypatches one of these names again (e.g. get_supabase_admin) then
+    shares one undo stack with this fixture, so teardown restores the real
+    object. With ``patch()`` the test's monkeypatch outlived this fixture and
+    put the MagicMock back for the rest of the session (H-01).
+    """
+    MockFactory = MagicMock(name='SupabaseFactory')
+    MockDimSvc = MagicMock(name='DimensionService')
+    MockDimSvcApp = MagicMock(name='app.DimensionService')
+    monkeypatch.setattr('services.supabase_factory.SupabaseFactory', MockFactory)
+    monkeypatch.setattr('services.supabase_factory.get_supabase',
+                        MagicMock(name='get_supabase', return_value=mock_supabase))
+    monkeypatch.setattr('services.supabase_factory.get_supabase_admin',
+                        MagicMock(name='get_supabase_admin', return_value=mock_supabase))
+    monkeypatch.setattr('services.dimension_service.DimensionService', MockDimSvc)
+    monkeypatch.setattr('app.DimensionService', MockDimSvcApp)
+    monkeypatch.setattr('app.ServiceFactory', MagicMock(name='ServiceFactory'))
+    monkeypatch.setattr('app.R2Service', MagicMock(name='R2Service'))
+    monkeypatch.setattr('app.AuthService', MagicMock(name='AuthService'))
 
-        # SupabaseFactory stubs
-        MockFactory.initialize = MagicMock()
-        MockFactory.get_anon_client.return_value = mock_supabase
-        MockFactory.get_service_client.return_value = mock_supabase
+    # SupabaseFactory stubs
+    MockFactory.initialize = MagicMock()
+    MockFactory.get_anon_client.return_value = mock_supabase
+    MockFactory.get_service_client.return_value = mock_supabase
 
-        # DimensionService stubs
-        dim_data = _make_mock_dimension_service()
-        for target in (MockDimSvc, MockDimSvcApp):
-            target.initialize = MagicMock()
-            target.get_all_languages = MagicMock(side_effect=dim_data['get_all_languages'])
-            target.get_all_test_types = MagicMock(side_effect=dim_data['get_all_test_types'])
+    # DimensionService stubs
+    dim_data = _make_mock_dimension_service()
+    for target in (MockDimSvc, MockDimSvcApp):
+        target.initialize = MagicMock()
+        target.get_all_languages = MagicMock(side_effect=dim_data['get_all_languages'])
+        target.get_all_test_types = MagicMock(side_effect=dim_data['get_all_test_types'])
 
-        from app import create_app
-        flask_app = create_app(TestConfig)
+    from app import create_app
+    flask_app = create_app(TestConfig)
 
-        # Attach the mock so tests can configure per-test return values
-        flask_app.supabase = mock_supabase
-        flask_app.supabase_service = mock_supabase
-        flask_app.mock_supabase = mock_supabase
+    # Attach the mock so tests can configure per-test return values
+    flask_app.supabase = mock_supabase
+    flask_app.supabase_service = mock_supabase
+    flask_app.mock_supabase = mock_supabase
 
-        yield flask_app
+    yield flask_app
 
 
 @pytest.fixture()
