@@ -53,6 +53,7 @@ from services.dual_translation import cards as dt_cards
 from services.dual_translation import primed_token
 from services.dual_translation import output_sanitizer
 from services.dual_translation import provider_errors
+from services.concurrency import run_parallel
 from services.dual_translation.grader_cascade import grade_submission, get_active_rubric
 from services.dual_translation.repair import budget as repair_budget
 from services.dual_translation.repair import hooks as repair_hooks
@@ -337,21 +338,32 @@ def submit(submission_id: int) -> ApiResponse:
         if cached is not None:
             return _cached_response(db, g.current_user_id, submission_id, cached)
 
-        passage = _get_passage(db, submission_row['passage_id'])
+        # A-28: the reads grading needs depend only on submission_row, so they
+        # run as one concurrent wave (outside the request context: ids captured
+        # here). Each result is unpacked in the order the reads used to run, so
+        # a failure surfaces exactly where and how it did when they were serial.
+        user_id = g.current_user_id
+        passage_read, repeat_read, tokens_read = run_parallel(
+            _outcome(lambda: _get_passage(db, submission_row['passage_id'])),
+            # TASK-989: a passage this learner already had graded (re-served on
+            # request) is graded and shown as usual but recorded as a repeat.
+            _outcome(lambda: _repeat_of(db, user_id, submission_row)),
+            _outcome(lambda: _tokens_used_today(db, user_id)),
+        )
+
+        passage = _result(passage_read)
         if not passage:
             return server_error("Passage for this submission no longer exists")
 
         if passage['status'] != 'active':
             return api_error("This passage has been retired", 400, error_code="PASSAGE_RETIRED")
 
-        # TASK-989: a passage this learner already had graded (re-served on
-        # request) is graded and shown as usual but recorded as a repeat.
-        repeat_of = _repeat_of(db, g.current_user_id, submission_row)
+        repeat_of = _result(repeat_read)
 
         # TASK-601: budget gate. At/over the per-user/day token budget, cap
         # the cascade to Tier 0+1 rather than skip grading — grade_submission
         # never hard-fails on this, it just fails Tier 2's dimensions open.
-        max_tier = 'tier1' if _tokens_used_today(db, g.current_user_id) >= Config.DT_DAILY_TOKEN_BUDGET else 'tier2'
+        max_tier = 'tier1' if _result(tokens_read) >= Config.DT_DAILY_TOKEN_BUDGET else 'tier2'
 
         # TASK-910: the prestudy Produce stage echoes the signed primed-sense
         # token issued by /passage-from-sentences; its senses become the
@@ -528,6 +540,24 @@ def _cached_response(db, user_id: str, submission_id: int, cached: dict) -> ApiR
     # Guided self-repair: the existing session (redacted while open), or
     # one created now if grading succeeded but the session was not.
     return api_success(repair_hooks.for_cached(db, user_id, submission_id, cached))
+
+
+def _outcome(call):
+    """Wrap a read for run_parallel: return (True, value) or (False, exception)
+    instead of raising, so the caller can re-raise in the serial order."""
+    def run():
+        try:
+            return True, call()
+        except Exception as e:  # noqa: BLE001 - re-raised by _result
+            return False, e
+    return run
+
+
+def _result(outcome):
+    ok, value = outcome
+    if not ok:
+        raise value
+    return value
 
 
 class _SubmissionLock:

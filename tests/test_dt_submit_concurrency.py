@@ -304,3 +304,84 @@ class TestSameProcessDoubleClick:
         assert json.loads(results['second'].data)['answered_by'] == 'cached'
         assert json.loads(results['second'].data)['overall_band'] == 3
         assert _forms(store) == ['LOSER']
+
+
+class TestPreGradeReads:
+
+    def test_reads_give_grading_the_same_inputs(self, client, auth_headers, app, monkeypatch):
+        """The passage, repeat and budget reads run as one concurrent wave;
+        grading still gets exactly the inputs they produce."""
+        store = _store()
+        # An earlier graded attempt on the same passage -> this is a repeat.
+        store.rows('dt_submission').append({'id': 4, 'user_id': OWNER, 'passage_id': 9,
+                                            'l1_language_id': 2, 'created_at': '2026-11-22T10:00:00+00:00'})
+        store.rows('dt_grade').append({'submission_id': 4, 'overall_band': 1, 'scores': {},
+                                       'diff': [], 'created_at': '2026-11-22T10:05:00+00:00',
+                                       'grader_trace': {'tokens': {'in': 7, 'out': 3}}})
+        app.supabase_service = store
+        monkeypatch.setattr(dt_routes.Config, 'DT_DAILY_TOKEN_BUDGET', 1)
+        monkeypatch.setattr(dt_routes.repair_budget, '_start_of_utc_day',
+                            lambda: '2026-11-22T00:00:00+00:00')
+        seen = {}
+
+        def _grade(db, **kwargs):
+            seen.update(kwargs)
+            return _contract(3, 'X')
+
+        threads = set()
+        real_get_passage = dt_routes._get_passage
+
+        def _spy_passage(db, pid):
+            threads.add(threading.current_thread().name)
+            return real_get_passage(db, pid)
+
+        monkeypatch.setattr(dt_routes, '_get_passage', _spy_passage)
+        monkeypatch.setattr(dt_routes, 'grade_submission', _grade)
+        monkeypatch.setattr(dt_routes, 'credit_study_time', lambda *a, **k: None)
+
+        resp = _post(client, auth_headers)
+
+        assert resp.status_code == 200, resp.data
+        assert seen == {
+            'passage_id': 9, 'gold_l2': 'gold text', 'reproduction': 'my attempt',
+            'l2_language_id': 1, 'l1_language_id': 2, 'age_tier': 4,
+            'max_tier': 'tier1',  # 10 tokens today >= budget 1
+        }
+        body = json.loads(resp.data)
+        assert body['repeat_of'] == {'of_submission_id': 4, 'graded_at': '2026-11-22T10:05:00+00:00',
+                                     'band': 1}
+        assert all(name.startswith('io') for name in threads)  # read off the request thread
+
+    def test_passage_read_error_still_surfaces_as_the_catch_all_500(
+            self, client, auth_headers, app, monkeypatch):
+        app.supabase_service = _store()
+
+        def _boom(db, pid):
+            raise RuntimeError('db down')
+
+        monkeypatch.setattr(dt_routes, '_get_passage', _boom)
+        monkeypatch.setattr(dt_routes, '_tokens_used_today',
+                            lambda db, uid: (_ for _ in ()).throw(AssertionError('second error')))
+
+        resp = _post(client, auth_headers)
+
+        assert resp.status_code == 500
+        assert json.loads(resp.data)['error'] == 'Failed to submit reproduction'
+
+    def test_missing_passage_message_wins_over_a_budget_read_error(
+            self, client, auth_headers, app, monkeypatch):
+        """Today the passage check runs before the budget read, so a missing
+        passage answers its own 500 message even if the budget read would fail."""
+        store = _store()
+        store.rows('dt_passage').clear()
+        app.supabase_service = store
+
+        def _boom(db, uid):
+            raise RuntimeError('budget read failed')
+
+        monkeypatch.setattr(dt_routes, '_tokens_used_today', _boom)
+
+        resp = _post(client, auth_headers)
+
+        assert resp.status_code == 500
+        assert json.loads(resp.data)['error'] == 'Passage for this submission no longer exists'
