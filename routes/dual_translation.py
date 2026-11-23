@@ -40,6 +40,7 @@ import logging
 import time
 import os
 import random
+import threading
 from datetime import date, datetime, timezone
 from typing import Optional
 
@@ -99,6 +100,16 @@ DT_CARD_REVIEW_MAX_SECONDS = 120
 # ADR-018: naturalness is de-emphasized everywhere and hidden outright in the
 # rubric "feed-up" at the lowest age tiers, to avoid demotivation.
 _NATURALNESS_HIDDEN_AGE_TIERS = (1, 2)
+
+# Review A-01: a second submit of a submission that is being graded in this
+# process waits (at most this long) for the first to finish, then normally finds
+# its grade through _cached_grade instead of paying the grader again. Only a
+# same-process guard: a double submit that lands on another gunicorn worker
+# still grades twice, and the loser's grade insert is then handled in submit().
+# Past the wait the request proceeds exactly as it would have without the lock.
+_SUBMIT_LOCK_WAIT_S = 90
+_submit_locks: dict = {}  # submission_id -> [threading.Lock, holders + waiters]
+_submit_locks_guard = threading.Lock()
 
 
 # ============================================================================
@@ -282,6 +293,7 @@ def submit(submission_id: int) -> ApiResponse:
     grade is returned as-is rather than re-grading (dt_grade.submission_id
     is UNIQUE — a submission can only ever be graded once).
     """
+    lock = None
     try:
         db = current_app.supabase_service
         if not db:
@@ -316,13 +328,14 @@ def submit(submission_id: int) -> ApiResponse:
         if submission_row['user_id'] != g.current_user_id:
             return forbidden("This submission does not belong to you")
 
+        # A-01: a concurrent submit of this submission in this process finishes
+        # first; this one then normally takes the cached path below.
+        lock = _SubmissionLock(submission_id)
+        lock.acquire()
+
         cached = _cached_grade(db, submission_id)
         if cached is not None:
-            if cached.get('repeat_of'):
-                return api_success(cached)  # a repeat never has a repair session
-            # Guided self-repair: the existing session (redacted while open), or
-            # one created now if grading succeeded but the session was not.
-            return api_success(repair_hooks.for_cached(db, g.current_user_id, submission_id, cached))
+            return _cached_response(db, g.current_user_id, submission_id, cached)
 
         passage = _get_passage(db, submission_row['passage_id'])
         if not passage:
@@ -422,11 +435,28 @@ def submit(submission_id: int) -> ApiResponse:
         # returned, whatever model produced it.
         contract = output_sanitizer.sanitize_contract(contract)
 
-        if repeat_of:
-            _persist_grade(db, submission_id, reproduction, idempotency_key, contract,
-                           repeat_of=repeat_of)
-        else:
-            _persist_grade(db, submission_id, reproduction, idempotency_key, contract)
+        try:
+            if repeat_of:
+                _persist_grade(db, submission_id, reproduction, idempotency_key, contract,
+                               repeat_of=repeat_of)
+            else:
+                _persist_grade(db, submission_id, reproduction, idempotency_key, contract)
+        except Exception as e:
+            # A-01: a concurrent submit of the same submission (another worker,
+            # or past the lock wait) stored its grade while this one was grading,
+            # so this grade insert hit UNIQUE(dt_grade.submission_id).
+            # _persist_grade has already removed this request's error rows; the
+            # learner gets the stored grade exactly as a cached re-submit would.
+            # With no stored grade the failure is real and stays a 500 (the
+            # TASK-633 retry path).
+            stored = _cached_grade(db, submission_id)
+            if stored is None:
+                raise
+            logger.warning(
+                "DT submission %s was graded by a concurrent submit; serving the stored "
+                "grade (this request's grade not stored: %s)", submission_id, e,
+            )
+            return _cached_response(db, g.current_user_id, submission_id, stored)
         _persist_grading_assets(db, submission_id, call_records)
 
         if repeat_of:
@@ -486,6 +516,51 @@ def submit(submission_id: int) -> ApiResponse:
     except Exception as e:
         logger.error("Error submitting dual-translation reproduction %s: %s", submission_id, e)
         return server_error("Failed to submit reproduction")
+    finally:
+        if lock is not None:
+            lock.release()
+
+
+def _cached_response(db, user_id: str, submission_id: int, cached: dict) -> ApiResponse:
+    """The answer to a submit of an already graded submission."""
+    if cached.get('repeat_of'):
+        return api_success(cached)  # a repeat never has a repair session
+    # Guided self-repair: the existing session (redacted while open), or
+    # one created now if grading succeeded but the session was not.
+    return api_success(repair_hooks.for_cached(db, user_id, submission_id, cached))
+
+
+class _SubmissionLock:
+    """Per-submission in-process lock for submit (see _SUBMIT_LOCK_WAIT_S)."""
+
+    def __init__(self, submission_id: int):
+        self._id = submission_id
+        self._acquired = False
+        with _submit_locks_guard:
+            self._entry = _submit_locks.setdefault(submission_id, [threading.Lock(), 0])
+            self._entry[1] += 1
+
+    def acquire(self) -> None:
+        self._acquired = self._entry[0].acquire(timeout=_SUBMIT_LOCK_WAIT_S)
+        if not self._acquired:
+            logger.warning("DT submit %s: still being graded after %d s; grading anyway",
+                           self._id, _SUBMIT_LOCK_WAIT_S)
+
+    def release(self) -> None:
+        if self._acquired:
+            self._acquired = False
+            self._entry[0].release()
+        with _submit_locks_guard:
+            self._entry[1] -= 1
+            if self._entry[1] <= 0 and _submit_locks.get(self._id) is self._entry:
+                del _submit_locks[self._id]
+
+
+def _submit_lock_waiters(submission_id: int) -> int:
+    """Requests holding or waiting for a submission's submit lock (tests)."""
+    with _submit_locks_guard:
+        entry = _submit_locks.get(submission_id)
+        return entry[1] if entry else 0
 
 
 @dual_translation_bp.route('/<int:submission_id>/skip', methods=['POST'])
@@ -2049,8 +2124,11 @@ def _persist_grade(
     transient error), the cache would serve that submission forever with
     ``errors: []`` — silent, permanent loss of all evidence, violating the
     evidence-first invariant (ADR-019). Writing the grade last means a failed
-    error insert leaves no grade behind, so the retry re-grades cleanly.
-    dt_error_instance FKs dt_submission, not dt_grade, so nothing requires the
+    error insert leaves no grade behind, so the retry re-grades cleanly. The
+    reverse partial failure (errors stored, grade insert failed — e.g. a
+    concurrent submit's grade won the UNIQUE) removes this call's error rows
+    before re-raising (``_discard_error_rows``), so neither a concurrent winner
+    nor the retry ends up beside orphan rows. dt_error_instance FKs dt_submission, not dt_grade, so nothing requires the
     reverse order.
 
     TASK-989: for a repeat (``repeat_of``: the learner's earlier grade of the same
@@ -2067,6 +2145,7 @@ def _persist_grade(
     }).eq('id', submission_id).execute()
 
     trace = contract['grader_trace']
+    inserted = None  # this call's dt_error_instance insert response
     if repeat_of:
         columns = _error_columns(with_assets=True)
         trace = {**(trace or {}), 'repeat': {
@@ -2078,27 +2157,72 @@ def _persist_grade(
         columns = _error_columns()
         rows = [_error_row(error, submission_id, columns) for error in contract['errors']]
         if not _names_asset_columns(columns):
-            db.table('dt_error_instance').insert(rows).execute()
+            inserted = db.table('dt_error_instance').insert(rows).execute()
         else:
             # ADR-044: the grading-asset columns are extras. If the insert fails
             # with them, retry without them; only a failure of the plain insert
             # (the pre-ADR-044 statement) propagates and leaves the submission
             # ungraded, exactly as before.
             try:
-                db.table('dt_error_instance').insert(rows).execute()
+                inserted = db.table('dt_error_instance').insert(rows).execute()
             except Exception as e:
                 plain = _error_columns(with_assets=False)
                 rows = [_error_row(error, submission_id, plain) for error in contract['errors']]
-                db.table('dt_error_instance').insert(rows).execute()
+                inserted = db.table('dt_error_instance').insert(rows).execute()
                 _asset_columns_failed('insert into dt_error_instance', e)
 
-    db.table('dt_grade').insert({
-        'submission_id': submission_id,
-        'scores': contract['scores'],
-        'overall_band': contract['overall_band'],
-        'diff': contract['diff'],
-        'grader_trace': trace,
-    }).execute()
+    try:
+        db.table('dt_grade').insert({
+            'submission_id': submission_id,
+            'scores': contract['scores'],
+            'overall_band': contract['overall_band'],
+            'diff': contract['diff'],
+            'grader_trace': trace,
+        }).execute()
+    except Exception as e:
+        # A-01/A-03: the error rows above belong to a grade that was not stored.
+        # Left in place they would sit beside a concurrent winner's rows, or be
+        # inserted again by the retry, and nightly synthesis would count both.
+        _discard_error_rows(db, submission_id, inserted, e)
+        raise
+
+
+def _is_unique_violation(error: Exception) -> bool:
+    return getattr(error, 'code', None) == '23505' or 'duplicate key' in str(error).lower()
+
+
+def _discard_error_rows(db, submission_id: int, inserted, grade_error: Exception) -> None:
+    """Delete the dt_error_instance rows one ``_persist_grade`` call inserted,
+    after its dt_grade insert failed. By id, never by submission: a concurrent
+    winner's rows for the same submission stay.
+
+    Deleted when the grade is known not to be this call's: the insert hit the
+    UNIQUE constraint (another request's grade is stored), or no grade exists.
+    Any other failure while a grade exists (e.g. a timeout after the insert
+    committed) may mean the grade IS this call's, so its rows are evidence and
+    are kept. Never raises: the caller re-raises the grade error."""
+    data = getattr(inserted, 'data', None)
+    ids = [r['id'] for r in data if isinstance(r, dict) and r.get('id') is not None] \
+        if isinstance(data, list) else []
+    if not ids:
+        if data:
+            logger.warning("DT submission %s: grade not stored and the error rows inserted "
+                           "for it returned no ids; they are left in place", submission_id)
+        return
+    try:
+        if not _is_unique_violation(grade_error):
+            has_grade = (
+                db.table('dt_grade').select('submission_id')
+                .eq('submission_id', submission_id).limit(1).execute()
+            ).data
+            if has_grade:
+                logger.warning("DT submission %s: grade insert failed (%s) but a grade exists; "
+                               "keeping its %d error rows", submission_id, grade_error, len(ids))
+                return
+        db.table('dt_error_instance').delete().in_('id', ids).execute()
+    except Exception as e:  # noqa: BLE001 - the grade error is what the caller reports
+        logger.error("DT submission %s: could not remove %d error rows of an unstored grade: %s",
+                     submission_id, len(ids), e)
 
 
 def _repeat_of(db, user_id: str, submission_row: dict) -> Optional[dict]:
