@@ -8,7 +8,6 @@ from unittest.mock import MagicMock
 import pytest
 from flask import url_for
 
-from models.requests import VOCAB_EXTRACT_MAX_CHARS
 from web.pages import LOGIN_REDIRECTS, PAGES
 from web.security import CSP_REPORT_ONLY
 
@@ -68,10 +67,12 @@ EXPECTED_PAGE_URLS = {
     'flashcards': '/flashcards',
     'word_list_page': '/word-list',
     'calibration_page': '/calibration',
+    'placement_page': '/placement',
     'classifier_drill_page': '/classifier-drill',
     'counter_drill_page': '/counter-drill',
     'dual_translation_page': '/dual-translation',
     'dual_translation_profile_page': '/dual-translation/profile',
+    'knowledge_page': '/knowledge',
     'admin_vocab_preview': '/admin/vocab-preview',
     'logout': '/logout',
 }
@@ -145,21 +146,6 @@ def test_oversized_body_is_rejected_with_413(app, client, auth_headers):
     assert _json(resp) == {
         'status': 'error', 'error': 'Request body too large', 'error_code': 'PAYLOAD_TOO_LARGE',
     }
-
-
-def test_vocabulary_extract_rejects_overlong_text(client, auth_headers):
-    resp = client.post('/api/vocabulary/extract',
-                       json={'text': 'a' * (VOCAB_EXTRACT_MAX_CHARS + 1), 'language_code': 'en'},
-                       headers=auth_headers)
-    assert resp.status_code == 400
-
-
-def test_vocabulary_extract_validates_before_checking_the_pipeline(app, client, auth_headers):
-    app.vocab_pipeline = None
-    assert client.post('/api/vocabulary/extract', json={}, headers=auth_headers).status_code == 400
-    resp = client.post('/api/vocabulary/extract', json={'text': 'hola', 'language_code': 'es'},
-                       headers=auth_headers)
-    assert resp.status_code == 503
 
 
 # ---------------------------------------------------------------------------

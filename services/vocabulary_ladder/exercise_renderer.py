@@ -25,11 +25,6 @@ from services.vocabulary_ladder.config import (
     SENTENCE_SOURCE_GENERATED, SENTENCE_SOURCE_MINED,
     get_sentence_target, blank_target,
 )
-from services.vocabulary_ladder.bundle.flags import bundle_enabled
-from services.vocabulary_ladder.bundle.judge import (
-    BundleJudge, BundleJudgeRequests, CollocationVerdictRequest,
-    DistractorRequest, SentenceValidityRequest,
-)
 
 logger = logging.getLogger(__name__)
 
@@ -44,15 +39,6 @@ class LadderExerciseRenderer:
         # Deterministic-builder skips from the most recent build_rows call, so
         # the batch runner can report *why* a family is missing (TASK-517).
         self.last_skips: list = []
-        # ADR-028 Phase 2 (TASK-816) bundle-judge state. Normally set fresh by
-        # build_rows() before the render loop runs, but defaulted here too so
-        # a renderer method called directly (bypassing build_rows, as several
-        # unit tests do) still finds these attributes rather than raising
-        # AttributeError. None means "no bundle verdict available" -> every
-        # judged call site falls through to its direct judge call, unchanged.
-        self._bundle_judge_result = None
-        self._current_variant_key = None
-        self._current_level = None
 
     def render_all(self, sense_id: int, language_id: int) -> list[dict]:
         """Render exercises for all active ladder levels and insert them.
@@ -218,54 +204,6 @@ class LadderExerciseRenderer:
         })
         seen_context_free_types: set[str] = set()
 
-        # ADR-028 Phase 2 (TASK-816): bundle-mode render judging. Gathered
-        # BEFORE the render loop below, across every (variant, level) at
-        # once, so ONE ladder_bundle_judge call can cover what the render
-        # loop's per-level judge calls would otherwise make one-at-a-time.
-        # `self._bundle_judge_result` is instance state (like
-        # `self.last_skips`) rather than a threaded parameter, so the 6
-        # judged renderers below don't need a signature change — they read
-        # `self._current_variant_key`/`self._current_level` (set immediately
-        # before each `_render_level` call) to build the SAME request_id this
-        # gather step used. `None` (bundle mode off, or nothing to judge this
-        # sense) makes every call site fall through to its original direct
-        # judge call, unchanged.
-        self._bundle_judge_result = None
-        if bundle_enabled():
-            try:
-                requests = self._gather_bundle_judge_requests(
-                    core, variant_configs, active_levels, language_id,
-                )
-                if not requests.is_empty():
-                    target = self._headword(core, sense_id)
-                    self._bundle_judge_result = BundleJudge(self.db, language_id).judge_bundle(
-                        sense_id, target, requests,
-                    )
-            except Exception as exc:
-                # TASK-8xx (item 6): a bundle-judge gather/call failure must
-                # never sink the WHOLE render for this sense — it is a pure
-                # optimisation over the per-level judge calls each renderer
-                # already makes on its own (`_bundle_judge_result = None`
-                # makes every judged call site fall through to its direct
-                # call, unchanged — see the docstring above). Before this
-                # fix, an uncaught exception here (observed live: a non-int
-                # `correct_sentence_index`/`correct_sentence_indices` from a
-                # bundle-mode P2/P3 response — now coerced at the source in
-                # prompt2_exercises._remap_level_6 /
-                # prompt3_transforms._remap_level_7) propagated out of
-                # build_rows entirely, producing ZERO exercise rows for the
-                # sense with no error or skip recorded anywhere (en senses
-                # 13900/13902, phase2_smoke_en).
-                from services.vocabulary_ladder.deterministic import Skip
-                logger.error(
-                    "Bundle judge gather/call failed for sense %s — falling "
-                    "back to per-level direct judging: %s", sense_id, exc,
-                )
-                deterministic_skips.append(Skip(
-                    'bundle_judge', f'gather/call failed: {exc}',
-                ))
-                self._bundle_judge_result = None
-
         for variant in variant_configs:
             p2 = variant['p2']
             p3 = variant['p3']
@@ -273,8 +211,6 @@ class LadderExerciseRenderer:
 
             for level in active_levels:
                 try:
-                    self._current_variant_key = variant['key']
-                    self._current_level = level
                     content = self._render_level(
                         level, core, p2, p3, sense_id, language_id, sa)
                     if content is None:
@@ -635,133 +571,6 @@ class LadderExerciseRenderer:
         }
 
     # ------------------------------------------------------------------
-    # ADR-028 Phase 2 (TASK-816) — bundle judge request gathering
-    # ------------------------------------------------------------------
-
-    @staticmethod
-    def _bundle_request_id(variant_key: str, level: int) -> str:
-        return f'{variant_key}:L{level}'
-
-    def _gather_bundle_judge_requests(
-        self, core: dict, variant_configs: list[dict], active_levels: list[int],
-        language_id: int,
-    ) -> BundleJudgeRequests:
-        """Every candidate the render loop's 6 direct judge calls would need,
-        across every (variant, level), collected up front for ONE
-        ``ladder_bundle_judge`` call.
-
-        Deliberately re-derives each level's context from the SAME asset
-        fields its renderer reads (``p2['level_N']`` / ``p3['level_N']``) —
-        this is the unavoidable cost of judging eagerly instead of lazily.
-        Mirrors each renderer's own early-return guards (missing level data,
-        too-short sentence, absent collocate, ...) so a request is only
-        gathered when the renderer would actually have reached its judge
-        call; anything that would have returned ``None`` before the judge is
-        skipped here too, exactly as it will be skipped in the render pass.
-        """
-        requests = BundleJudgeRequests()
-        sentences = core.get('sentences', [])
-
-        for variant in variant_configs:
-            vk = variant['key']
-            p2, p3, sa = variant['p2'], variant['p3'], variant['sentence_assignments']
-
-            if 1 in active_levels:
-                level_data = p2.get('level_1') or {}
-                options = level_data.get('options', [])
-                correct = [o.get('text', '') for o in options if o.get('is_correct')]
-                if correct and len(options) >= 4:
-                    distractors = [
-                        o.get('text', '') for o in options
-                        if not o.get('is_correct') and o.get('text')
-                    ]
-                    requests.l1_distractor.append(DistractorRequest(
-                        self._bundle_request_id(vk, 1), distractors, 'L1 listening candidate',
-                        {'target': correct[0]},
-                    ))
-
-            if 3 in active_levels:
-                level_data = p2.get('level_3') or {}
-                sent_idx = level_data.get('sentence_index', sa.get(3, 0))
-                if level_data and sent_idx < len(sentences):
-                    sentence = sentences[sent_idx]
-                    text = sentence.get('text', '')
-                    target = get_sentence_target(sentence)
-                    correct = level_data.get('correct_answer', target)
-                    distractors = [
-                        o.get('text', '') for o in level_data.get('options', [])
-                        if not o.get('is_correct') and o.get('text')
-                    ][:3]
-                    if text and target and distractors:
-                        blanked = blank_target(text, target, language_id)
-                        if blanked is not None:
-                            requests.cloze.append(DistractorRequest(
-                                self._bundle_request_id(vk, 3), distractors, 'L3 cloze candidate',
-                                {'sentence_with_blank': blanked, 'correct_answer': correct},
-                            ))
-
-            if 5 in active_levels:
-                level_data = p2.get('level_5')
-                if level_data:
-                    sent_idx = level_data.get('sentence_index', sa.get(5, 2))
-                    if sent_idx < len(sentences):
-                        sentence = sentences[sent_idx]
-                        text = sentence.get('text', '')
-                        collocate = level_data.get('correct_collocate', '')
-                        target_word = get_sentence_target(sentence)
-                        distractors = [
-                            o.get('text', '') for o in level_data.get('options', [])
-                            if not o.get('is_correct') and o.get('text')
-                        ]
-                        if text and collocate:
-                            blanked = blank_target(text, collocate, language_id)
-                            if blanked is not None:
-                                requests.collocation_filter.append(DistractorRequest(
-                                    self._bundle_request_id(vk, 5), distractors, 'L5 collocation candidate',
-                                    {'sentence': blanked, 'target': target_word, 'correct_collocate': collocate},
-                                ))
-
-            if 6 in active_levels:
-                level_data = p2.get('level_6') or {}
-                correct_idx = level_data.get('correct_sentence_index', sa.get(6, 3))
-                wrong_sents = level_data.get('wrong_sentences', [])
-                if correct_idx < len(sentences) and len(wrong_sents) >= 3:
-                    target_word = get_sentence_target(sentences[correct_idx])
-                    pairs = [(ws.get('text', ''), ws.get('explanation', '')) for ws in wrong_sents]
-                    requests.sentence_validity.append(SentenceValidityRequest(
-                        self._bundle_request_id(vk, 6), target_word, pairs,
-                    ))
-
-            if 7 in active_levels:
-                level_data = p3.get('level_7') or {}
-                incorrect = level_data.get('incorrect_sentence', '')
-                correct_indices = level_data.get('correct_sentence_indices', [0, 1, 2])
-                if incorrect and correct_indices and correct_indices[0] < len(sentences):
-                    target_word = get_sentence_target(sentences[correct_indices[0]])
-                    error_desc = level_data.get('error_description', '')
-                    requests.sentence_validity.append(SentenceValidityRequest(
-                        self._bundle_request_id(vk, 7), target_word, [(incorrect, error_desc)],
-                    ))
-
-            if 8 in active_levels:
-                level_data = p3.get('level_8')
-                if level_data:
-                    sent_idx = level_data.get('sentence_index', sa.get(8, 4))
-                    if sent_idx < len(sentences):
-                        sentence = sentences[sent_idx]
-                        text = sentence.get('text', '')
-                        correct_collocate = level_data.get('correct_collocate', '')
-                        error_collocate = level_data.get('error_collocate', '')
-                        if text and correct_collocate and error_collocate:
-                            target_word = get_sentence_target(sentence)
-                            requests.collocation_verdict.append(CollocationVerdictRequest(
-                                self._bundle_request_id(vk, 8), text, target_word,
-                                correct_collocate, error_collocate,
-                            ))
-
-        return requests
-
-    # ------------------------------------------------------------------
     # Per-level renderers
     # ------------------------------------------------------------------
 
@@ -870,14 +679,9 @@ class LadderExerciseRenderer:
         # drop real-word synonyms and spelling-only look-alikes that aren't
         # audio-confusable. Skip the variant if fewer than 3 clean distractors
         # survive (same contract as the L3 cloze path).
-        bundle = self._bundle_judge_result
-        request_id = self._bundle_request_id(self._current_variant_key, 1)
-        if bundle is not None and request_id in bundle.l1_distractor:
-            kept, judge_meta = bundle.l1_distractor[request_id]
-        else:
-            kept, judge_meta = filter_l1_distractors(
-                self.db, correct_answer, raw_distractors, language_id,
-            )
+        kept, judge_meta = filter_l1_distractors(
+            self.db, correct_answer, raw_distractors, language_id,
+        )
         if len(kept) < 3:
             logger.info(
                 "L1 l1_distractor_judge (source=%s) kept %d/%d distractors for sense %s; skipping variant",
@@ -981,18 +785,13 @@ class LadderExerciseRenderer:
             if not o.get('is_correct') and o.get('text')
         ][:3]
 
-        bundle = self._bundle_judge_result
-        request_id = self._bundle_request_id(self._current_variant_key, 3)
-        if bundle is not None and request_id in bundle.cloze:
-            kept, judge_meta = bundle.cloze[request_id]
-        else:
-            kept, judge_meta = filter_distractors(
-                self.db,
-                sentence_with_blank=blanked,
-                correct_answer=correct,
-                distractors=distractors,
-                language_id=language_id,
-            )
+        kept, judge_meta = filter_distractors(
+            self.db,
+            sentence_with_blank=blanked,
+            correct_answer=correct,
+            distractors=distractors,
+            language_id=language_id,
+        )
         if len(kept) < 3:
             logger.info(
                 "L3 cloze_judge rejected %d/%d distractors for sense %s; skipping variant",
@@ -1132,14 +931,9 @@ class LadderExerciseRenderer:
         # answer). Skip the variant if fewer than 3 clean distractors survive
         # (same contract as the L3 cloze path).
         from services.exercise_generation.judges.collocation import filter_collocation_distractors
-        bundle = self._bundle_judge_result
-        request_id = self._bundle_request_id(self._current_variant_key, 5)
-        if bundle is not None and request_id in bundle.collocation_filter:
-            kept, judge_meta = bundle.collocation_filter[request_id]
-        else:
-            kept, judge_meta = filter_collocation_distractors(
-                self.db, blanked, target_word, collocate, raw_distractors, language_id,
-            )
+        kept, judge_meta = filter_collocation_distractors(
+            self.db, blanked, target_word, collocate, raw_distractors, language_id,
+        )
         if len(kept) < 3:
             logger.info(
                 "L5 collocation_judge kept %d/%d distractors for sense %s; skipping variant",
@@ -1186,12 +980,7 @@ class LadderExerciseRenderer:
         # so skip the variant if fewer than 3 clean wrong sentences survive.
         from services.exercise_generation.judges.sentence_validity import judge_wrong_sentences
         pairs = [(ws.get('text', ''), ws.get('explanation', '')) for ws in wrong_sents]
-        bundle = self._bundle_judge_result
-        request_id = self._bundle_request_id(self._current_variant_key, 6)
-        if bundle is not None and request_id in bundle.sentence_validity:
-            outcomes = bundle.sentence_validity[request_id]
-        else:
-            outcomes = judge_wrong_sentences(self.db, target_word, pairs, language_id)
+        outcomes = judge_wrong_sentences(self.db, target_word, pairs, language_id)
         kept_wrong = [
             ws for ws, o in zip(wrong_sents, outcomes) if o.verdict != 'reject'
         ]
@@ -1273,14 +1062,9 @@ class LadderExerciseRenderer:
             get_sentence_target(sentences[correct_indices[0]])
             if correct_indices and correct_indices[0] < len(sentences) else ''
         )
-        bundle = self._bundle_judge_result
-        request_id = self._bundle_request_id(self._current_variant_key, 7)
-        if bundle is not None and request_id in bundle.sentence_validity:
-            outcomes = bundle.sentence_validity[request_id]
-        else:
-            outcomes = judge_wrong_sentences(
-                self.db, target_word, [(incorrect, error_desc)], language_id,
-            )
+        outcomes = judge_wrong_sentences(
+            self.db, target_word, [(incorrect, error_desc)], language_id,
+        )
         if outcomes and outcomes[0].verdict == 'reject':
             logger.info(
                 "L7 sentence_validity_judge rejected the incorrect sentence for sense %s; skipping variant",
@@ -1334,14 +1118,9 @@ class LadderExerciseRenderer:
         # pass as a valid collocate, the repair exercise is broken — drop it.
         from services.exercise_generation.judges.collocation import judge_collocation_repair
         target_word = get_sentence_target(sentence)
-        bundle = self._bundle_judge_result
-        request_id = self._bundle_request_id(self._current_variant_key, 8)
-        if bundle is not None and request_id in bundle.collocation_verdict:
-            outcome = bundle.collocation_verdict[request_id]
-        else:
-            outcome = judge_collocation_repair(
-                self.db, text, target_word, correct_collocate, error_collocate, language_id,
-            )
+        outcome = judge_collocation_repair(
+            self.db, text, target_word, correct_collocate, error_collocate, language_id,
+        )
         if outcome.verdict == 'reject':
             logger.info(
                 "L8 collocation_judge rejected error_collocate '%s' for sense %s; skipping variant",

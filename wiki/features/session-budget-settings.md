@@ -1,9 +1,9 @@
 ---
 title: Session Budget Settings (daily session card)
 type: feature
-status: planned
+status: complete
 tech_page: ./session-budget-settings.tech.md
-last_updated: 2026-10-13
+last_updated: 2026-11-23
 open_questions:
   - "OPEN: how the weekday shape scales new words. The shape is normalised to sum to 7, so a 5-day shape gives each active day a weight above 1. This spec scales new words by the same weight (rounded) so the weekly total and the daily amounts agree. The design text said 'words per active day, 0 on rest days'."
   - "ANSWERED 2026-10-13: a new word counts as started (and as completed for the week) on the day the learner makes their first attempt at it, whether it was admitted that day or earlier, in the main session or the extra round."

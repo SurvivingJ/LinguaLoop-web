@@ -3,7 +3,7 @@ title: Dictation — Technical Specification
 type: feature-tech
 status: complete
 prose_page: ./dictation.md
-last_updated: 2026-05-17
+last_updated: 2026-11-23
 dependencies:
   - "table: tests (audio_url, transcript, vocab_token_map, vocab_sense_ids)"
   - "table: test_attempts (+ 4 new columns)"
@@ -16,6 +16,8 @@ dependencies:
   - "Service: services.dictation.grader, services.dictation.tokenizer (new)"
   - "Service: services.vocabulary.knowledge_service (reused)"
   - "Frontend: templates/test_dictation.html (new)"
+open_questions:
+  - "OPEN: the two pending skill-rating migrations (migrations/skill_ratings_natural_key_unique.sql then migrations/skill_ratings_writers_on_conflict.sql) are not applied live (checked 2026-11-23); until then a first-ever simultaneous submission could insert a duplicate rating row."
 breaking_change_risk: low
 ---
 
@@ -115,10 +117,11 @@ process_dictation_submission(
 ```
 
 - **Purpose:** persist a graded dictation attempt and update ELO. Scoring is pre-computed in Python; this function trusts the count inputs and performs only validation, idempotency, ELO arithmetic, and writes.
-- **Validation:** `p_word_total > 0`, `0 ≤ p_word_correct ≤ p_word_total`, `p_replay_count ≥ 1`. Raises `Unauthorized` if `p_user_id != auth.uid()`.
+- **Auth gate (live 2026-11-23):** returns `{success:false, error_code:'unauthorized'}` (no raise) when `p_user_id` is NULL, or when the caller is neither that user nor the service-role backend. A missing user is therefore rejected rather than silently allowed. The route maps this to HTTP 403.
+- **Validation:** `p_word_total > 0`, `0 ≤ p_word_correct ≤ p_word_total`, `p_replay_count ≥ 1`; a violation raises and falls into the error handler below.
 - **Returns:** JSONB envelope with `{success, attempt_id, score, total_questions, percentage, user_elo_change, test_elo_change, replay_count, replay_factor, elo_reduction_factor, diff, ...}`.
-- **Errors:** any DB exception is caught and returned as `{success: false, error, error_detail}`.
-- **Auth:** `SECURITY DEFINER`, `GRANT EXECUTE TO authenticated`.
+- **Errors:** any DB exception is caught; the Postgres message and SQLSTATE go to the database log only (`RAISE WARNING`) and the caller gets the generic `{success:false, error_code:'submission_failed', sqlstate}`. Before 2026-11 the message text was returned. Learners see no difference (the route already returned a generic 500).
+- **Auth:** `SECURITY DEFINER`, `search_path = public, pg_temp`, EXECUTE for `service_role` only (anon and authenticated have no access; verified live 2026-11-23). The Flask backend calls it with the service key after verifying the learner's JWT.
 - **Side effects:** INSERT `test_attempts`, UPDATE `user_skill_ratings` and `test_skill_ratings` (first attempt + retry-slot path), UPSERT `user_languages`, token charge (when `was_free_test=false`).
 
 ELO formula (first attempt branch):
@@ -131,12 +134,12 @@ elo_reduction_factor := CASE WHEN v_replay_factor < 1.0 THEN v_replay_factor ELS
 
 Retry-slot branch composes multiplicatively with the existing daily-retry decay factor (per [ADR-006](../decisions/ADR-006-retry-slot-reduced-elo.md)).
 
-### `get_recommended_tests` — modified
+### `get_recommended_tests` — dictation lane
 
-[migrations/update_get_recommended_tests_for_dictation.sql](../../migrations/update_get_recommended_tests_for_dictation.sql). Two changes vs the prior `fix_get_recommended_tests_signature.sql`:
+History: [migrations/archive/update_get_recommended_tests_for_dictation.sql](../../migrations/archive/update_get_recommended_tests_for_dictation.sql) (archived) introduced the dictation lane on top of `migrations/archive/fix_get_recommended_tests_signature.sql`. The live function is defined by `migrations/dictation_cap_cjk_word_count.sql` (md5(prosrc) `1e110653…` checked live 2026-11-23). What matters for dictation:
 
-1. **Per-test-type exclusion** — the `NOT EXISTS test_attempts` subquery key changed from `(user_id, test_id)` to `(user_id, test_id, test_type_id)`. A user who took the listening version of a test still sees the dictation version surfaced.
-2. **Dictation length cap** — the dictation lane filters to transcripts where `array_length(string_to_array(trim(transcript), ' '), 1) <= 80`. Other lanes unaffected.
+1. **Per-test-type exclusion** — the `NOT EXISTS test_attempts` subquery is keyed on `(user_id, test_id, test_type_id)`. A user who took the listening version of a test still sees the dictation version surfaced.
+2. **Dictation length cap, tier-scaled** — the dictation lane keeps transcripts whose `transcript_word_count(transcript)` is at most `dictation_max_words(difficulty)` (T1 80, T2 120, T3 160, T4 220, T5 300, T6 400 words; fallback 80; Python twin `services/dictation/cap.py`, pinned by `tests/test_dictation_tier_cap.py`). `transcript_word_count` counts spaces for spaced scripts and about characters/1.5 for Chinese and Japanese. The original flat 80-word space count is gone. Other lanes unaffected.
 
 Signature unchanged (`uuid, smallint`).
 
@@ -189,13 +192,13 @@ Returns `GradingResult(word_correct, word_total, accuracy, diff: list[WordDiff],
 
 ### Sense-id mapping
 
-Done in [routes/tests.py](../../routes/tests.py) `submit_dictation_attempt`, not the grader. We build a `surface_to_sense` map by normalizing each `vocab_token_map` entry's surface form, then look up each canonical-side diff token. Lemma-based lookup is a future improvement; current surface-form lookup is fine for most languages because normalization handles inflection-free comparison.
+Done by `attach_dictation_senses` in [services/attempts.py](../../services/attempts.py), called from `submit_dictation_attempt` in [routes/tests/submit.py](../../routes/tests/submit.py), not the grader. We build a `surface_to_sense` map by normalizing each `vocab_token_map` entry's surface form, then look up each canonical-side diff token. Lemma-based lookup is a future improvement; current surface-form lookup is fine for most languages because normalization handles inflection-free comparison.
 
 ## Flask Endpoints
 
 ### `POST /api/tests/<slug>/submit-dictation`
 
-[routes/tests.py](../../routes/tests.py) `submit_dictation_attempt()`. JWT-required. Body: `{user_transcript, replay_count, time_taken, idempotency_key}`. Server-side: fetches canonical transcript + vocab token map, runs grader, calls RPC, fires per-word BKT updates (fire-and-log; non-fatal), returns response envelope.
+[routes/tests/submit.py](../../routes/tests/submit.py) `submit_dictation_attempt()`. JWT-required. Body: `{user_transcript, replay_count, time_taken, idempotency_key}`. Server-side: fetches canonical transcript + vocab token map, runs grader, calls RPC, fires per-word BKT updates (fire-and-log; non-fatal), returns response envelope.
 
 ### `GET /api/tests/test/<slug>?mode=dictation` — modified
 
@@ -245,13 +248,15 @@ The Dictation radio button was already present (lines 276-287). Only the `startT
 
 ## Security Considerations
 
-- `process_dictation_submission` is `SECURITY DEFINER` with `p_user_id = auth.uid()` check identical to `process_test_submission` and `process_pinyin_submission`.
+- `process_dictation_submission` is `SECURITY DEFINER` with the same gate as `process_test_submission` and `process_pinyin_submission`: a NULL `p_user_id`, or a caller that is neither that user nor `service_role`, is rejected with `error_code:'unauthorized'`; database errors return only `submission_failed`.
 - Server-side length guard: `len(user_transcript) <= 10 * len(canonical_transcript)` rejects pathological submissions.
 - `GET ?mode=dictation` strips the transcript server-side. Defense-in-depth: even if a client tampers with the request, the canonical transcript is never returned in dictation mode.
 - Per-word BKT updates wrapped in try/except; one bad sense_id never aborts an attempt.
 - Idempotency key prevents double-credit on network retries.
 
 ## Testing Strategy
+
+The pytest suite is hermetic: Supabase is unreachable unless a test is marked `live` (run those with `pytest -m live`); the dictation tests below use no database.
 
 ### Unit ([tests/test_dictation_grader.py](../../tests/test_dictation_grader.py))
 
@@ -264,7 +269,7 @@ The Dictation radio button was already present (lines 276-287). Only the `startT
 3. Replay audio 5× and submit → verify `elo_reduction_factor ≈ 0.6` on the `test_attempts` row.
 4. Resubmit with same `idempotency_key` → verify cached response returned, no double ELO.
 5. Verify `user_vocabulary_knowledge` updated for words in the transcript with sense_id mappings.
-6. Verify recommendation `get_recommended_tests` returns dictation candidates capped at ≤ 80 words.
+6. Verify recommendation `get_recommended_tests` returns dictation candidates within the tier cap (`dictation_max_words`; 80 words at T1).
 
 ### Verification SQL
 

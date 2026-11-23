@@ -1,276 +1,226 @@
 ---
 title: LinguaDojo — Technical Specification
-type: overview-tech
+type: schema-tech
 status: complete
 prose_page: ./project.md
-last_updated: 2026-05-12
+last_updated: 2026-11-23
 dependencies:
-  - "Supabase (PostgreSQL + Auth + RLS)"
-  - "Flask 2.x + Gunicorn"
+  - "Supabase (PostgreSQL 17 + Auth + RLS + Storage bucket `exercise-content`)"
+  - "Flask 3.0 + Gunicorn (2 workers x 8 threads)"
+  - "Flask-Limiter, Flask-Compress, Flask-Cors"
   - "OpenRouter (LLM inference, multi-model routing)"
-  - "OpenAI (moderation + embeddings)"
+  - "OpenAI (embeddings)"
   - "Azure Cognitive Services (TTS for listening tests + vocab L1)"
   - "Cloudflare R2 (audio storage)"
-  - "Stripe (payments)"
+  - "Stripe SDK (configured at start-up; no payment route is registered)"
   - "Railway (hosting)"
-  - "APScheduler (nightly IRT calibration cron)"
-  - "scipy (IRT MLE fit)"
+  - "APScheduler 3.11 (nine nightly/weekly jobs, `web/scheduler.py`)"
+  - "scipy / numpy (IRT 2PL fit)"
 breaking_change_risk: low
+open_questions:
+  - "OPEN: the 04:20 UTC watchlist sweep is believed to fail every night (its state table and lock functions are absent live; verified by reading the code and by `to_regclass` / `pg_proc` on 2026-11-23, but the production log of the job was not read). Apply `migrations/word_upload_sweep_advisory_lock_hardened.sql` (it needs a decision on the watermark seed, see `migrations/PENDING-2026-11-23.md`)."
+  - "OPEN: the test-suite counts below (6,287 passed, 16 skipped, 0 failed) were reported from a fresh offline run by the coordinating agent; this page's author did not re-run the suite."
+  - "OPEN: `type: schema-tech` is the closest allowed value in CLAUDE.md section 8 for an overview tech page (there is no `overview-tech`); consider adding one to the schema."
+  - "OPEN: the Python version in production is not recorded in the repository (CI uses 3.13; there is no `runtime.txt`); confirm what Railway runs."
 ---
 
 # LinguaDojo — Technical Specification
+
+Verified 2026-11-23 against the merged code at commit `0d345e98` and, for the database, read-only against the live project. Companion pages: [[api/rpcs.tech]] (every route), [[features/web-package.tech]] (`web/`), [[features/routes-tests-package.tech]] (`routes/tests/`).
 
 ## Architecture Overview
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
 │                            Railway                           │
+│  gunicorn wsgi:app  --workers 2 --worker-class gthread       │
+│                     --threads 8 --timeout 120   (Procfile)   │
 │  ┌────────────────────────────────────────────────────────┐  │
-│  │   Flask Application (Gunicorn via Procfile)            │  │
+│  │   Flask app (app.create_app), one per worker process   │  │
 │  │                                                        │  │
-│  │  ┌──────────┐  ┌──────────┐  ┌─────────────┐           │  │
-│  │  │  Routes  │  │ Services │  │ Middleware  │           │  │
-│  │  │ (15 BPs) │  │ (10 dirs)│  │ (Auth/JWT)  │           │  │
-│  │  └────┬─────┘  └────┬─────┘  └──────┬──────┘           │  │
-│  │       │             │               │                  │  │
-│  │  ┌────▼─────────────▼───────────────▼──────────────┐   │  │
-│  │  │            Jinja2 Templates                     │   │  │
-│  │  │      (HTML + vanilla JS + CSS — no SPA)         │   │  │
-│  │  └─────────────────────────────────────────────────┘   │  │
+│  │  web/            pages, error envelope, security       │  │
+│  │                  headers, rate limits, scheduler       │  │
+│  │  routes/         18 route modules (routes/tests/ is    │  │
+│  │                  a package)                            │  │
+│  │  middleware/     JWT + tier decorators                 │  │
+│  │  services/       business logic, engines, pipelines    │  │
+│  │  templates/ + static/   Jinja2 shells + vanilla JS     │  │
 │  │                                                        │  │
-│  │  ┌─────────────────────────────────────────────────┐   │  │
-│  │  │   APScheduler BackgroundScheduler               │   │  │
-│  │  │   irt_calibration_nightly @ 04:00 UTC           │   │  │
-│  │  └─────────────────────────────────────────────────┘   │  │
+│  │  APScheduler BackgroundScheduler (UTC), 9 jobs, one    │  │
+│  │  per worker; each job serialises itself across         │  │
+│  │  workers (advisory lock or idempotent upsert)          │  │
 │  └────────────────────────────────────────────────────────┘  │
 └──────────────┬──────────────┬───────────┬────────────────────┘
                │              │           │
      ┌─────────▼──────┐ ┌─────▼────┐ ┌────▼─────────┐
-     │   Supabase     │ │ OpenRouter│ │ Azure TTS    │
-     │ (Postgres 17 + │ │ + OpenAI │ │ (Speech SDK) │
-     │  Auth + RLS)   │ │ (LLMs)   │ │              │
+     │   Supabase     │ │OpenRouter│ │ Azure TTS    │
+     │ Postgres 17 +  │ │ + OpenAI │ │              │
+     │ Auth + Storage │ │ (LLMs)   │ │              │
      └────────────────┘ └──────────┘ └──────────────┘
                │
-     ┌─────────▼──────┐  ┌─────────────────┐
-     │ Cloudflare R2  │  │     Stripe       │
-     │ (Audio files)  │  │  (Payments)      │
-     └────────────────┘  └─────────────────┘
+     ┌─────────▼──────┐
+     │ Cloudflare R2  │   (audio files)
+     └────────────────┘
 ```
+
+Offline work (content generation, backfills, evaluation) runs from `scripts/` and the `services/*generation*` packages on a developer machine or through the batch-service token (ADR-014); there is no admin web app any more.
 
 ## Tech Stack
 
 | Layer | Technology | Notes |
 |-------|-----------|-------|
-| **Backend** | Python 3.11 / Flask 2.x | Gunicorn WSGI via Procfile |
-| **Frontend** | Jinja2 + vanilla JS + CSS | Server-rendered, no SPA framework |
-| **Database** | PostgreSQL 17 via Supabase | 64 tables, RLS on ~36 of them, 77 application RPCs (plus extension functions) |
-| **Auth** | Supabase Auth (OTP) + JWT | Custom middleware validates Supabase JWTs; service-role bypass for batch jobs |
-| **AI / LLM** | OpenRouter primary, OpenAI for moderation + embeddings | Per-task model assignment lives in `prompt_templates.model` (single source of truth as of 2026-05-05) |
-| **TTS** | Azure Cognitive Services | `dim_languages.tts_voice_ids` jsonb is the voice catalogue per language. Chinese voices seeded 2026-05-12. |
-| **File Storage** | Cloudflare R2 | Audio at `audio.linguadojo.com`. Deterministic slugs for idempotent re-renders. |
-| **Payments** | Stripe | Token purchase packages. Webhook handler not yet wired in the prod app — verify before claiming end-to-end. |
-| **Hosting** | Railway | Deployed via Procfile (`web: gunicorn wsgi:app`). |
-| **NLP** | jieba, langdetect, unidic, pypinyin | Chinese/Japanese tokenization, language detection, pinyin |
-| **Cron** | APScheduler `BackgroundScheduler` (in-memory) | Nightly IRT calibration. Cross-worker safety via Postgres advisory lock. |
-| **IRT** | scipy.optimize.minimize (L-BFGS-B) | 2PL MLE fitter in `services/irt/calibrator.py` |
-| **FSRS** | `services/vocabulary/fsrs.py` (Python) mirrors the SQL `fsrs_schedule_review` | 4.5 algorithm |
+| **Backend** | Python / Flask 3.0.3 | Gunicorn gthread, 2 workers x 8 threads (`Procfile`). CI runs Python 3.13. |
+| **Frontend** | Jinja2 shells + vanilla ES-module JS + CSS | Server-rendered shells, client-side rendered pages; mobile app shell ([[decisions/ADR-048-mobile-app-shell]]); four locales (`static/i18n/{en,es,ja,zh}.json`). No SPA framework, no bundler. Bootstrap, Font Awesome and Bootstrap Icons are self-hosted under `static/vendor/`; Google Fonts is the only third party. |
+| **Database** | PostgreSQL 17.4 via Supabase | Live 2026-11-23: 100 tables in `public`, all with RLS on; 214 non-extension functions in `public` (196 non-trigger). |
+| **Exercise content** | Supabase Storage bucket `exercise-content` | One immutable JSON file per sense and version; `exercises.content` no longer exists ([[decisions/ADR-049-exercise-content-in-storage]]). |
+| **Auth** | Supabase Auth (OTP) + JWT | `middleware/auth.py`; optional local HS256 verification (`SUPABASE_JWT_SECRET`); batch identity via `BATCH_SERVICE_TOKEN` (the service-role key no longer authenticates HTTP requests). Trusted-device and refresh cookies are HttpOnly. |
+| **AI / LLM** | OpenRouter primary; OpenAI for embeddings (the moderation route was removed 2026-11-23); headless `claude -p` transport for backfills | Per-task model assignment in `prompt_templates.model`. |
+| **TTS** | Azure Cognitive Services | `dim_languages.tts_voice_ids` is the voice catalogue. |
+| **File storage** | Cloudflare R2 | Audio at `audio.linguadojo.com`. |
+| **Payments** | Stripe SDK configured at start-up | **No payment route besides `GET /api/payments/token-packages`.** `POST /api/payments/create-intent` was removed; it returns with a verified webhook ([[api/rpcs.tech]]). |
+| **Hosting** | Railway | `Procfile`: `web: gunicorn wsgi:app ...`. |
+| **NLP** | jieba, pypinyin, fugashi/unidic, pyopenjtalk, wordfreq | Segmentation, pinyin, furigana, pitch accent, frequency. |
+| **Cron** | APScheduler `BackgroundScheduler` (in memory) | Nine jobs, below. |
+| **IRT** | scipy `minimize` (L-BFGS-B) | `services/irt/calibrator.py`. |
+| **FSRS** | `services/vocabulary/fsrs.py` | The scheduler in use; the SQL `fsrs_schedule_review` is not an exact port. |
 
-## Application Structure
+## Application Structure (package layout at HEAD, line counts by script)
 
-```
-WebApp/
-├── app.py                     # Flask factory create_app(); registers blueprints, scheduler
-├── admin_app.py               # Local-only variant — mounts admin_local_bp + model_arena_bp
-├── wsgi.py                    # Production WSGI entry point
-├── config.py                  # Unified Config from env vars
-├── Procfile                   # Railway deployment
-├── requirements.txt
-├── db_schema_live.sql         # Snapshot of live DB schema (not authoritative — use Supabase)
-│
-├── middleware/
-│   └── auth.py                # jwt_required / admin_required / tier_required + AuthMiddleware class
-│
-├── routes/                    # 15 Flask Blueprints + 2 admin-only
-│   ├── auth.py                # /api/auth — OTP login, refresh, profile
-│   ├── tests.py               # /api/tests — comprehension tests (1126 lines)
-│   ├── exercises.py           # /api/exercises — daily mixed session (Phase 9 RPC-backed)
-│   ├── vocab_dojo.py          # /api/vocab-dojo — per-word ladder + gates + stress test
-│   ├── flashcards.py          # /api/flashcards — FSRS review
-│   ├── vocabulary.py          # /api/vocabulary — word quiz submission
-│   ├── corpus.py              # /api/corpus — ingest, packs, style packs
-│   ├── mystery.py             # /api/mystery — 5-scene murder mystery
-│   ├── conversations.py       # /api/conversations — read-only browse
-│   ├── users.py               # /api/users — ELO, tokens, prefs
-│   ├── payments.py            # /api/payments — token packages + Stripe PaymentIntent
-│   ├── reports.py             # /api/reports — bug reports
-│   ├── vocab_admin.py         # /api/admin/vocab — admin word upload + preview
-│   ├── admin_local.py         # /admin/* — pipeline dashboard (only via admin_app.py)
-│   └── model_arena.py         # /admin/arena/* — head-to-head model comparison
-│
-├── services/                  # Business logic (10 packages + 14 top-level files)
-│   ├── ai_service.py          # OpenAI client wrapper (moderation, embeddings)
-│   ├── auth_service.py        # OTP send/verify, profile, session
-│   ├── dimension_service.py   # Cached dim_* lookups + parse_language_id
-│   ├── exercise_session_service.py  # Daily session orchestrator (Phase 9, slim)
-│   ├── llm_output_cleaner.py  # JSON-extract / repair from LLM responses
-│   ├── llm_service.py         # OpenRouter LLM client
-│   ├── mystery_service.py     # Mystery progress + scene + finale submission
-│   ├── payment_service.py     # Stripe + token RPC wrappers
-│   ├── pinyin_service.py      # Pypinyin pipeline + sandhi engine
-│   ├── prompt_service.py      # prompt_templates loader (model/provider lookup)
-│   ├── r2_service.py          # Cloudflare R2 uploads
-│   ├── service_factory.py     # ServiceFactory(Config) — OpenAI client wiring
-│   ├── supabase_factory.py    # SupabaseFactory — get_supabase / get_supabase_admin
-│   ├── task_runner.py         # run_in_thread + is_task_stopped (admin SSE backend)
-│   ├── test_service.py        # Test fetch + ELO summary + daily load
-│   │
-│   ├── test_generation/       # Comprehension test pipeline (orchestrator, agents, db_client)
-│   ├── topic_generation/      # Topic discovery + embedding dedup pipeline
-│   ├── exercise_generation/   # 21 exercise types — orchestrator, generators/, validators
-│   │   └── audio_voice.py     # Language-aware Azure voice picker (2026-05-12)
-│   ├── conversation_generation/  # Personas + pairs + scenarios + dialogues
-│   ├── mystery_generation/    # Mystery story + scene + question agents
-│   ├── vocabulary/            # NLP: pipeline, FSRS, knowledge_service (BKT), frequency
-│   ├── vocabulary_ladder/     # Phase 8/10 momentum bands + asset pipeline + renderer
-│   ├── corpus/                # Ingestion, collocation extraction, style analysis, packs
-│   ├── model_arena/           # Head-to-head LLM comparison (arena_service, judge_prompts)
-│   └── irt/                   # Phase 11 — 2PL MLE calibrator (scipy.optimize)
-│
-├── templates/                 # Jinja2 — 18 templates
-├── static/                    # css/, js/, i18n/
-├── migrations/                # 55+ SQL migrations, append-only
-├── models/                    # Pydantic request schemas
-├── utils/                     # validation, responses, question_validator
-├── prompts/                   # Static fallback prompts (live prompts in prompt_templates)
-├── scripts/                   # Standalone CLI batch tools (backfill_*.py, run_*.py, seed_*.py)
-├── data/
-│   └── arena_runs/            # Persisted Model Arena results (JSON)
-├── tests/                     # Python tests
-└── wiki/                      # This wiki (CLAUDE.md, MEMORY.md, etc.)
-```
+Counts are physical lines of `.py` (or the extension noted) found 2026-11-23, `__pycache__` and `static/vendor/` excluded.
+
+| Path | Files / lines | What it is |
+|---|---|---|
+| `app.py`, `wsgi.py`, `config.py` | 359 / 14 / 593 | `create_app()` factory and the four inline core routes; the WSGI entry point; the single `Config` class read from environment variables. |
+| `web/` | 6 files / 504 | App wiring extracted from `app.py`: `pages.py` (page routes), `errors.py` (error envelope and 404 redirect), `security.py` (headers, report-only CSP, body-size limit), `rate_limits.py`, `scheduler.py`. See [[features/web-package]]. |
+| `routes/` | 25 files / 6,650 | One Flask blueprint per module: `auth`, `calibration`, `drills` (builds two blueprints), `dt_repair`, `dual_translation` (2,409 lines), `flashcards`, `knowledge`, `practice`, `reports`, `study_plan`, `study_session`, `test_intros`, `users`, `vocab_admin`, `vocab_dojo`, `vocabulary`, `word_list_import`, the package `tests/` (6 files / 1,353 lines; [[features/routes-tests-package]]) and the helper `common.py`. |
+| `middleware/` | 2 files / 389 | `auth.py`: `jwt_required`, `admin_required`, `tier_required`, `get_optional_user_id`, token cache and revocation. |
+| `models/`, `utils/` | 3 / 227, 5 / 423 | Pydantic request models; response helpers (`responses.py`), validation, question and answer normalisation. |
+| `services/` | 257 files / 73,441 | All business logic. 49 top-level modules (auth, test, study plan, attempts, prestudy, calibration, knowledge snapshots, LLM client, Supabase factory, static assets, ...) plus the packages below. |
+| `services/practice/` | 5 / 2,711 | Practice engine internals: session assembly, attempt recording, new-word admission; entry point `services/practice_session_service.py`. |
+| `services/study_session/` | 3 / 1,113 | Daily session queue composition and its reads/writes. |
+| `services/dual_translation/` | 32 / 12,344 | Dual-translation grader cascade, passage and sentence-reference builders, cards, synthesis, guided repair (`repair/`). |
+| `services/vocabulary/` | 25 / 5,363 | BKT knowledge service, FSRS, knowledge report, frequency, segmenters. |
+| `services/vocabulary_ladder/` | 44 / 13,632 | Ladder service, asset pipeline, exercise renderer, batteries, speed round, queue drain, fat-seed authoring. |
+| `services/exercise_content/` | 6 / 2,118 | Storage-backed exercise content store, writer, cache (ADR-049). |
+| `services/exercise_generation/`, `test_generation/`, `topic_generation/` | 26 / 4,709; 17 / 6,912; 13 / 2,711 | Generation pipelines (exercises, comprehension tests, topics). |
+| `services/corpus/`, `dictation/`, `irt/`, `word_list_import/` | 12 / 2,859; 4 / 502; 2 / 364; 6 / 1,119 | Corpus ingestion and style analysis; dictation grading; IRT calibration; word-list upload and the watchlist sweep. |
+| `services/classifier_curation/`, `counter_curation/` | 5 / 202; 5 / 272 | Offline authoring tools for the measure-word and counter drills. |
+| `services/model_arena/` | 3 / 123 | Only `llm_runner.py` and `pricing.py`, still imported by the dual-translation grader (`call_model_with_usage`, `fetch_model_list`). The Model Arena itself (routes, UI, runs) is gone. |
+| `templates/` | 25 html / 2,722 | One Jinja2 shell per page (list in [[api/rpcs.tech]]). |
+| `static/` | js 61 files / 28,212; css 19 / 13,779; `i18n/` 4 json; `vendor/` | Vanilla JS (`pages/`, `session/`, `prestudy/`), styles, locales, self-hosted libraries. |
+| `migrations/` | 386 `.sql` (47 under `archive/`) | Append-only SQL; `migrations/CLAUDE.md` holds the rules and `PENDING-2026-11-23.md` the not-yet-applied list. |
+| `scripts/` | 120 py / 36,290 | Standalone CLI tools (backfills, seeding, evaluation, sweeps, `dt_nightly_synthesis.py`). |
+| `tests/` | 296 py / 77,202 | pytest suite (287 top-level test modules plus `unit/`, `sql/`, `e2e/` (Playwright, not pytest)). Hermetic: see below. |
+| `playwright/`, `playwright.config.js`, `vitest.config.js`, `eslint.config.js` | — | Frontend test and lint configuration. |
+| `data/`, `prompts/`, `Corpuses/`, `Portal/`, `Project Knowledge/`, `sandbox/`, `scratch_offline/`, `raw/` | — | Working data, static fallback prompts, corpora, unrelated side projects (`Portal/` is excluded from ruff), experiments. Not part of the served app. |
+| `wiki/` | — | This wiki. |
+
+There is no local admin app, admin-dashboard or Model Arena route module, exercises, mystery or conversations route module, task-runner service or exercise-session service any more.
+
+## Script write convention
+
+A script under `scripts/` that can write to the live database or Storage writes nothing unless `--apply` is given: a bare run is a dry run, `--dry-run` is accepted as an explicit alias, and `--apply --dry-run` together exits with code 2. The flags come from `scripts/_common.base_parser` (or `add_apply_flags` for one sub-command, as for `exercise_stage_runner.py render`), and `tests/test_scripts_apply_convention_guard.py` fails when a script defines `--dry-run` itself. Exempt, each with its reason in the guard's allowlist: the generation runners whose run is the write (`run_generation_batch.py`, `run_test_generation_cli.py`, `run_ladder_from_existing.py`, and `dt_nightly_synthesis.py`, which the scheduler runs in-process), `dt_rewrite_history_v6.py` (its own four-mode group, already dry run by default), the retired `backfill_gloss_definitions.py`, and five scripts that write only local files. Scripts that write by design with no dry-run flag at all (for example `render_existing_assets.py`, `build_calibration_distractor_cache.py`, `Corpuses/verify_collocations.py`) are listed under TASK-1218 in [[tasklist/review-2026-11-22.tasks]] (2026-11-23).
 
 ## Background Scheduler
 
-[app.py:201](../../app.py#L201) — `_initialize_scheduler(app)` boots an APScheduler `BackgroundScheduler(timezone='UTC')` per worker. Currently one job:
+`web/scheduler.py` declares the jobs as one table (`JOBS`, `Job` dataclass) and `init_scheduler(app)` starts a `BackgroundScheduler(timezone='UTC')` once per process (`coalesce=True`, `max_instances=1`, `replace_existing=True`). It is skipped when `DISABLE_SCHEDULER` is `1`/`true`/`yes` or when the app is created with `TESTING`. With two gunicorn workers there are two schedulers; every job serialises itself across processes (a Postgres advisory-lock pair, or an idempotent upsert) and a job that crashes is logged, never raised. Each job thread gets the longer batch timeout (`SUPABASE_JOB_TIMEOUT`, 120 s).
 
-| Job ID | Trigger | Function | Notes |
-|--------|---------|----------|-------|
-| `irt_calibration_nightly` | `CronTrigger(hour=4, minute=0)` | `services.irt.calibrator.calibrate_all_active_languages` | `coalesce=True, max_instances=1, replace_existing=True`. Cross-worker safety via `irt_try_lock` advisory lock — duplicate fires across gunicorn workers exit cleanly. |
+| Job id | Schedule (UTC) | Target | What it does |
+|---|---|---|---|
+| `dt_error_synthesis_nightly` | daily 03:50 | `scripts.dt_nightly_synthesis:run_nightly_synthesis` | Clusters the day's `dt_error_instance` rows into `dt_error_profile_entry` and queues error cards, before the morning's first request; advisory lock. |
+| `irt_calibration_nightly` | daily 04:00 | `services.irt.calibrator:calibrate_all_active_languages` | 2PL fit of `irt_difficulty` / `irt_discrimination` for every active language; lock `irt_try_lock`. |
+| `exercise_time_estimate_refresh` | daily 04:05 | `services.study_plan_service:_refresh_exercise_time_estimates` | RPCs `refresh_practice_time_estimates` (p50 seconds per exercise type and test type, last 30 days, at least 30 samples) and `refresh_new_word_minutes`. |
+| `slug_health_nightly` | daily 04:10 | `services.model_health:run_slug_health_check` | Probes the model slugs in use; logs an ERROR naming dead ones; advisory lock. |
+| `generation_queue_drain_nightly` | daily 04:15 | `services.vocabulary_ladder.queue_drain:run_nightly_drain` | Enqueues fresh coverage gaps, then drains the generation queue; advisory lock. |
+| `word_upload_watchlist_sweep_nightly` | daily 04:20 | `services.word_list_import.sweep_cron:run_watchlist_sweep` | Scans tests created since a watermark and matches them to active `user_word_watchlist` rows. **Currently fails every night:** its state table `word_upload_sweep_state` and its two lock functions do not exist live (checked 2026-11-23); `_read_cursor` raises on the missing table and the runner logs "Word-upload watchlist sweep crashed". Nothing is written. Fix: apply `migrations/word_upload_sweep_advisory_lock_hardened.sql` (pending, needs a watermark-seed decision; `migrations/PENDING-2026-11-23.md` item 9). |
+| `knowledge_snapshots_nightly` | daily 04:25 | `services.knowledge_snapshots:run_nightly` | One `user_knowledge_snapshots` row per active (user, language) pair for the UTC day, then prune; idempotent upsert; not gated by `KNOWLEDGE_REPORT_ENABLED` (history must accrue before the page ships, ADR-053). |
+| `placement_close_stale_nightly` | daily 04:30 | `services.calibration_placement:run_nightly_close` | Closes placements idle for 24 h as `abandoned`, with a frozen result and the evidence write; skipped while `PLACEMENT_ENABLED_LANGS` is empty. |
+| `study_plan_weekly_recompute` | Sundays 23:00 | `services.study_plan_service:_run_weekly_plan_recompute` | `compute_weekly_plan` for every `user_study_plans` row; advisory lock `pg_try_advisory_lock_for_study_plan`. |
 
-Disable via `DISABLE_SCHEDULER=true` (tests, one-off CLI runs).
+The order inside the 04:xx chain is deliberate (comments in `web/scheduler.py`): slug health after IRT, queue drain after the slug probe, the sweep after regeneration, snapshots after the sweep.
+
+## Quality gates
+
+| Gate | Command | State at HEAD |
+|---|---|---|
+| Python lint | `ruff check .` (rule set `F`, pyflakes; `pyproject.toml`, excludes `archive Portal raw wiki data sandbox scratch_offline node_modules`) | **Zero findings and a blocking CI step** (`.github/workflows/ci.yml`, no `continue-on-error`). |
+| Python tests | `python -m pytest -q` | CI job `pytest` (Python 3.13, placeholder Supabase keys, `DISABLE_SCHEDULER=true`). Reported from a fresh offline run: **6,287 passed, 16 skipped, 0 failed**. |
+| Frontend | `npm run check` = `lint` (ESLint on `static/js`) + `lint:css` (stylelint) + `format:check` (prettier) | Local gate. CI job `frontend` runs `npm run lint` and `npm run test:unit` (Node 22). |
+| Frontend unit tests | `npm run test:unit` (vitest, happy-dom) | CI. |
+| End to end | `npm run test:e2e` (Playwright) | `.github/workflows/e2e.yml`, manual (`workflow_dispatch`), needs real secrets. |
+
+**The pytest suite is hermetic.** `tests/conftest.py` sets `LINGUADOJO_SKIP_DOTENV`, pops the credential variables out of the environment before `Config` reads them, and an autouse fixture refuses to build a real Supabase client: a test that touches Supabase fails unless it is marked `live` (selected only with `-m live`) or supplies a fake. `tests/test_suite_hermeticity.py` guards this. `slow` is the other marker (`-m slow`).
+
+## Feature flags and switches
+
+Read from the environment through `config.py` unless noted. Defaults as in code.
+
+| Setting | Default | Effect |
+|---|---|---|
+| `STUDY_PLAN_ENABLED` | on | Study-plan orchestration, plan progress counters, `POST /api/study-plan/recompute`. |
+| `NEW_WORD_DRILL_ENABLED` | on | New-word drill ([[features/new-word-drill.tech]]). |
+| `KNOWLEDGE_REPORT_ENABLED` | **off** | `/api/knowledge/*` answer 404; the `/knowledge` page shows "not available yet". |
+| `PLACEMENT_ENABLED_LANGS` | empty (off) | Comma-separated `dim_languages` ids for which the vocabulary placement is on; otherwise `/api/calibration/placement/*` answer 404. |
+| `ENTITLEMENTS_ENFORCED` | off | Billing gates log `entitlement_shadow_deny` and serve. |
+| `RATELIMIT_ENABLED`, `RATELIMIT_STORAGE_URI`, `RATELIMIT_API_DEFAULT` | on, `memory://`, `300 per minute` | Rate limits ([[features/web-package.tech]]). |
+| `DT_GUIDED_REPAIR` | on | Guided self-repair routes; off answers `503 REPAIR_DISABLED`. (`services/dual_translation/repair/settings.py`.) |
+| `DT_SINGLE_CALL_GRADER` | on | The single-call generative grader (ADR-044); off goes back to the cascade. Related: `DT_SINGLE_CALL_FREE_TRANSLATION`, `_EXPLAINER`, `_SHOW_LOW_CONFIDENCE` (all off), `_LOG_LLM_CALLS` (on), `_MODEL`, `_FALLBACK_MODEL`. |
+| `DT_FRAMEWORK_V2` (on), `DT_TIER3_ARBITER_ENABLED` (off), `DT_TAXONOMY_COLUMNS` (on), `DT_GRADING_ASSET_COLUMNS` (on), `DT_CORRECTION_STYLE` (`experiment`), `DT_DAILY_TOKEN_BUDGET` (20000), `DT_ERROR_CARD_INTERLEAVE_EVERY` (4) | | Dual-translation grading and card behaviour. |
+| `DISABLE_SCHEDULER` | unset | Keeps a process from scheduling anything (tests, one-off scripts). |
+| `BATCH_SERVICE_TOKEN` | unset (off) | Enables the `service-account` identity for HTTP batch jobs; honoured only by `@jwt_required`. |
+| `SUPABASE_JWT_SECRET` | unset | Verify HS256 access tokens locally instead of calling Supabase Auth. |
+| `LINGUADOJO_SKIP_DOTENV` | unset | `config.py` does not load `.env` (tests, offline tools). |
+| `USE_OPENROUTER` | false | LLM transport selection. |
+
+**Removed and ignored if set:** `PRACTICE_ATTEMPT_RPC_ENABLED` (practice attempts are always recorded by the one RPC `record_exercise_attempt`), `QUIZ_DISTRACTORS_BATCH` (the post-test quiz always uses `get_quiz_distractors`, falling back to `get_distractors`), `VOCAB_LADDER_BUNDLE_MODE` (the bundle package was deleted), and the four `EXERCISE_CONTENT_SOURCE/_WRITE/_DB_FALLBACK/_SHADOW_SAMPLE` settings (ADR-049, TASK-1031). A grep of the non-test code finds `QUIZ_DISTRACTORS_BATCH` and `VOCAB_LADDER_BUNDLE_MODE` only in comments.
 
 ## Key Architectural Decisions
 
-1. **Server-rendered with client-side interactivity.**
-   - Rationale: Simpler deployment, no separate frontend build, fast enough for the current feature set.
-   - Alternatives rejected: SPA (React/Vue) — added complexity without clear benefit for this content-heavy product.
+1. **Server-rendered shells with client-side interactivity.**
+   - Rationale: simple deployment, no frontend build, fast enough. The pages are client-side rendered: a route only serves its template.
+   - Alternatives rejected: an SPA framework; extra complexity without a clear benefit for this content-heavy product.
 
-2. **Supabase as database + auth.**
-   - Rationale: Managed PostgreSQL with built-in auth, RLS, and real-time. Reduces infrastructure management.
-   - Alternatives rejected: Self-hosted Postgres + custom auth — more ops burden.
+2. **Supabase as database + auth + object storage.**
+   - Rationale: managed Postgres with auth, RLS and Storage; exercise content moved into Storage to keep the database small ([[decisions/ADR-049-exercise-content-in-storage]]).
+   - Alternatives rejected: self-hosted Postgres with custom auth.
 
-3. **OpenRouter for LLM routing.**
-   - Rationale: Single API, multiple providers. Per-task model assignment (e.g. Qwen for Chinese, Gemini for English prose, Claude for distractor generation) is stored on `prompt_templates.model`.
-   - Alternatives rejected: Direct OpenAI — less model flexibility. (OpenAI is still used for moderation + embeddings.)
+3. **OpenRouter for LLM routing.** Per-task model assignment lives on `prompt_templates.model`; OpenAI is used for embeddings. Alternatives rejected: direct OpenAI only.
 
-4. **DimensionService caching.**
-   - Rationale: Languages, test types, question types, complexity tiers rarely change. Cached at startup via service-role client to avoid repeated DB calls and bypass RLS.
+4. **DimensionService caching.** Languages, test types and similar rarely change; cached at start-up through the service-role client (also inlined into every page as `window.LINGUA_METADATA`).
 
-5. **SQL-first BKT + session selection (Phases 7, 8, 9, 11).**
-   - Rationale: Atomic, race-safe, single source of truth. Python is a thin wrapper around `get_exercise_session` / `get_ladder_session` / `ladder_record_attempt` / `process_test_submission`. Reduces drift between transactional updates and read paths.
+5. **SQL-first writes and selection.** Atomic, race-safe, one source of truth: `process_*_submission`, `record_exercise_attempt`, `get_practice_session`, `ladder_*`, `build_daily_session`. Python stays a thin wrapper (FSRS scheduling and the new-word-drill restart are the deliberate exceptions to the attempt RPC).
 
-6. **prompt_templates is the single source of truth for LLM model selection** (refactor 2026-05-05).
-   - The legacy `dim_languages.{prose,question,exercise,conversation,vocab_prompt[1-3]}_model` columns were dropped. Every generator now resolves its model via `prompt_service.get_template_config(task_name, language_id)`.
+6. **`prompt_templates` is the single source of truth for LLM model selection** (2026-05-05): generators resolve models through `prompt_service.get_template_config`.
 
-7. **APScheduler in-memory + advisory-lock concurrency** for nightly jobs.
-   - Rationale: Simpler than a persistent jobstore (no Redis/PG queue layer). The lock makes duplicate fires harmless; observability comes from logs.
+7. **APScheduler in memory + self-serialising jobs.** No persistent jobstore; each job takes its own advisory lock or is an idempotent upsert, so two workers firing the same job is harmless.
+
+8. **Rate limits and request limits at the edge of the app** (`web/rate_limits.py`, `web/security.py`), attached by endpoint name so route modules stay unaware of them.
 
 ## Environment Variables
 
-Loaded from `.env` via `config.py`:
+Loaded from `.env` via `config.py` (skipped when `LINGUADOJO_SKIP_DOTENV` is set):
 
-- **Supabase** — `SUPABASE_URL`, `SUPABASE_KEY` (anon), `SUPABASE_SERVICE_ROLE_KEY`
-- **LLM** — `OPENROUTER_API_KEY`, `USE_OPENROUTER`, `OPENAI_API_KEY`
-- **TTS** — `AZURE_SPEECH_KEY`, `AZURE_SPEECH_REGION`
-- **Storage** — `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET_NAME`, `R2_ENDPOINT_URL`
-- **Payments** — `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`
-- **App** — `SECRET_KEY`, `JWT_SECRET_KEY`, `FLASK_DEBUG`, `PORT`
-- **Scheduler** — `DISABLE_SCHEDULER` (opt-out for tests)
+- **Supabase** — `SUPABASE_URL`, `SUPABASE_KEY` (anon), `SUPABASE_SERVICE_ROLE_KEY` (all three required, `Config.validate()`), `SUPABASE_JWT_SECRET`, `SUPABASE_POSTGREST_TIMEOUT` (10 s), `SUPABASE_JOB_TIMEOUT` (120 s)
+- **LLM** — `OPENROUTER_API_KEY`, `USE_OPENROUTER`, `OPENAI_API_KEY`, plus per-pipeline tuning (`TEST_GEN_*`, `TOPIC_*`, `DT_*`, `SENSE_*`)
+- **TTS** — `SPEECH_KEY`, `SPEECH_REGION`
+- **Storage** — `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, `R2_BUCKET_NAME`, `R2_ACCOUNT_ID`, `R2_PUBLIC_URL`; `EXERCISE_CONTENT_BUCKET` and its cache/timeout tuning
+- **Payments** — `STRIPE_SECRET_KEY` (a webhook secret is not read by any route today)
+- **App** — `SECRET_KEY`, `FLASK_DEBUG`, `PORT`, `CORS_ORIGINS`, `MAX_CONTENT_LENGTH` (1 MiB), `BATCH_SERVICE_TOKEN`, `DEVICE_IP_HASH_SALT`, `DAILY_FREE_TOKENS`
+- **Scheduler / limits** — `DISABLE_SCHEDULER`, `RATELIMIT_*`
 
-## Admin Pipeline Dashboard
+## Removed: the admin dashboard and Model Arena
 
-The admin dashboard is the operator interface for content generation pipelines. It is **not a user-facing feature** — it lives only in the local admin variant (`admin_app.py`) and is not registered by production `app.py`.
-
-### Mounting
-
-```python
-# admin_app.py
-from app import create_app
-from routes.admin_local import admin_local_bp
-from routes.model_arena import model_arena_bp
-
-app = create_app()
-app.register_blueprint(admin_local_bp, url_prefix='/admin')
-app.register_blueprint(model_arena_bp, url_prefix='/admin/arena')
-```
-
-### Architecture
-
-- Entry point: `admin_app.py`
-- Route file: [routes/admin_local.py](../../routes/admin_local.py) (~1186 lines, 10 pipeline tabs + reference data lookups)
-- Template: [templates/admin_dashboard.html](../../templates/admin_dashboard.html)
-- JavaScript: [static/js/admin-dashboard.js](../../static/js/admin-dashboard.js) — vanilla JS event wiring + SSE consumption
-- Background tasks: [services/task_runner.py](../../services/task_runner.py) — `run_in_thread()` spawns daemon threads with `QueueLogHandler` for log streaming
-- Stop mechanism: `is_task_stopped()` checks a `threading.Event`; frontend POSTs `/admin/api/task-stop/<task_id>` to set it
-
-### Pipeline Tabs (10)
-
-| Tab | Endpoint | Runner | Purpose |
-|-----|----------|--------|---------|
-| Corpus Ingestion | `POST /admin/api/run/corpus-ingest` | `CorpusIngestionService` | URL/text → tokenise, extract collocations, optional style analysis |
-| Topic Generation | `POST /admin/api/run/topic-generation` | `TopicGenerationOrchestrator` | Auto-generate or insert topics + queue for languages |
-| Test Generation | `POST /admin/api/run/test-generation` | `TestGenerationOrchestrator` | Drain `production_queue` |
-| Exercise Generation | `POST /admin/api/run/exercise-generation` | `run_grammar_batch` / `run_vocabulary_batch` / `run_collocation_batch` | Per-source-type batches |
-| Style Analysis | `POST /admin/api/run/style-analysis` | `CorpusIngestionService._run_style_pipeline` | Style profile extraction |
-| Conversations | `POST /admin/api/run/conversation-generation` | `ConversationBatchProcessor` | Per-domain dialogue batches |
-| Mysteries | `POST /admin/api/run/mystery-generation` | `MysteryGenerationOrchestrator` | Murder mystery batches |
-| Pinyin Backfill | `POST /admin/api/run/pinyin-backfill` | `pinyin_service.process_passage` | Recompute `tests.pinyin_payload` |
-| Full Pipeline | `POST /admin/api/run/full-pipeline` | 6-step orchestrator | End-to-end per-language idempotent chain |
-| Vocab Generate | `POST /admin/api/run/vocab-generate` | `VocabAssetPipeline` + `LadderExerciseRenderer` + AudioSynthesizer | Per-sense L1-L8 ladder build |
-| L1 Audio Backfill | `POST /admin/api/run/l1-audio-backfill` | `AudioSynthesizer` + `audio_voice.pick_voice` | Regenerate audio_url on active L1 exercises |
-| IRT Calibration | `POST /admin/api/run/irt-calibration` | `services.irt.calibrator.calibrate_language` | 2PL MLE fit of `irt_difficulty` / `irt_discrimination` |
-
-(That's 12 listed but two — Vocab Generate and L1 Audio Backfill — share the Vocab Browser tab; the dashboard nav lists 10 distinct tabs.)
-
-### Full Pipeline (per-language, single click)
-
-All steps idempotent; sequential with stop checks between each.
-
-1. **Vocab Backfill** (`VocabBackfillRunner`) — extract vocab from unprocessed tests; create `dim_vocabulary` + `dim_word_senses`; write `vocab_sense_ids` + `vocab_token_map` to tests.
-2. **Token Map Backfill** (`TokenMapBackfillRunner`) — fill missing `vocab_token_map` with `create_missing=True`.
-3. **Question Sense IDs** — match vocab lemmas against question text/choices, write per-question `sense_ids[]`.
-4. **Test Skill Ratings** — create `test_skill_ratings` rows for tests lacking them.
-5. **Exercise Backfill** — generate exercises for senses + patterns + style items without exercises.
-6. **Collocation Exercises** — generate exercises for collocations without exercises.
-
-### Model Arena (separate tab on the same page)
-
-[routes/model_arena.py](../../routes/model_arena.py) — head-to-head OpenRouter model comparison. Blind-judged across prose generation and comprehension questions; persisted to `data/arena_runs/<task_id>.json`. See [[features/model-arena.tech]].
-
-### Vocab Preview
-
-[routes/vocab_admin.py](../../routes/vocab_admin.py) — blueprint at `/api/admin/vocab` (registered in production `app.py`, not just admin_app.py). Page route `/admin/vocab-preview` renders `admin_vocab_preview.html`. ⚠ No auth decorators on the blueprint handlers — relies on deployment posture.
+Earlier versions of this page described a local-only admin app (an `admin_app` entry point, an admin-local route module, ten pipeline tabs streaming progress over SSE through a task-runner service) and a Model Arena (its own route module, `/admin/arena/*`). None of this exists any more: the files, the blueprints and the dashboard's script and template are gone. Content pipelines are run from `scripts/` and the skills in the repository (batch authoring, fat-seed, sense generation), and the vocabulary admin endpoints that remain are the seven `@admin_required` routes under `/api/admin/vocab` plus the page `/admin/vocab-preview` ([[api/rpcs.tech]]). The history of the removed tools is kept in [[features/model-arena.tech]] and the log.
 
 ## Related Pages
 
 - [[overview/project]] — What LinguaDojo is and the user-facing story
+- [[api/rpcs.tech]] — Full endpoint reference
+- [[features/web-package.tech]] — App wiring
+- [[features/routes-tests-package.tech]] — The tests route package
 - [[database/schema]] — Data model overview
 - [[database/schema.tech]] — Full DDL: tables, columns, FKs, indexes, triggers, policies
 - [[database/rpcs.tech]] — All Postgres RPCs with signatures and SQL
-- [[api/rpcs]] — API design philosophy
-- [[api/rpcs.tech]] — Full endpoint reference (all 15 blueprints + admin + core + web)
-- [[features/language-packs.tech]] — Pack generation pipeline
-- [[features/vocab-dojo.tech]] — Vocab ladder + gates + stress test
-- [[features/exercises.tech]] — Daily mixed session
-- [[features/model-arena.tech]] — Model Arena admin tool
-- [[features/exercise-generation-prompts]] — Verbatim P1/P2/P3 prompt templates
+- [[features/vocab-dojo.tech]] — Vocab ladder, gates, stress test
+- [[features/practice-engine.tech]] — The practice engine
+- [[features/knowledge-report.tech]], [[features/vocab-placement.tech]] — Knowledge report and placement

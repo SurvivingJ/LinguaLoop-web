@@ -3,7 +3,7 @@ title: Pinyin Tone Trainer
 type: feature
 status: complete
 tech_page: ./pinyin-trainer.tech.md
-last_updated: 2026-05-07
+last_updated: 2026-11-23
 open_questions: []
 ---
 

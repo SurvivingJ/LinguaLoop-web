@@ -205,7 +205,7 @@ def find_self_neighbor_via_alt_reading(trie: PhoneticTrie) -> int:
                         f"({n.original_unit}->{n.substituted_unit})"
                     )
                 break
-    print(f"\n=== Informational: self-neighbor via alternate reading ===")
+    print("\n=== Informational: self-neighbor via alternate reading ===")
     print(f"{self_collisions} headword(s) appear as a one-mora 'neighbor' of one of their own alternate readings.")
     print("(Not a build defect -- a downstream candidate filter needs to drop the target's own surface form(s).)")
     for ex in examples:

@@ -3,7 +3,7 @@ title: ELO Ranking System
 type: algorithm
 status: in-progress
 tech_page: ./elo-ranking.tech.md
-last_updated: 2026-05-15
+last_updated: 2026-11-23
 open_questions:
   - "Test recommendation algorithm needs refinement beyond expanding-radius random selection"
 ---
@@ -64,6 +64,7 @@ Tests are recommended based on ELO proximity. The system uses an expanding-radiu
 - ELO updates are atomic within test submission (single DB transaction).
 - A user has separate ELO ratings for reading and listening in each language.
 - Tests also have per-type ELO ratings.
+- Simultaneous submissions by one learner are applied one after the other, so no rating change is lost. Known limitation: the very first submission for a language and test type has no rating row to wait on, so two simultaneous first submissions could create two rows; none exist today and a database fix is written but not yet applied (see [[algorithms/elo-implementation-analysis]]).
 
 ## Related Pages
 

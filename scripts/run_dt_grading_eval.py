@@ -136,7 +136,7 @@ def _is_transient(exc: BaseException) -> bool:
 )
 def _grade_once(grade_fn):
     """The single graded model call, wrapped in tenacity's bounded exponential-backoff
-    retry (the project convention — see services/ai_service.py, base_generator.py).
+    retry (the project convention — see services/ai_service.py; the old base_generator.py has been deleted).
 
     Only transient network/upstream errors are retried (`retry_if_exception(_is_transient)`);
     a non-transient error is re-raised on the first attempt without retrying. `reraise=True`

@@ -1,4 +1,4 @@
-"""Corpus URL fetch restrictions, word-quiz attempt ownership, and removal of
+"""Corpus URL fetch restrictions (the ingestion service), word-quiz attempt ownership, and removal of
 the retired vocab-dojo and model-arena routes."""
 
 import importlib
@@ -134,25 +134,6 @@ def test_redirect_loops_are_bounded(dns, monkeypatch):
         CorpusIngestionService(db=MagicMock())._fetch_public_url('https://public.example/a')
 
     assert len(seen) == CorpusIngestionService.MAX_REDIRECTS + 1
-
-
-def test_ingest_route_reports_unsafe_urls_and_hides_internal_errors(client, auth_headers, monkeypatch):
-    import routes.corpus as corpus_routes
-    monkeypatch.setattr('middleware.auth._user_has_tier', lambda *_a: True)
-
-    service = MagicMock()
-    monkeypatch.setattr(corpus_routes, 'CorpusIngestionService', lambda db: service)
-    body = {'source_type': 'url', 'language_id': 2, 'url': 'http://x'}
-
-    service.ingest_url.side_effect = UnsafeURLError('Only https URLs can be ingested')
-    resp = client.post('/api/corpus/ingest', json=body, headers=auth_headers)
-    assert resp.status_code == 400
-    assert resp.get_json()['error'] == 'Only https URLs can be ingested'
-
-    service.ingest_url.side_effect = RuntimeError('password=hunter2 at db.internal')
-    resp = client.post('/api/corpus/ingest', json=body, headers=auth_headers)
-    assert resp.status_code == 502
-    assert 'hunter2' not in resp.get_data(as_text=True)
 
 
 # -- word quiz ----------------------------------------------------------------

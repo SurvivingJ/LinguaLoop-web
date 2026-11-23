@@ -6,6 +6,7 @@ date: 2026-07-19
 harness: scripts/run_dt_grading_eval.py (--framework-v2 --rubric-file, both new this pass)
 metrics_module: services/dual_translation/eval_metrics.py
 gold_sets: tests/fixtures/dt_gold/{en,zh,ja}.json (TASK-621, frozen)
+last_updated: 2026-09-03
 ---
 
 # DT Grading Eval — Evidence-First v2 Final (2026-07-19)

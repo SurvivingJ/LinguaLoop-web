@@ -25,7 +25,7 @@ that surfaces later as a wrong definition in a learner's face, so it stops here.
 Usage:
     # dry run first — always
     python scripts/upload_test_senses.py --decisions-file data/sense_linking/<slug>.decisions.json --dry-run
-    python scripts/upload_test_senses.py --decisions-file data/sense_linking/<slug>.decisions.json
+    python scripts/upload_test_senses.py --decisions-file data/sense_linking/<slug>.decisions.json --apply
 
     # No LLM needed: rebuild vocab_sense_ids from a token map that already has them
     python scripts/upload_test_senses.py --from-token-map --language en --dry-run
@@ -48,7 +48,8 @@ Options:
                            test's existing vocab_token_map. Needs --test-id or --language.
     --test-id REF          Restrict --from-token-map to one test (uuid or slug).
     --language CODE        Restrict --from-token-map to one language.
-    --dry-run              Report what would change, write nothing.
+    --apply                Write. Without it the run is a dry run.
+    --dry-run              Explicit dry run (the default): report, write nothing.
     --force                Overwrite vocab_sense_ids on a test that already has them.
     --skip-invalid         Drop invalid decisions and continue instead of aborting.
     --source-model NAME    Recorded in dim_word_senses.source_ref for created senses
@@ -61,9 +62,9 @@ import argparse
 import logging
 
 try:
-    from _common import bootstrap
+    from _common import base_parser, bootstrap
 except ImportError:  # run or imported as scripts.<name>
-    from scripts._common import bootstrap
+    from scripts._common import base_parser, bootstrap
 
 bootstrap()
 
@@ -81,9 +82,6 @@ from scripts.sense_linking_common import (
     fetch_test,
     language_code_for,
 )
-
-if not SupabaseFactory.is_initialized():
-    SupabaseFactory.initialize()
 
 logger = logging.getLogger(__name__)
 
@@ -456,18 +454,20 @@ def rebuild_from_token_map(db, args) -> int:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__,
-                                     formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser = base_parser(description=__doc__,
+                         formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('--decisions-file')
     parser.add_argument('--from-token-map', action='store_true')
     parser.add_argument('--test-id', help='tests.id (uuid) or tests.slug')
     parser.add_argument('--language', choices=['zh', 'en', 'ja'])
-    parser.add_argument('--dry-run', action='store_true')
     parser.add_argument('--force', action='store_true')
     parser.add_argument('--skip-invalid', action='store_true')
     parser.add_argument('--source-model', default=DEFAULT_SOURCE_MODEL)
     args = parser.parse_args()
 
+    # Here, not at import: --help and the tests must not need Supabase credentials.
+    if not SupabaseFactory.is_initialized():
+        SupabaseFactory.initialize()
     db = get_supabase_admin()
 
     if args.from_token_map:

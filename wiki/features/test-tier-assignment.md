@@ -3,7 +3,7 @@ title: Test Tier Assignment
 type: feature
 status: complete
 tech_page: test-tier-assignment.tech.md
-last_updated: 2026-09-27
+last_updated: 2026-11-23
 open_questions:
   - "OPEN: do the human-checked tiers agree with the two model readers used to calibrate ja and zh? (T5, and T3 in English, have almost no examples.)"
   - "OPEN: should a test whose assigned tier is two or more tiers from its target be flagged for review?"

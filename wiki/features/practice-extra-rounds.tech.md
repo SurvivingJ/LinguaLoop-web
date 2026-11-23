@@ -3,12 +3,12 @@ title: Practice Extra Rounds — Technical Specification
 type: feature-tech
 status: in-progress
 prose_page: practice-extra-rounds.md
-last_updated: 2026-11-19
+last_updated: 2026-11-23
 dependencies:
   - "get_practice_session (RPC)"
   - "get_review_ahead_items (RPC, new)"
-  - "PracticeSessionService.new_word_state / _nominate_new_words / _insert_ladder_rows"
-  - "static/js/session/controller.js, tail.js, players/practice.js"
+  - "PracticeSessionService.new_word_state / _nominate_new_words / _insert_ladder_rows (services/practice/new_word_admission.py; get_extra_round in services/practice/session_assembly.py; see [[features/practice-package.tech]])"
+  - "static/js/session/controller.js, static/js/session/tail.js, static/js/session/players/practice.js"
 breaking_change_risk: low
 ---
 
@@ -18,7 +18,7 @@ breaking_change_risk: low
 ```
 Practice mode summary → "Keep practising" panel (controller.js)
   Start → queue item {kind:'practice', id:'extra_k', is_extra, is_tail, extra:{reviews,newWords,exclude}}
-        → players/practice.js → GET /api/practice/extra
+        → static/js/session/players/practice.js → GET /api/practice/extra
         → PracticeSessionService.get_extra_round
              new words: _admit_extra_new_words → get_practice_session(acquisition), filtered to targets
              reviews:   get_practice_session(maintenance) due items → get_review_ahead_items top-up
@@ -27,8 +27,7 @@ Practice mode summary → "Keep practising" panel (controller.js)
 ```
 
 ## Database Impact
-- New RPC `get_review_ahead_items` (originally `migrations/practice_review_ahead.sql`, now in
-  `migrations/archive/`; canonical body since 2026-11-19: `migrations/exercise_content_drop_column.sql`
+- New RPC `get_review_ahead_items` (originally `migrations/archive/practice_review_ahead.sql`; canonical body since 2026-11-19: `migrations/exercise_content_drop_column.sql`
   step 3e), service_role only.
   Pool: `user_flashcards` rows for the language with `reps > 0`, excluding senses attempted in
   the last `p_exclude_recent_minutes` and `p_exclude_sense_ids`. Order: `bkt_effective_p_known`
@@ -68,7 +67,7 @@ p_known, expected_seconds, mode:'maintenance', review_ahead:true}` (no `content`
 5-argument function is gone). Since the cut-over (2026-11-19) the argument is accepted and
 ignored: items carry `content_version` and never `content`. Canonical body:
 `migrations/exercise_content_drop_column.sql` step 3e (live md5 `4043b817…`, checked 2026-11-19);
-the pre-drop `exercise_content_session_rpcs.sql` is archived. `_extra_review_items` passes
+the pre-drop `migrations/archive/exercise_content_session_rpcs.sql` is archived. `_extra_review_items` passes
 `**store.rpc_content_args()` (always `p_include_content: false`) and `get_extra_round` fills
 content with one `store.hydrate` call just before the script variant (see
 [[features/practice-engine.tech]] "Exercise content hydration"). `extra.reviews_served` /
@@ -104,13 +103,13 @@ content with one `store.hydrate` call just before the script variant (see
 - Then script variant, jumbled prep, and `score_breakdown` removed.
 
 ## Component Specification
-- `tail.js`: `EXTRA_NEW_WORDS_MAX`, `normalizeExtraChoice`, `isRunnableExtraChoice`,
+- `static/js/session/tail.js`: `EXTRA_NEW_WORDS_MAX`, `normalizeExtraChoice`, `isRunnableExtraChoice`,
   `extraRequestUrl`, `extraBeyondQuota`, `makeExtraItem`.
-- `controller.js`: `studySessionUrl()` adds `scope=practice` in Practice mode;
+- `static/js/session/controller.js`: `studySessionUrl()` adds `scope=practice` in Practice mode;
   `renderExtraPanel` / `startExtraRound`; `persistCompletion` skips `is_extra` items (no
   complete-block; their attempts already credit weekly counters as tail work); in Practice mode
   `showEmpty` goes to the summary card so the panel can show.
-- `players/practice.js`: for `is_extra` items, fetch `/api/practice/extra`, credit each attempt
+- `static/js/session/players/practice.js`: for `is_extra` items, fetch `/api/practice/extra`, credit each attempt
   with the item's own `mode`, and store `served_sense_ids` on the queue item for the next
   round's `exclude`.
 - `templates/study_session.html`: `#sessionExtraPanel`. i18n keys `session.extra.*` (en, zh, ja, es).

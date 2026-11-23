@@ -298,7 +298,11 @@ def test_v6_fixture_bands_derive_under_v6(fixture_dir, l2_code):
             )
 
 
-@pytest.mark.parametrize("fixture_dir, l2_code", V6_FIXTURES)
+@pytest.mark.parametrize("fixture_dir, l2_code", [
+    # Verifying Chinese items can tokenise with jieba.
+    pytest.param(d, l, marks=pytest.mark.requires("jieba")) if l == "zh" else (d, l)
+    for d, l in V6_FIXTURES
+])
 def test_v6_fixture_items_verify(fixture_dir, l2_code):
     for item in _v6_items(fixture_dir, l2_code):
         assert verify_item(item, l2_code) == []
@@ -398,6 +402,7 @@ def test_v6_band_changes_match_overlay_report():
     assert len(got) == 8
 
 
+@pytest.mark.requires('jieba')
 def test_v6_fixtures_are_fresh():
     """The committed v6 files are exactly what build_dt_gold_v6.py produces."""
     from scripts.build_dt_gold_v6 import _serialise, build

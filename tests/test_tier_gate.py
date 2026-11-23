@@ -99,6 +99,7 @@ def test_english_tokenisation_splits_words_and_drops_punctuation():
     assert not [t for t in tokens if t in {',', '.'}]
 
 
+@pytest.mark.requires('jieba')
 def test_chinese_tokenisation_segments_without_spaces():
     """No `\\b` anywhere: ZH has no word delimiters to split on."""
     tokens = tokenize('我每天早上都喝一杯咖啡。', LANG_ZH)
@@ -108,6 +109,7 @@ def test_chinese_tokenisation_segments_without_spaces():
     assert len(tokens) > 1, 'the sentence must not come back as one blob'
 
 
+@pytest.mark.requires('MeCab', 'ipadic')
 def test_japanese_tokenisation_segments_mixed_scripts():
     tokens = tokenize('毎朝コーヒーを飲みます。', LANG_JA)
     assert 'コーヒー' in tokens              # katakana
@@ -124,7 +126,11 @@ def test_tokenise_is_safe_on_empty_and_unsupported_input():
 # The screen — the headline AC
 # ---------------------------------------------------------------------------
 
-@pytest.mark.parametrize('language_id', [LANG_EN, LANG_ZH, LANG_JA])
+@pytest.mark.parametrize('language_id', [
+    LANG_EN,
+    pytest.param(LANG_ZH, marks=pytest.mark.requires('jieba')),
+    pytest.param(LANG_JA, marks=pytest.mark.requires('MeCab', 'ipadic')),
+])
 def test_c2_sentence_is_rejected_for_an_a1_sense(language_id):
     """AC: 'the coffee-corpus C2 example is rejected for an A1 sense'."""
     case = COFFEE_CORPUS[language_id]

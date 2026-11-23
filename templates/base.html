@@ -66,7 +66,7 @@
 {%- set _tab = 'today' if (_ep == 'study_session_page' and not _practice)
       else 'practice' if (_ep == 'study_session_page' or _ep in ('flashcards', 'dual_translation_page', 'classifier_drill_page', 'counter_drill_page'))
       else 'tests' if _ep in ('tests', 'test_preview', 'test_prestudy_page', 'test_page', 'pinyin_test_page', 'pitch_accent_test_page', 'dictation_test_page')
-      else 'me' if _ep in ('profile', 'study_plan_page', 'word_list_page', 'calibration_page', 'language_selection', 'dual_translation_profile_page')
+      else 'me' if _ep in ('profile', 'study_plan_page', 'word_list_page', 'calibration_page', 'language_selection', 'dual_translation_profile_page', 'knowledge_page')
       else '' -%}
 {%- set _shell = 'ld-task' if task_mode else ('ld-bare' if hide_navbar else 'ld-has-tabs') -%}
 <body class="{% block body_class %}bg-slate-50{% endblock %} ld-body {{ _shell }}"{% if task_back == 'history' %} data-ld-back="history"{% endif %}>

@@ -1,7 +1,6 @@
 """scripts/_common.py: the shared start-up helpers, and the dry-run default of the two
 scripts that used to write without asking."""
 
-import json
 import os
 import sys
 
@@ -45,6 +44,50 @@ def test_base_parser_is_dry_run_unless_apply_is_passed():
     parser = _common.base_parser('demo')
     assert parser.parse_args([]).apply is False
     assert parser.parse_args(['--apply']).apply is True
+
+
+@pytest.mark.parametrize('argv, apply, dry_run, flag', [
+    ([], False, True, False),
+    (['--dry-run'], False, True, True),
+    (['--apply'], True, False, False),
+])
+def test_base_parser_dry_run_is_an_alias_for_the_default(argv, apply, dry_run, flag):
+    args = _common.base_parser('demo').parse_args(argv)
+    assert (args.apply, args.dry_run, args.dry_run_flag) == (apply, dry_run, flag)
+
+
+def test_base_parser_rejects_apply_with_dry_run():
+    with pytest.raises(SystemExit) as exc:
+        _common.base_parser('demo').parse_args(['--apply', '--dry-run'])
+    assert exc.value.code == 2
+
+
+def test_base_parser_extra_dry_run_spelling():
+    parser = _common.base_parser('demo', dry_run_flags=('--dry-run', '-d'))
+    assert parser.parse_args(['-d']).dry_run_flag is True
+    with pytest.raises(SystemExit) as exc:
+        parser.parse_args(['-d', '--apply'])
+    assert exc.value.code == 2
+
+
+def test_apply_flags_on_one_sub_command():
+    parser = _common.ApplyArgumentParser()
+    sub = parser.add_subparsers(dest='cmd', required=True)
+    sub.add_parser('status')
+    _common.add_apply_flags(sub.add_parser('render'))
+    assert parser.parse_args(['render']).dry_run is True
+    assert parser.parse_args(['render', '--apply']).dry_run is False
+    assert not hasattr(parser.parse_args(['status']), 'dry_run')
+    for argv in (['render', '--apply', '--dry-run'], ['status', '--apply']):
+        with pytest.raises(SystemExit) as exc:
+            parser.parse_args(argv)
+        assert exc.value.code == 2
+
+
+def test_add_apply_flags_needs_the_checking_parser():
+    import argparse
+    with pytest.raises(TypeError):
+        _common.add_apply_flags(argparse.ArgumentParser())
 
 
 def test_bootstrap_puts_repo_root_on_path_and_can_leave_logging_alone(monkeypatch):
@@ -125,17 +168,3 @@ def test_backfill_token_maps_writes_with_apply(monkeypatch):
     assert runner.run() is True
     assert created == ['abc']
     assert runner.db.writes == [('tests', {'vocab_token_map': [['abc', 7]]})]
-
-
-def test_upload_tests_dry_run_needs_no_credentials_and_creates_no_client(monkeypatch, tmp_path, capsys):
-    from scripts import upload_tests_to_supabase as mod
-    path = tmp_path / 'tests.json'
-    path.write_text(json.dumps([{'slug': 'a', 'language': 'en', 'difficulty': 3, 'topic': 't',
-                                 'transcript': 'x', 'questions': [{}, {}]}]), encoding='utf-8')
-    monkeypatch.setattr(mod, 'SUPABASE_URL', None)
-    monkeypatch.setattr(mod, 'GEN_USER_ID', None)
-    monkeypatch.setitem(sys.modules, 'supabase', None)  # importing it would raise
-    monkeypatch.setattr(sys, 'argv', ['upload_tests_to_supabase.py', str(path)])
-    mod.main()
-    out = capsys.readouterr().out
-    assert '1 tests would be inserted' in out and '2 questions' in out

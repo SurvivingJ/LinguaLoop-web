@@ -8,7 +8,6 @@ Endpoints:
                                                     error cards, TASK-614)
   POST /api/dual-translation/<id>/submit        — grade a reproduction
   GET  /api/dual-translation/profile            — error-profile dashboard
-  GET  /api/dual-translation/cards/due          — due error-remediation cards
   POST /api/dual-translation/cards/<id>/review  — grade a card review
 
 This module owns the dt_submission/dt_grade/dt_error_instance persistence;
@@ -40,7 +39,8 @@ import logging
 import time
 import os
 import random
-from datetime import date, datetime, time as dtime, timezone
+import threading
+from datetime import date, datetime, timezone
 from typing import Optional
 
 from flask import Blueprint, request, g, current_app
@@ -52,11 +52,12 @@ from services.dual_translation import cards as dt_cards
 from services.dual_translation import primed_token
 from services.dual_translation import output_sanitizer
 from services.dual_translation import provider_errors
+from services.concurrency import run_parallel
 from services.dual_translation.grader_cascade import grade_submission, get_active_rubric
 from services.dual_translation.repair import budget as repair_budget
 from services.dual_translation.repair import hooks as repair_hooks
 from services.dual_translation.passage_builder import (
-    MAX_WINDOW, SOURCE_KIND, DEFAULT_STATUS, difficulty_to_age_tier, join_sentences,
+    SOURCE_KIND, DEFAULT_STATUS, difficulty_to_age_tier, join_sentences,
 )
 from services.dual_translation.sentence_refs import LANG_CODE as _LANG_CODE, FLOOR_OVERRIDE_REVIEWS
 from services.vocabulary.knowledge_service import VocabularyKnowledgeService
@@ -99,6 +100,16 @@ DT_CARD_REVIEW_MAX_SECONDS = 120
 # ADR-018: naturalness is de-emphasized everywhere and hidden outright in the
 # rubric "feed-up" at the lowest age tiers, to avoid demotivation.
 _NATURALNESS_HIDDEN_AGE_TIERS = (1, 2)
+
+# Review A-01: a second submit of a submission that is being graded in this
+# process waits (at most this long) for the first to finish, then normally finds
+# its grade through _cached_grade instead of paying the grader again. Only a
+# same-process guard: a double submit that lands on another gunicorn worker
+# still grades twice, and the loser's grade insert is then handled in submit().
+# Past the wait the request proceeds exactly as it would have without the lock.
+_SUBMIT_LOCK_WAIT_S = 90
+_submit_locks: dict = {}  # submission_id -> [threading.Lock, holders + waiters]
+_submit_locks_guard = threading.Lock()
 
 
 # ============================================================================
@@ -282,6 +293,7 @@ def submit(submission_id: int) -> ApiResponse:
     grade is returned as-is rather than re-grading (dt_grade.submission_id
     is UNIQUE — a submission can only ever be graded once).
     """
+    lock = None
     try:
         db = current_app.supabase_service
         if not db:
@@ -316,32 +328,44 @@ def submit(submission_id: int) -> ApiResponse:
         if submission_row['user_id'] != g.current_user_id:
             return forbidden("This submission does not belong to you")
 
+        # A-01: a concurrent submit of this submission in this process finishes
+        # first; this one then normally takes the cached path below.
+        lock = _SubmissionLock(submission_id)
+        lock.acquire()
+
         cached = _cached_grade(db, submission_id)
         if cached is not None:
-            if cached.get('repeat_of'):
-                return api_success(cached)  # a repeat never has a repair session
-            # Guided self-repair: the existing session (redacted while open), or
-            # one created now if grading succeeded but the session was not.
-            return api_success(repair_hooks.for_cached(db, g.current_user_id, submission_id, cached))
+            return _cached_response(db, g.current_user_id, submission_id, cached)
 
-        passage = _get_passage(db, submission_row['passage_id'])
+        # A-28: the reads grading needs depend only on submission_row, so they
+        # run as one concurrent wave (outside the request context: ids captured
+        # here). Each result is unpacked in the order the reads used to run, so
+        # a failure surfaces exactly where and how it did when they were serial.
+        user_id = g.current_user_id
+        passage_read, repeat_read, tokens_read = run_parallel(
+            _outcome(lambda: _get_passage(db, submission_row['passage_id'])),
+            # TASK-989: a passage this learner already had graded (re-served on
+            # request) is graded and shown as usual but recorded as a repeat.
+            _outcome(lambda: _repeat_of(db, user_id, submission_row)),
+            _outcome(lambda: _tokens_used_today(db, user_id)),
+        )
+
+        passage = _result(passage_read)
         if not passage:
             return server_error("Passage for this submission no longer exists")
 
         if passage['status'] != 'active':
             return api_error("This passage has been retired", 400, error_code="PASSAGE_RETIRED")
 
-        # TASK-989: a passage this learner already had graded (re-served on
-        # request) is graded and shown as usual but recorded as a repeat.
-        repeat_of = _repeat_of(db, g.current_user_id, submission_row)
+        repeat_of = _result(repeat_read)
 
         # TASK-601: budget gate. At/over the per-user/day token budget, cap
         # the cascade to Tier 0+1 rather than skip grading — grade_submission
         # never hard-fails on this, it just fails Tier 2's dimensions open.
-        max_tier = 'tier1' if _tokens_used_today(db, g.current_user_id) >= Config.DT_DAILY_TOKEN_BUDGET else 'tier2'
+        max_tier = 'tier1' if _result(tokens_read) >= Config.DT_DAILY_TOKEN_BUDGET else 'tier2'
 
         # TASK-910: the prestudy Produce stage echoes the signed primed-sense
-        # token issued by /passage-from-sentences; its senses become the
+        # token issued by open_range_passage; its senses become the
         # grader's target words. A bad token is a 400, never a silent drop —
         # the per-word rows are the whole point of that stage.
         target_ctx = None
@@ -422,11 +446,28 @@ def submit(submission_id: int) -> ApiResponse:
         # returned, whatever model produced it.
         contract = output_sanitizer.sanitize_contract(contract)
 
-        if repeat_of:
-            _persist_grade(db, submission_id, reproduction, idempotency_key, contract,
-                           repeat_of=repeat_of)
-        else:
-            _persist_grade(db, submission_id, reproduction, idempotency_key, contract)
+        try:
+            if repeat_of:
+                _persist_grade(db, submission_id, reproduction, idempotency_key, contract,
+                               repeat_of=repeat_of)
+            else:
+                _persist_grade(db, submission_id, reproduction, idempotency_key, contract)
+        except Exception as e:
+            # A-01: a concurrent submit of the same submission (another worker,
+            # or past the lock wait) stored its grade while this one was grading,
+            # so this grade insert hit UNIQUE(dt_grade.submission_id).
+            # _persist_grade has already removed this request's error rows; the
+            # learner gets the stored grade exactly as a cached re-submit would.
+            # With no stored grade the failure is real and stays a 500 (the
+            # TASK-633 retry path).
+            stored = _cached_grade(db, submission_id)
+            if stored is None:
+                raise
+            logger.warning(
+                "DT submission %s was graded by a concurrent submit; serving the stored "
+                "grade (this request's grade not stored: %s)", submission_id, e,
+            )
+            return _cached_response(db, g.current_user_id, submission_id, stored)
         _persist_grading_assets(db, submission_id, call_records)
 
         if repeat_of:
@@ -486,6 +527,69 @@ def submit(submission_id: int) -> ApiResponse:
     except Exception as e:
         logger.error("Error submitting dual-translation reproduction %s: %s", submission_id, e)
         return server_error("Failed to submit reproduction")
+    finally:
+        if lock is not None:
+            lock.release()
+
+
+def _cached_response(db, user_id: str, submission_id: int, cached: dict) -> ApiResponse:
+    """The answer to a submit of an already graded submission."""
+    if cached.get('repeat_of'):
+        return api_success(cached)  # a repeat never has a repair session
+    # Guided self-repair: the existing session (redacted while open), or
+    # one created now if grading succeeded but the session was not.
+    return api_success(repair_hooks.for_cached(db, user_id, submission_id, cached))
+
+
+def _outcome(call):
+    """Wrap a read for run_parallel: return (True, value) or (False, exception)
+    instead of raising, so the caller can re-raise in the serial order."""
+    def run():
+        try:
+            return True, call()
+        except Exception as e:  # noqa: BLE001 - re-raised by _result
+            return False, e
+    return run
+
+
+def _result(outcome):
+    ok, value = outcome
+    if not ok:
+        raise value
+    return value
+
+
+class _SubmissionLock:
+    """Per-submission in-process lock for submit (see _SUBMIT_LOCK_WAIT_S)."""
+
+    def __init__(self, submission_id: int):
+        self._id = submission_id
+        self._acquired = False
+        with _submit_locks_guard:
+            self._entry = _submit_locks.setdefault(submission_id, [threading.Lock(), 0])
+            self._entry[1] += 1
+
+    def acquire(self) -> None:
+        self._acquired = self._entry[0].acquire(timeout=_SUBMIT_LOCK_WAIT_S)
+        if not self._acquired:
+            logger.warning("DT submit %s: still being graded after %d s; grading anyway",
+                           self._id, _SUBMIT_LOCK_WAIT_S)
+
+    def release(self) -> None:
+        if self._acquired:
+            self._acquired = False
+            self._entry[0].release()
+        with _submit_locks_guard:
+            self._entry[1] -= 1
+            if self._entry[1] <= 0 and _submit_locks.get(self._id) is self._entry:
+                del _submit_locks[self._id]
+
+
+def _submit_lock_waiters(submission_id: int) -> int:
+    """Requests holding or waiting for a submission's submit lock (tests)."""
+    with _submit_locks_guard:
+        entry = _submit_locks.get(submission_id)
+        return entry[1] if entry else 0
 
 
 @dual_translation_bp.route('/<int:submission_id>/skip', methods=['POST'])
@@ -525,72 +629,33 @@ def skip(submission_id: int) -> ApiResponse:
 
 
 # ============================================================================
-# POST /passage-from-sentences  (TASK-909, ADR-037)
+# Range passage (TASK-909, ADR-037)
 # ============================================================================
 
-@dual_translation_bp.route('/passage-from-sentences', methods=['POST'])
-@supabase_jwt_required
-def passage_from_sentences() -> ApiResponse:
-    """Find or create the ``dt_passage`` for a sentence range of a test and
-    open a submission on it — the prestudy Produce stage's entry point.
-
-    Body: ``{test_id, sentence_start, sentence_end, l1_language_id,
-    primed_sense_ids[]}`` (indices inclusive, into ``test_sentences.idx``).
+def open_range_passage(db, user_id: str, test_id: str, start: int, end: int, l1_language_id: int,
+                       primed_ids: list, extra: Optional[dict] = None) -> ApiResponse:
+    """Find or create the ``dt_passage`` for a sentence range of a test and open
+    a submission on it. Called by the prestudy Produce route
+    (POST /api/tests/<id>/prestudy/produce), which picks the window itself
+    (indices inclusive, into ``test_sentences.idx``). ``extra`` keys are merged
+    into the success payload.
 
     * 403 when the user has no attempt on the test (DT's existing rule:
       passages come only from attempted tests);
     * 422 when any sentence in the range lacks an active ``pass``/``rewritten``
-      reference in that L1 (``missing_idx`` names them so the client can fall
-      back to the best fully covered window), or the range has no sentence
-      rows;
-    * 409 when the sentence rows are stale for the stored transcript.
+      reference in that L1 (``missing_idx`` names them), or the range has no
+      sentence rows;
+    * 409 when the sentence rows are stale for the stored transcript, or the
+      window's passage was retired.
 
     The passage is keyed by ``(source_ref_id, sentence_start, sentence_end)``
     (partial unique index) so the same range always yields the same
     ``passage_id``; ``l2_text`` is never returned. The primed senses are not
     stored: they come back signed as ``primed_token``, which the client echoes
     on ``POST /<submission_id>/submit`` (see services/dual_translation/primed_token.py).
-
-    Deviation from the tech page's "dt_passage insert, nothing else": a
-    ``dt_submission`` row is created too (as ``GET /next`` does), because the
-    existing submit route grades a submission, not a passage — without it the
-    client could not submit the reproduction.
+    A ``dt_submission`` row is created too (as ``GET /next`` does), because the
+    submit route grades a submission, not a passage.
     """
-    try:
-        db = current_app.supabase_service
-        if not db:
-            return server_error("Database service not configured")
-        user_id = g.current_user_id
-
-        data = request.get_json(silent=True) or {}
-        test_id = data.get('test_id')
-        try:
-            start = int(data.get('sentence_start'))
-            end = int(data.get('sentence_end'))
-            l1_language_id = int(data.get('l1_language_id'))
-        except (TypeError, ValueError):
-            return bad_request("test_id, sentence_start, sentence_end and l1_language_id required")
-        if not test_id or not isinstance(test_id, str):
-            return bad_request("test_id required")
-        n_sentences = end - start + 1
-        if start < 0 or n_sentences < 1 or n_sentences > MAX_WINDOW:
-            return bad_request(f"sentence range must cover 1-{MAX_WINDOW} sentences")
-        primed_ids = data.get('primed_sense_ids') or []
-        if not isinstance(primed_ids, list):
-            return bad_request("primed_sense_ids must be a list")
-
-        return open_range_passage(db, user_id, test_id, start, end, l1_language_id, primed_ids)
-
-    except Exception as e:
-        logger.error("Error building passage from sentences: %s", e)
-        return server_error("Failed to build passage")
-
-
-def open_range_passage(db, user_id: str, test_id: str, start: int, end: int, l1_language_id: int,
-                       primed_ids: list, extra: Optional[dict] = None) -> ApiResponse:
-    """Core of POST /passage-from-sentences, shared with the prestudy Produce
-    route (POST /api/tests/<id>/prestudy/produce), which picks the window
-    itself. ``extra`` keys are merged into the success payload."""
     n_sentences = end - start + 1
     if not _user_has_attempted(db, user_id, test_id):
         return forbidden("Dual translation passages come only from tests you have attempted")
@@ -848,39 +913,6 @@ def get_profile() -> ApiResponse:
     except Exception as e:
         logger.error("Error fetching error profile for %s: %s", g.current_user_id, e)
         return server_error("Failed to fetch error profile")
-
-
-# ============================================================================
-# GET /cards/due
-# ============================================================================
-
-@dual_translation_bp.route('/cards/due', methods=['GET'])
-@supabase_jwt_required
-def get_due_cards() -> ApiResponse:
-    """Due error-remediation cards for the authenticated user (TASK-614).
-
-    Lazily materialises ``dt_card`` rows for any newly-``queued``
-    ``dt_error_profile_entry`` clusters first (pipeline steps 5-6 —
-    [[features/dual-translation-remediation.tech]] §Pipeline), then returns
-    the due queue interleaved by subtype so a review session never presents
-    a long run of the same subtype back-to-back.
-    """
-    try:
-        db = current_app.supabase_service
-        if not db:
-            return server_error("Database service not configured")
-
-        user_id = g.current_user_id
-        dt_cards.generate_cards_for_queued_entries(db, user_id)
-
-        due = _fetch_due_cards(db, user_id)
-        interleaved = dt_cards.interleave_by_subtype(due)
-
-        return api_success({'cards': interleaved, 'total': len(interleaved)})
-
-    except Exception as e:
-        logger.error("Error fetching due dual-translation cards for %s: %s", g.current_user_id, e)
-        return server_error("Failed to fetch due cards")
 
 
 # ============================================================================
@@ -2049,8 +2081,11 @@ def _persist_grade(
     transient error), the cache would serve that submission forever with
     ``errors: []`` — silent, permanent loss of all evidence, violating the
     evidence-first invariant (ADR-019). Writing the grade last means a failed
-    error insert leaves no grade behind, so the retry re-grades cleanly.
-    dt_error_instance FKs dt_submission, not dt_grade, so nothing requires the
+    error insert leaves no grade behind, so the retry re-grades cleanly. The
+    reverse partial failure (errors stored, grade insert failed — e.g. a
+    concurrent submit's grade won the UNIQUE) removes this call's error rows
+    before re-raising (``_discard_error_rows``), so neither a concurrent winner
+    nor the retry ends up beside orphan rows. dt_error_instance FKs dt_submission, not dt_grade, so nothing requires the
     reverse order.
 
     TASK-989: for a repeat (``repeat_of``: the learner's earlier grade of the same
@@ -2067,6 +2102,7 @@ def _persist_grade(
     }).eq('id', submission_id).execute()
 
     trace = contract['grader_trace']
+    inserted = None  # this call's dt_error_instance insert response
     if repeat_of:
         columns = _error_columns(with_assets=True)
         trace = {**(trace or {}), 'repeat': {
@@ -2078,27 +2114,72 @@ def _persist_grade(
         columns = _error_columns()
         rows = [_error_row(error, submission_id, columns) for error in contract['errors']]
         if not _names_asset_columns(columns):
-            db.table('dt_error_instance').insert(rows).execute()
+            inserted = db.table('dt_error_instance').insert(rows).execute()
         else:
             # ADR-044: the grading-asset columns are extras. If the insert fails
             # with them, retry without them; only a failure of the plain insert
             # (the pre-ADR-044 statement) propagates and leaves the submission
             # ungraded, exactly as before.
             try:
-                db.table('dt_error_instance').insert(rows).execute()
+                inserted = db.table('dt_error_instance').insert(rows).execute()
             except Exception as e:
                 plain = _error_columns(with_assets=False)
                 rows = [_error_row(error, submission_id, plain) for error in contract['errors']]
-                db.table('dt_error_instance').insert(rows).execute()
+                inserted = db.table('dt_error_instance').insert(rows).execute()
                 _asset_columns_failed('insert into dt_error_instance', e)
 
-    db.table('dt_grade').insert({
-        'submission_id': submission_id,
-        'scores': contract['scores'],
-        'overall_band': contract['overall_band'],
-        'diff': contract['diff'],
-        'grader_trace': trace,
-    }).execute()
+    try:
+        db.table('dt_grade').insert({
+            'submission_id': submission_id,
+            'scores': contract['scores'],
+            'overall_band': contract['overall_band'],
+            'diff': contract['diff'],
+            'grader_trace': trace,
+        }).execute()
+    except Exception as e:
+        # A-01/A-03: the error rows above belong to a grade that was not stored.
+        # Left in place they would sit beside a concurrent winner's rows, or be
+        # inserted again by the retry, and nightly synthesis would count both.
+        _discard_error_rows(db, submission_id, inserted, e)
+        raise
+
+
+def _is_unique_violation(error: Exception) -> bool:
+    return getattr(error, 'code', None) == '23505' or 'duplicate key' in str(error).lower()
+
+
+def _discard_error_rows(db, submission_id: int, inserted, grade_error: Exception) -> None:
+    """Delete the dt_error_instance rows one ``_persist_grade`` call inserted,
+    after its dt_grade insert failed. By id, never by submission: a concurrent
+    winner's rows for the same submission stay.
+
+    Deleted when the grade is known not to be this call's: the insert hit the
+    UNIQUE constraint (another request's grade is stored), or no grade exists.
+    Any other failure while a grade exists (e.g. a timeout after the insert
+    committed) may mean the grade IS this call's, so its rows are evidence and
+    are kept. Never raises: the caller re-raises the grade error."""
+    data = getattr(inserted, 'data', None)
+    ids = [r['id'] for r in data if isinstance(r, dict) and r.get('id') is not None] \
+        if isinstance(data, list) else []
+    if not ids:
+        if data:
+            logger.warning("DT submission %s: grade not stored and the error rows inserted "
+                           "for it returned no ids; they are left in place", submission_id)
+        return
+    try:
+        if not _is_unique_violation(grade_error):
+            has_grade = (
+                db.table('dt_grade').select('submission_id')
+                .eq('submission_id', submission_id).limit(1).execute()
+            ).data
+            if has_grade:
+                logger.warning("DT submission %s: grade insert failed (%s) but a grade exists; "
+                               "keeping its %d error rows", submission_id, grade_error, len(ids))
+                return
+        db.table('dt_error_instance').delete().in_('id', ids).execute()
+    except Exception as e:  # noqa: BLE001 - the grade error is what the caller reports
+        logger.error("DT submission %s: could not remove %d error rows of an unstored grade: %s",
+                     submission_id, len(ids), e)
 
 
 def _repeat_of(db, user_id: str, submission_row: dict) -> Optional[dict]:

@@ -13,7 +13,7 @@ open_questions:
 
 # Distractor judge v7 — two axes, and what the split actually shows
 
-Executes [[tasklist/distractor-judge-calibration]] TASK-719 (split the rating onto two
+Executes [[tasklist/distractor-judge-calibration.tasks]] TASK-719 (split the rating onto two
 axes) and TASK-720 (redefine the review band as judge uncertainty, and record which axis
 triggered it).
 
@@ -223,7 +223,7 @@ semantics are identical either side of it.
 
 ## Related pages
 
-- [[tasklist/distractor-judge-calibration]] — TASK-719, TASK-720, TASK-726
+- [[tasklist/distractor-judge-calibration.tasks]] — TASK-719, TASK-720, TASK-726
 - [[evaluations/distractor-judge-language-divergence-2026-08-16]] — the §3 analysis that
   identified the two-axis conflation, and TASK-718's model A/B
 - [[evaluations/distractor-gold-frame-2026-08-19]] — the frame this is waiting on

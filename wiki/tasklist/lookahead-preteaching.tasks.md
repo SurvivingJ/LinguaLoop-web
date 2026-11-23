@@ -3,7 +3,7 @@ title: "Lookahead Pre-Teaching — Task Breakdown"
 feature: lookahead-preteaching
 prose_page: ../features/lookahead-preteaching.md
 tech_page: ../features/lookahead-preteaching.tech.md
-total_tasks: 12
+total_tasks: 13
 done: 1
 ---
 

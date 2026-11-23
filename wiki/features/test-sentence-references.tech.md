@@ -3,13 +3,16 @@ title: Test Sentence References — Technical Specification
 type: feature-tech
 status: in-progress
 prose_page: ./test-sentence-references.md
-last_updated: 2026-11-17
+last_updated: 2026-11-23
 dependencies:
   - "tests.transcript, tests.vocab_token_map"
   - "services/dual_translation/passage_builder.segment_sentences"
   - "dt_passage, dt_passage_reference, dt_submission (unchanged grading path)"
   - "scripts/fat_seed_runner.py (pattern), scripts/upload_exercises.py (upload pattern)"
   - "Claude subagents via .claude/skills (authoring, review)"
+open_questions:
+  - "OPEN: apply migrations/test_sentence_references_l1_script_escapes.sql (written, NOT applied live as of 2026-11-23). The live L1-script trigger has a wrong Han range and would reject Hangul or Yi L1 text; see 'Known limitations'."
+  - "OPEN: make scripts/upload_sentence_references.py transactional (insert, deactivate and activate are three separate calls)."
 breaking_change_risk: low
 ---
 
@@ -87,8 +90,12 @@ once and reused. Existing rows keep NULLs.
 Add `transcript_hash text` maintained by the cleanup script; no trigger (transcripts are edited
 only by admin tooling).
 
-Migration file: `migrations/test_sentence_references_schema.sql` (TASK-901, LIVE-DB,
-approval-gated). Backfill: `scripts/build_test_sentences.py` (TASK-902).
+Migration file: `migrations/test_sentence_references_schema.sql` (TASK-901; **applied live**: `test_sentences` and `test_sentence_references` exist with their L2-span and L1-script trigger functions, verified 2026-11-23). Columns added later and live: `entailment_ok`, `is_active` (NOT NULL, default false), `run_id`, `created_at`, and `faithful_reviews` (smallint NOT NULL default 0, `migrations/test_sentence_references_faithful_reviews.sql`). Backfill: `scripts/build_test_sentences.py` (TASK-902).
+
+## Known limitations (live 2026-11-23)
+
+- **L1-script trigger range.** `test_sentence_references_check_l1_script` (live md5 `fd8764ea…`) builds its Han pattern with a range that starts at U+8C48 instead of U+F900 (the CJK compatibility block). For the language pairs in use (zh, ja and en tests; English or Chinese references) it has no effect. It would wrongly reject Hangul or Yi L1 text, which lie in the wrongly included span. A corrected function is written and pending: `migrations/test_sentence_references_l1_script_escapes.sql` (every range written as a regex escape; expected md5 afterwards `878716b9…`). Not applied.
+- **Upload is not transactional** (see the Upload section).
 
 ## Generation harness
 
@@ -99,13 +106,13 @@ Mirrors `fat_seed_runner.py`. Commands, all file-based, none calling a hosted mo
 | cmd | does |
 |---|---|
 | `export --language ja --l1 en --limit 30 --arm aligned --out-dir data/sentence_refs/ja/run_NN` | writes `worklist.csv` (test_id, title, n_sentences, sentences as JSON) from `test_sentences` via the admin client, skipping tests with an active reference for that L1 |
-| `brief RUN [--width 6]` | writes `RUN/sentence_refs/briefs/author_NN.md` (6 tests each) + `rules_authoring.md` |
+| `brief RUN [--width 6]` | writes `<run>/sentence_refs/briefs/author_<NN>.md` (6 tests each) + `rules_authoring.md` |
 | `check RUN [--source docs|reviewed]` | deterministic validation (below); writes `check.json` |
-| `review-pack RUN` | writes `RUN/sentence_refs/review_packs/review_NN.md` listing docs + `rules_review.md`; strips author notes |
-| `assemble RUN` | merges reviewed docs + verdicts into `RUN/sentence_refs/upload.json` |
+| `review-pack RUN` | writes `<run>/sentence_refs/review_packs/review_<NN>.md` listing docs + `rules_review.md`; strips author notes |
+| `assemble RUN` | merges reviewed docs + verdicts into `<run>/sentence_refs/upload.json` |
 | `status RUN` | per test × L1: authored / checked / reviewed / assembled / uploaded |
 
-### Document shape — `RUN/sentence_refs/docs/<test_id>.<l1>.json`
+### Document shape — `<run>/sentence_refs/docs/<test_id>.<l1>.json`
 
 ```json
 {"test_id": "6eb4ff60-…", "l2": "ja", "l1": "en", "arm": "aligned", "prompt_version": "sr-1.0",
@@ -147,7 +154,7 @@ L1 sentences and writes an L2 version of each; the runner computes Tier 0 charac
 against `l2_text` (`services/dictation/grader` normalisation, same as DT Tier 0) → `tightness`;
 (2) then the reviewer sees the gold and judges mutual entailment per sentence, flags additions,
 omissions, register drift and any L2 leakage, and rewrites failed sentences; (3) writes
-`RUN/sentence_refs/reviewed/<test_id>.<l1>.json` and a verdict record
+`<run>/sentence_refs/reviewed/<test_id>.<l1>.json` and a verdict record
 `{sentence_idx, verdict, tightness, entailment_ok, changed}`. Items the deterministic checks
 flagged, plus a stratified 15% sample, go to an Opus reviewer; the rest to Sonnet.
 
@@ -155,8 +162,10 @@ flagged, plus a stratified 15% sample, go to an Opus reviewer; the rest to Sonne
 
 Reads `upload.json`, resolves `sentence_id` by (test_id, idx) and verifies `transcript_hash`,
 inserts `test_sentence_references` rows with provenance, deactivates any previous active row for
-the same (sentence, L1) only when the new verdict is `pass` or `rewritten`, in one transaction
-per test. `--dry-run` prints the plan; service role only.
+the same (sentence, L1) only when the new verdict is `pass` or `rewritten`, one test at a time.
+Writes only with `--apply`; `--dry-run` prints the plan; service role only. Idempotent on `(run_id, sentence_id, l1_language_id)`.
+
+**Known limitation (verified in the code 2026-11-23): not transactional.** For each test the script makes three separate database calls: insert the new rows (inactive), deactivate the previous active rows, then activate the new rows. A failure between the calls leaves the sentence without an active reference until the same upload is re-run (the insert is idempotent on `run_id`, so a re-run completes it). There is no wrapping transaction; it would need an RPC.
 
 ### Pilot (TASK-907)
 
@@ -164,7 +173,7 @@ per test. `--dry-run` prints the plan; service role only.
 `sentencewise` (author sees the passage, translates one sentence per turn of the document) and
 `aligned` (author translates the passage and splits into the aligned array). Same reviewer skill,
 blind to the arm. Report: tightness distribution, entailment pass rate, rewrite rate, leakage rate
-per arm and language, in `wiki/evaluations/sentence-refs-pilot-YYYY-MM-DD.md`. Decision rule:
+per arm and language, in `wiki/evaluations/sentence-refs-pilot-<date>.md`. Decision rule:
 the arm with higher median tightness wins unless its entailment pass rate is more than 3 points
 lower. Sets the tightness floor from the distribution.
 
@@ -174,8 +183,8 @@ lower. Sets the tightness floor from the distribution.
 the Produce floor for its test language (`services.prestudy.PRODUCE_TIGHTNESS_FLOOR`: zh 0.70,
 en 0.60, ja 0.65) and writes packs of 25: a blind file (the L1 target sentence with its L1
 neighbours) and a gold file (the L2 sentence, its L2 neighbours, the current reference). An Opus
-reviewer in a fresh context back-translates every target blind (`back/NN.json`), then judges
-against the gold and rewrites loose references (`verdicts/NN.json`; `fail` only for a broken
+reviewer in a fresh context back-translates every target blind (`back/<NN>.json`), then judges
+against the gold and rewrites loose references (`verdicts/<NN>.json`; `fail` only for a broken
 gold). `score RUN` reruns the deterministic checks on each final reference, computes tightness
 from the new back-translation and writes `upload.json` for the normal upload script, which
 replaces only the rechecked sentences. A `fail` row is stored inactive, so the previous reference
@@ -194,7 +203,8 @@ from the authored document in `docs/` when the reviewed copy lacks them (reviewe
   submitted (same withholding rule as `?mode=dictation`).
 - **Auth:** JWT. **Errors:** 404 unknown test; 409 if sentence hash ≠ transcript hash (stale).
 
-### `POST /api/dual-translation/passage-from-sentences`
+### `POST /api/dual-translation/passage-from-sentences` — removed 2026-11-23 (TASK-1221)
+The HTTP route had no caller and was removed; its core is `routes.dual_translation.open_range_passage`, which the prestudy Produce route calls (`POST /api/tests/<id>/prestudy/produce`). The contract below still describes `open_range_passage`.
 - **Body:** `{test_id, sentence_start, sentence_end, l1_language_id, primed_sense_ids[]}`
 - **Purpose:** find or create the `dt_passage` for the range, verify every sentence has an
   active `pass`/`rewritten` reference for that L1, store `primed_sense_ids` on the session.
@@ -269,7 +279,7 @@ Reviewer and author documents are repository files, never executed.
   class with a named reason; window selector picks the expected range on the demo fixtures;
   tightness computation equals the dictation grader's normalisation.
 - Integration: `export → brief → check → review-pack → assemble → upload --dry-run` on an
-  8-test slice with hand-written docs; `passage-from-sentences` creates once and reuses.
+  8-test slice with hand-written docs; `open_range_passage` (formerly `passage-from-sentences`) creates once and reuses.
 - Pilot report as the acceptance gate for the full run.
 
 ## Related Pages

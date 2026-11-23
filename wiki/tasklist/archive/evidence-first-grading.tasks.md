@@ -4,7 +4,7 @@ feature: evidence-first-grading
 prose_page: ../algorithms/evidence-first-grading.md
 tech_page: ../algorithms/evidence-first-grading.tech.md
 total_tasks: 29
-done: 28
+done: 29
 last_updated: 2026-08-10
 ---
 

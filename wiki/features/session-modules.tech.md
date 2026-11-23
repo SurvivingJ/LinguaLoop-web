@@ -1,9 +1,9 @@
 ---
 title: Daily Session Modules (include / exclude) — Technical Specification
 type: feature-tech
-status: planned
+status: complete
 prose_page: ./session-modules.md
-last_updated: 2026-10-13
+last_updated: 2026-11-23
 dependencies:
   - "table: user_study_plans (new columns excluded_modules, budget_scope, new_words_per_day)"
   - "feature: session-budget-settings (new-word quota inside the planner; optional tail; review governor)"
@@ -37,8 +37,7 @@ A **module** is a daily-session planning unit. The module vocabulary is the unio
 | `dual_translation` | surface | all | yes |
 | `practice` (UI label "Vocabulary review") | `maint` practice chunks + speed-round tail (review only; `acq` is governed by `new_words_per_day`) | all | yes |
 
-`listening_lab` and `mystery` are *not* modules. They are outside the planner by ADR-021 and are
-pinned by `tests/test_plannable_surfaces.py`.
+The former `listening_lab` and `mystery` features were never modules; both were removed from the codebase on 2026-11-23 (TASK-1227) and are not `dim_test_types` rows (live check 2026-11-23).
 
 Exclusion is applied at **two layers**, per [[decisions/ADR-032-session-module-exclusion]]:
 

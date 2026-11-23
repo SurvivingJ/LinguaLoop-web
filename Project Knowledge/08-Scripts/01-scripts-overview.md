@@ -8,7 +8,7 @@ All scripts live under `scripts/` and serve one of three roles: **cron-job entry
 |---|---|---|---|---|---|
 | `run_test_generation.py` | Cron entry point -- pulls from `production_queue` and generates complete tests (prose + questions + audio) | No (direct Supabase) | No (service role) | Yes | `TEST_GEN_BATCH_SIZE`, `TEST_GEN_TARGET_DIFFICULTIES`, `TEST_GEN_DRY_RUN`, `TEST_GEN_DEBUG`, `TEST_GEN_LOG_LEVEL` |
 | `run_topic_generation.py` | Cron entry point -- generates new topics via LLM with embedding-based dedup | No (direct Supabase) | No (service role) | Yes | `TOPIC_DAILY_QUOTA`, `TOPIC_SIMILARITY_THRESHOLD`, `TOPIC_DRY_RUN`, `TOPIC_LOG_LEVEL` |
-| `run_topic_import.py` | CLI tool -- imports topics from a JSON file into the topic generation system | No (direct Supabase) | No (service role) | Yes (unless `--dry-run`) | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` |
+| `run_topic_import.py` | CLI tool -- imports topics from a JSON file into the topic generation system | No (direct Supabase) | No (service role) | Only with `--apply` (dry run by default) | `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` |
 | `base_generator.py` | Shared ABC and config for batch scripts -- not run directly | N/A | N/A | N/A | N/A |
 | `run_test_generation_cli.py` | CLI -- generate N tests for one language directly through `TestGenerationOrchestrator` (prose + questions + audio; jev assigns each test's tier, see `wiki/features/test-tier-assignment.tech.md`) | No (direct Supabase) | No (service role) | Yes | `TEST_GEN_LOG_LEVEL` |
 | `batch_generate_to_json.py` | Batch generate tests locally to JSON file -- no DB needed | No | No | No | `USE_OPENROUTER`, `OPENROUTER_API_KEY`, `OPENAI_API_KEY`, `TEST_COUNT`, `START_FROM` |

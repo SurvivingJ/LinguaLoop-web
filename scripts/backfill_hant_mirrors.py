@@ -27,18 +27,19 @@ rows; never served, cannot be keyed by sense) are skipped and counted as
 Failures are logged and counted; they never abort the run.
 
 Usage:
-    python scripts/backfill_hant_mirrors.py --target all   [--dry-run] [--limit N] [--force]
-    python scripts/backfill_hant_mirrors.py --target lemmas
-    python scripts/backfill_hant_mirrors.py --target exercises --limit 20
+    python scripts/backfill_hant_mirrors.py --target all   [--apply] [--limit N] [--force]
+    python scripts/backfill_hant_mirrors.py --target lemmas --apply
+    python scripts/backfill_hant_mirrors.py --target exercises --limit 20 --apply
+
+Dry run unless --apply is given (--dry-run is accepted as an explicit alias).
 """
 
-import argparse
 import logging
 
 try:
-    from _common import admin_db, bootstrap, paginate
+    from _common import admin_db, base_parser, bootstrap, paginate
 except ImportError:  # run or imported as scripts.<name>
-    from scripts._common import admin_db, bootstrap, paginate
+    from scripts._common import admin_db, base_parser, bootstrap, paginate
 
 bootstrap()
 
@@ -218,9 +219,8 @@ def backfill_exercises(db, conv: ScriptConverter, dry_run: bool, limit: int, for
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Backfill ZH Traditional mirrors (TASK-509).')
+    parser = base_parser(description='Backfill ZH Traditional mirrors (TASK-509).')
     parser.add_argument('--target', choices=['lemmas', 'exercises', 'all'], default='all')
-    parser.add_argument('--dry-run', action='store_true')
     parser.add_argument('--limit', type=int, default=0)
     parser.add_argument('--force', action='store_true',
                         help='Rewrite even rows whose mirror already matches.')

@@ -586,7 +586,7 @@ def cmd_assemble(args) -> int:
         logger.info('    dropped %s: %s', key, why)
     c, cb = files['batch_001.core.json'], files['batch_001.core.batch.json']
     e, eb = files['batch_001.exercises.json'], files['batch_001.exercises.batch.json']
-    logger.info('next (dry run first, then without --dry-run):\n'
+    logger.info('next (dry run first, then again with --apply in place of --dry-run):\n'
                 '  python scripts/upload_exercises.py --stage core --source-model %s '
                 '--batch-file %s --answers-file %s --dry-run\n'
                 '  python scripts/upload_exercises.py --stage exercises --no-render '

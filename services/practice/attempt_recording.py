@@ -1,33 +1,31 @@
 """Practice attempt recording: the attempt row, exercise counters, BKT, FSRS,
-ladder progress, study time and plan progress."""
+ladder progress, study time and plan progress.
+
+A practice answer is written by one RPC, ``record_exercise_attempt``
+(migrations/record_exercise_attempt.sql): under a per-user+exercise advisory
+lock it decides first-attempt-ness, inserts the attempt, bumps the exercise
+counters, completes prestudy follow-ups, applies BKT (with frequency inference
+and the p_known capture) and the ladder, and credits study time and plan
+progress, in one transaction. FSRS scheduling, its BKT lapse penalty and the
+new-word-drill restart stay here.
+"""
 
 from __future__ import annotations
 
 import logging
-import os
-import time
 from datetime import date, datetime, timezone
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 from config import Config
-from services.concurrency import run_parallel
+from services.day_boundary import review_today
 from services.vocabulary.knowledge_service import VocabularyKnowledgeService
 from services.vocabulary.fsrs import CardState, schedule_review, AGAIN, GOOD, EASY
 from services.practice.constants import (
-    ATTEMPT_RPC_ENV_FLAG,
-    ATTEMPT_RPC_RECHECK_SECONDS,
-    COUNTER_WRITE_ATTEMPTS,
     DEFAULT_EXPECTED_SECONDS,
     PRACTICE_ATTEMPT_MAX_SECONDS,
 )
 
 logger = logging.getLogger(__name__)
-
-_attempt_rpc_missing_until = 0.0
-
-
-def _attempt_rpc_enabled() -> bool:
-    return os.environ.get(ATTEMPT_RPC_ENV_FLAG, '').strip().lower() in ('1', 'true', 'yes', 'on')
 
 
 class AttemptRecordingMixin:
@@ -56,9 +54,9 @@ class AttemptRecordingMixin:
         with THREE new optional fields:
 
           session_mode  : 'acquisition' | 'maintenance' | None
-              If provided, record_session_progress is called with
-              kind = 'practice_' + session_mode so weekly_plan_states counters
-              stay live. None means "don't increment Study Plan counters"
+              If provided (and STUDY_PLAN_ENABLED), the RPC calls
+              record_session_progress with kind 'practice_acq' /
+              'practice_maint' so weekly_plan_states counters stay live. None means "don't increment Study Plan counters"
               (e.g., admin tooling / virtual items).
           language_id   : optional override; otherwise looked up from
               exercises.language_id. Required if session_mode is set so the
@@ -69,277 +67,30 @@ class AttemptRecordingMixin:
           is_tail      : the attempt belongs to an optional-tail round
               (the session was requested with tail=1). Forwarded as
               ``p_is_tail`` so tail minutes and tail new words are tracked.
+
+        Returns ``{'error': 'Exercise not found'}`` for an unknown exercise.
+        Raises when the RPC fails: nothing was recorded (one transaction), and
+        the route's ``api_errors`` turns it into its failure response.
         """
-        if _attempt_rpc_enabled():
-            via_rpc = self._record_attempt_via_rpc(
-                user_id, exercise_id, is_correct, user_response, time_taken_ms,
-                session_mode, language_id, expected_seconds, is_tail, exercise_context,
-            )
-            if via_rpc is not None:
-                return via_rpc
-
-        db = self.db
-
-        # 1. Exercise metadata and the first-attempt check (gates BKT), together.
-        def _read_exercise():
-            return (
-                db.table('exercises')
-                .select(
-                    'id, exercise_type, word_sense_id, '
-                    'corpus_collocation_id, attempt_count, correct_count, language_id'
-                )
-                .eq('id', exercise_id)
-                .single()
-                .execute()
-                .data
-            )
-
-        def _read_prior():
-            return (
-                db.table('exercise_attempts')
-                .select('id')
-                .eq('user_id', user_id)
-                .eq('exercise_id', exercise_id)
-                .limit(1)
-                .execute()
-                .data
-            )
-
-        exercise, prior = run_parallel(_read_exercise, _read_prior)
-        if not exercise:
-            return {'error': 'Exercise not found'}
-
-        exercise_type = exercise.get('exercise_type')
-        sense_id = exercise.get('word_sense_id')
-        eff_language_id = language_id or exercise.get('language_id')
-        is_first_attempt = not bool(prior)
-        tracked = bool(sense_id and eff_language_id)
-
-        # 2. Insert the attempt row; the flashcard is read alongside it.
-        def _insert_attempt():
-            inserted = db.table('exercise_attempts').insert({
-                'user_id':          user_id,
-                'exercise_id':      exercise_id,
-                'user_response':    user_response or {},
-                'is_correct':       is_correct,
-                'time_taken_ms':    time_taken_ms,
-                'exercise_type':    exercise_type,
-                'sense_id':         sense_id,
-                'is_first_attempt': is_first_attempt,
-                'created_at':       datetime.now(timezone.utc).isoformat(),
-            }).execute()
-            return (inserted.data or [{}])[0].get('id')
-
-        if tracked:
-            attempt_id, card_row = run_parallel(
-                _insert_attempt, lambda: self._read_fsrs_card(user_id, sense_id))
-        else:
-            attempt_id, card_row = _insert_attempt(), None
-
-        result: Dict[str, Any] = {
-            'attempt_id':      attempt_id,
-            'is_correct':      is_correct,
-            'exercise_type':   exercise_type,
-            'is_first_attempt': is_first_attempt,
-        }
-        seconds = self._effective_practice_seconds(time_taken_ms, expected_seconds)
-
-        # 3. Everything that only needs the attempt row, concurrently. Each
-        # step logs and swallows its own failure except the exercise counters,
-        # whose failure fails the request as before.
-        def _bkt():
-            try:
-                return VocabularyKnowledgeService(db).update_from_word_test(
-                    user_id=user_id,
-                    sense_id=sense_id,
-                    is_correct=is_correct,
-                    language_id=eff_language_id,
-                    exercise_type=exercise_type,
-                )
-            except Exception as e:
-                logger.error('BKT update failed for sense %s: %s', sense_id, e)
-                return None
-
-        def _prestudy():
-            # Test prestudy next-day review: answering any exercise of a due
-            # follow-up sense completes it. No-op without the table.
-            try:
-                from services import prestudy
-                prestudy.mark_followups(db, user_id, [sense_id], 'completed_at')
-            except Exception as e:
-                logger.info('prestudy follow-up not completed for sense %s: %s', sense_id, e)
-
-        steps: Dict[str, Any] = {
-            'counters': lambda: self._bump_exercise_counters(exercise_id, exercise, is_correct),
-        }
-        if sense_id:
-            steps['prestudy'] = _prestudy
-        if tracked and is_first_attempt:
-            steps['bkt'] = _bkt
-        if card_row:
-            steps['fsrs'] = lambda: self._apply_fsrs_review(
-                card_row, sense_id, is_correct, time_taken_ms)
-        if attempt_id and eff_language_id:
-            # Weekly minutes ledger (ADR-035): every attempt, in or out of a
-            # planned session, once per exercise_attempts id.
-            steps['study_time'] = lambda: self._credit_practice_time(
-                user_id, eff_language_id, seconds, attempt_id)
-            if Config.STUDY_PLAN_ENABLED and session_mode in ('acquisition', 'maintenance'):
-                steps['progress'] = lambda: self._record_plan_progress(
-                    user_id, eff_language_id, attempt_id, session_mode, seconds,
-                    sense_id, is_tail)
-        done = dict(zip(steps, run_parallel(*steps.values())))
-
-        bkt_result = done.get('bkt')
-        if bkt_result:
-            result['bkt_update'] = bkt_result
-
-        # 4. Steps that must follow the BKT write: the FSRS lapse penalty
-        # (scales the p_known BKT just wrote) and the ladder, whose lapse path
-        # applies the same penalty.
-        after: List[Any] = []
-        if bkt_result:
-            after.append(lambda: self._capture_knowledge_outcome(attempt_id, bkt_result))
-        if done.get('fsrs'):
-            after.append(lambda: self._apply_lapse_penalty(user_id, sense_id))
-        if sense_id:
-            # Ladder progress (rings, gates, demotion): only moves the ladder,
-            # for words on it, on first attempts.
-            after.append(lambda: self._apply_ladder_progress(
-                result, user_id, sense_id, exercise_id, is_correct,
-                is_first_attempt, eff_language_id, exercise_context,
-            ))
-        run_parallel(*after)
-
-        return result
-
-    def _bump_exercise_counters(
-        self, exercise_id: str, exercise: Dict[str, Any], is_correct: bool,
-    ) -> None:
-        """``attempt_count + 1`` (and ``correct_count + 1`` when correct).
-
-        PostgREST cannot write ``col = col + 1``, so the write is conditional on
-        the ``attempt_count`` that was read: when another attempt got in first
-        no row matches, the counts are read again and the write retried. The
-        common case is one round trip. ``record_exercise_attempt`` (the RPC
-        path) increments in SQL instead.
-        """
-        row = exercise
-        for attempt in range(COUNTER_WRITE_ATTEMPTS):
-            seen = row.get('attempt_count')
-            updates = {'attempt_count': (seen or 0) + 1}
-            if is_correct:
-                updates['correct_count'] = (row.get('correct_count') or 0) + 1
-            query = self.db.table('exercises').update(updates).eq('id', exercise_id)
-            if attempt == COUNTER_WRITE_ATTEMPTS - 1:
-                query.execute()          # still contended: write unconditionally
-                return
-            query = (query.is_('attempt_count', 'null') if seen is None
-                     else query.eq('attempt_count', seen))
-            if query.execute().data:
-                return
-            fresh = (
-                self.db.table('exercises')
-                .select('attempt_count, correct_count')
-                .eq('id', exercise_id)
-                .limit(1)
-                .execute()
-                .data
-            )
-            if not isinstance(fresh, list) or not fresh:
-                return
-            row = fresh[0]
-
-    def _credit_practice_time(
-        self, user_id: str, language_id: int, seconds: int, attempt_id,
-    ) -> None:
-        try:
-            from services.study_time import credit_study_time  # lazy: avoids import cycle
-            credit_study_time(
-                self.db, user_id, language_id, 'practice', seconds,
-                'exercise_attempts', str(attempt_id),
-            )
-        except Exception as e:
-            logger.warning(
-                'study-time credit failed (non-fatal) for attempt=%s: %s',
-                attempt_id, e,
-            )
-
-    def _record_plan_progress(
-        self, user_id: str, language_id: int, attempt_id, session_mode: str,
-        seconds: int, sense_id, is_tail: bool,
-    ) -> None:
-        """Study Plan weekly counters for one attempt. Best-effort."""
-        try:
-            self.db.rpc('record_session_progress', {
-                'p_user_id':       user_id,
-                'p_language_id':   language_id,
-                'p_attempt_id':    attempt_id,
-                'p_kind':          'practice_acq' if session_mode == 'acquisition'
-                                   else 'practice_maint',
-                'p_skill':         None,
-                'p_delta_count':   0,
-                'p_delta_seconds': seconds,
-                # Session-budget-settings (TASK-872): the sense is passed
-                # only for acquisition so the RPC can count a new word the
-                # day it is first attempted; maintenance passes None.
-                'p_sense_id':      sense_id if session_mode == 'acquisition'
-                                   else None,
-                'p_is_tail':       bool(is_tail),
-            }).execute()
-        except Exception as e:
-            logger.warning(
-                'record_session_progress failed (non-fatal) for attempt=%s: %s',
-                attempt_id, e,
-            )
-
-    def _record_attempt_via_rpc(
-        self,
-        user_id: str,
-        exercise_id: str,
-        is_correct: bool,
-        user_response: Optional[dict],
-        time_taken_ms: Optional[int],
-        session_mode: Optional[str],
-        language_id: Optional[int],
-        expected_seconds: Optional[int],
-        is_tail: bool,
-        exercise_context: str,
-    ) -> Optional[Dict[str, Any]]:
-        """The attempt through ``record_exercise_attempt`` (one transaction).
-
-        Returns None when the function is not deployed, so the caller uses the
-        per-step path; nothing has been written in that case. Any other RPC
-        error propagates. FSRS scheduling and the new-word-drill restart stay
-        in Python (migrations/record_exercise_attempt.sql).
-        """
-        global _attempt_rpc_missing_until
-        if _attempt_rpc_missing_until > time.monotonic():
-            return None
         plan_kind = None
         if Config.STUDY_PLAN_ENABLED and session_mode in ('acquisition', 'maintenance'):
             plan_kind = 'practice_acq' if session_mode == 'acquisition' else 'practice_maint'
-        try:
-            data = self.db.rpc('record_exercise_attempt', {
-                'p_user_id':          user_id,
-                'p_exercise_id':      exercise_id,
-                'p_is_correct':       bool(is_correct),
-                'p_user_response':    user_response or {},
-                'p_time_taken_ms':    time_taken_ms,
-                'p_language_id':      language_id or None,
-                'p_credit_seconds':   self._effective_practice_seconds(
-                    time_taken_ms, expected_seconds),
-                'p_plan_kind':        plan_kind,
-                'p_is_tail':          bool(is_tail),
-                'p_exercise_context': exercise_context,
-            }).execute().data
-        except Exception as exc:
-            text = str(exc)
-            if 'PGRST202' in text or 'Could not find the function' in text:
-                _attempt_rpc_missing_until = time.monotonic() + ATTEMPT_RPC_RECHECK_SECONDS
-                logger.info('record_exercise_attempt not deployed; using the per-step path')
-                return None
-            raise
+        # Any error here (network, timeout, a failed insert or counter update)
+        # propagates: the transaction rolled back, nothing was recorded, and
+        # the route answers with its recording-failure envelope.
+        data = self.db.rpc('record_exercise_attempt', {
+            'p_user_id':          user_id,
+            'p_exercise_id':      exercise_id,
+            'p_is_correct':       bool(is_correct),
+            'p_user_response':    user_response or {},
+            'p_time_taken_ms':    time_taken_ms,
+            'p_language_id':      language_id or None,
+            'p_credit_seconds':   self._effective_practice_seconds(
+                time_taken_ms, expected_seconds),
+            'p_plan_kind':        plan_kind,
+            'p_is_tail':          bool(is_tail),
+            'p_exercise_context': exercise_context,
+        }).execute().data
         if isinstance(data, list) and len(data) == 1:
             data = data[0]
         if not isinstance(data, dict):
@@ -362,6 +113,9 @@ class AttemptRecordingMixin:
         if data.get('bkt_update'):
             result['bkt_update'] = data['bkt_update']
 
+        # FSRS stays in Python (fsrs.py is the scheduler in use); the RPC
+        # returns the card row so it is not read again. The lapse penalty
+        # follows the BKT write, which the RPC has committed.
         card_row = data.get('flashcard')
         if card_row and self._apply_fsrs_review(card_row, sense_id, is_correct, time_taken_ms):
             self._apply_lapse_penalty(user_id, sense_id)
@@ -369,32 +123,6 @@ class AttemptRecordingMixin:
             self._report_ladder_progress(
                 result, data.get('ladder'), user_id, sense_id, data.get('language_id'))
         return result
-
-    def _apply_ladder_progress(
-        self, result: Dict[str, Any], user_id: str, sense_id: int,
-        exercise_id: str, is_correct: bool, is_first_attempt: bool,
-        language_id: Optional[int], exercise_context: str,
-    ) -> None:
-        """Move the word's ladder (best effort; adds ``result['ladder']``).
-
-        A word demoted from ring 2 that came through the new-word drill
-        restarts the drill (ADR-040).
-        """
-        try:
-            resp = self.db.rpc('ladder_apply_progress', {
-                'p_user_id':          user_id,
-                'p_sense_id':         sense_id,
-                'p_exercise_id':      exercise_id,
-                'p_is_correct':       bool(is_correct),
-                'p_is_first_attempt': bool(is_first_attempt),
-                'p_exercise_context': exercise_context
-                if exercise_context in ('standard', 'gate', 'stress_test') else 'standard',
-            }).execute()
-            ladder = resp.data if isinstance(resp.data, dict) else None
-        except Exception as e:
-            logger.warning('ladder progress failed (non-fatal) for sense %s: %s', sense_id, e)
-            return
-        self._report_ladder_progress(result, ladder, user_id, sense_id, language_id)
 
     def _report_ladder_progress(
         self, result: Dict[str, Any], ladder: Optional[Dict[str, Any]],
@@ -678,14 +406,17 @@ class AttemptRecordingMixin:
             else:
                 rating = GOOD
 
-            new_card = schedule_review(card, rating)
+            # One FSRS review day (app-wide review time zone, TASK-1211) for
+            # both the schedule and the last_review stamp.
+            today = review_today()
+            new_card = schedule_review(card, rating, today)
             self.db.table('user_flashcards').update({
                 'stability':   new_card.stability,
                 'difficulty':  new_card.difficulty,
                 'due_date':    (
                     new_card.due_date.isoformat() if new_card.due_date else None
                 ),
-                'last_review': date.today().isoformat(),
+                'last_review': today.isoformat(),
                 'reps':        new_card.reps,
                 'lapses':      new_card.lapses,
                 'state':       new_card.state,

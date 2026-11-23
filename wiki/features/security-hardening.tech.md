@@ -1,9 +1,9 @@
 ---
 title: Security Hardening — Technical Specification
 type: feature-tech
-status: planned
+status: in-progress
 prose_page: ./security-hardening.md
-last_updated: 2026-10-14
+last_updated: 2026-11-23
 dependencies:
   - "tables: users, user_tokens, token_transactions, user_reports and the 32 RLS-off tables (see TASK-876)"
   - "progress tables: user_skill_ratings, test_attempts, exercise_attempts, question_attempt_results, user_vocabulary_knowledge, user_word_ladder, daily_test_loads, user_flashcards, calibration_sessions, calibration_responses, weekly_plan_states, user_study_plans"
@@ -12,15 +12,27 @@ dependencies:
   - "package (deferred): flask-limiter"
 breaking_change_risk: high
 open_questions:
-  - "OPEN: findings of the read-only live audits (admin tiers, purchased_tokens vs token_transactions, duration outliers). Not run yet."
-  - "OPEN: live grants and reloptions for the S3, S6, S11 and S13 objects were not confirmed live by the audit."
+  - "OPEN: findings of the read-only live audits (admin tiers, purchased_tokens vs token_transactions, duration outliers). TASK-878 is still Not Started in the task list; no result is recorded."
+  - "OPEN 2026-11-23: 201 of the 413 public-schema functions are still EXECUTE-able by anon and by authenticated (has_function_privilege). Not classified here: how many are extension functions, helpers that are safe by design, or on the written allowlist."
+  - "OPEN 2026-11-23: the enforcing Content-Security-Policy needs nonces (or removing inline code). Counted on the code tip: 8 inline import maps in 8 templates, 2 other inline script blocks (study_session.html), 2 inline event-handler attributes and 44 inline style attributes in 11 templates. The owner's note of '7 other inline items' could not be reproduced from the templates (the 2+2 script items and the 44 style attributes were the closest counts)."
   - "OPEN: shared store and limits for rate limiting (TASK-884, Deferred)."
 ---
 
 # Security Hardening — Technical Specification
 
 Authoritative task list: [[tasklist/security-hardening.tasks]]. Principle: [[decisions/ADR-034-no-client-db-writes]].
-Nothing described here is applied live. Every task marked LIVE-DB in the table below requires the user's explicit approval
+> **Status update 2026-11-23: the database part is applied live.** The earlier wording of this page ("nothing is applied") was out of date: the task list records TASK-875, 876, 877, 879, 880 and 882 as applied (2026-10-14 and 2026-11-11), TASK-881 and 883 done, TASK-878 not started and TASK-884 deferred. Re-checked read-only on 2026-11-23:
+> - RLS is on for all 100 public tables (0 with RLS off).
+> - `anon` and `authenticated` hold no INSERT, UPDATE, DELETE or TRUNCATE on any public table. Both still hold SELECT on `users`, `user_tokens` and `token_transactions`, narrowed by own-row policies (admin read through `is_admin`); `authenticated` has SELECT on `calibration_sessions`, `user_calibration_state` and `user_reports`, each with a policy; `anon` also has SELECT on `calibration_anchor_blocklist`.
+> - The 2026-11-13 review migrations are live: `tests`, `questions` and `test_skill_ratings` have RLS on, no policy and no grant to either client role (service-role only); `calibration_responses` (the answer keys) has no client grant and only an own-row SELECT policy for `authenticated`; `user_reports` has one own-row SELECT policy (the `USING (true)` admin policy is gone); the watchlist and reports client writes are revoked. (Migration files: `security_tests_service_role_only.sql`, `security_calibration_answer_keys.sql`, `security_watchlist_reports_no_client_writes.sql`, `security_revoke_inert_client_writes.sql`, `security_questions_tests_policies.sql`.)
+> - `process_stripe_payment` has ACL `{postgres, service_role}` only; the two analytics views named in S11 are not readable by `anon`.
+> - `users` policies are `rls_select` (own row, soft-deleted rows hidden, service role, admin) and service-role-only `rls_update` and `rls_delete`; the `rls_insert` policy has no qualifier shown.
+>
+> Not closed: rate limiting (TASK-884, deferred); the live audit queries (TASK-878); and the browser-side items below.
+>
+> **Browser-side gaps (2026-11-23).** (1) The Content-Security-Policy is **report-only** (`Content-Security-Policy-Report-Only` in `web/security.py`) and allows `'unsafe-inline'` for scripts and styles, so it blocks nothing. Enforcing it needs a per-response nonce (or moving the inline code out): the templates carry 8 inline import maps (in `test_dictation`, `test_pitch_accent`, `test_prestudy`, `test_pinyin`, `test`, `study_session`, `counter_drill` and `classifier_drill`), 2 other inline script blocks (`study_session.html`), 2 inline event handlers and 44 inline `style=` attributes. (2) The access token is kept in browser storage (`jwt_token` in `localStorage` or `sessionStorage`; `static/js/utils.js`, `static/js/native-language-prompt.js`), so any script injection can read it, which is why enforcing the CSP matters.
+
+Historical text follows. Every task marked LIVE-DB in the table below required the user's explicit approval
 before any `apply_migration` or DDL ("requires user approval to apply live").
 
 ## Architecture Overview
@@ -89,7 +101,7 @@ reconstructed from those task descriptions; the audit report holds the original 
 Reads/writes: see [[database/schema.tech]] "Security posture" section for the target grants. New migrations (all idempotent, per
 `migrations/CLAUDE.md`): `security_lock_users_tokens_reports.sql`, `security_enable_rls_unprotected_tables.sql`,
 `security_function_grants_hardening.sql`, `security_analytics_views_lockdown.sql`,
-`security_progress_tables_and_default_privileges.sql`, `security_duration_caps.sql`. None exists yet.
+`security_progress_tables_and_default_privileges.sql`, `security_duration_caps.sql`. These were the planned names (2026-10-14). The files that exist in `migrations/` on 2026-11-23 are `security_lock_users_tokens_reports.sql`, `security_enable_rls_unprotected_tables.sql`, `security_function_grants_group_a.sql`, `security_function_grants_group_b.sql`, `security_function_auth_checks.sql`, `security_views_invoker.sql`, `security_lock_progress_tables.sql`, `security_questions_tests_policies.sql`, `security_tests_service_role_only.sql`, `security_calibration_answer_keys.sql`, `security_watchlist_reports_no_client_writes.sql` and `security_revoke_inert_client_writes.sql`; no `security_duration_caps.sql` was found.
 
 ## API / RPC Surface
 No new RPCs. Execute grants of existing RPCs change: [[api/rpcs.tech]] gains an "Execute grant" column (TASK-877). Allowlist

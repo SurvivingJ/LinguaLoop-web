@@ -3,11 +3,10 @@ Flask Backend for LinguaDojo Language Learning Platform
 Clean, production-ready implementation with proper error handling
 """
 
-from flask import Flask, request, jsonify, make_response, g
+from flask import Flask, request, jsonify, make_response
 from flask_cors import CORS
 from werkzeug.middleware.proxy_fix import ProxyFix
 from datetime import datetime, timezone
-import stripe
 from services.supabase_factory import (
     SupabaseFactory, SupabaseConfigError, get_supabase, get_supabase_admin,
 )
@@ -20,12 +19,7 @@ from services.service_factory import ServiceFactory
 from services.r2_service import R2Service
 from services.auth_service import AuthService
 from services.device_service import DeviceService
-from middleware.auth import jwt_required as supabase_jwt_required
 from services.dimension_service import DimensionService
-from utils.responses import api_errors, api_success, bad_request, service_unavailable
-from utils.validation import json_body
-from models.requests import VocabularyExtractRequest, ErrorLogRequest
-from pydantic import ValidationError
 from web.errors import register_error_handlers
 from web.pages import register_pages
 from web.rate_limits import init_rate_limits
@@ -38,13 +32,10 @@ from routes.tests import tests_bp
 from routes.reports import reports_bp
 from routes.vocabulary import vocabulary_bp
 from routes.flashcards import flashcards_bp
-from routes.corpus import corpus_bp
 from routes.users import users_bp
-from routes.payments import payments_bp
 from routes.vocab_dojo import vocab_dojo_bp
 from routes.vocab_admin import vocab_admin_bp
 from routes.calibration import calibration_bp
-from routes.common import get_db
 from routes.drills import classifier_drill_bp, counter_drill_bp
 from routes.practice import practice_bp
 from routes.study_plan import study_plan_bp
@@ -53,6 +44,7 @@ from routes.dual_translation import dual_translation_bp
 from routes.dt_repair import dt_repair_bp
 from routes.test_intros import test_intros_bp
 from routes.word_list_import import word_list_import_bp
+from routes.knowledge import knowledge_bp
 
 
 def create_app(config_class=Config):
@@ -141,12 +133,12 @@ def _initialize_services(app, config_class=Config):
 
     # Supabase initialization via centralized factory
     try:
-        if Config.SUPABASE_URL and Config.SUPABASE_KEY:
+        if config_class.SUPABASE_URL and config_class.SUPABASE_KEY:
             SupabaseFactory.initialize(
-                supabase_url=Config.SUPABASE_URL,
-                supabase_key=Config.SUPABASE_KEY,
-                service_role_key=Config.SUPABASE_SERVICE_ROLE_KEY,
-                postgrest_timeout=Config.SUPABASE_POSTGREST_TIMEOUT,
+                supabase_url=config_class.SUPABASE_URL,
+                supabase_key=config_class.SUPABASE_KEY,
+                service_role_key=config_class.SUPABASE_SERVICE_ROLE_KEY,
+                postgrest_timeout=config_class.SUPABASE_POSTGREST_TIMEOUT,
                 # Test configurations run on mocked clients.
                 require_service_role=not getattr(config_class, 'TESTING', False),
             )
@@ -176,28 +168,19 @@ def _initialize_services(app, config_class=Config):
         app.device_service = None
 
     try:
-        service_factory = ServiceFactory(Config)
-        app.openai_service = service_factory.openai_service if Config.OPENAI_API_KEY else None
+        service_factory = ServiceFactory(config_class)
+        app.openai_service = service_factory.openai_service if config_class.OPENAI_API_KEY else None
         app.logger.info(f"OpenAI service: {'enabled' if app.openai_service else 'disabled'}")
     except Exception as e:
         app.logger.error(f"Service factory error: {e}")
         app.openai_service = None
 
     try:
-        app.r2_service = R2Service(Config) if Config.R2_ACCESS_KEY_ID else None
+        app.r2_service = R2Service(config_class) if config_class.R2_ACCESS_KEY_ID else None
         app.logger.info(f"R2 service: {'enabled' if app.r2_service else 'disabled'}")
     except Exception as e:
         app.logger.error(f"R2 service error: {e}")
         app.r2_service = None
-
-    try:
-        if Config.STRIPE_SECRET_KEY:
-            stripe.api_key = Config.STRIPE_SECRET_KEY
-            app.logger.info("Stripe configured")
-        else:
-            app.logger.warning("Stripe not configured")
-    except Exception as e:
-        app.logger.error(f"Stripe initialization error: {e}")
 
     # Vocabulary extraction pipeline
     try:
@@ -234,9 +217,7 @@ def _register_blueprints(app):
     app.register_blueprint(reports_bp, url_prefix='/api/reports')
     app.register_blueprint(vocabulary_bp, url_prefix='/api/vocabulary')
     app.register_blueprint(flashcards_bp, url_prefix='/api/flashcards')
-    app.register_blueprint(corpus_bp, url_prefix='/api/corpus')
     app.register_blueprint(users_bp, url_prefix='/api/users')
-    app.register_blueprint(payments_bp, url_prefix='/api/payments')
     app.register_blueprint(vocab_dojo_bp, url_prefix='/api/vocab-dojo')
     app.register_blueprint(vocab_admin_bp, url_prefix='/api/admin/vocab')
     app.register_blueprint(calibration_bp, url_prefix='/api/calibration')
@@ -250,6 +231,8 @@ def _register_blueprints(app):
     app.register_blueprint(dt_repair_bp, url_prefix='/api/dual-translation/repair')
     app.register_blueprint(test_intros_bp)
     app.register_blueprint(word_list_import_bp)
+    # Knowledge Report ("My vocabulary"); answers 404 while KNOWLEDGE_REPORT_ENABLED is off.
+    app.register_blueprint(knowledge_bp, url_prefix='/api/knowledge')
 
     app.logger.info("Blueprints registered")
 
@@ -269,25 +252,10 @@ def _register_core_routes(app):
                 "supabase": app.supabase is not None,
                 "auth": app.auth_service is not None,
                 "r2": app.r2_service is not None,
-                "stripe": Config.STRIPE_SECRET_KEY is not None,
                 "vocabulary": app.vocab_pipeline is not None
             }
         })
     
-    @app.route('/api/config', methods=['GET'])
-    def get_config():
-        """Get public configuration"""
-        return jsonify({
-            "features": {
-                "ai_generation": app.openai_service is not None,
-                "database": app.supabase is not None,
-                "payments": Config.STRIPE_SECRET_KEY is not None,
-                "audio_generation": app.openai_service is not None
-            },
-            "token_costs": Config.TOKEN_COSTS if hasattr(Config, 'TOKEN_COSTS') else {},
-            "daily_free_tokens": Config.DAILY_FREE_TOKENS if hasattr(Config, 'DAILY_FREE_TOKENS') else 0
-        })
-
     @app.context_processor
     def _inline_metadata():
         """/api/metadata, embedded in every page (latency 2026-11).
@@ -311,44 +279,6 @@ def _register_core_routes(app):
             'test_types': DimensionService.get_all_test_types(),
             'status': 'success'
         })
-
-    @app.route('/api/vocabulary/extract', methods=['POST'])
-    @supabase_jwt_required
-    @api_errors("Vocabulary extraction failed")
-    def extract_vocabulary():
-        """Extract vocabulary (lemmas + phrases) from text"""
-        try:
-            body = VocabularyExtractRequest.model_validate(json_body())
-        except ValidationError as e:
-            return bad_request(e.errors()[0]['msg'])
-
-        if not app.vocab_pipeline:
-            return service_unavailable("Vocabulary service unavailable")
-
-        try:
-            vocab = app.vocab_pipeline.extract(body.text, body.language_code)
-            return api_success({"vocabulary": vocab})
-        except ValueError as e:
-            return bad_request(str(e))
-
-    @app.route('/api/errors/log', methods=['POST'])
-    @supabase_jwt_required
-    @api_errors("Failed to log error")
-    def log_error():
-        """Log an application error to the app_error_logs table"""
-        try:
-            body = ErrorLogRequest.model_validate(json_body())
-        except ValidationError as e:
-            return bad_request(e.errors()[0]['msg'])
-
-        get_db().table('app_error_logs').insert({
-            'error_type': body.error_type[:100],
-            'error_message': body.error_message[:Config.MAX_INPUT_LENGTH],
-            'url': (body.url or '')[:Config.MAX_INPUT_LENGTH],
-            'user_id': g.current_user_id,
-            'metadata': body.metadata,
-        }).execute()
-        return api_success(status_code=201)
 
 
 if __name__ == '__main__':

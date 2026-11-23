@@ -6,12 +6,13 @@ date: 2026-07-05
 harness: scripts/run_dt_grading_eval.py
 metrics_module: services/dual_translation/eval_metrics.py
 gold_sets: tests/fixtures/dt_gold/{en,zh,ja}.json (TASK-621, frozen)
+last_updated: 2026-09-03
 ---
 
 # DT Grading Eval — v1 Baseline (2026-07-05)
 
 First run of the Evidence-First Grading eval harness ([[algorithms/evidence-first-grading.tech]] §10),
-built in TASK-622. It grades the frozen gold sets ([[tasklist/evidence-first-grading.tasks]] TASK-621)
+built in TASK-622. It grades the frozen gold sets ([[tasklist/archive/evidence-first-grading.tasks]] TASK-621)
 through the **shipped v1 cascade** (`services.dual_translation.grader_cascade.grade_submission`) and
 computes the full metric set. This is the regression floor every later task (TASK-623..632) must
 re-run and not regress.
@@ -301,6 +302,6 @@ per-call token/cost is recorded by wrapping the model boundary and priced via
 
 ## Related Pages
 - [[algorithms/evidence-first-grading.tech]] — §10 metrics + §9 Tier-0 fixes this measures
-- [[tasklist/evidence-first-grading.tasks]] — TASK-622 (this harness), TASK-623 (Tier-0 fix)
+- [[tasklist/archive/evidence-first-grading.tasks]] — TASK-622 (this harness), TASK-623 (Tier-0 fix)
 - [[decisions/ADR-019-evidence-first-scoring]]
 - [[algorithms/translation-grading-cascade.tech]] — v1 (shipped) grader under test

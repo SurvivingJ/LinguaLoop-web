@@ -58,6 +58,6 @@ It also closes the Priority-1 integration gap recorded in [[algorithms/ladder-im
 - [[features/practice-engine]] — Where the score is used.
 - [[features/practice-engine.tech]] — Full RPC + candidate-pool spec.
 - [[algorithms/vocabulary-ladder]] — Source of the ladder priority term.
-- [[algorithms/vocabulary-knowledge]] — Source of the BKT term.
+- [[features/vocabulary-knowledge]] — Source of the BKT term.
 - [[features/flashcards]] — Source of the FSRS term.
 - [[decisions/ADR-007-merge-exercises-vocab-dojo]] — Why this score exists.

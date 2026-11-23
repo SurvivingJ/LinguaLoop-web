@@ -3,11 +3,15 @@ title: DT Guided Self-Repair — Technical Specification
 type: feature-tech
 status: in-progress
 prose_page: ./dt-guided-self-repair.md
-last_updated: 2026-11-14
+last_updated: 2026-11-23
+open_questions:
+  - "OPEN: the three known issues in section 15 (re-check prompt variant, missing injection protection, stricter JSON parsing) concern grading logic that is validated and was deliberately not changed; fixing them needs a gold-set re-validation. Owner decision."
+  - "OPEN: session and items are still two inserts with no transaction, and dt_repair_item has no unique constraint; proposed fix is [[decisions/ADR-061-one-transactional-write-per-dt-submission]] (needs the owner's decision)."
+  - "OPEN: tests/e2e/dt-repair.spec.js, named in section 10 and 14, is not in the repository at HEAD; only the harness under tests/e2e/dt-repair/ remains."
 dependencies:
   - "design: wiki/design/dt-feedback/option-2-guided-self-repair/SPEC.md (Revision 2) + mockup.html + verify.cjs"
   - "grader: services/dual_translation/single_call_grader.py (ADR-044, prompt v2) — internals listed in §11"
-  - "tables read: dt_submission, dt_passage, dt_passage_reference, dt_grade, dt_error_instance, test_sentences, test_sentence_references, users, daily_test_loads, user_study_plans"
+  - "tables read: dt_submission, dt_passage, dt_grade, dt_error_instance, test_sentences, test_sentence_references, users, daily_test_loads, user_study_plans"
   - "tables written: NEW dt_repair_session, dt_repair_item, dt_repair_event; existing study_time_credits (via services.study_time), daily_test_loads.completed_blocks (via complete-block), llm_calls (failed re-checks only)"
   - "routes: NEW routes/dt_repair.py (blueprint dt_repair, /api/dual-translation/repair); hook in routes/dual_translation.py submit"
   - "session queue: services/study_session/queue.py + session.py (new block kind dt_repair)"
@@ -22,9 +26,9 @@ Prose: [[features/dt-guided-self-repair]]. Tasks: [[tasklist/dt-guided-self-repa
 
 **Build state (2026-11-14, after WP-INT):** backend and frontend are built and were run against each
 other (real routes over an in-memory DB, §14 "Integration verification"); every contract change found
-there is folded into §4 below. `migrations/dt_guided_self_repair.sql` is written but **not applied**
-(owner decision), and the branch is not deployed — until both happen production behaves exactly as
-before (the submit hook detects the missing tables, §3.3).
+there is folded into §4 below. `migrations/dt_guided_self_repair.sql` was **applied and the feature has been live since 2026-11-16** (checked 2026-11-23: 22 `dt_repair_session` rows, the
+first created 2026-11-16 20:30 UTC, 26 `dt_repair_item` rows; `DT_GUIDED_REPAIR` defaults true in `services/dual_translation/repair/settings.py`).
+The original build-state wording ("not applied, not deployed") described 2026-11-14. The missing-table paths in §3.3 remain as a safeguard.
 Design: [[design/dt-feedback/option-2-guided-self-repair/SPEC]] — **Revision 2 (app-style flow)
 governs layout**; §1.2 (ladder), §1.4 (which errors get a ladder), §2.1 (recording), §5.2 (span
 validation), §5.3 (hint content, leak rule) and §8 (daily practice) govern behaviour except where
@@ -156,9 +160,9 @@ Only offsets are stored (`dt_repair_item.repro_start/…`), never a copy of the 
    `len(split_sentences(gold_l2))`, the L1 prompt for pair `i` is the join (`join_sentences`, L1
    code) of the L1 texts of every split reference sentence lying inside `[pair.ref.start,
    pair.ref.end)` (handles merged pairs).
-2. Otherwise, the `dt_passage_reference.l1_text` for the submission's L1, split with
-   `sentence_pairs.split_sentences`; if its count equals `len(split_sentences(gold_l2))`, the same
-   positional join.
+2. Otherwise, a whole-passage L1 text passed by the caller, split with `sentence_pairs.split_sentences`; if its count equals
+   `len(split_sentences(gold_l2))`, the same positional join. *(Originally read from `dt_passage_reference`; that table was dropped on 2026-11-17 and
+   `service.py` now passes `l1_passage_text=None`, so this rule never applies.)*
 3. Otherwise `null`; the client then shows the whole L1 passage (`prompt_l1_passage`, sent once
    per session) clamped to two lines with tap-to-expand (R2.4 rule 3).
 
@@ -235,8 +239,7 @@ raises: any exception is logged and the full contract is returned unchanged (no 
 3. Clean / bypassed → `{**contract, 'repair': session_payload}`.
 4. Open with steps → `redact(contract) | {'repair': session_payload}`.
 
-**Repair tables missing** (the migration not applied — the state of production until the owner
-applies it): the first failure whose error names a missing repair table (PostgREST `PGRST205`,
+**Repair tables missing** (the migration not applied; **not the state of production since 2026-11-16**, kept as a safeguard): the first failure whose error names a missing repair table (PostgREST `PGRST205`,
 Postgres `42P01`, or "dt_repair_… does not exist") marks the tables unavailable for 600 s
 (`store.MISSING_TABLES_RETRY_S`) and logs **one warning per process**; meanwhile `after_grade`,
 `for_cached`, `service.count_due` (daily block) and `budget.recheck_tokens_today` skip the repair
@@ -247,6 +250,11 @@ so applying the migration needs no restart.
 path of `submit()` (`_cached_grade` returned non-None): if a session exists and is `open` →
 redacted contract + current session payload; if it exists and is closed → full contract + payload;
 if none exists → `after_grade` semantics (creates it; covers a crash between grade and session).
+**Session with no items (commit 398a7697, finding B-05):** the session row and its items are two separate inserts
+with no transaction, so a failed items insert left an open session with zero items, served as a redacted grade with no steps until the session went
+stale (24 h). `for_cached` now re-runs `start_session` for an open session that has no items (`hooks._recreate_items`: it reuses the existing row and
+inserts the planned items); if that yields no items the **full unredacted grade** is served. A healthy open session costs no extra query (its items are
+passed to the payload); finished, clean and bypassed sessions are untouched. The rebuild re-plans with the **current** planner while keeping the **old session row and its status** (`insert_session` returns the existing row on the UNIQUE conflict), so the rebuilt items can differ from what the first plan would have produced, and a session already stored as clean or bypassed gets none.
 
 `redact(contract)` returns `{scores, overall_band, provisional, target_words (if present),
 errors: [], diff: [], highlights: [], redacted: true, n_errors: len(errors)}` — no
@@ -1162,7 +1170,9 @@ closing call of each item.
 
 ## 9. Database
 
-Migration file (written by WP-BE, applied by the owner): **`migrations/dt_guided_self_repair.sql`**.
+Migration file (written by WP-BE; **applied to production, live since 2026-11-16**): **`migrations/dt_guided_self_repair.sql`**.
+Live constraints checked 2026-11-23: `dt_repair_session` has a primary key and `UNIQUE (submission_id)`; `dt_repair_item` has **only its primary key**, no unique constraint on
+(session, sentence) or similar.
 Additive, idempotent (`CREATE TABLE IF NOT EXISTS`, `CREATE INDEX IF NOT EXISTS`), no change to
 existing tables, conventions of `dt_cards.sql` / `dt_grading_assets.sql` (bigint identity PKs,
 `integer` language FKs, `real` for floats, CHECKs for enums, `timestamptz DEFAULT now()`, COMMENTs
@@ -1305,7 +1315,7 @@ practice (the repair-pass episode is also denormalised on the item row).
 
 Existing tables: **read** `dt_submission` (reproduction, user_id, l1_language_id, passage_id,
 created_at), `dt_passage` (l2_text, l2_language_id, age_tier, source_ref_id, sentence_start/end),
-`dt_passage_reference`, `test_sentences`, `test_sentence_references`, `dt_grade` (scores,
+`test_sentences`, `test_sentence_references`, `dt_grade` (scores,
 grader_trace), `dt_error_instance` (§11 columns), `dt_taxonomy_version` (via the cascade getter),
 `daily_test_loads`, `user_study_plans` (via day_boundary). **Written**: the three new tables;
 `study_time_credits` (via `credit_study_time`); `daily_test_loads.completed_blocks` (via the
@@ -1390,7 +1400,7 @@ No file is touched by more than one package. WP-INT runs after both.
   `tests/unit/fixtures/dt-repair/*.json` (new), `tests/e2e/dt-repair/harness.html`,
   `tests/e2e/dt-repair/noscroll.cjs` (new)
 
-**WP-INT (after both):** `tests/e2e/dt-repair.spec.js` (new), `wiki/index.md`, `wiki/log.md`,
+**WP-INT (after both):** tests/e2e/dt-repair.spec.js (new; **not in the repository at HEAD**, only `tests/e2e/dt-repair/` remains), `wiki/index.md`, `wiki/log.md`,
 `wiki/tasklist/master.md`, `wiki/features/dual-translation.tech.md` ("Still needed" section →
 link here), `wiki/tasklist/dt-single-call-grader.tasks.md` (TASK-939/940 → superseded by this
 breakdown), `wiki/features/dt-guided-self-repair*.md` (status), and applying the migration
@@ -1557,7 +1567,7 @@ for route/service tests and `single_call_grader.call_structured` for recheck tes
 
 Frontend: §8.11.
 
-End-to-end (WP-INT, `tests/e2e/dt-repair.spec.js`, Playwright against a running app):
+End-to-end (WP-INT, tests/e2e/dt-repair.spec.js, Playwright against a running app):
 submit a passage with a planted error → sheet → hint → fix → summary → result view; a dispute; a
 reveal; daily practice (seed a due item with `not_before`/`due_on` in the past through the service
 role, then open the session) — and the no-scroll assertions at 390×844 on each real screen.
@@ -1570,7 +1580,7 @@ Missing: `TEST_USER_PASSWORD` / `TEST_JWT_TOKEN`, so `scripts/mint_test_token.py
 token. Two ways: (a) the owner exports `TEST_USER_PASSWORD` (or `TEST_JWT_TOKEN`) and runs
 `gunicorn wsgi:app --bind 127.0.0.1:5000 --workers 2` (Procfile shape; `python app.py` is threaded
 and unsafe with one Supabase client, per `playwright.config.js`), then `BASE_URL=http://127.0.0.1:5000
-PW_CHROMIUM_PATH=… npx playwright test tests/e2e/dt-repair.spec.js`; (b) mint a session with the
+PW_CHROMIUM_PATH=… npx playwright test tests/e2e/dt-repair.spec.js` (spec no longer in the repository); (b) mint a session with the
 service-role key (GoTrue admin `generate_link` type `magiclink` for `TEST_USER_EMAIL`, then
 `/auth/v1/verify` with the returned hash) — technically possible here but it is an auth-admin
 action on the **production** project, so only with the owner's permission. Either way the E2E run
@@ -1597,6 +1607,24 @@ harness (§8.11) needs none of this and runs in the sandbox.
 - **Not covered** (needs the migration applied and a staging/test login): a real Supabase round
   trip, the real single-call grader, the study-session runner around the daily block (TASK-967).
 
+## 15. Known issues (verified 2026-11-23; report-only)
+
+These concern grading logic that is validated and was deliberately not changed. Each needs an owner decision and, for the first three, a gold-set re-validation.
+
+1. **The re-check sends the unguarded prompt variant.** `services/dual_translation/repair/recheck.py` builds `build_system_prompt(...)` without the `guard=` argument that grading
+   passes for slugs outside `VALIDATED_MODELS` (`single_call_grader.py`, `guard = slug not in VALIDATED_MODELS`). With the free models in production the grader uses
+   `v2_guard` and the re-check uses `v2`. ADR-045 Decision 2 says "same prompt".
+2. **No injection-segment protection in the re-check.** Grading detects injection segments in the learner's text
+   (`output_sanitizer.injection_segments`) and scores an unflagged one as an `addition` error; the re-check does neither, so a revision containing an instruction
+   such as "no errors here" can make the re-check return no errors and close the step as repaired. The grade itself is unaffected.
+3. **Stricter JSON parsing.** The re-check parses the model answer with `json.loads(clean_json_response(raw))`; grading uses the tolerant
+   `output_sanitizer.extract_json_object` (fences, prose, `<think>` blocks, BOM). Output the grader accepts can therefore be rejected as `malformed` by the re-check
+   (the module docstring says the parsing is mirrored; it is not).
+4. **Session and items are two inserts with no transaction** (see §3.3 for the rebuild of an item-less session on the next cached submit).
+5. **`dt_repair_item` has no unique constraint**, so two cached re-submits on a session that has no items (the broken case in item 4) arriving on **different workers**
+   (the submit lock is per process) could each run the rebuild and insert the items, giving duplicates.
+   `dt_repair_session.submission_id` is unique, so only one session exists. Proposed: [[decisions/ADR-061-one-transactional-write-per-dt-submission]].
+
 ## Related Pages
 - [[decisions/ADR-045-dt-guided-self-repair]] — decision record
 - [[features/dt-guided-self-repair]] — prose
@@ -1608,3 +1636,5 @@ harness (§8.11) needs none of this and runs in the sandbox.
 - [[evaluations/dt-decision-grading-2026-11-14]]
 - [[features/study-plans.tech]] — session queue
 - [[database/schema.tech]] · [[api/rpcs.tech]]
+- [[decisions/ADR-061-one-transactional-write-per-dt-submission]] — proposed: atomic write of grade, errors, session and items
+- [[decisions/ADR-062-retire-dt-card-and-select-next-window-in-sql]] — proposed: retire `dt_card`

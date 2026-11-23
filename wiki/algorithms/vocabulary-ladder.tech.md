@@ -3,7 +3,7 @@ title: Vocabulary Ladder — Technical Specification
 type: algorithm-tech
 status: in-progress
 prose_page: ./vocabulary-ladder.md
-last_updated: 2026-05-12
+last_updated: 2026-11-23
 dependencies:
   - "services/vocabulary_ladder/ — LadderService, asset pipeline, config"
   - "migrations/phase8_momentum_bands.sql — Momentum Bands core RPCs"
@@ -14,10 +14,14 @@ dependencies:
   - "user_flashcards table"
   - "user_exercise_history table"
   - "exercises, word_assets, dim_word_senses, dim_vocabulary tables"
+open_questions:
+  - "PROPOSED (owner decision pending): [[decisions/ADR-063-vocabulary-ladder-generation-paths]] would make fat-seed the bulk path and the nightly queue drain the only top-up path."
 breaking_change_risk: high
 ---
 
 # Vocabulary Ladder — Technical Specification
+
+> **Content generation paths (2026-11-23).** Assets are produced by overlapping pipelines: default hosted generation (`ladder_service.py`, the nightly queue drain, `scripts/run_generation_batch.py`), the staged CSV runner (`scripts/exercise_stage_runner.py`), and fat-seed (`scripts/fat_seed_runner.py`, `scratch_offline/`), which wrote 10,793 of the 10,958 senses that have assets (live, 2026-11-23). **Bundle mode (flag `VOCAB_LADDER_BUNDLE_MODE`) is removed**: deleted from the code on 2026-11-23, so it is no longer an option; leftovers are the unapplied draft `migrations/exercise_gen_bundle_prompts_draft.sql` and comments in `services/llm_service.py`. The comparison and a proposed consolidation are in [[decisions/ADR-063-vocabulary-ladder-generation-paths]] (proposed).
 
 ## Architecture Overview
 

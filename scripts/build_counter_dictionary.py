@@ -24,13 +24,14 @@ the drill accepts both.
 
 Usage
 -----
-    PYTHONPATH=. python scripts/build_counter_dictionary.py --dry-run
-    PYTHONPATH=. python scripts/build_counter_dictionary.py
+    PYTHONPATH=. python scripts/build_counter_dictionary.py            # dry run: report only
+    PYTHONPATH=. python scripts/build_counter_dictionary.py --apply    # upsert the rows
+
+Nothing is written without --apply (--dry-run is accepted as an explicit alias).
 """
 
 from __future__ import annotations
 
-import argparse
 import logging
 import os
 import sys
@@ -40,6 +41,11 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from dotenv import load_dotenv
 
 from services.supabase_factory import SupabaseFactory, get_supabase_admin
+
+try:
+    from _common import base_parser
+except ImportError:  # imported as scripts.<name>
+    from scripts._common import base_parser
 
 logger = logging.getLogger('build_counter_dictionary')
 
@@ -393,9 +399,8 @@ def audit(counters, pairs) -> list:
 
 
 def main(argv=None) -> int:
-    parser = argparse.ArgumentParser(description=__doc__.split('\n')[0])
-    parser.add_argument('--dry-run', action='store_true',
-                        help='report what would be written, write nothing')
+    parser = base_parser(description=__doc__.split('\n')[0],
+                         dry_run_help='report what would be written, write nothing (the default)')
     args = parser.parse_args(argv)
 
     logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')

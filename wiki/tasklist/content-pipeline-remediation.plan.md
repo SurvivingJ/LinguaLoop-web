@@ -512,7 +512,8 @@ that order** (the index cannot build over duplicates).
   > **Superseded 2026-09-27.** `TierFitJudge` now uses one jev score call, fits
   > when assessed tier ≤ stamped tier, and raises `JevError` rather than failing
   > open. `best_tier` and `TIER_READERS` are deleted, and
-  > `scripts/backfill_topic_tiers.py --stamp-tiers` stamps the assessed tier.
+  > `scripts/backfill_topic_tiers.py --stamp-tiers --apply` stamps the assessed tier
+  > (a dry run without `--apply`, TASK-1218).
   > See [[decisions/ADR-029-jev-tier-assignment]] and
   > [[features/test-tier-assignment.tech]].
 - **T3.3 / T3.4** `scripts/backfill_topic_tiers.py` — `--report` (run, output

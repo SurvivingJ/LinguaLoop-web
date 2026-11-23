@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% set defer_base_scripts = true %}
+{# Vocabulary placement (wiki/features/vocab-placement.tech.md §8, §15).
+   One task per screen (FOUNDATION.md): Back pill header, a progress strip
+   ("about N minutes left", Stop / End now), the word and its options in a
+   scrolling stage, and the item's actions in a pinned dock. Every screen is
+   rendered by static/js/pages/placement.js. Reuses the vocabulary check's
+   .cal-page styles; the placement's own are .plc-* in
+   static/css/redesign/trainers.css. #}
+{% set task_mode = true %}
+{% set task_back = 'history' %}
+
+{% block title %}Vocabulary placement | LinguaDojo{% endblock %}
+
+{% block body_class %}bg-slate-50 trainer-page{% endblock %}
+
+{% block task_back_href %}{{ url_for('profile') }}{% endblock %}
+{% block task_title %}<span data-i18n="placement.title">Vocabulary placement</span>{% endblock %}
+{% block task_glyph %}词{% endblock %}
+{% block task_subtitle %}<span id="plcLangName"></span>{% endblock %}
+
+{% block content %}
+<div class="ld-screen cal-page plc-page">
+    <div id="plcStrip" class="drill-strip plc-progress" hidden>
+        <div class="drill-strip__row">
+            <span id="plcMinutes" class="plc-progress__minutes" role="status" aria-live="polite"></span>
+            <button type="button" id="plcStopBtn" class="ld-btn ld-btn--sm ld-btn--ghost plc-progress__end" hidden
+                    data-i18n="placement.stop_here">Stop here and see your result</button>
+            <button type="button" id="plcEndBtn" class="ld-btn ld-btn--sm ld-btn--ghost plc-progress__end" hidden
+                    data-i18n="placement.end_now">End now</button>
+        </div>
+        <div class="ld-bar plc-progress__bar" aria-hidden="true"><i id="plcBar" style="width:0%"></i></div>
+    </div>
+
+    <div class="ld-stage cal-scroll">
+        <div id="plcLoading" class="cal-msg" role="status" data-i18n="placement.loading">Preparing your placement…</div>
+
+        <div id="plcConfirm" class="ld-note ld-note--warn plc-confirm" role="alertdialog" aria-labelledby="plcConfirmTitle" hidden>
+            <b id="plcConfirmTitle" data-i18n="placement.end_confirm">End the placement now?</b>
+            <p id="plcConfirmText" class="plc-confirm__text"></p>
+            <div class="ld-row">
+                <button type="button" id="plcKeepGoing" class="ld-btn ld-btn--sm" data-i18n="placement.keep_going">Keep going</button>
+                <a href="{{ url_for('profile') }}" id="plcLeave" class="ld-btn ld-btn--sm ld-btn--ghost" data-i18n="placement.leave">Leave</a>
+            </div>
+        </div>
+
+        <section id="plcIntro" class="plc-intro" hidden>
+            <h1 class="ld-h1" data-i18n="placement.title">Vocabulary placement</h1>
+            <p id="plcIntroTime" class="plc-intro__time"></p>
+            <p class="ld-note plc-intro__hint" data-i18n="placement.intro_idk_hint">If you have no idea, choose “I don't know”. If you think you recognise it, answer.</p>
+        </section>
+
+        <div id="plcItem" class="cal-stage plc-item" hidden>
+            <span id="plcProbeBadge" class="ld-tag ld-tag--info plc-probe-badge" hidden
+                  data-i18n="placement.probe_badge">Extra question — not scored</span>
+            <div id="plcPrompt" class="cal-prompt"></div>
+            <div id="plcInstruction" class="cal-instruction ld-eyebrow"></div>
+            <div id="plcOptions" class="cal-options"></div>
+        </div>
+
+        <div id="plcReveal" class="plc-reveal ld-card" role="status" hidden></div>
+
+        <div id="plcResult" class="plc-result" hidden></div>
+
+        <div id="plcMessage" class="cal-msg plc-message" role="status" hidden></div>
+    </div>
+
+    <div class="ld-dock cal-dock" id="plcDock" hidden>
+        <div class="cal-actions" id="plcIntroActions" hidden>
+            <button type="button" id="plcStartBtn" class="ld-btn" data-i18n="placement.start">Start</button>
+        </div>
+        <div class="cal-actions" id="plcItemActions" hidden>
+            <button type="button" id="plcIdkBtn" class="ld-btn ld-btn--ghost plc-idk" data-i18n="placement.idk">I don't know</button>
+        </div>
+        <div class="cal-actions" id="plcRevealActions" hidden>
+            <button type="button" id="plcNextBtn" class="ld-btn" data-i18n="placement.next">Next word</button>
+            <span class="cal-next-hint ld-wide-only" data-i18n="calibration.next_hint">or press Enter</span>
+        </div>
+        <div class="ld-row cal-actions" id="plcResultActions" hidden>
+            <button type="button" id="plcNewBtn" class="ld-btn ld-btn--ghost" hidden data-i18n="placement.start_new">Take a new placement</button>
+            <a href="{{ url_for('profile') }}" class="ld-btn" data-i18n="placement.done">Done</a>
+        </div>
+        <div class="cal-actions" id="plcRetryActions" hidden>
+            <button type="button" id="plcRetryBtn" class="ld-btn" data-i18n="placement.retry">Try again</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script defer src="{{ url_for('static', filename='js/pages/placement.js') }}"></script>
+{% endblock %}

@@ -8,9 +8,14 @@ date: 2026-11-14
 
 Status: **accepted** (owner, 2026-11-14: "the guided process in mockup two is the way to go").
 Built and integration-tested the same day ([[tasklist/dt-guided-self-repair.tasks]] TASK-952–969).
-**Not live:** `migrations/dt_guided_self_repair.sql` is written but not applied (owner decision
-pending, TASK-966) and the branch is not deployed (TASK-974). Until both happen every learner sees
-today's result view — the submit hook detects the missing tables and steps aside.
+**Status update 2026-11-23: live since 2026-11-16.** The migration is applied (`dt_repair_session`,
+`dt_repair_item`, `dt_repair_event` exist; the first session row is dated 2026-11-16 20:30 UTC; 22 sessions and 26 items on 2026-11-23) and
+`DT_GUIDED_REPAIR` defaults to true in `services/dual_translation/repair/settings.py`. The "not applied / not deployed" wording originally here
+(TASK-966, TASK-974) described 2026-11-14 and is no longer true. Known issues recorded 2026-11-23, none fixed here: the session and its items are
+two inserts with no transaction (a session with no items is rebuilt on the next cached submit, re-planned with the current planner and keeping the old session's status, or the full grade is served);
+`dt_repair_item` has no unique constraint, so two cached re-submits on a broken session arriving on different workers could insert the items twice; and the re-check
+(Decision 2, "same prompt") in fact sends the unguarded prompt variant, omits the injection-segment protection grading applies and parses model JSON
+more strictly than the grader. See [[features/dt-guided-self-repair.tech]] "Known issues".
 
 ## Context
 
@@ -95,3 +100,4 @@ and once-per-process detection of the missing tables.
 - [[decisions/ADR-044-dt-single-call-generative-grader]]
 - [[evaluations/dt-decision-grading-2026-11-14]]
 - [[features/dual-translation.tech]]
+- [[decisions/ADR-061-one-transactional-write-per-dt-submission]] (proposed): would write the session and its items atomically

@@ -3,7 +3,7 @@ title: Vocabulary Knowledge Tracking
 type: feature
 status: in-progress
 tech_page: ./vocabulary-knowledge.tech.md
-last_updated: 2026-04-16
+last_updated: 2026-11-23
 open_questions: []
 ---
 
@@ -54,11 +54,11 @@ As a learner takes tests and completes exercises, the system silently builds a m
 - All BKT math lives in PostgreSQL — Python is a thin RPC wrapper.
 - The `get_session_senses()` RPC computes decay-applied effective p_known for session building.
 - The `get_vocab_recommendations()` RPC uses array intersection (`intarray &`) to find tests with the right unknown-word percentage.
-- Word quiz candidates are selected from the "learning zone" (`p_known` between 0.25 and 0.75).
+- Word quiz candidates are selected from the "learning zone" (`p_known` between 0.25 and 0.75). There is no fallback outside that band (as of 2026-11-23): after a first attempt and its quiz, most of a test's words have left the band, so a retake gets no candidates and no quiz is shown. A fix is written but not applied; see [[features/vocabulary-knowledge.tech]].
 - When FSRS records a lapse (user forgot a word), BKT applies a 20% p_known penalty.
 
 ## Related Pages
-- [[decisions/ADR-047-basic-word-knowledge-prior]] — proposed 2026-11-17: one frequency-and-ability prior for the preview and for new rows; frequency gaps filled
+- [[decisions/ADR-047-basic-word-knowledge-prior]] — accepted 2026-11-17 (frontmatter; originally filed as proposed): one frequency-and-ability prior for the preview and for new rows; frequency gaps filled
 
 - [[features/vocabulary-knowledge.tech]] — Technical details
 - [[features/comprehension-tests]] — Source of comprehension evidence

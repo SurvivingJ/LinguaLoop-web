@@ -158,10 +158,10 @@ to. A skip is a real answer — it satisfies the every-item rule.
 python scripts/upload_glosses.py --batch-file data/gloss_seeding/en_to_zh-ja/batch_001.json \
   --glosses-file data/gloss_seeding/en_to_zh-ja/batch_001.glosses.json --dry-run
 python scripts/upload_glosses.py --batch-file data/gloss_seeding/en_to_zh-ja/batch_001.json \
-  --glosses-file data/gloss_seeding/en_to_zh-ja/batch_001.glosses.json
+  --glosses-file data/gloss_seeding/en_to_zh-ja/batch_001.glosses.json --apply
 ```
 
-Dry-run first, every time. Read what prints — it's your last chance to catch a
+Dry-run first, every time (nothing is written without `--apply`). Read what prints — it's your last chance to catch a
 gloss that leaked into the wrong language, kept the source word, or turned
 into a sentence.
 
@@ -193,7 +193,7 @@ where source = 'llm_gloss' and definition_language_id in (1, 2);  -- the target 
 ```
 
 ```bash
-python -m scripts.backfill_sense_embeddings --language 3   # the SOURCE word's language, not the target
+python -m scripts.backfill_sense_embeddings --language 3 --apply   # the SOURCE word's language, not the target
 ```
 
 `--language` here filters on the word's own language (`dim_vocabulary.language_id`),

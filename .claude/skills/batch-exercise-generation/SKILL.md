@@ -159,10 +159,10 @@ python scripts/upload_exercises.py --stage core \
   --answers-file data/exercise_seeding/ja/batch_001.core.json --dry-run
 python scripts/upload_exercises.py --stage core \
   --batch-file data/exercise_seeding/ja/batch_001.json \
-  --answers-file data/exercise_seeding/ja/batch_001.core.json
+  --answers-file data/exercise_seeding/ja/batch_001.core.json --apply
 ```
 
-Dry-run first, every time. It prints POS, semantic class, sentence count and
+Dry-run first, every time (nothing is written without `--apply`). It prints POS, semantic class, sentence count and
 every warning — the tier-gate screen and the collocate grounding both run here
 and report, and reading them back is the last chance to catch a register slip.
 
@@ -245,7 +245,7 @@ python scripts/upload_exercises.py --stage exercises \
   --answers-file data/exercise_seeding/ja/batch_001.exercises.json --dry-run
 python scripts/upload_exercises.py --stage exercises \
   --batch-file data/exercise_seeding/ja/batch_001.json \
-  --answers-file data/exercise_seeding/ja/batch_001.exercises.json
+  --answers-file data/exercise_seeding/ja/batch_001.exercises.json --apply
 ```
 
 The uploader remaps P2 and P3, schema-gates the split L4/L8 fragments against

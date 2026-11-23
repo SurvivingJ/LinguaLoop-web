@@ -3,7 +3,7 @@ title: Calibration — Technical Specification
 type: feature-tech
 status: in-progress
 prose_page: calibration.md
-last_updated: 2026-10-30
+last_updated: 2026-11-23
 dependencies:
   - "table: dim_word_senses (+ new column word_language_id, embedding)"
   - "table: dim_vocabulary (lemma, language_id, frequency_rank)"
@@ -27,9 +27,12 @@ breaking_change_risk: low
 
 **Phases 1-4 are COMPLETE** — distractor foundation, session engine + UI,
 pronunciation mode + the corrected estimator, and the handoff to test selection.
-Phases 1-3 are applied live; Phase 4's migration is written and **not yet applied**
-(the session that wrote it had no DDL path), and everything downstream fails closed
-until it is. TASK-763 remains open and needs real learner traffic.
+Phases 1-4 are applied live. (An earlier version of this paragraph said Phase 4's
+migration was not yet applied; that contradicted the Phase 4 section below, which
+records it applied live under TASK-765, and the live database: re-checked
+2026-11-23, `calibration_zipf_to_elo` and `apply_calibration_to_skill_ratings` both
+exist.) Consumers still fail closed if `user_calibration_state` is ever absent.
+TASK-763 remains open and needs real learner traffic.
 
 ## Architecture Overview
 
@@ -272,7 +275,6 @@ TASK-747's (the guarded rating writer), each with its own guards.
 | `POST /api/calibration/start` | `{word_language_id, definition_language_id}` |
 | `GET /api/calibration/next` | `item: null` + `exhausted: true` when the pair runs out |
 | `POST /api/calibration/answer` | `position` may be `null` (skip → recorded incorrect) |
-| `GET /api/calibration/ability` | the curve so far |
 | `POST /api/calibration/end` | closes the session, returns the final report |
 
 Ownership is checked in `calibration_service.get_session()` rather than left to
@@ -502,7 +504,7 @@ All three languages swept, 14,400 senses, `google/gemini-3.5-flash-lite`,
 | ja | 3,563 | 154 | **4.32%** | 4 |
 | zh | 4,282 | 121 | **2.83%** | 6 |
 
-zh being the cleanest is consistent with [[distractor-judge-v3-likert]], which found
+zh being the cleanest is consistent with [[tasklist/distractor-judge-calibration.tasks]], which found
 the same thing once model artefacts were controlled for: under a common judge zh is
 the cleanest of the three, not the worst.
 

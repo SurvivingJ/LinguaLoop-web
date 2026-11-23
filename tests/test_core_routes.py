@@ -1,8 +1,7 @@
 # tests/test_core_routes.py
-"""Tests for core application routes (health, config, metadata, errors)."""
+"""Tests for core application routes (health, metadata, errors)."""
 
 import json
-import pytest
 
 
 class TestHealthCheck:
@@ -24,19 +23,6 @@ class TestHealthCheck:
     def test_contains_version(self, client):
         data = resp_json(client.get('/api/health'))
         assert 'version' in data
-
-
-class TestConfig:
-    """GET /api/config"""
-
-    def test_returns_200(self, client):
-        resp = client.get('/api/config')
-        assert resp.status_code == 200
-
-    def test_contains_features(self, client):
-        data = resp_json(client.get('/api/config'))
-        assert 'features' in data
-        assert isinstance(data['features'], dict)
 
 
 class TestMetadata:

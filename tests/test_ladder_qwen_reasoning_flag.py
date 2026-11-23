@@ -22,8 +22,7 @@ mode is varied independently:
 This file is the "caps" half of the contract; the payload-shape half lives in
 test_provider_routing_and_reasoning.py. Every module tested here runs on a
 qwen model (per wiki/evaluations/exercise-gen-phase2-2026-10.md §7's
-worst-case-$ table): bundle generator/judge (all/both supported languages),
-prompt1/2/3 core-ladder generators (TASK-813 moved these to qwen for every
+worst-case-$ table): prompt1/2/3 core-ladder generators (TASK-813 moved these to qwen for every
 language), and the particle judge (qwen, ja-only -- the one per-level judge
 NOT on gemini). The other five per-level judges (cloze, collocation,
 l1_distractor, relation, sentence_validity) are gemini-based and therefore
@@ -39,8 +38,6 @@ import pytest
 from services.vocabulary_ladder.asset_generators import prompt1_core as p1mod
 from services.vocabulary_ladder.asset_generators import prompt2_exercises as p2mod
 from services.vocabulary_ladder.asset_generators import prompt3_transforms as p3mod
-from services.vocabulary_ladder.bundle import generator as bundle_gen_mod
-from services.vocabulary_ladder.bundle import judge as bundle_judge_mod
 from services.exercise_generation.judges import particle as particle_mod
 
 
@@ -110,56 +107,6 @@ def test_p3_transforms_cap_switches_to_rightsized_when_off(monkeypatch):
 def test_p3_transforms_cap_stays_reasoning_safe_for_low_and_budget(monkeypatch, mode):
     monkeypatch.setenv('LADDER_QWEN_REASONING', mode)
     assert p3mod._max_tokens() == 8192
-
-
-# ---------------------------------------------------------------------------
-# bundle/generator.py (per-language caps)
-# ---------------------------------------------------------------------------
-
-@pytest.mark.parametrize('language_id,expected', [(1, 40000), (2, 44000), (3, 34000)])
-def test_bundle_generator_caps_default_to_reasoning_safe_values(language_id, expected):
-    assert bundle_gen_mod._max_tokens_for_language(language_id) == expected
-
-
-def test_bundle_generator_cap_default_on_falls_back_for_unknown_language():
-    assert bundle_gen_mod._max_tokens_for_language(999) == 40000
-
-
-@pytest.mark.parametrize('language_id,expected', [(1, 9000), (2, 9500), (3, 7000)])
-def test_bundle_generator_caps_switch_to_rightsized_when_off(monkeypatch, language_id, expected):
-    monkeypatch.setenv('LADDER_QWEN_REASONING', 'off')
-    assert bundle_gen_mod._max_tokens_for_language(language_id) == expected
-
-
-def test_bundle_generator_cap_off_falls_back_for_unknown_language(monkeypatch):
-    monkeypatch.setenv('LADDER_QWEN_REASONING', 'off')
-    assert bundle_gen_mod._max_tokens_for_language(999) == 9500
-
-
-@pytest.mark.parametrize('mode', ['low', 'budget'])
-@pytest.mark.parametrize('language_id,expected', [(1, 40000), (2, 44000), (3, 34000)])
-def test_bundle_generator_caps_stay_reasoning_safe_for_low_and_budget(monkeypatch, mode, language_id, expected):
-    monkeypatch.setenv('LADDER_QWEN_REASONING', mode)
-    assert bundle_gen_mod._max_tokens_for_language(language_id) == expected
-
-
-# ---------------------------------------------------------------------------
-# bundle/judge.py
-# ---------------------------------------------------------------------------
-
-def test_bundle_judge_cap_default_to_reasoning_safe_value():
-    assert bundle_judge_mod._max_tokens() == 16000
-
-
-def test_bundle_judge_cap_switches_to_rightsized_when_off(monkeypatch):
-    monkeypatch.setenv('LADDER_QWEN_REASONING', 'off')
-    assert bundle_judge_mod._max_tokens() == 4500
-
-
-@pytest.mark.parametrize('mode', ['low', 'budget'])
-def test_bundle_judge_cap_stays_reasoning_safe_for_low_and_budget(monkeypatch, mode):
-    monkeypatch.setenv('LADDER_QWEN_REASONING', mode)
-    assert bundle_judge_mod._max_tokens() == 16000
 
 
 # ---------------------------------------------------------------------------

@@ -32,25 +32,27 @@ Usage::
         --language 2 --limit 200 --dry-run
 
     # full English sweep, writing flags to calibration_anchor_blocklist
-    PYTHONIOENCODING=utf-8 python -m scripts.screen_sense_definition_mismatch --language 2
+    PYTHONIOENCODING=utf-8 python -m scripts.screen_sense_definition_mismatch --language 2 --apply
 
     # rate check on the CJK languages
     PYTHONIOENCODING=utf-8 python -m scripts.screen_sense_definition_mismatch \
         --language 1 --limit 400 --dry-run
+
+Nothing is written to calibration_anchor_blocklist without --apply (the flags
+JSON under data/calibration/ is written either way, as before).
 """
 
 from __future__ import annotations
 
-import argparse
 import json
 import os
 import re
 import time
 
 try:
-    from _common import admin_db, bootstrap, paginate
+    from _common import admin_db, base_parser, bootstrap, paginate
 except ImportError:  # run or imported as scripts.<name>
-    from scripts._common import admin_db, bootstrap, paginate
+    from scripts._common import admin_db, base_parser, bootstrap, paginate
 
 bootstrap(log_level=None)
 
@@ -273,12 +275,10 @@ def screen_batch(call_llm, batch, language_id: int) -> dict:
 
 
 def main() -> None:
-    ap = argparse.ArgumentParser()
+    ap = base_parser(dry_run_help='screen and report, but write no blocklist rows (the default)')
     ap.add_argument('--language', type=int, required=True, choices=[1, 2, 3])
     ap.add_argument('--limit', type=int, default=None)
     ap.add_argument('--batch', type=int, default=BATCH)
-    ap.add_argument('--dry-run', action='store_true',
-                    help='screen and report, but write no blocklist rows')
     ap.add_argument('--out', default=None)
     ap.add_argument('--tokenizer-artifacts', action='store_true',
                     help='rule-based pass for zh/ja lemmas containing a space '

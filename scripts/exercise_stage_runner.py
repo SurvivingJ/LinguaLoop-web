@@ -8,6 +8,8 @@ a run directory that `export_exercise_worklist.py --format csv` created:
     collect RUN --stage K      read call_*.response.json, validate, merge into 0K_*.json
     bridge  RUN                stage 2b: level plan + P2/P3/L4/L8/typed prompts
     assemble RUN               stage 7: 07_upload/batch_001.{core,exercises}[.batch].json
+    render  RUN [--apply]      insert the exercise rows, judges replayed from stage 8
+                               (dry run unless --apply)
     status  RUN                where every sense stands
 
 Order: prepare 1 → collect 1 → prepare 2 → collect 2 → bridge →
@@ -15,9 +17,11 @@ prepare/collect 3, 4, 5 → prepare 6 → collect 6 → assemble → upload_exer
 
 Stages 1, 3, 4, 5 are answered by the batch-exercise-authoring skill; stages
 2 and 6 by batch-exercise-judging, in a context that has never seen the
-authoring. No step here writes to the database: prepare 2/6 and bridge read it
-(the P1 judge prompt, the renderer's judges, collocate grounding, the live
-capability gates); upload_exercises.py is the only writer.
+authoring. Only `render --apply` here writes: the `exercises` rows and their
+content files in Storage (store.write_sense, ADR-049). prepare 2/6/8 and bridge
+read the database (the P1 judge prompt, the renderer's judges, collocate
+grounding, the live capability gates); upload_exercises.py --apply writes the
+word_assets the renderer reads.
 
 Nothing is re-implemented. Validation is upload_exercises.prepare_core /
 prepare_exercises; the level plan and exercise prompts are
@@ -39,6 +43,11 @@ sys.path.insert(0, ROOT)
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))  # sibling scripts
 
 from services.vocabulary_ladder import stage_runner as sr
+
+try:
+    from _common import ApplyArgumentParser, add_apply_flags
+except ImportError:  # imported as scripts.<name>
+    from scripts._common import ApplyArgumentParser, add_apply_flags
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger('stage_runner')
@@ -547,7 +556,8 @@ def cmd_assemble(args) -> int:
     for key, why in out['dropped'].items():
         logger.info('    dropped %s: %s', key, why)
     f = out['files']
-    logger.info('next:\n  python scripts/upload_exercises.py --stage core --batch-file %s '
+    logger.info('next (dry run first, then again with --apply in place of --dry-run):\n'
+                '  python scripts/upload_exercises.py --stage core --batch-file %s '
                 '--answers-file %s --dry-run\n  python scripts/upload_exercises.py '
                 '--stage exercises --batch-file %s --answers-file %s --dry-run',
                 f['core_batch'], f['core_answers'], f['exercises_batch'],
@@ -571,8 +581,8 @@ def cmd_status(args) -> int:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__,
-                                     formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser = ApplyArgumentParser(description=__doc__,
+                                 formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = parser.add_subparsers(dest='cmd', required=True)
     p = sub.add_parser('prepare')
     p.add_argument('run_dir')
@@ -588,10 +598,12 @@ def main() -> int:
         s = sub.add_parser(name)
         s.add_argument('run_dir')
         s.set_defaults(fn=fn)
-    r = sub.add_parser('render', help='insert exercise rows, judges replayed from stage 8')
+    r = sub.add_parser('render', help='insert exercise rows, judges replayed from stage 8 '
+                                      '(dry run unless --apply)')
     r.add_argument('run_dir')
     r.add_argument('--senses')
-    r.add_argument('--dry-run', action='store_true')
+    add_apply_flags(r, apply_help='insert the rows and write the content files '
+                                  '(default: dry run, nothing is written)')
     r.set_defaults(fn=cmd_render)
     args = parser.parse_args()
     try:

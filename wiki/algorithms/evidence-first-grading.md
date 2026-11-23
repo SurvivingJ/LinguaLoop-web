@@ -3,13 +3,15 @@ title: Evidence-First Grading (Dual Translation v2)
 type: algorithm
 status: complete
 tech_page: ./evidence-first-grading.tech.md
-last_updated: 2026-07-19
+last_updated: 2026-11-23
 open_questions:
   - "OPEN: new ZH/JA prompt strings (incl. rubric v6 band descriptors) are AI-authored first drafts pending native review (same QA flag as TASK-616)"
-  - "OPEN: rubric v6 (migrations/dt_rubric_v6_seed.sql) is evaluated (the TASK-632 harness ran on it as candidate config) but NOT yet applied to live Supabase — one manual apply owed; live grading uses v5 descriptors until then"
+  - "ANSWERED 2026-11-23: rubric v6 (migrations/dt_rubric_v6_seed.sql) is applied; `dt_rubric_version` v6 has been active since 2026-08-10 (v1, v2, v4, v5 inactive, checked live)."
 ---
 
 # Evidence-First Grading (Dual Translation v2)
+
+> **Status note 2026-11-23:** since 2026-11-14 the live DT grader is the single-call grader ([[decisions/ADR-044-dt-single-call-generative-grader]], `Config.DT_SINGLE_CALL_GRADER` default true). Tier 0 still runs first. The v2 flow (`DT_FRAMEWORK_V2` default true) now grades only when the single call is switched off, fails (primary and fallback model), or the loaded taxonomy does not match its hardcoded type list; v1 is the rollback path behind that. Production currently runs two free models in the single-call slot ([[evaluations/dt-free-grader-goldset-2026-11-23]]). See [[features/dual-translation.tech]] for the current flow.
 
 ## Purpose
 Replace gestalt LLM banding with a grading framework where **every score is computed from

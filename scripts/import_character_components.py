@@ -37,14 +37,15 @@ everywhere. Same reasoning as a stopword list, applied to strokes.
 
 Usage
 -----
-    PYTHONPATH=. python scripts/import_character_components.py --dry-run
-    PYTHONPATH=. python scripts/import_character_components.py
-    PYTHONPATH=. python scripts/import_character_components.py --max-depth 3
+    PYTHONPATH=. python scripts/import_character_components.py                  # dry run
+    PYTHONPATH=. python scripts/import_character_components.py --apply          # upsert
+    PYTHONPATH=. python scripts/import_character_components.py --max-depth 3 --apply
+
+Nothing is written without --apply (--dry-run is accepted as an explicit alias).
 """
 
 from __future__ import annotations
 
-import argparse
 import io
 import logging
 import os
@@ -59,6 +60,11 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from dotenv import load_dotenv
 
 from services.supabase_factory import SupabaseFactory, get_supabase_admin
+
+try:
+    from _common import base_parser
+except ImportError:  # imported as scripts.<name>
+    from scripts._common import base_parser
 
 logger = logging.getLogger('import_character_components')
 
@@ -270,9 +276,8 @@ def upload(db, rows: list) -> int:
 
 
 def main(argv=None) -> int:
-    parser = argparse.ArgumentParser(description=__doc__.split('\n')[0])
-    parser.add_argument('--dry-run', action='store_true',
-                        help='build and report, write nothing')
+    parser = base_parser(description=__doc__.split('\n')[0],
+                         dry_run_help='build and report, write nothing (the default)')
     parser.add_argument('--max-depth', type=int, default=DEFAULT_MAX_DEPTH,
                         help='recursion depth through real characters (default: %(default)s)')
     parser.add_argument('--max-component-share', type=float,

@@ -630,6 +630,7 @@ def test_is_reasoning_only_model_does_not_flag_ordinary_models(model):
     not os.environ.get('SUPABASE_URL'),
     reason='needs Supabase credentials; prompt_templates is the source of truth',
 )
+@pytest.mark.live
 def test_no_active_vocab_ladder_model_resolves_to_a_reasoning_class_model():
     from services.supabase_factory import SupabaseFactory, get_supabase_admin
 

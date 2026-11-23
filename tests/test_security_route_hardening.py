@@ -1,6 +1,6 @@
 """TASK-882 route hardening: answer keys, timing/count bounds, gate trust."""
 
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from unittest.mock import MagicMock
 
 import pytest
@@ -94,7 +94,6 @@ def test_fetch_route_does_not_select_answer_fields(app, client):
     def table(name):
         if name == 'questions':
             m = _chain([{'id': 'q1', 'question_text': 'Q'}])
-            orig = m.select
             def sel(cols, *a, **k):
                 seen.append(cols)
                 return m

@@ -18,7 +18,7 @@ import threading
 from concurrent.futures import as_completed
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import Callable, List, Optional
+from typing import Callable, Optional
 from uuid import UUID, uuid4
 
 from .config import get_test_gen_config
@@ -311,6 +311,16 @@ class TestGenerationOrchestrator:
                     # failed and moving to the next one would work through the
                     # whole queue writing unjudged questions — the outage this
                     # run is wrapped in batch_mode() to prevent. Abort.
+                    # The item was already marked 'processing'; later runs
+                    # select only 'pending', so put it back before aborting
+                    # or it is stuck forever.
+                    if not dry_run:
+                        try:
+                            self.db.update_queue_item_status(item.id, 'pending')
+                        except Exception:
+                            logger.exception(
+                                "Could not return queue item %s to pending", item.id
+                            )
                     raise
 
                 except Exception as e:
@@ -429,8 +439,10 @@ class TestGenerationOrchestrator:
         except JevError:
             # Tier assignment failed after retries (ADR-029). There is no
             # fallback tier, so this test must not be written; propagating
-            # marks the queue item *failed* (retryable) instead of completing
-            # it with zero tests.
+            # marks the queue item failed (mark_queue_failed sets status 'rejected'
+            # with the error in error_log) instead of completing it with zero
+            # tests. A rejected item is NOT picked up again: only 'pending'
+            # items are selected, so it stays rejected until someone resets it.
             logger.error(
                 "Tier assignment failed for queue item %s (topic tier %s); "
                 "no test written", item.id, tier_id,
@@ -438,9 +450,15 @@ class TestGenerationOrchestrator:
             raise
 
         except Exception as e:
+            # Generation raised, so zero tests were produced: propagate so the
+            # run loop marks the item failed (status 'rejected', error in
+            # error_log; not selected again, only 'pending' items are) instead
+            # of completing it with 0 tests. A legitimate rejection returns
+            # False and still completes below.
             logger.error(
                 f"Failed to generate test at tier {tier_id}: {e}"
             )
+            raise
 
         # Mark queue item complete
         if not dry_run:

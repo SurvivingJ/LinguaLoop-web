@@ -71,7 +71,7 @@ const DTErrorCard = (function () {
   }
 
   function cardIdOf(card) {
-    // GET /next and GET /cards/due both emit `card_id`; the Practice Engine
+    // GET /next emits `card_id` (the removed GET /cards/due did too); the Practice Engine
     // item (cards.py::_to_practice_item) carries `card_id` too, alongside a
     // synthetic string `id` ("dt-error-<n>") that is NOT the card id.
     return card && card.card_id;

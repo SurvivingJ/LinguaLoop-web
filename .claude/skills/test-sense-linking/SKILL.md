@@ -36,6 +36,7 @@ Writes `data/sense_linking/tests_missing_senses.csv`. Read it and note two thing
   work, and remove them from your queue:
   ```bash
   python scripts/upload_test_senses.py --from-token-map --language en --dry-run
+  python scripts/upload_test_senses.py --from-token-map --language en --apply
   ```
 - The `transcript` column is the text you extract from. Read it from the CSV;
   do not re-fetch it.
@@ -89,10 +90,10 @@ candidates file, no more and no fewer.
 
 ```bash
 python scripts/upload_test_senses.py --decisions-file data/sense_linking/<slug>.decisions.json --dry-run
-python scripts/upload_test_senses.py --decisions-file data/sense_linking/<slug>.decisions.json
+python scripts/upload_test_senses.py --decisions-file data/sense_linking/<slug>.decisions.json --apply
 ```
 
-Always dry-run first. Read the output: it reports how many tokens the transcript
+Always dry-run first (nothing is written without `--apply`). Read the output: it reports how many tokens the transcript
 ended up linking and which content lemmas stayed unmatched. If linked tokens look
 implausibly low for the transcript's length, your term list was too thin — go
 back to stage 2 for that test rather than moving on.

@@ -41,6 +41,17 @@
 -- `tests_select` if rls_tests_single_select_policy.sql was applied, otherwise
 -- the three policies that file replaces.
 --
+-- Also locks test_skill_ratings (see the first block): its free-tier read
+-- policy depends on reading tests as the caller.
+--
+-- Rollback for that part:
+--   GRANT SELECT ON public.test_skill_ratings TO anon, authenticated;
+--   CREATE POLICY public_free_skill_ratings ON public.test_skill_ratings
+--     AS PERMISSIVE FOR SELECT TO public
+--     USING (EXISTS (SELECT 1 FROM public.tests
+--                     WHERE tests.id = test_skill_ratings.test_id
+--                       AND tests.is_active = true AND tests.tier = 'free-tier'));
+--
 -- Idempotent and re-runnable. DDL only; no row is touched.
 -- REQUIRES USER APPROVAL TO APPLY LIVE.
 --
@@ -51,6 +62,28 @@
 -- =============================================================================
 
 BEGIN;
+
+-- test_skill_ratings: its client policy ("public_free_skill_ratings", TO public)
+-- lets anon and authenticated read ratings of active free-tier tests through
+-- PostgREST by checking public.tests as the caller. Once tests is locked that
+-- check fails with "permission denied for table tests", so the policy has to go
+-- first. Nothing reads the table as a client: every reader in routes/ and
+-- services/ uses the service role (checked on this branch and on main,
+-- 2026-11-14). Result: RLS on, no policy that reads tests, no client privilege.
+ALTER TABLE public.test_skill_ratings ENABLE ROW LEVEL SECURITY;
+
+DO $$
+DECLARE p record;
+BEGIN
+  FOR p IN SELECT policyname FROM pg_policies
+            WHERE schemaname = 'public' AND tablename = 'test_skill_ratings'
+              AND (coalesce(qual, '') ~* '\mtests\M' OR coalesce(with_check, '') ~* '\mtests\M')
+  LOOP
+    EXECUTE format('DROP POLICY %I ON public.test_skill_ratings', p.policyname);
+  END LOOP;
+END $$;
+
+REVOKE ALL ON TABLE public.test_skill_ratings FROM PUBLIC, anon, authenticated;
 
 DO $$
 DECLARE

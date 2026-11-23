@@ -15,26 +15,26 @@ Each classifier carries a difficulty_tier (1=core 10, 2=HSK 3-4, 3=HSK 5+,
 4=rare) which drives per-user level gating.
 
 Usage:
-    python scripts/build_classifier_dictionary.py            # full rebuild
-    python scripts/build_classifier_dictionary.py --dry-run  # preview only
+    python scripts/build_classifier_dictionary.py            # dry run: preview only, writes nothing
+    python scripts/build_classifier_dictionary.py --apply    # full rebuild (DELETES then re-inserts all zh rows)
+
+``--dry-run`` is still accepted as an explicit no-op alias; combining it with
+``--apply`` is an error. The rebuild is not transactional: a failure between
+the delete and the inserts leaves the zh classifier tables empty.
 """
 
 import os
-import argparse
 import logging
 
 try:
-    from _common import bootstrap
+    from _common import bootstrap, base_parser
 except ImportError:  # run or imported as scripts.<name>
-    from scripts._common import bootstrap
+    from scripts._common import bootstrap, base_parser
 
 bootstrap()
 
 
 from services.supabase_factory import SupabaseFactory, get_supabase_admin
-
-if not SupabaseFactory.is_initialized():
-    SupabaseFactory.initialize()
 
 logger = logging.getLogger(__name__)
 
@@ -532,6 +532,10 @@ def _merge_approved_curation():
 
 
 def run(dry_run: bool = False):
+    # Initialised here, not at import, so --help and argument errors work without
+    # credentials and importing CLASSIFIERS/NOUN_CLASSIFIERS has no side effects.
+    if not SupabaseFactory.is_initialized():
+        SupabaseFactory.initialize()
     db = get_supabase_admin()
 
     # Fold in LLM-curated content (data/classifier_curation/approved_curation.json)
@@ -584,11 +588,15 @@ def run(dry_run: bool = False):
         chunk = pair_rows[i:i + 500]
         db.table('dim_classifier_noun_pairs').insert(chunk).execute()
     logger.info(f"Inserted {len(pair_rows)} curated noun-classifier pairs")
-    logger.info("Curated build complete. Run import_cedict_classifiers.py for long-tail coverage.")
+    logger.info("Curated build complete. Run import_cedict_classifiers.py --apply for long-tail coverage.")
+
+
+def main(argv=None):
+    parser = base_parser("Build curated classifier dictionary for Chinese. "
+                         "Dry run unless --apply is given.")
+    args = parser.parse_args(argv)  # base_parser rejects --apply with --dry-run (exit 2)
+    run(dry_run=not args.apply)
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="Build curated classifier dictionary for Chinese")
-    parser.add_argument('--dry-run', action='store_true', help='Preview without writing')
-    args = parser.parse_args()
-    run(dry_run=args.dry_run)
+    main()

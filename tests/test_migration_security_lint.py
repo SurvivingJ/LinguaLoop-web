@@ -26,7 +26,6 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-import pytest
 
 MIGRATIONS_DIR = Path(__file__).resolve().parent.parent / "migrations"
 

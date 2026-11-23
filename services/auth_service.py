@@ -171,7 +171,7 @@ class AuthService:
         Get complete user data after OTP verification.
 
         The Supabase trigger should have already created the user record in the users table.
-        This method retrieves that data and adds the token balance.
+        This method retrieves that data (the token balance is no longer part of it).
         """
         try:
             # Query user data from users table. Must use the admin client: this
@@ -191,12 +191,6 @@ class AuthService:
             if result.data:
                 user_data = result.data[0]
 
-                # Get token balance using admin client (RPC requires elevated permissions)
-                token_balance = self.supabase_admin.rpc('get_token_balance', {
-                    'p_user_id': user_id
-                }).execute()
-
-                user_data['token_balance'] = token_balance.data if token_balance.data else 0
                 return self._sanitize_user_data(user_data)
             else:
                 # If trigger didn't create user, create manually as fallback
@@ -214,14 +208,7 @@ class AuthService:
                 }
 
                 self.supabase_admin.table('users').insert(user_record).execute()
-
-                # Grant welcome tokens
-                self.supabase_admin.rpc('grant_daily_free_tokens', {
-                    'p_user_id': user_id
-                }).execute()
-
-                user_record['token_balance'] = 2  # Default welcome tokens
-                return user_record
+                return self._sanitize_user_data(user_record)
 
         except Exception as e:
             self.logger.error(f'Get user data error: {e}')
@@ -231,7 +218,6 @@ class AuthService:
                 'email': email,
                 'subscription_tier': 'free',
                 'email_verified': True,
-                'token_balance': 0,
                 'total_tests_taken': 0,
                 'total_tests_generated': 0,
                 'has_seen_welcome': False,
@@ -245,7 +231,6 @@ class AuthService:
             'email': user_data.get('email'),
             'email_verified': bool(user_data.get('email_verified', True)),
             'subscription_tier': user_data.get('subscription_tier', 'free'),
-            'token_balance': int(user_data.get('token_balance') or 0),
             'total_tests_taken': int(user_data.get('total_tests_taken') or 0),
             'total_tests_generated': int(user_data.get('total_tests_generated') or 0),
             'has_seen_welcome': bool(user_data.get('has_seen_welcome', False)),
@@ -375,7 +360,7 @@ class AuthService:
             return {'success': False, 'error': 'Failed to refresh session'}
 
     def get_user_profile(self, user_id: str) -> Dict:
-        """Get user profile with token balance"""
+        """Get user profile"""
         try:
             # Admin client: same reason as _get_user_data above — self.supabase
             # never carries the caller's JWT, so RLS silently zeroes this out.
@@ -387,14 +372,7 @@ class AuthService:
             if not user_result.data:
                 return {'success': False, 'error': 'User not found'}
 
-            # Get token balance
-            token_balance = self.supabase_admin.rpc('get_token_balance', {
-                'p_user_id': user_id
-            }).execute()
-
             user_data = user_result.data[0]
-            user_data['token_balance'] = token_balance.data if token_balance.data else 0
-            
             return {'success': True, 'user': user_data}
             
         except Exception as e:

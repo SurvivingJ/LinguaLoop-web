@@ -12,7 +12,7 @@ To add a new language:
     4. Insert prompt rows in prompt_templates table
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
 from typing import Optional
 import logging

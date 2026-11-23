@@ -51,7 +51,7 @@ def main():
             subprocess.run(['python3', 'scratch_offline/run.py', 'scripts/upload_exercises.py', '--stage', st,
                             '--no-render', '--source-model', 'claude-code:fat-seed',
                             '--batch-file', f'{run}/07_upload/batch_001.{st}.batch.json',
-                            '--answers-file', f'{run}/07_upload/batch_001.{st}.json'],
+                            '--answers-file', f'{run}/07_upload/batch_001.{st}.json', '--apply'],
                            capture_output=True, text=True, env=ENV)
         if os.path.exists(SNAP):
             os.replace(SNAP, f'{run}/upload_writes.jsonl')

@@ -18,7 +18,6 @@ Pipeline stages:
 """
 
 import logging
-from typing import Optional
 
 from services.vocabulary.config import get_nlp_metadata
 from services.vocabulary.phrase_detector import PhraseDetector

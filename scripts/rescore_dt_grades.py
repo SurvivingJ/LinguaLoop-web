@@ -8,8 +8,8 @@ understandability) from each grade's stored `dt_error_instance` rows under a tar
 from the stored grade, recomputes the weighted-mean overall (renormalizing over the
 present dimensions), and prints the before/after band deltas.
 
-DRY-RUN BY DEFAULT — it writes nothing unless `--apply` is passed (and `--dry-run`
-always wins if both are given). No OpenRouter / model calls are ever made.
+DRY-RUN BY DEFAULT — it writes nothing unless `--apply` is passed (`--dry-run`
+with `--apply` is an error, exit 2). No OpenRouter / model calls are ever made.
 
     python scripts/rescore_dt_grades.py --rubric-version 5 --dry-run
     python scripts/rescore_dt_grades.py --rubric-version 5 --apply    # persists
@@ -22,16 +22,15 @@ are reported but SKIPPED on `--apply` unless `--include-tier0` is given.
 
 from __future__ import annotations
 
-import argparse
 import sys
 from collections import defaultdict
 
 # Run-as-script bootstrap (mirrors scripts/run_dt_grading_eval.py): put the repo
 # root on the path and load .env before importing app services.
 try:
-    from _common import admin_db, bootstrap
+    from _common import admin_db, base_parser, bootstrap
 except ImportError:  # run or imported as scripts.<name>
-    from scripts._common import admin_db, bootstrap
+    from scripts._common import admin_db, base_parser, bootstrap
 
 bootstrap(log_level=None)
 
@@ -108,19 +107,18 @@ def _fmt_delta(dim: str, before, after) -> str:
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description="Re-score DT grades under a rubric version (TASK-627)")
+    ap = base_parser(description="Re-score DT grades under a rubric version (TASK-627)",
+                     apply_help="persist the recomputed scores/overall_band",
+                     dry_run_help="preview only; never write (this is also the default)")
     ap.add_argument("--rubric-version", type=int, required=True,
                     help="dt_rubric_version.version whose scoring config to score under")
-    ap.add_argument("--dry-run", action="store_true",
-                    help="preview only; never write (this is also the default)")
-    ap.add_argument("--apply", action="store_true", help="persist the recomputed scores/overall_band")
     ap.add_argument("--include-tier0", action="store_true",
                     help="also rewrite tier-0-resolved grades (default: report but skip on --apply)")
     ap.add_argument("--all", action="store_true", help="print unchanged grades too")
     ap.add_argument("--limit", type=int, default=None, help="rescore at most N grades (newest first)")
     args = ap.parse_args()
 
-    writing = args.apply and not args.dry_run
+    writing = args.apply  # base_parser rejects --apply with --dry-run (exit 2)
 
     db = admin_db()
     if db is None:

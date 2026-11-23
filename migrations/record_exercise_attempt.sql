@@ -25,7 +25,8 @@
 --     without reading it again; Python also applies bkt_apply_lapse_penalty.
 --   * The new-word-drill restart after a ring-2 demotion (intro_drill.py).
 --
--- Python calls this only when PRACTICE_ATTEMPT_RPC_ENABLED is set (default off).
+-- This RPC is the only Practice attempt-recording path: Python always calls it
+-- (the PRACTICE_ATTEMPT_RPC_ENABLED flag and the Python fallback were removed).
 -- Additive and idempotent: no existing object is changed.
 -- =============================================================================
 
@@ -219,4 +220,4 @@ COMMENT ON FUNCTION public.record_exercise_attempt IS
     'One-transaction Practice attempt write path (attempt row with is_first_attempt, atomic '
     'exercise counters, prestudy follow-up, BKT, ladder, study-time ledger, plan progress). '
     'FSRS stays in Python: the user_flashcards row is returned for it. Service role only; '
-    'used when PRACTICE_ATTEMPT_RPC_ENABLED is set.';
+    'the only Practice attempt-recording path.';
