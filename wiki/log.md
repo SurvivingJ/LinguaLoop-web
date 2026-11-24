@@ -7212,3 +7212,6 @@ Owner supplied the JLPT list; coverage 28% (2,233 / 7,972). Owner: "start with n
 
 ## [2026-11-24] content | JLPT N3 seeded (1,320 words); 1,313 with Claude-judged exercises
 Owner: "Execute n3. Stop when the anthropic key runs out of usage". The Claude limit was not reached. Words, definitions, glosses and pronunciations live; 1,313 / 1,320 senses with exercises (18,557 rows, judges on Claude, fail-closed). Embeddings, ja pool refresh, caches and gates blocked on the OpenRouter key limit. DB 439.0 MB. Notional spend: fat-seed $58.75, judges $163.13. Details: [[tasklist/report-and-placement-apply-runbook]] "JLPT N3 seeding".
+
+## [2026-11-24] content | JLPT N2 live to the DB line; N1 definitions offline; billed to the owner's API key
+Owner: "use the CLAUDE_API key for n2 and n1". Earlier N5–N3 calls had used the session login (corrected in the runbook). N2: 1,310 words live with definitions; 944 senses with exercises; 350 senses authored but held offline at the 475 MB line (DB 473.15 MB). N1: 2,130 definitions stored offline. Key spend $185.29. ja gates PASS. Details: [[tasklist/report-and-placement-apply-runbook]].

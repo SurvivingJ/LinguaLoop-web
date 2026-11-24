@@ -232,3 +232,25 @@ removed from the code.
   `scratch_offline/jlpt_n3_tools/`.
 - Database: 395.99 MB before → 439.00 MB after (≈32.6 KB per sense). Headroom to the 475 MB stop line ≈ 36 MB
   ≈ 1,100 more senses; N2 + N1 (≈3,500 words) would need ≈115 MB.
+- Later the same day: N3 embeddings done (owner topped up OpenRouter; 1,320 vectors, ≈$0.0001), ja pool refreshed,
+  caches filled, gates PASS (3,1) 97.6% / (3,2) 99.0% / (3,3) 99.0%.
+- **Correction:** every N5/N4/N3 Claude call ran through `claude -p` on the session's Claude Code login, not the
+  owner's `CLAUDE_API` key; the dollar figures above are the CLI's notional per-token prices, not charges.
+
+### 2026-11-24 — JLPT N2 (live up to the DB line) and N1 definitions (offline), billed to the owner's API key
+
+- From N2 on, every model call bills the owner's `CLAUDE_API` key: `scratch_offline/bin/claude` sets
+  `ANTHROPIC_API_KEY=$CLAUDE_API` and unsets the session proxy URL; it is first on PATH for `nt_author`/`nt_review`
+  and is `CLAUDE_CLI_PATH` for the renderer judges (`claude_cli_client` strips API keys from its own child env, so the
+  wrapper is the only way in). Verified per process (`apiKeySource: ANTHROPIC_API_KEY`).
+- Definitions: `scratch_offline/jlpt_defs_cli.py` (same brief as the N3 subagents, JSON on stdout, validated, retried).
+- **N2 live**: 1,310 words, definitions, glosses, pronunciations, embeddings; ja pool refreshed (20,047), caches
+  filled; gates PASS (3,1) 97.9% / (3,2) 99.1% / (3,3) 99.2%. Exercises: 80 of 110 runs uploaded (cap chosen from
+  measured DB growth ≈27 KB/sense); 944 of 960 senses live; 16 without (`n2_exercise_issues.csv`).
+- **N2 offline**: 30 runs / 350 senses authored, reviewed and ready but NOT uploaded (DB line):
+  `data/exercise_seeding/ja/archive/jlpt_n2_offline_ready_to_upload_2026-11-24.tar.gz`, ids in
+  `data/sense_seeding/ja_jlpt/n2_offline_sense_ids.txt`. Upload = `upload_run.sh` + render per run (≈10 MB).
+- **N1 offline**: 2,130 definitions (1,212 written, 918 drafts reviewed, 237 fixed) in `n1_final.json`; no DB rows.
+  Exercises need the words in the dictionary first (the export reads live senses).
+- Spend on the key: N2 definitions $6.43, N2 authoring $57.26, N2 judges $109.99, N1 definitions $11.61 — $185.29.
+- Database: 439.0 MB → 473.15 MB. Stopped under the 475 MB line.

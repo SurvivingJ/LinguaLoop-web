@@ -26,7 +26,7 @@ ls.LLM_DEFAULT_PROVIDER = 'claude_cli'
 from services.exercise_content import store  # noqa: E402
 from services.exercise_generation.judges.base import batch_mode, JudgeUnavailable  # noqa: E402
 import re  # noqa: E402
-LIMIT_RE = re.compile(r'usage limit|rate.?limit|overloaded|\b429\b|\b529\b|limit reached|out of extra usage', re.I)
+LIMIT_RE = re.compile(r'usage limit|rate.?limit|overloaded|\b429\b|\b529\b|limit reached|out of extra usage|credit balance|billing', re.I)
 consecutive_fail = 0
 from services.vocabulary_ladder.exercise_renderer import LadderExerciseRenderer  # noqa: E402
 
