@@ -1,7 +1,103 @@
-#!/bin/sh
-# Run Claude Code headless on the owner's Anthropic API key (env CLAUDE_API) instead of the session login.
-# Put this directory first on PATH (nt_author/nt_review) and set CLAUDE_CLI_PATH to this file (renderer judges).
-[ -n "$CLAUDE_API" ] || { echo "claude wrapper: CLAUDE_API is not set" >&2; exit 2; }
-unset ANTHROPIC_BASE_URL ANTHROPIC_AUTH_TOKEN CLAUDE_CODE_OAUTH_TOKEN CLAUDE_CODE_REMOTE  # CLAUDE_CODE_REMOTE makes the CLI bill the session login whatever key it is given
-export ANTHROPIC_API_KEY="$CLAUDE_API"
-exec /opt/node22/bin/claude "$@"
+#!/usr/bin/env python3
+"""Drop-in stand-in for `claude -p ... --output-format json` that calls the Anthropic Messages API directly,
+billed to the owner's API key in env CLAUDE_API.
+
+Why: in this cloud container the real Claude Code CLI bills the session login whenever CLAUDE_CODE_REMOTE is set,
+and with that unset it is refused ("Credit balance is too low") even though the same key works on the Messages API.
+
+Put scratch_offline/bin first on PATH (nt_author / nt_review / jlpt_defs_cli call `claude`) and set
+CLAUDE_CLI_PATH to this file (services/claude_cli_client.py, the renderer's judges). Reads the prompt from stdin,
+accepts the flags those callers pass, prints the CLI's JSON result envelope (result, is_error, usage,
+total_cost_usd, modelUsage, num_turns, session_id, stop_reason). Every call is appended to the ledger
+($CLAUDE_API_LEDGER, default ~/.claude_api_ledger.jsonl) with its request id and cost.
+"""
+import argparse
+import json
+import os
+import sys
+import time
+
+for var in ('ANTHROPIC_BASE_URL', 'ANTHROPIC_AUTH_TOKEN', 'ANTHROPIC_API_KEY'):
+    os.environ.pop(var, None)          # never fall back to the session's endpoint or credentials
+
+import anthropic  # noqa: E402
+
+MODELS = {'sonnet': 'claude-sonnet-5-5', 'haiku': 'claude-haiku-5-5', 'opus': 'claude-opus-5-5'}
+# $ per million tokens: input, output, cache write (5 min), cache read
+PRICES = {'claude-sonnet-5-5': (2.00, 10.00, 2.50, 0.10),
+          'claude-haiku-5-5': (0.10, 0.50, 0.125, 0.01),
+          'claude-opus-5-5': (4.00, 20.00, 5.00, 0.20)}
+LEDGER = os.environ.get('CLAUDE_API_LEDGER') or os.path.expanduser('~/.claude_api_ledger.jsonl')
+
+
+def envelope_error(subtype, message, status=None):
+    return {'type': 'result', 'subtype': subtype, 'is_error': True, 'result': message,
+            'api_error_status': status, 'total_cost_usd': 0.0, 'num_turns': 1, 'usage': {}}
+
+
+def main():
+    ap = argparse.ArgumentParser(add_help=False)
+    ap.add_argument('-p', '--print', action='store_true')
+    ap.add_argument('--model', default='sonnet')
+    ap.add_argument('--effort')
+    ap.add_argument('--system-prompt', default='')
+    ap.add_argument('--output-format', default='json')
+    ap.add_argument('--tools')
+    ap.add_argument('--max-tokens', type=int, default=int(os.environ.get('CLAUDE_SHIM_MAX_TOKENS', '64000')))
+    args, rest = ap.parse_known_args()   # --strict-mcp-config, --no-session-persistence etc. are no-ops here
+    positional = [r for r in rest if not r.startswith('--')]
+    prompt = positional[0] if positional else sys.stdin.read()
+
+    key = os.environ.get('CLAUDE_API')
+    if not key:
+        print(json.dumps(envelope_error('error_config', 'CLAUDE_API is not set')))
+        return 1
+    model = MODELS.get(args.model, args.model)
+    kwargs = dict(model=model, max_tokens=args.max_tokens,
+                  messages=[{'role': 'user', 'content': prompt}])
+    if args.system_prompt:
+        kwargs['system'] = [{'type': 'text', 'text': args.system_prompt, 'cache_control': {'type': 'ephemeral'}}]
+    if args.effort:
+        kwargs['output_config'] = {'effort': args.effort}
+
+    client = anthropic.Anthropic(api_key=key, base_url='https://api.anthropic.com', max_retries=4,
+                                 timeout=float(os.environ.get('CLAUDE_SHIM_TIMEOUT', '1500')))
+    t0 = time.time()
+    try:
+        with client.messages.stream(**kwargs) as stream:
+            msg = stream.get_final_message()
+            req_id = getattr(stream, 'request_id', None) or getattr(getattr(stream, 'response', None), 'headers', {}).get('request-id')
+    except anthropic.APIStatusError as e:
+        env = envelope_error('error_api', f'{e.status_code} {e.message}', e.status_code)
+        print(json.dumps(env))
+        with open(LEDGER, 'a') as fh:
+            fh.write(json.dumps({'ts': time.time(), 'model': model, 'error': env['result'][:300],
+                                 'request_id': getattr(e, 'request_id', None)}) + '\n')
+        return 0
+    except anthropic.APIConnectionError as e:
+        print(json.dumps(envelope_error('error_connection', f'connection error: {e}')))
+        return 0
+
+    u = msg.usage
+    cin, cout, cw, cr = PRICES.get(model, PRICES['claude-sonnet-5-5'])
+    inp, out = u.input_tokens or 0, u.output_tokens or 0
+    cwt, crt = u.cache_creation_input_tokens or 0, u.cache_read_input_tokens or 0
+    cost = (inp * cin + out * cout + cwt * cw + crt * cr) / 1e6
+    text = ''.join(b.text for b in msg.content if b.type == 'text')
+    refused = msg.stop_reason == 'refusal'
+    usage = {'input_tokens': inp, 'output_tokens': out, 'cache_creation_input_tokens': cwt,
+             'cache_read_input_tokens': crt}
+    env = {'type': 'result', 'subtype': 'error_refusal' if refused else 'success', 'is_error': refused,
+           'result': text, 'stop_reason': msg.stop_reason, 'total_cost_usd': cost, 'num_turns': 1,
+           'session_id': msg.id, 'duration_ms': int((time.time() - t0) * 1000), 'usage': usage,
+           'modelUsage': {msg.model: dict(usage, costUSD=cost)}, 'via': 'anthropic-messages-api',
+           'request_id': req_id}
+    print(json.dumps(env, ensure_ascii=False))
+    with open(LEDGER, 'a') as fh:
+        fh.write(json.dumps({'ts': time.time(), 'model': msg.model, 'request_id': req_id,
+                             'cost_usd': cost, **usage, 'stop_reason': msg.stop_reason}) + '\n')
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())

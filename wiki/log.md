@@ -7218,3 +7218,6 @@ Owner: "use the CLAUDE_API key for n2 and n1". Earlier N5–N3 calls had used th
 
 ## [2026-11-24] fix | Owner's API key was never used by the CLI
 Owner: "You didn't make any calls using the Claude api key". Confirmed: `CLAUDE_CODE_REMOTE` routes the CLI through the session login regardless of the key. Wrapper fixed (unsets it); via the CLI the key now gets "Credit balance is too low", although direct Messages API calls with it succeed. All N5–N1 spend was on the session login. Runbook corrected.
+
+## [2026-11-24] fix | Calls now reach the owner's API key (Messages API shim)
+Owner: "Figure out how we can call the anthropic api". `scratch_offline/bin/claude` replaced by a Python shim over the Messages API (anthropic SDK) that mimics `claude -p --output-format json`; fake key → 401, real key → success with request ids; ledger at ~/.claude_api_ledger.jsonl. Test batch: 20 N1 definitions, $0.14.

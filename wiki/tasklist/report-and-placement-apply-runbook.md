@@ -244,6 +244,14 @@ removed from the code.
 > fake key, which still succeeded). The wrapper now also unsets `CLAUDE_CODE_REMOTE`; through it a fake key fails
 > ("Invalid API key") and the real key is refused with "Credit balance is too low", while direct Messages API calls
 > with the same key succeed. The dollar figures below are the CLI's notional prices on the session login.
+>
+> **Fix (2026-11-24):** `scratch_offline/bin/claude` is now a drop-in replacement for `claude -p … --output-format
+> json` that calls the Messages API directly with `CLAUDE_API` (official `anthropic` SDK, streaming, cached system
+> prompt, `sonnet`/`haiku`/`opus` → `claude-*-5-5`, `--effort` → `output_config.effort`). It prints the CLI's JSON
+> result envelope, so `nt_author`, `nt_review`, `jlpt_defs_cli.py` (PATH) and the renderer judges
+> (`CLAUDE_CLI_PATH`) work unchanged. Proven: a fake key fails 401; the real key succeeds with request ids
+> (`req_011ChNP9xxgBXXRoHzcQAMA3`, `req_011ChNPAuLReghJZYChgNFM1`); every call is logged with request id and real
+> cost to `~/.claude_api_ledger.jsonl`. Definitions cost ≈ $0.007/word on Sonnet 5.5.
 
 - From N2 on, every model call bills the owner's `CLAUDE_API` key: `scratch_offline/bin/claude` sets
   `ANTHROPIC_API_KEY=$CLAUDE_API` and unsets the session proxy URL; it is first on PATH for `nt_author`/`nt_review`
