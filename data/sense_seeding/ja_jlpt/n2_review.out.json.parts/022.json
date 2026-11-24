@@ -1,0 +1,36 @@
+[
+ {
+  "lemma": "手前",
+  "verdict": "fix",
+  "note": "ja_standard, en_standard and zh joined two senses (またと also). Reduced each to the single sense 'this side / near side'.",
+  "changes": {
+   "def_ja_standard": "自分に近い方の側。",
+   "def_en_simple": "this side",
+   "def_en_standard": "this side; near side — the side closer to oneself",
+   "def_zh_simple": "这边",
+   "def_zh_standard": "这边；近处 —— 靠近自己的一侧"
+  }
+ },
+ {
+  "lemma": "出迎え",
+  "verdict": "fix",
+  "note": "Japanese definitions reuse むかえる (the word itself) and the simple one is not child register. Rewrote both without the word.",
+  "changes": {
+   "def_ja_simple": "くるひとにあいに、でかけていくこと。",
+   "def_ja_standard": "来る人や客を、出向いて待ち受け、あいさつすること。"
+  }
+ },
+ {
+  "lemma": "電柱",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "天皇",
+  "verdict": "fix",
+  "note": "zh simple and standard copy the Japanese word 天皇 verbatim, which the gloss gate rejects. Replaced with natural Chinese equivalents.",
+  "changes": {
+   "def_zh_simple": "日本君主",
+   "def_zh_standard": "日本君主；日本皇帝 —— 日本国的象征"
+  }
+ }
+]

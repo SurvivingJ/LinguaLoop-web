@@ -1,0 +1,191 @@
+[
+ {
+  "lemma": "就任",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "祝日",
+  "verdict": "fix",
+  "note": "zh 节日 means festival in general, not a legally set national holiday",
+  "changes": {
+   "def_zh_simple": "法定假日",
+   "def_zh_standard": "法定假日；公休日 —— 国家法律规定的庆祝日"
+  }
+ },
+ {
+  "lemma": "受験",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "出勤",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "出張",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "主役",
+  "verdict": "fix",
+  "note": "ja and zh standard join two senses (leading role and central person); reduced to the leading part",
+  "changes": {
+   "def_ja_standard": "劇や映画などで中心となる役。",
+   "def_en_standard": "leading role; lead part — the central part in a play or film",
+   "def_zh_standard": "主角 —— 戏剧、电影等中的中心角色"
+  }
+ },
+ {
+  "lemma": "受話器",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "順序",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "将棋",
+  "verdict": "fix",
+  "note": "en uses the romanized source word; zh 将棋 is not natural Chinese (日本象棋)",
+  "changes": {
+   "def_en_simple": "Japanese chess",
+   "def_en_standard": "Japanese chess — a board game in which players try to capture the opposing king",
+   "def_zh_simple": "日本象棋",
+   "def_zh_standard": "日本象棋 —— 在棋盘上移动棋子、将死对方王将的游戏"
+  }
+ },
+ {
+  "lemma": "定規",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "上級",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "消極的",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "賞金",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "上下",
+  "verdict": "fix",
+  "note": "joins two senses (up and down / rising and falling); reduced to the single sense 'top and bottom'",
+  "changes": {
+   "def_ja_standard": "上のほうと下のほう。",
+   "def_en_standard": "up and down; top and bottom — above and below",
+   "def_zh_standard": "上下 —— 上面与下面"
+  }
+ },
+ {
+  "lemma": "障子",
+  "verdict": "fix",
+  "note": "en gloss uses the romanized source word 'shoji/shōji'",
+  "changes": {
+   "def_en_simple": "paper sliding door",
+   "def_en_standard": "paper sliding door; paper screen — a wooden frame covered with paper",
+   "def_zh_standard": "纸拉门 —— 木框上糊纸的日式拉门"
+  }
+ },
+ {
+  "lemma": "商社",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "乗車",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "小数",
+  "verdict": "fix",
+  "note": "draft restricts decimals to numbers less than one, which is wrong (e.g. 3.14); 小数 is a number written with a decimal point",
+  "changes": {
+   "def_ja_simple": "てんをつかってあらわすかず。",
+   "def_ja_standard": "小数点を使って表した数。",
+   "def_en_standard": "decimal — a number written with a decimal point, such as 0.5",
+   "def_zh_standard": "小数 —— 用小数点表示的数，如0.5"
+  }
+ },
+ {
+  "lemma": "焦点",
+  "verdict": "fix",
+  "note": "joins two senses (optical and center of attention); reduced to the figurative focus matching the simple definition",
+  "changes": {
+   "def_ja_standard": "関心や注意が集中する中心の点。",
+   "def_en_standard": "focus; focal point — the center of attention or interest",
+   "def_zh_standard": "焦点 —— 关注或讨论集中的中心"
+  }
+ },
+ {
+  "lemma": "消毒",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "勝敗",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "上品",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "勝負",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "小便",
+  "verdict": "fix",
+  "note": "joins urine and the act of urinating; hint is the colloquial word for urine",
+  "changes": {
+   "def_ja_standard": "尿。くだけた言い方。",
+   "def_en_standard": "urine; piss — informal word for urine",
+   "def_zh_standard": "小便；尿 —— 口语中指尿液"
+  }
+ },
+ {
+  "lemma": "消防署",
+  "verdict": "fix",
+  "note": "zh 消防署 copies Japanese; natural Chinese is 消防站",
+  "changes": {
+   "def_zh_simple": "消防站",
+   "def_zh_standard": "消防站 —— 消防员驻守、出动救火救护的地方"
+  }
+ },
+ {
+  "lemma": "正面",
+  "verdict": "fix",
+  "note": "joins two senses (front face / directly opposite); reduced to front",
+  "changes": {
+   "def_ja_standard": "物の前に向いている面。",
+   "def_en_standard": "front; facade — the face of something that faces forward",
+   "def_zh_standard": "正面 —— 物体朝前的一面"
+  }
+ },
+ {
+  "lemma": "消耗",
+  "verdict": "fix",
+  "note": "joins consumption and exhaustion of strength; reduced to using up",
+  "changes": {
+   "def_ja_simple": "つかってへらすこと。",
+   "def_ja_standard": "使って減らすこと。",
+   "def_en_simple": "consumption",
+   "def_en_standard": "consumption; using up — spending a resource until it is depleted",
+   "def_zh_simple": "消耗",
+   "def_zh_standard": "消耗；耗费 —— 因使用而减少"
+  }
+ },
+ {
+  "lemma": "初級",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "食塩",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "書道",
+  "verdict": "ok"
+ }
+]

@@ -1,0 +1,214 @@
+[
+ {
+  "lemma": "詫びる",
+  "verdict": "fix",
+  "note": "ja standard just repeats the word itself",
+  "changes": {
+   "def_ja_standard": "自分の失敗や失礼を認めて、相手にゆるしを求める。"
+  }
+ },
+ {
+  "lemma": "和服",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "割引",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "扇ぐ",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "呆れる",
+  "verdict": "fix",
+  "note": "en simple 'amazed' is not the negative shock the hint means",
+  "changes": {
+   "def_en_simple": "be appalled; be stunned"
+  }
+ },
+ {
+  "lemma": "アクセント",
+  "verdict": "fix",
+  "note": "zh joins 口音 and 声调, which are different senses; keep only stress",
+  "changes": {
+   "def_zh_simple": "重音",
+   "def_zh_standard": "重音；重读 —— 词语中读得较重或较高的部分"
+  }
+ },
+ {
+  "lemma": "明け方",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "憧れる",
+  "verdict": "fix",
+  "note": "'admire' is a different sense from long for",
+  "changes": {
+   "def_en_simple": "long for; yearn for",
+   "def_en_standard": "to long for; to yearn for — to be strongly drawn to an ideal"
+  }
+ },
+ {
+  "lemma": "朝寝坊",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "足跡",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "足元",
+  "verdict": "fix",
+  "note": "standards join the ground at one's feet with immediate surroundings; keep the first",
+  "changes": {
+   "def_ja_standard": "立っている足のすぐ下のあたり。",
+   "def_en_standard": "underfoot — the ground right at one's feet",
+   "def_zh_standard": "脚下 —— 脚边正下方的地方"
+  }
+ },
+ {
+  "lemma": "味わう",
+  "verdict": "fix",
+  "note": "joins tasting with deep experiencing; keep tasting/savoring",
+  "changes": {
+   "def_ja_simple": "たべものやのみもののあじをよくかんじてたのしむ。",
+   "def_ja_standard": "食べ物や飲み物の味をよく確かめて楽しむ。",
+   "def_en_simple": "savor",
+   "def_en_standard": "to savor; to taste — to enjoy the flavor of food or drink carefully",
+   "def_zh_simple": "品尝",
+   "def_zh_standard": "品尝；品味 —— 细细体会食物的味道"
+  }
+ },
+ {
+  "lemma": "厚かましい",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "圧縮",
+  "verdict": "fix",
+  "note": "standards join physical compression with data compression; keep the physical sense",
+  "changes": {
+   "def_ja_standard": "押して体積や量を小さくすること。",
+   "def_en_standard": "compression — pressing something into a smaller volume",
+   "def_zh_standard": "压缩 —— 加压使体积变小",
+   "example_ja": "くうきをあっしゅくします。"
+  }
+ },
+ {
+  "lemma": "宛名",
+  "verdict": "fix",
+  "note": "ja standard joins name and address; en/zh standards say 'address' or 地址, which is misleading. It is the recipient's name written on mail.",
+  "changes": {
+   "def_ja_standard": "手紙や荷物などに書く、送る相手の名前。",
+   "def_en_simple": "recipient's name",
+   "def_en_standard": "addressee's name — the recipient's name written on mail or a parcel",
+   "def_zh_standard": "收件人姓名 —— 信件、包裹上写的对方姓名"
+  }
+ },
+ {
+  "lemma": "当てはまる",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "暴れる",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "雨戸",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "余る",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "編む",
+  "verdict": "fix",
+  "note": "en standard joins knit and braid; keep knit",
+  "changes": {
+   "def_en_standard": "to knit — to make fabric or a garment by interlacing yarn"
+  }
+ },
+ {
+  "lemma": "危うい",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "怪しい",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "荒い",
+  "verdict": "fix",
+  "note": "joins intense and coarse/rude senses; keep intense, violent",
+  "changes": {
+   "def_ja_simple": "いきおいがとてもはげしい。",
+   "def_ja_standard": "勢いが激しい。",
+   "def_en_standard": "rough; violent — intense in force",
+   "def_zh_simple": "猛烈",
+   "def_zh_standard": "猛烈；剧烈 —— 势头强烈"
+  }
+ },
+ {
+  "lemma": "粗い",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "粗筋",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "改めて",
+  "verdict": "fix",
+  "note": "joins 'again' with 'anew'; also ja standard says the word itself. Keep 'once more at another time'.",
+  "changes": {
+   "def_ja_simple": "もういちど。",
+   "def_ja_standard": "別の機会に、もう一度。",
+   "def_en_simple": "again",
+   "def_en_standard": "again; once more — on another occasion",
+   "def_zh_simple": "再次",
+   "def_zh_standard": "再次；再度 —— 换个时间再做一遍"
+  }
+ },
+ {
+  "lemma": "改める",
+  "verdict": "fix",
+  "note": "joins renewing and correcting faults; keep one reform/change sense",
+  "changes": {
+   "def_ja_simple": "わるいところをなおして、よくかえる。",
+   "def_ja_standard": "悪い点や古い点を直して、よいものに変える。",
+   "def_en_standard": "to change; to reform — to replace something old or faulty with something better",
+   "def_zh_standard": "改；改正 —— 把旧的或不好的变为好的"
+  }
+ },
+ {
+  "lemma": "荒れる",
+  "verdict": "fix",
+  "note": "joins stormy weather with social disorder; keep stormy",
+  "changes": {
+   "def_ja_simple": "かぜやなみがはげしくなる。",
+   "def_ja_standard": "天候や海が激しく乱れる。",
+   "def_en_simple": "become stormy",
+   "def_en_standard": "become stormy; turn rough — of weather or sea",
+   "def_zh_simple": "起风浪",
+   "def_zh_standard": "起风浪；变得狂暴 —— 天气或海面剧烈动荡"
+  }
+ },
+ {
+  "lemma": "アンテナ",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "言い出す",
+  "verdict": "fix",
+  "note": "joins 'start saying' with 'say first'/propose in all languages; reduce to bringing something up for the first time",
+  "changes": {
+   "def_ja_standard": "それまで口にしなかったことを、はじめて言う。",
+   "def_en_simple": "bring up",
+   "def_en_standard": "to bring up; to start saying — to say something for the first time",
+   "def_zh_simple": "开口提出",
+   "def_zh_standard": "提出；开口说 —— 首次说出某个想法或要求"
+  }
+ }
+]
