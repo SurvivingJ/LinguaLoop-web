@@ -210,3 +210,25 @@ removed from the code.
 - 21 senses without exercises: 13 definitions span 2+ meanings (split the sense first), 4 reviewer no-ops, 3 missing
   level_6 blocks, 1 proper noun (`n5n4_exercise_issues.csv`).
 - Database: 368.96 MB before → 394.72 MB after (owner's stop line: 475 MB).
+
+### 2026-11-24 — JLPT N3 seeding
+
+- **N3 seeded live**: 1,320 words (`load_vocab_list.py`), 2,640 ja definitions (588 drafts kept, 239 drafts fixed in
+  review, 493 written), 5,280 en/zh glosses, hiragana pronunciations on the 2,640 native rows.
+- **Not done — blocked on the OpenRouter key (total limit $11 spent):** N3 embeddings (1,320 senses, ≈$0.0002), then
+  the ja pool refresh (`calibration_refresh_anchor_pool(3)`), cache fill
+  (`build_calibration_distractor_cache.py --word-language 3`) and the ja gates. Until then N3 words have exercises but
+  are not placement anchors.
+- Exercises: fat-seed (110 runs × 12, `claude -p`, $58.75 notional incl. re-reviews), uploaded `--no-render`, then
+  rendered with every judge on Claude (Sonnet, 12,445 judge calls, $163.13 notional) **fail-closed**: judges ran inside
+  `batch_mode()` and the render stopped after 3 consecutive Claude-unavailable errors, so a usage limit could not
+  ship unjudged rows. The Claude usage limit was never hit.
+- 90 senses were dropped at assembly because the reviewer said "rewrite" but changed nothing; two blind re-review
+  rounds recovered 88. Result: 1,313 of 1,320 senses live, 9,191 word assets, 18,557 exercise rows.
+- 7 senses without exercises (`data/sense_seeding/ja_jlpt/n3_exercise_issues.csv`): 2 failed review 3 times, 2 missing
+  blocks, 1 core rejected (大), 2 author skips (カー bound form; 棟 reading とう vs a むね definition — fix the
+  definition).
+- Run documents archived: `data/exercise_seeding/ja/archive/jlpt_n3_2026-11-24.tar.gz`; driver scripts:
+  `scratch_offline/jlpt_n3_tools/`.
+- Database: 395.99 MB before → 439.00 MB after (≈32.6 KB per sense). Headroom to the 475 MB stop line ≈ 36 MB
+  ≈ 1,100 more senses; N2 + N1 (≈3,500 words) would need ≈115 MB.
