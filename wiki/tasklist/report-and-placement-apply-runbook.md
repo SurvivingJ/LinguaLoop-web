@@ -239,6 +239,12 @@ removed from the code.
 
 ### 2026-11-24 — JLPT N2 (live up to the DB line) and N1 definitions (offline), billed to the owner's API key
 
+> **Correction (2026-11-24, later):** none of the N2/N1 calls reached the owner's key. In this container the CLI
+> bills the session login whenever `CLAUDE_CODE_REMOTE` is set, whatever `ANTHROPIC_API_KEY` says (proved with a
+> fake key, which still succeeded). The wrapper now also unsets `CLAUDE_CODE_REMOTE`; through it a fake key fails
+> ("Invalid API key") and the real key is refused with "Credit balance is too low", while direct Messages API calls
+> with the same key succeed. The dollar figures below are the CLI's notional prices on the session login.
+
 - From N2 on, every model call bills the owner's `CLAUDE_API` key: `scratch_offline/bin/claude` sets
   `ANTHROPIC_API_KEY=$CLAUDE_API` and unsets the session proxy URL; it is first on PATH for `nt_author`/`nt_review`
   and is `CLAUDE_CLI_PATH` for the renderer judges (`claude_cli_client` strips API keys from its own child env, so the

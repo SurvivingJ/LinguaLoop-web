@@ -7215,3 +7215,6 @@ Owner: "Execute n3. Stop when the anthropic key runs out of usage". The Claude l
 
 ## [2026-11-24] content | JLPT N2 live to the DB line; N1 definitions offline; billed to the owner's API key
 Owner: "use the CLAUDE_API key for n2 and n1". Earlier N5–N3 calls had used the session login (corrected in the runbook). N2: 1,310 words live with definitions; 944 senses with exercises; 350 senses authored but held offline at the 475 MB line (DB 473.15 MB). N1: 2,130 definitions stored offline. Key spend $185.29. ja gates PASS. Details: [[tasklist/report-and-placement-apply-runbook]].
+
+## [2026-11-24] fix | Owner's API key was never used by the CLI
+Owner: "You didn't make any calls using the Claude api key". Confirmed: `CLAUDE_CODE_REMOTE` routes the CLI through the session login regardless of the key. Wrapper fixed (unsets it); via the CLI the key now gets "Credit balance is too low", although direct Messages API calls with it succeed. All N5–N1 spend was on the session login. Runbook corrected.

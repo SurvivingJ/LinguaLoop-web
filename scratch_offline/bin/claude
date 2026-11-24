@@ -2,6 +2,6 @@
 # Run Claude Code headless on the owner's Anthropic API key (env CLAUDE_API) instead of the session login.
 # Put this directory first on PATH (nt_author/nt_review) and set CLAUDE_CLI_PATH to this file (renderer judges).
 [ -n "$CLAUDE_API" ] || { echo "claude wrapper: CLAUDE_API is not set" >&2; exit 2; }
-unset ANTHROPIC_BASE_URL ANTHROPIC_AUTH_TOKEN CLAUDE_CODE_OAUTH_TOKEN
+unset ANTHROPIC_BASE_URL ANTHROPIC_AUTH_TOKEN CLAUDE_CODE_OAUTH_TOKEN CLAUDE_CODE_REMOTE  # CLAUDE_CODE_REMOTE makes the CLI bill the session login whatever key it is given
 export ANTHROPIC_API_KEY="$CLAUDE_API"
 exec /opt/node22/bin/claude "$@"
