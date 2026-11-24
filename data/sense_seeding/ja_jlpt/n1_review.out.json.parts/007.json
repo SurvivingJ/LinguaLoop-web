@@ -1,0 +1,176 @@
+[
+ {
+  "lemma": "追い出す",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "応募",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "おおげさ",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "大筋",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "大空",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "大幅",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "犯す",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "侵す",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "臆病",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "押し寄せる",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "雄",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "襲う",
+  "verdict": "fix",
+  "note": "standard joins two senses (attack + disaster strikes); reduce to the attack sense",
+  "changes": {
+   "def_ja_standard": "不意に攻めかかる。",
+   "def_en_standard": "to attack; to strike — to assault suddenly",
+   "def_zh_standard": "袭击；攻击 —— 突然发动攻击"
+  }
+ },
+ {
+  "lemma": "落ち込む",
+  "verdict": "fix",
+  "note": "joins depressed and 'sink/drop' senses; keep only the depressed sense",
+  "changes": {
+   "def_ja_standard": "気分が沈んで元気がなくなる。",
+   "def_en_standard": "to feel down; to be depressed — to lose one's spirits",
+   "def_zh_simple": "消沉",
+   "def_zh_standard": "消沉；低落 —— 心情沮丧、没有精神"
+  }
+ },
+ {
+  "lemma": "脅す",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "衰える",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "同い年",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "覚え",
+  "verdict": "fix",
+  "note": "standard joins three senses; reduce to memory/recollection",
+  "changes": {
+   "def_ja_standard": "記憶に残っていること。",
+   "def_en_standard": "memory; recollection — something remembered",
+   "def_zh_standard": "记忆；印象 —— 记在心里的事"
+  }
+ },
+ {
+  "lemma": "趣",
+  "verdict": "fix",
+  "note": "standard joins 'charm' and 'gist'; keep charm only",
+  "changes": {
+   "def_ja_standard": "しみじみとした味わいや風情。",
+   "def_en_standard": "charm; atmosphere — a tasteful, evocative quality",
+   "def_zh_standard": "情趣；韵味 —— 耐人寻味的风情"
+  }
+ },
+ {
+  "lemma": "及ぶ",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "折り返す",
+  "verdict": "fix",
+  "note": "ja simple/standard and en/zh join fold-back with turn-back/call-back senses; reduce to the fold-back sense per JLPT hint; example used the call-back sense",
+  "changes": {
+   "def_ja_simple": "おってかさねる。",
+   "def_ja_standard": "端や一部を折って重ねる。",
+   "def_en_simple": "fold back",
+   "def_en_standard": "to fold back; to turn up — to bend an edge over on itself",
+   "def_zh_simple": "折回",
+   "def_zh_standard": "折回；翻折 —— 把一端折过来叠上",
+   "example_ja": "そでをおりかえしました。"
+  }
+ },
+ {
+  "lemma": "俺",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "愚か",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "貝殻",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "会見",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "介護",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "開催",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "解除",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "害する",
+  "verdict": "fix",
+  "note": "joins 'damage' and 'offend'; reduce to harm/damage; ja simple used non-child wording and was two fragments",
+  "changes": {
+   "def_ja_simple": "わるいえいきょうをあたえて、だめにする。",
+   "def_ja_standard": "物事に悪い影響を与えて、そこなう。",
+   "def_en_simple": "harm",
+   "def_en_standard": "to harm; to damage — to affect something badly",
+   "def_zh_simple": "损害",
+   "def_zh_standard": "损害；危害 —— 对事物造成不良影响"
+  }
+ },
+ {
+  "lemma": "開拓",
+  "verdict": "fix",
+  "note": "joins land reclamation and pioneering new fields; reduce to the cultivation sense per JLPT hint",
+  "changes": {
+   "def_ja_simple": "あれちをたがやせるようにすること。",
+   "def_ja_standard": "荒れ地を切り開いて田畑などにすること。",
+   "def_en_simple": "land reclamation",
+   "def_en_standard": "reclamation; cultivation — clearing wasteland for farming",
+   "def_zh_simple": "开垦",
+   "def_zh_standard": "开垦；垦荒 —— 把荒地开辟成田地",
+   "example_ja": "あれちをかいたくします。"
+  }
+ },
+ {
+  "lemma": "会談",
+  "verdict": "ok"
+ }
+]
