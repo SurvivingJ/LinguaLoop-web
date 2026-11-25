@@ -262,9 +262,44 @@ removed from the code.
   filled; gates PASS (3,1) 97.9% / (3,2) 99.1% / (3,3) 99.2%. Exercises: 80 of 110 runs uploaded (cap chosen from
   measured DB growth ≈27 KB/sense); 944 of 960 senses live; 16 without (`n2_exercise_issues.csv`).
 - **N2 offline**: 30 runs / 350 senses authored, reviewed and ready but NOT uploaded (DB line):
-  `data/exercise_seeding/ja/archive/jlpt_n2_offline_ready_to_upload_2026-11-24.tar.gz`, ids in
+  `data/exercise_seeding/ja/archive/jlpt_n2_offline_assembled_2026-11-25.tar.gz` (see the 2026-11-25 section), ids in
   `data/sense_seeding/ja_jlpt/n2_offline_sense_ids.txt`. Upload = `upload_run.sh` + render per run (≈10 MB).
 - **N1 offline**: 2,130 definitions (1,212 written, 918 drafts reviewed, 237 fixed) in `n1_final.json`; no DB rows.
   Exercises need the words in the dictionary first (the export reads live senses).
 - Spend on the key: N2 definitions $6.43, N2 authoring $57.26, N2 judges $109.99, N1 definitions $11.61 — $185.29.
 - Database: 439.0 MB → 473.15 MB. Stopped under the 475 MB line.
+
+### 2026-11-25 — N1 exercises authored offline on the owner's API key; all offline work stored, not uploaded
+
+Owner: "Do the n1 exercises using the api key. Store all already authored but not uploaded senses and exercises and
+the ones you author now and then I will decide what to do with them in the end". Nothing was written to the database
+(it stays at 473.15 MB).
+
+- **Billing (verified):** every call in this section went through the Messages API shim on `CLAUDE_API`; ledger
+  `n1_ledger.jsonl`: 3,023 calls, 0 errors, **$66.99**. N2 offline re-review: 14 calls, $0.08. Shim tests: $0.14.
+  Total on the key: **$67.21**. The N1 *definitions* (`n1_final.json`, written 2026-11-24 18:26–18:41) predate the
+  shim (20:27) and therefore ran on the session login, not the key.
+- **How N1 was exported without dictionary rows:** `scratch_offline/export_offline_worklist.py` builds the same
+  `senses.csv` as `scripts/export_exercise_worklist.py --format csv`, with the per-word lookups taken from
+  `n1_final.json`. Each word has a PROVISIONAL sense id `900000000 + 2*i`
+  (`data/sense_seeding/ja_jlpt/n1_provisional_ids.json`, `{lemma: id}`).
+- **N1 result:** 178 runs (`data/exercise_seeding/ja/wf_jlpt_n1/r0000..r0177`), fat-seed pipeline (Sonnet core,
+  Haiku audits/variants/review), assembled offline. **2,111 of 2,130 senses packaged** in `RUN/07_upload/`;
+  19 held back (`data/sense_seeding/ja_jlpt/n1_exercise_issues.csv`: 7 review-identical after two re-review rounds,
+  7 fail upload validation, 5 rejected by review). r0130 needed its variants re-authored for four words (options
+  returned as bare strings, as N3 r0013).
+- **N2 offline result:** 30 runs re-reviewed and assembled: 341 of 350 senses packaged, 9 held back
+  (`n2_offline_exercise_issues.csv`). Sense ids are real (words are live).
+- **Archives (committed):**
+  - `data/exercise_seeding/ja/archive/jlpt_n1_offline_assembled_2026-11-25.tar.gz` (31 MB): all 178 N1 run dirs,
+    the stage-0 export, `n1_final.json`, `n1_provisional_ids.json`, `n1_exercise_issues.csv`.
+  - `data/exercise_seeding/ja/archive/jlpt_n2_offline_assembled_2026-11-25.tar.gz` (5 MB): the 30 N2 run dirs
+    and `n2_offline_sense_ids.txt`.
+
+**To upload later (owner's decision; each needs DB headroom):**
+1. N2 offline (≈10 MB): `upload_run.sh` per run, then render with Claude judges (≈ $0.12/sense on the key, ≈ $41).
+2. N1 (≈6 MB dictionary + ≈60 MB exercises): add the 2,130 words through the sense write path (definitions,
+   glosses, pronunciations, embeddings); build `{provisional_id: real_sense_id}` from `n1_provisional_ids.json`
+   by lemma; rewrite `sense_id` in every `07_upload/*.json`; upload core + exercises with `--no-render`; render
+   with Claude judges (≈ $250 on the key); refresh the ja pool, caches and gates.
+

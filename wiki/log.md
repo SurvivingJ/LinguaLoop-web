@@ -7221,3 +7221,6 @@ Owner: "You didn't make any calls using the Claude api key". Confirmed: `CLAUDE_
 
 ## [2026-11-24] fix | Calls now reach the owner's API key (Messages API shim)
 Owner: "Figure out how we can call the anthropic api". `scratch_offline/bin/claude` replaced by a Python shim over the Messages API (anthropic SDK) that mimics `claude -p --output-format json`; fake key → 401, real key → success with request ids; ledger at ~/.claude_api_ledger.jsonl. Test batch: 20 N1 definitions, $0.14.
+
+## [2026-11-25] content | JLPT N1 exercises authored offline on the owner's API key; N1 and N2-offline stored, not uploaded
+Owner: "Do the n1 exercises using the api key. Store all … then I will decide". 178 runs; 2,111 / 2,130 N1 senses packaged with provisional sense ids (900000000+2i); N2 offline 341 / 350 packaged. Both archived under data/exercise_seeding/ja/archive/. Key spend $67.21 (ledgers, 0 API errors). No DB writes (473.15 MB). N1 definitions predate the shim and ran on the session login. Details: [[tasklist/report-and-placement-apply-runbook]] "2026-11-25".

@@ -1,0 +1,20 @@
+run,provisional_sense_id,lemma,reason
+r0011,900000284,察する,reviewed document fails upload validation: [B] particle_selection: distractors repeat A — write new ones for B
+r0015,900000376,けがらわしい,"review rejected: Rejected rather than patched: the core is usable, but with no blocks there is nothing to patch. The sense needs a full regeneration. The plan's level_4 slot (sentence 1) and the antonym slot (sentence 3) are otherwise plausible."
+r0028,900000672,嘗める,"reviewed document fails upload validation: [A] typed particle_selection schema: options[0]: expected an object, got str; options[1]: expected an object, got str; options[2]: expected an object, got str; options[3]: expected an object, got str; [B] typed particle_selection schema: options[0]: expected an object, got str; options[1]: expected an object, got str; options[2]: expected an object, got str; options[3]: expected an object, got str"
+r0030,900000726,ニュー,"review rejected: Rejected because the core pos and definition contradict the corpus, so no patch can fix it without invalidating the explanations that rely on the prefix framing. The sentences themselves are natural. Regenerate the sense rather than patch it."
+r0034,900000836,排水,"review rejected: The core is unusable as written: the teaching sentences drift away from the stated sense, and the plan's particle and synonym blocks are built on those drifted sentences. Only a regenerated core, with the action sense held consistently, can be salvaged. The level_1 decline (廃水 is a homophone with the same reading) is correct but does not change the verdict."
+r0035,900000848,一同,review says rewrite but reviewed/ is identical to words/
+r0035,900000852,一別,review says rewrite but reviewed/ is identical to words/
+r0052,900001266,カクテル,"reviewed document fails upload validation: [B] level_7: corrected sentence is a core sentence verbatim — plant the error in a new sentence, not a copy of a core one"
+r0055,900001330,かぶれる,reviewed document fails upload validation: [A] Missing level_4
+r0074,900001780,仕切る,"review rejected: The core sentences are usable: they use 仕切る in the partition sense consistently and the furigana is correct. Because there are no variants and the plan is malformed, the document cannot be repaired by patches alone. This is a pipeline problem, not a core-sentence defect."
+r0074,900001782,しくじる,"review rejected: Core sentences are generally natural, but the target_word field is wrong throughout and the cloze options are not words, so the blocks are unusable. The register 'colloquial' is also outside the enum used elsewhere (plain/polite/honorific/humble/formal/casual, with neutral used in other senses). Regenerate the document and plan together."
+r0093,900002242,清純,reviewed document fails upload validation: [A] level_4: missing; [B] level_4: missing
+r0122,900002934,割当,"reviewed document fails upload validation: [B] particle_selection: distractors repeat A — write new ones for B; [A] particle_selection: 「に」 in the anchor 「教室の掃除は、班ごとに割当を決めてある。」 does not attach to 「割当」 — blank a particle that relates to the target or decline with ""no_particle_slot"""
+r0133,900003204,不吉,reviewed document fails upload validation: [A] level_4: missing; [B] level_4: missing
+r0135,900003258,沸騰,review says rewrite but reviewed/ is identical to words/
+r0136,900003266,赴任,review says rewrite but reviewed/ is identical to words/
+r0136,900003268,不評,review says rewrite but reviewed/ is identical to words/
+r0167,900004012,落下,review says rewrite but reviewed/ is identical to words/
+r0177,900004254,びら,review says rewrite but reviewed/ is identical to words/
