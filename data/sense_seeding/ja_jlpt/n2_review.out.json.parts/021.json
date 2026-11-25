@@ -1,0 +1,200 @@
+[
+ {
+  "lemma": "調節",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "長男",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "調味料",
+  "verdict": "fix",
+  "note": "zh contains non-natural 調味料 form; use natural Chinese 调料; en simple fine",
+  "changes": {
+   "def_zh_simple": "调料",
+   "def_zh_standard": "调料；调味品 —— 用来调整菜肴味道的东西"
+  }
+ },
+ {
+  "lemma": "直前",
+  "verdict": "fix",
+  "note": "zh simple uses ellipsis fragment; make clean gloss",
+  "changes": {
+   "def_zh_simple": "即将之前",
+   "def_zh_standard": "紧接在前；临前 —— 某事发生之前的那一刻"
+  }
+ },
+ {
+  "lemma": "直通",
+  "verdict": "fix",
+  "note": "en simple has parenthetical; zh standard mixes near-synonyms ok but clean en",
+  "changes": {
+   "def_en_simple": "direct link",
+   "def_en_standard": "direct connection; through service — reaching a destination without transfer"
+  }
+ },
+ {
+  "lemma": "散らかす",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "通知",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "通帳",
+  "verdict": "fix",
+  "note": "example uses wrong verb/odd (きちょう is valuables); also example should use 通帳 naturally",
+  "changes": {
+   "example_ja": "つうちょうにきにゅうします。"
+  }
+ },
+ {
+  "lemma": "通路",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "突き当たり",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "務める",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "努める",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "綱",
+  "verdict": "fix",
+  "note": "zh simple lists two items; keep single gloss; standard clarifier ok",
+  "changes": {
+   "def_zh_simple": "粗绳",
+   "def_zh_standard": "粗绳；缆绳 —— 用纤维等搓成的粗绳"
+  }
+ },
+ {
+  "lemma": "潰す",
+  "verdict": "fix",
+  "note": "joins two senses; JLPT hint is smash (waste is secondary but listed)—reduce to single sense 'smash/crush'",
+  "changes": {
+   "def_ja_simple": "おしてかたちをこわす。",
+   "def_ja_standard": "押したり力を加えたりして形を崩す。",
+   "def_en_simple": "crush",
+   "def_en_standard": "to crush; to smash — to squash something out of shape",
+   "def_zh_simple": "压坏",
+   "def_zh_standard": "压坏；压碎 —— 用力把东西压得变形",
+   "example_ja": "はこをてでつぶします。"
+  }
+ },
+ {
+  "lemma": "潰れる",
+  "verdict": "fix",
+  "note": "joins two senses; reduce to single sense 'be crushed'",
+  "changes": {
+   "def_ja_simple": "おされてかたちがこわれる。",
+   "def_ja_standard": "押されたり重みがかかったりして形が崩れる。",
+   "def_en_simple": "be crushed",
+   "def_en_standard": "to be crushed; to be smashed — to be squashed out of shape",
+   "def_zh_simple": "被压坏",
+   "def_zh_standard": "压坏；压扁 —— 受压而变形",
+   "example_ja": "はこがつぶれました。"
+  }
+ },
+ {
+  "lemma": "爪",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "手洗い",
+  "verdict": "fix",
+  "note": "jlpt_meaning is restroom; draft joins hand washing + restroom and example uses the other sense",
+  "changes": {
+   "def_ja_simple": "おしっこやうんちをするところ。",
+   "def_ja_standard": "用を足すための場所。便所。",
+   "def_en_simple": "restroom",
+   "def_en_standard": "restroom; lavatory — a room with a toilet",
+   "def_zh_simple": "洗手间",
+   "def_zh_standard": "洗手间；厕所 —— 设有马桶的房间",
+   "example_ja": "てあらいはどこですか。"
+  }
+ },
+ {
+  "lemma": "定員",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "定価",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "定休日",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "停止",
+  "verdict": "fix",
+  "note": "joins two senses (stopping / causing to stop); keep one",
+  "changes": {
+   "def_ja_simple": "うごいていたものがとまること。",
+   "def_ja_standard": "動いていたものが止まること。",
+   "def_en_simple": "stoppage",
+   "def_en_standard": "stoppage; suspension — something in motion coming to a halt",
+   "def_zh_simple": "停止",
+   "def_zh_standard": "停止；中止 —— 运动或进行中的事物停下来"
+  }
+ },
+ {
+  "lemma": "停車",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "出入り",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "手入れ",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "手首",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "手頃",
+  "verdict": "fix",
+  "note": "joins two senses (suitable / cheap); reduce to single sense 'moderate, handy'",
+  "changes": {
+   "def_ja_simple": "ちょうどよくてつかいやすい。",
+   "def_ja_standard": "大きさや値段などが程よく、扱いやすいようす。",
+   "def_en_simple": "handy",
+   "def_en_standard": "handy; moderate — just right in size or price",
+   "def_zh_simple": "合适",
+   "def_zh_standard": "合适；适中 —— 大小或价格恰到好处",
+   "example_ja": "てごろなおおきさのかばんです。"
+  }
+ },
+ {
+  "lemma": "弟子",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "手帳",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "手続き",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "手拭い",
+  "verdict": "fix",
+  "note": "en standard uses Japanese word tenugui",
+  "changes": {
+   "def_en_standard": "hand towel; cloth towel — a thin cotton cloth for wiping hands",
+   "def_zh_standard": "手巾；毛巾 —— 擦手擦身的薄棉布"
+  }
+ }
+]

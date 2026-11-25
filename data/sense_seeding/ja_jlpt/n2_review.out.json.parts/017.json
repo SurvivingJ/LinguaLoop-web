@@ -1,0 +1,205 @@
+[
+ {
+  "lemma": "牧場",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "保健",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "募集",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "干す",
+  "verdict": "fix",
+  "note": "ja simple has a typo (ひやかぜ) and is not clear child register",
+  "changes": {
+   "def_ja_simple": "おひさまやかぜにあててかわかす。"
+  }
+ },
+ {
+  "lemma": "ポスター",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "北極",
+  "verdict": "fix",
+  "note": "ja standard joins two senses (また、その周辺); en standard adds Arctic, a different sense; zh standard joins the surrounding area",
+  "changes": {
+   "def_ja_standard": "地球の北のはしにあたる地点。",
+   "def_en_standard": "North Pole — the northernmost point of the Earth",
+   "def_zh_standard": "北极 —— 地球最北端的地点"
+  }
+ },
+ {
+  "lemma": "掘る",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "盆地",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "本部",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "枚数",
+  "verdict": "fix",
+  "note": "zh 张数 is a Japanese-style term, not natural Chinese",
+  "changes": {
+   "def_zh_simple": "纸张数量",
+   "def_zh_standard": "纸张数量；张数 —— 纸等扁平物的数量"
+  }
+ },
+ {
+  "lemma": "枕",
+  "verdict": "fix",
+  "note": "zh standard uses Japanese kanji 寝具, not natural Chinese",
+  "changes": {
+   "def_zh_standard": "枕头 —— 睡觉时垫在头下的卧具"
+  }
+ },
+ {
+  "lemma": "マスク",
+  "verdict": "fix",
+  "note": "definitions join two senses (face mask and disguise mask); reduce to the face mask the exam means",
+  "changes": {
+   "def_ja_standard": "鼻と口を覆うもの。",
+   "def_en_standard": "mask — a covering worn over the nose and mouth",
+   "def_zh_simple": "口罩",
+   "def_zh_standard": "口罩 —— 遮住口鼻的东西"
+  }
+ },
+ {
+  "lemma": "待合室",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "街角",
+  "verdict": "fix",
+  "note": "joins two senses (street corner and the streets in general); zh simple copies Japanese 街角",
+  "changes": {
+   "def_ja_simple": "まちのとおりのかど。",
+   "def_ja_standard": "町の通りの曲がり角。",
+   "def_en_standard": "street corner — the corner where town streets meet",
+   "def_zh_simple": "街道拐角",
+   "def_zh_standard": "街道拐角；街角 —— 街上道路转弯的地方"
+  }
+ },
+ {
+  "lemma": "真っ暗",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "真っ青",
+  "verdict": "fix",
+  "note": "joins deep blue and ghastly pale; reduce to the first sense, deep blue, and change the example to match",
+  "changes": {
+   "def_ja_simple": "とてもあおい。",
+   "def_ja_standard": "とても青いようす。",
+   "def_en_simple": "deep blue",
+   "def_en_standard": "deep blue — vividly, completely blue",
+   "def_zh_simple": "湛蓝",
+   "def_zh_standard": "湛蓝；深蓝 —— 非常蓝的样子",
+   "example_ja": "そらがまっさおです。"
+  }
+ },
+ {
+  "lemma": "真っ白",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "祭る",
+  "verdict": "fix",
+  "note": "ja simple uses おまつり, which is the word itself, and is not child register",
+  "changes": {
+   "def_ja_simple": "かみさまやごせんぞさまをたいせつにして、いのる。"
+  }
+ },
+ {
+  "lemma": "窓口",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "まぶた",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "マラソン",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "回り道",
+  "verdict": "fix",
+  "note": "standards join two senses (the act of detouring and the route itself)",
+  "changes": {
+   "def_ja_simple": "とおくをまわっていくこと。",
+   "def_ja_standard": "目的地へ遠回りして行くこと。",
+   "def_en_standard": "detour — a longer route taken to reach a place",
+   "def_zh_standard": "绕道；绕远路 —— 为到达目的地而走较远的路线"
+  }
+ },
+ {
+  "lemma": "満員",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "マンション",
+  "verdict": "fix",
+  "note": "zh standard adds 高级住宅楼 (luxury housing), which is not the sense",
+  "changes": {
+   "def_zh_standard": "公寓；住宅楼 —— 中高层集合住宅"
+  }
+ },
+ {
+  "lemma": "満点",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "見上げる",
+  "verdict": "fix",
+  "note": "joins looking up and admiring; reduce to looking up",
+  "changes": {
+   "def_ja_standard": "下から上の方を見る。",
+   "def_en_standard": "to look up at — to gaze upward",
+   "def_zh_standard": "抬头看；仰望 —— 从下往上看"
+  }
+ },
+ {
+  "lemma": "見送る",
+  "verdict": "fix",
+  "note": "joins seeing off and forgoing; reduce to seeing off",
+  "changes": {
+   "def_ja_simple": "いくひとと、わかれのあいさつをする。",
+   "def_ja_standard": "去っていく人を、その場で見届けて送る。",
+   "def_en_simple": "see off",
+   "def_en_standard": "to see off; to bid farewell — to watch someone depart",
+   "def_zh_simple": "送行",
+   "def_zh_standard": "送行；送别 —— 目送离去的人"
+  }
+ },
+ {
+  "lemma": "見下ろす",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "三日月",
+  "verdict": "fix",
+  "note": "zh 新月 means new moon, a different thing",
+  "changes": {
+   "def_zh_simple": "月牙",
+   "def_zh_standard": "月牙；弯月 —— 看上去细细弯弯的月亮"
+  }
+ },
+ {
+  "lemma": "岬",
+  "verdict": "fix",
+  "note": "zh standard uses bare Japanese kanji 岬, not natural Chinese",
+  "changes": {
+   "def_zh_standard": "海角；岬角 —— 伸入海或湖中的陆地尖端"
+  }
+ }
+]

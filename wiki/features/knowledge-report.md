@@ -35,7 +35,7 @@ open_questions:
   - "OQ28 OPEN: Accept the Pro launch gate: no enforcement or Pro marketing of the report until HSK lists, the add-to-word-list action, filtered export and evidence-first rows ship? Default: yes."
   - "OQ29 ANSWERED (2026-11-23): refresh now, before the Chinese launch and before any snapshot exists, so no learner sees a jump. Done 2026-11-23: zh/zh frame 12,711 words (was ~3,600); zh/en and zh/ja frames 3,909 (limited by English/Japanese definitions)."
   - "OQ30 OPEN: May 'Add these words' grow the database (exercise generation; new words at 8 credits each)? Default: dictionary words only in v1."
-  - "OQ31 OPEN: Seed the ~722 missing JLPT N5-N4 words (about 3.4 MB) after the size gate? Default: a separate content task."
+  - "OQ31 ANSWERED (2026-11-23, owner): seed by level, N5+N4 first. Done 2026-11-23: 694 N5/N4 words added with definitions, embeddings and placement-pool entries; 673 with exercises judged by Claude (21 need dictionary fixes, see data/sense_seeding/ja_jlpt/n5n4_exercise_issues.csv). The owner supplied the JLPT list (7,972 entries; 28% were in the dictionary before). N3–N1 not started."
   - "OQ32 OPEN: Add a Pro 'Upcoming tests' card showing how many key words of each recommended test are known? Default: deferred."
   - "OQ33 OPEN: Align the vocabulary check's own result (which scores a skip as a wrong answer) with the report, or label each? Default: label each and show the report's range on the result screen."
   - "OQ34 OPEN: Show an estimated percentage per exam level after validation? Default: no."

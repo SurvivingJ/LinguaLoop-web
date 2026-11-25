@@ -1,0 +1,196 @@
+[
+ {
+  "lemma": "誇張",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "滑稽",
+  "verdict": "fix",
+  "note": "Standard joins two senses (funny + absurd); reduce to funny/comical.",
+  "changes": {
+   "def_ja_standard": "おどけていて、見ている人が笑いたくなるようす。",
+   "def_en_simple": "comical",
+   "def_en_standard": "comical; funny; humorous — amusing enough to make people laugh",
+   "def_zh_standard": "滑稽；可笑 —— 言行诙谐、令人发笑"
+  }
+ },
+ {
+  "lemma": "事柄",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "孤独",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "言付け",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "細やか",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "コメント",
+  "verdict": "fix",
+  "note": "Standard joins the act of commenting and the words themselves; keep a single sense.",
+  "changes": {
+   "def_ja_standard": "ある物事について述べた意見や感想の言葉。",
+   "def_zh_standard": "评论；意见 —— 对事物发表的意见或感想"
+  }
+ },
+ {
+  "lemma": "孤立",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "根気",
+  "verdict": "fix",
+  "note": "耐性 is not natural Chinese for 'patience'; use 耐心.",
+  "changes": {
+   "def_zh_simple": "耐心；毅力",
+   "def_zh_standard": "耐心；毅力 —— 不厌倦地坚持下去的精力"
+  }
+ },
+ {
+  "lemma": "根拠",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "根底",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "混同",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "採決",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "再建",
+  "verdict": "fix",
+  "note": "Standard lists two actions and two kinds of object; reduce to rebuilding a building, as the hint indicates.",
+  "changes": {
+   "def_ja_standard": "壊れたり焼けたりした建物を、もう一度建てること。",
+   "def_zh_standard": "重建 —— 把毁坏的建筑重新建造起来"
+  }
+ },
+ {
+  "lemma": "財源",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "在庫",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "採算",
+  "verdict": "fix",
+  "note": "zh gives two different senses (核算 and 收支平衡) and doesn't match the 'profit' hint.",
+  "changes": {
+   "def_zh_simple": "盈利",
+   "def_zh_standard": "盈利；效益 —— 比较收入与成本后能否获利"
+  }
+ },
+ {
+  "lemma": "最善",
+  "verdict": "fix",
+  "note": "Standard joins 'the best' and 'one's utmost'; the hint is only 'the very best'. The example used the utmost sense.",
+  "changes": {
+   "def_ja_standard": "最もよいこと。",
+   "def_en_standard": "the best; optimal — the most favorable option",
+   "def_zh_simple": "最好",
+   "def_zh_standard": "最好；最佳 —— 最为理想",
+   "example_ja": "さいぜんのほうほうをえらびます。"
+  }
+ },
+ {
+  "lemma": "再発",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "遮る",
+  "verdict": "fix",
+  "note": "Joins 'block a view' and 'interrupt speech'; reduce to the interrupt sense and drop the word itself from the example's reading context.",
+  "changes": {
+   "def_ja_standard": "人の話や動きを途中で止めてじゃまをする。",
+   "def_en_simple": "interrupt",
+   "def_en_standard": "to interrupt; to cut off — to stop someone partway through",
+   "def_zh_simple": "打断",
+   "def_zh_standard": "打断；截断 —— 在中途阻止他人说话或行动"
+  }
+ },
+ {
+  "lemma": "栄える",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "さきに",
+  "verdict": "fix",
+  "note": "Draft defines 'first/before others' but the hint is 'before, earlier, previously'.",
+  "changes": {
+   "def_ja_simple": "いまより、まえに。",
+   "def_ja_standard": "ある時より前に。以前に。",
+   "def_en_simple": "previously",
+   "def_en_standard": "previously; earlier — at a time before now",
+   "def_zh_simple": "先前",
+   "def_zh_standard": "先前；此前 —— 在现在或某个时间之前",
+   "example_ja": "さきにのべたとおりです。"
+  }
+ },
+ {
+  "lemma": "詐欺",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "作戦",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "叫び",
+  "verdict": "fix",
+  "note": "Standard joins the act and the voice, and uses the verb form of the word.",
+  "changes": {
+   "def_ja_standard": "大声をあげて呼ぶこと。",
+   "def_en_standard": "shout; cry — a loud call let out",
+   "def_zh_standard": "叫喊；呼声 —— 大声发出的喊叫"
+  }
+ },
+ {
+  "lemma": "指図",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "差し出す",
+  "verdict": "fix",
+  "note": "Joins 'hold out' and 'submit'; reduce to holding out/presenting. The standard also repeats the word itself.",
+  "changes": {
+   "def_ja_standard": "手や物を相手の前に出す。",
+   "def_en_simple": "hold out",
+   "def_en_standard": "to hold out; to present — to put something forward to someone",
+   "def_zh_simple": "递出",
+   "def_zh_standard": "递出；伸出 —— 把手或物品伸向对方"
+  }
+ },
+ {
+  "lemma": "差し支える",
+  "verdict": "fix",
+  "note": "en/zh glosses don't match the hint (interfere, hinder); zh standard is a phrase rather than an equivalent set.",
+  "changes": {
+   "def_en_simple": "hinder",
+   "def_en_standard": "to interfere; to hinder — to cause inconvenience",
+   "def_zh_simple": "妨碍",
+   "def_zh_standard": "妨碍；影响 —— 给事情带来不便"
+  }
+ },
+ {
+  "lemma": "殺人",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "察する",
+  "verdict": "ok"
+ }
+]

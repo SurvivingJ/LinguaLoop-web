@@ -143,11 +143,17 @@ def test_retake_comparison_and_daily_cap(fake):
     assert e.value.status == 429
 
 
-def test_disabled_language_is_404(fake, monkeypatch):
-    monkeypatch.setattr(cp.Config, 'PLACEMENT_ENABLED_LANGS', '1')
+def test_always_on_for_zh_en_ja(fake):
+    # No feature switch (owner, 2026-11-23): zh, en and ja are always on; others are rejected.
+    assert cp.enabled_languages() == {1, 2, 3}
+    for lang in (1, 2, 3):
+        cp.require_enabled(lang)
     with pytest.raises(cp.PlacementError) as e:
-        cp.start(USER, 3, 2)
+        cp.require_enabled(9)
     assert e.value.status == 404
+    with pytest.raises(cp.PlacementError) as e:
+        cp.start(USER, 9, 2)
+    assert e.value.status == 400
 
 
 def test_foreign_session_is_404(fake):
@@ -196,11 +202,6 @@ def test_routes_validation_and_flag(client, auth_headers, monkeypatch, fake):
     r = client.post('/api/calibration/placement/start', json={'word_language_id': 9, 'definition_language_id': 2},
                     headers=auth_headers)
     assert r.status_code == 400
-    monkeypatch.setattr(cp.Config, 'PLACEMENT_ENABLED_LANGS', '')
-    r = client.post('/api/calibration/placement/start', json={'word_language_id': 3, 'definition_language_id': 2},
-                    headers=auth_headers)
-    assert r.status_code == 404
-    monkeypatch.setattr(cp.Config, 'PLACEMENT_ENABLED_LANGS', '3')
     r = client.post('/api/calibration/placement/start', json={'word_language_id': 3, 'definition_language_id': 2},
                     headers=auth_headers)
     assert r.status_code == 201
@@ -238,8 +239,6 @@ def test_nightly_close_job(fake, monkeypatch):
     out = cp.start(USER, 3, 2)
     fake.sessions[out['session_id']]['last_activity'] -= timedelta(hours=30)
     assert cp.run_nightly_close() == {'closed': 1}
-    monkeypatch.setattr(cp.Config, 'PLACEMENT_ENABLED_LANGS', '')
-    assert cp.run_nightly_close()['skipped']
     from web.scheduler import JOBS
     job = next(j for j in JOBS if j.id == 'placement_close_stale_nightly')
     assert job.target == 'services.calibration_placement:run_nightly_close'

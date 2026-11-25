@@ -1,0 +1,202 @@
+[
+ {
+  "lemma": "日帰り",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "日陰",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "ぴかぴか",
+  "verdict": "fix",
+  "note": "joins 'brand-new' with the shiny sense; keep only glitter/sparkle",
+  "changes": {
+   "def_en_standard": "shiny; glittering — gleaming brightly",
+   "def_zh_standard": "亮闪闪；闪闪发光 —— 有光泽而闪亮"
+  }
+ },
+ {
+  "lemma": "引き返す",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "引き止める",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "肘",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "引っ掛かる",
+  "verdict": "fix",
+  "note": "joins 'caught' and 'be deceived'; keep only the caught/stuck sense",
+  "changes": {
+   "def_ja_simple": "ものにかかってとまる。",
+   "def_ja_standard": "物にかかって動かなくなる。",
+   "def_en_simple": "get caught",
+   "def_en_standard": "to get caught; to snag — to catch on something and stay stuck",
+   "def_zh_simple": "挂住",
+   "def_zh_standard": "挂住；卡住 —— 被东西钩住而无法脱开"
+  }
+ },
+ {
+  "lemma": "筆者",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "一通り",
+  "verdict": "fix",
+  "note": "ja definitions reuse the word itself; en/zh simple and standard are unnatural or not an equivalent set",
+  "changes": {
+   "def_ja_simple": "はじめからおわりまでざっとやること。",
+   "def_ja_standard": "最初から最後まで一度ざっと行うこと。",
+   "def_en_simple": "once through",
+   "def_en_standard": "briefly; in general — going through the whole thing once",
+   "def_zh_simple": "大致",
+   "def_zh_standard": "大致；粗略 —— 从头到尾大概过一遍"
+  }
+ },
+ {
+  "lemma": "一休み",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "独り言",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "皮肉",
+  "verdict": "fix",
+  "note": "joins sarcasm with the 'opposite outcome' sense; keep only sarcasm",
+  "changes": {
+   "def_ja_standard": "遠回しに意地悪く非難すること。",
+   "def_en_simple": "sarcasm",
+   "def_en_standard": "sarcasm; cynicism — veiled, spiteful criticism",
+   "def_zh_standard": "讽刺；挖苦 —— 拐弯抹角地讥讽"
+  }
+ },
+ {
+  "lemma": "日の入り",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "響き",
+  "verdict": "fix",
+  "note": "joins echo with the 'feel of a word' sense; zh 声调 is wrong; example used the other sense",
+  "changes": {
+   "def_ja_standard": "音が反響して聞こえること。",
+   "def_en_standard": "echo; resonance — sound spreading and lingering",
+   "def_zh_simple": "回响",
+   "def_zh_standard": "回响；回音 —— 声音回荡传开",
+   "example_ja": "かねのひびきがきこえます。"
+  }
+ },
+ {
+  "lemma": "響く",
+  "verdict": "fix",
+  "note": "joins resound with 'have an effect'; keep only resound",
+  "changes": {
+   "def_ja_standard": "音があたりに広がって聞こえる。",
+   "def_en_standard": "to echo; to resound — for sound to spread around",
+   "def_zh_simple": "回响",
+   "def_zh_standard": "回响；响彻 —— 声音传遍四周"
+  }
+ },
+ {
+  "lemma": "皮膚",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "ひゃっかじてん",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "評論",
+  "verdict": "fix",
+  "note": "joins the act of critiquing with the resulting text; keep only the critique sense",
+  "changes": {
+   "def_ja_standard": "物事の価値や善悪を論じること。",
+   "def_en_standard": "critique; review — discussing the merits of something",
+   "def_zh_standard": "评论 —— 论述事物的价值或好坏"
+  }
+ },
+ {
+  "lemma": "昼寝",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "風船",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "不運",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "付近",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "複写",
+  "verdict": "fix",
+  "note": "ja standard joins copying with the resulting copy",
+  "changes": {
+   "def_ja_standard": "文書などを写し取ること。",
+   "def_zh_standard": "复印；复写 —— 誊写或复印文件"
+  }
+ },
+ {
+  "lemma": "膨らむ",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "不潔",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "更ける",
+  "verdict": "fix",
+  "note": "joins night deepening with season advancing; keep only night",
+  "changes": {
+   "def_ja_standard": "夜がおそくなる。",
+   "def_en_standard": "to grow late — for night to deepen",
+   "def_zh_standard": "夜深；夜阑 —— 夜晚变深"
+  }
+ },
+ {
+  "lemma": "塞ぐ",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "武士",
+  "verdict": "fix",
+  "note": "en standard contains a romanized Japanese word",
+  "changes": {
+   "def_en_standard": "samurai; warrior — a member of the fighting class of feudal Japan"
+  }
+ },
+ {
+  "lemma": "襖",
+  "verdict": "fix",
+  "note": "en gloss uses the Japanese word romanized",
+  "changes": {
+   "def_en_simple": "sliding door",
+   "def_en_standard": "sliding door; sliding panel — a paper-covered partition between rooms"
+  }
+ },
+ {
+  "lemma": "ぶつぶつ",
+  "verdict": "fix",
+  "note": "joins grumbling with the bumpy/spotty sense; keep only grumbling",
+  "changes": {
+   "def_ja_simple": "ちいさなこえでもんくをいうようす。",
+   "def_ja_standard": "小声で不平を言うようす。",
+   "def_en_simple": "grumbling",
+   "def_en_standard": "grumbling; muttering — complaining in a low voice",
+   "def_zh_simple": "嘟嘟囔囔",
+   "def_zh_standard": "嘟囔；抱怨 —— 小声地发牢骚"
+  }
+ }
+]

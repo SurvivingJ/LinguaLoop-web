@@ -1,0 +1,182 @@
+[
+ {
+  "lemma": "恨む",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "羨む",
+  "verdict": "fix",
+  "note": "ja simple/standard use うらやましい, a form of the word itself; rewrite without it.",
+  "changes": {
+   "def_ja_simple": "ひとがもっているものを、じぶんもほしいとおもう。",
+   "def_ja_standard": "他人の恵まれた点を見て、自分もそうなりたいと思う。"
+  }
+ },
+ {
+  "lemma": "売り切れ",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "うろうろ",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "運河",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "絵の具",
+  "verdict": "fix",
+  "note": "zh standard clarifier is circular (颜料 defined as 颜料).",
+  "changes": {
+   "def_zh_standard": "颜料；画具 —— 绘画时用来着色的材料"
+  }
+ },
+ {
+  "lemma": "宴会",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "園芸",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "演劇",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "円周",
+  "verdict": "fix",
+  "note": "ja standard joins two meanings (the perimeter, and its length); reduce to the length, which is what the hint means.",
+  "changes": {
+   "def_ja_standard": "円のまわりの長さ。",
+   "def_en_standard": "circumference — the length of the line around a circle",
+   "def_zh_standard": "圆周；周长 —— 圆一周的长度"
+  }
+ },
+ {
+  "lemma": "遠足",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "煙突",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "追い越す",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "王女",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "往復",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "応用",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "電波",
+  "verdict": "fix",
+  "note": "en/zh add 'signal' as a second sense; the hint is the electromagnetic wave only.",
+  "changes": {
+   "def_en_simple": "radio wave",
+   "def_en_standard": "radio wave; electromagnetic wave — a wave used for broadcasting and communication",
+   "def_zh_simple": "电波",
+   "def_zh_standard": "电波；无线电波 —— 用于广播和通信的电磁波"
+  }
+ },
+ {
+  "lemma": "電流",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "問い合わせ",
+  "verdict": "fix",
+  "note": "ja standard defines the word with 問い合わせる, i.e. itself.",
+  "changes": {
+   "def_ja_standard": "分からない点や知りたいことを、相手にたずねて確かめること。"
+  }
+ },
+ {
+  "lemma": "峠",
+  "verdict": "fix",
+  "note": "Draft joins two senses (mountain pass; peak or crisis). Reduce to the mountain pass.",
+  "changes": {
+   "def_ja_standard": "山道を登りつめた、いちばん高い所。",
+   "def_en_simple": "mountain pass",
+   "def_en_standard": "mountain pass; saddle — the highest point of a mountain road",
+   "def_zh_simple": "山口",
+   "def_zh_standard": "山口；垭口 —— 翻越山岭的山路最高处"
+  }
+ },
+ {
+  "lemma": "統計",
+  "verdict": "fix",
+  "note": "ja/en/zh standard join two meanings (the activity and the figures); reduce to one. The jlpt_meaning hint ('scattering, dispersion') does not match 統計 and looks like a mis-joined entry, so flag it for a source check; the draft correctly follows lemma and reading.",
+  "changes": {
+   "def_ja_standard": "集団の様子を数量で調べて表すこと。",
+   "def_en_standard": "statistics — collecting and analyzing numerical data about a group",
+   "def_zh_standard": "统计 —— 用数量调查并表示群体状况"
+  }
+ },
+ {
+  "lemma": "どうせ",
+  "verdict": "fix",
+  "note": "ja simple lists two senses and uses どうしても, a different word.",
+  "changes": {
+   "def_ja_simple": "なにをしても、けっきょくおなじだというきもち。"
+  }
+ },
+ {
+  "lemma": "灯台",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "盗難",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "当番",
+  "verdict": "fix",
+  "note": "Draft joins two meanings (the duty, and the person on duty); the hint is being on duty.",
+  "changes": {
+   "def_ja_standard": "順番にその役目を受け持つこと。",
+   "def_en_simple": "being on duty",
+   "def_en_standard": "being on duty; turn of duty — taking on a task in rotation",
+   "def_zh_simple": "值日",
+   "def_zh_standard": "值日；值班 —— 轮流担任某项职责"
+  }
+ },
+ {
+  "lemma": "童話",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "通り掛かる",
+  "verdict": "fix",
+  "note": "en standard is shorter than en simple; it must be strictly longer.",
+  "changes": {
+   "def_en_standard": "to pass by; to happen to pass — to go past a place by chance"
+  }
+ },
+ {
+  "lemma": "溶かす",
+  "verdict": "fix",
+  "note": "ja simple uses とける, the paired form of the word itself.",
+  "changes": {
+   "def_ja_simple": "かたいものを、みずやねつでどろどろのえきにする。"
+  }
+ },
+ {
+  "lemma": "どきどき",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "特殊",
+  "verdict": "ok"
+ }
+]

@@ -1,0 +1,152 @@
+[
+ {
+  "lemma": "禁物",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "勤労",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "クイズ",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "食い違う",
+  "verdict": "fix",
+  "note": "zh standard is a sentence, not an equivalent set; and must be strictly longer than simple",
+  "changes": {
+   "def_zh_standard": "不一致；有分歧；互相矛盾 —— 意见或事实对不上"
+  }
+ },
+ {
+  "lemma": "空腹",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "愚痴",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "首輪",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "玄人",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "黒字",
+  "verdict": "fix",
+  "note": "zh copies Japanese 黑字, which is not natural Chinese",
+  "changes": {
+   "def_zh_simple": "盈余",
+   "def_zh_standard": "盈余；盈利 —— 收入多于支出"
+  }
+ },
+ {
+  "lemma": "軍事",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "軍備",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "軽快",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "掲載",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "軽率",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "刑罰",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "経費",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "転勤",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "点検",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "電源",
+  "verdict": "fix",
+  "note": "en standard joins two senses (power source; power switch); reduce to the single sense of the power source",
+  "changes": {
+   "def_en_standard": "power source; electricity supply — where electrical power comes from"
+  }
+ },
+ {
+  "lemma": "天国",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "天才",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "天災",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "展示",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "伝説",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "天体",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "展望",
+  "verdict": "fix",
+  "note": "definitions join two senses (wide view and future prospects); reduce to outlook/prospect, which the example uses",
+  "changes": {
+   "def_ja_simple": "これからさきがどうなるかのみとおし。",
+   "def_ja_standard": "将来の物事の成り行きについての見通し。",
+   "def_en_simple": "outlook",
+   "def_en_standard": "outlook; prospects — expected course of the future",
+   "def_zh_simple": "展望",
+   "def_zh_standard": "展望；前景 —— 对未来发展的预测"
+  }
+ },
+ {
+  "lemma": "同意",
+  "verdict": "fix",
+  "note": "ja simple gives 'same opinion' while standard gives 'approving another's opinion'; unify on the consent sense",
+  "changes": {
+   "def_ja_simple": "ほかのひとのかんがえに、いいよとこたえること。"
+  }
+ },
+ {
+  "lemma": "動員",
+  "verdict": "ok"
+ },
+ {
+  "lemma": "同感",
+  "verdict": "fix",
+  "note": "'sympathy' in en standard suggests a different word (同情); keep the same-feeling/agreement sense",
+  "changes": {
+   "def_en_standard": "agreement; same feeling — sharing another's view"
+  }
+ },
+ {
+  "lemma": "討議",
+  "verdict": "ok"
+ }
+]

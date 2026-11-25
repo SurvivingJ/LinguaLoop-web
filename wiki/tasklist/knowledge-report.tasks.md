@@ -4,7 +4,7 @@ feature: knowledge-report
 prose_page: ../features/knowledge-report.md
 tech_page: ../features/knowledge-report.tech.md
 total_tasks: 40
-done: 13
+done: 14
 ---
 
 # Knowledge Report — Task Breakdown
@@ -851,7 +851,7 @@ the amended 402 helper, the gate reference in TASK-997, and the calibration pool
 
 ## TASK-1058: Enable the report in production (LIVE environment change)
 
-**Status:** [ ] Not Started
+**Status:** [x] Done (repo) — 2026-11-23: the `KNOWLEDGE_REPORT_ENABLED` switch was removed (owner: no env switches); the report goes live with the deploy
 **Feature:** knowledge-report
 **Type:** infra
 **Complexity:** XS (<1h)

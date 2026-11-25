@@ -96,9 +96,8 @@ expected growth well under 1 MB).
 - Live smoke test on the test account after the change: all five pairs × 200 draws, every check passed (1,440 answers,
   68 meaning-only words), p50 274 ms / p95 342 ms; sessions deleted.
 
-Still to do: Phase 3 (deploy, `PLACEMENT_ENABLED_LANGS="1,2"`, `KNOWLEDGE_REPORT_ENABLED=true`); ja launch also needs the
-exam-list check (TASK-1053) and, for zh-speaking learners of ja, either better definition foils for the ~29 band-1
-terms or an owner waiver.
+Still to do: deploy (both features go live with it; no switches). The ja exam-list check (TASK-1053) waits for the
+owner's list; ja (3, 1) is two band-1 words over the gate (better definition foils for ~29 rare katakana terms).
 
 ## Phase 0 — bug fix, independent (any time)
 
@@ -168,17 +167,19 @@ while it holds files; the placement schema rollback refuses while placement sess
 ## Phase 3 — deploy and turn on
 
 The code is safe to deploy before any migration: with the migrations missing, `/api/knowledge/summary` answers 503,
-the snapshot job (04:25 UTC) and the placement close job (04:30 UTC) log "skipped", the placement API answers 404
-(flag off), and the practice admission's placement read fails soft to nothing.
+the snapshot job (04:25 UTC) and the placement close job (04:30 UTC) log "skipped", and the practice admission's
+placement read fails soft to nothing. **No feature switches (owner, 2026-11-23):** the placement is always on for zh,
+en and ja, and the Knowledge Report is always on; `PLACEMENT_ENABLED_LANGS` and `KNOWLEDGE_REPORT_ENABLED` were
+removed from the code.
 
 | Step | What | When |
 |---|---|---|
 | 3.1 | Deploy the branch | any time |
 | 3.2 | Snapshots start at 04:25 UTC the night after Phase 1 (the 30-day trend needs 30 days of rows) | after Phase 1 |
-| 3.3 | Zh gate: `python scripts/placement_readiness_gate.py --word-language 1 --psql "<DSN>"` → PASS for (1, 2), (1, 3) | after Phase 1 |
-| 3.4 | `PLACEMENT_ENABLED_LANGS="1,2"` (zh, en) — TASK-1088; take your own placement in each (V1) and record `/answer` latency over 50 calls (target p50 ≤ 250 ms, p95 ≤ 600 ms) | after 3.3 |
-| 3.5 | Add `3` to `PLACEMENT_ENABLED_LANGS` | after Phase 2's gate passes |
-| 3.6 | `KNOWLEDGE_REPORT_ENABLED=true` — TASK-1058 (needs TASK-1054's performance check and TASK-1041) | after Phase 1 |
+| 3.3 | Zh gate → PASS (done 2026-11-23) | — |
+| 3.4 | After deploy: take your own placement in each language (V1) and record `/answer` latency over 50 calls (target p50 ≤ 250 ms, p95 ≤ 600 ms) — TASK-1088 | after 3.1 |
+| 3.5 | ja: exam-list check (TASK-1053; owner is finding the list) | when the list arrives |
+| 3.6 | Knowledge Report: live on deploy (no switch) — TASK-1058; TASK-1054's performance check still to record | after 3.1 |
 | 3.7 | Leave `ENTITLEMENTS_ENFORCED` off until the Pro launch gate (TASK-1059) | — |
 
 ## Not built yet (blocks nothing above)
@@ -191,3 +192,114 @@ the snapshot job (04:25 UTC) and the placement close job (04:30 UTC) log "skippe
 ## Related Pages
 - [[features/knowledge-report]] · [[features/vocab-placement]]
 - [[tasklist/master]]
+
+### 2026-11-23 — JLPT N5/N4 seeding (OQ31)
+
+- Coverage report of the owner's JLPT list (7,972 entries, 7,836 spellings): 2,233 (28%) in the dictionary before;
+  5,718 missing (5,540 words + 178 affixes). Lists: `data/sense_seeding/ja_jlpt/`.
+- **N5 + N4 seeded live**: 694 words (`scripts/load_vocab_list.py`), 1,388 ja definitions (480 ja_5k drafts, 53 of them
+  fixed in review, + 214 written), 2,776 en/zh glosses, embeddings (OpenRouter `openai/text-embedding-3-small`,
+  verified identical to a stored vector), pronunciations on the native rows. ja pool refreshed; caches filled.
+- ja gates after seeding: (3,1) 97.2%, (3,2) 98.8%, (3,3) 98.8% — all PASS (frame 3,241 → 3,935).
+- Exercises: fat-seed pipeline (`claude -p`, $28.51 notional) → 673 of 694 senses, 4,711 word assets, 8,272 exercise
+  rows. Rendering judges were first on OpenRouter, whose key hit its total limit mid-run (judges fail open), so every
+  new sense was re-rendered with all judges on Claude (`claude_cli`, Sonnet; 5,378 judge calls), replacing the old
+  rows in one `write_sense` each. The ja spaCy model and the ja mora trie were installed/built in the container, so
+  jumbled_sentence (106) and phonetic_recognition (569) are included. particle_selection is absent: the plan only
+  offers it for words with mined corpus sentences.
+- 21 senses without exercises: 13 definitions span 2+ meanings (split the sense first), 4 reviewer no-ops, 3 missing
+  level_6 blocks, 1 proper noun (`n5n4_exercise_issues.csv`).
+- Database: 368.96 MB before → 394.72 MB after (owner's stop line: 475 MB).
+
+### 2026-11-24 — JLPT N3 seeding
+
+- **N3 seeded live**: 1,320 words (`load_vocab_list.py`), 2,640 ja definitions (588 drafts kept, 239 drafts fixed in
+  review, 493 written), 5,280 en/zh glosses, hiragana pronunciations on the 2,640 native rows.
+- **Not done — blocked on the OpenRouter key (total limit $11 spent):** N3 embeddings (1,320 senses, ≈$0.0002), then
+  the ja pool refresh (`calibration_refresh_anchor_pool(3)`), cache fill
+  (`build_calibration_distractor_cache.py --word-language 3`) and the ja gates. Until then N3 words have exercises but
+  are not placement anchors.
+- Exercises: fat-seed (110 runs × 12, `claude -p`, $58.75 notional incl. re-reviews), uploaded `--no-render`, then
+  rendered with every judge on Claude (Sonnet, 12,445 judge calls, $163.13 notional) **fail-closed**: judges ran inside
+  `batch_mode()` and the render stopped after 3 consecutive Claude-unavailable errors, so a usage limit could not
+  ship unjudged rows. The Claude usage limit was never hit.
+- 90 senses were dropped at assembly because the reviewer said "rewrite" but changed nothing; two blind re-review
+  rounds recovered 88. Result: 1,313 of 1,320 senses live, 9,191 word assets, 18,557 exercise rows.
+- 7 senses without exercises (`data/sense_seeding/ja_jlpt/n3_exercise_issues.csv`): 2 failed review 3 times, 2 missing
+  blocks, 1 core rejected (大), 2 author skips (カー bound form; 棟 reading とう vs a むね definition — fix the
+  definition).
+- Run documents archived: `data/exercise_seeding/ja/archive/jlpt_n3_2026-11-24.tar.gz`; driver scripts:
+  `scratch_offline/jlpt_n3_tools/`.
+- Database: 395.99 MB before → 439.00 MB after (≈32.6 KB per sense). Headroom to the 475 MB stop line ≈ 36 MB
+  ≈ 1,100 more senses; N2 + N1 (≈3,500 words) would need ≈115 MB.
+- Later the same day: N3 embeddings done (owner topped up OpenRouter; 1,320 vectors, ≈$0.0001), ja pool refreshed,
+  caches filled, gates PASS (3,1) 97.6% / (3,2) 99.0% / (3,3) 99.0%.
+- **Correction:** every N5/N4/N3 Claude call ran through `claude -p` on the session's Claude Code login, not the
+  owner's `CLAUDE_API` key; the dollar figures above are the CLI's notional per-token prices, not charges.
+
+### 2026-11-24 — JLPT N2 (live up to the DB line) and N1 definitions (offline), billed to the owner's API key
+
+> **Correction (2026-11-24, later):** none of the N2/N1 calls reached the owner's key. In this container the CLI
+> bills the session login whenever `CLAUDE_CODE_REMOTE` is set, whatever `ANTHROPIC_API_KEY` says (proved with a
+> fake key, which still succeeded). The wrapper now also unsets `CLAUDE_CODE_REMOTE`; through it a fake key fails
+> ("Invalid API key") and the real key is refused with "Credit balance is too low", while direct Messages API calls
+> with the same key succeed. The dollar figures below are the CLI's notional prices on the session login.
+>
+> **Fix (2026-11-24):** `scratch_offline/bin/claude` is now a drop-in replacement for `claude -p … --output-format
+> json` that calls the Messages API directly with `CLAUDE_API` (official `anthropic` SDK, streaming, cached system
+> prompt, `sonnet`/`haiku`/`opus` → `claude-*-5-5`, `--effort` → `output_config.effort`). It prints the CLI's JSON
+> result envelope, so `nt_author`, `nt_review`, `jlpt_defs_cli.py` (PATH) and the renderer judges
+> (`CLAUDE_CLI_PATH`) work unchanged. Proven: a fake key fails 401; the real key succeeds with request ids
+> (`req_011ChNP9xxgBXXRoHzcQAMA3`, `req_011ChNPAuLReghJZYChgNFM1`); every call is logged with request id and real
+> cost to `~/.claude_api_ledger.jsonl`. Definitions cost ≈ $0.007/word on Sonnet 5.5.
+
+- From N2 on, every model call bills the owner's `CLAUDE_API` key: `scratch_offline/bin/claude` sets
+  `ANTHROPIC_API_KEY=$CLAUDE_API` and unsets the session proxy URL; it is first on PATH for `nt_author`/`nt_review`
+  and is `CLAUDE_CLI_PATH` for the renderer judges (`claude_cli_client` strips API keys from its own child env, so the
+  wrapper is the only way in). Verified per process (`apiKeySource: ANTHROPIC_API_KEY`).
+- Definitions: `scratch_offline/jlpt_defs_cli.py` (same brief as the N3 subagents, JSON on stdout, validated, retried).
+- **N2 live**: 1,310 words, definitions, glosses, pronunciations, embeddings; ja pool refreshed (20,047), caches
+  filled; gates PASS (3,1) 97.9% / (3,2) 99.1% / (3,3) 99.2%. Exercises: 80 of 110 runs uploaded (cap chosen from
+  measured DB growth ≈27 KB/sense); 944 of 960 senses live; 16 without (`n2_exercise_issues.csv`).
+- **N2 offline**: 30 runs / 350 senses authored, reviewed and ready but NOT uploaded (DB line):
+  `data/exercise_seeding/ja/archive/jlpt_n2_offline_assembled_2026-11-25.tar.gz` (see the 2026-11-25 section), ids in
+  `data/sense_seeding/ja_jlpt/n2_offline_sense_ids.txt`. Upload = `upload_run.sh` + render per run (≈10 MB).
+- **N1 offline**: 2,130 definitions (1,212 written, 918 drafts reviewed, 237 fixed) in `n1_final.json`; no DB rows.
+  Exercises need the words in the dictionary first (the export reads live senses).
+- Spend on the key: N2 definitions $6.43, N2 authoring $57.26, N2 judges $109.99, N1 definitions $11.61 — $185.29.
+- Database: 439.0 MB → 473.15 MB. Stopped under the 475 MB line.
+
+### 2026-11-25 — N1 exercises authored offline on the owner's API key; all offline work stored, not uploaded
+
+Owner: "Do the n1 exercises using the api key. Store all already authored but not uploaded senses and exercises and
+the ones you author now and then I will decide what to do with them in the end". Nothing was written to the database
+(it stays at 473.15 MB).
+
+- **Billing (verified):** every call in this section went through the Messages API shim on `CLAUDE_API`; ledger
+  `n1_ledger.jsonl`: 3,023 calls, 0 errors, **$66.99**. N2 offline re-review: 14 calls, $0.08. Shim tests: $0.14.
+  Total on the key: **$67.21**. The N1 *definitions* (`n1_final.json`, written 2026-11-24 18:26–18:41) predate the
+  shim (20:27) and therefore ran on the session login, not the key.
+- **How N1 was exported without dictionary rows:** `scratch_offline/export_offline_worklist.py` builds the same
+  `senses.csv` as `scripts/export_exercise_worklist.py --format csv`, with the per-word lookups taken from
+  `n1_final.json`. Each word has a PROVISIONAL sense id `900000000 + 2*i`
+  (`data/sense_seeding/ja_jlpt/n1_provisional_ids.json`, `{lemma: id}`).
+- **N1 result:** 178 runs (`data/exercise_seeding/ja/wf_jlpt_n1/r0000..r0177`), fat-seed pipeline (Sonnet core,
+  Haiku audits/variants/review), assembled offline. **2,111 of 2,130 senses packaged** in `RUN/07_upload/`;
+  19 held back (`data/sense_seeding/ja_jlpt/n1_exercise_issues.csv`: 7 review-identical after two re-review rounds,
+  7 fail upload validation, 5 rejected by review). r0130 needed its variants re-authored for four words (options
+  returned as bare strings, as N3 r0013).
+- **N2 offline result:** 30 runs re-reviewed and assembled: 341 of 350 senses packaged, 9 held back
+  (`n2_offline_exercise_issues.csv`). Sense ids are real (words are live).
+- **Archives (committed):**
+  - `data/exercise_seeding/ja/archive/jlpt_n1_offline_assembled_2026-11-25.tar.gz` (31 MB): all 178 N1 run dirs,
+    the stage-0 export, `n1_final.json`, `n1_provisional_ids.json`, `n1_exercise_issues.csv`.
+  - `data/exercise_seeding/ja/archive/jlpt_n2_offline_assembled_2026-11-25.tar.gz` (5 MB): the 30 N2 run dirs
+    and `n2_offline_sense_ids.txt`.
+
+**To upload later (owner's decision; each needs DB headroom):**
+1. N2 offline (≈10 MB): `upload_run.sh` per run, then render with Claude judges (≈ $0.12/sense on the key, ≈ $41).
+2. N1 (≈6 MB dictionary + ≈60 MB exercises): add the 2,130 words through the sense write path (definitions,
+   glosses, pronunciations, embeddings); build `{provisional_id: real_sense_id}` from `n1_provisional_ids.json`
+   by lemma; rewrite `sense_id` in every `07_upload/*.json`; upload core + exercises with `--no-render`; render
+   with Claude judges (≈ $250 on the key); refresh the ja pool, caches and gates.
+

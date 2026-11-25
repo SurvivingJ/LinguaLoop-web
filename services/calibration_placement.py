@@ -22,7 +22,6 @@ import time
 from datetime import datetime, timedelta, timezone
 from typing import Callable, Optional
 
-from config import Config
 from services import placement_design as pd
 from services.supabase_factory import get_supabase_admin
 from services.vocabulary import knowledge_estimate as ke
@@ -47,20 +46,18 @@ class PlacementError(Exception):
         self.code = code
 
 
-# ---------------------------------------------------------------- feature flag
+# ---------------------------------------------------------------- languages
+
+# The placement is always on for every language it supports (owner, 2026-11-23: no feature switch).
+PLACEMENT_LANGUAGES = frozenset({pd.LANG_ZH, pd.LANG_EN, pd.LANG_JA})
+
 
 def enabled_languages() -> set[int]:
-    raw = getattr(Config, 'PLACEMENT_ENABLED_LANGS', '') or ''
-    out = set()
-    for part in str(raw).replace(';', ',').split(','):
-        part = part.strip()
-        if part.isdigit():
-            out.add(int(part))
-    return out
+    return set(PLACEMENT_LANGUAGES)
 
 
 def require_enabled(language_id: int) -> None:
-    if int(language_id) not in enabled_languages():
+    if int(language_id) not in PLACEMENT_LANGUAGES:
         raise PlacementError('Vocabulary placement is not available for this language', 404, 'NOT_FOUND')
 
 
@@ -596,10 +593,7 @@ def build_result(user_id: str, session: dict, reason: str, tallies: dict, inputs
 
 def run_nightly_close() -> dict:
     """Nightly job (web/scheduler.py, 04:30 UTC): close every user's placements idle for 24 h as
-    ``abandoned`` and finish them. Skipped while the placement is enabled for no language, and when
-    the placement SQL is not deployed yet."""
-    if not enabled_languages():
-        return {'skipped': True, 'reason': 'PLACEMENT_ENABLED_LANGS is empty'}
+    ``abandoned`` and finish them. Skipped when the placement SQL is not deployed."""
     try:
         closed = close_stale_for(None)
     except Exception as exc:                                    # e.g. the RPC does not exist yet

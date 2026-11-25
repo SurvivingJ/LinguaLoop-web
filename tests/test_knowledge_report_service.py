@@ -86,11 +86,10 @@ def test_errors_table_maps_402():
 
 def test_feature_flags_default_off_and_parse_env(monkeypatch):
     import config as config_module
-    monkeypatch.delenv('KNOWLEDGE_REPORT_ENABLED', raising=False)
     monkeypatch.delenv('ENTITLEMENTS_ENFORCED', raising=False)
-    assert config_module._env_bool('KNOWLEDGE_REPORT_ENABLED', False) is False
     assert config_module._env_bool('ENTITLEMENTS_ENFORCED', False) is False
-    assert isinstance(Config.KNOWLEDGE_REPORT_ENABLED, bool) and isinstance(Config.ENTITLEMENTS_ENFORCED, bool)
+    assert isinstance(Config.ENTITLEMENTS_ENFORCED, bool)
+    assert not hasattr(Config, 'KNOWLEDGE_REPORT_ENABLED')       # always on: no switch (owner, 2026-11-23)
     for raw, expected in (('true', True), ('1', True), ('YES', True), ('false', False), ('0', False),
                           ('', False), ('maybe', False)):
         monkeypatch.setenv('KR_TEST_FLAG', raw)

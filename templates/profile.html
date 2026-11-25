@@ -26,13 +26,11 @@
         <!-- Hub: study tools + settings (the phone app bar has no menus) -->
         <div class="me-hub">
             <nav class="ld-card ld-card--list me-links" aria-label="Study tools" data-me-t-aria="me.study_tools">
-                {% if config.KNOWLEDGE_REPORT_ENABLED %}
                 <a class="ld-set" href="{{ url_for('knowledge_page') }}" id="meKnowledgeRow">
                     <span class="me-set__main"><span class="ld-seal" aria-hidden="true">語</span>
                         <span><b data-i18n="common.nav.knowledge">My vocabulary</b><small data-i18n="me.knowledge_sub">What the app knows about your words</small></span></span>
                     <span class="ld-set__chev" aria-hidden="true">›</span>
                 </a>
-                {% endif %}
                 <a class="ld-set" href="{{ url_for('study_plan_page') }}">
                     <span class="me-set__main"><span class="ld-seal" aria-hidden="true">☰</span>
                         <span><b data-i18n="common.nav.study_plan">Study Plan</b><small data-me-t="me.study_plan_sub">Daily minutes, modules, new words, prestudy</small></span></span>

@@ -3,8 +3,7 @@
 Once a day (APScheduler, 04:25 UTC, ``web/scheduler.py``) every active (user, language) pair gets
 one ``user_knowledge_snapshots`` row holding the estimator's **inputs** (``cal_bands``,
 ``frame_bands``, answer dates) as well as its outputs, so later growth figures can recompute "then"
-on today's frame (§2.10). Growth history starts at the first run (no back-fill, OQ7), which is why
-this job ships before the page and is **not** gated by ``KNOWLEDGE_REPORT_ENABLED``.
+on today's frame (§2.10). Growth history starts at the first run (no back-fill, OQ7).
 
 Idempotent: one upsert per pair on the primary key (user_id, language_id, snapshot_date), so the
 copy of the job in each gunicorn worker just rewrites the same rows (no advisory lock — performance

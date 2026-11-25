@@ -9,22 +9,22 @@ The Pro routes (``/words``, ``/words/<vocab_id>/<sense_rank>``, ``/lists/<code>/
 ``knowledge_pro_intent`` log.
 
 Every route: JWT → ``api_errors`` → ``require_language_id`` → learner guard (a non-UUID identity,
-e.g. the batch service token, gets 403) → language ∈ {1, 2, 3} → ``KNOWLEDGE_REPORT_ENABLED`` (404
-when off). The user id sent to an RPC is always ``g.current_user_id``. Every response is
+e.g. the batch service token, gets 403) → language ∈ {1, 2, 3}. The report is always on (no feature
+switch). The user id sent to an RPC is always ``g.current_user_id``. Every response is
 ``Cache-Control: private, no-store``.
 """
 
 import logging
 import uuid
 
-from flask import Blueprint, current_app, g
+from flask import Blueprint, g
 
 from config import Config
 from middleware.auth import jwt_required as supabase_jwt_required
 from routes.common import get_db
 from services.vocabulary import knowledge_report
 from utils.responses import (
-    ApiResponse, api_errors, api_success, bad_request, forbidden, not_found, service_unavailable,
+    ApiResponse, api_errors, api_success, bad_request, forbidden, service_unavailable,
 )
 from utils.validation import require_language_id
 
@@ -37,11 +37,6 @@ knowledge_bp = Blueprint('knowledge', __name__)
 def _private_no_store(response):
     response.headers['Cache-Control'] = 'private, no-store'
     return response
-
-
-def report_enabled() -> bool:
-    """The flag as the app was configured (tests set ``app.config``); templates read the same key."""
-    return bool(current_app.config.get('KNOWLEDGE_REPORT_ENABLED', Config.KNOWLEDGE_REPORT_ENABLED))
 
 
 def _is_uuid(value) -> bool:
@@ -58,8 +53,6 @@ def _guard(language_id: int):
         return forbidden('Learner token required')
     if language_id not in Config.VALID_LANGUAGE_IDS:
         return bad_request('Unsupported language_id')
-    if not report_enabled():
-        return not_found('Not found')
     return None
 
 
