@@ -100,7 +100,6 @@ def main():
         if r['documentScrolls']: flags.append(f"docscroll+{r['documentOverflowPx']}")
         if r['horizontalOverflow']: flags.append('HOVERFLOW')
         if any((not a) or b for a,b in docks): flags.append('DOCK-OFF')
-        st=[s for s in r['stages'] if s['overflowPx']>0]
         small=[x for x in r['smallTouchTargetsInView'] if 'ld-skip' not in x]
         errs=[e for e in r['errors'] if 'ERR_FAILED' not in e]
         print(f"{name:18} {l} {m:5} {u} shell={','.join(r['shell']):12} tab={int(r['tabbarVisible'])} task={int(r['taskbarVisible'])} docks={docks} {' '.join(flags)} unmocked={r['unmocked']} small={small[:4]} errs={errs[:3]}")

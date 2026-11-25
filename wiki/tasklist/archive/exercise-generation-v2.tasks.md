@@ -4,7 +4,7 @@ feature: exercise-generation-v2
 prose_page: ../features/exercise-generation-v2.md
 tech_page: ../features/exercise-generation-v2.md
 total_tasks: 36
-done: 4
+done: 22
 ---
 
 # Exercise Generation v2 — Task Breakdown

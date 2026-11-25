@@ -128,14 +128,15 @@
     activeMs: null,
     eventId: null,
     // TASK-909/910: the prestudy Produce stage opens this page with a session
-    // from POST /passage-from-sentences (stashed under PRODUCE_STORAGE_KEY by the
-    // runner). The signed primed-sense token is echoed on submit so the grader
+    // stashed under PRODUCE_STORAGE_KEY by the runner (the passage-from-sentences
+    // API route that once produced it was removed in TASK-1221).
+    // The signed primed-sense token is echoed on submit so the grader
     // reports one row per primed word.
     primedToken: null,
   };
 
-  // sessionStorage key the prestudy runner writes the passage-from-sentences
-  // response to: {submission_id, l1_text, age_tier, rubric_descriptors,
+  // sessionStorage key the prestudy runner writes the produce session to:
+  // {submission_id, l1_text, age_tier, rubric_descriptors,
   // correction_style, primed_token}. Consumed (removed) on first read.
   const PRODUCE_STORAGE_KEY = 'dt_produce_session';
 

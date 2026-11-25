@@ -5,8 +5,10 @@ Backfill ``dim_word_senses.embedding`` (TASK-521).
 Usage::
 
     python -m scripts.backfill_sense_embeddings --all-languages --dry-run
-    python -m scripts.backfill_sense_embeddings --language 2
-    python -m scripts.backfill_sense_embeddings --all-languages --batch 256
+    python -m scripts.backfill_sense_embeddings --language 2 --apply
+    python -m scripts.backfill_sense_embeddings --all-languages --batch 256 --apply
+
+Dry run unless --apply is given.
 
 What gets embedded, and why it matters
 --------------------------------------
@@ -34,14 +36,13 @@ rather than assumed.
 
 from __future__ import annotations
 
-import argparse
 import logging
 import sys
 
 try:
-    from _common import admin_db, bootstrap
+    from _common import admin_db, base_parser, bootstrap
 except ImportError:  # run or imported as scripts.<name>
-    from scripts._common import admin_db, bootstrap
+    from scripts._common import admin_db, base_parser, bootstrap
 
 bootstrap(log_level=None)
 
@@ -166,7 +167,7 @@ def embed_and_store(db, embedder, rows: list[dict], batch_size: int) -> dict:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description='Backfill sense embeddings')
+    parser = base_parser(description='Backfill sense embeddings (dry run unless --apply)')
     parser.add_argument('--language', type=int, choices=[1, 2, 3])
     parser.add_argument('--all-languages', action='store_true')
     parser.add_argument('--batch', type=int, default=256,
@@ -175,7 +176,6 @@ def main() -> None:
                         help='stop after this many senses')
     parser.add_argument('--force', action='store_true',
                         help='re-embed senses that already have a vector')
-    parser.add_argument('--dry-run', action='store_true')
     args = parser.parse_args()
 
     if not args.language and not args.all_languages:

@@ -3,8 +3,9 @@ title: Test Sentence References
 type: feature
 status: in-progress
 tech_page: ./test-sentence-references.tech.md
-last_updated: 2026-11-17
+last_updated: 2026-11-23
 open_questions:
+  - "OPEN: a corrected L1-script check (migrations/test_sentence_references_l1_script_escapes.sql) is written but not applied; today's check would wrongly reject Korean or Yi reference text, which no current reference uses."
   - "ANSWERED 2026-10-30: tightness floor set from the pilot — ja 0.65, zh 0.70, en 0.60 (mean over a window)."
   - "ANSWERED 2026-11-17 (developer): English references for Japanese and Chinese tests first (every learner with a native language set has English); Chinese references for English tests wait for a Chinese-speaking learner. The 484 already written stay active."
   - "ANSWERED 2026-10-30: a transcript edit retires its references by hash mismatch (build_test_sentences.py)."

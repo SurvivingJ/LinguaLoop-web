@@ -26,7 +26,7 @@ the run before anything is written.
 Usage:
     python scripts/upload_senses.py --batch-file data/sense_seeding/ja/batch_001.json \\
         --senses-file data/sense_seeding/ja/batch_001.senses.json --dry-run
-    python scripts/upload_senses.py --batch-file ... --senses-file ...
+    python scripts/upload_senses.py --batch-file ... --senses-file ... --apply
 
 Senses file format — a list, or an object with a "senses" list:
     [
@@ -40,7 +40,8 @@ Senses file format — a list, or an object with a "senses" list:
 Options:
     --batch-file PATH    The exported batch this answers (defines the legal vocab_ids).
     --senses-file PATH   Generated definitions to apply.
-    --dry-run            Report what would be written, write nothing.
+    --apply              Write. Without it the run is a dry run.
+    --dry-run            Explicit dry run (the default): report, write nothing.
     --skip-invalid       Drop invalid items and continue instead of aborting.
     --source-model NAME  Recorded in source_ref (default: claude-code:batch-sense-generation)
 """
@@ -51,9 +52,9 @@ import argparse
 import logging
 
 try:
-    from _common import bootstrap
+    from _common import base_parser, bootstrap
 except ImportError:  # run or imported as scripts.<name>
-    from scripts._common import bootstrap
+    from scripts._common import base_parser, bootstrap
 
 bootstrap()
 
@@ -61,9 +62,6 @@ bootstrap()
 from services.supabase_factory import SupabaseFactory, get_supabase_admin
 from services.vocabulary.sense_generator import POS_LEGENDS, SenseGenerator
 from scripts.sense_linking_common import fetch_standard_senses
-
-if not SupabaseFactory.is_initialized():
-    SupabaseFactory.initialize()
 
 logger = logging.getLogger(__name__)
 
@@ -199,14 +197,17 @@ def apply(db, batch: dict, writable: list[dict], args) -> dict:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__,
-                                     formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser = base_parser(description=__doc__,
+                         formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('--batch-file', required=True)
     parser.add_argument('--senses-file', required=True)
-    parser.add_argument('--dry-run', action='store_true')
     parser.add_argument('--skip-invalid', action='store_true')
     parser.add_argument('--source-model', default=DEFAULT_SOURCE_MODEL)
     args = parser.parse_args()
+
+    # Here, not at import: --help and the tests must not need Supabase credentials.
+    if not SupabaseFactory.is_initialized():
+        SupabaseFactory.initialize()
 
     with open(args.batch_file, encoding='utf-8') as fh:
         batch = json.load(fh)

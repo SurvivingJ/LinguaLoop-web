@@ -1,0 +1,80 @@
+-- ============================================================================
+-- skill_ratings_natural_key_unique.sql — one rating row per natural key
+-- (finding F-10, part 1 of 2)
+-- Date: 2026-11-23   Review: pkg8. NOT APPLIED.
+--
+-- WHAT: two unique indexes, built CONCURRENTLY (no write lock on the tables):
+--   user_skill_ratings_user_lang_type_key ON user_skill_ratings (user_id, language_id, test_type_id)
+--   test_skill_ratings_test_type_key      ON test_skill_ratings (test_id, test_type_id)
+-- These are the keys every reader and writer uses: the five submission RPCs
+-- (process_test_submission, process_dictation_submission,
+-- process_pinyin_submission, process_pitch_accent_submission,
+-- process_classifier_drill_submission) read and UPDATE user_skill_ratings
+-- WHERE user_id AND language_id AND test_type_id and test_skill_ratings WHERE
+-- test_id AND test_type_id; apply_calibration_to_skill_ratings uses the same
+-- user key; the update_skill_attempts_count trigger updates test_skill_ratings
+-- WHERE test_id AND test_type_id. All columns are NOT NULL, so NULLs cannot
+-- slip past the indexes.
+--
+-- WHY: today only the surrogate id primary keys exist. Each writer does
+-- SELECT ... IF NOT FOUND THEN INSERT, and FOR UPDATE cannot lock a row that
+-- does not exist yet, so two concurrent first submissions (one learner's first
+-- test of a type, or two learners' first attempts on one test) can each insert
+-- a row. After that, SELECT ... INTO reads an arbitrary one of the duplicates
+-- and every UPDATE writes all of them.
+--
+-- WHAT A LEARNER WOULD NOTICE: nothing, provided
+-- skill_ratings_writers_on_conflict.sql is applied straight after (see ORDER).
+--
+-- ORDER (both files are needed; neither changes app code):
+--   1. this file (indexes). From here until step 2, a racing first submission
+--      gets unique_violation; the submission RPCs catch it in WHEN OTHERS and
+--      return success:false for that one submission (no partial writes);
+--      apply_calibration_to_skill_ratings would raise to its caller. The window
+--      is the minutes between the two applies; races need two first
+--      submissions within milliseconds, so expect none.
+--   2. skill_ratings_writers_on_conflict.sql (INSERT ... ON CONFLICT in the six
+--      writers). It cannot go first: ON CONFLICT (cols) fails (42P10) without a
+--      unique index on exactly those columns.
+-- Other writer: none now. scripts/backfill_test_skill_ratings.py (a one-off
+-- that inserted test_skill_ratings rows for (test, type) pairs it found
+-- missing) has been deleted, so no remaining script can hit the new index with
+-- a unique_violation.
+--
+-- RUN OUTSIDE A TRANSACTION: CREATE INDEX CONCURRENTLY cannot run inside a
+-- transaction block. Run each statement on its own (psql without -1 / --single-
+-- transaction; in the Supabase SQL editor, one statement per run). Do not wrap
+-- this file in BEGIN/COMMIT and do not apply it through a tool that does.
+-- If a build fails (e.g. a duplicate appeared), it leaves an INVALID index of
+-- that name behind: drop it (DROP INDEX CONCURRENTLY IF EXISTS ...), remove
+-- the duplicates, then re-run. IF NOT EXISTS would otherwise skip the name.
+--
+-- PRECONDITIONS: zero duplicate natural-key rows (re-checked 2026-11-23: 0 and
+-- 0; 21 user_skill_ratings rows, 1,703 test_skill_ratings rows).
+--
+-- VERIFY BEFORE (read-only; expect dup_usr = 0, dup_tsr = 0, existing = 0):
+--   SELECT (SELECT count(*) FROM (SELECT 1 FROM public.user_skill_ratings
+--            GROUP BY user_id, language_id, test_type_id HAVING count(*) > 1) d) AS dup_usr,
+--          (SELECT count(*) FROM (SELECT 1 FROM public.test_skill_ratings
+--            GROUP BY test_id, test_type_id HAVING count(*) > 1) d) AS dup_tsr,
+--          (SELECT count(*) FROM pg_class WHERE relname IN
+--            ('user_skill_ratings_user_lang_type_key', 'test_skill_ratings_test_type_key')) AS existing;
+-- VERIFY AFTER (read-only; expect two rows, indisunique = true, indisvalid = true):
+--   SELECT c.relname, i.indisunique, i.indisvalid, pg_get_indexdef(i.indexrelid)
+--     FROM pg_index i JOIN pg_class c ON c.oid = i.indexrelid
+--    WHERE c.relname IN ('user_skill_ratings_user_lang_type_key', 'test_skill_ratings_test_type_key');
+--
+-- ROLLBACK (roll back skill_ratings_writers_on_conflict.sql FIRST, with
+-- skill_ratings_writers_on_conflict_rollback.sql; its ON CONFLICT clauses need
+-- these indexes). Each statement on its own, outside a transaction:
+--   DROP INDEX CONCURRENTLY IF EXISTS public.user_skill_ratings_user_lang_type_key;
+--   DROP INDEX CONCURRENTLY IF EXISTS public.test_skill_ratings_test_type_key;
+--
+-- Idempotent: IF NOT EXISTS; safe to re-run once a failed build is cleaned up.
+-- ============================================================================
+
+CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS user_skill_ratings_user_lang_type_key
+    ON public.user_skill_ratings (user_id, language_id, test_type_id);
+
+CREATE UNIQUE INDEX CONCURRENTLY IF NOT EXISTS test_skill_ratings_test_type_key
+    ON public.test_skill_ratings (test_id, test_type_id);

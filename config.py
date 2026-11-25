@@ -10,7 +10,10 @@ import os
 from datetime import timedelta
 from dotenv import load_dotenv
 
-load_dotenv()
+# The test suite sets LINGUADOJO_SKIP_DOTENV (tests/conftest.py) so a developer's
+# .env cannot put live credentials into an offline test run.
+if not os.environ.get('LINGUADOJO_SKIP_DOTENV'):
+    load_dotenv()
 
 _config_logger = logging.getLogger('config')
 
@@ -280,16 +283,15 @@ class Config:
     # config; under any other taxonomy the single call is skipped and the
     # configured flow grades (grader_trace.single_call.reason says why).
     DT_SINGLE_CALL_GRADER = os.environ.get('DT_SINGLE_CALL_GRADER', 'True').lower() == 'true'
-    # TEMPORARY (2026-11-16): the defaults are free-tier OpenRouter models because
-    # the API key reached its spending limit and every paid call was refused, so
-    # nothing could be graded. They are NOT validated against the gold set. Once
-    # the key is funded, set DT_SINGLE_CALL_MODEL=openai/gpt-6-luna and
-    # DT_SINGLE_CALL_FALLBACK_MODEL=deepseek/deepseek-v4.1-flash (the validated
-    # pair, ADR-044), or restore them as the defaults here.
-    DT_SINGLE_CALL_MODEL = os.environ.get('DT_SINGLE_CALL_MODEL', 'particle-ai/particle-1:free')
+    # The ADR-044 validated pair (primary + fallback). The free models that were the
+    # temporary defaults from 2026-11-16 (particle-ai/particle-1:free,
+    # nvidia/nemotron-3.5-super-vl:free) failed the gold set on 2026-11-23 — see
+    # wiki/evaluations/dt-free-grader-goldset-2026-11-23.md. Do not change these
+    # defaults without a gold-set run.
+    DT_SINGLE_CALL_MODEL = os.environ.get('DT_SINGLE_CALL_MODEL', 'openai/gpt-6-luna')
     # Tried once when the primary call fails. Blank disables the model fallback.
     DT_SINGLE_CALL_FALLBACK_MODEL = os.environ.get(
-        'DT_SINGLE_CALL_FALLBACK_MODEL', 'nvidia/nemotron-3.5-super-vl:free')
+        'DT_SINGLE_CALL_FALLBACK_MODEL', 'deepseek/deepseek-v4.1-flash')
     # Track E's "free translations are expected" prompt paragraph. Default OFF:
     # with prompt v1 it removed false flags on rephrased sentences but lowered
     # recall on near-verbatim answers (gpt-6-luna .88 -> .80). Not re-measured
@@ -341,7 +343,6 @@ class Config:
     MAX_DAILY_TESTS = 3
     POOR_PERFORMANCE_THRESHOLD = 70  # percentage
     DAILY_TEST_COOLDOWN_SECONDS = 86400
-    MAX_INPUT_LENGTH = 2000
 
     # ==========================================================================
     # VOCABULARY LADDER PIPELINE
@@ -449,35 +450,6 @@ class Config:
     def test_type_applies_to_language(cls, type_code: str, language_id) -> bool:
         allowed = cls.LANGUAGE_RESTRICTED_TEST_TYPES.get(type_code)
         return allowed is None or language_id in allowed
-
-    # ==========================================================================
-    # TOKEN ECONOMY - Single source of truth
-    # ==========================================================================
-    TOKEN_COSTS = {
-        'take_test': 1,
-        'generate_test': 5,
-    }
-    DAILY_FREE_TOKENS = int(os.environ.get('DAILY_FREE_TOKENS', '2'))
-
-    TOKEN_PACKAGES = {
-        'starter_10': {
-            'tokens': 10, 'price_cents': 199, 'price_dollars': 1.99,
-            'description': 'Starter pack - try the platform',
-        },
-        'popular_50': {
-            'tokens': 50, 'price_cents': 799, 'price_dollars': 7.99,
-            'description': 'Most popular - great value',
-        },
-        'premium_200': {
-            'tokens': 200, 'price_cents': 1999, 'price_dollars': 19.99,
-            'description': 'Premium pack - best value',
-        },
-    }
-
-    # ==========================================================================
-    # PAYMENTS (STRIPE)
-    # ==========================================================================
-    STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')
 
     # ==========================================================================
     # STORAGE (CLOUDFLARE R2)

@@ -159,9 +159,9 @@ def _l1_context_for(gold_l2: str, l1_text: str, span: list[int]) -> str:
     sentence when that correspondence can be trusted, not the whole
     ``l1_text`` passage.
 
-    ``l1_text`` is a holistic LLM translation of the whole passage
-    (``passage_builder.generate_l1_reference``), not sentence-aligned by
-    construction, so there is no ground truth for "sentence N on the L1 side
+    ``l1_text`` is the passage's L1 text (the window's sentence references,
+    joined; it used to be a holistic whole-passage translation), not
+    guaranteed sentence-aligned with the L2 side, so there is no ground truth for "sentence N on the L1 side
     is sentence N on the L2 side." Matching sentence COUNTS on both sides is
     used as the only available signal that the correspondence is likely
     1:1 -- when it holds, index into ``l1_text``'s sentences positionally.
@@ -304,92 +304,176 @@ def interleave_by_subtype(due_cards: list[dict]) -> list[dict]:
 # entries. Everything above this line is pure; everything below touches db.
 # ============================================================================
 
-def _latest_error_for_subtype(db, user_id: str, subtype: str) -> dict | None:
-    """The most recent ``dt_error_instance`` for this user in this subtype
-    cluster — the representative error a card gets built from. Explicit
-    id-set lookups (submission_ids -> error rows) rather than an embedded
-    select, matching ``scripts/dt_nightly_synthesis.py``'s convention of not
-    depending on PostgREST FK-relationship auto-detection.
+# TASK-1003 (B-03): every read below is batched over all of a learner's
+# queued entries, so card generation costs a constant number of round trips
+# instead of ~8 per entry. Explicit id-set lookups (submission ids -> error
+# rows -> passages) rather than embedded selects, matching
+# ``scripts/dt_nightly_synthesis.py``'s convention of not depending on
+# PostgREST FK-relationship auto-detection.
+
+# PostgREST's max-rows cap (Supabase default): a response never holds more, so
+# reads that can exceed it are paged with .range().
+_PAGE = 1000
+# Ids per in_() filter: in_() lists travel in the URL.
+_IN_CHUNK = 500
+
+_ERROR_COLUMNS = ("id", "submission_id", "span_reference", "corrected_form",
+                  "learner_form", "subtype")
+
+
+def _chunks(seq: list, size: int = _IN_CHUNK):
+    for i in range(0, len(seq), size):
+        yield seq[i:i + size]
+
+
+def _paged(make_query) -> list[dict]:
+    """Every row of ``make_query()`` (a fresh, totally ordered query each
+    call), fetched ``_PAGE`` rows at a time."""
+    from services.pagination import fetch_all
+
+    return fetch_all(make_query, _PAGE)
+
+
+def _newest_first_key(row: dict):
+    """Sort key matching ``ORDER BY created_at DESC, id DESC`` (Postgres puts
+    NULLs first in a DESC sort), for merging per-chunk winners."""
+    from datetime import datetime, timezone
+
+    created = row.get("created_at")
+    if created is None:
+        return (1, datetime.min.replace(tzinfo=timezone.utc), "", row["id"])
+    # Every key is (flag, aware datetime, unparsed text, id) so comparison is
+    # always between like types, whatever mix of datetime / ISO string (with a
+    # trailing 'Z', with or without microseconds, naive or aware) arrives.
+    try:
+        parsed = (
+            created if isinstance(created, datetime)
+            else datetime.fromisoformat(str(created).strip().replace("Z", "+00:00"))
+        )
+    except ValueError:
+        # Unparseable: sorts before every real timestamp, ties broken by text.
+        return (0, datetime.min.replace(tzinfo=timezone.utc), str(created), row["id"])
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=timezone.utc)
+    return (0, parsed, "", row["id"])
+
+
+def _latest_errors_by_key(db, submission_l2: dict, wanted: set[tuple]) -> dict:
+    """``{(subtype, l2_language_id): error}``: the most recent
+    ``dt_error_instance`` of each wanted subtype among the submissions in
+    ``submission_l2`` (``{submission_id: l2 of its passage}``), per language —
+    the representative error a card gets built from. Was one
+    ``_latest_error_for_subtype`` call (2 round trips) per entry, which ignored
+    the language (B-02).
+
+    One query per ``_IN_CHUNK`` submissions (normally one), newest first,
+    paged only until every wanted key has been seen. ``id DESC`` breaks
+    ``created_at`` ties deterministically (the per-entry ``limit(1)`` left them
+    to the planner).
     """
-    subs = (
-        db.table("dt_submission").select("id").eq("user_id", user_id).execute().data
-        or []
-    )
-    submission_ids = [s["id"] for s in subs]
-    if not submission_ids:
-        return None
-
-    errors = (
-        db.table("dt_error_instance")
-        .select("id, submission_id, span_reference, corrected_form, learner_form, subtype")
-        .in_("submission_id", submission_ids)
-        .eq("subtype", subtype)
-        .order("created_at", desc=True)
-        .limit(1)
-        .execute()
-        .data
-        or []
-    )
-    return errors[0] if errors else None
-
-
-def _source_texts(db, submission_id: int) -> tuple[str | None, str]:
-    """``(gold_l2, l1_text)`` for the passage backing ``submission_id``.
-    ``gold_l2`` is ``None`` if the submission or its passage can no longer be
-    resolved (caller skips card generation for that error in that case);
-    ``l1_text`` degrades to ``''`` rather than blocking (isolate-retranslate
-    cards lose their L1 context but the cloze card is unaffected).
-    """
-    subs = (
-        db.table("dt_submission")
-        .select("passage_id, l1_language_id")
-        .eq("id", submission_id)
-        .limit(1)
-        .execute()
-        .data
-        or []
-    )
-    if not subs:
-        return None, ""
-    passage_id = subs[0]["passage_id"]
-    l1_language_id = subs[0]["l1_language_id"]
-
-    passages = (
-        db.table("dt_passage")
-        .select("l2_text, source_ref_id, sentence_start, sentence_end")
-        .eq("id", passage_id)
-        .limit(1)
-        .execute()
-        .data
-        or []
-    )
-    if not passages:
-        return None, ""
-    passage = passages[0]
-    return passage["l2_text"], _window_l1_text(db, passage, l1_language_id)
+    subtypes = sorted({subtype for subtype, _ in wanted})
+    best: dict = {}
+    for chunk in _chunks(sorted(submission_l2)):
+        found: dict = {}
+        start = 0
+        while True:
+            page = (
+                db.table("dt_error_instance")
+                .select(", ".join(_ERROR_COLUMNS + ("created_at",)))
+                .in_("submission_id", chunk)
+                .in_("subtype", subtypes)
+                .order("created_at", desc=True)
+                .order("id", desc=True)
+                .range(start, start + _PAGE - 1)
+                .execute()
+                .data
+                or []
+            )
+            for row in page:
+                key = (row["subtype"], submission_l2.get(row["submission_id"]))
+                if key in wanted:
+                    found.setdefault(key, row)
+            if len(page) < _PAGE or len(found) == len(wanted):
+                break
+            start += _PAGE
+        for key, row in found.items():
+            if key not in best or _newest_first_key(row) > _newest_first_key(best[key]):
+                best[key] = row
+    return {key: {c: row.get(c) for c in _ERROR_COLUMNS} for key, row in best.items()}
 
 
-def _window_l1_text(db, passage: dict, l1_language_id) -> str:
-    """The L1 text of a sentence-window passage: its sentences' reviewed
-    references (ADR-037), joined. ``''`` when the passage has no sentence range
-    or any sentence lacks a usable reference. (Passages used to carry one
-    whole-passage reference in ``dt_passage_reference``; that pool is gone.)"""
-    if passage.get("sentence_start") is None or passage.get("sentence_end") is None \
-            or not passage.get("source_ref_id") or l1_language_id is None:
-        return ""
+def _window_l1_texts(db, windows: list[tuple[dict, object]]) -> dict:
+    """``{(passage_id, l1_language_id): l1_text}`` for sentence-window
+    passages: each window's sentences' reviewed references (ADR-037), joined.
+    A window is absent (caller uses ``''``) when the passage has no sentence
+    range or any sentence lacks a usable reference. Two queries for all
+    windows; the per-window equivalent is
+    ``services.dual_translation.repair.sentences._range_l1_texts`` (same
+    filters). The L1 context is optional, so a failed read degrades every
+    window to ``''`` rather than blocking card generation."""
     # lazy: the repair package imports this module's siblings
     from services.dual_translation.passage_builder import join_sentences
-    from services.dual_translation.repair.sentences import _range_l1_texts
+    from services.dual_translation.repair.sentences import _USABLE_VERDICTS
     from services.dual_translation.sentence_refs import LANG_CODE
+
+    usable = []
+    for passage, l1_language_id in windows:
+        if passage.get("sentence_start") is None or passage.get("sentence_end") is None \
+                or not passage.get("source_ref_id") or l1_language_id is None:
+            continue
+        usable.append((passage, l1_language_id))
+    if not usable:
+        return {}
+
     try:
-        texts = _range_l1_texts(db, str(passage["source_ref_id"]), int(passage["sentence_start"]),
-                                int(passage["sentence_end"]), int(l1_language_id))
+        spans = [(p["id"], int(l1), str(p["source_ref_id"]),
+                  int(p["sentence_start"]), int(p["sentence_end"])) for p, l1 in usable]
+        test_ids = sorted({s[2] for s in spans})
+        lo = min(s[3] for s in spans)
+        hi = max(s[4] for s in spans)
+        sentence_rows = _paged(lambda: (
+            db.table("test_sentences").select("id, idx, test_id")
+            .in_("test_id", test_ids).gte("idx", lo).lte("idx", hi)
+            .order("test_id").order("idx").order("id")
+        ))
+        by_window = {
+            (pid, l1): [r for r in sentence_rows
+                        if str(r["test_id"]) == test_id and start <= r["idx"] <= end]
+            for pid, l1, test_id, start, end in spans
+        }
+        sentence_ids = sorted({r["id"] for rows in by_window.values() for r in rows})
+        l1_ids = sorted({s[1] for s in spans})
+        refs: list[dict] = []
+        for chunk in _chunks(sentence_ids):
+            refs.extend(_paged(lambda chunk=chunk: (
+                db.table("test_sentence_references")
+                .select("sentence_id, l1_language_id, l1_text, review_verdict")
+                .in_("sentence_id", chunk)
+                .in_("l1_language_id", l1_ids)
+                .eq("is_active", True)
+                .in_("review_verdict", list(_USABLE_VERDICTS))
+                .order("id")
+            )))
     except Exception as exc:  # noqa: BLE001 - the L1 context is optional
         logger.warning("dual_translation.cards: window L1 lookup failed: %s", exc)
-        return ""
-    if not texts:
-        return ""
-    return join_sentences(texts, LANG_CODE.get(int(l1_language_id), "en"))
+        return {}
+
+    ref_by_key = {(r["sentence_id"], r["l1_language_id"]): r for r in refs
+                  if r.get("review_verdict") in _USABLE_VERDICTS}
+    out = {}
+    for (pid, l1), rows in by_window.items():
+        if not rows:
+            continue
+        texts = []
+        for row in rows:
+            ref = ref_by_key.get((row["id"], l1))
+            if not ref or not (ref.get("l1_text") or "").strip():
+                texts = None
+                break
+            texts.append(ref["l1_text"].strip())
+        if texts:
+            out[(pid, l1)] = join_sentences(texts, LANG_CODE.get(l1, "en"))
+    return out
 
 
 def _taxonomy_stamp(db) -> dict:
@@ -408,6 +492,118 @@ def _taxonomy_stamp(db) -> dict:
     return {"taxonomy_version": version}
 
 
+def _plan_cards(db, user_id: str, entries: list[dict]) -> list[tuple[int, list[dict]]]:
+    """``[(entry_id, card rows minus the taxonomy stamp)]`` in entry order, for
+    the entries that have a usable latest error on a resolvable passage. All
+    reads, no writes."""
+    submissions = _paged(lambda: (
+        db.table("dt_submission").select("id, passage_id, l1_language_id")
+        .eq("user_id", user_id).order("id")
+    ))
+    if not submissions:
+        return []
+    submission_by_id = {s["id"]: s for s in submissions}
+
+    # B-02: an error's language is its submission's passage's l2. The passages
+    # of every submission in the entries' languages are read once (they also
+    # supply the card text), and only those submissions are searched for errors.
+    languages = sorted({e["l2_language_id"] for e in entries})
+    passages: dict = {}
+    for chunk in _chunks(sorted({s["passage_id"] for s in submissions})):
+        for p in (
+            db.table("dt_passage")
+            .select("id, l2_language_id, l2_text, source_ref_id, sentence_start, sentence_end")
+            .in_("id", chunk)
+            .in_("l2_language_id", languages)
+            .execute()
+            .data
+            or []
+        ):
+            passages[p["id"]] = p
+    submission_l2 = {s["id"]: passages[s["passage_id"]]["l2_language_id"]
+                     for s in submissions if s["passage_id"] in passages}
+    if not submission_l2:
+        return []
+
+    latest = _latest_errors_by_key(
+        db, submission_l2, {(e["subtype"], e["l2_language_id"]) for e in entries})
+
+    sources = {}  # entry id -> (error, passage, l1_language_id)
+    for entry in entries:
+        error = latest.get((entry["subtype"], entry["l2_language_id"]))
+        if error is None:
+            continue
+        submission = submission_by_id[error["submission_id"]]
+        sources[entry["id"]] = (error, passages[submission["passage_id"]],
+                                submission["l1_language_id"])
+
+    l1_texts = _window_l1_texts(db, [(p, l1) for _, p, l1 in sources.values()])
+
+    plans = []
+    for entry in entries:
+        if entry["id"] not in sources:
+            continue
+        error, passage, l1_language_id = sources[entry["id"]]
+        l1_text = l1_texts.get((passage["id"], l1_language_id), "")
+        rows = [
+            {
+                **payload,
+                "user_id": user_id,
+                "profile_entry_id": entry["id"],
+                "origin_error_id": error["id"],
+                "state": "new",
+            }
+            for payload in build_cards(error, passage["l2_text"], l1_text)
+        ]
+        plans.append((entry["id"], rows))
+    return plans
+
+
+def _mark_drilling(db, entry_ids: list[int]) -> None:
+    db.table("dt_error_profile_entry").update(
+        {"remediation_status": "drilling"}
+    ).in_("id", entry_ids).execute()
+
+
+def _write_one_by_one(db, plans: list[tuple[int, list[dict]]]) -> None:
+    """Fallback after the multi-row card insert failed: card and flip each
+    entry on its own, so one bad entry no longer blocks the others. Entries
+    that already have cards (the failed batch may in fact have committed) are
+    only flipped, never carded twice. An entry is flipped to ``drilling`` only
+    once its cards exist. Raises the first error after trying every entry."""
+    ids = [entry_id for entry_id, _ in plans]
+    existing = (
+        db.table("dt_card").select("profile_entry_id").in_("profile_entry_id", ids)
+        .execute().data or []
+    )
+    carded = {row["profile_entry_id"] for row in existing}
+    first_error = None
+    for entry_id, rows in plans:
+        try:
+            if entry_id not in carded:
+                db.table("dt_card").insert(rows).execute()
+            _mark_drilling(db, [entry_id])
+        except Exception as exc:  # noqa: BLE001 - re-raised below
+            logger.warning("dual_translation.cards: carding entry %s failed: %s", entry_id, exc)
+            first_error = first_error or exc
+    if first_error is not None:
+        raise first_error
+
+
+def _mark_drilling_one_by_one(db, entry_ids: list[int]) -> None:
+    """Fallback after the single status update failed (the cards are already
+    in): flip each entry on its own; raise the first error after trying all."""
+    first_error = None
+    for entry_id in entry_ids:
+        try:
+            _mark_drilling(db, [entry_id])
+        except Exception as exc:  # noqa: BLE001 - re-raised below
+            logger.warning("dual_translation.cards: flipping entry %s failed: %s", entry_id, exc)
+            first_error = first_error or exc
+    if first_error is not None:
+        raise first_error
+
+
 def generate_cards_for_queued_entries(db, user_id: str) -> int:
     """Materialise ``dt_card`` rows for this user's promoted (``queued``)
     ``dt_error_profile_entry`` clusters that don't have cards yet, then flip
@@ -415,13 +611,25 @@ def generate_cards_for_queued_entries(db, user_id: str) -> int:
     ([[features/dual-translation-remediation.tech]] §Pipeline) that the pure
     functions above intentionally leave undone. Idempotent: a profile entry
     that already has a ``dt_card`` row is skipped, so calling this on every
-    ``GET /next``/``GET /cards/due`` request is safe.
+    ``GET /next`` request is safe.
+
+    TASK-1003: a constant number of round trips whatever the number of queued
+    entries — queued entries, their existing cards, then (only when something
+    is uncarded) the learner's submissions, their passages in the entries'
+    languages, the latest error per (subtype, language), the window sentences
+    and references, the taxonomy version (flag on), one multi-row ``dt_card``
+    insert and one status update. Each entry is carded from the latest error
+    of its subtype in its own L2 (B-02); with none it stays ``queued``. An
+    entry is only ever
+    flipped to ``drilling`` after its cards are written; if the batch insert
+    or the update fails, each entry is retried on its own (see
+    ``_write_one_by_one``) and the first error is raised.
 
     Returns the number of profile entries newly carded.
     """
     queued = (
         db.table("dt_error_profile_entry")
-        .select("id, subtype")
+        .select("id, subtype, l2_language_id")
         .eq("user_id", user_id)
         .eq("remediation_status", "queued")
         .execute()
@@ -441,40 +649,32 @@ def generate_cards_for_queued_entries(db, user_id: str) -> int:
         or []
     )
     already_carded = {row["profile_entry_id"] for row in existing}
+    uncarded = [e for e in queued if e["id"] not in already_carded]
+    if not uncarded:
+        return 0
+
+    plans = _plan_cards(db, user_id, uncarded)
+    if not plans:
+        return 0
 
     stamp = _taxonomy_stamp(db)
-    carded = 0
-    for entry in queued:
-        if entry["id"] in already_carded:
-            continue
+    if stamp:
+        plans = [(entry_id, [{**row, **stamp} for row in rows]) for entry_id, rows in plans]
 
-        error = _latest_error_for_subtype(db, user_id, entry["subtype"])
-        if error is None:
-            continue
+    try:
+        db.table("dt_card").insert([row for _, rows in plans for row in rows]).execute()
+    except Exception as exc:  # noqa: BLE001 - fall back to per-entry writes
+        logger.warning("dual_translation.cards: batch card insert failed, retrying per entry: %s", exc)
+        _write_one_by_one(db, plans)
+        return len(plans)
 
-        gold_l2, l1_text = _source_texts(db, error["submission_id"])
-        if gold_l2 is None:
-            continue
-
-        payloads = build_cards(error, gold_l2, l1_text)
-        rows = [
-            {
-                **payload,
-                "user_id": user_id,
-                "profile_entry_id": entry["id"],
-                "origin_error_id": error["id"],
-                "state": "new",
-                **stamp,
-            }
-            for payload in payloads
-        ]
-        db.table("dt_card").insert(rows).execute()
-        db.table("dt_error_profile_entry").update(
-            {"remediation_status": "drilling"}
-        ).eq("id", entry["id"]).execute()
-        carded += 1
-
-    return carded
+    carded_ids = [entry_id for entry_id, _ in plans]
+    try:
+        _mark_drilling(db, carded_ids)
+    except Exception as exc:  # noqa: BLE001 - fall back to per-entry updates
+        logger.warning("dual_translation.cards: batch status update failed, retrying per entry: %s", exc)
+        _mark_drilling_one_by_one(db, carded_ids)
+    return len(plans)
 
 
 # ============================================================================

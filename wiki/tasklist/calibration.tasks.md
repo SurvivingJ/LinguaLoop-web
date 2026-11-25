@@ -3,7 +3,7 @@ title: "Calibration — Task Breakdown"
 feature: calibration
 prose_page: ../features/calibration.md
 tech_page: ../features/calibration.tech.md
-total_tasks: 26
+total_tasks: 25
 done: 23
 last_updated: 2026-09-14
 ---

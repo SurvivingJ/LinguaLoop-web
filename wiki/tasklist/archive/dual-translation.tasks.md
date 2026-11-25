@@ -4,7 +4,7 @@ feature: dual-translation
 prose_page: ../features/dual-translation.md
 tech_page: ../features/dual-translation.tech.md
 total_tasks: 21
-done: 8
+done: 19
 last_updated: 2026-07-04
 ---
 

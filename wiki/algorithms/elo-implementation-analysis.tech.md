@@ -3,7 +3,9 @@ title: ELO System — Implementation Analysis (Technical)
 type: algorithm-tech
 status: in-progress
 prose_page: ./elo-implementation-analysis.md
-last_updated: 2026-05-15
+last_updated: 2026-11-23
+open_questions:
+  - "OPEN: apply migrations/skill_ratings_natural_key_unique.sql and then migrations/skill_ratings_writers_on_conflict.sql (both written, NOT applied live as of 2026-11-23)? Until then the rating tables have no natural-key uniqueness."
 dependencies:
   - "calculate_elo_rating() — plpgsql IMMUTABLE"
   - "calculate_volatility_multiplier() — plpgsql IMMUTABLE"
@@ -76,7 +78,7 @@ Key V1 differences from V2:
 - **Schema used text columns** — `language TEXT` and `skill_type TEXT` instead of FK integer IDs
 - Used SELECT-then-INSERT/UPDATE pattern (no ON CONFLICT)
 
-### V2 (`migrations/process_test_submission_v2.sql`)
+### V2 (`migrations/archive/process_test_submission_v2.sql`)
 
 Rewrote the function with server-side answer grading (p_responses JSONB instead of pre-calculated score). In the process, volatility was **intentionally dropped** and the ELO calc was inlined:
 
@@ -128,9 +130,9 @@ BEGIN
 END;
 ```
 
-V3 differs from V1 in one principled way: V1 applied a volatility multiplier to the test side too (`calculate_volatility_multiplier(v_test_attempts, NULL, 1.0)`). V3 hardcodes test volatility to 1.0 because the inactivity-decay branch of the multiplier doesn't apply to tests — they don't get rusty — and the new-test branch is more cleanly handled by the difficulty-seeded backfill (`scripts/backfill_test_skill_ratings.py`). The variables `v_user_tests_taken` and `v_user_last_date` are already fetched earlier in the function; no new queries.
+V3 differs from V1 in one principled way: V1 applied a volatility multiplier to the test side too (`calculate_volatility_multiplier(v_test_attempts, NULL, 1.0)`). V3 hardcodes test volatility to 1.0 because the inactivity-decay branch of the multiplier doesn't apply to tests — they don't get rusty — and the new-test branch is handled by seeding each test's initial rating from its age tier and a lexical-complexity score at generation time (`seed_test_elo`, see "Test ELO Seeding" below; the old difficulty-map backfill script is deleted). The variables `v_user_tests_taken` and `v_user_last_date` are already fetched earlier in the function; no new queries.
 
-### V4 (`migrations/process_test_submission_reduced_repeats.sql`) — Current
+### V4 (`migrations/archive/process_test_submission_reduced_repeats.sql`) — superseded by V5 for the function body
 
 Adds a third ELO-update branch for repeat attempts that come via the daily-load retry slot. Same 7-arg signature; existing callers untouched. Adds `test_attempts.elo_reduction_factor numeric NULL`.
 
@@ -171,27 +173,26 @@ Design notes:
 - Factor is composed into the volatility argument (not into K) because `calculate_elo_rating` already multiplies `k * volatility` — composition keeps the K=32/K=16 asymmetry intact.
 - The improvement bonus compares against `MAX(percentage)` over all prior attempts, not just the most recent one, so a one-time spike doesn't keep paying out on subsequent repeats.
 
-## Backfill Script: Test ELO Seeding
+### V5 (`migrations/process_test_submission_set_based_grading.sql`) — Current (live 2026-11-23)
 
-`scripts/backfill_test_skill_ratings.py` seeds initial test ELO from difficulty level:
+Same signature (9 arguments, including `p_furigana_used` and `p_prestudied`), return shape, auth gate (`error_code: 'unauthorized'` for a NULL `p_user_id` or a mismatched caller) and ELO maths as V4. Three changes, verified against the live body:
+- Grading is one set-based query joining `questions` to the submitted answers (before: a temp table per call and a per-question loop).
+- The idempotency-key duplicate check runs before grading, so a retried request returns the cached attempt without regrading.
+- The learner's `user_skill_ratings` row and the test's `test_skill_ratings` row are read `FOR UPDATE`, so concurrent submissions for the same learner and test type run one after the other and no longer lose an ELO update. A row that does not exist yet cannot be locked, hence the duplicate-row limitation under "Tables: Current State".
+- The outer `EXCEPTION WHEN OTHERS` still returns `{success:false, error: SQLERRM, error_detail: SQLSTATE}`; unlike the pinyin, pitch-accent and dictation functions it was not changed to the generic `submission_failed` envelope (live check 2026-11-23). Learners see no difference from V4.
 
-```python
-DIFFICULTY_ELO_MAP = {
-    1: 800,   # A1
-    2: 950,   # A1+
-    3: 1100,  # A2
-    4: 1250,  # B1
-    5: 1400,  # B1+  (matches default test_skill_ratings.elo_rating)
-    6: 1550,  # B2
-    7: 1700,  # C1
-    8: 1850,  # C1+
-    9: 2000   # C2
-}
-```
+## Test ELO Seeding
 
-This maps difficulty 1–9 to ELO 800–2000 with ~150 ELO steps. Difficulty 5 matches the default 1400 starting ELO. The script also inserts a `volatility: 1.0` column (V1 remnant, no longer used in V2 ELO calc).
+Initial test ratings are written by the test-generation pipeline, not by a backfill.
 
-The backfill creates ratings per `(test_id, test_type_id)` pair, filtering by `requires_audio` — tests without audio don't get listening test type ratings.
+1. `services/test_generation/orchestrator.py` reads the topic's assigned age tier and its midpoint ELO (`get_tier_initial_elo` in `services/test_generation/database_client.py`, from `dim_complexity_tiers.initial_elo`). A missing tier raises; there is no hardcoded difficulty-to-ELO map.
+2. `seed_test_elo(prose, language_code, tier_id, tier_initial_elo)` in `services/test_generation/difficulty_scorer.py` adjusts that midpoint by a weighted lexical score (mean Zipf frequency, sentence length, type-token ratio), clamped to 400..3000. On an empty signal, or if the scorer raises, the tier midpoint is used. The coefficients are an a-priori prior, not fitted to attempts (the module docstring says so).
+3. `insert_test_skill_ratings(test_id, initial_elo, has_audio, language_id)` inserts one `test_skill_ratings` row per active test type that applies (types that require audio are skipped when the test has no audio; language-specific types only for their own language, via `Config.test_type_applies_to_language`), `total_attempts = 0`, no `volatility` column (dropped).
+4. Sentinel tests used by the drill trainers get their row inside the submission function on first use (`INSERT INTO test_skill_ratings ... 1400`), and a user's row is created at 1200 on their first submission for a language and test type.
+
+Checked live 2026-11-23: 488 active tests, 0 without a rating row, 1,703 rating rows.
+
+**Deleted: scripts/backfill_test_skill_ratings.py.** It mapped difficulty 1 to 9 onto ELO 800 to 2000 and inserted missing rows. It was removed because every active test is already rated and, with no unique constraint on `(test_id, test_type_id)`, re-running it could have inserted duplicate rows. Do not recreate it; to rate a new test type for existing tests, write a one-off migration with `ON CONFLICT` after the natural-key index exists.
 
 ## Recommendation Functions: Comparison
 
@@ -270,15 +271,15 @@ Similarly, there's a second trigger `update_test_attempts_count()` that does the
 ## Tables: Current State
 
 ### `user_skill_ratings`
-- PK: `id` (uuid)
-- Unique: `UNIQUE (user_id, language_id, test_type_id)` — enforced in live schema (`db_schema_live.sql:501`)
-- Columns: `elo_rating` (default 1200, CHECK 400–3000), `tests_taken` (CHECK ≥0), `last_test_date`
-- Trigger: `update_updated_at_column()`
+- PK: `id` (uuid, `gen_random_uuid()`) is the **only** key. Verified live 2026-11-23 with `pg_constraint`/`pg_index`: no unique constraint or index on `(user_id, language_id, test_type_id)`. Other indexes: `(user_id)`, `(language_id, test_type_id)`.
+- Columns: `elo_rating` (default 1200, CHECK 400–3000 and 0–4000), `tests_taken` (CHECK ≥0), `last_test_date`, `created_at`, `updated_at`
+- Trigger: `update_user_skill_ratings_updated_at` (BEFORE UPDATE, `update_updated_at_column()`)
 
 ### `test_skill_ratings`
-- PK: `id` (uuid)
-- Unique: `UNIQUE (test_id, test_type_id)` — enforced in live schema (`db_schema_live.sql:687`)
-- Columns: `elo_rating` (default 1400, CHECK 400–3000), `total_attempts` (CHECK ≥0)
+- PK: `id` (uuid) is the **only** key. No unique constraint or index on `(test_id, test_type_id)` live. Other indexes: `(test_id)`, `(test_type_id)`.
+- Columns: `elo_rating` (default 1400, CHECK 400–3000 and 0–4000), `total_attempts` (CHECK ≥0), `created_at`, `updated_at`. No `volatility` or `updated_at` trigger.
+
+Consequence: a first-ever simultaneous submission can create two rows for one natural key (see below). Live duplicate counts on 2026-11-23: 0 for both tables. Pending (written, NOT applied): `migrations/skill_ratings_natural_key_unique.sql` (`CREATE UNIQUE INDEX CONCURRENTLY` on both keys; outside a transaction) and `migrations/skill_ratings_writers_on_conflict.sql` (the five submission RPCs and `apply_calibration_to_skill_ratings` insert with `ON CONFLICT` and re-read the row; must run after the index file, otherwise `42P10`). Rollback file: `migrations/skill_ratings_writers_on_conflict_rollback.sql`. Order and checks: `migrations/PENDING-2026-11-23.md`.
 
 ### `test_attempts`
 - Stores full ELO audit trail: `user_elo_before`, `user_elo_after`, `test_elo_before`, `test_elo_after`
@@ -330,13 +331,9 @@ RD decays (increases) with inactivity using the Glicko-2 formula:
 
 Implemented in `migrations/wire_volatility_and_exclude_attempted.sql` — see "Recommendation Functions" above.
 
-### ~~4. Missing UNIQUE Constraints~~ — RESOLVED
+### 4. Missing UNIQUE Constraints — OPEN (pending migrations)
 
-**Correction**: The live schema (`db_schema_live.sql`) confirms both tables already have the required UNIQUE constraints:
-- `user_skill_ratings`: `UNIQUE (user_id, language_id, test_type_id)`
-- `test_skill_ratings`: `UNIQUE (test_id, test_type_id)`
-
-The wiki's `database/schema.tech.md` page omitted these constraints, creating the false impression they were missing. No migration needed.
+**Correction (2026-11-23).** An earlier version of this page marked this item "resolved" on the strength of a schema snapshot. The live catalog shows otherwise: both rating tables have only their surrogate primary key (see "Tables: Current State"). The fix is written and pending: `migrations/skill_ratings_natural_key_unique.sql`, then `migrations/skill_ratings_writers_on_conflict.sql`.
 
 ## Related Pages
 

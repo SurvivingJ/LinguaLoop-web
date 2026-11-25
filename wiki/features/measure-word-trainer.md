@@ -3,7 +3,7 @@ title: Measure Word Trainer
 type: feature
 status: complete
 tech_page: ./measure-word-trainer.tech.md
-last_updated: 2026-06-07
+last_updated: 2026-11-23
 open_questions: []
 ---
 
@@ -62,8 +62,8 @@ The seed dictionary is hand-curated and ships embedded in
 `scripts/build_classifier_dictionary.py` — **75 classifiers across 16 semantic groups**,
 ~870 curated noun-classifier pairs. The CC-CEDICT long tail (`CL:X[pin]` annotations from
 `cedict_ts.u8`) is then layered on via `scripts/import_cedict_classifiers.py`, adding ~1.8k
-more pairs (`source = 'cedict'`), for ~2.6k pairs total. Re-running the build script **wipes
-and reinserts** the dictionary, so the script (plus the curation merge file) is the source of
+more pairs (`source = 'cedict'`), for ~2.6k pairs total. Running the build script with `--apply` **wipes
+and reinserts** the dictionary (without `--apply` it is a harmless dry run). The rebuild has no transaction, so a failure part-way leaves the Chinese classifier tables empty, and row ids change. The script (plus the curation merge file) is the source of
 truth; the CC-CEDICT import must be re-run after every build.
 
 Coverage of the rarer measure words was expanded with an **offline LLM authoring pipeline**

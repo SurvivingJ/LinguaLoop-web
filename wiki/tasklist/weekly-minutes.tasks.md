@@ -4,7 +4,7 @@ feature: weekly-minutes
 prose_page: ../features/weekly-minutes.md
 tech_page: ../features/weekly-minutes.tech.md
 total_tasks: 12
-done: 9
+done: 11
 ---
 
 # Weekly Minutes — Task Breakdown
@@ -17,7 +17,7 @@ Spec: [[features/weekly-minutes]], [[features/weekly-minutes.tech]], [[decisions
 
 ## TASK-885: LIVE-DB (apply gated): `study_time_ledger` table + `credit_study_time` + `get_weekly_study_seconds`
 
-**Status:** Done (repo) — awaiting live apply approval
+**Status:** [x] Done (live objects verified 2026-11-23: `study_time_ledger`, `credit_study_time`, `get_weekly_study_seconds`)
 **Feature:** weekly-minutes
 **Agent:** A
 **Type:** infra

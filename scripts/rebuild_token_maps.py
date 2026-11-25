@@ -41,8 +41,10 @@ Not fixed here
 
 Usage:
     python scripts/rebuild_token_maps.py --language ja --dry-run
-    python scripts/rebuild_token_maps.py --language ja
+    python scripts/rebuild_token_maps.py --language ja --apply
     python scripts/rebuild_token_maps.py --test-id <uuid-or-slug> --dry-run
+
+Nothing is written without --apply.
 """
 
 import sys
@@ -50,9 +52,9 @@ import argparse
 import logging
 
 try:
-    from _common import admin_db, bootstrap, paginate
+    from _common import admin_db, base_parser, bootstrap, paginate
 except ImportError:  # run or imported as scripts.<name>
-    from scripts._common import admin_db, bootstrap, paginate
+    from scripts._common import admin_db, base_parser, bootstrap, paginate
 
 bootstrap()
 
@@ -214,13 +216,12 @@ def run(db, tests: list[dict], language_code: str, language_id: int,
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__,
-                                     formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser = base_parser(description=__doc__,
+                         formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('--language', choices=['zh', 'en', 'ja'])
     parser.add_argument('--test-id', help='tests.id (uuid) or tests.slug')
     parser.add_argument('--all', action='store_true',
                         help='Consider every active test, not just drifted ones')
-    parser.add_argument('--dry-run', action='store_true')
     parser.add_argument('--allow-loss', action='store_true',
                         help='Write even if a currently-working link would be lost')
     args = parser.parse_args()

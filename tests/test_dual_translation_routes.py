@@ -10,8 +10,7 @@ not the raw Supabase chain):
      against a minimal fake query-builder (``_FakeDB``), not a live DB.
   2. Route-level tests exercise ``get_next``/``submit`` through the Flask
      test client with every helper *and* ``grade_submission`` monkeypatched
-     directly on the ``routes.dual_translation`` module namespace — the same
-     pattern test_listening_lab_routes.py uses for its service singleton.
+     directly on the ``routes.dual_translation`` module namespace.
 
 This repo doesn't spin up a live DB for these tests; live verification
 against a real seeded passage is blocked on TASK-603/604 (see the tasklist
@@ -871,48 +870,6 @@ class TestApplyCardReview:
 
         assert new_card.state == 'relearning'
         assert new_card.lapses == 1
-
-
-# ---------------------------------------------------------------------------
-# GET /api/dual-translation/cards/due
-# ---------------------------------------------------------------------------
-
-class TestGetDueCards:
-
-    def test_200_returns_interleaved_due_cards(self, client, auth_headers, monkeypatch):
-        due = [
-            {'card_id': 1, 'card_type': 'cloze', 'subtype': 'article',
-             'prompt_payload': {}, 'state': 'new', 'due_date': None},
-            {'card_id': 2, 'card_type': 'cloze', 'subtype': 'classifier',
-             'prompt_payload': {}, 'state': 'new', 'due_date': None},
-        ]
-        monkeypatch.setattr(dt_routes.dt_cards, 'generate_cards_for_queued_entries', lambda db, uid: 0)
-        monkeypatch.setattr(dt_routes, '_fetch_due_cards', lambda db, uid: due)
-
-        resp = client.get('/api/dual-translation/cards/due', headers=auth_headers)
-
-        assert resp.status_code == 200
-        data = resp_json(resp)
-        assert data['total'] == 2
-        assert {c['card_id'] for c in data['cards']} == {1, 2}
-
-    def test_200_empty_when_nothing_due(self, client, auth_headers, monkeypatch):
-        monkeypatch.setattr(dt_routes.dt_cards, 'generate_cards_for_queued_entries', lambda db, uid: 0)
-        monkeypatch.setattr(dt_routes, '_fetch_due_cards', lambda db, uid: [])
-
-        resp = client.get('/api/dual-translation/cards/due', headers=auth_headers)
-
-        assert resp.status_code == 200
-        data = resp_json(resp)
-        assert data['cards'] == []
-        assert data['total'] == 0
-
-    def test_500_when_db_not_configured(self, client, app, auth_headers):
-        app.supabase_service = None
-
-        resp = client.get('/api/dual-translation/cards/due', headers=auth_headers)
-
-        assert resp.status_code == 500
 
 
 # ---------------------------------------------------------------------------

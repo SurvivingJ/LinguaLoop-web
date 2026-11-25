@@ -10,7 +10,8 @@ Arguments:
     --file, -f        Path to JSON file containing topics (required)
     --category, -t    Category name (default: "Import: {filename}")
     --lens, -e        Default lens code if not in JSON (default: "cultural")
-    --dry-run, -d     Validate without database changes
+    --apply           Write the topics and queue entries (default: dry run)
+    --dry-run, -d     Validate without database changes (the default)
     --skip-gatekeeper Skip cultural validation for faster imports
     --skip-novelty    Skip duplicate checking
     --validate-only   Only validate JSON format, don't import
@@ -29,9 +30,9 @@ from datetime import datetime
 
 # Add parent directory to path for imports
 try:
-    from _common import bootstrap
+    from _common import base_parser, bootstrap
 except ImportError:  # run or imported as scripts.<name>
-    from scripts._common import bootstrap
+    from scripts._common import base_parser, bootstrap
 
 bootstrap(log_level=None)
 
@@ -61,22 +62,26 @@ def setup_logging(verbose: bool = False):
 
 def parse_args():
     """Parse command line arguments."""
-    parser = argparse.ArgumentParser(
-        description='Import topics from JSON file into the topic generation system',
+    parser = base_parser(
+        description='Import topics from JSON file into the topic generation system '
+                    '(dry run unless --apply)',
         formatter_class=argparse.RawDescriptionHelpFormatter,
+        apply_help='write the topics and queue entries (default: dry run)',
+        dry_run_help='Validate and log without database changes (the default)',
+        dry_run_flags=('--dry-run', '-d'),
         epilog="""
 Examples:
   # Import topics
-  python -m scripts.run_topic_import --file data/topics.json
+  python -m scripts.run_topic_import --file data/topics.json --apply
 
   # Import with custom category
-  python -m scripts.run_topic_import --file slang.json --category "Gen-Z Slang 2024"
+  python -m scripts.run_topic_import --file slang.json --category "Gen-Z Slang 2024" --apply
 
   # Validate JSON format only
   python -m scripts.run_topic_import --file topics.json --validate-only
 
   # Fast import (skip checks)
-  python -m scripts.run_topic_import --file verified.json --skip-novelty --skip-gatekeeper
+  python -m scripts.run_topic_import --file verified.json --skip-novelty --skip-gatekeeper --apply
 
 JSON Format:
   {
@@ -105,11 +110,6 @@ JSON Format:
         '--lens', '-e',
         default='cultural',
         help='Default lens code if not in JSON (default: cultural)'
-    )
-    parser.add_argument(
-        '--dry-run', '-d',
-        action='store_true',
-        help='Validate and log without database changes'
     )
     parser.add_argument(
         '--skip-gatekeeper',
@@ -194,7 +194,7 @@ def main():
         SupabaseFactory.initialize()
 
         # Log configuration
-        logger.info(f"Configuration:")
+        logger.info("Configuration:")
         logger.info(f"  File: {args.file}")
         logger.info(f"  Category: {args.category or '(auto)'}")
         logger.info(f"  Default Lens: {args.lens}")

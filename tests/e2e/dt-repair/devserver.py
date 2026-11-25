@@ -58,7 +58,7 @@ from flask import jsonify, render_template_string, request  # noqa: E402
 
 from tests.conftest import TestConfig, _make_mock_dimension_service, _make_mock_supabase  # noqa: E402
 from tests.test_dt_repair_service import (  # noqa: E402
-    GOLD, L1_TEXT, REPRO, FakeStore, contract_for, rc_err,
+    GOLD, L1_TEXT, FakeStore, contract_for, rc_err,
 )
 
 USER = "test-user-id-123"

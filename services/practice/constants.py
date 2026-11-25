@@ -87,16 +87,6 @@ PRACTICE_ATTEMPT_MAX_SECONDS = 300      # 5 minutes
 # the seed default in get_practice_session (COALESCE(..., 45)).
 DEFAULT_EXPECTED_SECONDS = 45
 
-# exercises.attempt_count is written conditionally on the value read; this is
-# how many writes one attempt may make before giving up on the condition.
-COUNTER_WRITE_ATTEMPTS = 3
-
-# record_exercise_attempt (migrations/record_exercise_attempt.sql) is used only
-# when this env flag is set. A "function not found" answer is remembered for
-# ATTEMPT_RPC_RECHECK_SECONDS so requests do not pay a failing round trip.
-ATTEMPT_RPC_ENV_FLAG = 'PRACTICE_ATTEMPT_RPC_ENABLED'
-ATTEMPT_RPC_RECHECK_SECONDS = 600
-
 
 def _settled(fn):
     """``fn`` as a callable returning ``(value, error)`` instead of raising, so
@@ -116,11 +106,8 @@ def _unwrap(outcome):
     return value
 
 __all__ = [
-    'ATTEMPT_RPC_ENV_FLAG',
-    'ATTEMPT_RPC_RECHECK_SECONDS',
     'CALIBRATION_EVIDENCE_MAX_AGE_DAYS',
     'CALIBRATION_ROW_LIMIT',
-    'COUNTER_WRITE_ATTEMPTS',
     'DEFAULT_EXPECTED_SECONDS',
     'DEMAND_GENERATION_MAX_PER_CALL',
     'EVIDENCE_ROW_LIMIT',

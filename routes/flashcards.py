@@ -1,12 +1,13 @@
 # routes/flashcards.py
-"""Flashcard routes — SRS review, due cards, stats."""
+"""Flashcard routes — due cards and SRS review."""
 
-from flask import Blueprint, g, render_template
+from flask import Blueprint, g
 from datetime import date, datetime
 import logging
 
 from middleware.auth import jwt_required as supabase_jwt_required
 from routes.common import get_db
+from services.day_boundary import review_today, review_today_iso
 from services.study_time import clamp_active_ms, credit_study_time, parse_client_event_id
 from services.vocabulary.fsrs import CardState, schedule_review
 from services.pinyin_format import display_pronunciation
@@ -19,13 +20,6 @@ flashcards_bp = Blueprint("flashcards", __name__)
 
 # FSRS rating constants
 GOOD = 3
-
-
-@flashcards_bp.route('/page')
-@supabase_jwt_required
-def flashcard_page() -> str:
-    """Render the flashcard review page."""
-    return render_template('flashcards.html')
 
 
 @flashcards_bp.route('/due', methods=['GET'])
@@ -41,7 +35,9 @@ def get_due_cards(language_id: int) -> ApiResponse:
     current_user_id = g.current_user_id
 
     db = get_db()
-    today = date.today().isoformat()
+    # FSRS review calendar (one app-wide time zone, TASK-1211): the same
+    # date the review writer stamps.
+    today = review_today_iso()
 
     response = db.table('user_flashcards') \
         .select(
@@ -153,13 +149,14 @@ def submit_review() -> ApiResponse:
         state=row.get('state', 'new'),
     )
 
-    new_card = schedule_review(card, rating)
+    today = review_today()
+    new_card = schedule_review(card, rating, today)
 
     update_data = {
         'stability': new_card.stability,
         'difficulty': new_card.difficulty,
         'due_date': new_card.due_date.isoformat() if new_card.due_date else None,
-        'last_review': date.today().isoformat(),
+        'last_review': today.isoformat(),
         'reps': new_card.reps,
         'lapses': new_card.lapses,
         'state': new_card.state,
@@ -196,68 +193,3 @@ def submit_review() -> ApiResponse:
         'new_state': new_card.state,
         'stability': round(new_card.stability, 2),
     })
-
-
-@flashcards_bp.route('/stats', methods=['GET'])
-@supabase_jwt_required
-@api_errors("Failed to fetch stats")
-@require_language_id
-def get_stats(language_id: int) -> ApiResponse:
-    """Get flashcard statistics for the user."""
-    current_user_id = g.current_user_id
-
-    db = get_db()
-    today = date.today().isoformat()
-
-    all_resp = db.table('user_flashcards') \
-        .select('state', count='exact') \
-        .eq('user_id', current_user_id) \
-        .eq('language_id', language_id) \
-        .execute()
-
-    by_state = {}
-    for r in (all_resp.data or []):
-        s = r['state']
-        by_state[s] = by_state.get(s, 0) + 1
-    total = sum(by_state.values())
-
-    new_count = by_state.get('new', 0)
-    due_resp = db.table('user_flashcards') \
-        .select('id', count='exact') \
-        .eq('user_id', current_user_id) \
-        .eq('language_id', language_id) \
-        .neq('state', 'new') \
-        .lte('due_date', today) \
-        .execute()
-    due_today = new_count + (due_resp.count or 0)
-
-    return api_success({
-        'stats': {
-            'total_cards': total,
-            'due_today': due_today,
-            'by_state': by_state,
-        }
-    })
-
-
-@flashcards_bp.route('/skip', methods=['POST'])
-@supabase_jwt_required
-@api_errors("Failed to skip card")
-def skip_card() -> ApiResponse:
-    """Delete/archive a flashcard the user doesn't want."""
-    current_user_id = g.current_user_id
-
-    data = json_body()
-    card_id = data.get('card_id')
-
-    if not card_id:
-        return bad_request("card_id required")
-
-    db = get_db()
-    db.table('user_flashcards') \
-        .delete() \
-        .eq('id', card_id) \
-        .eq('user_id', current_user_id) \
-        .execute()
-
-    return api_success()

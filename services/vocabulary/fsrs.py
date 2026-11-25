@@ -15,6 +15,8 @@ import math
 from dataclasses import dataclass
 from datetime import date, timedelta
 
+from services.day_boundary import review_today
+
 
 # Default FSRS-4.5 parameters (optimized from Anki data)
 DEFAULT_PARAMS = {
@@ -55,13 +57,14 @@ def schedule_review(card: CardState, rating: int, review_date: date | None = Non
     Args:
         card: Current card state
         rating: 1=again, 2=hard, 3=good, 4=easy
-        review_date: Date of this review (defaults to today)
+        review_date: Date of this review (defaults to today on the app-wide
+            FSRS review calendar, ``services.day_boundary.review_today``)
 
     Returns:
         Updated CardState with new scheduling parameters
     """
     if review_date is None:
-        review_date = date.today()
+        review_date = review_today()
 
     w = DEFAULT_PARAMS['w']
     request_retention = DEFAULT_PARAMS['request_retention']

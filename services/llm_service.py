@@ -40,16 +40,19 @@ import time
 from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Callable, Iterator, Optional
+from typing import Callable, Iterator
 
 import httpx
-from openai import OpenAI, APIConnectionError, RateLimitError, APITimeoutError, NotFoundError
+from openai import (
+    OpenAI, APIConnectionError, RateLimitError, APITimeoutError, NotFoundError,
+    APIStatusError, ConflictError, InternalServerError,
+)
 from pydantic import BaseModel, ValidationError
 from tenacity import (
     retry,
     stop_after_attempt,
     wait_exponential,
-    retry_if_exception_type,
+    retry_if_exception,
     before_sleep_log,
 )
 
@@ -146,7 +149,11 @@ def set_default_provider(provider: str) -> None:
     Backfill CLIs use this to route a whole run to the headless Claude Code
     transport with one flag. Both the module global and the environment variable
     are set: ``_resolve_provider`` reads the global, while
-    ``exercise_generation.llm_client`` reads the env var to size its timeout.
+    the environment variable is read by code that runs outside this module's
+    globals (subprocesses and other modules that consult it directly).
+    Timeout precedence for headless calls: the ``timeout`` that call_llm puts in
+    the payload (default 60 s) wins; CLAUDE_CLI_TIMEOUT only applies to a direct
+    client call that sends no timeout.
 
     Raises:
         ValueError: on an unknown provider — fails before the run starts rather
@@ -164,11 +171,18 @@ def get_client(
     *,
     base_url: str | None = None,
     api_key: str | None = None,
+    max_retries: int | None = None,
 ):
     """Get or create a singleton client.
 
     Either pass a provider name ('openrouter'/'ollama'/'claude_cli') or explicit
     base_url + api_key for custom endpoints.
+
+    ``max_retries`` is forwarded to the OpenAI SDK when not None. The default
+    (None) leaves the SDK's own default (2 retries) untouched, which callers
+    without a tenacity wrapper (e.g. services/model_arena/llm_runner.py) rely
+    on. ``call_llm`` passes 0 so tenacity is its only retry layer. Clients are
+    cached per (endpoint, key, max_retries), so the two never share an instance.
 
     Returns an ``OpenAI`` instance for HTTP providers, or a ``ClaudeCliClient``
     for the headless Claude Code transport. Both expose the same
@@ -179,6 +193,9 @@ def get_client(
     else:
         key = _resolve_provider(provider)
 
+    if max_retries is not None and key[0] != CLAUDE_CLI_BASE_URL:
+        key = (*key, max_retries)
+
     if key not in _clients:
         if key[0] == CLAUDE_CLI_BASE_URL:
             # Imported lazily: the module shells out and probes the filesystem
@@ -188,7 +205,8 @@ def get_client(
             _clients[key] = ClaudeCliClient()
             logger.info("Created Claude Code headless client (subscription auth)")
         else:
-            _clients[key] = OpenAI(api_key=key[1], base_url=key[0])
+            kwargs = {} if max_retries is None else {'max_retries': max_retries}
+            _clients[key] = OpenAI(api_key=key[1], base_url=key[0], **kwargs)
             logger.debug("Created LLM client for %s", key[0])
 
     return _clients[key]
@@ -418,8 +436,9 @@ def _use_enabled_false_reasoning_param(model: str | None) -> bool:
 # above, landed 2026-09-28, AFTER Phase 1's own eval was measured) -- so the
 # regression cannot yet be attributed to either axis alone. This flag lets a
 # clean attribution eval hold qwen's reasoning state at its Phase-1-measured
-# value while bundle mode is varied independently (see
-# `VOCAB_LADDER_BUNDLE_MODE`, a separate flag).
+# value while bundle mode is varied independently. (Historical: that second
+# flag, `VOCAB_LADDER_BUNDLE_MODE`, and bundle mode itself have since been
+# deleted; the env var is now ignored. The eval note above is kept as record.)
 #
 # `on` (the default): restores the qwen behaviour Phase 1's published numbers
 # were actually measured under. Per wiki/evaluations/exercise-gen-phase1-2026-09.md
@@ -444,7 +463,8 @@ def _use_enabled_false_reasoning_param(model: str | None) -> bool:
 #
 # Scoped to qwen only (via `_use_enabled_false_reasoning_param`'s own
 # pattern) and to this one mechanism; it does not touch
-# `VOCAB_LADDER_BUNDLE_MODE` or any other pipeline's reasoning handling.
+# any other pipeline's reasoning handling. (It once also did not touch the
+# since-deleted `VOCAB_LADDER_BUNDLE_MODE` flag.)
 _LADDER_QWEN_REASONING_ENV = 'LADDER_QWEN_REASONING'
 
 # ADR-028 bounded-reasoning middle setting (2026-10-05): `on` (85-92%
@@ -822,6 +842,12 @@ def _log_llm_call(
 _RETRYABLE = (
     APIConnectionError, RateLimitError, APITimeoutError, ConnectionError,
     TimeoutError,
+    # call_llm builds its client with max_retries=0, so tenacity is the only
+    # retry layer. The SDK's own retry set was HTTP 408, 409, 429 and >= 500;
+    # RateLimitError (429) is above, these two cover 409 and every 5xx. 408
+    # has no distinct SDK class (plain APIStatusError) and is handled in
+    # _is_retryable. 400/401/403/404/422 stay non-retryable.
+    ConflictError, InternalServerError,
     # TASK-737: raised bare as "Server disconnected" — not wrapped into
     # APIConnectionError by the SDK on every code path. Went unnoticed while
     # every call to this client was serial (one request at a time never
@@ -858,10 +884,17 @@ def _retryable_types() -> tuple:
 # Core call_llm
 # ---------------------------------------------------------------------------
 
+def _is_retryable(exc: BaseException) -> bool:
+    """Tenacity predicate: transient fault types, plus HTTP 408 (request timeout)."""
+    if isinstance(exc, _retryable_types()):
+        return True
+    return isinstance(exc, APIStatusError) and exc.status_code == 408
+
+
 @retry(
     stop=stop_after_attempt(3),
     wait=wait_exponential(multiplier=1, min=2, max=10),
-    retry=retry_if_exception_type(_retryable_types()),
+    retry=retry_if_exception(_is_retryable),
     before_sleep=before_sleep_log(logger, logging.WARNING),
     reraise=True,
 )
@@ -998,7 +1031,9 @@ def call_llm(
         ValidationError:     Schema mismatch persisting after the repair retry.
         Various OpenAI/network errors after 3 retries.
     """
-    client = get_client(provider)
+    # max_retries=0: tenacity (3 attempts, above) is the single retry layer; the
+    # SDK's default 2 retries would stack to up to 9 HTTP tries per transient fault.
+    client = get_client(provider, max_retries=0)
     resolved_model = _resolve_model(model, language, provider)
 
     messages: list[dict[str, str]] = []
@@ -1056,6 +1091,22 @@ def call_llm(
             pipeline=log_pipeline,
         )
     except (json.JSONDecodeError, RuntimeError) as exc:
+        # A failed headless subprocess (timeout, non-zero exit) is a transport
+        # failure, not malformed output: there is no content to repair, and a
+        # "repair" run would just fail again. Let it reach tenacity directly.
+        if _is_cli_error(exc):
+            raise
+        # D-02: the primary round-trip was billed even though it produced
+        # nothing usable; record it before repairing or re-raising.
+        _log_failed_primary(
+            exc, pipeline=log_pipeline, task_name=log_task,
+            template_version=template_version, model=resolved_model,
+            temperature=temperature, seed=seed, prompt_hash=prompt_hash,
+            artifact_id=artifact_id, language_code=language_code,
+            provider=provider, max_tokens=max_tokens, timeout_s=timeout,
+            input_text=prompt, call_role=call_role, sense_id=sense_id,
+            generation_batch_id=generation_batch_id,
+        )
         # Malformed JSON or empty/missing content. The schema repair below only
         # fires on ValidationError (JSON already parsed), and tenacity only
         # retries transient API errors — so without this a single bad-JSON roll
@@ -1266,6 +1317,46 @@ def _strip_param_routing(extra_body: dict) -> dict:
     return stripped
 
 
+def _is_cli_error(exc: BaseException) -> bool:
+    """True for the headless CLI's transport failure (resolved lazily)."""
+    try:
+        from services.claude_cli_client import ClaudeCliError
+    except Exception:  # pragma: no cover - defensive
+        return False
+    return isinstance(exc, ClaudeCliError)
+
+
+def _log_failed_primary(exc: Exception, **log_kwargs) -> None:
+    """Log the llm_calls row for a primary call that returned unusable content.
+
+    ``_make_one_call`` attaches ``call_info`` (cost, tokens, latency) to the
+    exceptions it raises after the provider answered. Exceptions without it
+    (nothing was billed or measured) are not logged. Never raises.
+    """
+    info = getattr(exc, 'call_info', None)
+    if not info:
+        return
+    try:
+        requested_model = log_kwargs.pop('model')
+        model = info.get('actual_model') or requested_model
+        _log_llm_call(
+            model=model,
+            raw_response=getattr(exc, 'call_raw', None),
+            parsed_ok=False, schema_ok=None,
+            judge_verdict=None, judge_confidence=None,
+            latency_ms=info.get('latency_ms'),
+            cost_usd=info.get('cost_usd'),
+            input_tokens=info.get('input_tokens'),
+            output_tokens=info.get('output_tokens'),
+            cached_tokens=info.get('cached_tokens'),
+            reasoning_tokens=info.get('reasoning_tokens'),
+            error=str(exc),
+            **log_kwargs,
+        )
+    except Exception as log_exc:  # pragma: no cover - logging must not break calls
+        logger.warning("failed-primary llm_calls logging failed: %s", log_exc)
+
+
 def _make_one_call(
     *,
     client: OpenAI,
@@ -1449,6 +1540,11 @@ def _make_one_call(
     cost_usd = _extract_cost(response)
     (prompt_tokens, completion_tokens,
      cached_tokens, reasoning_tokens) = _extract_usage_tokens(response)
+    _call_info = {
+        'latency_ms': latency_ms, 'cost_usd': cost_usd,
+        'input_tokens': prompt_tokens, 'output_tokens': completion_tokens,
+        'cached_tokens': cached_tokens, 'reasoning_tokens': reasoning_tokens,
+    }
     # The model actually served, when the provider echoes it — OpenRouter can
     # route an aliased/`:free`-suffixed slug to a different underlying model,
     # and llm_calls.model should reflect what ran, not just what was asked
@@ -1456,12 +1552,20 @@ def _make_one_call(
     # caller falls back to the requested slug itself.
     actual_model = getattr(response, 'model', None) or None
 
+    actual_model_for_log = actual_model
+
+    def _fail(exc: Exception, raw: str | None = None) -> Exception:
+        # Carry what this billed round-trip cost so the caller can log it.
+        exc.call_info = {**_call_info, 'actual_model': actual_model_for_log}  # type: ignore[attr-defined]
+        exc.call_raw = raw  # type: ignore[attr-defined]
+        return exc
+
     if not response.choices:
-        raise RuntimeError("LLM returned no choices")
+        raise _fail(RuntimeError("LLM returned no choices"))
 
     content = response.choices[0].message.content
     if not content:
-        raise RuntimeError("LLM returned empty content")
+        raise _fail(RuntimeError("LLM returned empty content"))
 
     if response_format == 'text':
         return _CallResult(
@@ -1475,6 +1579,7 @@ def _make_one_call(
     except json.JSONDecodeError as exc:
         # Carry the raw content so the caller can echo it into a repair turn.
         exc.raw_content = content  # type: ignore[attr-defined]
+        _fail(exc, content)
         raise
     return _CallResult(
         parsed, content, True, latency_ms, cost_usd,

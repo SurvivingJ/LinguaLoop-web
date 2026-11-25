@@ -16,6 +16,7 @@ front of it — that a dollar OpenRouter reports is a dollar spend_since counts.
 
 from __future__ import annotations
 
+import threading
 import uuid
 from datetime import datetime, timezone
 
@@ -40,8 +41,9 @@ class _LLMCallsTable:
     """Serves both the insert side (_log_llm_call) and the select side
     (spend_since / _judge_verdicts_since) against one shared row list."""
 
-    def __init__(self, rows: list):
+    def __init__(self, rows: list, on_cost_read=None):
         self._rows = rows
+        self._on_cost_read = on_cost_read
         self._pending_insert = None
         self._since = None
         self._not_null_col = None
@@ -75,6 +77,8 @@ class _LLMCallsTable:
             rows = [r for r in rows if r.get('created_at', '') >= self._since]
         if self._not_null_col is not None:
             rows = [r for r in rows if r.get(self._not_null_col) is not None]
+        if self._not_null_col == 'cost_usd' and self._on_cost_read is not None:
+            self._on_cost_read()   # spend_since() is reading the spend
         return _Resp(list(rows))
 
 
@@ -87,10 +91,12 @@ class _CombinedDB(FakeContentDB):
     def __init__(self):
         super().__init__()
         self.llm_calls_rows: list = []
+        # Set the first time spend_since() reads llm_calls.
+        self.spend_read = threading.Event()
 
     def table(self, name):
         if name == 'llm_calls':
-            return _LLMCallsTable(self.llm_calls_rows)
+            return _LLMCallsTable(self.llm_calls_rows, self.spend_read.set)
         return super().table(name)
 
 
@@ -154,11 +160,16 @@ class _CostLoggingPipeline:
     check is fed by genuine llm_calls rows rather than a stubbed number."""
 
     cost_per_call: float = 0.50
+    # When set, senses after this one wait until spend_since() has read the
+    # spend, i.e. until run_chunk's first ceiling check has run.
+    hold_after: int | None = None
 
-    def __init__(self, _db=None):
-        pass
+    def __init__(self, db=None):
+        self._db = db
 
     def generate_for_sense(self, sense_id, language_id):
+        if self.hold_after is not None and sense_id > self.hold_after:
+            assert self._db.spend_read.wait(timeout=30), 'the ceiling check never ran'
         svc.call_llm(
             f'generate sense {sense_id}',
             model='google/gemini-3.5-flash-lite',
@@ -212,12 +223,15 @@ def _wire_real_cost_path(monkeypatch):
     return db
 
 
-def test_real_llm_cost_reaches_spend_since_and_trips_the_ceiling(_wire_real_cost_path):
+def test_real_llm_cost_reaches_spend_since_and_trips_the_ceiling(_wire_real_cost_path, monkeypatch):
     db = _wire_real_cost_path
 
     # 20 senses x $0.50/call = $10 actual spend; a $1 ceiling must abort well
-    # before the chunk finishes. workers=1 keeps the interleaving deterministic
-    # so the "every 10 completed" check lands predictably.
+    # before the chunk finishes. The check runs on the main thread after every
+    # 10th completion, so with nothing holding it back the worker can finish
+    # all 20 before the first check (H-08). Holding senses 11+ until the check
+    # has read the spend makes the abort land after sense 10 or 11.
+    monkeypatch.setattr(_CostLoggingPipeline, 'hold_after', 10)
     report = batch.run_chunk(db, 1, _senses(20), 1.00, False, workers=1)
 
     assert report.aborted_reason is not None

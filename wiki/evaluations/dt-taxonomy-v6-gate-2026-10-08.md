@@ -8,6 +8,7 @@ metrics_module: services/dual_translation/eval_metrics.py
 gold_sets: tests/fixtures/dt_gold (v5 control), tests/fixtures/dt_gold_v6 (v6 gold), tests/fixtures/dt_silver_v6 (v6 silver)
 artifacts: data/eval/dt_v6_gate_2026-10-08/ (per-arm report .md, checkpoint .ckpt.jsonl, console .log, spend_monitor.log)
 verdict: NO-GO
+last_updated: 2026-10-11
 ---
 
 # DT Taxonomy v6 Acceptance Gate (TASK-850, 2026-10-08)

@@ -99,7 +99,7 @@ These bind the whole phase. Changing one of them changes several tasks.
    `rating` 1-5 per item, mapped to a verdict by
    [likert_to_verdict](../../services/test_generation/schemas.py#L50)
    (5/4 → accept, 3 → flag, 2/1 → reject) — the same cut points the v3
-   distractor judge uses (project memory [[distractor-judge-v3-likert]]), which
+   distractor judge uses (project memory [[tasklist/distractor-judge-calibration.tasks]]), which
    roughly halved good-item false-rejects and keeps the cut points tunable
    without re-prompting. The raw rating is carried through unchanged as
    `JudgeOutcome.confidence`. A purely binary filter judge (L1: keep/reject) may
@@ -629,7 +629,7 @@ source of truth):
   (`google/gemini-2.5-flash-lite`, `openrouter`).
 - **Chinese (lang 1):** the qwen tier used by the zh ladder prompts
   (`qwen/qwen-max` or the `qwen` judge model per memory
-  [[distractor-judge-v3-likert]] — confirm against the live `prompt_templates`
+  [[tasklist/distractor-judge-calibration.tasks]] — confirm against the live `prompt_templates`
   rows before seeding).
 
 Judges are temperature-0, fail-open. If a judge proves too aggressive in the

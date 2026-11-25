@@ -1,5 +1,5 @@
 # routes/users.py
-"""User routes — ELO ratings, token balance, profile."""
+"""User routes — ELO ratings, profile."""
 
 from flask import Blueprint, g
 import logging
@@ -9,7 +9,7 @@ from middleware.auth import jwt_required as supabase_jwt_required
 from routes.common import get_db
 from services.dimension_service import parse_language_id
 from services.test_service import get_test_service
-from utils.responses import api_errors, api_success, bad_request, not_found, ApiResponse
+from utils.responses import api_errors, api_success, bad_request, ApiResponse
 from utils.validation import json_body
 
 logger = logging.getLogger(__name__)
@@ -23,58 +23,6 @@ def get_user_elo_ratings() -> ApiResponse:
     """Get user's ELO ratings across all languages and skills."""
     ratings = get_test_service().get_user_elo_summary(g.current_user_id)
     return api_success({'ratings': ratings})
-
-
-@users_bp.route('/tokens', methods=['GET'])
-@supabase_jwt_required
-@api_errors("Failed to get token balance")
-def get_token_balance() -> ApiResponse:
-    """Get user's current token balance, atomically granting daily free tokens."""
-    user_id = g.current_user_id
-
-    # Atomic RPC: grants daily free tokens if not yet granted today
-    client = get_db()
-    client.rpc('grant_daily_free_tokens', {'p_user_id': user_id}).execute()
-
-    # Read updated balance
-    user_result = client.table('users')\
-        .select('tokens, last_free_token_date')\
-        .eq('id', user_id)\
-        .single()\
-        .execute()
-
-    if not user_result.data:
-        return not_found("User not found")
-
-    return api_success({
-        "total_tokens": user_result.data.get('tokens', 0),
-        "free_tokens_today": Config.DAILY_FREE_TOKENS,
-        "last_free_token_date": user_result.data.get('last_free_token_date', ''),
-    })
-
-
-@users_bp.route('/profile', methods=['GET'])
-@supabase_jwt_required
-@api_errors("Failed to get profile")
-def get_user_profile() -> ApiResponse:
-    """Get user profile information."""
-    user_id = g.current_user_id
-
-    user_result = get_db().table('users')\
-        .select(
-            'id, email, display_name, email_verified, '
-            'total_tests_taken, total_tests_generated, '
-            'last_activity_at, subscription_tier_id, '
-            'created_at, last_login'
-        )\
-        .eq('id', user_id)\
-        .single()\
-        .execute()
-
-    if not user_result.data:
-        return not_found("User not found")
-
-    return api_success({"profile": user_result.data})
 
 
 @users_bp.route('/preferences', methods=['GET'])

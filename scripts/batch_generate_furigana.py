@@ -25,30 +25,28 @@ tests carry at most 5 questions, so the lexicographic sort on "q1".."q5" is
 also numeric order (this would need zero-padding past q9).
 
 Usage:
-    python scripts/batch_generate_furigana.py [--limit N] [--dry-run] [--force]
+    python scripts/batch_generate_furigana.py [--limit N] [--apply] [--force]
 
 Options:
     --limit N    Process at most N tests (default: all)
-    --dry-run    Print a payload summary without writing to DB
+    --apply      Write the payloads (default: dry run)
+    --dry-run    Print a payload summary without writing to DB (the default)
     --force      Also reprocess tests that already have a furigana_payload
 """
 
-import argparse
 import json
 import logging
 
 try:
-    from _common import bootstrap
+    from _common import base_parser, bootstrap
 except ImportError:  # run or imported as scripts.<name>
-    from scripts._common import bootstrap
+    from scripts._common import base_parser, bootstrap
 
 bootstrap()
 
 
 from services.supabase_factory import SupabaseFactory, get_supabase_admin
 from services.furigana_service import process_test_payload
-
-SupabaseFactory.initialize()
 
 logger = logging.getLogger(__name__)
 
@@ -158,15 +156,21 @@ def run(limit: int = 0, dry_run: bool = False, force: bool = False):
     )
 
 
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(
-        description='Batch generate furigana payloads for Japanese tests'
+def main(argv=None):
+    parser = base_parser(
+        description='Batch generate furigana payloads for Japanese tests',
+        dry_run_help='Print payload summaries without writing to DB (the default)',
     )
     parser.add_argument('--limit', type=int, default=0,
                         help='Max tests to process (0 = all)')
-    parser.add_argument('--dry-run', action='store_true',
-                        help='Print payload summaries without writing to DB')
     parser.add_argument('--force', action='store_true',
                         help='Reprocess tests that already have a payload')
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
+    # Here, not at import: --help and the tests must not need Supabase credentials.
+    if not SupabaseFactory.is_initialized():
+        SupabaseFactory.initialize()
     run(limit=args.limit, dry_run=args.dry_run, force=args.force)
+
+
+if __name__ == '__main__':
+    main()

@@ -3,7 +3,7 @@ title: New-Word Drill (criterion-based intro sessions)
 type: feature
 status: in-progress
 tech_page: ./new-word-drill.tech.md
-last_updated: 2026-11-15
+last_updated: 2026-11-23
 open_questions:
   - "ANSWERED 2026-11-09: schedule = Option B (successive relearning), targets 5 / 3 / 2 / 2 counted correct answers, +1 when the cold recall that opens sessions 2–4 is missed."
   - "ANSWERED 2026-11-09: new_words_per_day default raised to 10 (was 5)."
@@ -13,6 +13,7 @@ open_questions:
   - "ANSWERED 2026-11-09: prestudy words count against new_words_per_day. When a prime drills more words than today's remaining quota, the learner is told and chooses: queue the extra words for later days (default) or add them all now (overload)."
   - "ANSWERED 2026-11-09: existing plans move to 10 too (rows still at the old default of 5 are updated; any other value was the learner's own choice and is kept)."
   - "ANSWERED 2026-11-09: a demoted ring-2 word makes a full restart at intro session 1."
+  - "OPEN 2026-11-23: should a word the system believes is known (or probably known) still be admitted as a new word when the learner has repeatedly missed it in recent tests? Today the recent-test list admits such words (no check), while the calibration and placement lists skip them; the written decision (ADR-047) says they are skipped. The owner's position is that repeated recent misses should win and the decision is to be amended."
 ---
 
 # New-Word Drill (criterion-based intro sessions)
@@ -150,7 +151,7 @@ See [[decisions/ADR-040-criterion-based-new-word-drill]] for the evidence. In sh
 
 ## Open Questions
 
-All answered 2026-11-09 (see frontmatter).
+- **OPEN:** repeated recent misses versus "known" (see frontmatter). Today a word marked known or probably known can still be admitted if the learner keeps missing it in recent tests; this is how the code behaves, and [[decisions/ADR-047-basic-word-knowledge-prior]] currently says the opposite. Everything else was answered 2026-11-09 (see frontmatter).
 
 ## Related Pages
 
@@ -160,5 +161,6 @@ All answered 2026-11-09 (see frontmatter).
 - [[features/test-prestudy]] — the word prime this drill is built from
 - [[algorithms/vocabulary-ladder]] — ring 1 is replaced by this drill
 - [[features/practice-engine]] — the session that hosts the drill
+- [[features/practice-package]] — how new words are nominated and admitted in the code
 - [[decisions/ADR-033-budget-scope-and-new-word-budget]] — the new-word quota
 - [[decisions/ADR-046-untaught-words-start-the-drill]] — never-taught words met in practice start the drill

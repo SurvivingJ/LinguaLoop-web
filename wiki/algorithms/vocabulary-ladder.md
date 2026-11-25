@@ -3,12 +3,14 @@ title: Vocabulary Ladder
 type: algorithm
 status: in-progress
 tech_page: ./vocabulary-ladder.tech.md
-last_updated: 2026-05-12
+last_updated: 2026-11-23
 open_questions:
   - "Will the contextual_use family (and a Level 10 capstone) be implemented, or has it been deferred indefinitely?"
 ---
 
 # Vocabulary Ladder
+
+> **Note 2026-11-23:** the exercises are generated once per word by several tooling paths; most come from the offline "fat-seed" path, and a nightly job tops up single new words. An experimental "bundle" generation mode has been removed. A proposal to settle on one bulk path and one top-up path is in [[decisions/ADR-063-vocabulary-ladder-generation-paths]] (proposed, not decided).
 
 > **Fixed (2026-11-10):** from TASK-220 (2026-07-14) until 2026-11-10 Practice attempts never moved the ladder and gates/stress tests were skipped, so no word left ring 1. Practice now calls `ladder_apply_progress` and runs the batteries — see [[decisions/ADR-041-practice-moves-the-ladder]].
 

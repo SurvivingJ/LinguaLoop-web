@@ -10,7 +10,6 @@ Uses the 'vocab_phrase_detection' prompt from prompt_templates table.
 
 import json
 import logging
-from typing import Optional
 
 from services.vocabulary.processors.base import LemmaToken
 

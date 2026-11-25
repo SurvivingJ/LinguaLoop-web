@@ -10,22 +10,22 @@ This mirrors the logic in orchestrator._match_question_senses() — questions
 about inference (where no vocab directly appears) fall back to all sense_ids.
 
 Usage:
-    python scripts/backfill_question_sense_ids.py --language cn [--limit 10] [--force]
+    python scripts/backfill_question_sense_ids.py --language cn [--limit 10] [--force] [--apply]
 
 Options:
     --language CODE   Required. Language code: cn, en, jp
     --limit N         Process at most N tests (default: all)
     --force           Overwrite existing sense_ids on questions
-    --dry-run         Preview changes without writing to DB
+    --apply           Write the changes (default: dry run)
+    --dry-run         Preview changes without writing to DB (the default)
 """
 
-import argparse
 import logging
 
 try:
-    from _common import bootstrap
+    from _common import base_parser, bootstrap
 except ImportError:  # run or imported as scripts.<name>
-    from scripts._common import bootstrap
+    from scripts._common import base_parser, bootstrap
 
 bootstrap()
 
@@ -206,8 +206,9 @@ def run_backfill(language_code: str, limit: int = 0, force: bool = False,
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description='Backfill per-question sense_ids (Phase 7 compatible)'
+    parser = base_parser(
+        description='Backfill per-question sense_ids (Phase 7 compatible)',
+        dry_run_help='Preview changes without writing to DB (the default)',
     )
     parser.add_argument('--language', required=True, choices=['zh', 'en', 'ja'],
                         help='Language code to process')
@@ -215,8 +216,6 @@ def main():
                         help='Max number of tests to process (0=all)')
     parser.add_argument('--force', action='store_true',
                         help='Overwrite existing sense_ids')
-    parser.add_argument('--dry-run', action='store_true',
-                        help='Preview changes without writing to DB')
 
     args = parser.parse_args()
 

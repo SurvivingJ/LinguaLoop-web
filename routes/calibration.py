@@ -1,11 +1,10 @@
 # routes/calibration.py
 """Calibration routes — standalone infinite MCQ that measures vocabulary knowledge.
 
-Five endpoints:
+Four endpoints:
   POST /api/calibration/start    body: {word_language_id, definition_language_id, mode?}
   GET  /api/calibration/next     query: session_id, count? (1..MAX_BATCH)
   POST /api/calibration/answer   body: {session_id, response_id, position|null, latency_ms?}
-  GET  /api/calibration/ability  query: session_id
   POST /api/calibration/end      body: {session_id}
 
 Calibration is deliberately outside session planning: unlike the drill routes,
@@ -167,23 +166,10 @@ def answer() -> ApiResponse:
         # calibration_ability(fit=False) — 47 ms of SQL plus a round trip — to
         # read `answered` and `correct` out of a report whose every other field
         # was then discarded. The ability CURVE is still computed by the same
-        # estimator, at /ability and /end, where someone actually looks at it.
+        # estimator, at /end, where someone actually looks at it.
         return api_success(result)
     except CalibrationError as e:
         return bad_request(str(e))
-
-
-@calibration_bp.route('/ability', methods=['GET'])
-@supabase_jwt_required
-@api_errors("Failed to compute the ability estimate")
-def ability() -> ApiResponse:
-    """The Zipf knowledge curve and its crossings so far."""
-    session, err = _load_session(request.args.get('session_id'))
-    if err:
-        return err
-    return api_success({
-        'ability': calibration_service.ability(g.current_user_id, session),
-    })
 
 
 @calibration_bp.route('/end', methods=['POST'])

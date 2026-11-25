@@ -4,7 +4,7 @@ type: evaluation
 status: complete
 last_updated: 2026-11-14
 open_questions:
-  - "Which of the 12 new migration files should be applied live, and in what order?"
+  - "ANSWERED 2026-11-23: Which of the 12 new migration files should be applied live, and in what order? All were applied by 2026-11-23 (the six function migrations on 2026-11-23)."
   - "Is the app hosted in the same region as the Supabase project (ap-southeast-2)?"
   - "Should /test/<slug>?type=dictation keep redirecting to the dedicated dictation page?"
   - "Which vocabulary-ladder generation pipeline is authoritative (default, bundle, stage runner, fat-seed)?"
@@ -71,3 +71,4 @@ practice answer 11–13 → 4–5; study-plan GET 6–7 → 2; prestudy GET 8 �
 - [[evaluations/latency-2026-11-11]]
 - [[database/schema.tech]]
 - [[api/rpcs.tech]]
+- [[evaluations/codebase-review-2026-11-22]]

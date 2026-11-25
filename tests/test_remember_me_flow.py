@@ -27,7 +27,6 @@ import re
 from datetime import datetime, timezone, timedelta
 from unittest.mock import MagicMock
 
-import pytest
 
 from config import Config
 from tests._page_source import page_source
@@ -138,7 +137,6 @@ class TestRememberMe_BackendHappyPath:
                 'id': 'user-abc',
                 'email': 'jamesccmcb@gmail.com',
                 'subscription_tier': 'free',
-                'token_balance': 0,
                 'total_tests_taken': 0,
                 'total_tests_generated': 0,
                 'has_seen_welcome': True,

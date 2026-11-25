@@ -56,7 +56,8 @@ mode, and costs ≈$0.00004 per call. On the 305-test re-tier the whole library 
 6. **The topic tier-fit judge uses jev too.** One score call on `concept + distinctive
    vocabulary`; a topic fits its stamped tier when it assesses **at or below** it (tier is a
    floor on reader capability), which preserves the old judge's one-sided meaning.
-   `scripts/backfill_topic_tiers.py --stamp-tiers` stamps the assessed tier.
+   `scripts/backfill_topic_tiers.py --stamp-tiers --apply` stamps the assessed tier (without
+   `--apply` it is a dry run, TASK-1218).
 7. **The answer is stored, not just the tier.** `tests.age_tier_score` (raw), `age_tier_confidence`,
    `age_tier_probabilities` (`{"T1": p, …}`), `age_tier_model`, `age_tier_calibration` (which
    threshold table produced the tier: `default`, `ja-2026-09-27` or `zh-2026-09-27`),

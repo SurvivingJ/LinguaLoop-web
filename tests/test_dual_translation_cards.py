@@ -8,6 +8,8 @@ fake query-builder, matching the ``_FakeDB`` pattern in
 test_dual_translation_routes.py.
 """
 
+import pytest
+
 from services.dual_translation import cards
 
 
@@ -280,6 +282,15 @@ class _FakeQuery:
     def limit(self, *a, **k):
         return self
 
+    def range(self, *a, **k):
+        return self
+
+    def gte(self, *a, **k):
+        return self
+
+    def lte(self, *a, **k):
+        return self
+
     def insert(self, payload):
         self._recorder.append((self._table_name, 'insert', payload))
         return self
@@ -303,14 +314,14 @@ class _FakeDB:
 
 def _base_tables(**overrides):
     tables = {
-        'dt_error_profile_entry': [{'id': 100, 'subtype': 'article'}],
+        'dt_error_profile_entry': [{'id': 100, 'subtype': 'article', 'l2_language_id': 1}],
         'dt_card': [],
         'dt_submission': [{'id': 5, 'passage_id': 9, 'l1_language_id': 2}],
         'dt_error_instance': [{
             'id': 900, 'submission_id': 5, 'span_reference': [4, 7],
             'corrected_form': 'the cat', 'learner_form': 'cat', 'subtype': 'article',
         }],
-        'dt_passage': [{'l2_text': 'The cat sat on the mat.'}],
+        'dt_passage': [{'id': 9, 'l2_language_id': 1, 'l2_text': 'The cat sat on the mat.'}],
     }
     tables.update(overrides)
     return tables
@@ -528,23 +539,252 @@ class TestSelectErrorExercisesForPractice:
 class TestWindowL1Text:
     """The L1 context of a card comes from the passage's sentence references."""
 
-    def test_a_window_passage_joins_its_sentence_references(self, monkeypatch):
-        from services.dual_translation.repair import sentences as repair_sentences
-        seen = {}
+    @staticmethod
+    def _windows():
+        from tests import dt_card_fakes
+        tables = dt_card_fakes.scenario_tables()
+        passages = {p['id']: p for p in tables['dt_passage']}
+        # (passage, l1): full refs, rejected ref, no range, other L1, no L1
+        return tables, [(passages[9], 2), (passages[11], 2), (passages[10], 2),
+                        (passages[9], 1), (passages[12], 2), (passages[12], None)]
 
-        def fake(db, test_id, start, end, l1):
-            seen['args'] = (test_id, start, end, l1)
-            return ['The cat sat.', 'It was sleepy.']
+    def test_a_window_passage_joins_its_sentence_references(self):
+        from tests import dt_card_fakes
+        tables, windows = self._windows()
+        db = dt_card_fakes.FilteringDB(tables)
+        assert cards._window_l1_texts(db, windows) == {
+            (9, 2): 'The cat sat on the mat. It was sleepy.',
+            (12, 2): 'I eat apples every day.',
+        }
+        assert db.round_trips == 2
 
-        monkeypatch.setattr(repair_sentences, '_range_l1_texts', fake)
-        passage = {'l2_text': 'x', 'source_ref_id': 'test-1', 'sentence_start': 2, 'sentence_end': 3}
-        assert cards._window_l1_text(None, passage, 2) == 'The cat sat. It was sleepy.'
-        assert seen['args'] == ('test-1', 2, 3, 2)
+    def test_matches_the_per_window_range_lookup(self):
+        """Same answer as repair.sentences._range_l1_texts, window by window
+        (the query the per-entry loop used to run)."""
+        from services.dual_translation.passage_builder import join_sentences
+        from services.dual_translation.repair.sentences import _range_l1_texts
+        from services.dual_translation.sentence_refs import LANG_CODE
+        from tests import dt_card_fakes
+        tables, windows = self._windows()
+        batched = cards._window_l1_texts(dt_card_fakes.FilteringDB(tables), windows)
+        for passage, l1 in windows:
+            expected = ''
+            if passage['sentence_start'] is not None and l1 is not None:
+                texts = _range_l1_texts(dt_card_fakes.FilteringDB(tables), passage['source_ref_id'],
+                                        passage['sentence_start'], passage['sentence_end'], l1)
+                expected = join_sentences(texts, LANG_CODE.get(l1, 'en')) if texts else ''
+            assert batched.get((passage['id'], l1), '') == expected
 
-    def test_no_sentence_range_or_missing_reference_gives_an_empty_context(self, monkeypatch):
-        from services.dual_translation.repair import sentences as repair_sentences
-        monkeypatch.setattr(repair_sentences, '_range_l1_texts', lambda *a: None)
-        window = {'l2_text': 'x', 'source_ref_id': 'test-1', 'sentence_start': 0, 'sentence_end': 1}
-        assert cards._window_l1_text(None, window, 2) == ''
-        whole = {'l2_text': 'x', 'source_ref_id': 'test-1', 'sentence_start': None, 'sentence_end': None}
-        assert cards._window_l1_text(None, whole, 2) == ''
+    def test_no_window_needs_no_query_and_a_failed_read_gives_empty_contexts(self):
+        from tests import dt_card_fakes
+        tables, windows = self._windows()
+        db = dt_card_fakes.FilteringDB(tables)
+        assert cards._window_l1_texts(db, [windows[2], windows[5]]) == {}
+        assert db.round_trips == 0
+
+        def fail(*a):
+            raise RuntimeError('down')
+
+        assert cards._window_l1_texts(dt_card_fakes.FilteringDB(tables, fail=fail), windows) == {}
+
+
+# ---------------------------------------------------------------------------
+# TASK-1003 / B-03: characterisation of generate_cards_for_queued_entries
+# across several queued entries (recorded from the pre-batching per-entry
+# loop), plus the round-trip budget of the batched version.
+# ---------------------------------------------------------------------------
+
+from tests import dt_card_fakes  # noqa: E402
+
+
+def _pair(entry_id, error_id, subtype, *, prompt, answer, l1, target):
+    base = {'user_id': 'u1', 'profile_entry_id': entry_id, 'origin_error_id': error_id,
+            'state': 'new'}
+    return [
+        {'card_type': 'cloze', 'subtype': subtype,
+         'prompt_payload': {'prompt': prompt, 'answer': answer, 'l1_context': l1}, **base},
+        {'card_type': 'isolate_retranslate', 'subtype': subtype,
+         'prompt_payload': {'l1_context': l1, 'target_sentence': target, 'answer': answer},
+         **base},
+    ]
+
+
+_ARTICLE_901 = dict(prompt='The cat sat on ____.', answer='the mat',
+                    l1='The cat sat on the mat.', target='The cat sat on the mat.')
+_TENSE_904 = dict(prompt='She ____ a book.', answer='bought', l1='', target='She buyed a book.')
+_WORD_CHOICE_906 = dict(prompt='I eat ____ every day.', answer='apples',
+                        l1='I eat apples every day.', target='I eat apple every day.')
+_TENSE_903 = dict(prompt='He ____ to school yesterday.', answer='went', l1='',
+                  target='He go to school yesterday.')
+
+# Recorded from the per-entry loop before TASK-1003, then changed by the B-02
+# language filter in exactly two places (marked): entry 101 (tense, zh) was
+# carded from the newer ja error 904 and now gets the zh error 903; entry 104
+# (article, ja) was carded from the zh error 901 and, with no ja article error,
+# is now left queued with no cards (the "no usable error" case).
+EXPECTED_CARDS = (
+    _pair(100, 901, 'article', **_ARTICLE_901)
+    + _pair(101, 903, 'tense', **_TENSE_903)          # B-02: was 904 (ja)
+    # B-02: entry 104 was _pair(104, 901, 'article', ...) (zh error, ja entry)
+    + _pair(105, 906, 'word_choice', **_WORD_CHOICE_906)
+    + _pair(106, 904, 'tense', **_TENSE_904)
+)
+EXPECTED_STATUSES = {
+    100: 'drilling', 101: 'drilling', 102: 'queued', 103: 'queued',
+    104: 'queued',                                     # B-02: was 'drilling'
+    105: 'drilling', 106: 'drilling', 107: 'queued', 108: 'drilling', 109: 'queued',
+}
+
+
+@pytest.fixture
+def _flag_off(monkeypatch):
+    monkeypatch.setattr(cards.Config, 'DT_TAXONOMY_COLUMNS', False)
+
+
+@pytest.mark.usefixtures('_flag_off')
+class TestBatchedCardGeneration:
+
+    def test_rows_written_match_the_per_entry_loop(self):
+        db = dt_card_fakes.FilteringDB(dt_card_fakes.scenario_tables())
+
+        assert cards.generate_cards_for_queued_entries(db, 'u1') == 4
+        new_cards, statuses = dt_card_fakes.written(db)
+        assert new_cards == EXPECTED_CARDS
+        assert statuses == EXPECTED_STATUSES
+
+    def test_card_is_built_from_the_latest_error_in_the_entrys_language(self):
+        """B-02: a Chinese (l2=1) word_choice entry must not be carded from the
+        learner's newer Japanese (l2=3) word_choice error; a Japanese entry with
+        no Japanese error of its subtype gets no card and stays queued."""
+        tables = dt_card_fakes.scenario_tables()
+        tables['dt_error_profile_entry'] = [
+            {'id': 105, 'user_id': 'u1', 'subtype': 'word_choice', 'l1_language_id': 2,
+             'l2_language_id': 1, 'remediation_status': 'queued'},
+            {'id': 110, 'user_id': 'u1', 'subtype': 'collocation', 'l1_language_id': 2,
+             'l2_language_id': 3, 'remediation_status': 'queued'},
+        ]
+        tables['dt_error_instance'] += [
+            # newest word_choice error overall, but in a Japanese passage
+            {'id': 907, 'submission_id': 7, 'subtype': 'word_choice', 'span_reference': [4, 9],
+             'corrected_form': 'bought', 'learner_form': 'buyed',
+             'created_at': '2026-07-20T10:00:00+00:00'},
+            # the only collocation error is in a Chinese passage
+            {'id': 908, 'submission_id': 5, 'subtype': 'collocation', 'span_reference': [0, 7],
+             'corrected_form': 'The cat', 'learner_form': 'cat',
+             'created_at': '2026-07-21T10:00:00+00:00'},
+        ]
+        db = dt_card_fakes.FilteringDB(tables)
+
+        assert cards.generate_cards_for_queued_entries(db, 'u1') == 1
+        new_cards, statuses = dt_card_fakes.written(db)
+        assert new_cards == _pair(105, 906, 'word_choice', **_WORD_CHOICE_906)
+        assert statuses[105] == 'drilling'
+        assert statuses[110] == 'queued'
+
+    def test_second_pass_is_a_no_op(self):
+        db = dt_card_fakes.FilteringDB(dt_card_fakes.scenario_tables())
+        cards.generate_cards_for_queued_entries(db, 'u1')
+        before = dt_card_fakes.written(db)
+
+        assert cards.generate_cards_for_queued_entries(db, 'u1') == 0
+        assert dt_card_fakes.written(db) == before
+
+    def test_round_trips_do_not_grow_with_the_number_of_queued_entries(self):
+        trips = {}
+        for k in (1, 3, 8):
+            db = dt_card_fakes.FilteringDB(dt_card_fakes.uniform_tables(k))
+            assert cards.generate_cards_for_queued_entries(db, 'u1') == k
+            assert len(dt_card_fakes.written(db)[0]) == 2 * k
+            trips[k] = db.round_trips
+        # queued, existing cards, submissions, errors, passages,
+        # test_sentences, references, one insert, one update.
+        assert trips == {1: 9, 3: 9, 8: 9}
+
+    def test_nothing_uncarded_stops_after_two_reads(self):
+        tables = dt_card_fakes.uniform_tables(3)
+        tables['dt_card'] = [{'id': 1, 'profile_entry_id': 100 + i} for i in range(3)]
+        db = dt_card_fakes.FilteringDB(tables)
+        assert cards.generate_cards_for_queued_entries(db, 'u1') == 0
+        assert db.round_trips == 2
+
+    def test_submission_history_past_the_row_cap_is_still_searched(self, monkeypatch):
+        """The learner's submission ids are paged, not cut at PostgREST's
+        max-rows (here 5; the real cap is 1000): the only submission with an
+        error is past the cap."""
+        monkeypatch.setattr(cards, '_PAGE', 5, raising=False)
+        db = dt_card_fakes.FilteringDB(dt_card_fakes.uniform_tables(1, extra_submissions=7),
+                                       max_rows=5)
+        assert cards.generate_cards_for_queued_entries(db, 'u1') == 1
+        assert {r['origin_error_id'] for r in dt_card_fakes.written(db)[0]} == {400}
+
+    def test_card_insert_failing_for_one_entry_still_cards_the_others(self):
+        """Before batching, a failed insert for entry 101 aborted the loop:
+        100 was carded, 101 and every later entry were left for the next call.
+        Now the batch insert falls back to per-entry inserts, so only 101 is
+        left queued (no cards, not drilling), and the error is still raised."""
+        def fail(table, op, payload, ids):
+            if table == 'dt_card' and op == 'insert' and any(
+                    r['profile_entry_id'] == 101 for r in payload):
+                raise RuntimeError('insert failed')
+
+        db = dt_card_fakes.FilteringDB(dt_card_fakes.scenario_tables(), fail=fail)
+        with pytest.raises(RuntimeError):
+            cards.generate_cards_for_queued_entries(db, 'u1')
+
+        new_cards, statuses = dt_card_fakes.written(db)
+        assert new_cards == [r for r in EXPECTED_CARDS if r['profile_entry_id'] != 101]
+        assert statuses == {**EXPECTED_STATUSES, 101: 'queued'}
+
+    def test_status_update_failing_for_one_entry_never_marks_it_drilling(self):
+        def fail(table, op, payload, ids):
+            if table == 'dt_error_profile_entry' and op == 'update' and 101 in ids:
+                raise RuntimeError('update failed')
+
+        db = dt_card_fakes.FilteringDB(dt_card_fakes.scenario_tables(), fail=fail)
+        with pytest.raises(RuntimeError):
+            cards.generate_cards_for_queued_entries(db, 'u1')
+
+        new_cards, statuses = dt_card_fakes.written(db)
+        assert new_cards == EXPECTED_CARDS
+        assert statuses == {**EXPECTED_STATUSES, 101: 'queued'}
+
+    def test_a_failed_read_writes_nothing(self):
+        def fail(table, op, payload, ids):
+            if table == 'test_sentence_references':
+                raise RuntimeError('read failed')
+
+        db = dt_card_fakes.FilteringDB(dt_card_fakes.scenario_tables(), fail=fail)
+        # the L1 context is optional: a failed reference read degrades it to ''
+        cards.generate_cards_for_queued_entries(db, 'u1')
+        new_cards, _ = dt_card_fakes.written(db)
+        assert {r['prompt_payload']['l1_context'] for r in new_cards} == {''}
+
+
+# ---------------------------------------------------------------------------
+# _newest_first_key: created_at may arrive as datetime, aware/naive or odd str
+# ---------------------------------------------------------------------------
+
+def test_newest_first_key_mixed_types_never_raise_and_order_by_time():
+    from datetime import datetime, timezone
+    rows = [
+        {"id": "a", "created_at": "2026-01-01T10:00:00+00:00"},
+        {"id": "b", "created_at": datetime(2026, 1, 1, 11, 0, 0, tzinfo=timezone.utc)},
+        {"id": "c", "created_at": "2026-01-01T12:00:00Z"},
+        {"id": "d", "created_at": "2026-01-01T09:00:00"},  # naive: read as UTC
+        {"id": "e", "created_at": "2026-01-01T12:00:00.5Z"},
+        {"id": "f", "created_at": None},
+    ]
+    ordered = sorted(rows, key=cards._newest_first_key, reverse=True)
+    assert [r["id"] for r in ordered] == ["f", "e", "c", "b", "a", "d"]
+
+
+def test_newest_first_key_id_breaks_ties_descending():
+    a = {"id": "a", "created_at": "2026-01-01T10:00:00Z"}
+    b = {"id": "b", "created_at": "2026-01-01T10:00:00+00:00"}
+    assert cards._newest_first_key(b) > cards._newest_first_key(a)
+
+
+def test_newest_first_key_unparseable_string_still_comparable():
+    good = {"id": "a", "created_at": "2026-01-01T10:00:00+00:00"}
+    odd = {"id": "b", "created_at": "not-a-date"}
+    assert cards._newest_first_key(good) > cards._newest_first_key(odd)

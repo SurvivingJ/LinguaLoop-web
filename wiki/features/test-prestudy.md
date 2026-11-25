@@ -3,7 +3,7 @@ title: Test Prestudy (tests as teaching material)
 type: feature
 status: in-progress
 tech_page: ./test-prestudy.tech.md
-last_updated: 2026-11-17
+last_updated: 2026-11-23
 demo: ../demos/test-prestudy-demo.html
 open_questions:
   - "ANSWERED 2026-10-29: ELO for a first attempt made after prestudy = reduced K with factor 0.5 (`test_attempts.prestudied = true`, `elo_reduction_factor = 0.5`, existing badge)."
@@ -11,9 +11,9 @@ open_questions:
   - "SUPERSEDED 2026-11-09 by [[decisions/ADR-040-criterion-based-new-word-drill]]: drilled prestudy words now enter the ladder through the new-word drill (a prime that meets the stage-1 criterion counts as intro session 1). They count against `new_words_per_day`. Over-quota words are queued for later unless the learner chooses to overload after a notice (decided 2026-11-09). Was (2026-10-29): prestudy words do NOT count against `new_words_per_day` and never admit to the ladder."
   - "ANSWERED 2026-10-29: a prestudy block spends tests-share minutes (0.5 × the test's time estimate, capped at 8 min)."
   - "OPEN: lesson content spend. Per-sentence L1 translations and answer explanations for ~305 active tests at test-generation prices is roughly $3–10 total; needs approval before Phase 2."
-  - "OPEN: may lesson mode show the test's own questions before the attempt? Recommendation: never; use `questions.pool_source = 'lab_expansion'` items (Listening Lab) as teaching checks and keep the originals for the attempt."
+  - "OPEN: may lesson mode show the test's own questions before the attempt? Recommendation: never; keep the originals for the attempt. (The earlier suggestion to use Listening Lab expansion questions, `questions.pool_source = 'lab_expansion'`, as teaching checks no longer applies: the column is gone live and Listening Lab was removed from the codebase 2026-11-23, so teaching checks must be built from the passage itself.)"
   - "ANSWERED 2026-10-30: Chinese reading input = toneless pinyin typed, then a per-syllable tone picker; inline tone numbers or marks also accepted. Alternatives considered: tone marks required (hard to type), hanzi via IME (tests writing, not reading), audio recording (no grader). Open follow-up: whether the pinyin trainer's per-character tone game should replace the picker for multi-character words."
-  - "OPEN 2026-11-17: how the app decides a learner already knows basic words (one shared prior for preview and evidence, default ability for uncalibrated learners, re-basing old rows, one knowledge row per meaning) — [[decisions/ADR-047-basic-word-knowledge-prior]] (proposed, owner sign-off pending; TASK-1004)."
+  - "OPEN 2026-11-17: how the app decides a learner already knows basic words (one shared prior for preview and evidence, default ability for uncalibrated learners, re-basing old rows, one knowledge row per meaning) — [[decisions/ADR-047-basic-word-knowledge-prior]] (accepted 2026-11-17; its open proposals are TASK-1004)."
   - "OPEN: whether Azure TTS audio can be segmented per sentence (word timestamps are not stored today). Without it, sentence-by-sentence listening falls back to whole-clip audio plus the text."
 ---
 
@@ -72,8 +72,9 @@ under 7% of the words. This is the known blocker on [[features/lookahead-preteac
 - The pre-submit test payload (`GET /api/tests/test/<slug>`) already ships the transcript, the
   token map and personalised definitions; word clicks are blocked only by the client's
   `isSubmitted` check. The post-test word quiz builder works on any sense list.
-- Listening Lab expansion questions (`pool_source = 'lab_expansion'`) exist for some passages and
-  are not the scored questions.
+- ~~Listening Lab expansion questions (`pool_source = 'lab_expansion'`) exist for some passages and
+  are not the scored questions.~~ No longer true: `questions.pool_source` is gone live and Listening
+  Lab was removed from the codebase 2026-11-23 (TASK-1227).
 
 **What is missing:** `questions.answer_explanation` is NULL on **all 1,424 questions**
 (the comprehension-tests page's "results with explanations" describes the code path, not the
@@ -170,8 +171,9 @@ Prestudy is one feature with four **modes** (cheap to expensive) and four **trig
 
 3. **Lesson walkthrough** (needs generated content). Sentence by sentence: the sentence, its
    glossed unknowns, an L1 translation (toggle), audio for that sentence where segmentation
-   exists, and one teaching check every few sentences drawn from the Listening Lab expansion pool
-   or from a short "which sentence says…" item built from the passage itself. The scored
+   exists, and one teaching check every few sentences built from the passage itself (a short
+   "which sentence says…" item; the Listening Lab expansion pool once named here was removed
+   2026-11-23). The scored
    questions are never shown. Ends with a one-screen summary of the passage's main idea and the
    question types the test will ask, with a one-line strategy for each (e.g. "author purpose:
    look for evaluative words, not facts").
@@ -349,7 +351,7 @@ prestudy is same-day priming, so the two coexist — note the tension in the tec
 
 ## Implementation — "Study first" on the preview page (2026-10-31)
 
-Built (repo; the ELO migration is not yet applied live):
+Built and live (the ELO migration is applied: `test_attempts.prestudied` exists and the live `process_test_submission` takes `p_prestudied`; checked 2026-11-23):
 
 - **Entry point.** The test preview page shows a "Study first" button under "Start Test" for the
   comprehension modes (listening, reading). It opens `/test/<slug>/prestudy?type=<mode>`.
@@ -367,8 +369,8 @@ Built (repo; the ELO migration is not yet applied live):
   `update_from_word_tests_batch(side_effects=False)`, so nothing is admitted to the ladder or
   counted against `new_words_per_day`.
 - **ELO 0.5.** "Take the test" leaves a `sessionStorage` marker (6 h); `test.html` then submits
-  `prestudied: true`. `routes/tests.py` passes `p_prestudied` to `process_test_submission` only when
-  true and falls back to the 8-argument call if the function has no such parameter (PGRST202).
+  `prestudied: true`. `submit_test_attempt` in `routes/tests/submit.py` passes `p_prestudied` to `process_test_submission` only when
+  true and falls back to the call without it if the function has no such parameter (PGRST202; kept as a guard, no longer needed live).
   `migrations/prestudy_elo_factor.sql` adds `test_attempts.prestudied` and the 9-argument function
   (first attempt: user and test K × 0.5, `elo_reduction_factor = 0.5`). Skipping from the preview
   step without answering anything takes the test cold at full K.
@@ -476,7 +478,7 @@ Built (repo; the ELO migration is not yet applied live):
   都 0.16, 很 0.48, 好 0.10 **stay new for that account** because its own knowledge rows hold them
   there (its answers look automated); a learner with no history now gets the high prior. The rule
   itself — two different priors in the preview and in SQL, the 5.0 default ability, re-basing —
-  is [[decisions/ADR-047-basic-word-knowledge-prior]] (proposed).
+  is [[decisions/ADR-047-basic-word-knowledge-prior]] (accepted 2026-11-17).
 - **Gloss at the linked sense's level (INT-1, 2026-11-17).** Each meaning exists once per definition
   level ('simple', 'standard') per definition language, all with the same `sense_rank`.
   `services/prestudy._load_senses` keyed the cross-language gloss on (vocab_id, sense_rank), so the
@@ -533,7 +535,7 @@ Chinese test can link 100-300 words) down to the drill set. Technical detail:
 real knowledge rows (exported 2026-10-29; scored questions deliberately excluded). It shows the
 trigger per test, the frozen snapshot vs the recomputed unknown share, the key-word ranking,
 the gloss popover, the word prime with local BKT updates, and the rows a session would write.
-Regenerate with the scratch scripts `export.py` + `build.py` (not in the repo).
+Regenerate with the author's scratch export and build scripts (not in the repo).
 
 ## Open Questions
 
@@ -561,5 +563,5 @@ and task breakdown can now be written.
 - [[features/vocabulary-knowledge]] — the BKT evidence prestudy writes
 - [[pages/study-session]] — where the prestudy block would sit
 - [[tasklist/fixes-2026-11-16.tasks]] — open items from the 2026-11-16 prestudy fixes (TASK-992–995, TASK-1004)
-- [[decisions/ADR-047-basic-word-knowledge-prior]] — how basic words are judged known (proposed)
+- [[decisions/ADR-047-basic-word-knowledge-prior]] — how basic words are judged known (accepted 2026-11-17)
 - [[database/schema.tech]] — `tests.vocab_token_map`, `questions.sense_ids`, `test_attempts`

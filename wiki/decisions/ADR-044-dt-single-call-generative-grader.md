@@ -15,6 +15,33 @@ on 2026-11-14 ([[decisions/ADR-031-dt-taxonomy-v6-merge]], TASK-853) and
 single-call grader the live DT grader. Outstanding: restart all web workers (taxonomy cached with no TTL) and deploy
 ([[tasklist/dt-single-call-grader.tasks]] TASK-937).
 
+## Status update 2026-11-23: production has not been running the validated models
+
+*(Added by the wiki; the Decision text below is unchanged.)*
+
+- `config.py` (the `DT_SINGLE_CALL_MODEL` / `DT_SINGLE_CALL_FALLBACK_MODEL` lines, about 264-273) has defaulted
+  since 2026-11-16 to two free-tier slugs, `particle-ai/particle-1:free` and `nvidia/nemotron-3.5-super-vl:free`, under a
+  comment "TEMPORARY ... NOT validated against the gold set" (the OpenRouter key had reached its spending limit and every paid call was refused). The
+  validated pair this ADR was approved on, `openai/gpt-6-luna` and `deepseek/deepseek-v4.1-flash`, only runs if the environment overrides the defaults.
+- All 21 single-call grades recorded live between 2026-11-16 and 2026-11-18 (`dt_grading_call`, flow `single_call`, status `ok`) were made by
+  the free models: 20 by particle, 1 by nemotron. The first 11 (all on 2026-11-16) used prompt variant `v2` without the guard paragraph; the
+  later 10 used `v2_guard`. For slugs outside `VALIDATED_MODELS` the severity rule is the model's own (`DEFAULT_SEVERITY_RULE = "model"`).
+- The check that was never run was run on 2026-11-23: [[evaluations/dt-free-grader-goldset-2026-11-23]]. Both free models **fail** the
+  standard this ADR was approved on, in every configuration production used: on heavy-paraphrase items the validated gpt-6-luna flagged 2 of 152
+  correct sentences (precision .94), particle with the guard prompt 16 of 152 (.59; unguarded 11 of 152, .63), nemotron 38 of 152 (.23). Recall on real errors is
+  close to the validated model (.86 to .89 against about .90), all 6 gold critical errors were graded critical, and there were no malformed outputs in 437 calls;
+  severity under the "model" rule is off. Prompt injection was not tested (no gold items), and each configuration was run once.
+- This ADR states no numeric pass thresholds; the evaluation uses the evidence the owner approved on as the bar.
+- The evaluation's recommendation (a recommendation, not a decision): revert to the validated pair; if a free model must stay, keep particle as
+  primary and remove nemotron as fallback.
+
+**2026-11-23 (later):** the `config.py` defaults were reverted to the validated pair, `openai/gpt-6-luna` (primary) and `deepseek/deepseek-v4.1-flash` (fallback), by owner decision after the provider key was funded. A 5-call live check passed (both models answered and parsed through the production path; $0.0011). That checks the pipeline only; it is not a re-validation.
+
+Open questions (owner):
+- ANSWERED 2026-11-23: revert the two defaults to the validated pair (owner decision; see the update line below).
+- OPEN: re-grade the 21 grades made by the free models, or mark them in some way?
+- OPEN: add numeric thresholds to this ADR so a model swap can be gated mechanically?
+
 ## Context
 
 [[evaluations/dt-decision-grading-2026-11-14]] compared three ways of grading a Dual Translation
@@ -178,6 +205,7 @@ level. Full tables: [[evaluations/dt-decision-grading-2026-11-14]] §9.1.
   and identical per language; it is reproducible from the prompt version and the stored texts.
 
 ## Related Pages
+- [[evaluations/dt-free-grader-goldset-2026-11-23]] — gold-set check of the two free models (2026-11-23)
 - [[features/dual-translation.tech]] — "Single-call grader (ADR-044)" section: flow, config, contract, persistence
 - [[evaluations/dt-decision-grading-2026-11-14]] — the experiment and the production-path check
 - [[tasklist/dt-single-call-grader.tasks]] — migration, shadow run, deploy check, review, self-repair UI

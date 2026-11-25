@@ -3,7 +3,7 @@ title: Language Packs — Technical Specification
 type: feature-tech
 status: deprecated
 prose_page: ./language-packs.md
-last_updated: 2026-09-22
+last_updated: 2026-11-23
 dependencies:
   - "services/conversation_generation/"
   - "services/exercise_generation/"
@@ -21,6 +21,8 @@ open_questions:
 # Language Packs — Technical Specification
 
 > **ARCHIVED 2026-09-21.** No pack was ever created (all 6 tables empty). Pack services, style-pack exercise generators, /api/corpus/packs + /style-packs routes and the practice engine's pack cold-start intake were removed; ladder top-up now nominates from learner evidence only. The corpus itself is still live (the vocabulary ladder reads corpus_collocations). Everything (code, docs, table rows, DDL, restore notes) is in `archive/modules/language-packs-2026-09-21.zip` (gitignored, local only). The tables were dropped by `migrations/archive_unused_modules_2026_09_21.sql` (applied 2026-09-22). This page is kept for history only.
+>
+> **Re-verified 2026-11-23:** none of these tables exists in the live database (pack_collocations, pack_key_words, pack_style_items, user_pack_selections, style_pack_items, collocation_packs), and the code tip has no route, service or template for this feature. Nothing here describes running behaviour; the page is history. Status stays `deprecated`.
 
 
 ## Architecture Overview

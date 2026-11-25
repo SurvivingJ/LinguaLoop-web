@@ -25,7 +25,6 @@ Hardened contract for ``_call_*_submission_rpc``:
 import json
 from unittest.mock import MagicMock
 
-import pytest
 
 from routes.tests import (
     _call_submission_rpc,

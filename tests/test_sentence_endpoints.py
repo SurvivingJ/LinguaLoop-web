@@ -1,4 +1,4 @@
-"""TASK-909 — GET /api/tests/<slug>/sentences and POST /api/dual-translation/passage-from-sentences.
+"""TASK-909 — GET /api/tests/<slug>/sentences and ``open_range_passage``.
 
 Same two layers as tests/test_dual_translation_routes.py: helper-level tests
 against a minimal fake query builder, route-level tests through the Flask
@@ -184,7 +184,7 @@ class TestGetSentencesRoute:
 
 
 # ---------------------------------------------------------------------------
-# POST /api/dual-translation/passage-from-sentences
+# open_range_passage (the range-passage core)
 # ---------------------------------------------------------------------------
 
 REFS = {
@@ -247,7 +247,10 @@ class TestUsableReferences:
         assert set(out) == {101}
 
 
-class TestPassageFromSentencesRoute:
+class TestOpenRangePassage:
+    """``open_range_passage``: the core the prestudy Produce route calls (it was
+    also behind POST /api/dual-translation/passage-from-sentences until that
+    unused route was removed, TASK-1221)."""
 
     _OWNER = 'test-user-id-123'
 
@@ -276,55 +279,46 @@ class TestPassageFromSentencesRoute:
         app.mock_supabase.table.return_value.insert.return_value.execute.return_value = MagicMock(data=[{'id': 42}])
         return created
 
-    def test_401_without_jwt(self, client):
-        assert client.post('/api/dual-translation/passage-from-sentences', json=self._body()).status_code == 401
+    def _open(self, app, **over):
+        """Call open_range_passage as the route does; returns (status, payload, raw body)."""
+        body = self._body(**over)
+        with app.test_request_context():
+            response, status = dt_routes.open_range_passage(
+                app.mock_supabase, self._OWNER, body['test_id'], body['sentence_start'],
+                body['sentence_end'], body['l1_language_id'], body['primed_sense_ids'])
+            raw = response.get_data(as_text=True)
+        return status, json.loads(raw), raw
 
-    def test_400_bad_body(self, client, auth_headers):
-        resp = client.post('/api/dual-translation/passage-from-sentences', headers=auth_headers,
-                           json={'test_id': 't1'})
-        assert resp.status_code == 400
-
-    def test_400_range_too_wide(self, client, app, auth_headers, monkeypatch):
-        self._wire(app, monkeypatch)
-        resp = client.post('/api/dual-translation/passage-from-sentences', headers=auth_headers,
-                           json=self._body(sentence_end=4))
-        assert resp.status_code == 400
-
-    def test_403_when_not_attempted(self, client, app, auth_headers, monkeypatch):
+    def test_403_when_not_attempted(self, app, monkeypatch):
         self._wire(app, monkeypatch, attempted=False)
-        resp = client.post('/api/dual-translation/passage-from-sentences', headers=auth_headers, json=self._body())
-        assert resp.status_code == 403
+        assert self._open(app)[0] == 403
 
-    def test_404_unknown_test(self, client, app, auth_headers, monkeypatch):
+    def test_404_unknown_test(self, app, monkeypatch):
         self._wire(app, monkeypatch, test=None)
-        resp = client.post('/api/dual-translation/passage-from-sentences', headers=auth_headers, json=self._body())
-        assert resp.status_code == 404
+        assert self._open(app)[0] == 404
 
-    def test_422_when_sentence_lacks_reference(self, client, app, auth_headers, monkeypatch):
+    def test_422_when_sentence_lacks_reference(self, app, monkeypatch):
         self._wire(app, monkeypatch, refs={101: REFS[101]})
-        resp = client.post('/api/dual-translation/passage-from-sentences', headers=auth_headers, json=self._body())
-        assert resp.status_code == 422
-        data = resp_json(resp)
+        status, data, _ = self._open(app)
+        assert status == 422
         assert data['error_code'] == 'REFERENCE_MISSING'
         assert data['details']['missing_idx'] == [1]
 
-    def test_422_when_no_sentence_rows(self, client, app, auth_headers, monkeypatch):
+    def test_422_when_no_sentence_rows(self, app, monkeypatch):
         self._wire(app, monkeypatch, sentences=[])
-        resp = client.post('/api/dual-translation/passage-from-sentences', headers=auth_headers, json=self._body())
-        assert resp.status_code == 422
-        assert resp_json(resp)['error_code'] == 'SENTENCES_MISSING'
+        status, data, _ = self._open(app)
+        assert status == 422
+        assert data['error_code'] == 'SENTENCES_MISSING'
 
-    def test_409_when_hash_stale(self, client, app, auth_headers, monkeypatch):
+    def test_409_when_hash_stale(self, app, monkeypatch):
         stale = [dict(SENTENCES[0], transcript_hash='old'), SENTENCES[1]]
         self._wire(app, monkeypatch, sentences=stale)
-        resp = client.post('/api/dual-translation/passage-from-sentences', headers=auth_headers, json=self._body())
-        assert resp.status_code == 409
+        assert self._open(app)[0] == 409
 
-    def test_200_returns_passage_l1_and_signed_token_never_l2(self, client, app, auth_headers, monkeypatch):
+    def test_200_returns_passage_l1_and_signed_token_never_l2(self, app, monkeypatch):
         created = self._wire(app, monkeypatch)
-        resp = client.post('/api/dual-translation/passage-from-sentences', headers=auth_headers, json=self._body())
-        assert resp.status_code == 200
-        data = resp_json(resp)
+        status, data, raw = self._open(app)
+        assert status == 200
         assert data['passage_id'] == 7
         assert data['n_sentences'] == 2
         assert data['submission_id'] == 42
@@ -332,19 +326,15 @@ class TestPassageFromSentencesRoute:
         assert data['l1_text'] == 'There is a cat. There is a dog too.'
         assert created == [{'start': 0, 'end': 1, 'l2_text': '猫がいる。犬もいる。'}]
         assert 'l2_text' not in data
-        assert '猫' not in resp.data.decode('utf-8')
+        assert '猫' not in raw
         with app.app_context():
             assert primed_token.load(data['primed_token'], self._OWNER, 7) == [11, 12]
         insert_payload = app.mock_supabase.table.return_value.insert.call_args[0][0]
         assert insert_payload['passage_id'] == 7 and insert_payload['l1_language_id'] == 2
 
-    def test_same_range_twice_returns_same_passage_id(self, client, app, auth_headers, monkeypatch):
+    def test_same_range_twice_returns_same_passage_id(self, app, monkeypatch):
         self._wire(app, monkeypatch)
-        ids = set()
-        for _ in range(2):
-            resp = client.post('/api/dual-translation/passage-from-sentences', headers=auth_headers,
-                               json=self._body())
-            ids.add(resp_json(resp)['passage_id'])
+        ids = {self._open(app)[1]['passage_id'] for _ in range(2)}
         assert ids == {7}
 
     def test_token_bound_to_user_and_passage(self, app):

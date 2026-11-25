@@ -65,10 +65,8 @@ word_list_import_bp = Blueprint(
 )
 
 # No other upload-style route in this repo imposes (or needs) a cap on list
-# size — routes/vocab_admin.py::upload_words (the closest analog, an
-# admin-only word-list uploader) has none, and no shared constant exists to
-# mirror. This is therefore a fresh, documented judgment call rather than a
-# borrowed convention: per-word ladder generation can cost real wall-clock
+# size, and no shared constant exists to mirror. This is therefore a fresh,
+# documented judgment call rather than a borrowed convention: per-word ladder generation can cost real wall-clock
 # minutes for a brand-new sense (see module docstring), so an unbounded list
 # would tie up a single background thread for a very long time. 50 is
 # generous for a real vocabulary list while keeping worst-case wall clock

@@ -80,10 +80,10 @@ def _coerce_index_list(values, default: list[int]) -> list[int]:
     """Best-effort int coercion for an LLM-supplied list of sentence indices.
 
     `correct_sentence_indices` has no schema guarantee its elements are JSON
-    numbers; a string surviving here is what produced en's bundle-mode
-    0-exercise renders (item 6: `TypeError` in
-    `exercise_renderer._gather_bundle_judge_requests`, no error/skip
-    recorded). Elements that can't be coerced are dropped rather than failing
+    numbers; a string surviving here is what produced en's 0-exercise
+    renders (item 6: a downstream `TypeError` comparing a str index with an
+    int, no error/skip recorded). Elements that can't be coerced are dropped
+    rather than failing
     the whole list.
     """
     if not isinstance(values, list):

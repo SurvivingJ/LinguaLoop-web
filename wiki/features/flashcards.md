@@ -3,7 +3,7 @@ title: Flashcards (FSRS)
 type: feature
 status: in-progress
 tech_page: ./flashcards.tech.md
-last_updated: 2026-04-10
+last_updated: 2026-11-23
 open_questions: []
 ---
 
@@ -24,7 +24,7 @@ A learner navigates to `/flashcards`. The system shows cards due for review toda
 1. When a learner encounters new words through tests or exercises, flashcard entries are created automatically.
 2. Each card tracks FSRS parameters: stability, difficulty, due date, reps, lapses, state.
 3. Cards cycle through states: `new` → `learning` → `review` → `relearning` (on lapse).
-4. The `/flashcards` page shows cards where `due_date ≤ today`.
+4. The `/flashcards` page shows cards where `due_date ≤ today`, where "today" is the app-wide review day: it starts at midnight Sydney time (13:00 UTC during daylight saving, 14:00 UTC otherwise) for every learner, whatever their own time zone.
 5. After review, FSRS recalculates the next due date based on recall quality.
 
 ## Constraints & Edge Cases
@@ -37,6 +37,8 @@ A learner navigates to `/flashcards`. The system shows cards due for review toda
 
 - Flashcard creation is automatic upon vocabulary encounter — no manual card creation by users.
 - Review sessions show all due cards for the selected language.
+- One review calendar for everyone (owner decision 2026-11-23, TASK-1211): every review is dated, and every "is it due?" check is made, on the Sydney day. The flashcard page, practice sessions and the daily session all use it. The study plan's own time zone does not change when cards are due. Until the database half of this change is applied together with the code, the database side still uses the UTC day (see [[features/practice-engine.tech]]).
+- If the daily session cannot load the learner's review cards, its "Open page" button now takes them to the `/flashcards` page (it used to go to a non-existent address and land on the login screen).
 
 ## Related Pages
 

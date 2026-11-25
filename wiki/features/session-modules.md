@@ -1,9 +1,9 @@
 ---
 title: Daily Session Modules (include / exclude)
 type: feature
-status: planned
+status: complete
 tech_page: ./session-modules.tech.md
-last_updated: 2026-10-13
+last_updated: 2026-11-23
 open_questions: []
 ---
 

@@ -21,7 +21,6 @@ from services.dimension_service import DimensionService
 from services.dual_translation import (
     grader_cascade, single_call_grader as scg, single_call_prompts as sc_prompts, tier0,
 )
-from services.dual_translation.sentence_pairs import build_sentence_pairs
 
 _REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LANG_IDS = {'zh': 1, 'en': 2, 'ja': 3}
@@ -1622,10 +1621,10 @@ class TestDefaultsOnAndMissingMigration:
             'DT_SINGLE_CALL_GRADER': True, 'DT_GRADING_ASSET_COLUMNS': True,
             'DT_SINGLE_CALL_FREE_TRANSLATION': False, 'DT_SINGLE_CALL_EXPLAINER': False,
             'DT_SINGLE_CALL_SHOW_LOW_CONFIDENCE': False,
-            # Temporary free-tier defaults while the OpenRouter key is over its
-            # limit (see config.py); the validated pair is PRIMARY / FALLBACK.
-            'DT_SINGLE_CALL_MODEL': 'particle-ai/particle-1:free',
-            'DT_SINGLE_CALL_FALLBACK_MODEL': 'nvidia/nemotron-3.5-super-vl:free',
+            # The ADR-044 validated pair (config.py); the free models that were the
+            # temporary defaults failed the gold set on 2026-11-23.
+            'DT_SINGLE_CALL_MODEL': PRIMARY,
+            'DT_SINGLE_CALL_FALLBACK_MODEL': FALLBACK,
         }
 
     def test_env_vars_still_override_the_defaults(self):

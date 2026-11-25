@@ -464,7 +464,7 @@ def ability(user_id: str, session: dict) -> dict:
     ``fit=False``, purely to read `answered` and `correct` out of a report whose
     every other field was then discarded — 47 ms of SQL plus a round trip for two
     integers. Since TASK-769 the grading RPC returns those counts itself, so this
-    runs only at /ability and /end, where someone actually reads the curve.
+    runs only at /end, where someone actually reads the curve.
     """
     db = get_supabase_admin()
     try:

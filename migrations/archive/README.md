@@ -214,3 +214,57 @@ object, although one of its objects is now stale or dropped):
 | `exercise_content_drop_column.sql` | — | canonical for `exercise_content_commit`, the two session RPCs and `uq_exercises_context_free_variant_v2` |
 | `exercise_content_drop_column_rollback.sql` | the pre-drop RPC bodies (a rollback) | the only rollback of the cut-over; its header now says a rollback also needs a refill of `exercises.content` from Storage, and the code before TASK-1031 |
 | `calibration_pronunciation_mode.sql` | `calibration_normalise_pronunciation(text,smallint)`, `calibration_syllable_count(text,smallint)` (canonical once applied: `calibration_zh_normaliser_fix.sql`, TASK-1074; live marker: `search_path=public, pg_temp` in proconfig and `̄((?:[aeiou]` in the body — not applied as of 2026-11-19, live md5 of the defs `fa58fb2f…` / `ae9ee1ce…` = the old bodies) | only record of `calibration_display_pronunciation`, `pronunciation_distractors`, `idx_dim_word_senses_pronunciation_lookup` and `calibration_sessions.mode` |
+
+## 2026-11-23 — spent one-shot and stale rollback files (database review F-23 / F-24)
+
+Moved so they cannot be run by mistake from the canonical directory. Neither defines an
+object that is live: one is a data wipe, the other a rollback whose forward file is live.
+
+| Archived file | Object | New canonical file | Live marker checked |
+|---|---|---|---|
+| `phase13_wipe_user_state_for_launch.sql` | one-shot `TRUNCATE ... RESTART IDENTITY CASCADE` of the 12 user-progress tables (no object defined) | *(none — data operation)* | one-off, applied 2026-05-21 (wiki/log.md); re-running would erase every learner's ratings, knowledge, ladder, attempts and study plans. Checked 2026-11-23 that the file creates no object |
+| `latency_2026_11_db_rollback.sql` | rollback of `latency_2026_11_db.sql`: old `resolve_plan_timezone(text)`, `DROP TABLE tz_names`, recreate 4 duplicate indexes, drop the FK indexes | `latency_2026_11_db.sql` (stays canonical) | forward file is live: `tz_names` has 1,194 rows and the live `resolve_plan_timezone` body reads `tz_names` (2026-11-23). Still the only rollback of that file; to use it, run it from here |
+
+**Not archived, deliberately:**
+
+| Kept file | Why it stays |
+|---|---|
+| `archive_unused_modules_2026_09_21.sql` | spent one-shot (applied 2026-09-22; its `TRUNCATE public.llm_calls` and DROPs cannot recur because its first guard raises on 0 conversation exercises), but rule #4: it is the only repo record of the live `exercises.chk_source_fk` definition (`word_sense_id` / `corpus_collocation_id` only) and of the column drops on `exercises` |
+| `exercise_content_drop_column_rollback.sql` | `tests/test_exercise_content_migration_cutover.py` requires it in `migrations/`; a STALE warning was added at the top of the file instead |
+| `task998_classifier_drill_levels_rollback.sql` | `tests/test_classifier_drill_levels.py` reads it from `migrations/`; a STALE warning was added at the top of the file instead |
+
+## 2026-11-23 — schema/prompt files of modules dropped live (database review F-22)
+
+Every object these files create was dropped by `archive_unused_modules_2026_09_21.sql`
+(applied 2026-09-22) and is absent live. Re-running them would `DROP ... CASCADE` (where
+they do) and recreate the tables, policies with `USING (true)`, client grants and prompt
+rows of retired modules.
+
+| Archived file | Object | New canonical file | Live marker checked |
+|---|---|---|---|
+| `listening_lab_schema.sql` | tables `listening_lab_passages`, `listening_lab_sessions` (+ indexes, policies, grants); `dim_test_types` row `listening_lab`; `questions.pool_source`, `chk_questions_pool_source`, `idx_questions_test_pool` | *(dropped — no canonical)* | object dropped live: both tables, the `listening_lab` test type, the `questions.pool_source` column, the constraint and the index are absent (2026-11-23) |
+| `mystery_mode_tables.sql` | tables `mysteries`, `mystery_scenes`, `mystery_questions`, `mystery_progress`, `mystery_attempts`, `mystery_skill_ratings` (+ indexes, policies, grants); `dim_test_types` row `mystery` | *(dropped — no canonical)* | object dropped live: all six tables and the `mystery` test type absent (2026-11-23) |
+| `mystery_prompt_templates.sql` | `prompt_templates` rows `mystery_*` | *(dropped — no canonical)* | 0 `prompt_templates` rows with `task_name ILIKE 'mystery%'` (2026-11-23) |
+| `scenario_generation_prompts.sql` | `prompt_templates` rows `scenario_batch_generation` (conversations module) | *(dropped — no canonical)* | 0 rows with `task_name ILIKE 'scenario%'` (2026-11-23) |
+| `update_scenario_prompts_numeric_keys.sql` | `prompt_templates` rows `scenario_batch_generation` (update) | *(dropped — no canonical)* | as above |
+
+**Not archived, deliberately:** `conversation_generation_tables.sql` (tables `personas`,
+`persona_pairs`, `scenarios`, `conversations`, `conversation_domains`,
+`conversation_generation_queue`, `exercises.conversation_id`, `dim_languages.conversation_model`,
+all absent live 2026-11-23). It is listed in `HISTORICAL_RLS_FILES` of
+`tests/test_migration_security_lint.py`, whose staleness test requires every listed file in
+`migrations/`; moving it needs that entry removed in the same change (outside this
+migrations-only package). It also holds the only `ALTER TYPE exercise_source_type ADD VALUE
+'conversation'`; the enum label is still live (labels cannot be dropped).
+
+## 2026-11-23 — get_quiz_distractors_batch (drop pending)
+
+| Archived file | Object | New canonical file | Live marker checked |
+|---|---|---|---|
+| `get_quiz_distractors_batch.sql` | `get_quiz_distractors_batch(integer[],smallint,integer,smallint[])` | *(to be dropped by `drop_get_quiz_distractors_batch.sql`; the recreate is `drop_get_quiz_distractors_batch_rollback.sql`)* | **still live when archived**: body md5 (no comments/whitespace) `6278cbcaa21d1e3dcc319ce1b247c8e9` = this file, 2026-11-23. Archived ahead of the drop at the developer's request; until the drop is applied the live definition is recorded in the rollback file |
+
+## 2026-11-23 — word_quiz_retake_fallback.sql (never applied, unsafe as written)
+
+| Archived file | Object | New canonical file | Live marker checked |
+|---|---|---|---|
+| `word_quiz_retake_fallback.sql` | `get_word_quiz_candidates(uuid,integer[],smallint,integer)` (tiered retake fallback) | `word_quiz_retake_fallback_hardened.sql` (same query logic, body md5 `d2d821195ae59177987bc518cf1d5c6c`, plus STABLE / SECURITY DEFINER / pinned search_path / service_role-only grant) — **pending a developer decision, not applied** | never applied: live body md5 `7670f2d5b030e5944aa3b182d8a98d90` = `phase6_security_hardening.sql`, no `Tier 2` in prosrc (2026-11-23). Archived because applying it as written would strip SECURITY DEFINER and the pinned search_path |

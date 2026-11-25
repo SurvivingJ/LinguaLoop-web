@@ -32,7 +32,7 @@ export default [
       // debugLog() wraps console; allow intentional warn/error, flag stray log/debug/info.
       'no-console': ['warn', { allow: ['warn', 'error'] }],
       eqeqeq: ['warn', 'smart'],
-      'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+      'no-unused-vars': ['warn', { argsIgnorePattern: '^_', caughtErrors: 'none' }],
     },
   },
   {

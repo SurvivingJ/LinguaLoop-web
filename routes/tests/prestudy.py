@@ -270,7 +270,7 @@ def start_test_prestudy_produce(identifier):
     the most primed senses (tie-break: senses behind wrong questions, then
     shorter). Requires an attempt (DT's rule). Body: {l1_language_id?}.
 
-    Returns the same object as POST /api/dual-translation/passage-from-sentences
+    Returns the object ``routes.dual_translation.open_range_passage`` builds
     plus ``sentence_start``/``sentence_end``; 422 NO_WINDOW when no 2-4
     sentence window has usable references in the learner's language.
     """

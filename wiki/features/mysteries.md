@@ -3,7 +3,7 @@ title: Mysteries
 type: feature
 status: deprecated
 tech_page: ./mysteries.tech.md
-last_updated: 2026-09-22
+last_updated: 2026-11-23
 open_questions:
   - "How does mystery difficulty calibrate — age-tier-based, ELO-based, or manual?"
   - "Are mystery scenes generated all at once or incrementally?"
@@ -13,6 +13,10 @@ open_questions:
 # Mysteries
 
 > **ARCHIVED 2026-09-21.** Code (routes/mystery.py, services/mystery_service.py, services/mystery_generation/, both templates), the admin tab, CSS and i18n keys were removed from the codebase; the 6 tables, 2 RPCs and 16 prompt_templates rows are exported in the zip. Everything (code, docs, table rows, DDL, restore notes) is in `archive/modules/mysteries-2026-09-21.zip` (gitignored, local only). The tables were dropped by `migrations/archive_unused_modules_2026_09_21.sql` (applied 2026-09-22). This page is kept for history only.
+>
+> **Re-verified 2026-11-23:** none of these tables exists in the live database (mysteries, mystery_scenes, mystery_questions, mystery_progress, mystery_attempts, mystery_skill_ratings), and the code tip has no route, service or template for this feature. Nothing here describes running behaviour; the page is history. Status stays `deprecated`.
+>
+> **Removed from the codebase 2026-11-23** (TASK-1227). The last references (the planner's `UNPLANNED_TEST_TYPES` name list and its guard tests, and comments) were deleted; the `dim_test_types` row `mystery`, the `mystery_*` prompt rows and every function mentioning mysteries are absent live (checked 2026-11-23). Listening Lab was removed in the same change. Nothing remains to restore except from the archive zip.
 
 
 ## Purpose

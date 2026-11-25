@@ -11,7 +11,6 @@ Does NOT do semantic quality checks — that's for a future QA system.
 
 import logging
 import re
-from typing import Optional
 
 from config import Config
 from services.vocabulary_ladder.config import (

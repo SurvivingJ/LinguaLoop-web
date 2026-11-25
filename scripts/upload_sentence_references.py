@@ -4,6 +4,8 @@
     python scripts/upload_sentence_references.py RUN --dry-run
     python scripts/upload_sentence_references.py RUN --apply
 
+One of --dry-run or --apply is required; the two together are an error.
+
 Reads RUN/sentence_refs/upload.json (from sentence_ref_runner.py assemble),
 resolves sentence ids by (test_id, idx), verifies tests.transcript_hash
 against test_sentences.transcript_hash, inserts test_sentence_references rows
@@ -22,6 +24,11 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 
 from services.dual_translation import sentence_refs as sr  # noqa: E402
+
+try:
+    from _common import base_parser  # noqa: E402
+except ImportError:  # imported as scripts.<name>
+    from scripts._common import base_parser  # noqa: E402
 
 logging.basicConfig(level=logging.INFO, format='%(levelname)s %(message)s')
 log = logging.getLogger('upload_sentence_refs')
@@ -63,13 +70,11 @@ def plan_for_test(db, test_id: str, rows: list[dict], run_id: str) -> dict:
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap = base_parser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('run')
-    ap.add_argument('--dry-run', action='store_true')
-    ap.add_argument('--apply', action='store_true')
     ap.add_argument('--no-activate', action='store_true', help='insert only (pilot arms are uploaded inactive)')
     a = ap.parse_args()
-    if not (a.dry_run or a.apply):
+    if not (a.dry_run_flag or a.apply):
         ap.error('choose --dry-run or --apply')
     up = sr.load_json(os.path.join(a.run, 'sentence_refs', 'upload.json'))
     run_id = os.path.basename(os.path.normpath(a.run))

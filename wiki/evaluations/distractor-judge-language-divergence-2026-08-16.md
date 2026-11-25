@@ -9,6 +9,7 @@ judge_models: all three languages google/gemini-3.1-flash-lite — zh/ja moved o
 open_questions:
   - "ANSWERED (§11): the zh gap is judge-driven. Under a common judge, zh rejects at 2% vs en 4% and ja 6% — the cleanest of the three, not the worst."
   - "OPEN: no judge's reject signal is validated in absolute terms. The two models' reject sets are near-disjoint, so a gold set is still owed (TASK-719/720)."
+last_updated: 2026-09-03
 ---
 
 # Distractor Judge — ZH/JA Language Divergence Analysis (2026-08-16)

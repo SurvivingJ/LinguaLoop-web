@@ -6,6 +6,11 @@ date: 2026-08-07
 
 # ADR-021: Plannable-surface boundary — which surfaces the daily planner owns
 
+> **Note 2026-11-23:** the `listening_lab` and `mystery` rows below are history. Both features were
+> removed from the codebase on 2026-11-23 (TASK-1227); neither is a `dim_test_types` row live, and the
+> guard tests that pinned their exclusion were deleted with them. The decision for the other surfaces
+> is unchanged.
+
 ## Context
 
 The Study Plan orchestrator ([[decisions/ADR-008-study-plan-orchestration-layer]]) budgets a

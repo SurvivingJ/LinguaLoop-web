@@ -187,3 +187,26 @@ describe('manual modes pin the level', () => {
     ]);
   });
 });
+
+describe('Fill in feedback escaping', () => {
+  const XSS = '<img src=x onerror=1>';
+
+  async function feedbackEl(hanzi) {
+    const { container: c } = mountWith([item({ level: 4, correct_classifier_hanzi: hanzi })]);
+    await vi.advanceTimersByTimeAsync(0);
+    expect(badge(c)).toBe('Fill in');
+    await pick(c, '册'); // a distractor, so feedback opens
+    return $(c, '#cdFeedbackCanonical');
+  }
+
+  it('renders alternative classifiers as text, not markup', async () => {
+    const el = await feedbackEl(['本', XSS]);
+    expect(el.querySelector('img')).toBeNull();
+    expect(el.querySelector('.cd-feedback-alt').textContent).toContain(XSS);
+  });
+
+  it('renders ordinary alternatives unchanged', async () => {
+    const el = await feedbackEl(['本', '种', '部']);
+    expect(el.querySelector('.cd-feedback-alt').textContent).toBe('(also: 种 / 部)');
+  });
+});

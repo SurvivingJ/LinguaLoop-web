@@ -10,11 +10,12 @@ results:
   - data/eval/entailment_v3_2026-08-19.json
   - data/eval/entailment_v3_ja_models_2026-08-19.json
 spend_usd: 0.2135
+last_updated: 2026-09-03
 ---
 
 # Answer-Entailment Likert v3 — Post-Rollout Band Usage and Gold Re-Measurement
 
-Closes the two open measurement items on [[tasklist/distractor-judge-calibration]] TASK-723:
+Closes the two open measurement items on [[tasklist/distractor-judge-calibration.tasks]] TASK-723:
 the gold-set re-measurement of v3, and per-language post-rollout band usage.
 
 ---
@@ -266,7 +267,7 @@ Against a $3.00 budget — **$2.79 unspent**.
 
 ## Related Pages
 
-- [[tasklist/distractor-judge-calibration]] — TASK-723
+- [[tasklist/distractor-judge-calibration.tasks]] — TASK-723
 - [[evaluations/entailment-judge-model-ab-2026-08-17]] — prior float-scale A/B on the same sample
 - [[evaluations/distractor-judge-language-divergence-2026-08-16]] — the two-axis band problem this
   judge avoids and the distractor judge still has

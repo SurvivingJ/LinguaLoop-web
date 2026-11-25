@@ -8,7 +8,7 @@
     python scripts/build_test_sentences.py --fixture data.json --out spans.json   # offline
 
 Segmentation is services.dual_translation.sentence_refs.segment_with_spans (the
-same terminators as passage_builder.segment_sentences, applied to the raw
+same terminators as sentence_refs.segment_sentences, applied to the raw
 transcript so spans index into tests.transcript). Token spans come from
 tests.vocab_token_map. A test whose transcript_hash matches its existing
 sentence rows is skipped; a changed hash replaces the rows and retires the
@@ -26,6 +26,11 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 
 from services.dual_translation import sentence_refs as sr  # noqa: E402
+
+try:
+    from _common import base_parser  # noqa: E402
+except ImportError:  # imported as scripts.<name>
+    from scripts._common import base_parser  # noqa: E402
 
 logging.basicConfig(level=logging.INFO, format='%(levelname)s %(message)s')
 log = logging.getLogger('build_test_sentences')
@@ -278,9 +283,7 @@ def run_resegment(apply: bool, test_id: str | None) -> int:
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument('--dry-run', action='store_true')
-    ap.add_argument('--apply', action='store_true')
+    ap = base_parser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('--test-id')
     ap.add_argument('--repair-token-maps', action='store_true', help='re-insert whitespace dropped from word maps and refresh spans in place')
     ap.add_argument('--resegment', action='store_true', help='re-split tests whose stored sentences differ from the splitter, keeping unchanged rows')
@@ -290,14 +293,14 @@ def main() -> int:
     if a.fixture:
         return run_fixture(a.fixture, a.out)
     if a.repair_token_maps:
-        if not (a.dry_run or a.apply):
+        if not (a.dry_run_flag or a.apply):
             ap.error('choose --dry-run or --apply')
         return run_repair_maps(a.apply)
     if a.resegment:
-        if not (a.dry_run or a.apply):
+        if not (a.dry_run_flag or a.apply):
             ap.error('choose --dry-run or --apply')
         return run_resegment(a.apply, a.test_id)
-    if not (a.dry_run or a.apply):
+    if not (a.dry_run_flag or a.apply):
         ap.error('choose --dry-run or --apply (or --fixture)')
     return run_db(a.apply, a.test_id)
 

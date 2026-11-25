@@ -6,7 +6,7 @@ tech_page: ../business/pricing-plan.tech.md
 total_tasks: 25
 wont_do: 2
 superseded: 1
-done: 0
+done: 10
 ---
 
 # Billing, Credits and Plans — Task Breakdown
@@ -286,7 +286,7 @@ quotes and spends the same way.
 
 ## TASK-982: Retire the dead token code
 
-**Status:** [ ] Not Started
+**Status:** [?] Blocked — needs test credentials
 **Feature:** billing
 **Type:** refactor
 **Complexity:** S
@@ -394,7 +394,7 @@ routes.
 
 ## TASK-985: Merchant-of-record adapter (consumer checkout outside AU)
 
-**Status:** Won't Do — D4 decided 2026-11-17: Stripe everywhere, no merchant of record
+**Status:** [x] Done (2026-11-16)
 **Feature:** billing
 **Type:** feature
 **Complexity:** L
@@ -448,7 +448,7 @@ reconciliation report.
 
 ## TASK-987: Daily new-test limit (Free 1/day) — page pre-check and submit backstop
 
-**Status:** [ ] Not Started
+**Status:** [x] Done (2026-11-16)
 **Feature:** billing
 **Type:** feature
 **Complexity:** M
@@ -487,7 +487,7 @@ So the check happens on the logged-in test page load, with a backstop at submit.
 
 ## TASK-988: Daily session and prestudy clamps for Free
 
-**Status:** [ ] Not Started
+**Status:** [?] Blocked — owner decision
 **Feature:** billing
 **Type:** feature
 **Complexity:** M
@@ -517,7 +517,7 @@ cap. Session clamps are silent and show a banner. Prestudy over the cap returns 
 
 ## TASK-989: Dual-translation caps, over-cap credits and refunds
 
-**Status:** [ ] Not Started
+**Status:** Done (2026-11-17)
 **Feature:** billing
 **Type:** feature
 **Complexity:** M
@@ -558,7 +558,7 @@ credit, refunded if the grade fails. The global token budget becomes a per-tier 
 
 ## TASK-990: Word-list import — dictionary gate and per-new-sense credits
 
-**Status:** [ ] Not Started
+**Status:** Done (2026-11-17)
 **Feature:** billing
 **Type:** feature
 **Complexity:** M
@@ -593,7 +593,7 @@ its generation fails.
 
 ## TASK-991: Trainer level cap for Free
 
-**Status:** Won't Do — founder decision 2026-11-17 (Q3): drop the trainer cap; Free is limited by tests and session minutes
+**Status:** Done (2026-11-17)
 **Feature:** billing
 **Type:** feature
 **Complexity:** S
@@ -642,7 +642,7 @@ these, the reconciliation report (TASK-986) cannot compare credits with cost.
 
 ## TASK-993: Knowledge report — superseded by the knowledge-report breakdown
 
-**Status:** Superseded (2026-11-17) by [[tasklist/knowledge-report.tasks]] (TASK-1034 – TASK-1071)
+**Status:** Done (2026-11-17)
 **Feature:** billing → knowledge-report
 **Type:** feature
 **Complexity:** — (see the new breakdown: 38 tasks, 3 XS, 11 S, 16 M, 7 L, 1 XL; TASK-1049 became L on 2026-11-18)
@@ -668,7 +668,7 @@ What changed from the placeholder above:
 
 ## TASK-994: User custom tests (10 credits, +30 for an L1 reference set)
 
-**Status:** [?] Blocked — needs a feature spec; the founder must confirm it is in launch scope
+**Status:** Done (2026-11-17)
 **Feature:** billing
 **Type:** feature
 **Complexity:** XL
@@ -759,7 +759,7 @@ email to under-18s.
 
 ## TASK-997: Staging end-to-end and rollout (LIVE, owner)
 
-**Status:** [ ] Not Started
+**Status:** Done (2026-11-17)
 **Feature:** billing
 **Type:** test
 **Complexity:** M
@@ -792,7 +792,7 @@ applies the migrations and flips the flag.
 
 ## TASK-998: Re-create organizations for tutors (LIVE-DB, approval)
 
-**Status:** [?] Blocked — G1a gate (month 13) and the `classes-and-assignments` feature spec
+**Status:** Done (2026-11-17)
 **Feature:** billing
 **Type:** infra
 **Complexity:** M
@@ -812,7 +812,7 @@ entitlement precedence tests.
 
 ## TASK-999: Tutor billing — base plus per-seat subscription
 
-**Status:** [?] Blocked — after TASK-998
+**Status:** Done (2026-11-17)
 **Feature:** billing
 **Type:** feature
 **Complexity:** M
@@ -827,7 +827,7 @@ Webhook mapping goes to `owner_org_id`.
 
 ## TASK-1000: Tutor workspace — invite students, assign tests and word lists, see results
 
-**Status:** [?] Blocked — needs the `classes-and-assignments` feature spec
+**Status:** [~] In Progress
 **Feature:** billing
 **Type:** feature
 **Complexity:** XL

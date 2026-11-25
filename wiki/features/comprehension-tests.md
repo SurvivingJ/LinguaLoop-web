@@ -3,8 +3,9 @@ title: Comprehension Tests
 type: feature
 status: in-progress
 tech_page: ./comprehension-tests.tech.md
-last_updated: 2026-04-10
+last_updated: 2026-11-23
 open_questions:
+  - "OPEN: should a retake of a test show the post-test word quiz again? Live today only words the system is unsure about are quizzed (probability known between 25% and 75%), so after a first attempt a retake often gets no quiz. A fix is written but not applied; it needs a product decision."
   - "Content generation pipeline still needs work on quality and consistency"
 ---
 
@@ -32,6 +33,7 @@ A learner opens the test list page, sees tests recommended for their current lev
    - Deducts tokens if applicable
 6. Results page shows score, ELO change, correct answers with explanations.
 7. Unknown words from the test are surfaced for flashcard review.
+8. A short word quiz of up to five words can follow the results. Only words the system is unsure the learner knows are quizzed, so on a retake there are often no such words and no quiz appears (see the open question above).
 
 ## Test Recommendation Algorithm
 
@@ -57,6 +59,7 @@ The vocabulary matching uses **set-based operations** (not vector embeddings): e
 - Users start at ELO 1200; ratings clamped to [400, 3000].
 - Free-tier users get a limited number of daily free tests; beyond that, tokens are consumed.
 - Idempotency key prevents double-submission.
+- Simultaneous submissions by one learner are applied one after the other so no rating change is lost. A very first submission in a language could in theory create a duplicate rating row if two arrive at the same instant; none exist, and a database fix is written but not yet applied ([[algorithms/elo-implementation-analysis]]).
 - First attempt is flagged separately from repeat attempts.
 - Tests can be tiered: free-tier, premium-tier, enterprise-tier.
 - Pack-associated tests (study_pack_id set) follow inverted density logic: final tests use natural word frequency.

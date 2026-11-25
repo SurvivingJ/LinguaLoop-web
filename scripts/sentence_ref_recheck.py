@@ -25,7 +25,6 @@ reference stays active. No hosted model API is called.
 
 import argparse
 import glob
-import json
 import logging
 import os
 import sys

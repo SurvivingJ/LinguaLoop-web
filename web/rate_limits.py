@@ -59,17 +59,10 @@ ENDPOINT_LIMITS = {
 
     # LLM-backed or otherwise expensive, per user.
     'word_list_import.submit': (('5 per hour; 20 per day', user_or_ip),),
-    'extract_vocabulary': (('10 per minute; 100 per day', user_or_ip),),
     'dual_translation.submit': (('10 per minute; 120 per hour', user_or_ip),),
     'dt_repair.check': (('20 per minute; 300 per hour', user_or_ip),),
     'dt_repair.hint': (('60 per minute', user_or_ip),),
     'dt_repair.practice_due': (('30 per minute', user_or_ip),),
-    'tests.moderate_content': (('20 per minute', user_or_ip),),
-    'corpus.ingest_corpus': (('10 per hour', user_or_ip),),
-    'corpus.analyze_style': (('10 per hour', user_or_ip),),
-    'vocab_admin.generate_assets': (('30 per hour', user_or_ip),),
-    'vocab_admin.render_exercises': (('30 per hour', user_or_ip),),
-    'vocab_admin.upload_words': (('30 per hour', user_or_ip),),
 
     # Knowledge Report (wiki/features/knowledge-report.tech.md §6.5). The Pro
     # routes (words, word_detail, list_words, export) are added with their routes.

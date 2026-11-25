@@ -58,7 +58,7 @@ def _reference_map(zipf: float) -> int:
 def check_map(db) -> bool:
     print('--- 1. calibration_zipf_to_elo ---')
     try:
-        probe = db.rpc('calibration_zipf_to_elo', {'p_ability_zipf': 5.0}).execute().data
+        db.rpc('calibration_zipf_to_elo', {'p_ability_zipf': 5.0}).execute().data
     except Exception as exc:
         print(f'  RPC unavailable: {str(exc)[:150]}')
         print('  -> apply migrations/calibration_user_state_and_zipf_to_elo.sql')

@@ -6,26 +6,26 @@ Queries rows where frequency_rank IS NULL, computes Zipf scores via wordfreq,
 and updates in batches.
 
 Usage:
-    python scripts/backfill_zipf_scores.py --language cn [--dry-run] [--limit 500] [--batch-size 50]
-    python scripts/backfill_zipf_scores.py --all [--dry-run]
+    python scripts/backfill_zipf_scores.py --language cn [--apply] [--limit 500] [--batch-size 50]
+    python scripts/backfill_zipf_scores.py --all [--apply]
 
 Options:
     --language CODE   Language code: cn, en, jp
     --all             Process all languages
-    --dry-run         Preview changes without writing to DB
+    --apply           Write the changes (default: dry run)
+    --dry-run         Preview changes without writing to DB (the default)
     --limit N         Process at most N rows (default: 0 = all)
     --batch-size N    Rows per update batch (default: 50)
 """
 
 import sys
-import argparse
 import logging
 
 # Add parent directory to path for imports
 try:
-    from _common import bootstrap
+    from _common import base_parser, bootstrap
 except ImportError:  # run or imported as scripts.<name>
-    from scripts._common import bootstrap
+    from scripts._common import base_parser, bootstrap
 
 bootstrap()
 
@@ -154,14 +154,13 @@ class ZipfBackfillRunner:
 
 
 def main():
-    parser = argparse.ArgumentParser(description='Backfill Zipf frequency scores for dim_vocabulary')
+    parser = base_parser(description='Backfill Zipf frequency scores for dim_vocabulary',
+                         dry_run_help='Preview changes without writing to DB (the default)')
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument('--language', choices=['zh', 'en', 'ja'],
                        help='Language code to process')
     group.add_argument('--all', action='store_true',
                        help='Process all languages')
-    parser.add_argument('--dry-run', action='store_true',
-                        help='Preview changes without writing to DB')
     parser.add_argument('--limit', type=int, default=0,
                         help='Max rows to process per language (0=all)')
     parser.add_argument('--batch-size', type=int, default=50,
