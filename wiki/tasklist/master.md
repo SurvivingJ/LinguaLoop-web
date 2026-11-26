@@ -1564,13 +1564,13 @@ Full spec: [[tasklist/review-2026-11-22.tasks]]. Record: [[evaluations/codebase-
 |----|---------|-------|--------|------------|------------|
 | TASK-1234 | fixes-2026-11-26 | definition_match options in the learner's language | Done (repo) — not deployed | M | — |
 | TASK-1235 | fixes-2026-11-26 | Session-load latency cuts | Done (repo) — not deployed | M | — |
-| TASK-1236 | fixes-2026-11-26 | Per-option spot-the-error explanations (ADR-064) | Done (repo) — not deployed | L | — |
+| TASK-1236 | fixes-2026-11-26 | Per-option explanations: spot the error, pick the correct sentence (ADR-064) | Done (repo) — not deployed | L | — |
 | TASK-1237 | fixes-2026-11-26 | OWNER: apply `migrations/exercise_explanations.sql` | [?] | XS | TASK-1236 |
 | TASK-1238 | fixes-2026-11-26 | English glosses for Chinese words that have none | [ ] | L | — |
 | TASK-1239 | fixes-2026-11-26 | Verify ES256 tokens locally (JWKS) or lengthen the auth cache | [?] | S | — |
 | TASK-1240 | fixes-2026-11-26 | Serialise new-word admission per (user, language) | [ ] | M | — |
-| TASK-1241 | fixes-2026-11-26 | Prestudy spot-the-error shows per-option explanations | [ ] | S | TASK-1236 |
-| TASK-1242 | fixes-2026-11-26 | Explanations in the learner's language for other types with TL notes | [ ] | M | TASK-1236 |
+| TASK-1241 | fixes-2026-11-26 | Prestudy spot-the-error / pick-the-sentence show per-option explanations | [ ] | S | TASK-1236 |
+| TASK-1242 | fixes-2026-11-26 | Explanations in the learner's language for the word-option types (fill the blank, particle, word form, relations) | [ ] | M | TASK-1236 |
 | TASK-1243 | fixes-2026-11-26 | Generator writes learner-language definition options | [ ] | S | TASK-1234 |
 
 ### Language Packs (existing — unchanged)

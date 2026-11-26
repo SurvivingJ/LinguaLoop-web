@@ -61,15 +61,24 @@ an uncached query measured at up to 2.7 s.
 
 ## 2. Per-option spot-the-error explanations — `services/exercise_explanations.py` (ADR-064)
 
-**Types**: `spot_incorrect_sentence` (`TYPES`). Explainable shape: ≥ 2 sentences with text, ≥ 1
-`is_correct: false`.
+**Types**: `spot_incorrect_sentence` (`SPOT`) and `semantic_discrimination` (`PICK`, "pick the
+sentence that uses the word correctly"). Explainable shape: ≥ 2 sentences with text, ≥ 1 right and
+≥ 1 wrong.
 
-**Prompt (v1)**: system "experienced {TL} teacher … learner whose native language is {NL}";
-user lists `n. [CORRECT|ERROR] text` (+ the stored `error_description` as a hint), "do not change
-that judgement", asks per sentence `meaning`, `explanation` (1–2 sentences), `correction` (error
-only), JSON `{"sentences":[{"index","meaning","explanation","correction"}]}`. `call_llm(...,
-response_format='json', temperature=0.2, max_tokens=2000, timeout=30, pipeline=
-'exercise_explanations', task_name='spot_error_explanation', template_version=1)`.
+**Stored notes first (`stored_entries`)**: when every sentence already has an `explanation` in
+Latin script and the learner reads English, those notes are attached as they are (`meaning` empty)
+and no model is called. Measured 2026-11-26: ja pick items 87/200 qualify; 113/200 lack a note on
+the correct sentence; zh 47/150 have only a joined Chinese note — those are generated.
+
+**Prompt (v1)**: system "experienced {TL} teacher … learner whose native language is {NL}".
+SPOT: user lists `n. [CORRECT|ERROR] text` (+ the stored `error_description` as a hint), "do not
+change that judgement", asks per sentence `meaning`, `explanation` (1–2 sentences), `correction`
+(error only). PICK: names the word (`target_word`), lists `n. [CORRECT|WRONG] text` with each
+sentence's stored `explanation` as a teacher's note ("keep its point"), asks `meaning` and
+`explanation` (correct: what the word means here and why it fits; wrong: why not, and which word
+would). `call_llm(..., response_format='json', temperature=0.2, max_tokens=2000, timeout=30,
+pipeline='exercise_explanations', task_name='spot_error_explanation' | 'pick_sentence_explanation',
+template_version=1)`.
 
 **Validation (`parse`)**: exactly one entry per sentence (re-ordered by `index` when valid);
 non-empty explanation; English NL → explanation must be Latin-majority; caps 400/600/300 chars;
@@ -94,12 +103,15 @@ is used only when `content_version` matches and its texts equal the item's sente
   explanation_language?}`; `state` ∈ `ready` | `pending` (waited 25 s) | `unsupported` |
   `unavailable`. 400 on a non-UUID.
 
-**Client** (`static/js/exercise-renderers.js` `renderSpotSentence`): uses attached
+**Client** (`static/js/exercise-renderers.js` `renderSpotSentence`, `renderSemDiscrim` via
+`explanationRequest`; `mcq` gained an `onAnswered` hook): uses attached
 `option_explanations`, else `fetchExplanations(exercise_id)` at display (`window.authFetch`,
 memoised per id, one retry after 2.5 s on `pending`). After the answer, each option button gets
-`.has-expl` and a `.ex-opt-expl` line (verdict, “meaning”, why, "Correct form: …" on the wrong
-one; styles in `static/css/redesign/session.css`). While waiting: `.ex-opt-expl-loading` and the
-old stored note in the feedback bar. i18n keys `exercises.spot.*` in all four bundles.
+`.has-expl` and a `.ex-opt-expl` line (verdict — "Error" / "Wrong" for pick items —, “meaning”,
+why, "Correct form: …" on the wrong spot sentence; matched to options by text because pick items
+are shuffled; styles in `static/css/redesign/session.css`). While waiting: `.ex-opt-expl-loading`
+(only while the fetch is out) and the stored notes (pick: per sentence; spot: the old note in the
+feedback bar), replaced when the fetch arrives. i18n keys `exercises.spot.*` in all four bundles.
 
 ## Configuration
 `EXERCISE_EXPLANATIONS_ENABLED` (True), `EXERCISE_EXPLANATION_MODEL`

@@ -15,7 +15,8 @@ After answering, a learner sees why every option was right or wrong, written in 
 language, and multiple-choice options that are definitions are always shown in their own language.
 
 ## User Story
-As an English speaker studying Japanese, when I answer "Which sentence contains an error?", I want
+As an English speaker studying Japanese, when I answer "Which sentence contains an error?" or
+"Which sentence uses this word correctly?", I want
 to see for each sentence what it means and why it is correct or wrong (and how to fix the wrong
 one) in English, so I learn from every option and not only from the one I picked. When I am asked
 to pick a word's meaning, I want the four meanings in English, not in Japanese.
@@ -27,7 +28,12 @@ to pick a word's meaning, I want the four meanings in English, not in Japanese.
    explanation is written by a model (a few seconds, usually while the learner is still reading)
    and saved; everyone after reads the saved one. If none can be written, the item still works and
    shows the short note it always had.
-2. **Pick the meaning (definition match).** The four options are the word's meanings in the
+2. **Pick the correct sentence.** Same display: every sentence shows what it means and why the
+   word fits there or not. Most Japanese items already had an English note on each wrong
+   sentence; these are kept (rewritten only into the learner's language when needed), and the
+   missing note on the correct sentence and the meanings are added. Items whose notes already
+   cover every sentence in the learner's language need no model call.
+3. **Pick the meaning (definition match).** The four options are the word's meanings in the
    learner's language: the right one and three meanings of other words that are about as common,
    about as long, and the same part of speech (so a verb is never the only "to …" option). Two
    options never share a listed equivalent ("merely" in both). If the word has no meaning written

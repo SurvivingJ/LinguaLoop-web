@@ -34,7 +34,7 @@ right or wrong).
    call; they are attached as they are.
 1. **Otherwise generate on first serve, once per (exercise, learner language), and cache.** A model is
    given the sentences, which one is wrong (decided by the item, never re-judged) and the stored
-   note as a hint, and returns for every sentence its meaning, why it is right or wrong and the
+   notes as hints (pick-the-sentence: "keep its point"), and returns for every sentence its meaning, why it is right or wrong and the
    correction for the wrong one, all in the learner's language. The answer is validated (one entry
    per sentence; non-empty; English prose checked to be English) and stored in the new table
    `exercise_explanations` keyed `(exercise_id, nl_language_id)` with the item's
@@ -64,8 +64,9 @@ right or wrong).
   (TASK-1236 follow-up).
 - Cost is one small call per item and language actually served (~$0.0005); a per-user rate
   limit (30/min, 600/day) bounds a script hitting the endpoint.
-- The same mechanism can carry other types whose notes are in the target language (cloze
-  `explanation`, semantic discrimination): TASK-1242.
+- The same mechanism can carry the word-option types whose single note is often in the target
+  language (ja sample 2026-11-26: fill-the-blank 40/80, particle choice 53/80, word form 44/80,
+  word relations 47/80 in Japanese): TASK-1242.
 
 ## Alternatives Considered
 
