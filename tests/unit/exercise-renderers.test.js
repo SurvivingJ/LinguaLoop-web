@@ -701,3 +701,137 @@ describe('renderSpotSentence explanations', () => {
     expect(feedback[0].ok).toBe(true);
   });
 });
+
+describe('renderSemDiscrim explanations', () => {
+  let card;
+  let feedback;
+  let answered;
+  const realFetch = window.authFetch;
+
+  const SENTENCES = [
+    { text: 'この回数券は無効になる。', is_correct: true },
+    { text: '回数券でピザを半額にした。', is_correct: false, explanation: 'Needs クーポン.' },
+    { text: '回数券を毎月更新する。', is_correct: false, explanation: 'Needs 定期券.' },
+  ];
+  const ENTRIES = [
+    { meaning: 'This ticket book expires.', explanation: '回数券 can expire.', correction: null },
+    { meaning: 'I halved the pizza price.', explanation: 'A discount needs クーポン.', correction: null },
+    { meaning: 'I renew it monthly.', explanation: 'A monthly pass is 定期券.', correction: null },
+  ];
+
+  beforeEach(() => {
+    card = document.createElement('div');
+    document.body.appendChild(card);
+    feedback = [];
+    answered = false;
+    R().init({
+      cardEl: card,
+      isAnswered: () => answered,
+      setAnswered: (v) => {
+        answered = v;
+      },
+      showFeedback: (ok, expl) => feedback.push({ ok, expl }),
+      submitAttempt: () => {},
+      nextExercise: () => {},
+    });
+  });
+
+  afterEach(() => {
+    card.remove();
+    window.authFetch = realFetch;
+  });
+
+  const pickText = (text) => {
+    const el = card.querySelector(`.exercise-option[data-value="${text}"]`);
+    el.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+  };
+  const noteFor = (text) =>
+    card.querySelector(`.exercise-option[data-value="${text}"] .ex-opt-expl`);
+
+  it('matches attached explanations to shuffled options by sentence', () => {
+    window.authFetch = () => {
+      throw new Error('must not fetch when explanations are attached');
+    };
+    R().dispatch(
+      'semantic_discrimination',
+      { exercise_id: 's-attached' },
+      { target_word: '回数券', sentences: SENTENCES, option_explanations: ENTRIES },
+      ''
+    );
+    pickText(SENTENCES[1].text);
+    expect(noteFor(SENTENCES[0].text).textContent).toContain('This ticket book expires.');
+    expect(noteFor(SENTENCES[1].text).textContent).toContain('A discount needs クーポン.');
+    expect(noteFor(SENTENCES[1].text).querySelector('.ex-opt-expl__verdict').textContent).toBe(
+      'Wrong'
+    );
+    expect(noteFor(SENTENCES[2].text).textContent).toContain('定期券');
+    expect(feedback).toEqual([{ ok: false, expl: '' }]);
+  });
+
+  it('shows the stored notes first and replaces them when the fetch arrives', async () => {
+    let release;
+    const gate = new Promise((r) => {
+      release = r;
+    });
+    window.authFetch = async () => {
+      await gate;
+      return { ok: true, json: async () => ({ state: 'ready', option_explanations: ENTRIES }) };
+    };
+    R().dispatch(
+      'semantic_discrimination',
+      { exercise_id: 's-fetch' },
+      { target_word: '回数券', sentences: SENTENCES },
+      ''
+    );
+    pickText(SENTENCES[0].text);
+    expect(noteFor(SENTENCES[0].text)).toBeNull(); // no stored note on the right one
+    expect(noteFor(SENTENCES[1].text).textContent).toContain('Needs クーポン.');
+    expect(card.querySelector('.ex-opt-expl-loading')).not.toBeNull();
+    release();
+    await new Promise((r) => setTimeout(r, 0));
+    await new Promise((r) => setTimeout(r, 0));
+    expect(noteFor(SENTENCES[0].text).textContent).toContain('回数券 can expire.');
+    expect(noteFor(SENTENCES[1].text).textContent).toContain('A discount needs クーポン.');
+    expect(card.querySelectorAll('.ex-opt-expl').length).toBe(3);
+    expect(card.querySelector('.ex-opt-expl-loading')).toBeNull();
+  });
+});
+
+describe('explanation loading line', () => {
+  it('is not shown when the fetch already came back empty before the answer', async () => {
+    const card = document.createElement('div');
+    document.body.appendChild(card);
+    let answered = false;
+    R().init({
+      cardEl: card,
+      isAnswered: () => answered,
+      setAnswered: (v) => {
+        answered = v;
+      },
+      showFeedback: () => {},
+      submitAttempt: () => {},
+      nextExercise: () => {},
+    });
+    const realFetch = window.authFetch;
+    window.authFetch = async () => ({ ok: true, json: async () => ({ state: 'unavailable' }) });
+    R().dispatch(
+      'spot_incorrect_sentence',
+      { exercise_id: 'e-early' },
+      {
+        sentences: [
+          { text: 'A。', is_correct: true },
+          { text: 'B。', is_correct: false },
+        ],
+      },
+      ''
+    );
+    await new Promise((r) => setTimeout(r, 0));
+    await new Promise((r) => setTimeout(r, 0));
+    card
+      .querySelectorAll('#optionsList .exercise-option')[1]
+      .dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+    expect(card.querySelector('.ex-opt-expl-loading')).toBeNull();
+    window.authFetch = realFetch;
+    card.remove();
+  });
+});

@@ -194,6 +194,7 @@ const ExRenderers = (function () {
    *     client-side, so equality against a single key would mark a right
    *     answer wrong.
    *   - `plain`     true when the options are native-language text.
+   *   - `onAnswered` (selected, ok) called once answered, before the feedback.
    */
   function mcq(badge, cefr, instr, prompt, opts, correct, expl, wordHTML, extra) {
     extra = extra || {};
@@ -246,6 +247,7 @@ const ExRenderers = (function () {
           o.querySelector('.option-text').appendChild(d);
         });
       }
+      if (extra.onAnswered) extra.onAnswered(sel, ok);
       showFeedbackNow(ok, expl);
       _submitAttempt(ok, { selected: sel });
     });
@@ -370,23 +372,37 @@ const ExRenderers = (function () {
     );
   }
 
+  /**
+   * Pick the sentence that uses the word correctly. After the answer every
+   * sentence shows its meaning and why the word fits or not, in the learner's
+   * language (ADR-064): attached by the session, else fetched on display. Until
+   * that arrives, the item's own notes (often English, often missing on the
+   * right sentence) are shown.
+   */
   function renderSemDiscrim(ex, c, w) {
-    const cor = c.sentences.find((s) => s.is_correct);
-    const notes = {};
-    c.sentences.forEach((s) => {
-      if (s.explanation) notes[s.text] = s.explanation;
-    });
-    const hasNotes = Object.keys(notes).length > 0;
+    const sentences = c.sentences;
+    const cor = sentences.find((s) => s.is_correct);
+    const labels = { wrongLabel: tr('exercises.semantic.wrong_label', 'Wrong') };
+    const stored = sentences.map((s) =>
+      s.explanation ? { meaning: '', explanation: s.explanation } : null
+    );
+    const hasStored = stored.some(Boolean);
+    const expl = explanationRequest(ex, c, sentences, labels);
     mcq(
       fmtType('semantic_discrimination'),
       ex.cefr_level,
       i18n('exercises.instruction.which_sentence', { word: escHtml(c.target_word || 'the word') }),
       '',
-      c.sentences.map((s) => s.text),
+      sentences.map((s) => s.text),
       cor ? cor.text : '',
-      hasNotes ? '' : dedupeExpl(c.explanation),
+      expl.entries() || hasStored ? '' : dedupeExpl(c.explanation),
       w,
-      hasNotes ? { notes } : undefined
+      {
+        onAnswered: () => {
+          if (!expl.entries() && hasStored) showOptionExplanations(stored, sentences, labels);
+          expl.answered(true);
+        },
+      }
     );
   }
 
@@ -692,21 +708,29 @@ const ExRenderers = (function () {
     return p;
   }
 
-  /** Under each option: verdict, meaning, why, and the correction for the wrong one. */
-  function showOptionExplanations(entries, sentences) {
-    const opts = document.querySelectorAll('#optionsList .exercise-option');
-    const loading = document.getElementById('spotExplLoading');
-    if (loading) loading.remove();
-    opts.forEach((o, i) => {
-      const e = entries[i];
-      const s = sentences[i];
-      if (!e || !s || o.querySelector('.ex-opt-expl')) return;
+  /**
+   * Under each option: verdict, meaning, why, and the correction for the wrong
+   * one. Options are matched to sentences by text (pick-the-sentence shuffles
+   * them); an entry may be null (no note for that sentence). Replaces any notes
+   * shown before.
+   */
+  function showOptionExplanations(entries, sentences, labels) {
+    labels = labels || {};
+    clearExplanationLoading();
+    const index = new Map(sentences.map((s, i) => [String(s.text), i]));
+    document.querySelectorAll('#optionsList .exercise-option').forEach((o) => {
+      const i = index.get(o.dataset.value);
+      const e = i === undefined ? null : entries[i];
+      const s = i === undefined ? null : sentences[i];
+      if (!e || !s) return;
+      const old = o.querySelector('.ex-opt-expl');
+      if (old) old.remove();
       const wrong = s.is_correct === false;
       const box = document.createElement('span');
       box.className = 'ex-opt-expl' + (wrong ? ' ex-opt-expl--bad' : ' ex-opt-expl--ok');
       let h = `<span class="ex-opt-expl__verdict">${escHtml(
         wrong
-          ? tr('exercises.spot.error_label', 'Error')
+          ? labels.wrongLabel || tr('exercises.spot.error_label', 'Error')
           : tr('exercises.spot.correct_label', 'Correct')
       )}</span>`;
       if (e.meaning) h += ` <span class="ex-opt-expl__meaning">“${escHtml(e.meaning)}”</span>`;
@@ -719,6 +743,57 @@ const ExRenderers = (function () {
       o.classList.add('has-expl');
       o.appendChild(box);
     });
+  }
+
+  function clearExplanationLoading() {
+    const loading = document.getElementById('spotExplLoading');
+    if (loading) loading.remove();
+  }
+
+  function showExplanationLoading() {
+    const list = document.getElementById('optionsList');
+    if (!list || document.getElementById('spotExplLoading')) return;
+    const note = document.createElement('div');
+    note.id = 'spotExplLoading';
+    note.className = 'ex-opt-expl-loading';
+    note.textContent = tr('exercises.spot.loading', 'Loading explanations…');
+    list.after(note);
+  }
+
+  /**
+   * The per-option explanations of one item: attached ones, or a fetch started
+   * now. `answered(true)` marks the answer: what is in hand is shown, else a
+   * loading line while the fetch is still out (removed if it brings nothing).
+   */
+  function explanationRequest(ex, c, sentences, labels) {
+    const n = sentences.length;
+    let entries =
+      Array.isArray(c.option_explanations) && c.option_explanations.length === n
+        ? c.option_explanations
+        : null;
+    let answered = false;
+    let pending = false;
+    if (!entries) {
+      const request = fetchExplanations(ex.exercise_id, n);
+      if (request) {
+        pending = true;
+        request.then((got) => {
+          pending = false;
+          if (got) entries = got;
+          if (!answered) return;
+          if (got) showOptionExplanations(entries, sentences, labels);
+          else clearExplanationLoading();
+        });
+      }
+    }
+    return {
+      entries: () => entries,
+      answered() {
+        answered = true;
+        if (entries) showOptionExplanations(entries, sentences, labels);
+        else if (pending) showExplanationLoading();
+      },
+    };
   }
 
   function renderSpotSentence(ex, c, w) {
@@ -741,23 +816,7 @@ const ExRenderers = (function () {
     // Feedback for every option in the learner's language: attached by the
     // session when cached, otherwise asked for now so it is usually ready by
     // the time the learner answers.
-    const attached =
-      Array.isArray(c.option_explanations) && c.option_explanations.length === sentences.length
-        ? c.option_explanations
-        : null;
-    let entries = attached;
-    let answered = false;
-    const request = attached ? null : fetchExplanations(ex.exercise_id, sentences.length);
-    if (request)
-      request.then((got) => {
-        if (!got) {
-          const loading = document.getElementById('spotExplLoading');
-          if (loading) loading.remove();
-          return;
-        }
-        entries = got;
-        if (answered) showOptionExplanations(entries, sentences);
-      });
+    const expl = explanationRequest(ex, c, sentences);
 
     const correctVal = incorrect ? incorrect.text : '';
     document.getElementById('optionsList').addEventListener('click', (e) => {
@@ -765,7 +824,6 @@ const ExRenderers = (function () {
       const opt = e.target.closest('.exercise-option');
       if (!opt) return;
       _setAnswered(true);
-      answered = true;
       const sel = opt.dataset.value;
       const ok = sel === correctVal;
 
@@ -775,24 +833,14 @@ const ExRenderers = (function () {
       });
       if (!ok) opt.classList.add('incorrect');
 
-      let expl = '';
-      if (entries) {
-        showOptionExplanations(entries, sentences);
-      } else {
-        // The stored note (often in the target language) until ours arrives.
-        if (incorrect) {
-          if (incorrect.error_description) expl += incorrect.error_description;
-          if (incorrect.error_type) expl += (expl ? ' ' : '') + '(' + incorrect.error_type + ')';
-        }
-        if (request) {
-          const note = document.createElement('div');
-          note.id = 'spotExplLoading';
-          note.className = 'ex-opt-expl-loading';
-          note.textContent = tr('exercises.spot.loading', 'Loading explanations…');
-          document.getElementById('optionsList').after(note);
-        }
+      // The stored note (often in the target language) until ours arrives.
+      let note = '';
+      if (!expl.entries() && incorrect) {
+        if (incorrect.error_description) note += incorrect.error_description;
+        if (incorrect.error_type) note += (note ? ' ' : '') + '(' + incorrect.error_type + ')';
       }
-      showFeedbackNow(ok, expl);
+      expl.answered();
+      showFeedbackNow(ok, note);
       _submitAttempt(ok, { selected: sel });
     });
     bindNext();

@@ -16,12 +16,23 @@ What the corpus holds for such an item is four target-language sentences, which 
 at most a one-line note on the wrong one written in the target language
 (`助詞：他動詞「使う」の対象は「を」で示す。「が」は誤り。`). Correct sentences carry nothing. About
 11,700 Japanese items (and the Chinese ones) are stored this way in immutable content files
-([[decisions/ADR-049-exercise-content-in-storage]]). Regenerating the corpus is a large offline
+([[decisions/ADR-049-exercise-content-in-storage]]).
+
+Asked next "what about … pick the correct sentence" (`semantic_discrimination`, ~11,000 ja items):
+a 200-item ja sample had English notes on every wrong sentence, but **113/200 had none on the
+correct sentence**; a zh sample had **47/150 with only one joined note in Chinese**. No item
+shows what the sentences mean. Regenerating the corpus is a large offline
 authoring run and would still leave every future native language unserved.
 
 ## Decision
 
-1. **Generate on first serve, once per (exercise, learner language), and cache.** A model is
+Applies to `spot_incorrect_sentence` and `semantic_discrimination` (same shape: sentences, each
+right or wrong).
+
+0. **Use the item's own notes when they already explain every sentence in the learner's
+   language** (decidable for English learners: every sentence has a Latin-script note). No model
+   call; they are attached as they are.
+1. **Otherwise generate on first serve, once per (exercise, learner language), and cache.** A model is
    given the sentences, which one is wrong (decided by the item, never re-judged) and the stored
    note as a hint, and returns for every sentence its meaning, why it is right or wrong and the
    correction for the wrong one, all in the learner's language. The answer is validated (one entry

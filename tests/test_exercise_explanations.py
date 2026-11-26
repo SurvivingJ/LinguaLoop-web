@@ -345,3 +345,93 @@ def test_route_returns_the_explanations_in_the_learners_language(client, monkeyp
 
 def test_route_rejects_a_non_uuid(client):
     assert client.get('/api/practice/explanations/not-a-uuid').status_code == 400
+
+
+# ---------------------------------------------------------------------------
+# Pick the correct sentence (semantic_discrimination)
+# ---------------------------------------------------------------------------
+
+PICK_SENTENCES = [
+    {'is_correct': True, 'text': 'この回数券は、三か月以内に使わないと無効になる。'},
+    {'is_correct': False, 'text': '回数券を使ってピザを半額にした。',
+     'explanation': 'This slot needs クーポン (a discount coupon). 回数券 is a bundle of ride tickets.'},
+    {'is_correct': False, 'text': 'この回数券は毎月更新して、同じ区間に一年間乗れる。',
+     'explanation': 'This slot needs 定期券 (a commuter pass). 回数券 is a fixed number of rides.'},
+]
+
+
+def pick_content(**kw):
+    return {'target_word': '回数券', 'sentences': copy.deepcopy(PICK_SENTENCES), **kw}
+
+
+def pick_answer():
+    return {'sentences': [
+        {'index': 1, 'meaning': 'This book of tickets expires unless used within three months.',
+         'explanation': '「回数券」 is a prepaid bundle of tickets; an expiry fits.', 'correction': 'x'},
+        {'index': 2, 'meaning': 'I used a book of tickets to halve the pizza price.',
+         'explanation': '「回数券」 is for rides, not discounts; 「クーポン」 would fit.'},
+        {'index': 3, 'meaning': 'This book of tickets is renewed monthly for a year of rides.',
+         'explanation': 'A monthly renewed pass is 「定期券」, not 「回数券」.'},
+    ]}
+
+
+def _pick_item(eid=EID, c=None):
+    return {'exercise_id': eid, 'sense_id': 1, 'exercise_type': 'semantic_discrimination',
+            'content_version': 0, 'content': c if c is not None else pick_content()}
+
+
+def test_pick_prompt_names_the_word_and_passes_every_note_as_a_hint():
+    system, user = xe.build_prompt(PICK_SENTENCES, JA, EN, xe.PICK, '回数券')
+    assert 'uses 「回数券」 correctly' in user and '1. [CORRECT]' in user and '2. [WRONG]' in user
+    assert 'This slot needs クーポン' in user and "keep its point" in user
+    assert 'correction' not in user
+
+
+def test_pick_answers_carry_no_corrections():
+    out = xe.parse(pick_answer(), PICK_SENTENCES, EN, xe.PICK)
+    assert [e['correction'] for e in out] == [None, None, None]
+    assert out[0]['is_correct'] is True and out[1]['is_correct'] is False
+
+
+def test_an_item_needs_a_right_and_a_wrong_sentence():
+    only_wrong = [dict(s, is_correct=False) for s in PICK_SENTENCES]
+    assert xe.sentences_of({'sentences': only_wrong}) is None
+
+
+def test_complete_english_notes_are_served_without_a_model_call(monkeypatch):
+    def boom(*a, **k):
+        raise AssertionError('no model call expected')
+    monkeypatch.setattr('services.llm_service.call_llm', boom)
+    c = pick_content()
+    c['sentences'][0]['explanation'] = 'Correct: 回数券 is a book of tickets that can expire.'
+    items = [_pick_item(c=c)]
+    db = FakeDB()
+    assert xe.prepare_items(db, items, language_id=JA, nl_language_id=EN) == 0
+    notes = items[0]['content']['option_explanations']
+    assert [n['explanation'][:8] for n in notes] == ['Correct:', 'This slo', 'This slo']
+    assert db.calls == []                                     # nothing read or written
+
+
+def test_a_missing_note_on_the_right_sentence_is_written_by_the_model(monkeypatch):
+    fake = _llm({'primary/model': pick_answer()})
+    calls = []
+
+    def recording(prompt, **kw):
+        calls.append(kw['task_name'])
+        return fake(prompt, **kw)
+    monkeypatch.setattr('services.llm_service.call_llm', recording)
+    db = FakeDB()
+    assert xe.prepare_items(db, [_pick_item()], language_id=JA, nl_language_id=EN) == 1
+    _wait_idle()
+    assert calls == ['pick_sentence_explanation']
+    assert db.upserts[0]['payload']['sentences'][0]['meaning'].startswith('This book')
+
+
+def test_notes_in_the_target_language_are_rewritten(monkeypatch):
+    monkeypatch.setattr('services.llm_service.call_llm', _llm({'primary/model': pick_answer()}))
+    c = pick_content()
+    for s in c['sentences']:
+        s['explanation'] = 'この文では「回数券」が正しく使われていない。'
+    assert xe.stored_entries(xe.sentences_of(c), EN) is None
+    assert xe.prepare_items(FakeDB(), [_pick_item(c=c)], language_id=JA, nl_language_id=EN) == 1
+    _wait_idle()

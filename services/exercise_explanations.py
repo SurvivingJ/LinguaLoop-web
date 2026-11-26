@@ -49,7 +49,10 @@ from config import Config
 
 logger = logging.getLogger(__name__)
 
-TYPES = frozenset({'spot_incorrect_sentence'})
+SPOT = 'spot_incorrect_sentence'          # pick the sentence with an error
+PICK = 'semantic_discrimination'          # pick the sentence that uses the word correctly
+TYPES = frozenset({SPOT, PICK})
+_TASK_NAME = {SPOT: 'spot_error_explanation', PICK: 'pick_sentence_explanation'}
 PROMPT_VERSION = 1
 TABLE = 'exercise_explanations'
 
@@ -101,7 +104,8 @@ def _pool() -> ThreadPoolExecutor:
 
 def sentences_of(content: Any) -> Optional[list[dict]]:
     """The item's sentences, or None when it is not an explainable shape
-    (at least two sentences, every one with text, at least one wrong)."""
+    (at least two sentences, every one with text, at least one right and one
+    wrong)."""
     if not isinstance(content, dict):
         return None
     sents = content.get('sentences')
@@ -111,7 +115,28 @@ def sentences_of(content: Any) -> Optional[list[dict]]:
         return None
     if not any(s.get('is_correct') is False for s in sents):
         return None
+    if not any(s.get('is_correct') is not False for s in sents):
+        return None
     return sents
+
+
+def stored_entries(sents: list[dict], nl_language_id: int) -> Optional[list[dict]]:
+    """Entries built from the item's own per-sentence notes, when they already
+    explain every sentence in the learner's language (no model call needed).
+
+    Many pick-the-correct-sentence items carry an English note on every
+    sentence; others lack one on the correct sentence, or have only a joined
+    note in the target language. Only decidable for an English learner (a
+    CJK note could be the target language).
+    """
+    if _FAMILY.get(_LANG.get(nl_language_id, ('',))[0]) != 'latin':
+        return None
+    notes = [_clean(s.get('explanation'), _CAP['explanation']) for s in sents]
+    if not all(notes) or any(_script_family(n) != 'latin' for n in notes):
+        return None
+    return [{'text': str(s.get('text')).strip(), 'is_correct': s.get('is_correct') is not False,
+             'meaning': '', 'explanation': n, 'correction': None}
+            for s, n in zip(sents, notes)]
 
 
 def _texts(sents: Iterable[dict]) -> list[str]:
@@ -143,36 +168,58 @@ def _attach(content: dict, entries: list[dict], nl_language_id: int) -> None:
 # Prompt and validation
 # ---------------------------------------------------------------------------
 
-def build_prompt(sents: list[dict], tl_language_id: int, nl_language_id: int) -> tuple[str, str]:
+def build_prompt(sents: list[dict], tl_language_id: int, nl_language_id: int,
+                 exercise_type: str = SPOT, target_word: Optional[str] = None) -> tuple[str, str]:
     """(system, user) messages for one item."""
     tl = _LANG.get(tl_language_id, (None, 'the target language'))[1]
     nl = _LANG.get(nl_language_id, (None, 'English'))[1]
+    pick = exercise_type == PICK
+    word = f'「{target_word.strip()}」' if target_word and target_word.strip() else 'the target word'
     lines = []
     for i, s in enumerate(sents, 1):
-        tag = 'CORRECT' if s.get('is_correct') is not False else 'ERROR'
+        right = s.get('is_correct') is not False
+        tag = 'CORRECT' if right else ('WRONG' if pick else 'ERROR')
         line = f"{i}. [{tag}] {str(s.get('text')).strip()}"
-        note = str(s.get('error_description') or '').strip()
-        if tag == 'ERROR' and note:
-            line += f"\n   Teacher's note on the error (may be in {tl}): {note}"
+        note = str((s.get('explanation') if pick else s.get('error_description')) or '').strip()
+        if note and (pick or not right):
+            line += f"\n   Teacher's note (may be in another language): {note}"
         lines.append(line)
     system = (f"You are an experienced {tl} teacher writing answer feedback for a learner whose "
-              f"native language is {nl}. You are precise about grammar and never invent errors.")
+              f"native language is {nl}. You are precise about grammar and meaning and never "
+              "invent errors.")
+    if pick:
+        task = (f'A "pick the correct sentence" exercise in {tl} about the word {word}. The learner '
+                f'sees the sentences below and must pick the one that uses {word} correctly; the '
+                'others misuse it. Which sentence is correct is already decided and marked; do not '
+                'change that judgement.')
+        meaning = (f'a natural {nl} translation of what the sentence says (for a wrong sentence, '
+                   'what it literally says).')
+        explanation = (f'one or two short sentences a learner can follow. For the correct sentence, '
+                       f'say what {word} means here and why it fits. For a wrong sentence, say why '
+                       f'{word} does not fit and, where natural, which word would. Where a '
+                       f"teacher's note is given, keep its point, written in {nl}.")
+        shape = '{"sentences": [{"index": 1, "meaning": "...", "explanation": "..."}, ...]}'
+        extra = ''
+    else:
+        task = (f'A "spot the error" exercise in {tl}. The learner sees the sentences below and must '
+                'pick the one that contains an error. Which sentence is wrong is already decided and '
+                'marked; do not change that judgement.')
+        meaning = (f'a natural {nl} translation of what the sentence says (for the error sentence, '
+                   'what it is trying to say).')
+        explanation = ('one or two short sentences a learner can follow. For a correct sentence, say '
+                       'why it is correct: point to the grammar or word use a learner might doubt. '
+                       'For the error sentence, name the mistake precisely and say why it is wrong.')
+        shape = ('{"sentences": [{"index": 1, "meaning": "...", "explanation": "...", '
+                 '"correction": null}, ...]}')
+        extra = (f'- "correction": for the error sentence only, the corrected {tl} sentence, '
+                 'changing as little as possible; null for the others.\n')
     user = (
-        f'A "spot the error" exercise in {tl}. The learner sees the sentences below and must pick '
-        'the one that contains an error. Which sentence is wrong is already decided and marked; '
-        'do not change that judgement.\n\n'
-        'Sentences:\n' + '\n'.join(lines) + '\n\n'
+        task + '\n\nSentences:\n' + '\n'.join(lines) + '\n\n'
         f'For EVERY sentence, write in {nl}:\n'
-        f'- "meaning": a natural {nl} translation of what the sentence says (for the error '
-        'sentence, what it is trying to say).\n'
-        '- "explanation": one or two short sentences a learner can follow. For a correct '
-        'sentence, say why it is correct: point to the grammar or word use a learner might '
-        'doubt. For the error sentence, name the mistake precisely and say why it is wrong.\n'
-        f'- "correction": for the error sentence only, the corrected {tl} sentence, changing as '
-        'little as possible; null for the others.\n\n'
+        f'- "meaning": {meaning}\n'
+        f'- "explanation": {explanation}\n' + extra + '\n'
         f'Quote {tl} words in {tl} script. Everything else in {nl}. Plain text, no markdown.\n\n'
-        'Return only JSON: {"sentences": [{"index": 1, "meaning": "...", "explanation": "...", '
-        '"correction": null}, ...]}'
+        f'Return only JSON: {shape}'
     )
     return system, user
 
@@ -187,12 +234,13 @@ def _clean(value: Any, cap: int) -> str:
     return text[:cap].rstrip()
 
 
-def parse(raw: Any, sents: list[dict], nl_language_id: int) -> Optional[list[dict]]:
+def parse(raw: Any, sents: list[dict], nl_language_id: int,
+          exercise_type: str = SPOT) -> Optional[list[dict]]:
     """Validated entries (one per sentence, in order), or None when unusable.
 
     Unusable: not one entry per sentence, an empty explanation, or prose not
     in the learner's script (checked for English, where it is decidable).
-    A correction is kept only on a wrong sentence.
+    A correction is kept only on the wrong sentence of a spot-the-error item.
     """
     entries = raw.get('sentences') if isinstance(raw, dict) else raw
     if not isinstance(entries, list) or len(entries) != len(sents):
@@ -219,7 +267,8 @@ def parse(raw: Any, sents: list[dict], nl_language_id: int) -> Optional[list[dic
         if want_family == 'latin' and _script_family(explanation) != 'latin':
             return None
         wrong = s.get('is_correct') is False
-        correction = _clean(e.get('correction'), _CAP['correction']) if wrong else ''
+        correction = (_clean(e.get('correction'), _CAP['correction'])
+                      if wrong and exercise_type == SPOT else '')
         out.append({'text': str(s.get('text')).strip(), 'is_correct': not wrong,
                     'meaning': meaning, 'explanation': explanation,
                     'correction': correction or None})
@@ -233,19 +282,22 @@ def _models() -> list[str]:
 
 
 def generate(content: dict, tl_language_id: int, nl_language_id: int,
-             exercise_id: Optional[str] = None) -> Optional[tuple[dict, str]]:
+             exercise_id: Optional[str] = None,
+             exercise_type: str = SPOT) -> Optional[tuple[dict, str]]:
     """(payload, model) for one item, or None when no model gave a usable answer."""
     sents = sentences_of(content)
     if sents is None:
         return None
     from services.llm_service import call_llm
-    system, user = build_prompt(sents, tl_language_id, nl_language_id)
+    system, user = build_prompt(sents, tl_language_id, nl_language_id, exercise_type,
+                                (content or {}).get('target_word'))
     for model in _models():
         try:
             raw = call_llm(
                 user, system_prompt=system, model=model, response_format='json',
                 temperature=0.2, max_tokens=_MAX_TOKENS, timeout=_LLM_TIMEOUT_S,
-                pipeline='exercise_explanations', task_name='spot_error_explanation',
+                pipeline='exercise_explanations',
+                task_name=_TASK_NAME.get(exercise_type, 'exercise_explanation'),
                 template_version=PROMPT_VERSION, artifact_id=exercise_id,
                 language_code=_LANG.get(tl_language_id, (None,))[0],
             )
@@ -253,7 +305,7 @@ def generate(content: dict, tl_language_id: int, nl_language_id: int,
             logger.warning('explanation call failed (model=%s exercise=%s): %s',
                            model, exercise_id, exc)
             continue
-        entries = parse(raw, sents, nl_language_id)
+        entries = parse(raw, sents, nl_language_id, exercise_type)
         if entries is not None:
             return {'sentences': entries}, model
         logger.warning('explanation from %s unusable for exercise %s', model, exercise_id)
@@ -326,10 +378,10 @@ def _version(item: dict) -> int:
 
 
 def _job(db, exercise_id: str, content: dict, version: int,
-         tl_language_id: int, nl_language_id: int) -> Optional[dict]:
+         tl_language_id: int, nl_language_id: int, exercise_type: str) -> Optional[dict]:
     key = (exercise_id, nl_language_id)
     try:
-        result = generate(content, tl_language_id, nl_language_id, exercise_id)
+        result = generate(content, tl_language_id, nl_language_id, exercise_id, exercise_type)
         if result is None:
             return None
         payload, model = result
@@ -342,7 +394,7 @@ def _job(db, exercise_id: str, content: dict, version: int,
 
 
 def _start(db, exercise_id: str, content: dict, version: int,
-           tl_language_id: int, nl_language_id: int) -> Future:
+           tl_language_id: int, nl_language_id: int, exercise_type: str = SPOT) -> Future:
     """The generation for this key, started unless one is already running."""
     key = (exercise_id, nl_language_id)
     executor = _pool()                    # outside the lock: _pool takes it too
@@ -356,7 +408,8 @@ def _start(db, exercise_id: str, content: dict, version: int,
 
     def run():
         try:
-            fut.set_result(_job(db, exercise_id, snapshot, version, tl_language_id, nl_language_id))
+            fut.set_result(_job(db, exercise_id, snapshot, version, tl_language_id,
+                                nl_language_id, exercise_type))
         except BaseException as exc:      # never leave a waiter hanging
             fut.set_exception(exc)
 
@@ -416,8 +469,8 @@ def _prepare(db, items, language_id, nl_language_id, id_key, type_key, warm_limi
         sents = sentences_of(content)
         if not eid or sents is None:
             continue
-        payload = _from_memory((str(eid), nl_language_id), _version(item))
-        entries = _aligned(payload, sents)
+        entries = stored_entries(sents, nl_language_id) or \
+            _aligned(_from_memory((str(eid), nl_language_id), _version(item)), sents)
         if entries is not None:
             _attach(content, entries, nl_language_id)
         else:
@@ -440,7 +493,8 @@ def _prepare(db, items, language_id, nl_language_id, id_key, type_key, warm_limi
     limit = Config.EXERCISE_EXPLANATION_WARM_PER_REQUEST if warm_limit is None else warm_limit
     started = 0
     for item, eid in missing[:max(0, int(limit))]:
-        _start(db, eid, item['content'], _version(item), language_id, nl_language_id)
+        _start(db, eid, item['content'], _version(item), language_id, nl_language_id,
+               item.get(type_key))
         started += 1
     return started
 
@@ -463,7 +517,8 @@ def get_or_generate(db, exercise_id: str, nl_language_id: int,
     if sents is None:
         return 'unsupported', None
     key = (str(exercise_id), int(nl_language_id))
-    entries = _aligned(_from_memory(key, version), sents)
+    entries = stored_entries(sents, int(nl_language_id)) or \
+        _aligned(_from_memory(key, version), sents)
     if entries is None:
         cached = _read_rows(db, [str(exercise_id)], int(nl_language_id)).get(str(exercise_id))
         if cached is not None and int(cached.get('content_version') or 0) == version:
@@ -472,7 +527,8 @@ def get_or_generate(db, exercise_id: str, nl_language_id: int,
                 _remember(key, version, cached['payload'])
     if entries is None:
         fut = _start(db, str(exercise_id), content, version,
-                     int(row.get('language_id') or 0), int(nl_language_id))
+                     int(row.get('language_id') or 0), int(nl_language_id),
+                     row.get('exercise_type'))
         try:
             payload = fut.result(timeout=timeout)
         except FutureTimeout:
