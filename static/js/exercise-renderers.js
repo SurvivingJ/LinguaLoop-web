@@ -651,13 +651,86 @@ const ExRenderers = (function () {
     bindNext();
   }
 
+  // ── Per-option explanations (ADR-064) ──
+
+  /** exercise_id -> Promise<entries|null>, so a re-render does not ask twice. */
+  const _explanationRequests = new Map();
+
+  /**
+   * Fetch an item's per-option explanations in the learner's language from
+   * GET /api/practice/explanations/<id>. The server writes them on first
+   * request (seconds); 'pending' is asked again once. Resolves to the entries
+   * aligned with the item's sentences, or null.
+   */
+  function fetchExplanations(exerciseId, expected) {
+    if (!exerciseId || typeof window === 'undefined' || typeof window.authFetch !== 'function')
+      return null;
+    if (_explanationRequests.has(exerciseId)) return _explanationRequests.get(exerciseId);
+    const ask = async (triesLeft) => {
+      try {
+        const res = await window.authFetch(
+          '/api/practice/explanations/' + encodeURIComponent(exerciseId)
+        );
+        if (!res || !res.ok) return null;
+        const data = await res.json();
+        if (data && data.state === 'ready' && Array.isArray(data.option_explanations))
+          return data.option_explanations.length === expected ? data.option_explanations : null;
+        if (data && data.state === 'pending' && triesLeft > 1) {
+          await new Promise((r) => setTimeout(r, 2500));
+          return ask(triesLeft - 1);
+        }
+      } catch (e) {
+        /* explanations are an extra: the item works without them */
+      }
+      return null;
+    };
+    const p = ask(3).then((entries) => {
+      if (!entries) _explanationRequests.delete(exerciseId);
+      return entries;
+    });
+    _explanationRequests.set(exerciseId, p);
+    return p;
+  }
+
+  /** Under each option: verdict, meaning, why, and the correction for the wrong one. */
+  function showOptionExplanations(entries, sentences) {
+    const opts = document.querySelectorAll('#optionsList .exercise-option');
+    const loading = document.getElementById('spotExplLoading');
+    if (loading) loading.remove();
+    opts.forEach((o, i) => {
+      const e = entries[i];
+      const s = sentences[i];
+      if (!e || !s || o.querySelector('.ex-opt-expl')) return;
+      const wrong = s.is_correct === false;
+      const box = document.createElement('span');
+      box.className = 'ex-opt-expl' + (wrong ? ' ex-opt-expl--bad' : ' ex-opt-expl--ok');
+      let h = `<span class="ex-opt-expl__verdict">${escHtml(
+        wrong
+          ? tr('exercises.spot.error_label', 'Error')
+          : tr('exercises.spot.correct_label', 'Correct')
+      )}</span>`;
+      if (e.meaning) h += ` <span class="ex-opt-expl__meaning">“${escHtml(e.meaning)}”</span>`;
+      if (e.explanation) h += `<span class="ex-opt-expl__why">${escHtml(e.explanation)}</span>`;
+      if (wrong && e.correction)
+        h += `<span class="ex-opt-expl__fix">${escHtml(
+          tr('exercises.spot.correction', 'Correct form: ' + e.correction, { text: e.correction })
+        )}</span>`;
+      box.innerHTML = h;
+      o.classList.add('has-expl');
+      o.appendChild(box);
+    });
+  }
+
   function renderSpotSentence(ex, c, w) {
-    const incorrect = c.sentences.find((s) => !s.is_correct);
-    const opts = c.sentences.map((s) => s.text);
+    const sentences = c.sentences;
+    const incorrect = sentences.find((s) => !s.is_correct);
+    const opts = sentences.map((s) => s.text);
     let h =
       (w || '') +
       typeBadge('fa-search', fmtType('spot_incorrect_sentence'), ex.cefr_level) +
-      `<div class="exercise-instruction">Which sentence contains an error?</div>` +
+      `<div class="exercise-instruction">${escHtml(
+        tr('exercises.spot.instruction', 'Which sentence contains an error?')
+      )}</div>` +
       `<div class="exercise-options ld-opts" id="optionsList">`;
     opts.forEach((t, i) => {
       h += optionHTML(t, i, `<span class="option-text ex-tl">${escHtml(t)}</span>`);
@@ -665,12 +738,34 @@ const ExRenderers = (function () {
     h += `</div>`;
     paint(h, tapHintHTML() + FEEDBACK_HTML + nextBtnHTML());
 
+    // Feedback for every option in the learner's language: attached by the
+    // session when cached, otherwise asked for now so it is usually ready by
+    // the time the learner answers.
+    const attached =
+      Array.isArray(c.option_explanations) && c.option_explanations.length === sentences.length
+        ? c.option_explanations
+        : null;
+    let entries = attached;
+    let answered = false;
+    const request = attached ? null : fetchExplanations(ex.exercise_id, sentences.length);
+    if (request)
+      request.then((got) => {
+        if (!got) {
+          const loading = document.getElementById('spotExplLoading');
+          if (loading) loading.remove();
+          return;
+        }
+        entries = got;
+        if (answered) showOptionExplanations(entries, sentences);
+      });
+
     const correctVal = incorrect ? incorrect.text : '';
     document.getElementById('optionsList').addEventListener('click', (e) => {
       if (_isAnswered()) return;
       const opt = e.target.closest('.exercise-option');
       if (!opt) return;
       _setAnswered(true);
+      answered = true;
       const sel = opt.dataset.value;
       const ok = sel === correctVal;
 
@@ -681,9 +776,21 @@ const ExRenderers = (function () {
       if (!ok) opt.classList.add('incorrect');
 
       let expl = '';
-      if (incorrect) {
-        if (incorrect.error_description) expl += incorrect.error_description;
-        if (incorrect.error_type) expl += (expl ? ' ' : '') + '(' + incorrect.error_type + ')';
+      if (entries) {
+        showOptionExplanations(entries, sentences);
+      } else {
+        // The stored note (often in the target language) until ours arrives.
+        if (incorrect) {
+          if (incorrect.error_description) expl += incorrect.error_description;
+          if (incorrect.error_type) expl += (expl ? ' ' : '') + '(' + incorrect.error_type + ')';
+        }
+        if (request) {
+          const note = document.createElement('div');
+          note.id = 'spotExplLoading';
+          note.className = 'ex-opt-expl-loading';
+          note.textContent = tr('exercises.spot.loading', 'Loading explanations…');
+          document.getElementById('optionsList').after(note);
+        }
       }
       showFeedbackNow(ok, expl);
       _submitAttempt(ok, { selected: sel });

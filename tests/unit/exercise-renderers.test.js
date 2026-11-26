@@ -591,3 +591,113 @@ describe('HTML escaping of exercise content', () => {
     expect(card.querySelector('.exercise-cefr-badge').textContent).toBe('HSK3');
   });
 });
+
+// ---------------------------------------------------------------------------
+// Spot the error: per-option explanations in the learner's language (ADR-064)
+// ---------------------------------------------------------------------------
+
+describe('renderSpotSentence explanations', () => {
+  let card;
+  let feedback;
+  let answered;
+  const realFetch = window.authFetch;
+
+  const SENTENCES = [
+    { text: '人間は言葉を使う。', is_correct: true },
+    { text: '人間は言葉が使う。', is_correct: false, error_description: '助詞の誤り。' },
+    { text: '彼は優しい人間だ。', is_correct: true },
+  ];
+  const ENTRIES = [
+    { meaning: 'Humans use language.', explanation: 'を marks the object.', correction: null },
+    {
+      meaning: 'Humans use language.',
+      explanation: 'The object of 使う takes を, not が.',
+      correction: '人間は言葉を使う。',
+    },
+    { meaning: 'He is a kind person.', explanation: '優しい modifies 人間.', correction: null },
+  ];
+
+  beforeEach(() => {
+    card = document.createElement('div');
+    document.body.appendChild(card);
+    feedback = [];
+    answered = false;
+    R().init({
+      cardEl: card,
+      isAnswered: () => answered,
+      setAnswered: (v) => {
+        answered = v;
+      },
+      showFeedback: (ok, expl) => feedback.push({ ok, expl }),
+      submitAttempt: () => {},
+      nextExercise: () => {},
+    });
+  });
+
+  afterEach(() => {
+    card.remove();
+    window.authFetch = realFetch;
+  });
+
+  const pick = (i) => {
+    const options = card.querySelectorAll('#optionsList .exercise-option');
+    options[i].dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+  };
+
+  it('shows why every option is right or wrong once answered, from attached content', () => {
+    window.authFetch = () => {
+      throw new Error('must not fetch when explanations are attached');
+    };
+    R().dispatch(
+      'spot_incorrect_sentence',
+      { exercise_id: 'e-attached' },
+      { sentences: SENTENCES, option_explanations: ENTRIES },
+      ''
+    );
+    expect(card.querySelector('.ex-opt-expl')).toBeNull(); // nothing before answering
+    pick(0);
+    const notes = card.querySelectorAll('.ex-opt-expl');
+    expect(notes.length).toBe(3);
+    expect(notes[0].textContent).toContain('Humans use language.');
+    expect(notes[0].textContent).toContain('を marks the object.');
+    expect(notes[1].classList.contains('ex-opt-expl--bad')).toBe(true);
+    expect(notes[1].querySelector('.ex-opt-expl__fix').textContent).toContain('人間は言葉を使う。');
+    expect(notes[2].querySelector('.ex-opt-expl__fix')).toBeNull();
+    // the target-language note is not used when ours is there
+    expect(feedback).toEqual([{ ok: false, expl: '' }]);
+  });
+
+  it('fetches explanations for an item served without them and shows them after answering', async () => {
+    const asked = [];
+    let release;
+    const gate = new Promise((r) => {
+      release = r;
+    });
+    window.authFetch = async (url) => {
+      asked.push(url);
+      await gate;
+      return { ok: true, json: async () => ({ state: 'ready', option_explanations: ENTRIES }) };
+    };
+    R().dispatch('spot_incorrect_sentence', { exercise_id: 'e-fetch' }, { sentences: SENTENCES }, '');
+    expect(asked).toEqual(['/api/practice/explanations/e-fetch']); // asked on display
+    pick(1);
+    expect(feedback[0]).toEqual({ ok: true, expl: '助詞の誤り。' }); // stored note meanwhile
+    expect(card.querySelector('.ex-opt-expl-loading')).not.toBeNull();
+    release();
+    await new Promise((r) => setTimeout(r, 0));
+    await new Promise((r) => setTimeout(r, 0));
+    expect(card.querySelectorAll('.ex-opt-expl').length).toBe(3);
+    expect(card.querySelector('.ex-opt-expl-loading')).toBeNull();
+  });
+
+  it('works without explanations when the server has none', async () => {
+    window.authFetch = async () => ({ ok: true, json: async () => ({ state: 'unavailable' }) });
+    R().dispatch('spot_incorrect_sentence', { exercise_id: 'e-none' }, { sentences: SENTENCES }, '');
+    pick(1);
+    await new Promise((r) => setTimeout(r, 0));
+    await new Promise((r) => setTimeout(r, 0));
+    expect(card.querySelector('.ex-opt-expl')).toBeNull();
+    expect(card.querySelector('.ex-opt-expl-loading')).toBeNull();
+    expect(feedback[0].ok).toBe(true);
+  });
+});

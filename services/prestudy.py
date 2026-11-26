@@ -240,11 +240,15 @@ def _load_knowledge(db, user_id: str, sense_ids: list[int]) -> dict[str, dict]:
     return out
 
 
-def _load_exercises(db, sense_ids: list[int], *, language_id: Optional[int] = None) -> dict[str, list[dict]]:
+def _load_exercises(db, sense_ids: list[int], *, language_id: Optional[int] = None,
+                    nl_language_id: Optional[int] = None) -> dict[str, list[dict]]:
     """Grouped, trimmed exercises of ``sense_ids`` (the drill senses, or an
     on-demand batch). Content comes through the exercise-content store: in
     ``storage`` mode the rows carry ``content_version`` and one ``hydrate``
-    call fills ``content`` (rows whose content cannot be found are dropped)."""
+    call fills ``content`` (rows whose content cannot be found are dropped).
+
+    ``nl_language_id``: the learner's definition language; definition_match
+    options are rebuilt in it, or the item dropped (definition_serving)."""
     rows: list[dict] = []
     columns = store.select_columns('id, word_sense_id, exercise_type, {content}, ladder_level')
     for part in _chunks(sense_ids):
@@ -253,6 +257,10 @@ def _load_exercises(db, sense_ids: list[int], *, language_id: Optional[int] = No
                           .eq('is_active', True).in_('word_sense_id', part)
                           .in_('exercise_type', list(EXERCISE_FIELDS)).order('id'))
     store.hydrate(rows, language_id=language_id)
+    if nl_language_id:
+        from services.vocabulary_ladder import definition_serving
+        definition_serving.localise(db, rows, language_id=language_id,
+                                    nl_language_id=nl_language_id, sense_key='word_sense_id')
     return group_exercises(rows)
 
 
@@ -316,7 +324,8 @@ def build_prestudy_payload(db, test: dict, user_id: str, gloss_language_id: Opti
     extra_senses, extra_knowledge, exercises, can_produce = run_parallel(
         lambda: _load_senses(db, extra_ids, gloss_language_id) if extra_ids else {},
         lambda: _load_knowledge(db, user_id, extra_ids) if extra_ids else {},
-        lambda: _load_exercises(db, drill, language_id=language_id or None) if drill else {},
+        lambda: _load_exercises(db, drill, language_id=language_id or None,
+                                nl_language_id=gloss_language_id) if drill else {},
         lambda: produce_available(db, test, produce_l1),
     )
     senses.update(extra_senses)
@@ -345,7 +354,8 @@ def build_prestudy_payload(db, test: dict, user_id: str, gloss_language_id: Opti
     }
 
 
-def on_demand_exercises(db, test: dict, requested: Iterable) -> tuple[list[int], dict[str, list[dict]]]:
+def on_demand_exercises(db, test: dict, requested: Iterable,
+                        nl_language_id: Optional[int] = None) -> tuple[list[int], dict[str, list[dict]]]:
     """Exercises of senses that joined the drill set on the page
     (GET /api/tests/<id>/prestudy/exercises).
 
@@ -368,7 +378,8 @@ def on_demand_exercises(db, test: dict, requested: Iterable) -> tuple[list[int],
             break
     if not ids:
         return [], {}
-    return ids, _load_exercises(db, ids, language_id=int(test.get('language_id') or 0) or None)
+    return ids, _load_exercises(db, ids, language_id=int(test.get('language_id') or 0) or None,
+                                nl_language_id=nl_language_id)
 
 
 def evidence_rows(answers: list[dict], allowed_sense_ids: set[int]) -> list[dict]:

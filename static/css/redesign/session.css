@@ -723,6 +723,61 @@ body.study-session-page.ld-task .session-stage > .ld-screen {
   color: var(--good);
 }
 
+/* Spot the error: why each sentence is right or wrong, in the learner's
+   language (ADR-064). A second, full-width line inside the answered option,
+   aligned with the sentence (past the 26px letter key and its 10px gap). */
+.ld-opt.has-expl {
+  flex-wrap: wrap;
+}
+
+.ld-opt.has-expl .option-text {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.ex-opt-expl {
+  display: block;
+  flex: 1 0 100%;
+  padding-left: 36px;
+  font: 400 0.875rem/1.45 var(--f-body);
+  color: var(--ink-2);
+  text-align: left;
+  white-space: normal;
+}
+
+.ex-opt-expl__verdict {
+  font-weight: 700;
+}
+
+.ex-opt-expl--ok .ex-opt-expl__verdict {
+  color: var(--good);
+}
+
+.ex-opt-expl--bad .ex-opt-expl__verdict {
+  color: var(--bad);
+}
+
+.ex-opt-expl__meaning {
+  font-style: italic;
+}
+
+.ex-opt-expl__why,
+.ex-opt-expl__fix {
+  display: block;
+  margin-top: 2px;
+}
+
+.ex-opt-expl__fix {
+  font-weight: 600;
+  color: var(--good);
+}
+
+.ex-opt-expl-loading {
+  margin-top: 8px;
+  font-size: 0.875rem;
+  color: var(--ink-2);
+}
+
 .ex-screen .ex-phase2 {
   display: flex;
   flex-direction: column;

@@ -1,6 +1,6 @@
 ---
 title: Master Task List
-last_updated: 2026-11-25
+last_updated: 2026-11-26
 ---
 
 # Master Task List
@@ -19,13 +19,17 @@ below.
 
 | Status | Rows in this file | All task files (union, file status wins) |
 |--------|-------------------|------------------------------------------|
-| Not Started | 71 | 87 |
+| Not Started | 76 | 92 |
 | In Progress (`[~]`) | 18 | 25 |
-| Blocked / Deferred / Awaiting decision (`[?]`; includes "Done (repo), awaiting live apply") | 59 | 58 |
+| Blocked / Deferred / Awaiting decision (`[?]`; includes "Done (repo), awaiting live apply") | 64 | 63 |
 | Won't Do (obsolete) | 3 | 3 |
 | Superseded | 2 | 2 |
 | Done | 221 | 365 |
-| **Total distinct task ids** | **374** | **540** |
+| **Total distinct task ids** | **384** | **550** |
+
+*2026-11-26 (fixes: definition language, session speed, spot-the-error explanations):* added
+TASK-1234–1243 ([[tasklist/fixes-2026-11-26.tasks]]): 1234–1236 Done (repo), awaiting deploy, and 1237/1239
+awaiting the owner (counted under Blocked / awaiting); 1238, 1240–1243 Not Started.
 
 *2026-11-25 (after merging main, PR #44, into the JLPT seeding branch):* kept main's checker-based table and moved
 the one status this branch changed: TASK-1058 Not Started → Done (repo), awaiting deploy (counted under Blocked /
@@ -1553,6 +1557,21 @@ Full spec: [[tasklist/review-2026-11-22.tasks]]. Record: [[evaluations/codebase-
 | TASK-1231 | codebase-review-2026-11-22 | Wiki structure decisions | [?] | M | — |
 | TASK-1232 | codebase-review-2026-11-22 | Wiki pages still citing deleted files, and code with no spec | [ ] | L | — |
 | TASK-1233 | codebase-review-2026-11-22 | Deploy checklist for this review's code | [ ] | S | TASK-1200 |
+
+### Fixes 2026-11-26 — [[tasklist/fixes-2026-11-26.tasks]]
+
+| ID | Feature | Title | Status | Complexity | Depends On |
+|----|---------|-------|--------|------------|------------|
+| TASK-1234 | fixes-2026-11-26 | definition_match options in the learner's language | Done (repo) — not deployed | M | — |
+| TASK-1235 | fixes-2026-11-26 | Session-load latency cuts | Done (repo) — not deployed | M | — |
+| TASK-1236 | fixes-2026-11-26 | Per-option spot-the-error explanations (ADR-064) | Done (repo) — not deployed | L | — |
+| TASK-1237 | fixes-2026-11-26 | OWNER: apply `migrations/exercise_explanations.sql` | [?] | XS | TASK-1236 |
+| TASK-1238 | fixes-2026-11-26 | English glosses for Chinese words that have none | [ ] | L | — |
+| TASK-1239 | fixes-2026-11-26 | Verify ES256 tokens locally (JWKS) or lengthen the auth cache | [?] | S | — |
+| TASK-1240 | fixes-2026-11-26 | Serialise new-word admission per (user, language) | [ ] | M | — |
+| TASK-1241 | fixes-2026-11-26 | Prestudy spot-the-error shows per-option explanations | [ ] | S | TASK-1236 |
+| TASK-1242 | fixes-2026-11-26 | Explanations in the learner's language for other types with TL notes | [ ] | M | TASK-1236 |
+| TASK-1243 | fixes-2026-11-26 | Generator writes learner-language definition options | [ ] | S | TASK-1234 |
 
 ### Language Packs (existing — unchanged)
 

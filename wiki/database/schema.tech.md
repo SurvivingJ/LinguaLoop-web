@@ -1196,6 +1196,21 @@ Generated exercises sourced from grammar patterns, vocabulary senses, collocatio
 
 ---
 
+### `exercise_explanations` (NOT applied — `migrations/exercise_explanations.sql`, ADR-064)
+
+Per-option answer feedback for one exercise in one learner language, written once by
+`services/exercise_explanations.py` on first serve. Service role only (RLS on, no policy).
+
+| Column | Type | Nullable | Default | Notes |
+|--------|------|----------|---------|-------|
+| `exercise_id` | uuid | NO | | PK part; FK -> exercises ON DELETE CASCADE |
+| `nl_language_id` | smallint | NO | | PK part; FK -> dim_languages |
+| `content_version` | integer | NO | 0 | `exercises.content_version` it was written for; a mismatch means stale |
+| `payload` | jsonb | NO | | `{"sentences":[{"text","is_correct","meaning","explanation","correction"}]}` |
+| `model` | text | YES | | OpenRouter slug that wrote it |
+| `prompt_version` | smallint | NO | | `exercise_explanations.PROMPT_VERSION` |
+| `created_at` | timestamptz | NO | now() | |
+
 ### `exercise_attempts`
 
 Records each exercise attempt by a user.
