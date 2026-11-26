@@ -80,6 +80,14 @@ would). `call_llm(..., response_format='json', temperature=0.2, max_tokens=2000,
 pipeline='exercise_explanations', task_name='spot_error_explanation' | 'pick_sentence_explanation',
 template_version=1)`.
 
+**Prompt v2 (2026-11-26, owner-approved after reviewing an example)**: a wrong sentence's
+`meaning` is its LITERAL translation, mistake included ("I boiled the fragments on the floor with a
+broom", not the intended "I swept them up"), shown as "Literally: …"; explanations must not open
+with a verdict word (the app shows it). Spot items: the reviewed `corrected_sentence` of the item's
+`prompt3_transforms_A|B.level_7` asset (matched on `incorrect_sentence`, `stored_correction`) is
+given to the model and replaces its correction. Payloads carry `prompt_version`; `_aligned` serves
+only the current version, so v1 explanations are written again.
+
 **Validation (`parse`)**: exactly one entry per sentence (re-ordered by `index` when valid);
 non-empty explanation; English NL → explanation must be Latin-majority; caps 400/600/300 chars;
 corrections dropped on correct sentences. Primary then fallback model; none usable → no row.
@@ -109,9 +117,10 @@ is used only when `content_version` matches and its texts equal the item's sente
 memoised per id, one retry after 2.5 s on `pending`). After the answer, each option button gets
 `.has-expl` and a `.ex-opt-expl` line (verdict — "Error" / "Wrong" for pick items —, “meaning”,
 why, "Correct form: …" on the wrong spot sentence; matched to options by text because pick items
-are shuffled; styles in `static/css/redesign/session.css`). While waiting: `.ex-opt-expl-loading`
-(only while the fetch is out) and the stored notes (pick: per sentence; spot: the old note in the
-feedback bar), replaced when the fetch arrives. i18n keys `exercises.spot.*` in all four bundles.
+are shuffled; styles in `static/css/redesign/session.css`). While waiting: `.ex-opt-expl-loading` only
+(pick items also show their stored per-sentence notes, replaced on arrival). If the fetch brings
+nothing, the item's own note is shown under the wrong sentence; the feedback bar carries the old
+spot note only when explanations could not be asked for at all (no id / no `authFetch`). i18n keys `exercises.spot.*` in all four bundles.
 
 ## Configuration
 `EXERCISE_EXPLANATIONS_ENABLED` (True), `EXERCISE_EXPLANATION_MODEL`

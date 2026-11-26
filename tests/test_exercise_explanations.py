@@ -193,7 +193,8 @@ def _wait_idle(timeout=2.0):
 
 
 def test_cached_rows_are_attached_aligned_with_the_sentences():
-    payload = {'sentences': xe.parse(model_answer(), SENTENCES, EN)}
+    payload = {'sentences': xe.parse(model_answer(), SENTENCES, EN),
+               'prompt_version': xe.PROMPT_VERSION}
     db = FakeDB({'exercise_explanations': [
         {'exercise_id': EID, 'nl_language_id': EN, 'content_version': 0, 'payload': payload}]})
     items = [_item(), {'exercise_id': 'x', 'exercise_type': 'cloze_completion', 'content': {}}]
@@ -208,7 +209,8 @@ def test_cached_rows_are_attached_aligned_with_the_sentences():
 def test_missing_or_stale_rows_are_written_in_the_background(monkeypatch):
     fake = _llm({'primary/model': model_answer()})
     monkeypatch.setattr('services.llm_service.call_llm', fake)
-    stale = {'sentences': [dict(e, text='old') for e in model_answer()['sentences']]}
+    stale = {'sentences': [dict(e, text='old') for e in model_answer()['sentences']],
+             'prompt_version': xe.PROMPT_VERSION}
     db = FakeDB({'exercise_explanations': [
         {'exercise_id': EID, 'nl_language_id': EN, 'content_version': 0, 'payload': stale}]})
     items = [_item()]
@@ -227,7 +229,8 @@ def test_missing_or_stale_rows_are_written_in_the_background(monkeypatch):
 
 def test_a_regenerated_item_is_explained_afresh(monkeypatch):
     monkeypatch.setattr('services.llm_service.call_llm', _llm({'primary/model': model_answer()}))
-    payload = {'sentences': xe.parse(model_answer(), SENTENCES, EN)}
+    payload = {'sentences': xe.parse(model_answer(), SENTENCES, EN),
+               'prompt_version': xe.PROMPT_VERSION}
     db = FakeDB({'exercise_explanations': [
         {'exercise_id': EID, 'nl_language_id': EN, 'content_version': 0, 'payload': payload}]})
     assert xe.prepare_items(db, [_item(version=1)], language_id=JA, nl_language_id=EN) == 1
@@ -434,4 +437,57 @@ def test_notes_in_the_target_language_are_rewritten(monkeypatch):
         s['explanation'] = 'この文では「回数券」が正しく使われていない。'
     assert xe.stored_entries(xe.sentences_of(c), EN) is None
     assert xe.prepare_items(FakeDB(), [_pick_item(c=c)], language_id=JA, nl_language_id=EN) == 1
+    _wait_idle()
+
+
+
+# ---------------------------------------------------------------------------
+# Prompt v2: literal meaning of the wrong sentence; the reviewed correction
+# ---------------------------------------------------------------------------
+
+def test_the_wrong_sentence_is_translated_literally():
+    _, spot = xe.build_prompt(SENTENCES, JA, EN, xe.SPOT)
+    _, pick = xe.build_prompt(PICK_SENTENCES, JA, EN, xe.PICK, '回数券')
+    for user in (spot, pick):
+        assert 'LITERAL translation of what it actually says' in user
+        assert 'do not translate what it was meant to say' in user
+        assert 'Do not begin an explanation with a verdict' in user
+
+
+def test_the_reviewed_corrected_sentence_is_given_to_the_model_and_kept():
+    _, user = xe.build_prompt(SENTENCES, JA, EN, xe.SPOT, corrected='人間は言葉を使う。')
+    assert '3. [ERROR] 人間は言葉が使う。' in user and 'Corrected sentence: 人間は言葉を使う。' in user
+    out = xe.parse(model_answer(correction='人間は言葉を使っている。'), SENTENCES, EN, xe.SPOT,
+                   corrected='人間は言葉を使う。')
+    assert out[2]['correction'] == '人間は言葉を使う。'     # the stored one wins
+
+
+def test_the_corrected_sentence_comes_from_the_items_generation_asset(monkeypatch):
+    prompts = []
+
+    def fake(prompt, **kw):
+        prompts.append(prompt)
+        return model_answer(correction='something else')
+    monkeypatch.setattr('services.llm_service.call_llm', fake)
+    db = FakeDB({'word_assets': [
+        {'sense_id': 35443, 'asset_type': 'prompt3_transforms_B', 'content': {'level_7': {
+            'incorrect_sentence': '別の文。', 'corrected_sentence': 'x'}}},
+        {'sense_id': 35443, 'asset_type': 'prompt3_transforms_A', 'content': {'level_7': {
+            'incorrect_sentence': '人間は言葉が使う。', 'corrected_sentence': '人間は言葉を使う。'}}},
+    ]})
+    xe.prepare_items(db, [_item()], language_id=JA, nl_language_id=EN)
+    _wait_idle()
+    assert 'Corrected sentence: 人間は言葉を使う。' in prompts[0]
+    assert db.upserts[0]['payload']['sentences'][2]['correction'] == '人間は言葉を使う。'
+    assert db.upserts[0]['prompt_version'] == xe.PROMPT_VERSION == 2
+
+
+def test_explanations_written_with_an_older_prompt_are_written_again(monkeypatch):
+    monkeypatch.setattr('services.llm_service.call_llm', _llm({'primary/model': model_answer()}))
+    old = {'sentences': xe.parse(model_answer(), SENTENCES, EN), 'prompt_version': 1}
+    db = FakeDB({'exercise_explanations': [
+        {'exercise_id': EID, 'nl_language_id': EN, 'content_version': 0, 'payload': old}]})
+    items = [_item()]
+    assert xe.prepare_items(db, items, language_id=JA, nl_language_id=EN) == 1
+    assert 'option_explanations' not in items[0]['content']
     _wait_idle()

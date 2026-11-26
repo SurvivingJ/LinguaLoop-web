@@ -506,7 +506,11 @@ describe('renderJumbled', () => {
     click(answer()[0]);
     expect(answer()).toHaveLength(0);
     expect(bank()).toHaveLength(3);
-    expect(bank().map((el) => el.dataset.chunk).sort()).toEqual(['0', '1', '2']);
+    expect(
+      bank()
+        .map((el) => el.dataset.chunk)
+        .sort()
+    ).toEqual(['0', '1', '2']);
   });
 
   it('removes only the clicked chunk, keeping the rest in order', () => {
@@ -663,6 +667,9 @@ describe('renderSpotSentence explanations', () => {
     expect(notes[1].classList.contains('ex-opt-expl--bad')).toBe(true);
     expect(notes[1].querySelector('.ex-opt-expl__fix').textContent).toContain('人間は言葉を使う。');
     expect(notes[2].querySelector('.ex-opt-expl__fix')).toBeNull();
+    // the wrong sentence's meaning is labelled as literal; the right ones are not
+    expect(notes[1].querySelector('.ex-opt-expl__lit').textContent).toBe('Literally:');
+    expect(notes[0].querySelector('.ex-opt-expl__lit')).toBeNull();
     // the target-language note is not used when ours is there
     expect(feedback).toEqual([{ ok: false, expl: '' }]);
   });
@@ -678,10 +685,17 @@ describe('renderSpotSentence explanations', () => {
       await gate;
       return { ok: true, json: async () => ({ state: 'ready', option_explanations: ENTRIES }) };
     };
-    R().dispatch('spot_incorrect_sentence', { exercise_id: 'e-fetch' }, { sentences: SENTENCES }, '');
+    R().dispatch(
+      'spot_incorrect_sentence',
+      { exercise_id: 'e-fetch' },
+      { sentences: SENTENCES },
+      ''
+    );
     expect(asked).toEqual(['/api/practice/explanations/e-fetch']); // asked on display
     pick(1);
-    expect(feedback[0]).toEqual({ ok: true, expl: '助詞の誤り。' }); // stored note meanwhile
+    // nothing shown twice: no old note in the bar, a loading line under the options
+    expect(feedback[0]).toEqual({ ok: true, expl: '' });
+    expect(card.querySelector('.ex-opt-expl')).toBeNull();
     expect(card.querySelector('.ex-opt-expl-loading')).not.toBeNull();
     release();
     await new Promise((r) => setTimeout(r, 0));
@@ -690,15 +704,30 @@ describe('renderSpotSentence explanations', () => {
     expect(card.querySelector('.ex-opt-expl-loading')).toBeNull();
   });
 
-  it('works without explanations when the server has none', async () => {
+  it("falls back to the item's own note under the wrong sentence when the server has none", async () => {
     window.authFetch = async () => ({ ok: true, json: async () => ({ state: 'unavailable' }) });
-    R().dispatch('spot_incorrect_sentence', { exercise_id: 'e-none' }, { sentences: SENTENCES }, '');
+    R().dispatch(
+      'spot_incorrect_sentence',
+      { exercise_id: 'e-none' },
+      { sentences: SENTENCES },
+      ''
+    );
     pick(1);
     await new Promise((r) => setTimeout(r, 0));
     await new Promise((r) => setTimeout(r, 0));
-    expect(card.querySelector('.ex-opt-expl')).toBeNull();
+    const notes = card.querySelectorAll('.ex-opt-expl');
+    expect(notes.length).toBe(1);
+    expect(notes[0].textContent).toContain('助詞の誤り。');
     expect(card.querySelector('.ex-opt-expl-loading')).toBeNull();
-    expect(feedback[0].ok).toBe(true);
+    expect(feedback[0]).toEqual({ ok: true, expl: '' });
+  });
+
+  it('keeps the old note in the feedback bar when explanations cannot be asked for', () => {
+    window.authFetch = undefined;
+    R().dispatch('spot_incorrect_sentence', {}, { sentences: SENTENCES }, '');
+    pick(1);
+    expect(feedback[0]).toEqual({ ok: true, expl: '助詞の誤り。' });
+    expect(card.querySelector('.ex-opt-expl')).toBeNull();
   });
 });
 
@@ -715,7 +744,11 @@ describe('renderSemDiscrim explanations', () => {
   ];
   const ENTRIES = [
     { meaning: 'This ticket book expires.', explanation: '回数券 can expire.', correction: null },
-    { meaning: 'I halved the pizza price.', explanation: 'A discount needs クーポン.', correction: null },
+    {
+      meaning: 'I halved the pizza price.',
+      explanation: 'A discount needs クーポン.',
+      correction: null,
+    },
     { meaning: 'I renew it monthly.', explanation: 'A monthly pass is 定期券.', correction: null },
   ];
 

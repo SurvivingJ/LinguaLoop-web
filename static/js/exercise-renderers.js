@@ -387,7 +387,10 @@ const ExRenderers = (function () {
       s.explanation ? { meaning: '', explanation: s.explanation } : null
     );
     const hasStored = stored.some(Boolean);
-    const expl = explanationRequest(ex, c, sentences, labels);
+    const expl = explanationRequest(ex, c, sentences, labels, {
+      fallback: stored,
+      fallbackWhilePending: true,
+    });
     mcq(
       fmtType('semantic_discrimination'),
       ex.cefr_level,
@@ -398,10 +401,7 @@ const ExRenderers = (function () {
       expl.entries() || hasStored ? '' : dedupeExpl(c.explanation),
       w,
       {
-        onAnswered: () => {
-          if (!expl.entries() && hasStored) showOptionExplanations(stored, sentences, labels);
-          expl.answered(true);
-        },
+        onAnswered: () => expl.answered(),
       }
     );
   }
@@ -733,7 +733,14 @@ const ExRenderers = (function () {
           ? labels.wrongLabel || tr('exercises.spot.error_label', 'Error')
           : tr('exercises.spot.correct_label', 'Correct')
       )}</span>`;
-      if (e.meaning) h += ` <span class="ex-opt-expl__meaning">“${escHtml(e.meaning)}”</span>`;
+      // A wrong sentence's meaning is its literal translation, so the mistake shows.
+      if (e.meaning)
+        h +=
+          ` <span class="ex-opt-expl__meaning">` +
+          (wrong
+            ? `<span class="ex-opt-expl__lit">${escHtml(tr('exercises.spot.literally', 'Literally:'))}</span> `
+            : '') +
+          `“${escHtml(e.meaning)}”</span>`;
       if (e.explanation) h += `<span class="ex-opt-expl__why">${escHtml(e.explanation)}</span>`;
       if (wrong && e.correction)
         h += `<span class="ex-opt-expl__fix">${escHtml(
@@ -762,36 +769,54 @@ const ExRenderers = (function () {
 
   /**
    * The per-option explanations of one item: attached ones, or a fetch started
-   * now. `answered(true)` marks the answer: what is in hand is shown, else a
-   * loading line while the fetch is still out (removed if it brings nothing).
+   * now. `answered()` marks the answer and shows what is in hand; while the
+   * fetch is out, a loading line (and, with `opts.fallbackWhilePending`, the
+   * item's own notes). `opts.fallback`: the item's own notes, one entry or null
+   * per sentence, shown under the options if the fetch brings nothing
+   * (with `opts.fallbackOnlyIfAsked`, only when a fetch was made: otherwise
+   * the caller shows its note in the feedback bar).
    */
-  function explanationRequest(ex, c, sentences, labels) {
+  function explanationRequest(ex, c, sentences, labels, opts) {
+    opts = opts || {};
     const n = sentences.length;
+    const fallback =
+      Array.isArray(opts.fallback) && opts.fallback.some(Boolean) ? opts.fallback : null;
     let entries =
       Array.isArray(c.option_explanations) && c.option_explanations.length === n
         ? c.option_explanations
         : null;
     let answered = false;
     let pending = false;
+    let asked = false;
     if (!entries) {
       const request = fetchExplanations(ex.exercise_id, n);
       if (request) {
+        asked = true;
         pending = true;
         request.then((got) => {
           pending = false;
           if (got) entries = got;
           if (!answered) return;
           if (got) showOptionExplanations(entries, sentences, labels);
+          else if (fallback) showOptionExplanations(fallback, sentences, labels);
           else clearExplanationLoading();
         });
       }
     }
     return {
       entries: () => entries,
+      /** True when the explanations were asked for (shown under the options, never in the bar). */
+      asked: () => asked,
       answered() {
         answered = true;
-        if (entries) showOptionExplanations(entries, sentences, labels);
-        else if (pending) showExplanationLoading();
+        if (entries) {
+          showOptionExplanations(entries, sentences, labels);
+          return;
+        }
+        const fallbackHere = fallback && (asked || !opts.fallbackOnlyIfAsked);
+        if (fallbackHere && (!pending || opts.fallbackWhilePending))
+          showOptionExplanations(fallback, sentences, labels);
+        if (pending) showExplanationLoading();
       },
     };
   }
@@ -816,7 +841,17 @@ const ExRenderers = (function () {
     // Feedback for every option in the learner's language: attached by the
     // session when cached, otherwise asked for now so it is usually ready by
     // the time the learner answers.
-    const expl = explanationRequest(ex, c, sentences);
+    // The item's own note (often in the target language) is the fallback,
+    // shown under the wrong sentence only if ours cannot be had.
+    const ownNote = (s) =>
+      [s.error_description, s.error_type ? '(' + s.error_type + ')' : ''].filter(Boolean).join(' ');
+    const fallback = sentences.map((s) =>
+      s.is_correct === false && ownNote(s) ? { meaning: '', explanation: ownNote(s) } : null
+    );
+    const expl = explanationRequest(ex, c, sentences, undefined, {
+      fallback,
+      fallbackOnlyIfAsked: true,
+    });
 
     const correctVal = incorrect ? incorrect.text : '';
     document.getElementById('optionsList').addEventListener('click', (e) => {
@@ -833,12 +868,9 @@ const ExRenderers = (function () {
       });
       if (!ok) opt.classList.add('incorrect');
 
-      // The stored note (often in the target language) until ours arrives.
-      let note = '';
-      if (!expl.entries() && incorrect) {
-        if (incorrect.error_description) note += incorrect.error_description;
-        if (incorrect.error_type) note += (note ? ' ' : '') + '(' + incorrect.error_type + ')';
-      }
+      // Explanations go under the options; the feedback bar carries the old
+      // note only when they could not even be asked for (no id / no auth).
+      const note = !expl.entries() && !expl.asked() && incorrect ? ownNote(incorrect) : '';
       expl.answered();
       showFeedbackNow(ok, note);
       _submitAttempt(ok, { selected: sel });
