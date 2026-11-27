@@ -41,8 +41,8 @@ h|昨天晚上|zuó tiān wǎn shang|last night
 n|昨天|zuó tiān|yesterday
 n|今天|jīn tiān|today
 n|刚才|gāng cái|just now
-d|上个星期|shàng ge xīng qī|last week
 d|上个月|shàng ge yuè|last month
+d|这个月|zhè ge yuè|this month
 m|去年|qù nián|last year
 `);
 
@@ -66,7 +66,6 @@ const TIMED = rows(`
 放|fàng|假|jià|{S} had {d} of holiday {t}.|d
 发|fā|烧|shāo|{S} had a fever for {d} {t}.|d
 打|dǎ|工|gōng|{S} worked part-time for {d} {t}.|m
-考|kǎo|试|shì|{S} sat exams for {d} {t}.|h
 `);
 
 // verb | py | object | py | lead-in | py | English participle phrase | counts allowed

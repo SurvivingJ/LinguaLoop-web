@@ -335,27 +335,29 @@ function makeBaOrBei(key) {
     const r = receiver(rng, t);
     const doer = part(d, dpy);
     const tail = [part(t.v, t.vpy), '了|le', '。'];
-    const ba = rng() < 0.5;
-    if (ba) {
+    const when = rng() < 0.7 ? pick(rng, WHEN) : null;
+    const lead = when ? [part(when[0], when[1])] : [];
+    const time = when ? ` ${when[2]}` : '';
+    if (rng() < 0.5) {
       return cloze(rng, {
         key,
         max: 1,
-        pre: [doer],
+        pre: [...lead, doer],
         post: [r.tile, ...tail],
         right: BA,
         wrong: ['被'],
-        en: `${cap(den)} ${t.act} ${r.en}.`,
+        en: `${cap(den)} ${t.act} ${r.en}${time}.`,
         why: `${d} is the doer and comes first, and ${r.tile.zh} is what gets handled, so the object is marked with 把. With 被 the sentence would say that ${d} was ${t.pp}.`,
       });
     }
     return cloze(rng, {
       key,
       max: 1,
-      pre: [r.tile],
+      pre: [...lead, r.tile],
       post: [doer, ...tail],
       right: BEI_T,
       wrong: ['把'],
-      en: `${cap(r.en)} ${t.plural ? 'were' : 'was'} ${t.pp} by ${den}.`,
+      en: `${cap(r.en)} ${t.plural ? 'were' : 'was'} ${t.pp} by ${den}${time}.`,
       why: `${r.tile.zh} comes first but is the thing affected, and ${d} is the doer, so the doer is introduced by 被. 把 would make ${r.tile.zh} the one acting on ${d}.`,
     });
   };

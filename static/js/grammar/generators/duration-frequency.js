@@ -74,13 +74,13 @@ const ACTIVITIES = rows(`
 唱|chàng|歌|gē|{S} sang for {d}.|h
 `);
 
-// verb | py | English past | duration units
+// verb | py | English past | duration units | objects it takes
 const PERSON_VERBS = rows(`
-等|děng|waited for|nh
-找|zhǎo|looked for|nh
-陪|péi|kept {p} company for|hd
-教|jiāo|taught|my
-照顾|zhào gù|looked after|dwm
+等|děng|waited for|nh|他 她 我 老师 孩子 奶奶 朋友
+找|zhǎo|looked for|nh|他 她 我 老师 孩子 朋友
+陪|péi|kept {p} company for|hd|他 她 我 孩子 奶奶 朋友
+教|jiāo|taught|my|他 她 我 孩子
+照顾|zhào gù|looked after|dwm|他 她 孩子 奶奶
 `);
 const OBJECTS = rows(`
 他|tā|him
@@ -204,11 +204,12 @@ function makeDuration(rng) {
     });
   }
   if (kind === 'person') {
-    const [v, vpy, en, units] = pick(rng, PERSON_VERBS);
+    const [v, vpy, en, units, takes] = pick(rng, PERSON_VERBS);
     const [o, opy, oen] = pick(
       rng,
       OBJECTS.filter(
         (x) =>
+          takes.split(' ').includes(x[0]) &&
           x[0] !== s.zh &&
           !(x[0] === '朋友' && s.zh === '我朋友') &&
           !(x[0] === '我' && s.zh === '我们')

@@ -124,7 +124,7 @@ kg|五公斤|wǔ gōng jīn|5 kg {c}
 /**
  * A compatible (pair, adjective) combination. `equal` is for 没有 / 一样
  * sentences: it skips the vehicle pairs (planes are not "as fast as" trains)
- * and 小 for age (一样小 is not said of adults).
+ * and 小 / 短 / 轻 / 近, which sound odd as the standard of 没有 or 一样.
  */
 function combo(rng, equal = false) {
   const [g, a, apy, aen, b, bpy, ben] = pick(
@@ -133,7 +133,7 @@ function combo(rng, equal = false) {
   );
   const [, adj, adjpy, comp, plain, kinds] = pick(
     rng,
-    ADJS.filter((x) => x[0].includes(g) && !(equal && g === 'p' && x[1] === '小'))
+    ADJS.filter((x) => x[0].includes(g) && !(equal && '小短轻近'.includes(x[1])))
   );
   return {
     A: part(a, apy),

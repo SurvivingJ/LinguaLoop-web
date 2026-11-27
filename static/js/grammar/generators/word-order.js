@@ -23,7 +23,7 @@ const TIMES = rows(`
 每天下午|měi tiān xià wǔ|every afternoon|h
 `);
 
-// place | py | English | verb | py | object | py | English base form | "f" = one-off, future only; "fd" = also daytime only
+// place | py | English | verb | py | object | py | English base form | "f" = one-off, future only; "fd" = also daytime only; "h" = habit only
 const PLACED = rows(`
 在家|zài jiā|at home|看|kàn|电视|diàn shì|watch TV|
 在家|zài jiā|at home|做|zuò|饭|fàn|cook|
@@ -65,7 +65,7 @@ const PLACED = rows(`
 在电影院|zài diàn yǐng yuàn|at the cinema|看|kàn|电影|diàn yǐng|watch a film|
 在商店|zài shāng diàn|at the shop|买|mǎi|衣服|yī fu|buy clothes|f
 在商店|zài shāng diàn|at the shop|买|mǎi|礼物|lǐ wù|buy a present|f
-在宿舍|zài sù shè|in the dorm|睡|shuì|觉|jiào|sleep|
+在宿舍|zài sù shè|in the dorm|睡|shuì|觉|jiào|sleep|h
 在宿舍|zài sù shè|in the dorm|做|zuò|作业|zuò yè|do homework|
 在宿舍|zài sù shè|in the dorm|洗|xǐ|衣服|yī fu|do the laundry|
 在宿舍|zài sù shè|in the dorm|休息|xiū xi|||rest|
@@ -75,9 +75,9 @@ const PLACED = rows(`
 在银行|zài yín háng|at the bank|取|qǔ|钱|qián|withdraw money|fd
 在银行|zài yín háng|at the bank|换|huàn|钱|qián|change money|fd
 在邮局|zài yóu jú|at the post office|寄|jì|信|xìn|post a letter|fd
-在朋友家|zài péng you jiā|at a friend's place|吃|chī|饭|fàn|have a meal|
-在朋友家|zài péng you jiā|at a friend's place|看|kàn|电影|diàn yǐng|watch a film|
-在朋友家|zài péng you jiā|at a friend's place|玩|wán|游戏|yóu xì|play games|
+在朋友家|zài péng you jiā|at a friend's place|吃|chī|饭|fàn|have a meal|f
+在朋友家|zài péng you jiā|at a friend's place|看|kàn|电影|diàn yǐng|watch a film|f
+在朋友家|zài péng you jiā|at a friend's place|玩|wán|游戏|yóu xì|play games|f
 在教室|zài jiào shì|in the classroom|上|shàng|课|kè|have class|
 在教室|zài jiào shì|in the classroom|做|zuò|作业|zuò yè|do homework|
 在教室|zài jiào shì|in the classroom|复习|fù xí|生词|shēng cí|revise vocabulary|
@@ -137,7 +137,7 @@ function makeTimePlace(rng) {
   const [place, ppy, pen, v, vpy, o, opy, en, once] = pick(rng, PLACED);
   const [t, tpy, ten, tense] = pick(
     rng,
-    TIMES.filter((x) => (!once || x[3] === 'f') && !(once === 'fd' && x[0].includes('晚上')))
+    TIMES.filter((x) => (!once || x[3] === once[0]) && !(once === 'fd' && x[0].includes('晚上')))
   );
   const tiles = [s, part(t, tpy), part(place, ppy), ...vp(v, vpy, o, opy)];
   const rest = tiles.map((_, i) => i).slice(2);

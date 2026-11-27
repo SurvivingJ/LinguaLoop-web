@@ -15,12 +15,10 @@ const ACTIONS = rows(`
 去学校|qù xué xiào|go to school
 去上班|qù shàng bān|go to work
 来|lái|come
-吃饭|chī fàn|eat
 看电视|kàn diàn shì|watch TV
 做作业|zuò zuò yè|do homework
 买东西|mǎi dōng xi|go shopping
 喝咖啡|hē kā fēi|drink coffee
-给老师打电话|gěi lǎo shī dǎ diàn huà|call the teacher
 洗衣服|xǐ yī fu|do the laundry
 出门|chū mén|go out
 去图书馆|qù tú shū guǎn|go to the library
@@ -35,7 +33,6 @@ const ACTIONS = rows(`
 const PAST = rows(`
 昨天|zuó tiān|yesterday
 昨天晚上|zuó tiān wǎn shang|last night
-上个星期|shàng ge xīng qī|last week
 今天早上|jīn tiān zǎo shang|this morning
 前天|qián tiān|the day before yesterday
 上个周末|shàng ge zhōu mò|last weekend
@@ -43,7 +40,6 @@ const PAST = rows(`
 const FUTURE = rows(`
 明天|míng tiān|tomorrow
 明天晚上|míng tiān wǎn shang|tomorrow evening
-下个星期|xià ge xīng qī|next week
 后天|hòu tiān|the day after tomorrow
 这个周末|zhè ge zhōu mò|this weekend
 今天晚上|jīn tiān wǎn shang|tonight
@@ -144,7 +140,7 @@ const STATES = rows(`
 用上班|yòng shàng bān|{S} {dont} have to work {t}.|f
 `);
 
-// verb + result | py | object | py | English base form
+// verb + result | py | object | py | English base form | y = only in the 还没…呢 frame
 const RESULTS = rows(`
 听懂|tīng dǒng|老师的话|lǎo shī de huà|understand what the teacher said
 看懂|kàn dǒng|那封信|nà fēng xìn|understand that letter
@@ -152,12 +148,12 @@ const RESULTS = rows(`
 找到|zhǎo dào|钥匙|yào shi|find the keys
 买到|mǎi dào|火车票|huǒ chē piào|manage to buy a train ticket
 做完|zuò wán|作业|zuò yè|finish the homework
-吃完|chī wán|晚饭|wǎn fàn|finish dinner
+吃完|chī wán|饭|fàn|finish eating
 看完|kàn wán|那本书|nà běn shū|finish that book
 写完|xiě wán|报告|bào gào|finish the report
-记住|jì zhù|那个地址|nà ge dì zhǐ|remember that address
+记住|jì zhù|那个地址|nà ge dì zhǐ|remember that address|y
 听见|tīng jiàn|电话铃声|diàn huà líng shēng|hear the phone ring
-学会|xué huì|游泳|yóu yǒng|learn to swim
+学会|xué huì|游泳|yóu yǒng|learn to swim|y
 洗完|xǐ wán|衣服|yī fu|finish the laundry
 收到|shōu dào|那封邮件|nà fēng yóu jiàn|receive that email
 见到|jiàn dào|李老师|lǐ lǎo shī|get to see Mr. Li
@@ -292,7 +288,10 @@ function makeBuMei(rng) {
     });
   }
   if (kind === 'result' || kind === 'yet') {
-    const [v, vpy, o, opy, en] = pick(rng, RESULTS);
+    const [v, vpy, o, opy, en] = pick(
+      rng,
+      RESULTS.filter((x) => kind === 'yet' || !x[5])
+    );
     if (kind === 'yet') {
       return two(rng, true, {
         pre: [s, '还|hái'],
@@ -301,7 +300,7 @@ function makeBuMei(rng) {
         why: WHY.yet,
       });
     }
-    const [t, tpy, ten] = pick(rng, PAST);
+    const [t, tpy, ten] = pick(rng, PAST.slice(0, 2));
     return two(rng, true, {
       pre: [s, part(t, tpy)],
       post: [part(v, vpy), part(o, opy), ...end],

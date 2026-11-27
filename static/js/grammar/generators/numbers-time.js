@@ -228,7 +228,8 @@ function sampleNumber(rng) {
     [4, 8],
     [4, 9],
   ]);
-  if (len === 1) return int(rng, 0, 9);
+  // a bare 2 is left to the 二 / 两 drill: before a measure word it is 两
+  if (len === 1) return pick(rng, [0, 1, 3, 4, 5, 6, 7, 8, 9]);
   const ds = [int(rng, 1, 9)];
   for (let i = 1; i < len; i++) ds.push(int(rng, 0, 9));
   if (len >= 3) {
@@ -323,7 +324,7 @@ export function clockForms(h, m) {
     if (m > 10) good.push(`${H}点${M}`);
     bad = [`${M}分${H}点`, `${H}点${M}刻`, `${H}分${M}点`, `${H}小时${M}分`, `${H}点${M}秒`];
   }
-  return { good, bad: bad.filter((b) => !good.includes(b)) };
+  return { good, bad: [...new Set(bad)].filter((b) => !good.includes(b)) };
 }
 
 const CLOCK_FRAMES = [
