@@ -1,11 +1,11 @@
 ---
 title: Offline test bundles
 type: feature
-status: in-progress
+status: complete
 tech_page: offline-test-bundles.tech.md
 last_updated: 2026-11-27
 open_questions:
-  - "When to upload the 2026-11-27 Japanese bundle: the database was 492 MB of the 500 MB Free cap on 2026-11-27, and each uploaded test costs roughly 45 KB with its vocabulary linking (OPEN)"
+  - "When to upload the 2026-11-27 Japanese bundle (506 tests): the database was 451 MB of the 500 MB Free cap after the build (llm_calls had been pruned to today's rows outside this session); each uploaded test costs roughly 45 KB with its vocabulary linking, so the whole bundle ~23 MB (OPEN)"
   - "Whether to keep Claude's uncalibrated tier ratings or re-tier the bundle with jev before upload (OPEN)"
 ---
 

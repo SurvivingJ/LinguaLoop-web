@@ -182,3 +182,13 @@ def test_persist_rejects_unknown_record_version():
 def test_angle_instruction_mentions_angle():
     assert 'a comparison' in exp.angle_instruction(exp.ANGLES[4])
     assert os.path.basename(exp.__file__) == 'export_offline_tests.py'
+
+
+def test_config_validation_keys(monkeypatch):
+    from services.test_generation.config import TestGenConfig
+    cfg = TestGenConfig()
+    cfg.openrouter_api_key, cfg.openai_api_key = None, None
+    monkeypatch.delenv('LLM_FORCE_PROVIDER', raising=False)
+    assert cfg.validate() is False                     # OpenRouter still required
+    monkeypatch.setenv('LLM_FORCE_PROVIDER', 'claude_cli')
+    assert cfg.validate() is True                      # no OpenRouter, no OpenAI needed

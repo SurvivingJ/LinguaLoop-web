@@ -1,7 +1,7 @@
 ---
 title: Offline test bundles — Technical Specification
 type: feature-tech
-status: in-progress
+status: complete
 prose_page: offline-test-bundles.md
 last_updated: 2026-11-27
 dependencies:
@@ -43,7 +43,7 @@ live save path and the upload path are the same code.
 | `LLM_FORCE_PROVIDER` | `claude_cli` | overrides providers pinned by callers (judges pin `openrouter`); entailment judge uses its LLM backend; `call_jev` raises `JevError`; `tier_classifier.classify_passage` asks Claude; `ProseWriter.client` (phrase detection) is the forced client |
 | `LLM_CALLS_DB_LOG` | `0` | no `llm_calls` rows (calls or judge verdicts) and no `generation_stage_timings` rows; `logs/llm_usage/*.csv` still written |
 | `OPENROUTER_API_KEY` | dummy value | belt and braces: a path that still reaches OpenRouter fails with 401 instead of spending |
-| `OPENAI_API_KEY` | dummy value | the test-gen config requires one; the embedding call then fails and dedup degrades to exact-hash only (`dedup.py`) |
+| `OPENAI_API_KEY` | unset or dummy | only the near-duplicate embedding uses it; without a working key dedup degrades to exact-hash only (`dedup.py`). Since 2026-11-27 `TestGenConfig.validate` no longer requires it, nor `OPENROUTER_API_KEY` under `LLM_FORCE_PROVIDER=claude_cli` |
 
 Database reads still happen (topics, prompt templates, tier configs, question distributions,
 exact-hash dedup against `tests`). Verified on the 4-slot pilot: row counts of `llm_calls`,
@@ -118,4 +118,4 @@ covers `LLM_FORCE_PROVIDER`.
 
 | Bundle | Built | Tests | Notes |
 |---|---|---|---|
-| `data/offline_tests/ja-2026-11-27/` | 2026-11-27 | see manifest | ja listening, tiers 1–4, headless Claude only, not uploaded |
+| `data/offline_tests/ja-2026-11-27/` | 2026-11-27 | 506 (2,419 questions, 165 topics) | ja listening; target tiers 1–4 (125 + 6 extra slots); assigned T1 44 / T2 163 / T3 63 / T4 161 / T5 65 / T6 10; seeded ELO 1054–1664, median 1339 (by target tier 1246 / 1291 / 1372 / 1442); 294 within 1190–1390; answer positions 592 / 619 / 606 / 602; 0.9 MB xz (19.7 MB raw); every call headless Claude, no DB rows written; not uploaded |
