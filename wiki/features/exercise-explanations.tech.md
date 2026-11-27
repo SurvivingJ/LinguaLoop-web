@@ -185,7 +185,15 @@ returns nothing.
 Batch: `scripts/prewrite_explanations_anthropic_batch.py --family options` (`FAMILIES`): types,
 kind and version from the family; option records carry their `content` (less `hant`) for the
 prompt; estimate from `MEASURED_OPTION_COST_PER_ITEM` (pilot). The OpenRouter script keeps to the
-sentence types.
+sentence types. A 4xx answer to a batch create (`CreateRefused`) clears the pending marker; for the
+retry batch the failed items' senses are held back and the rest written (`retry_refused` in
+batches.json and the report).
+
+Renderer guard: `explanationRequest` takes `#optionsList` when the item is answered and drops a
+late fetch result once that element is gone, so it never paints the next item.
+
+State 2026-11-27: every ja particle / form / relation sense has an `o1` file except 36443 and
+117480 (4,530); every zh synonym / antonym sense (903).
 
 ## Configuration
 `EXERCISE_EXPLANATIONS_ENABLED` (True), `EXERCISE_EXPLANATION_MODEL`

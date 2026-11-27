@@ -128,3 +128,7 @@ Can we do it with Claude api?" (survey: [[evaluations/exercise-explanation-cover
   the item's own note shows in the feedback bar only when explanations cannot be asked for.
 - **Writing:** the same batch script, `--family options`, Sonnet 5.5 on the owner's key. Pilot:
   52/52 usable, $0.146; the rest ~$28 for ja (TASK-1247, awaiting the owner's go-ahead).
+- **Result (2026-11-27, owner: "Do it for Japanese and chinese"):** ja 10,000 / 10,002 usable,
+  4,512 files, $28.39; zh synonym / antonym 1,453 / 1,453, 903 files, $3.59. Two ja senses held
+  back (retry refused: the Anthropic credit ran out). Served with model calls disabled:
+  300/300 ja, 150/150 zh ([[evaluations/exercise-explanation-coverage-2026-11-27]]).

@@ -264,6 +264,7 @@ def load_state(run_dir: str) -> dict:
     state.setdefault('retry', [])
     state.setdefault('pending', None)
     state.setdefault('ledger_written', False)
+    state.setdefault('retry_refused', None)
     return state
 
 
@@ -303,9 +304,16 @@ def adopt_pending(client, pending: dict, known: set[str], say) -> Optional[str]:
     return found[0] if found else None
 
 
+class CreateRefused(Exception):
+    """The API answered a batch create with a 4xx (e.g. no credit): no batch exists."""
+
+
 def create_batch(client, records: list[dict], info: dict, run_dir: str, state: dict,
                  kind: str, start: int, say) -> str:
-    """One Message Batch, recorded so that a lost response or a crash can't bill twice."""
+    """One Message Batch, recorded so that a lost response or a crash can't bill twice.
+
+    A 4xx answer is a definite refusal (nothing was created), so the pending marker is
+    cleared and ``CreateRefused`` raised; anything else leaves the marker for resume."""
     pending = state.get('pending')
     if pending and pending['kind'] == kind and pending['start'] == start:
         known = {b['id'] for b in state['batches'] + state['retry']}
@@ -321,8 +329,16 @@ def create_batch(client, records: list[dict], info: dict, run_dir: str, state: d
     save_state(run_dir, state)
     # No automatic retry: the SDK sends no idempotency key, so a retried create
     # after a lost response would make (and bill) a second batch.
-    batch = client.with_options(max_retries=0).messages.batches.create(
-        requests=build_requests(records, info))
+    import anthropic
+    try:
+        batch = client.with_options(max_retries=0).messages.batches.create(
+            requests=build_requests(records, info))
+    except anthropic.APIStatusError as exc:
+        if exc.status_code is not None and 400 <= exc.status_code < 500:
+            state['pending'] = None
+            save_state(run_dir, state)
+            raise CreateRefused(f'{exc.status_code}: {str(exc)[:300]}') from exc
+        raise
     state['pending'] = None
     state['retry' if kind == 'retry' else 'batches'].append(
         {'id': batch.id, 'start': start, 'count': len(records), 'created_at': now_iso()})
@@ -406,9 +422,18 @@ def collect(client, db, manifest: list[dict], info: dict, run_dir: str, state: d
     tally = {'failed': {}, 'tokens': Counter(), 'cost': 0.0}
     usable = gather(client, by_id, info, [b['id'] for b in state['batches']], tally)
     failed_recs = [by_id[eid] for eid in by_id if eid not in usable]
-    if failed_recs and not state['retry']:
+    retry_refused = state.get('retry_refused')
+    if failed_recs and not state['retry'] and not retry_refused:
         say(f'{len(failed_recs)} items failed; retrying them once')
-        create_batch(client, failed_recs, info, run_dir, state, 'retry', 0, say)
+        try:
+            create_batch(client, failed_recs, info, run_dir, state, 'retry', 0, say)
+        except CreateRefused as exc:
+            # e.g. the account ran out of credit after the main batches: their
+            # results are paid for, so write every complete sense and hold
+            # back the senses of the failed items.
+            state['retry_refused'] = str(exc)
+            save_state(run_dir, state)
+            say(f'retry batch refused ({exc}); their senses are held back')
     if state['retry']:
         retry_ids = [b['id'] for b in state['retry']]
         wait_until_ended(client, retry_ids, say)
@@ -473,7 +498,8 @@ def collect(client, db, manifest: list[dict], info: dict, run_dir: str, state: d
               'batch_ids': batch_ids, 'items': len(manifest), 'usable': len(usable),
               'files': dict(files), 'tokens': dict(tally['tokens']), 'cost_usd': cost,
               'held_back': held_back,
-              'held_back_at_prepare': info.get('senses_held_back', [])}
+              'held_back_at_prepare': info.get('senses_held_back', []),
+              'retry_refused': state.get('retry_refused')}
     save_json(os.path.join(run_dir, 'report.json'), report)
     say(f"usable {len(usable)}/{len(manifest)}; files {dict(files)}; cost ${cost} "
         f"({tally['tokens']['input']} in / {tally['tokens']['output']} out tokens)")

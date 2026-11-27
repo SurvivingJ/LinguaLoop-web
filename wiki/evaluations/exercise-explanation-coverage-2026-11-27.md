@@ -59,3 +59,36 @@ form names in English (prompt version unchanged — wording only, same output sh
 
 Storage: ~1.7 KB per item, ~17 MB for ja; database unchanged apart from one `storage.objects`
 row (~0.5 KB) per file.
+
+## Full runs, 2026-11-27 (owner: "Do it for Japanese and chinese")
+
+Review before submitting (independent agent): one bug fixed first — a late explanation fetch
+could paint the *next* item's options (particles repeat across items) — plus trimmed option
+matching, form names in the learner's language, Traditional mirror keeps explanations unflagged,
+resume refuses a mismatched `--family`.
+
+| | ja (particle, form, relation) | zh (synonym / antonym) |
+|---|---|---|
+| Items prepared | 10,002 (1 not explainable) | 1,453 |
+| Batches | 3 (5,000 / 5,000 / 2), all 10,002 succeeded, ~8 min | 1, ~4 min |
+| Usable | **10,000 / 10,002** | **1,453 / 1,453** |
+| Files written | **4,512**; 2 senses held back | **903** |
+| Tokens | 6,618,412 in / 4,353,836 out | 830,448 in / 551,639 out |
+| Cost | **$28.39** | **$3.59** |
+
+The two unusable ja answers (senses 36443 過度, 117480 加熱) were malformed JSON (an entry closed
+with `"]}`); their retry batch was refused: **the Anthropic account's credit ran out** after the
+main batches. The script now treats a 4xx refusal of the retry as final (no batch was made), holds
+back only those senses and writes the rest; resume does not ask again. Those two senses' items are
+written on first view, or by re-running `--family options` once there is credit (~$0.01).
+
+Storage after: `explanations/ja/` 5,956 `p2` (30 MB) + 4,530 `o1` (15 MB, with the pilot's 18);
+`explanations/zh/` 903 `o1` (2 MB); bucket 206 MB of 1 GB.
+
+Serving check (model calls disabled, generous read deadline): ja 300/300 random live items
+(100 per type), zh 150/150, and a mixed ja request (spot / pick + the three types) 120/120 —
+both kinds of file read together; 0 model calls, 0 background jobs.
+
+Database: **496,462,995 B** (473.5 MiB) at 06:05 UTC. The files' `storage.objects` rows added
+~4.3 MB (~0.8 KB per file with indexes); `llm_calls` grew ~3.8 MB from the app's own test
+generation at 05:00 UTC. If the Free cap is 500,000,000 B (knowledge-report OQ13), ~3.5 MB is left.

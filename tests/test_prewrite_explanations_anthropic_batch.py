@@ -218,8 +218,9 @@ class FakeBatches:
     ``fail_create_at``: the index of the create call that raises (a lost connection)."""
 
     def __init__(self, outcome=None, polls_before_end=1, fail_create_at=None, once=False,
-                 lose_response_at=None):
+                 lose_response_at=None, refuse_create_at=None):
         self.outcome = dict(outcome or {})
+        self.refuse_create_at = refuse_create_at  # answered 400 (e.g. no credit): nothing made
         self.once = once                       # an outcome applies to the first answer only
         self.polls_before_end = polls_before_end
         self.fail_create_at = fail_create_at
@@ -234,6 +235,10 @@ class FakeBatches:
         index, self.create_calls = self.create_calls, self.create_calls + 1
         if self.fail_create_at is not None and index == self.fail_create_at:
             raise anthropic.APIConnectionError(request=_request())
+        if self.refuse_create_at is not None and index == self.refuse_create_at:
+            raise anthropic.BadRequestError(
+                'Your credit balance is too low',
+                response=httpx2.Response(400, request=_request()), body=None)
         ids = [r['custom_id'] for r in requests]
         assert all(CUSTOM_ID.match(i) for i in ids), ids
         assert len(set(ids)) == len(ids), 'custom_id must be unique within a batch'
@@ -850,3 +855,22 @@ def test_an_option_record_carries_its_content_for_the_prompt():
     reqs = ab.build_requests([rec], {'language_id': JA, 'nl_language_id': EN,
                                      'model': SONNET, 'effort': 'medium'})
     assert 'Sentence with the blank: 時計___鳴った。' in reqs[0]['params']['messages'][0]['content']
+
+
+def test_a_refused_retry_batch_holds_back_only_the_failed_senses(world, monkeypatch, tmp_path):
+    # 2026-11-27: the account ran out of credit between the main batches and the retry.
+    batches = FakeBatches(outcome={world.s60c: 'unusable'}, refuse_create_at=1)
+    run_dir = tmp_path / 'run'
+    assert run(world, monkeypatch, run_dir, '--apply', client=FakeClient(batches)) == 0
+    assert len(batches.created) == 1                               # the retry was not made
+    assert sorted(world.backend.calls_for('put')) == sorted(
+        [world.path(10), world.path(20), world.path(50)])
+    assert world.file(60) is None
+    report = json.loads((run_dir / 'report.json').read_text(encoding='utf-8'))
+    assert [h['sense_id'] for h in report['held_back']] == [60]
+    assert 'credit balance is too low' in report['retry_refused']
+    state = json.loads((run_dir / 'batches.json').read_text(encoding='utf-8'))
+    assert state['pending'] is None and state['retry'] == []
+    # resuming does not ask again and writes nothing twice
+    assert run(world, monkeypatch, run_dir, '--apply', client=FakeClient(batches)) == 0
+    assert batches.create_calls == 2
