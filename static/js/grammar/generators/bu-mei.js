@@ -146,7 +146,7 @@ const RESULTS = rows(`
 看懂|kàn dǒng|那封信|nà fēng xìn|understand that letter
 看见|kàn jiàn|通知|tōng zhī|see the notice
 找到|zhǎo dào|钥匙|yào shi|find the keys
-买到|mǎi dào|火车票|huǒ chē piào|manage to buy a train ticket
+买到|mǎi dào|火车票|huǒ chē piào|get a train ticket
 做完|zuò wán|作业|zuò yè|finish the homework
 吃完|chī wán|饭|fàn|finish eating
 看完|kàn wán|那本书|nà běn shū|finish that book

@@ -42,36 +42,36 @@ w|三个星期|sān gè xīng qī|three weeks
 `);
 const durations = (units) => DURATIONS.filter((d) => units.includes(d[0]));
 
-// verb | py | object | py | English with {S} and {d} | duration units
+// verb | py | object | py | English with {S} and {d} | duration units | t = the object can be fronted as a topic
 const ACTIVITIES = rows(`
-学|xué|汉语|hàn yǔ|{S} studied Chinese for {d}.|my
-学|xué|游泳|yóu yǒng|{S} took swimming lessons for {d}.|m
-学|xué|开车|kāi chē|{S} took driving lessons for {d}.|mw
-看|kàn|电视|diàn shì|{S} watched TV for {d}.|h
-看|kàn|书|shū|{S} read for {d}.|h
-坐|zuò|飞机|fēi jī|{S} flew for {d}.|h
-坐|zuò|火车|huǒ chē|{S} {was} on the train for {d}.|h
-坐|zuò|地铁|dì tiě|{S} rode the subway for {d}.|n
-打|dǎ|篮球|lán qiú|{S} played basketball for {d}.|h
-打|dǎ|电话|diàn huà|{S} talked on the phone for {d}.|n
-上|shàng|课|kè|{S} had class for {d}.|h
-开|kāi|车|chē|{S} drove for {d}.|h
-开|kāi|会|huì|{S} sat in a meeting for {d}.|h
-做|zuò|作业|zuò yè|{S} did homework for {d}.|h
-做|zuò|饭|fàn|{S} cooked for {d}.|h
-听|tīng|音乐|yīn yuè|{S} listened to music for {d}.|h
-弹|tán|钢琴|gāng qín|{S} played the piano for {d}.|hy
-玩|wán|游戏|yóu xì|{S} played games for {d}.|h
-排|pái|队|duì|{S} queued for {d}.|n
-上|shàng|网|wǎng|{S} spent {d} online.|h
-当|dāng|老师|lǎo shī|{S} worked as a teacher for {d}.|y
-教|jiāo|英语|yīng yǔ|{S} taught English for {d}.|y
-骑|qí|自行车|zì xíng chē|{S} cycled for {d}.|hn
-等|děng|车|chē|{S} waited for the bus for {d}.|n
-写|xiě|报告|bào gào|{S} worked on the report for {d}.|h
-踢|tī|足球|zú qiú|{S} played football for {d}.|h
-跳|tiào|舞|wǔ|{S} danced for {d}.|h
-唱|chàng|歌|gē|{S} sang for {d}.|h
+学|xué|汉语|hàn yǔ|{S} studied Chinese for {d}.|my|t
+学|xué|游泳|yóu yǒng|{S} took swimming lessons for {d}.|m|t
+学|xué|开车|kāi chē|{S} took driving lessons for {d}.|mw|t
+看|kàn|电视|diàn shì|{S} watched TV for {d}.|h|t
+看|kàn|书|shū|{S} read for {d}.|h|
+坐|zuò|飞机|fēi jī|{S} flew for {d}.|h|t
+坐|zuò|火车|huǒ chē|{S} {was} on the train for {d}.|h|t
+坐|zuò|地铁|dì tiě|{S} rode the subway for {d}.|n|t
+打|dǎ|篮球|lán qiú|{S} played basketball for {d}.|h|t
+打|dǎ|电话|diàn huà|{S} talked on the phone for {d}.|n|t
+上|shàng|课|kè|{S} had class for {d}.|h|
+开|kāi|车|chē|{S} drove for {d}.|h|
+开|kāi|会|huì|{S} sat in a meeting for {d}.|h|
+做|zuò|作业|zuò yè|{S} did homework for {d}.|h|t
+做|zuò|饭|fàn|{S} cooked for {d}.|h|
+听|tīng|音乐|yīn yuè|{S} listened to music for {d}.|h|t
+弹|tán|钢琴|gāng qín|{S} played the piano for {d}.|hy|t
+玩|wán|游戏|yóu xì|{S} played games for {d}.|h|t
+排|pái|队|duì|{S} queued for {d}.|n|
+上|shàng|网|wǎng|{S} spent {d} online.|h|
+当|dāng|老师|lǎo shī|{S} worked as a teacher for {d}.|y|
+教|jiāo|英语|yīng yǔ|{S} taught English for {d}.|y|t
+骑|qí|自行车|zì xíng chē|{S} cycled for {d}.|hn|t
+等|děng|车|chē|{S} waited for the bus for {d}.|n|
+写|xiě|报告|bào gào|{S} worked on the report for {d}.|h|t
+踢|tī|足球|zú qiú|{S} played football for {d}.|h|t
+跳|tiào|舞|wǔ|{S} danced for {d}.|h|
+唱|chàng|歌|gē|{S} sang for {d}.|h|
 `);
 
 // verb | py | English past | duration units | objects it takes
@@ -180,7 +180,10 @@ function makeDuration(rng) {
     [2, 'ongoing'],
   ]);
   if (kind === 'de' || kind === 'plain') {
-    const [v, vpy, o, opy, en, units] = pick(rng, ACTIVITIES);
+    const [v, vpy, o, opy, en, units] = pick(
+      rng,
+      ACTIVITIES.filter((x) => kind === 'de' || x[6] === 't')
+    );
     const [, d, dpy, den] = pick(rng, durations(units));
     const english = fillEn(en, s).replace('{d}', den);
     const verb = part(`${v}了`, `${vpy} le`);

@@ -10,7 +10,7 @@ import { pick, weighted, rows, cloze, PEOPLE, fillEn, numWord } from './util.js'
 // measure | pinyin | what it counts
 export const MEASURES = Object.fromEntries(
   rows(`
-个|gè|the general measure for people and many objects
+个|gè|people and most things without a measure of their own
 本|běn|bound things such as books
 张|zhāng|flat things: paper, tickets, tables, beds
 条|tiáo|long, bendy things: trousers, rivers, fish, roads

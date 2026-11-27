@@ -113,8 +113,11 @@ const PARTNERED = rows(`
 明天想|míng tiān xiǎng|跟同事聊天|gēn tóng shì liáo tiān|聊天同事 聊同事天|{S} [want] to chat with colleagues tomorrow.|
 `);
 
+// subjects for 跟她结婚
+const GROOMS = ['我', '他', '小王', '小李', '我哥哥', '我弟弟', '我朋友', '我同学'];
+
 const INSIDE_WHY = (v, o, what) =>
-  `${v}${o} is verb + object, not one solid verb, so ${what} goes between ${v} and ${o}. Nothing can be attached after the object ${o}.`;
+  `${v}${o} is verb + object, not one solid verb, so the place for ${what} is between ${v} and ${o}. Nothing can be attached after the object ${o}.`;
 
 /** Verb, time and duration for a 了 + duration item. */
 function timed(rng) {
@@ -173,7 +176,7 @@ function makeInsideCloze(rng) {
 
 function makePartnerCloze(rng) {
   const [lead, leadpy, right, rightpy, wrong, en, one] = pick(rng, PARTNERED);
-  const s = pick(rng, one ? PEOPLE.filter((p) => p.be !== 'are') : PEOPLE);
+  const s = pick(rng, one ? PEOPLE.filter((p) => GROOMS.includes(p.zh)) : PEOPLE);
   return cloze(rng, {
     key: 'separable-cloze',
     pre: [s, part(lead, leadpy)],

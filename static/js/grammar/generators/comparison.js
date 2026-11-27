@@ -50,6 +50,30 @@ h|他的汉语|tā de hàn yǔ|his Chinese is|我的汉语|wǒ de hàn yǔ|mine
 h|她的汉语|tā de hàn yǔ|her Chinese is|我的汉语|wǒ de hàn yǔ|mine
 d|这个菜|zhè ge cài|this dish is|那个菜|nà ge cài|that one
 d|那个菜|nà ge cài|that dish is|这个菜|zhè ge cài|this one
+c|这条裤子|zhè tiáo kù zi|these trousers are|那条裤子|nà tiáo kù zi|those ones
+c|这件毛衣|zhè jiàn máo yī|this sweater is|那件毛衣|nà jiàn máo yī|that one
+c|那件毛衣|nà jiàn máo yī|that sweater is|这件毛衣|zhè jiàn máo yī|this one
+u|这辆车|zhè liàng chē|this car is|那辆车|nà liàng chē|that one
+u|那辆车|nà liàng chē|that car is|这辆车|zhè liàng chē|this one
+g|这个包|zhè ge bāo|this bag is|那个包|nà ge bāo|that one
+g|我的手机|wǒ de shǒu jī|my phone is|他的手机|tā de shǒu jī|his
+r|哥哥的房间|gē ge de fáng jiān|my older brother's room is|我的房间|wǒ de fáng jiān|mine
+x|这张桌子|zhè zhāng zhuō zi|this table is|那张桌子|nà zhāng zhuō zi|that one
+x|那张桌子|nà zhāng zhuō zi|that table is|这张桌子|zhè zhāng zhuō zi|this one
+k|这个公园|zhè ge gōng yuán|this park is|那个公园|nà ge gōng yuán|that one
+k|那个公园|nà ge gōng yuán|that park is|这个公园|zhè ge gōng yuán|this one
+k|这个学校|zhè ge xué xiào|this school is|那个学校|nà ge xué xiào|that one
+k|这个地方|zhè ge dì fang|this place is|那个地方|nà ge dì fang|that one
+k|那个地方|nà ge dì fang|that place is|这个地方|zhè ge dì fang|this one
+f|这个宾馆|zhè ge bīn guǎn|this hotel is|那个宾馆|nà ge bīn guǎn|that one
+f|那个宾馆|nà ge bīn guǎn|that hotel is|这个宾馆|zhè ge bīn guǎn|this one
+f|这家商店|zhè jiā shāng diàn|this shop is|那家商店|nà jiā shāng diàn|that one
+e|这杯咖啡|zhè bēi kā fēi|this coffee is|那杯咖啡|nà bēi kā fēi|that one
+e|这个蛋糕|zhè ge dàn gāo|this cake is|那个蛋糕|nà ge dàn gāo|that one
+e|这种水果|zhè zhǒng shuǐ guǒ|this kind of fruit is|那种水果|nà zhǒng shuǐ guǒ|that kind
+m|这部电影|zhè bù diàn yǐng|this film is|那部电影|nà bù diàn yǐng|that one
+m|那部电影|nà bù diàn yǐng|that film is|这部电影|zhè bù diàn yǐng|this one
+h|小王的汉语|xiǎo wáng de hàn yǔ|Xiao Wang's Chinese is|小李的汉语|xiǎo lǐ de hàn yǔ|Xiao Li's
 `);
 
 // groups | adjective | py | comparative | plain | amount kinds
@@ -60,31 +84,32 @@ p|小|xiǎo|younger|young|age
 p|忙|máng|busier|busy|a
 p|瘦|shòu|thinner|thin|a
 cgb|贵|guì|more expensive|expensive|a yuan
-fd|贵|guì|more expensive|expensive|a
+fdeu|贵|guì|more expensive|expensive|a
 cgb|便宜|pián yi|cheaper|cheap|a yuan
-fdt|便宜|pián yi|cheaper|cheap|a
-cg|好看|hǎo kàn|nicer-looking|nice-looking|a
+fdteu|便宜|pián yi|cheaper|cheap|a
+cgu|好看|hǎo kàn|nicer-looking|nice-looking|a
+m|好看|hǎo kàn|better|good|a
 c|舒服|shū fu|more comfortable|comfortable|a
-cr|大|dà|bigger|big|a
+crk|大|dà|bigger|big|a
 crx|小|xiǎo|smaller|small|a
 g|好用|hǎo yòng|handier|handy|a
 g|轻|qīng|lighter|light|a
 x|轻|qīng|lighter|light|a kg
-g|新|xīn|newer|new|a
+gu|新|xīn|newer|new|a
 w|冷|lěng|colder|cold|a deg
 w|热|rè|hotter|hot|a deg
-r|干净|gān jìng|cleaner|clean|a
-rf|安静|ān jìng|quieter|quiet|a
+rfk|干净|gān jìng|cleaner|clean|a
+rfk|安静|ān jìng|quieter|quiet|a
 r|亮|liàng|brighter|bright|a
 bq|难|nán|harder|hard|a
 b|容易|róng yì|easier|easy|a
-b|有意思|yǒu yì si|more interesting|interesting|a
+bm|有意思|yǒu yì si|more interesting|interesting|a
 b|厚|hòu|thicker|thick|a
-tv|快|kuài|faster|fast|a
+tvu|快|kuài|faster|fast|a
 t|方便|fāng biàn|more convenient|convenient|a
-f|远|yuǎn|farther away|far away|a
-f|近|jìn|nearer|near|a
-l|长|cháng|longer|long|a
+fk|远|yuǎn|farther away|far away|a
+fk|近|jìn|nearer|near|a
+lm|长|cháng|longer|long|a
 l|短|duǎn|shorter|short|a
 l|宽|kuān|wider|wide|a
 x|重|zhòng|heavier|heavy|a kg
@@ -94,7 +119,7 @@ q|重要|zhòng yào|more important|important|a
 h|好|hǎo|better|good|a
 h|流利|liú lì|more fluent|fluent|a
 d|辣|là|spicier|spicy|a
-d|甜|tián|sweeter|sweet|a
+de|甜|tián|sweeter|sweet|a
 d|咸|xián|saltier|salty|a
 d|好吃|hǎo chī|tastier|tasty|a
 `);

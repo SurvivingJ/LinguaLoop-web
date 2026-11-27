@@ -163,7 +163,7 @@ function makeTogether(rng) {
     tiles: [s, part(t, tpy), part(p, ppy), part(v, vpy), part(o, opy)],
     alts: [[1, 0, 2, 3, 4]],
     en: `${s.en} will ${en} ${pen} ${ten}.`,
-    why: `Who you do it with goes before the verb: subject + time + 跟…一起 + verb. "With friends" cannot follow the verb as in English; only ${t} may move to the front.`,
+    why: `Who you do it with goes before the verb: subject + time + 跟…一起 + verb. "${pen}" cannot follow the verb as in English; only ${t} may move to the front.`,
   });
 }
 

@@ -208,7 +208,7 @@ const NUMBER_FRAMES = [
   },
   {
     lo: 3,
-    hi: 999999999,
+    hi: 9999,
     pre: ['这里一共有|zhè lǐ yī gòng yǒu'],
     post: ['个|gè', '。'],
     en: (x) => `There are ${x} here altogether.`,
@@ -412,15 +412,16 @@ const PERIODS = [
   { zh: '下午', py: 'xià wǔ', hours: [1, 2, 3, 4, 5], en: 'p.m.' },
   { zh: '晚上', py: 'wǎn shang', hours: [7, 8, 9, 10], en: 'p.m.' },
 ];
+// event | py | English | parts of the day it can be held in (indexes into PERIODS)
 const EVENTS = [
-  ['会议', 'huì yì', 'The meeting'],
-  ['考试', 'kǎo shì', 'The exam'],
-  ['比赛', 'bǐ sài', 'The match'],
-  ['面试', 'miàn shì', 'The interview'],
-  ['晚会', 'wǎn huì', 'The party'],
-  ['婚礼', 'hūn lǐ', 'The wedding'],
-  ['演出', 'yǎn chū', 'The show'],
-  ['活动', 'huó dòng', 'The event'],
+  ['会议', 'huì yì', 'The meeting', [0, 1]],
+  ['考试', 'kǎo shì', 'The exam', [0, 1]],
+  ['比赛', 'bǐ sài', 'The match', [0, 1, 2]],
+  ['面试', 'miàn shì', 'The interview', [0, 1]],
+  ['晚会', 'wǎn huì', 'The party', [2]],
+  ['婚礼', 'hūn lǐ', 'The wedding', [0]],
+  ['演出', 'yǎn chū', 'The show', [1, 2]],
+  ['活动', 'huó dòng', 'The event', [0, 1, 2]],
 ];
 const DATE_WHY =
   'Chinese time expressions run from the largest unit to the smallest: 年, 月, 号/日, 星期, then 上午/下午/晚上 and the hour. The English order (weekday first, year last) does not carry over.';
@@ -478,7 +479,7 @@ function makeDate(rng) {
   }
   const ev = pick(rng, EVENTS);
   const wd = chance(rng, 0.5) ? pick(rng, WEEKDAYS) : null;
-  const period = pick(rng, PERIODS);
+  const period = PERIODS[pick(rng, ev[3])];
   const hour = pick(rng, period.hours);
   const half = chance(rng, 0.3);
   return order(rng, {
