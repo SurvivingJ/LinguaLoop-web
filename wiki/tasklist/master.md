@@ -1513,7 +1513,7 @@ Full spec: [[tasklist/vocab-placement.tasks]] · [[features/vocab-placement]] ·
 | TASK-1082 | vocab-placement | Intro drill (and prestudy) show zh pinyin for diacritic-only readings | Done (repo) | S | — |
 | TASK-1083 | vocab-placement | Placement feeds test selection and the rating writer | [?] OQ33 | M | TASK-1080 |
 | TASK-1084 | vocab-placement | Placement page and i18n | Done (repo) | L | TASK-1080 |
-| TASK-1085 | vocab-placement | Entry points incl. onboarding gate | [?] PQ7 | S | TASK-1084, TASK-1040 |
+| TASK-1085 | vocab-placement | Entry points incl. onboarding gate (Me row, report empty state, calibration link done 2026-11-27; onboarding gate left) | [?] PQ7 | S | TASK-1084, TASK-1040 |
 | TASK-1086 | vocab-placement | Report integration (LIVE-DB, owner) | [ ] | L | TASK-1078, TASK-1079, TASK-1081, TASK-1036, TASK-1039, TASK-1040, TASK-1044 |
 | TASK-1087 | vocab-placement | Simulation regression harness (V0) | Done (repo) | M | TASK-1078 |
 | TASK-1088 | vocab-placement | Launch per language (LIVE env, owner) | [~] switch removed 2026-11-23 (always on zh/en/ja); deploy + owner checks remain | S | TASK-1080, TASK-1081, TASK-1082, TASK-1084, TASK-1087, TASK-1092 (zh) (ja: TASK-1075) |

@@ -184,8 +184,8 @@ removed from the code.
 
 ## Not built yet (blocks nothing above)
 
-- Placement entry points and the onboarding offer (TASK-1085, blocked on PQ7). Until then the placement is reached
-  at `/placement`.
+- The onboarding offer of the placement (TASK-1085, blocked on PQ7). The other entry points were built on
+  2026-11-27: a Me-hub row, the report's empty state and a link on the calibration page.
 - Report integration of placement ranges (TASK-1086), the Pro tier (TASK-1045–1053, 1059), the goal-path layout
   (TASK-1072), validation (TASK-1089), docs reconciliation (TASK-1057, TASK-1095).
 

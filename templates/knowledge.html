@@ -35,7 +35,8 @@
             <h2 class="ld-h2" id="knEmptyTitle"></h2>
             <p class="ld-muted kn-body-text" data-i18n="knowledge.state.empty_body">Take the vocabulary check or a test, and this page will show what you know.</p>
             <div class="kn-actions">
-                <a class="ld-btn" href="{{ url_for('calibration_page') }}" data-i18n="knowledge.state.empty_check">Take the vocabulary check</a>
+                <a class="ld-btn" href="{{ url_for('placement_page') }}" data-i18n="knowledge.state.empty_placement">Take the 7-minute placement</a>
+                <a class="ld-btn ld-btn--ghost" href="{{ url_for('calibration_page') }}" data-i18n="knowledge.state.empty_check">Take the vocabulary check</a>
                 <a class="ld-btn ld-btn--ghost" href="{{ url_for('tests') }}" data-i18n="knowledge.state.empty_test">Take a test</a>
             </div>
         </section>

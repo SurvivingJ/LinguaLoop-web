@@ -940,10 +940,11 @@ the gate question (§8) appears. "Yes" opens `/placement?lang=…`, and the lear
 two answers continue onboarding without a placement and store nothing.
 
 ### Entry points (TASK-1085)
-- Onboarding (above).
-- The report's empty state "We don't know your vocabulary yet" → "Take the 7-minute placement".
-- The calibration page: "Short placement instead".
-- The Me row of My vocabulary.
+Built 2026-11-27 (all but onboarding); each is a plain link to `/placement`, which opens on the study language, and each is always shown (also after a placement, so it doubles as the retake entry):
+- Onboarding (above) — **not built**, waits for PQ7.
+- The report's empty state and its "not enough answers" estimate state → "Take the 7-minute placement" (`knowledge.state.empty_placement`; `templates/knowledge.html`, `static/js/pages/knowledge.js`), the primary button ahead of the vocabulary check.
+- The calibration page: "Short placement instead" (`calibration.placement_instead`; a quiet link under the mode toggle in `templates/calibration.html`).
+- A Me-hub row "Vocabulary placement" under My vocabulary (`#mePlacementRow`, `placement.title` / `me.placement_sub`; `templates/profile.html`).
 
 ## 16. i18n
 

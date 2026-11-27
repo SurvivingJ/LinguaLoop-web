@@ -581,6 +581,7 @@ run per language; a Playwright smoke at 390 px (TASK-1055 pattern).
 ## TASK-1085: Entry points — onboarding gate, report empty state, calibration page, Me row [?]
 
 **Status:** [?] Blocked — PQ7 (onboarding offer and the "studied before?" gate)
+**Progress (2026-11-27):** the Me row, the report's empty state (and its "not enough answers" state) and the calibration-page link are built and always shown; the links go to `/placement` without `?lang=` (the page opens on the study language). Only the onboarding gate remains, blocked on PQ7.
 **Feature:** vocab-placement
 **Type:** feature
 **Complexity:** S (1-3h)
@@ -596,7 +597,7 @@ instead" on the calibration page (tech §8, §15).
 - [ ] Each entry opens `/placement?lang=…` for the current study language.
 - [ ] The two "not studied" answers write nothing and do not open the placement.
 - [ ] The report and Me-row offers disappear once a placement with a frozen result exists for the language.
-- [ ] Everything is hidden for a language not in `PLACEMENT_ENABLED_LANGS`.
+- [x] ~~Everything is hidden for a language not in `PLACEMENT_ENABLED_LANGS`.~~ Dropped: the switch was removed on 2026-11-23 and every study language (zh, en, ja) has the placement.
 
 **Files to Create / Modify:**
 - `templates/onboarding.html`, `static/js/pages/onboarding.js` — the gate.
