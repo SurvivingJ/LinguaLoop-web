@@ -3,10 +3,10 @@
  "skills":[
   {"id":"x-adverb",
    "rule":"Classify the ending first (negative, guess, hearsay or simile, wish or request, condition, concession, のに), then pick the adverb that belongs to it.",
-   "explain":"Q1. Does it end in ない? Total denial: 全然, ちっとも, 決して. 'Not very': あまり. 'Rarely': めったに. 'Not easily, despite trying': なかなか. 'Not necessarily' (〜わけではない, 〜とは限らない): 必ずしも. 'Surely not' (ないだろう, とは): まさか.\n\nQ2. A guess, だろう / でしょう / と思う? Confident: きっと. 'Probably': たぶん, おそらく. Evidence, らしい / ようだ: どうも, どうやら. ようだ / みたい for something that only looks like it: まるで.\n\nQ3. A wish or request, たい / てください? Eager: ぜひ. Pleading: どうか. Offering: どうぞ.\n\nQ4. たら / ば / なら: もし, 万一 ('if by any chance'), 仮に. ても: たとえ, いくら, どんなに.\n\nQ5. のに / のだから about a wasted chance or effort: せっかく.\n\nQ6. An ordinary statement: degree or time words (とても, もう, まだ, やっと).",
+   "explain":"Q1. Does it end in ない? Total denial: 全然, ちっとも, 決して. 'Not very': あまり. 'Rarely': めったに. 'Not easily, despite trying': なかなか. 'Not necessarily' (〜わけではない, 〜とは限らない): 必ずしも. 'Surely not' (ないだろう, とは): まさか.\n\nQ2. A guess, だろう / でしょう / と思う? Confident: きっと. 'Probably': たぶん, おそらく. Evidence, らしい / ようだ: どうも, どうやら. ようだ / みたい for something that only looks like it: まるで.\n\nQ3. A wish or request, たい / てください? Eager: ぜひ. Pleading: どうか. Offering: どうぞ.\n\nQ4. たら / ば / なら: もし, 万一 ('if by any chance'), 仮に. ても: たとえ, いくら, どんなに (もし〜ても exists, but たとえ is the standard partner).\n\nQ5. のに / のだから about a wasted chance or effort: せっかく.\n\nQ6. An ordinary statement: degree or time words (とても, もう, まだ, やっと).",
    "patterns":["… ない → 全然・あまり・めったに・なかなか・必ずしも・まさか","… だろう / でしょう → きっと・たぶん・おそらく","… らしい / ようだ (evidence) → どうも・どうやら; ようだ (simile) → まるで","… たい / てください → ぜひ・どうか・どうぞ","… たら / ば → もし・万一・仮に; … ても → たとえ・いくら・どんなに","… のに / のだから → せっかく"],
    "examples":[
-    {"jp":"田中[たなか]さんなら{きっと}合格[ごうかく]するでしょう。","en":"Knowing Tanaka, I'm sure he'll pass."},
+    {"jp":"田中[たなか]さんなら{きっと}合格[ごうかく]するでしょう。","en":"Knowing Mr Tanaka, he is sure to pass."},
     {"jp":"{まさか}あの田中[たなか]さんが落[お]ちるとは思[おも]わなかった。","en":"I never imagined that Tanaka, of all people, would fail."},
     {"jp":"{もし}雨[あめ]が降[ふ]ったら、試合[しあい]は中止[ちゅうし]です。","en":"If it rains, the match is cancelled."},
     {"jp":"{たとえ}雨[あめ]が降[ふ]っても、試合[しあい]は行[おこな]います。","en":"Even if it rains, the match will go ahead."},
@@ -14,11 +14,11 @@
     {"jp":"{まるで}夢[ゆめ]を見[み]ているようだ。","en":"It's just like being in a dream."}],
    "contrast":[
     {"vs":"きっと vs まさか","note":"きっと expects that it will happen. まさか expects that it will not, and goes with ないだろう or with とは (思わなかった) when it happened anyway."},
-    {"vs":"もし vs たとえ","note":"Look at the conditional: たら / ば / なら takes もし; ても takes たとえ. 'If' versus 'even if'."},
+    {"vs":"もし vs たとえ","note":"Look at the conditional: たら / ば / なら takes もし; ても normally takes たとえ. 'If' versus 'even if'."},
     {"vs":"どうやら vs まるで","note":"Both can end in ようだ. If it is probably true, judged from evidence, use どうやら; if it is only like something it is not, use まるで."}],
    "mistakes":[
     {"bad":"{ぜひ}行[い]かないでください。","good":"{どうか}行[い]かないでください。","note":"ぜひ wants something to happen and cannot head a negative request; a plea not to do something takes どうか."},
-    {"bad":"{もし}いくら頼[たの]んでも、彼[かれ]は来[こ]ない。","good":"{いくら}頼[たの]んでも、彼[かれ]は来[こ]ない。","note":"A ても clause takes いくら, たとえ or どんなに, never もし."},
-    {"bad":"{きっと}明日[あした]は雨[あめ]が降[ふ]らないかもしれない。","good":"{たぶん}明日[あした]は雨[あめ]が降[ふ]らないだろう。","note":"きっと is near-certain and clashes with かもしれない; a softer guess takes たぶん with だろう."}],
+    {"bad":"{もし}頼[たの]んでも、彼[かれ]は来[こ]ない。","good":"{いくら}頼[たの]んでも、彼[かれ]は来[こ]ない。","note":"'No matter how much I ask' needs いくら (or どんなに); もし only sets up a hypothesis and cannot mean 'however much'."},
+    {"bad":"{まさか}明日[あした]は晴[は]れるでしょう。","good":"{きっと}明日[あした]は晴[は]れるでしょう。","note":"まさか expects that something will not happen; a confident positive guess takes きっと."}],
    "tip":"Cover the adverb and read the last few kana: they tell you which family to reach for."}
  ]}

@@ -238,7 +238,9 @@ function setView(html, { dock = '', title = '' } = {}) {
   <div class="ld-dock pd-dock"${dock ? '' : ' hidden'}>${dock}</div>
 </div>`;
   const heading = document.querySelector('[data-pd-title]');
-  if (heading) heading.textContent = title || t('title', 'Particles');
+  if (heading)
+    heading.textContent =
+      title || (app.course === 'grammar' ? t('hub_grammar', 'Grammar') : t('title', 'Particles'));
   app.root.querySelector('.pd-stage').scrollTop = 0;
 }
 
