@@ -67,3 +67,49 @@ returned within 2 minutes, 37 usable (one answer appended a corrected second JSO
 now takes the last valid one), 20 files written, $0.1239 (estimate $0.12); the serving path
 attached all 37 from the files with the model disabled. Storage reads of cold files took up to
 ~2 s, so the serving read budget was raised to the hydration's 3 s.
+
+## Full Japanese run, 2026-11-27
+
+`scripts/prewrite_explanations_anthropic_batch.py --apply`, Claude Sonnet 5.5, effort medium,
+Message Batches on the owner's key.
+
+| | |
+|---|---|
+| ja senses with spot / pick items | 5,963 (20 had pilot files; 7 more had only items whose own notes already cover every sentence) |
+| Items written | **17,218**: 11,638 spot (every one with its reviewed corrected sentence), 5,580 pick |
+| Items not needing a model | 5,429 pick items whose own English notes explain every sentence |
+| Batches | 4 (5,000 / 5,000 / 5,000 / 2,218), created 01:16 UTC; 3 failed items re-sent in one retry batch; collected 01:29 (~13 min) |
+| Usable answers | **17,218 / 17,218** |
+| Files written | **5,936** (0 senses held back at prepare or collect) |
+| Tokens | 12,464,465 in / 8,127,642 out |
+| Cost | **$53.10** (estimate $52.17; with the pilot $53.23) |
+| Storage after | `explanations/ja/`: 5,956 files, 30 MB; bucket `exercise-content` 195 MB of 1 GB |
+| Database after | 487,017,619 B (464 MiB). Each Storage file also has a `storage.objects` row (~0.5 KB): ~3 MB for these 5,956 |
+
+### Serving check (model calls disabled; `call_llm` patched to raise)
+
+Items served through `exercise_explanations.prefetch` + `prepare_items`, as the session request
+does, after content hydration:
+
+| Sample | Attached | Source |
+|---|---|---|
+| 400 random items the batch wrote | **400 / 400** | 274 spot + 126 pick from files |
+| 400 random active ja items (200 spot, 200 pick, paged past the 1,000-row API cap) | **400 / 400** | 200 spot from files; pick 106 from files, 94 from their own notes |
+
+0 model calls. Every attached item had one entry per sentence; file entries had a meaning and
+an explanation for each.
+
+**Cold reads at the live 3 s budget** (files not yet read by anyone; this container, like the
+Railway app, is far from the Sydney Storage origin, ~1–1.8 s per cold GET; 6 file readers):
+
+| Explainable items per request (≈ distinct senses) | Attached at serve time | Missed, then found by the background job's file re-read |
+|---|---|---|
+| 8 | 192 / 200 (median read 2.15 s) | 8 / 8 |
+| 20 | 138 / 200 (median 3.00 s, the budget) | 62 / 62 |
+
+A miss costs no model call: the background job re-reads the file before generating, and the
+renderer's explanation request waits on that job. Real ja sittings in the last 30 days held
+~9.8 explainable items over **4.6 senses** on average (max 16), so one round of reads usually
+suffices; a file once read is cached in the process (8 MB LRU) and warm at the CDN. If cold
+misses show in production, raise `explanation_files._WORKERS` together with the shared
+HTTP client's connection limit (`concurrency + 4` = 20, shared with the content reader's 16).

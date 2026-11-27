@@ -103,3 +103,7 @@ version and run the Japanese batch"; billing: "Use my Anthropic API key"; model:
   sense is held back for a later run. Reviewed corrected sentences are read in URL-sized chunks.
   Batch creation is never retried blindly (no idempotency key); an unconfirmed create is matched
   to the server's batch list on resume.
+- **Result (Japanese, 2026-11-27):** 17,218 items, all usable; 5,936 files (30 MB with the
+  pilot's 20); 0 senses held back; $53.10. Served with model calls disabled, 400/400 written items
+  and 400/400 random live items were attached ([[evaluations/explanation-storage-2026-11-27]]).
+  Chinese (~19,400 items, ~$59) is the owner's call (TASK-1246).

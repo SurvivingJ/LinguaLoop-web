@@ -149,6 +149,11 @@ Batch writers (dry run unless `--apply`; run directories under the git-ignored
 - `scripts/prewrite_exercise_explanations.py` — the same over OpenRouter, synchronous, with a
   cost cap; sets `LLM_CALLS_DB_LOGGING=false` so 17k calls don't write ~24 MB of `llm_calls`.
 
+State 2026-11-27: every ja spot/pick sense has a file (5,956; Sonnet 5.5; TASK-1244); zh has
+none (TASK-1246). Cold file GETs from the US take ~1–1.8 s; with 6 readers a request over ~8+
+distinct senses can pass the 3 s budget, and those items are then served by the job's re-read,
+not a model ([[evaluations/explanation-storage-2026-11-27]] "Serving check").
+
 ## Configuration
 `EXERCISE_EXPLANATIONS_ENABLED` (True), `EXERCISE_EXPLANATION_MODEL`
 (`deepseek/deepseek-v4.1-flash`), `EXERCISE_EXPLANATION_FALLBACK_MODEL`
