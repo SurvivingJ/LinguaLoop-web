@@ -261,6 +261,18 @@ describe('createRound', () => {
     expect(round.next().entry).toBe('a');
   });
 
+  it('spaces a miss in endless mode too', () => {
+    let n = 0;
+    const round = createRound([], { more: () => 'g' + ++n });
+    const seen = [];
+    for (let k = 0; k < 6; k++) {
+      seen.push(round.current().entry + (round.current().retry ? '*' : ''));
+      round.answer(k !== 0, 1000);
+      round.next();
+    }
+    expect(seen).toEqual(['g1', 'g2', 'g3', 'g4', 'g1*', 'g5']);
+  });
+
   it('never ends in endless mode and keeps the streak', () => {
     let n = 0;
     const round = createRound([], { more: () => 'g' + ++n });
@@ -271,6 +283,6 @@ describe('createRound', () => {
       round.next();
     }
     expect(round.streak()).toBe(3);
-    expect(round.summary()).toMatchObject({ answers: 6, correct: 5, best: 3 });
+    expect(round.summary()).toMatchObject({ answers: 7, correct: 6, best: 3 });
   });
 });

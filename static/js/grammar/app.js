@@ -335,7 +335,7 @@ export function mountGrammar(root, opts = {}) {
           '</div></section>'
       );
     });
-    parts.push(settingsHtml());
+    parts.splice(next ? 1 : 0, 0, settingsHtml());
     root.innerHTML =
       '<div class="ld-screen gd gd--hub"><div class="ld-stage gd-stage">' +
       parts.join('') +
@@ -1284,13 +1284,25 @@ export function mountGrammar(root, opts = {}) {
           '</section>'
       );
     }
-    if (r.missed.length) {
+    // A generator can hand out the same sentence twice: list it once.
+    const missedOnce = [];
+    const listed = new Set();
+    r.missed.forEach(({ item }) => {
+      const key =
+        item.id && !String(item.id).startsWith('gen:')
+          ? item.id
+          : correctSentence(item) + '|' + (item.q || '');
+      if (listed.has(key)) return;
+      listed.add(key);
+      missedOnce.push(item);
+    });
+    if (missedOnce.length) {
       parts.push(
         '<section class="gd-missed"><h2 class="ld-h2">' +
           escapeHtml(t('missed_title', null, 'Items you missed')) +
           '</h2><ul class="gd-exs">' +
-          r.missed
-            .map(({ item }) => {
+          missedOnce
+            .map((item) => {
               const zh = correctSentence(item);
               return (
                 '<li class="gd-ex"><span class="gd-zh" lang="zh">' +

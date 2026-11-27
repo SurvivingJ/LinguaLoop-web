@@ -1,0 +1,276 @@
+/**
+ * static/js/grammar/app.js: the /grammar-drill screens in a DOM. Hub -> topic
+ * (guide) -> a round where a missed item comes back -> results; pinyin on
+ * demand (P); settings kept in the store; a topic with generators only offers
+ * Endless.
+ */
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { mountGrammar } from '../../static/js/grammar/app.js';
+import { createStore } from '../../static/js/grammar/store.js';
+import { CLOZE, CLOZE_NONE, JUDGE_BAD, memoryStorage, seeded } from './fixtures/grammar.js';
+
+const GUIDE = {
+  topic: 'le',
+  summary: 'What 了 does.',
+  subs: [{ key: 'completed-quantified', label: '了 after the verb' }],
+  rules: [
+    {
+      sub: 'completed-quantified',
+      rule: 'Counted object: 了 after the verb.',
+      pattern: 'S + V + 了 + number',
+      examples: [
+        { zh: '我买了三本书。', py: 'wǒ mǎi le sān běn shū', en: 'I bought three books.' },
+      ],
+    },
+  ],
+  contrasts: [
+    {
+      wrong: '我昨天没去了。',
+      right: { zh: '我昨天没去。', py: 'wǒ zuó tiān méi qù', en: "I didn't go yesterday." },
+      why: '没 already says it did not happen.',
+    },
+  ],
+  cheat: ['Counted object? 了 after the verb.'],
+};
+const ITEMS = [CLOZE, CLOZE_NONE, { ...JUDGE_BAD, id: 'le-01-003' }];
+const MANIFEST = {
+  language: 'zh',
+  categories: [{ key: 'aspect', title: 'Aspect and time' }],
+  total: 3,
+  topics: [
+    { slug: 'le', title: '了: completed action', zh: '了', cat: 'aspect', count: 3, v: 'abc' },
+    { slug: 'tone-sandhi', title: 'Tone changes', zh: '变调', cat: 'aspect', count: 0, v: 'def' },
+  ],
+};
+const GEN = {
+  key: 'bu',
+  label: '不',
+  make: () => ({
+    id: 'gen:bu',
+    type: 'cloze',
+    cue: 'Tone of 不',
+    q: '不 + 是 → ___',
+    opts: ['bú', 'bù'],
+    a: 0,
+  }),
+};
+
+const flush = async () => {
+  for (let i = 0; i < 30; i++) await Promise.resolve();
+};
+const press = (key) =>
+  document.dispatchEvent(new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true }));
+
+let root;
+let app;
+let store;
+let fetched;
+
+async function mount(storage = memoryStorage()) {
+  store = createStore(storage);
+  app = mountGrammar(root, {
+    manifestUrl: '/static/data/grammar/zh/manifest.json?v=1',
+    manifest: MANIFEST,
+    store,
+    rng: seeded(11),
+    generators: (slug) => (slug === 'tone-sandhi' ? [GEN] : []),
+  });
+  await flush();
+}
+
+/** Answer the cloze / judge on screen; `right` false picks a wrong answer. */
+function answer(right) {
+  const text = root.querySelector('.gd-item').textContent;
+  const item = ITEMS.find((it) => text.includes(it.en));
+  if (item.type === 'judge') {
+    root
+      .querySelector(`[data-act="judge"][data-ok="${(right ? item.ok : !item.ok) ? 1 : 0}"]`)
+      .click();
+  } else {
+    const want = right ? item.a : item.a === 0 ? 1 : 0;
+    root.querySelectorAll('.gd-opt')[want].click();
+  }
+  return item;
+}
+
+beforeEach(() => {
+  history.replaceState(null, '', location.pathname);
+  root = document.createElement('div');
+  document.body.appendChild(root);
+  fetched = [];
+  vi.stubGlobal(
+    'fetch',
+    vi.fn(async (url) => {
+      fetched.push(String(url));
+      const slug = String(url).split('/').pop().split('.')[0];
+      return {
+        ok: true,
+        json: async () => ({ topic: slug, guide: GUIDE, items: slug === 'le' ? ITEMS : [] }),
+      };
+    })
+  );
+});
+
+afterEach(() => {
+  if (app) app.destroy();
+  root.remove();
+  vi.unstubAllGlobals();
+});
+
+describe('grammar drill app', () => {
+  it('shows the hub with a card per topic and Mixed review closed until something is practised', async () => {
+    await mount();
+    expect(root.querySelectorAll('.gd-topic')).toHaveLength(2);
+    expect(root.querySelector('.gd-topic[data-slug="le"]').textContent).toContain('3 items');
+    expect(root.querySelector('.gd-topic[data-slug="tone-sandhi"]').textContent).toContain(
+      'Endless practice'
+    );
+    expect(root.querySelector('[data-act="mixed"]').disabled).toBe(true);
+    expect(root.querySelector('[data-act="continue"]').dataset.slug).toBe('le');
+  });
+
+  it('opens a topic with its guide, fetched from the versioned topic file', async () => {
+    await mount();
+    root.querySelector('.gd-topic[data-slug="le"]').click();
+    await flush();
+    expect(fetched).toEqual(['/static/data/grammar/zh/le.json?v=abc']);
+    expect(location.hash).toBe('#le');
+    const guide = root.querySelector('.gd-guide');
+    expect(guide.textContent).toContain('What 了 does.');
+    expect(guide.querySelectorAll('ruby').length).toBeGreaterThan(0);
+    expect(root.querySelectorAll('.gd-stagebtn:not(:disabled)')).toHaveLength(1);
+    expect(root.querySelector('[data-act="start"]')).not.toBeNull();
+    expect(root.querySelector('[data-act="endless"]')).toBeNull();
+  });
+
+  it('runs a round: a missed item returns until right, then results and stored progress', async () => {
+    await mount();
+    root.querySelector('.gd-topic[data-slug="le"]').click();
+    await flush();
+    root.querySelector('[data-act="start"]').click();
+    await flush();
+    expect(location.hash).toBe('#le/drill');
+    expect(root.querySelector('.gd-count').textContent).toBe('0 / 3');
+
+    const missed = answer(false);
+    const fb = root.querySelector('.gd-fb');
+    expect(fb.classList.contains('ld-feedback--bad')).toBe(true);
+    expect(fb.textContent).toContain(missed.why);
+    answer(true); // a second answer to the same item is ignored
+    expect(root.querySelector('.gd-fb').classList.contains('ld-feedback--bad')).toBe(true);
+    root.querySelector('[data-act="next"]').click();
+
+    const seen = [missed.id];
+    let guard = 0;
+    while (root.querySelector('.gd--drill') && guard++ < 10) {
+      expect(root.querySelector('.gd-fb')).toBeNull();
+      seen.push(answer(true).id);
+      expect(root.querySelector('.gd-fb').classList.contains('ld-feedback--ok')).toBe(true);
+      press('Enter');
+    }
+    expect(seen).toHaveLength(4); // three items + the missed one again
+    expect(seen.filter((id) => id === missed.id)).toHaveLength(2);
+    expect(seen[3]).toBe(missed.id);
+
+    const results = root.querySelector('.gd--results');
+    expect(results.querySelector('.gd-results__pct').textContent).toBe('67%');
+    expect(results.textContent).toContain('2 of 3 right first time');
+    expect(results.querySelector('.gd-missed').textContent).toContain(missed.en);
+    const view = store.topic('le');
+    expect(view.results[1]).toHaveLength(3);
+    expect(view.results[1].filter((r) => r < 0)).toHaveLength(1);
+    expect(view.items[missed.id.slice(3)][0]).toBe(0);
+  });
+
+  it('shows "(nothing)" for ∅ and answers with number keys', async () => {
+    await mount();
+    root.querySelector('.gd-topic[data-slug="le"]').click();
+    await flush();
+    root.querySelector('[data-act="start"]').click();
+    await flush();
+    let guard = 0;
+    while (!root.querySelector('.gd-item').textContent.includes(CLOZE_NONE.en) && guard++ < 5) {
+      answer(true);
+      press('Enter');
+    }
+    const labels = [...root.querySelectorAll('.gd-opt__text')].map((x) => x.textContent);
+    expect(labels).toEqual(['了', '(nothing)']);
+    expect(root.querySelector('.gd-sentence .gd-blank')).not.toBeNull();
+    press('2');
+    expect(root.querySelector('.gd-fb').classList.contains('ld-feedback--ok')).toBe(true);
+    expect(root.querySelector('.gd-sentence .gd-fill').textContent).toBe('(nothing)');
+  });
+
+  it('keeps pinyin hidden until P, and the answer syllable out of the question', async () => {
+    await mount();
+    root.querySelector('.gd-topic[data-slug="le"]').click();
+    await flush();
+    root.querySelector('[data-act="start"]').click();
+    await flush();
+    const screen = () => root.querySelector('.gd--drill');
+    expect(screen().classList.contains('is-py')).toBe(false);
+    press('p');
+    expect(screen().classList.contains('is-py')).toBe(true);
+    expect(root.querySelector('.gd-pybtn').getAttribute('aria-pressed')).toBe('true');
+    let guard = 0;
+    while (!root.querySelector('.gd-item').textContent.includes(CLOZE.en) && guard++ < 5) {
+      answer(true);
+      press('Enter');
+    }
+    // A new item starts with pinyin hidden again (the setting is off).
+    const rts = () => [...root.querySelectorAll('.gd-sentence rt')].map((x) => x.textContent);
+    expect(rts()).toEqual(['wǒ', 'zuó', 'tiān', 'mǎi', 'sān', 'běn', 'shū']);
+    answer(true);
+    expect(rts()).toContain('le');
+  });
+
+  it('remembers the settings and starts items with pinyin when "always" is on', async () => {
+    const storage = memoryStorage();
+    await mount(storage);
+    const sw = root.querySelector('[data-act="setting"][data-name="pinyin"]');
+    expect(sw.getAttribute('aria-checked')).toBe('false');
+    sw.click();
+    expect(sw.getAttribute('aria-checked')).toBe('true');
+    expect(createStore(storage).settings()).toEqual({ pinyin: true, typing: false });
+    root.querySelector('.gd-topic[data-slug="le"]').click();
+    await flush();
+    root.querySelector('[data-act="start"]').click();
+    await flush();
+    expect(root.querySelector('.gd--drill').classList.contains('is-py')).toBe(true);
+  });
+
+  it('offers Endless for a topic with generators only and never stores generated items', async () => {
+    await mount();
+    root.querySelector('.gd-topic[data-slug="tone-sandhi"]').click();
+    await flush();
+    expect(root.querySelector('[data-act="start"]')).toBeNull();
+    root.querySelector('[data-act="endless"]').click();
+    await flush();
+    expect(location.hash).toBe('#tone-sandhi/endless');
+    expect(root.querySelector('.gd-cue').textContent).toBe('Tone of 不');
+    for (let k = 0; k < 4; k++) {
+      root.querySelectorAll('.gd-opt')[0].click();
+      root.querySelector('[data-act="next"]').click();
+    }
+    expect(root.querySelector('.gd-live').textContent).toContain('Streak 4');
+    root.querySelector('[data-act="stop"]').click();
+    expect(root.querySelector('.gd--results').textContent).toContain('4 of 4 right first time');
+    const view = store.topic('tone-sandhi');
+    expect(view.endless).toEqual({ answers: 4, correct: 4, best: 4 });
+    expect(view.items).toEqual({});
+  });
+
+  it('opens the guide over a drill and closes it with Escape', async () => {
+    await mount();
+    root.querySelector('.gd-topic[data-slug="le"]').click();
+    await flush();
+    root.querySelector('[data-act="start"]').click();
+    await flush();
+    root.querySelector('[data-act="guide"]').click();
+    expect(root.querySelector('.gd-sheet .gd-guide')).not.toBeNull();
+    press('1'); // keys do not answer behind the guide
+    expect(root.querySelector('.gd-fb')).toBeNull();
+    press('Escape');
+    expect(root.querySelector('.gd-sheet')).toBeNull();
+  });
+});

@@ -49,6 +49,12 @@ export function createRound(entries, { gap = RETRY_GAP, more = null } = {}) {
       streak = ok ? streak + 1 : 0;
       best = Math.max(best, streak);
       if (!ok) {
+        // An endless stream holds one item at a time: draw the ones that go in between.
+        while (more && queue.length < pos + 1 + gap) {
+          const entry = more();
+          if (!entry) break;
+          queue.push({ entry, retry: false });
+        }
         const at = Math.min(queue.length, pos + 1 + gap);
         queue.splice(at, 0, { entry: cur.entry, retry: true });
       }

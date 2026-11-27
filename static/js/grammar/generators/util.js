@@ -230,3 +230,9 @@ export function fillEn(tpl, subj) {
     .replace(/\{dont\}/g, dont(subj))
     .replace(/\[([^\]]+)\]/g, (_m, phrase) => vb(subj, phrase));
 }
+
+/** English possessive for a subject, lower case ("my", "his", "my mom's"). */
+export function poss(subj) {
+  const fixed = { I: 'my', He: 'his', She: 'her', We: 'our', They: 'their' }[subj.en];
+  return fixed || `${subj.obj}'s`;
+}

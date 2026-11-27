@@ -39,6 +39,8 @@ export function loadTopic(manifestUrl, topic) {
   return topicCache.get(url);
 }
 
+// Held in a variable so that tooling does not require the optional file to exist.
+const GENERATORS_MODULE = './generators/index.js';
 let generatorsModule;
 
 /**
@@ -48,7 +50,7 @@ let generatorsModule;
 export async function loadGenerators() {
   if (generatorsModule === undefined) {
     try {
-      generatorsModule = await import('./generators/index.js');
+      generatorsModule = await import(/* @vite-ignore */ GENERATORS_MODULE);
     } catch {
       generatorsModule = null;
     }
