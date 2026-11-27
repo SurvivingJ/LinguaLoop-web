@@ -1002,9 +1002,13 @@ def full_result(db, user_id: str, submission_id: int) -> dict:
     return contract
 
 
-def _due_items(db, user_id: str, language_id: int, *, write: bool) -> list:
+def _due_items(db, user_id: str, language_id: int, *, write: bool,
+               today: Optional[str] = None) -> list:
+    """``today``: the learner's ISO date when the caller already has it (a
+    pool thread cannot reach the per-request plan cache, so reading it again
+    here cost the daily session one more round trip)."""
     now = _now()
-    local_today = _local_today(db, user_id, language_id)
+    local_today = date.fromisoformat(today) if today else _local_today(db, user_id, language_id)
     if write:
         try:
             store.expire_items(db, user_id, language_id, _iso(now))
@@ -1042,7 +1046,7 @@ def count_due(db, user_id: str, language_id: int, today: Optional[str] = None) -
     if not settings.DT_GUIDED_REPAIR or not store.tables_available():
         return 0
     try:
-        return len(_due_items(db, user_id, language_id, write=False))
+        return len(_due_items(db, user_id, language_id, write=False, today=today))
     except Exception as exc:  # noqa: BLE001
         if store.is_missing_table_error(exc):
             store.note_missing_tables(exc)

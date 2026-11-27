@@ -46,6 +46,15 @@ document.getElementById('get-started-btn').addEventListener('click', function (e
       .catch((err) => console.error('set native-language failed:', err));
   }
 
+  // Tell the language page that this is onboarding, so it asks "Have you
+  // studied {language} before?" and can offer the placement (vocab-placement
+  // tech §8, TASK-1085). Per tab only; the language page removes it.
+  try {
+    sessionStorage.setItem('ld_onboarding', '1');
+  } catch (_) {
+    /* non-fatal */
+  }
+
   // Optimistically update cached user_data so a refresh of /welcome
   // doesn't strand them here.
   try {

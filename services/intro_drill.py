@@ -307,19 +307,35 @@ def word_formats(stage: int, lang: str, has_reading: bool, has_sentence: bool,
 
 def _distractor_pool(db, language_id: int, gloss_lang: Optional[int], near_ids: List[int],
                      exclude: set, n: int = 24) -> List[dict]:
-    """Other senses of the same language for multiple-choice options."""
+    """Other senses of the same language for multiple-choice options.
+
+    The first ``n * 3`` gloss rows from ``min(near_ids) - 400`` on, in id order.
+    Served from the process-wide gloss pool (definition_serving) when it is
+    loaded, which spares a query that took up to 2.7 s from production
+    (2026-11-26); the query is the fallback.
+    """
     if not near_ids:
         return []
-    try:
-        q = db.table('dim_word_senses').select(
-            'id, definition, definition_language_id, dim_vocabulary!inner(lemma, language_id, part_of_speech)'
-        ).eq('dim_vocabulary.language_id', language_id).gte('id', max(0, min(near_ids) - 400))
-        if gloss_lang:
-            q = q.eq('definition_language_id', gloss_lang)
-        rows = q.order('id').limit(n * 3).execute().data or []
-    except Exception as e:
-        logger.warning('intro distractor pool failed: %s', e)
-        return []
+    start = max(0, min(near_ids) - 400)
+    rows: Optional[List[dict]] = None
+    if gloss_lang:
+        from services.vocabulary_ladder import definition_serving
+        cached = definition_serving.get_pool(db, int(language_id), int(gloss_lang))
+        if cached is not None and cached.ok:
+            rows = [{'id': rid, 'definition': text,
+                     'dim_vocabulary': {'lemma': lemma, 'part_of_speech': pos}}
+                    for rid, lemma, text, pos in cached.rows_from(start, n * 3)]
+    if rows is None:
+        try:
+            q = db.table('dim_word_senses').select(
+                'id, definition, definition_language_id, dim_vocabulary!inner(lemma, language_id, part_of_speech)'
+            ).eq('dim_vocabulary.language_id', language_id).gte('id', start)
+            if gloss_lang:
+                q = q.eq('definition_language_id', gloss_lang)
+            rows = q.order('id').limit(n * 3).execute().data or []
+        except Exception as e:
+            logger.warning('intro distractor pool failed: %s', e)
+            return []
     out, seen = [], set()
     for r in rows:
         lemma = (r.get('dim_vocabulary') or {}).get('lemma')
@@ -332,16 +348,9 @@ def _distractor_pool(db, language_id: int, gloss_lang: Optional[int], near_ids: 
     return out[:n]
 
 
-def build_block(db, user_id: str, language_id: int, rows: List[dict]) -> Optional[dict]:
-    """The ``intro_drill`` payload for the selected rows (None when empty)."""
-    if not rows:
-        return None
-    from services import prestudy
-    from services.vocabulary.gloss_lookup import get_user_definition_language_id
-    lang = LANG_CODE.get(int(language_id), 'en')
-    gloss_lang = get_user_definition_language_id(db, user_id)
-    sids = [int(r['sense_id']) for r in rows]
-    senses = prestudy._load_senses(db, sids, gloss_lang)
+def _block_exercises(db, language_id: int, sids: List[int], gloss_lang: Optional[int]) -> List[dict]:
+    """The block words' ladder exercises, with content, ready for the learner."""
+    from services.vocabulary_ladder import definition_serving
     ex_rows = list(
         db.table('exercises')
         .select(store.select_columns('id, word_sense_id, exercise_type, {content}, ladder_level'))
@@ -351,6 +360,42 @@ def build_block(db, user_id: str, language_id: int, rows: List[dict]) -> Optiona
     # own). An exercise whose content cannot be found is dropped here, so the
     # word is drilled with the formats it still has.
     store.hydrate(ex_rows, language_id=int(language_id))
+    # definition_match options in the learner's language (2026-11-26); an
+    # item that cannot be shown in it is dropped like a missing one.
+    definition_serving.localise(db, ex_rows, language_id=int(language_id),
+                                nl_language_id=gloss_lang, sense_key='word_sense_id')
+    # Spot-the-error feedback in the learner's language (ADR-064).
+    from services import exercise_explanations
+    exercise_explanations.prepare_items(db, ex_rows, language_id=int(language_id),
+                                        nl_language_id=gloss_lang, id_key='id')
+    return ex_rows
+
+
+def build_block(db, user_id: str, language_id: int, rows: List[dict],
+                gloss_lang: Optional[int] = None) -> Optional[dict]:
+    """The ``intro_drill`` payload for the selected rows (None when empty).
+
+    ``gloss_lang``: the learner's definition language when the caller already
+    has it (else it is read). The three reads below depend only on the words
+    and that language, so they run concurrently.
+    """
+    if not rows:
+        return None
+    from services import prestudy
+    from services.concurrency import run_parallel
+    from services.vocabulary.gloss_lookup import get_user_definition_language_id
+    lang = LANG_CODE.get(int(language_id), 'en')
+    if gloss_lang is None:
+        gloss_lang = get_user_definition_language_id(db, user_id)
+    sids = [int(r['sense_id']) for r in rows]
+    # Resolved on the request thread: _today reads the plan through the
+    # per-request cache, which a pool thread cannot see.
+    block_id = f"intro-{_today(db, user_id, language_id).isoformat()}"
+    senses, ex_rows, pool = run_parallel(
+        lambda: prestudy._load_senses(db, sids, gloss_lang),
+        lambda: _block_exercises(db, language_id, sids, gloss_lang),
+        lambda: _distractor_pool(db, language_id, gloss_lang, sids, set(sids)),
+    )
     by_sense: Dict[int, Dict[str, list]] = {}
     for e in ex_rows:
         by_sense.setdefault(int(e['word_sense_id']), {}).setdefault(EX_GROUPS[e['exercise_type']], []).append({
@@ -381,10 +426,9 @@ def build_block(db, user_id: str, language_id: int, rows: List[dict]) -> Optiona
         })
     if not words:
         return None
-    pool = _distractor_pool(db, language_id, gloss_lang, sids, set(sids))
     items = sum(INTRO_STAGE_ITEMS_EST[w['stage']] for w in words)
     return {
-        'id': f"intro-{_today(db, user_id, language_id).isoformat()}",
+        'id': block_id,
         'language_id': int(language_id), 'lang': lang,
         'words': words, 'pool': pool,
         'est_minutes': max(1, int(math.ceil(items * INTRO_ITEM_SECONDS / 60.0))),
@@ -399,14 +443,16 @@ def stage1_slots(service, user_id: str, language_id: int) -> int:
     return max(0, int(state['effective']) - int(state['started_today']))
 
 
-def block_for_session(service, user_id: str, language_id: int, mode: str) -> Optional[dict]:
+def block_for_session(service, user_id: str, language_id: int, mode: str,
+                      gloss_lang: Optional[int] = None) -> Optional[dict]:
     db = service.db
     today = _today(db, user_id, language_id)
     rows = due_rows(db, user_id, language_id, today)
     if not rows:
         return None
     slots = stage1_slots(service, user_id, language_id) if mode in ('acquisition', 'auto') else 0
-    return build_block(db, user_id, language_id, select_block_rows(rows, mode, slots))
+    return build_block(db, user_id, language_id, select_block_rows(rows, mode, slots),
+                       gloss_lang=gloss_lang)
 
 
 # ---------------------------------------------------------------------------

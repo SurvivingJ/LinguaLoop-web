@@ -60,6 +60,19 @@ def put(key: Hashable, value: Any) -> None:
         store[key] = value
 
 
+MISSING = _MISSING
+
+
+def peek(key: Hashable, default: Any = _MISSING) -> Any:
+    """The value cached for ``key`` in this GET, or ``default`` (``MISSING``
+    unless given) when nothing is: lets a caller about to hand work to a pool
+    thread pass along a row this request already read."""
+    store = _store()
+    if store is None:
+        return default
+    return store.get(key, default)
+
+
 def invalidate(*prefix: Any) -> None:
     """Drop every cached entry whose key is a tuple starting with ``prefix``."""
     if not has_request_context():

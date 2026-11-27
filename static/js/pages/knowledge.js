@@ -371,7 +371,8 @@
       }
       body.appendChild(node('p', 'kn-headline kn-headline--soft', text));
       const actions = node('div', 'kn-actions');
-      actions.appendChild(linkButton('/calibration', tr('knowledge.state.empty_check')));
+      actions.appendChild(linkButton('/placement', tr('knowledge.state.empty_placement')));
+      actions.appendChild(linkButton('/calibration', tr('knowledge.state.empty_check'), true));
       body.appendChild(actions);
     }
 

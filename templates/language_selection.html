@@ -57,11 +57,27 @@
         </button>
 
     </div>
+
+    {# Onboarding gate (vocab-placement tech §8, TASK-1085): shown by
+       language-selection.js only when the learner arrives from /welcome and
+       has picked a language. "Yes" offers the placement in the dock; the other
+       answers change nothing. No answer is stored. #}
+    <section class="lang-gate ld-card" id="langGate" hidden aria-labelledby="langGateTitle">
+        <h2 class="ld-h2 lang-gate__title" id="langGateTitle"></h2>
+        <div class="ld-seg lang-gate__options" role="radiogroup" aria-labelledby="langGateTitle">
+            <button type="button" role="radio" aria-checked="false" data-studied="yes" data-i18n="onboarding.studied_yes">Yes</button>
+            <button type="button" role="radio" aria-checked="false" data-studied="few" data-i18n="onboarding.studied_few">Only a few words</button>
+            <button type="button" role="radio" aria-checked="false" data-studied="no" data-i18n="onboarding.studied_no">No</button>
+        </div>
+        <p class="ld-small ld-muted lang-gate__hint" id="langGateHint" hidden role="status"></p>
+    </section>
 </div>
 {% endblock %}
 
 {# Primary CTA: Daily Session (with Browse Tests as secondary) #}
 {% block dock %}
+<a id="placement-btn" class="ld-btn" href="{{ url_for('placement_page') }}" hidden
+   data-placement-url="{{ url_for('placement_page') }}" data-i18n="onboarding.placement_cta">Take the placement test</a>
 <button id="continue-btn" class="ld-btn" disabled data-i18n="lang_select.start_session"
         data-session-url="{{ url_for('study_session_page') }}">
     Start Daily Session

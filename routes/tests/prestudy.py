@@ -89,7 +89,10 @@ def get_test_prestudy_exercises(identifier):
     if not test:
         return not_found("Test not found")
     requested = [int(t) for t in tokens if t.isascii() and t.isdigit()]
-    served, exercises = prestudy.on_demand_exercises(db, test, requested)
+    from services.vocabulary.gloss_lookup import get_user_definition_language_id
+    served, exercises = prestudy.on_demand_exercises(
+        db, test, requested,
+        nl_language_id=get_user_definition_language_id(db, g.current_user_id))
     return api_success(data={'sense_ids': served, 'exercises': exercises})
 
 

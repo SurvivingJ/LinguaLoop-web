@@ -99,6 +99,13 @@ JOBS = (
     Job('placement_close_stale_nightly',
         'services.calibration_placement:run_nightly_close',
         {'hour': 4, 'minute': 30}, 'Placement close stale', _log_skippable),
+    # Sun 03:40 llm_calls archive: rows older than LLM_CALLS_ARCHIVE_KEEP_DAYS go
+    # to Storage (llm-logs-archive) and leave the table; one worker claims the
+    # week's cutoff with a Storage marker, the other skips.
+    Job('llm_calls_archive_weekly',
+        'services.llm_calls_archive:run_weekly',
+        {'day_of_week': 'sun', 'hour': 3, 'minute': 40}, 'llm_calls archive', _log_skippable,
+        _admin_client),
     Job('study_plan_weekly_recompute',
         'services.study_plan_service:_run_weekly_plan_recompute',
         {'day_of_week': 'sun', 'hour': 23, 'minute': 0}, 'Weekly Study Plan recompute'),
