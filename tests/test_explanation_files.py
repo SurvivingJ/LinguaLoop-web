@@ -560,3 +560,24 @@ def test_the_orphan_sweep_never_lists_or_deletes_explanation_files(mem, tmp_path
     listed = [StoredObject(p, 2, old) for p in kept] + [StoredObject('ja/5.v0.json', 2, old)]
     groups = sweep.classify(listed, {}, 'ja', now, timedelta(hours=24))
     assert [o.path for o in groups['delete']] == ['ja/5.v0.json']
+
+
+def test_a_background_job_serves_a_file_the_request_read_missed(mem, no_model):
+    """Review finding 6 (2026-11-27): when the request's file read missed its deadline the
+    item was queued for generation; the job now reads the sense's file first and pays
+    for no model call when the pre-written entry is there."""
+    seed_file(mem, {EID: entry()})
+    item = spot()
+    fut = xe._start(None, EID, item['content'], 0, JA, EN, xe.SPOT, SENSE)
+    got = fut.result(timeout=5)
+    assert got == payload()
+    again = [spot()]
+    xe.prepare_items(None, again, language_id=JA, nl_language_id=EN, warm_limit=0)
+    assert again[0]['content']['option_explanations'][2]['correction'] == '人間は言葉を使う。'
+
+
+def test_a_background_job_generates_when_the_file_is_for_another_content_version(mem, model):
+    seed_file(mem, {EID: entry(version=3)})
+    item = spot(version=0)
+    got = xe._start(None, EID, item['content'], 0, JA, EN, xe.SPOT, SENSE).result(timeout=5)
+    assert got['sentences'][0]['meaning'] == answer()['sentences'][0]['meaning']

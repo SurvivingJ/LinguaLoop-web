@@ -25,7 +25,6 @@ from dataclasses import dataclass
 from typing import Any, Optional
 
 from services import exercise_explanations as xe
-from services.llm_output_cleaner import clean_json_response
 
 API_BASE_URL = 'https://api.anthropic.com'
 KEY_ENV = 'CLAUDE_API'
@@ -79,14 +78,34 @@ def payload_from_message(msg: Any, content: dict, nl_language_id: int, exercise_
     if getattr(msg, 'stop_reason', None) not in ('end_turn', 'stop_sequence'):
         return None
     text = ''.join(b.text for b in msg.content if getattr(b, 'type', '') == 'text')
-    try:
-        raw = json.loads(clean_json_response(text))
-    except (ValueError, TypeError):
-        return None
-    entries = xe.parse(raw, xe.sentences_of(content), nl_language_id, exercise_type, corrected)
-    if entries is None:
-        return None
-    return {'sentences': entries, 'prompt_version': xe.PROMPT_VERSION}
+    sents = xe.sentences_of(content)
+    # The model now and then writes its JSON, notices a slip and writes a
+    # corrected JSON after it ("Wait, ... Here is the corrected JSON:", pilot
+    # 2026-11-27): the last object that validates is its final answer.
+    for raw in reversed(json_objects(text)):
+        entries = xe.parse(raw, sents, nl_language_id, exercise_type, corrected)
+        if entries is not None:
+            return {'sentences': entries, 'prompt_version': xe.PROMPT_VERSION}
+    return None
+
+
+def json_objects(text: str) -> list:
+    """Every top-level JSON object in ``text``, in order (code fences and prose between them ignored)."""
+    decoder = json.JSONDecoder()
+    out, pos = [], 0
+    text = text or ''
+    while True:
+        start = text.find('{', pos)
+        if start < 0:
+            return out
+        try:
+            obj, end = decoder.raw_decode(text, start)
+        except ValueError:
+            pos = start + 1
+            continue
+        if isinstance(obj, dict):
+            out.append(obj)
+        pos = end
 
 
 @dataclass

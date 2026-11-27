@@ -68,6 +68,7 @@ DEFAULT_MAX_USD = 80.0
 BATCH_SIZE = 5000              # requests per Message Batch (the API allows 100,000 / 256 MB)
 POLL_S = 60
 FETCH_WORKERS = 16
+WRITE_WORKERS = 16
 # Measured 2026-11-27 (20 ja items, effort medium), standard price per item;
 # the Batches API bills half.
 MEASURED_COST_PER_ITEM = {'claude-opus-5-5': 0.01736, 'claude-sonnet-5-5': 0.00606,
@@ -111,8 +112,35 @@ def existing_senses(language_id: int, nl_language_id: int) -> set[int]:
     return out
 
 
+def corrections_for(db, sense_ids: list[int], say) -> dict[int, list[dict]]:
+    """sense_id -> level_7 blocks, read in chunks (an ``in.()`` list of thousands of ids
+    is too long for the gateway URL); a chunk that fails is read one sense at a time."""
+    out: dict[int, list[dict]] = {}
+    failed: list[int] = []
+    for i in range(0, len(sense_ids), pw.CHUNK_SENSES):
+        chunk = sense_ids[i:i + pw.CHUNK_SENSES]
+        got = pw.load_corrections(db, chunk)
+        if got is None:
+            failed.extend(chunk)
+        else:
+            out.update(got)
+    for sid in failed:
+        rows = db.table('word_assets').select('content').eq('sense_id', sid) \
+            .in_('asset_type', pw.TRANSFORM_ASSETS).execute().data or []
+        out[sid] = [r['content']['level_7'] for r in rows
+                    if isinstance((r.get('content') or {}).get('level_7'), dict)]
+    if failed:
+        say(f'corrections: {len(failed)} senses read one at a time after a chunk failed')
+    return out
+
+
 def prepare(db, args, language_id: int, nl_language_id: int, run_dir: str, say) -> dict:
-    """Write manifest.jsonl (one line per item to write) and prepare.json (counts)."""
+    """Write manifest.jsonl (one line per item to write) and prepare.json (counts).
+
+    A sense is prepared whole or not at all: if any of its items' content cannot
+    be read, the sense is left for a later run (a file is immutable, so writing it
+    without that item would leave the item out for good).
+    """
     sense_ids = [int(s) for s in args.sense_ids.split(',')] if args.sense_ids else None
     rows = pw.list_items(db, language_id, list(xe.TYPES), sense_ids)
     units, no_sense = pw.group_by_sense(rows)
@@ -122,7 +150,9 @@ def prepare(db, args, language_id: int, nl_language_id: int, run_dir: str, say) 
         todo = todo[:args.limit_senses]
     say(f'{len(rows)} items in {len(units)} senses; {len(have)} senses already have a file; '
         f'{len(todo)} to prepare')
-    corrections = pw.load_corrections(db, [u.sense_id for u in todo]) or {}
+    spot_senses = sorted({u.sense_id for u in todo
+                          if any(i['exercise_type'] == xe.SPOT for i in u.items)})
+    corrections = corrections_for(db, spot_senses, say)
 
     def contents(unit):
         out = {}
@@ -138,13 +168,17 @@ def prepare(db, args, language_id: int, nl_language_id: int, run_dir: str, say) 
 
     counts: Counter = Counter()
     lines = []
+    held_back = []
     with ThreadPoolExecutor(FETCH_WORKERS) as pool:
         for unit, got in pool.map(contents, todo):
+            missing = [i['id'] for i in unit.items if i['id'] not in got]
+            if missing:
+                counts['content_unavailable'] += len(missing)
+                held_back.append({'sense_id': unit.sense_id, 'reason': 'content_unavailable',
+                                  'exercise_ids': missing})
+                continue
             for item in unit.items:
-                content = got.get(item['id'])
-                if content is None:
-                    counts['content_unavailable'] += 1
-                    continue
+                content = got[item['id']]
                 sents = xe.sentences_of(content)
                 if sents is None:
                     counts['skipped_not_explainable'] += 1
@@ -152,8 +186,10 @@ def prepare(db, args, language_id: int, nl_language_id: int, run_dir: str, say) 
                 if xe.stored_entries(sents, nl_language_id) is not None:
                     counts['skipped_stored_notes'] += 1
                     continue
-                corrected = (pw.match_correction(corrections.get(unit.sense_id, []), content)
-                             if item['exercise_type'] == xe.SPOT else None)
+                corrected = None
+                if item['exercise_type'] == xe.SPOT:
+                    corrected = pw.match_correction(corrections.get(unit.sense_id, []), content)
+                    counts['spot_with_correction' if corrected else 'spot_without_correction'] += 1
                 lines.append({'custom_id': item['id'], 'sense_id': unit.sense_id,
                               'exercise_type': item['exercise_type'],
                               'content_version': item['content_version'],
@@ -166,11 +202,16 @@ def prepare(db, args, language_id: int, nl_language_id: int, run_dir: str, say) 
     info = {'prepared_at': now_iso(), 'language_id': language_id, 'nl_language_id': nl_language_id,
             'model': args.model, 'effort': args.effort, 'prompt_version': xe.PROMPT_VERSION,
             'senses_total': len(units), 'senses_with_file': len(have), 'senses_prepared': len(todo),
-            'rows_without_sense': no_sense, 'items': dict(counts),
-            'estimate_usd': round(len(lines) * MEASURED_COST_PER_ITEM.get(args.model, 0.02) / 2, 2)}
+            'senses_held_back': held_back, 'rows_without_sense': no_sense, 'items': dict(counts),
+            'estimate_usd': estimate_usd(args.model, len(lines))}
     save_json(os.path.join(run_dir, 'prepare.json'), info)
-    say(f"items: {dict(counts)}; estimate ${info['estimate_usd']} (batch price, {args.model})")
+    say(f"items: {dict(counts)}; {len(held_back)} senses held back; "
+        f"estimate ${info['estimate_usd']} (batch price, {args.model})")
     return info
+
+
+def estimate_usd(model: str, n_requests: int) -> float:
+    return round(n_requests * MEASURED_COST_PER_ITEM.get(model, 0.02) / 2, 2)
 
 
 def read_manifest(run_dir: str) -> list[dict]:
@@ -183,26 +224,88 @@ def item_content(rec: dict) -> dict:
 
 
 # ---------------------------------------------------------------------------
-# submit
+# submit (state in batches.json: {"batches": [...], "pending": {...}|null,
+#          "retry": [...], "ledger_written": bool})
 # ---------------------------------------------------------------------------
 
-def submit(client, manifest: list[dict], info: dict, run_dir: str, say) -> list[str]:
-    path = os.path.join(run_dir, 'batches.json')
-    state = load_json(path, {'batches': []})
+def load_state(run_dir: str) -> dict:
+    state = load_json(os.path.join(run_dir, 'batches.json'), {}) or {}
+    state.setdefault('batches', [])
+    state.setdefault('retry', [])
+    state.setdefault('pending', None)
+    state.setdefault('ledger_written', False)
+    return state
+
+
+def save_state(run_dir: str, state: dict) -> None:
+    save_json(os.path.join(run_dir, 'batches.json'), state)
+
+
+def build_requests(records: list[dict], info: dict) -> list[dict]:
+    requests = []
+    for rec in records:
+        params = xa.request_params(item_content(rec), info['language_id'], info['nl_language_id'],
+                                   rec['exercise_type'], rec.get('corrected'), info['model'],
+                                   info['effort'])
+        requests.append({'custom_id': rec['custom_id'], 'params': params})
+    return requests
+
+
+def adopt_pending(client, pending: dict, known: set[str], say) -> Optional[str]:
+    """The batch a create whose response was lost may have made: one not already
+    recorded (``known``), created after the marker (2 s clock allowance), with the
+    same number of requests. None when there is none."""
+    since = datetime.fromisoformat(pending['marked_at']).timestamp() - 2
+    found = []
+    for b in client.messages.batches.list(limit=50):
+        if b.id in known:
+            continue
+        created = b.created_at.timestamp() if hasattr(b.created_at, 'timestamp') else 0
+        rc = b.request_counts
+        total = rc.processing + rc.succeeded + rc.errored + rc.canceled + rc.expired
+        if created >= since and total == pending['count']:
+            found.append(b.id)
+    if len(found) > 1:
+        raise SystemExit(f'several batches match the unconfirmed submission {pending}: {found}; '
+                         'resolve by hand (cancel duplicates) before resuming')
+    if found:
+        say(f'adopted batch {found[0]} from an unconfirmed submission')
+    return found[0] if found else None
+
+
+def create_batch(client, records: list[dict], info: dict, run_dir: str, state: dict,
+                 kind: str, start: int, say) -> str:
+    """One Message Batch, recorded so that a lost response or a crash can't bill twice."""
+    pending = state.get('pending')
+    if pending and pending['kind'] == kind and pending['start'] == start:
+        known = {b['id'] for b in state['batches'] + state['retry']}
+        adopted = adopt_pending(client, pending, known, say)
+        if adopted:
+            batch_id = adopted
+            state['pending'] = None
+            state['retry' if kind == 'retry' else 'batches'].append(
+                {'id': batch_id, 'start': start, 'count': len(records), 'created_at': now_iso()})
+            save_state(run_dir, state)
+            return batch_id
+    state['pending'] = {'kind': kind, 'start': start, 'count': len(records), 'marked_at': now_iso()}
+    save_state(run_dir, state)
+    # No automatic retry: the SDK sends no idempotency key, so a retried create
+    # after a lost response would make (and bill) a second batch.
+    batch = client.with_options(max_retries=0).messages.batches.create(
+        requests=build_requests(records, info))
+    state['pending'] = None
+    state['retry' if kind == 'retry' else 'batches'].append(
+        {'id': batch.id, 'start': start, 'count': len(records), 'created_at': now_iso()})
+    save_state(run_dir, state)
+    say(f'submitted {kind} batch {batch.id}: {len(records)} requests')
+    return batch.id
+
+
+def submit(client, manifest: list[dict], info: dict, run_dir: str, state: dict, say) -> list[str]:
     done = sum(b['count'] for b in state['batches'])
     for start in range(done, len(manifest), BATCH_SIZE):
-        chunk = manifest[start:start + BATCH_SIZE]
-        requests = []
-        for rec in chunk:
-            params = xa.request_params(item_content(rec), info['language_id'], info['nl_language_id'],
-                                       rec['exercise_type'], rec.get('corrected'), info['model'],
-                                       info['effort'])
-            requests.append({'custom_id': rec['custom_id'], 'params': params})
-        batch = client.messages.batches.create(requests=requests)
-        state['batches'].append({'id': batch.id, 'start': start, 'count': len(chunk),
-                                 'created_at': now_iso()})
-        save_json(path, state)
-        say(f'submitted batch {batch.id}: {len(chunk)} requests ({start + len(chunk)}/{len(manifest)})')
+        create_batch(client, manifest[start:start + BATCH_SIZE], info, run_dir, state, 'main',
+                     start, say)
     return [b['id'] for b in state['batches']]
 
 
@@ -225,14 +328,9 @@ def wait_until_ended(client, batch_ids: list[str], say) -> None:
         time.sleep(POLL_S)
 
 
-def collect(client, manifest: list[dict], info: dict, batch_ids: list[str], run_dir: str,
-            say) -> dict:
-    by_id = {rec['custom_id']: rec for rec in manifest}
-    per_sense: dict[int, dict[str, dict]] = defaultdict(dict)
-    outcomes: Counter = Counter()
-    failures = []
-    tokens = Counter()
-    cost = 0.0
+def gather(client, by_id: dict, info: dict, batch_ids: list[str], tally: dict) -> dict[str, dict]:
+    """exercise_id -> {'payload', 'model'} for usable answers; failures in ``tally``."""
+    usable: dict[str, dict] = {}
     for batch_id in batch_ids:
         for entry in client.messages.batches.results(batch_id):
             rec = by_id.get(entry.custom_id)
@@ -240,57 +338,115 @@ def collect(client, manifest: list[dict], info: dict, batch_ids: list[str], run_
                 continue
             kind = entry.result.type
             if kind != 'succeeded':
-                outcomes[kind] += 1
-                failures.append({'exercise_id': rec['custom_id'], 'sense_id': rec['sense_id'],
-                                 'reason': kind})
+                tally['failed'][entry.custom_id] = kind
                 continue
             msg = entry.result.message
-            tokens.update(input=msg.usage.input_tokens, output=msg.usage.output_tokens)
-            cost += xa.cost_usd(info['model'], msg.usage.input_tokens, msg.usage.output_tokens,
-                                batch=True)
+            tally['tokens'].update(input=msg.usage.input_tokens, output=msg.usage.output_tokens)
+            tally['cost'] += xa.cost_usd(info['model'], msg.usage.input_tokens,
+                                         msg.usage.output_tokens, batch=True)
             payload = xa.payload_from_message(msg, item_content(rec), info['nl_language_id'],
                                               rec['exercise_type'], rec.get('corrected'))
             if payload is None:
-                outcomes['unusable'] += 1
-                failures.append({'exercise_id': rec['custom_id'], 'sense_id': rec['sense_id'],
-                                 'reason': f'unusable ({msg.stop_reason})'})
+                tally['failed'][entry.custom_id] = f'unusable ({msg.stop_reason})'
                 continue
-            outcomes['usable'] += 1
-            per_sense[rec['sense_id']][rec['custom_id']] = {
-                'content_version': rec['content_version'], 'model': msg.model, 'payload': payload}
-    written = Counter()
-    for sense_id, exercises in sorted(per_sense.items()):
-        status = 'write_failed'
+            tally['failed'].pop(entry.custom_id, None)
+            usable[entry.custom_id] = {'payload': payload, 'model': msg.model}
+    return usable
+
+
+def current_versions(db, exercise_ids: list[str]) -> dict[str, int]:
+    """exercise_id -> content_version now (inactive rows are left out)."""
+    out: dict[str, int] = {}
+    for i in range(0, len(exercise_ids), 100):     # ~3.7 KB of ids per URL
+        for r in (db.table('exercises').select('id, content_version, is_active')
+                  .in_('id', exercise_ids[i:i + 100]).execute().data or []):
+            if r.get('is_active', True):
+                out[str(r['id'])] = int(r.get('content_version') or 0)
+    return out
+
+
+def collect(client, db, manifest: list[dict], info: dict, run_dir: str, state: dict, say) -> dict:
+    """Results of the main batches, one retry batch for what failed, then the files.
+
+    A sense's file is written only when every item of the sense in the manifest
+    has a usable answer and its content version is still the current one;
+    otherwise the sense is held back (listed in the report) for a later run.
+    """
+    by_id = {rec['custom_id']: rec for rec in manifest}
+    tally = {'failed': {}, 'tokens': Counter(), 'cost': 0.0}
+    usable = gather(client, by_id, info, [b['id'] for b in state['batches']], tally)
+    failed_recs = [by_id[eid] for eid in by_id if eid not in usable]
+    if failed_recs and not state['retry']:
+        say(f'{len(failed_recs)} items failed; retrying them once')
+        create_batch(client, failed_recs, info, run_dir, state, 'retry', 0, say)
+    if state['retry']:
+        retry_ids = [b['id'] for b in state['retry']]
+        wait_until_ended(client, retry_ids, say)
+        usable.update(gather(client, by_id, info, retry_ids, tally))
+    versions = current_versions(db, list(by_id))
+    per_sense: dict[int, list[dict]] = defaultdict(list)
+    for rec in manifest:
+        per_sense[rec['sense_id']].append(rec)
+    files: Counter = Counter()
+    held_back = []
+    writable: list[tuple[int, dict]] = []
+    for sense_id, recs in sorted(per_sense.items()):
+        bad = [r['custom_id'] for r in recs if r['custom_id'] not in usable]
+        stale = [r['custom_id'] for r in recs
+                 if versions.get(r['custom_id']) != r['content_version']]
+        if bad or stale:
+            held_back.append({'sense_id': sense_id, 'failed': {e: tally['failed'].get(e, 'missing')
+                                                               for e in bad},
+                              'stale': stale})
+            files['held_back'] += 1
+            continue
+        writable.append((sense_id, {r['custom_id']: {'content_version': r['content_version'],
+                                                     'model': usable[r['custom_id']]['model'],
+                                                     'payload': usable[r['custom_id']]['payload']}
+                                    for r in recs}))
+
+    def write_one(job):
+        sense_id, exercises = job
         for attempt in range(3):
             try:
-                status = xf.write_file(info['language_id'], sense_id, info['nl_language_id'],
-                                       xe.PROMPT_VERSION, exercises)
-                break
+                return sense_id, xf.write_file(info['language_id'], sense_id,
+                                               info['nl_language_id'], xe.PROMPT_VERSION, exercises)
             except Exception as exc:
                 logger.warning('write failed for sense %s (attempt %d): %s', sense_id, attempt + 1, exc)
                 time.sleep(2.0 * (attempt + 1))
-        written[status] += 1
-        if status == 'write_failed':
-            failures.append({'sense_id': sense_id, 'reason': 'write_failed',
-                             'exercise_ids': sorted(exercises)})
-    try:
-        with open(xa.LEDGER, 'a', encoding='utf-8') as fh:
-            fh.write(json.dumps({'ts': time.time(), 'model': info['model'], 'batch_ids': batch_ids,
-                                 'input_tokens': tokens['input'], 'output_tokens': tokens['output'],
-                                 'cost_usd': round(cost, 4), 'via': 'message-batches',
-                                 'purpose': 'exercise explanations (ADR-064)'}) + '\n')
-    except OSError:
-        pass
-    report = {'collected_at': now_iso(), **info, 'batch_ids': batch_ids,
-              'answers': dict(outcomes), 'files': dict(written), 'tokens': dict(tokens),
-              'cost_usd': round(cost, 4), 'failures': failures}
+        return sense_id, 'write_failed'
+
+    say(f'writing {len(writable)} files')
+    with ThreadPoolExecutor(WRITE_WORKERS) as pool:
+        for sense_id, status in pool.map(write_one, writable):
+            files[status] += 1
+            if status == 'write_failed':
+                held_back.append({'sense_id': sense_id, 'failed': {}, 'stale': [],
+                                  'write_failed': True})
+    cost = round(tally['cost'], 4)
+    batch_ids = [b['id'] for b in state['batches'] + state['retry']]
+    if not state['ledger_written']:
+        try:
+            with open(xa.LEDGER, 'a', encoding='utf-8') as fh:
+                fh.write(json.dumps({'ts': time.time(), 'model': info['model'], 'batch_ids': batch_ids,
+                                     'input_tokens': tally['tokens']['input'],
+                                     'output_tokens': tally['tokens']['output'],
+                                     'cost_usd': cost, 'via': 'message-batches',
+                                     'purpose': 'exercise explanations (ADR-064)'}) + '\n')
+            state['ledger_written'] = True
+            save_state(run_dir, state)
+        except OSError:
+            pass
+    report = {'collected_at': now_iso(), **{k: v for k, v in info.items() if k != 'senses_held_back'},
+              'batch_ids': batch_ids, 'items': len(manifest), 'usable': len(usable),
+              'files': dict(files), 'tokens': dict(tally['tokens']), 'cost_usd': cost,
+              'held_back': held_back,
+              'held_back_at_prepare': info.get('senses_held_back', [])}
     save_json(os.path.join(run_dir, 'report.json'), report)
-    say(f"answers {dict(outcomes)}; files {dict(written)}; cost ${report['cost_usd']} "
-        f"({tokens['input']} in / {tokens['output']} out tokens)")
+    say(f"usable {len(usable)}/{len(manifest)}; files {dict(files)}; cost ${cost} "
+        f"({tally['tokens']['input']} in / {tally['tokens']['output']} out tokens)")
     return report
 
-
-# ---------------------------------------------------------------------------
 
 def build_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(description=__doc__.split('\n\n')[0],
@@ -331,13 +487,16 @@ def main(argv: Optional[list[str]] = None) -> int:
         if not manifest:
             say('nothing to write')
             return 0
-        if info['estimate_usd'] > args.max_usd and not load_json(os.path.join(run_dir, 'batches.json')):
-            say(f"estimate ${info['estimate_usd']} exceeds --max-usd {args.max_usd}: not submitted")
+        state = load_state(run_dir)
+        remaining = len(manifest) - sum(b['count'] for b in state['batches'])
+        if remaining > 0 and estimate_usd(info['model'], remaining) > args.max_usd:
+            say(f"estimate ${estimate_usd(info['model'], remaining)} for the {remaining} requests "
+                f"not yet submitted exceeds --max-usd {args.max_usd}: not submitted")
             return 2
         client = xa.make_client()
-        batch_ids = submit(client, manifest, info, run_dir, say)
-        wait_until_ended(client, batch_ids, say)
-        collect(client, manifest, info, batch_ids, run_dir, say)
+        submit(client, manifest, info, run_dir, state, say)
+        wait_until_ended(client, [b['id'] for b in state['batches']], say)
+        collect(client, db, manifest, info, run_dir, state, say)
     return 0
 
 

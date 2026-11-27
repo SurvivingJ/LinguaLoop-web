@@ -79,8 +79,11 @@ TABLE = 'exercise_explanations'
 _MEMORY_MAX = 2000
 _TABLE_RETRY_S = 300          # after a failed table read, how long to stop asking
 _WORKERS = 4
-_READ_WORKERS = 4             # file reads run here while the table is read
-_FILE_DEADLINE_S = 2.0        # inside the content hydration's 3 s, which it runs beside
+_READ_WORKERS = 8             # file reads run here while the table is read (8 = gunicorn threads)
+# The same budget as the content hydration it runs beside: cold Storage reads
+# from production take 1-1.5 s, and 2 s missed some (pilot, 2026-11-27).
+_FILE_DEADLINE_S = float(getattr(Config, 'EXERCISE_CONTENT_DEADLINE_S', 3.0) or 3.0)
+_JOB_FILE_DEADLINE_S = 10.0   # a background job can wait longer before paying for a model
 _LLM_TIMEOUT_S = 30
 _MAX_TOKENS = 2000
 _CAP = {'meaning': 400, 'explanation': 600, 'correction': 300}
@@ -527,6 +530,13 @@ def _job(db, exercise_id: str, content: dict, version: int, tl_language_id: int,
          nl_language_id: int, exercise_type: str, sense_id: Optional[int] = None) -> Optional[dict]:
     key = (exercise_id, nl_language_id)
     try:
+        # A file read that missed the request's deadline has usually landed by
+        # now: serve the pre-written entry instead of paying for a model.
+        written = _file_entry(tl_language_id, nl_language_id, sense_id, exercise_id, version,
+                              content)
+        if written is not None:
+            _remember(key, version, written)
+            return written
         corrected = stored_correction(db, sense_id, content) if exercise_type == SPOT else None
         result = generate(content, tl_language_id, nl_language_id, exercise_id, exercise_type,
                           corrected)
@@ -539,6 +549,24 @@ def _job(db, exercise_id: str, content: dict, version: int, tl_language_id: int,
     finally:
         with _lock:
             _inflight.pop(key, None)
+
+
+def _file_entry(language_id: int, nl_language_id: int, sense_id: Optional[int],
+                exercise_id: str, version: int, content: dict) -> Optional[dict]:
+    """The current pre-written payload of one item from its sense's file, or None."""
+    if not sense_id or language_id not in _LANG or nl_language_id not in _LANG:
+        return None
+    try:
+        entry = explanation_files.read_for_senses(
+            language_id, [int(sense_id)], nl_language_id, PROMPT_VERSION,
+            deadline_s=_JOB_FILE_DEADLINE_S).get(str(exercise_id))
+    except Exception:
+        return None
+    sents = sentences_of(content)
+    if not entry or sents is None or int(entry.get('content_version') or 0) != version:
+        return None
+    payload = entry.get('payload')
+    return payload if _aligned(payload, sents) is not None else None
 
 
 def _start(db, exercise_id: str, content: dict, version: int, tl_language_id: int,
