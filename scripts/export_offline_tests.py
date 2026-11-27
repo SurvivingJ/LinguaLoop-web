@@ -77,19 +77,26 @@ def slot_key(topic_id: str, tier: int) -> str:
     return f'{topic_id}:T{tier}'
 
 
-def build_slots(topic_ids: list[str], tiers: list[int], count: int) -> list[dict]:
+def build_slots(topic_ids: list[str], tiers: list[int], count: int,
+                exclude: frozenset = frozenset(), angle_offset: int = 0) -> list[dict]:
     """(topic, tier, angle) slots, broad before deep.
 
     Topic i takes the tiers in an order rotated by i, and slots are ranked by
     (round, topic): every topic gets its first tier before any topic gets a
     second, so a run of ``count`` slots covers as many topics as it can and
     keeps the tiers balanced. Angles rotate per slot.
+
+    ``exclude`` drops slot keys already built (e.g. in an earlier bundle), and
+    ``angle_offset`` shifts the angle rotation, so a second bundle over the
+    same topics does not repeat a (topic, tier, angle) prompt.
     """
     ranked = []
     for t_idx, topic_id in enumerate(topic_ids):
         rotated = tiers[t_idx % len(tiers):] + tiers[:t_idx % len(tiers)]
         for rnd, tier in enumerate(rotated):
-            angle = ANGLES[(t_idx + tier) % len(ANGLES)]
+            angle = ANGLES[(t_idx + tier + angle_offset) % len(ANGLES)]
+            if slot_key(topic_id, tier) in exclude:
+                continue
             ranked.append(((rnd, t_idx), {
                 'topic_id': topic_id, 'tier': tier, 'angle': angle,
                 'key': slot_key(topic_id, tier),
@@ -144,6 +151,16 @@ def queue_topic_ids(db, language_id: int) -> list[str]:
     return sorted(order, key=lambda tid: (live.get(tid, 0), position[tid]))
 
 
+def load_prior_bundles(paths) -> list[dict]:
+    """Records of earlier bundles (``--exclude-bundle DIR``), for their slot
+    keys and passage hashes."""
+    out = []
+    for path in paths or []:
+        with lzma.open(os.path.join(path, 'tests.jsonl.xz'), 'rt', encoding='utf-8') as f:
+            out.extend(json.loads(line) for line in f if line.strip())
+    return out
+
+
 def run_shard(args) -> int:
     from services.supabase_factory import SupabaseFactory
     from services.test_generation.orchestrator import TestGenerationOrchestrator
@@ -159,7 +176,10 @@ def run_shard(args) -> int:
 
     topic_ids = queue_topic_ids(orch.db, lang_config.id)
     tiers = [int(t) for t in args.tiers.split(',')]
-    slots = build_slots(topic_ids, tiers, args.count)
+    prior = load_prior_bundles(args.exclude_bundle)
+    slots = build_slots(topic_ids, tiers, args.count,
+                        exclude=frozenset(r['slot_key'] for r in prior),
+                        angle_offset=args.angle_offset)
     mine = shard_slots(slots, args.shards, args.shard)
 
     shard_dir = os.path.join(args.out, 'shards')
@@ -167,7 +187,8 @@ def run_shard(args) -> int:
     out_path = os.path.join(shard_dir, f'shard_{args.shard}.jsonl')
     fail_path = os.path.join(shard_dir, f'shard_{args.shard}.failures.jsonl')
     done = {r['slot_key'] for r in read_jsonl(out_path)}
-    hashes = {r.get('passage_hash') for r in read_jsonl(out_path)}
+    hashes = {r.get('passage_hash') for r in read_jsonl(out_path)} | {
+        r.get('passage_hash') for r in prior}
     todo = [s for s in mine if s['key'] not in done]
     logger.info(
         'shard %d/%d: %d topics, %d slots total, %d mine, %d done, %d to do',
@@ -314,6 +335,10 @@ def main(argv=None) -> int:
     p.add_argument('--shards', type=int, default=1)
     p.add_argument('--shard', type=int, default=0)
     p.add_argument('--workers', type=int, default=2)
+    p.add_argument('--exclude-bundle', action='append', default=[],
+                   help='earlier bundle dir whose slots and passages to skip (repeatable)')
+    p.add_argument('--angle-offset', type=int, default=0,
+                   help='shift the angle rotation (use a new value per bundle over the same topics)')
     p.add_argument('--assemble', action='store_true',
                    help='merge the shard files into tests.jsonl.xz + manifest.json')
     from scripts.provider_arg import add_provider_arg, apply_provider

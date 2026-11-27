@@ -192,3 +192,18 @@ def test_config_validation_keys(monkeypatch):
     assert cfg.validate() is False                     # OpenRouter still required
     monkeypatch.setenv('LLM_FORCE_PROVIDER', 'claude_cli')
     assert cfg.validate() is True                      # no OpenRouter, no OpenAI needed
+
+
+def test_slots_exclude_prior_keys_and_shift_angles():
+    base = exp.build_slots(['a', 'b'], [1, 2, 3], 6)
+    shifted = exp.build_slots(['a', 'b'], [1, 2, 3], 6, angle_offset=3)
+    assert [s['key'] for s in base] == [s['key'] for s in shifted]
+    assert all(x['angle'] != y['angle'] for x, y in zip(base, shifted))
+    excl = exp.build_slots(['a', 'b'], [1, 2, 3], 6, exclude=frozenset({'a:T1', 'b:T3'}))
+    assert {s['key'] for s in excl} == {'a:T2', 'a:T3', 'b:T1', 'b:T2'}
+
+
+def test_load_prior_bundles_reads_xz(tmp_path):
+    with lzma.open(tmp_path / 'tests.jsonl.xz', 'wt', encoding='utf-8') as f:
+        f.write(json.dumps({'slot_key': 'a:T1', 'passage_hash': 'h'}) + '\n')
+    assert exp.load_prior_bundles([str(tmp_path)]) == [{'slot_key': 'a:T1', 'passage_hash': 'h'}]
