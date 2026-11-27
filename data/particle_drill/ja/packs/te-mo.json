@@ -1,0 +1,20 @@
+[
+ {"id":"te-mo-1","lv":4,
+  "tpl":"<cond>{ても|te-mo}、<who>{は|wa-topic}<act>。",
+  "en":"Even if <cond>, <who> <act>.",
+  "f":1,"d":["たら","のに","と"],
+  "why":"ても attached to the て-form means 'even if': the condition does not stop what follows.",
+  "vars":{
+   "cond":[["雨[あめ]{が|ga-subject}降[ふ]っ","it rains"],["雪[ゆき]{が|ga-subject}降[ふ]っ","it snows"],["風[かぜ]{が|ga-subject}強[つよ]く","the wind is strong"],["外[そと]{が|ga-subject}寒[さむ]く","it is cold outside"],["外[そと]{が|ga-subject}暑[あつ]く","it is hot outside"],["天気[てんき]{が|ga-subject}悪[わる]く","the weather is bad"]],
+   "who":[["父[ちち]","my father"],["母[はは]","my mother"],["祖父[そふ]","my grandfather"],["祖母[そぼ]","my grandmother"],["兄[あに]","my older brother"],["姉[あね]","my older sister"],["田中[たなか]さん","Mr. Tanaka"],["山田[やまだ]さん","Ms. Yamada"]],
+   "act":[["毎朝[まいあさ]走[はし]ります","goes running every morning"],["犬[いぬ]{の|no-possessive}散歩[さんぽ]{に|ni-purpose}行[い]きます","takes the dog for a walk"],["自転車[じてんしゃ]{で|de-means}会社[かいしゃ]{に/へ|ni-destination}行[い]きます","cycles to work"],["公園[こうえん]{を|o-path}散歩[さんぽ]します","takes a walk in the park"],["釣[つ]り{に|ni-purpose}行[い]きます","goes fishing"],["ジョギング{を|o-object}休[やす]みません","does not skip jogging"],["庭仕事[にわしごと]{を|o-object}します","does the gardening"],["テニス{の|no-possessive}練習[れんしゅう]{に|ni-purpose}行[い]きます","goes to tennis practice"]]}},
+ {"id":"te-mo-2","lv":4,
+  "tpl":"<obj>{は|wa-topic}<adj>{ても|te-mo}<end>。",
+  "en":"Even if <obj> <adj>, I <end>.",
+  "f":1,"d":["たら","のに","と"],
+  "why":"An adjective's く-form plus ても means 'even if it is ...': the drawback does not change the decision.",
+  "vars":{
+   "obj":[["そのカメラ","that camera"],["あの自転車[じてんしゃ]","that bicycle"],["このかばん","this bag"],["そのパソコン","that computer"],["あのソファー","that sofa"],["この辞書[じしょ]","this dictionary"],["あの机[つくえ]","that desk"],["その時計[とけい]","that watch"]],
+   "adj":[["高[たか]く","is expensive"],["少[すこ]し古[ふる]く","is a little old"],["重[おも]く","is heavy"],["少[すこ]し大[おお]きく","is a bit big"],["少[すこ]し小[ちい]さく","is a bit small"],["新[あたら]しくなく","is not new"]],
+   "end":[["買[か]いたいです","want to buy it"],["欲[ほ]しいです","want it"],["買[か]います","will buy it"],["買[か]おう{と|to-quote}思[おも]います","am thinking of buying it"],["今日[きょう]買[か]います","will buy it today"],["買[か]うつもりです","intend to buy it"]]}}
+]

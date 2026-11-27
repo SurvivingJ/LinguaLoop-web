@@ -1,0 +1,20 @@
+[
+ {"id":"te-kara-1","lv":5,
+  "tpl":"<who>{は|wa-topic}いつも<a>{てから|te-kara}、<b>。",
+  "en":"<who> always <a> and then <b>.",
+  "f":2,"d":["る前[まえ]に","ながら","ても"],
+  "why":"Verb + てから means the first action is finished before the next one starts: \"after doing\".",
+  "vars":{
+   "who":[["父[ちち]","My father"],["母[はは]","My mother"],["兄[あに]","My older brother"],["姉[あね]","My older sister"],["田中[たなか]さん","Mr. Tanaka"],["山田[やまだ]さん","Ms. Yamada"],["佐藤[さとう]さん","Mr. Sato"]],
+   "a":[["朝[あさ]ご飯[はん]{を|o-object}食[た]べ","eats breakfast"],["シャワー{を|o-object}浴[あ]び","takes a shower"],["ゴミ{を|o-object}捨[す]て","takes out the rubbish"],["天気予報[てんきよほう]{を|o-object}見[み]","checks the weather forecast"],["コーヒー{を|o-object}入[い]れ","makes coffee"],["窓[まど]{を|o-object}開[あ]け","opens the windows"],["服[ふく]{を|o-object}着替[きが]え","gets changed"],["布団[ふとん]{を|o-object}片付[かたづ]け","puts away the futon"]],
+   "b":[["家[いえ]{を|o-departure}出[で]ます","leaves the house"],["出[で]かけます","goes out"],["仕事[しごと]{を|o-object}始[はじ]めます","starts work"],["勉強[べんきょう]{を|o-object}始[はじ]めます","starts studying"],["会社[かいしゃ]{に/へ|ni-destination}行[い]きます","goes to the office"],["駅[えき]{に/へ|ni-destination}向[む]かいます","heads to the station"],["ラジオ{を|o-object}聞[き]きます","listens to the radio"]]}},
+ {"id":"te-kara-2","lv":4,
+  "tpl":"<who>{が|ga-sub-clause}<event>{てから|te-kara}、もう<dur>{に|ni-change}なります。",
+  "en":"It has already been <dur> since <who> <event>.",
+  "f":2,"d":["る前[まえ]に","ながら","ても"],
+  "why":"Verb + てから followed by a length of time means \"it has been that long since\" the action happened.",
+  "vars":{
+   "who":[["父[ちち]","my father"],["母[はは]","my mother"],["兄[あに]","my older brother"],["姉[あね]","my older sister"],["祖父[そふ]","my grandfather"],["田中[たなか]さん","Mr. Tanaka"],["山田[やまだ]さん","Ms. Yamada"]],
+   "event":[["ピアノ{を|o-object}習[なら]い始[はじ]め","started learning the piano"],["タバコ{を|o-object}やめ","gave up smoking"],["眼鏡[めがね]{を|o-object}かけ始[はじ]め","started wearing glasses"],["ジョギング{を|o-object}始[はじ]め","took up jogging"],["犬[いぬ]{を|o-object}飼[か]い始[はじ]め","got a dog"],["車[くるま]{を|o-object}買[か]い替[か]え","got a new car"],["お酒[さけ]{を|o-object}やめ","gave up alcohol"],["会社[かいしゃ]{を|o-object}辞[や]め","left the company"],["料理教室[りょうりきょうしつ]{に|ni-destination}通[かよ]い始[はじ]め","started going to cooking classes"]],
+   "dur":[["一年[いちねん]","a year"],["二年[にねん]","two years"],["三年[さんねん]","three years"],["五年[ごねん]","five years"],["十年[じゅうねん]","ten years"],["半年[はんとし]","six months"],["三[さん]か月[げつ]","three months"],["一[いっ]か月[げつ]","a month"]]}}
+]

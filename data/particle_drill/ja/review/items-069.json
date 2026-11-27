@@ -1,0 +1,294 @@
+{
+ "batch": "items-069",
+ "files": [
+  "items/x-ni-e-made.jsonl"
+ ],
+ "checked": 47,
+ "fixed": 47,
+ "deleted": 0,
+ "replaced": 0,
+ "issues": [
+  {
+   "file": "items/x-ni-e-made.jsonl",
+   "jp_before": "弟[おとうと]{は/が|wa-topic}もう学校[がっこう]{に/へ|ni-destination}行[い]きました。",
+   "problem": "もう学校まで行きました is natural Japanese for 'has gone to school'; まで is natural here too, so the English still fits and まで cannot be a distractor; with に/へ already accepted the item had no valid clinic distractor.",
+   "action": "Rewritten with 集まる, where まで is plainly wrong; d=まで."
+  },
+  {
+   "file": "items/x-ni-e-made.jsonl",
+   "jp_before": "明日[あした]{は|wa-topic}友達[ともだち]{と|to-with}映画館[えいがかん]{に/へ|ni-destination}行[い]きます。",
+   "problem": "友達と映画館まで行きます is natural for 'going to the cinema'; まで is natural here too, so the English still fits and まで cannot be a distractor; with に/へ already accepted the item had no valid clinic distractor.",
+   "action": "Rewritten with 落ちる; d=まで."
+  },
+  {
+   "file": "items/x-ni-e-made.jsonl",
+   "jp_before": "電車[でんしゃ]{が/は|ga-subject}駅[えき]{に|ni-destination}着[つ]きました。",
+   "problem": "Clinic item: distractors must be the other members of the clinic set (に/へ/まで), not unrelated particles such as で/を/が/と/の/から.",
+   "action": "d changed from まで/で/を to まで"
+  },
+  {
+   "file": "items/x-ni-e-made.jsonl",
+   "jp_before": "父[ちち]{は|wa-topic}会社[かいしゃ]{に/へ|ni-destination}戻[もど]りました。",
+   "problem": "会社まで戻りました ('went back to the office') is natural; まで is natural here too, so the English still fits and まで cannot be a distractor; with に/へ already accepted the item had no valid clinic distractor.",
+   "action": "Rewritten with 移る (transfer to a branch); d=まで."
+  },
+  {
+   "file": "items/x-ni-e-made.jsonl",
+   "jp_before": "どうぞ、部屋[へや]{に/へ|ni-destination}入[はい]ってください。",
+   "problem": "Catalog lists 入る under ni-target, not ni-destination; non-clinic distractors; why claimed まで can never be used with 入る (部屋の中まで入る exists).",
+   "action": "Skill id changed to ni-target, d=まで, why rewritten."
+  },
+  {
+   "file": "items/x-ni-e-made.jsonl",
+   "jp_before": "来月[らいげつ]、京都[きょうと]{に/へ|ni-destination}引[ひ]っ越[こ]します。",
+   "problem": "Clinic item: distractors must be the other members of the clinic set (に/へ/まで), not unrelated particles such as で/を/が/と/の/から.",
+   "action": "d changed from で/まで/が to まで"
+  },
+  {
+   "file": "items/x-ni-e-made.jsonl",
+   "jp_before": "毎日[まいにち]、まっすぐ家[いえ]{に/へ|ni-destination}帰[かえ]ります。",
+   "problem": "まっすぐ家まで帰ります is fully natural for 'go straight home'; まで is natural here too, so the English still fits and まで cannot be a distractor; with に/へ already accepted the item had no valid clinic distractor.",
+   "action": "Rewritten with 入れる; d=まで."
+  },
+  {
+   "file": "items/x-ni-e-made.jsonl",
+   "jp_before": "夏[なつ]{に|ni-time}家族[かぞく]{と|to-with}沖縄[おきなわ]{に/へ|ni-destination}行[い]きました。",
+   "problem": "家族と沖縄まで行きました is natural for 'went to Okinawa'; まで is natural here too, so the English still fits and まで cannot be a distractor; with に/へ already accepted the item had no valid clinic distractor.",
+   "action": "Rewritten with 到着する; d=まで."
+  },
+  {
+   "file": "items/x-ni-e-made.jsonl",
+   "jp_before": "先生[せんせい]{は|wa-topic}もう教室[きょうしつ]{に/へ|ni-destination}来[き]ています。",
+   "problem": "もう教室まで来ています is acceptable for 'has come to the classroom'; まで is natural here too, so the English still fits and まで cannot be a distractor; with に/へ already accepted the item had no valid clinic distractor.",
+   "action": "Rewritten with 戻す; d=まで."
+  },
+  {
+   "file": "items/x-ni-e-made.jsonl",
+   "jp_before": "荷物[にもつ]{を|o-object}二階[にかい]{に/へ|ni-destination}運[はこ]びました。",
+   "problem": "荷物を二階まで運びました is the most natural way to say 'carried up to the second floor'; まで is natural here too, so the English still fits and まで cannot be a distractor; with に/へ already accepted the item had no valid clinic distractor.",
+   "action": "Rewritten with 積む; d=まで."
+  },
+  {
+   "file": "items/x-ni-e-made.jsonl",
+   "jp_before": "田中[たなか]さん{は|wa-topic}去年[きょねん]日本[にほん]{に/へ|ni-destination}来[き]ました。",
+   "problem": "日本まで来ました is natural ('came (all the way) to Japan'); まで is natural here too, so the English still fits and まで cannot be a distractor; with に/へ already accepted the item had no valid clinic distractor.",
+   "action": "Rewritten with 入学する; d=まで."
+  },
+  {
+   "file": "items/x-ni-e-made.jsonl",
+   "jp_before": "九時[くじ]{に|ni-time}会社[かいしゃ]{に|ni-destination}着[つ]きます。",
+   "problem": "Clinic item: distractors must be the other members of the clinic set (に/へ/まで), not unrelated particles such as で/を/が/と/の/から.",
+   "action": "d changed from まで/で/を to まで"
+  },
+  {
+   "file": "items/x-ni-e-made.jsonl",
+   "jp_before": "兄[あに]{は|wa-topic}アメリカ{に/へ|ni-destination}留学[りゅうがく]しました。",
+   "problem": "Clinic item: distractors must be the other members of the clinic set (に/へ/まで), not unrelated particles such as で/を/が/と/の/から.",
+   "action": "d changed from を/が/まで to まで"
+  },
+  {
+   "file": "items/x-ni-e-made.jsonl",
+   "jp_before": "ちょっと本屋[ほんや]{に/へ|ni-destination}寄[よ]ってきます。",
+   "problem": "Clinic item: distractors must be the other members of the clinic set (に/へ/まで), not unrelated particles such as で/を/が/と/の/から.",
+   "action": "d changed from で/を/まで to まで"
+  },
+  {
+   "file": "items/x-ni-e-made.jsonl",
+   "jp_before": "祖父[そふ]{は/が|wa-topic}去年[きょねん]、東京[とうきょう]{に/へ|ni-destination}出[で]てきました。",
+   "problem": "東京まで出てきました is natural for 'came up to Tokyo'; まで is natural here too, so the English still fits and まで cannot be a distractor; with に/へ already accepted the item had no valid clinic distractor.",
+   "action": "Rewritten as a purpose に item; d=まで."
+  },
+  {
+   "file": "items/x-ni-e-made.jsonl",
+   "jp_before": "注文[ちゅうもん]した本[ほん]{は/が|wa-topic}もう家[いえ]{に|ni-destination}届[とど]きました。",
+   "problem": "もう家まで届きました is acceptable for 'has arrived at my house'; まで is natural here too, so the English still fits and まで cannot be a distractor; with に/へ already accepted the item had no valid clinic distractor.",
+   "action": "Replaced with a まで time item; d=に/へ."
+  },
+  {
+   "file": "items/x-ni-e-made.jsonl",
+   "jp_before": "犬[いぬ]{は/が|wa-topic}さっき庭[にわ]{に/へ|ni-destination}出[で]ました。",
+   "problem": "庭まで出ました is acceptable ('went out as far as the garden'); まで is natural here too, so the English still fits and まで cannot be a distractor; with に/へ already accepted the item had no valid clinic distractor.",
+   "action": "Rewritten with 飛び込む; d=まで."
+  },
+  {
+   "file": "items/x-ni-e-made.jsonl",
+   "jp_before": "飛行機[ひこうき]{は/が|wa-topic}南[みなみ]{へ/に|e-direction}飛[と]んでいきました。",
+   "problem": "Near-duplicate of item 30 (南へ飛んでいく); non-clinic distractors.",
+   "action": "Rewritten with 転がる; d=まで."
+  },
+  {
+   "file": "items/x-ni-e-made.jsonl",
+   "jp_before": "風船[ふうせん]{が/は|ga-subject}空[そら]{へ/に|e-direction}上[あ]がっていきました。",
+   "problem": "空まで上がっていきました ('rose up to the sky') is acceptable and close to the English; non-clinic distractors.",
+   "action": "Rewritten with 向く; d=まで."
+  },
+  {
+   "file": "items/x-ni-e-made.jsonl",
+   "jp_before": "船[ふね]{は/が|wa-topic}東[ひがし]{へ/に|e-direction}向[む]かっています。",
+   "problem": "Clinic item: distractors must be the other members of the clinic set (に/へ/まで), not unrelated particles such as で/を/が/と/の/から.",
+   "action": "d changed from で/を/と to まで"
+  },
+  {
+   "file": "items/x-ni-e-made.jsonl",
+   "jp_before": "台風[たいふう]{は/が|wa-topic}北[きた]{へ/に|e-direction}進[すす]んでいます。",
+   "problem": "Clinic item: distractors must be the other members of the clinic set (に/へ/まで), not unrelated particles such as で/を/が/と/の/から.",
+   "action": "d changed from で/と/が to まで"
+  },
+  {
+   "file": "items/x-ni-e-made.jsonl",
+   "jp_before": "風[かぜ]{が/は|ga-subject}海[うみ]{から|kara-from}山[やま]{へ/に|e-direction}吹[ふ]いています。",
+   "problem": "海から山まで吹いています is a possible から…まで reading close to the English; non-clinic distractors.",
+   "action": "Rewritten as 一歩前へ出る; d=まで."
+  },
+  {
+   "file": "items/x-ni-e-made.jsonl",
+   "jp_before": "この川[かわ]{は|wa-topic}西[にし]{から|kara-from}東[ひがし]{へ/に|e-direction}流[なが]れています。",
+   "problem": "西から東まで流れています is an acceptable から…まで extent reading of the English; non-clinic distractors.",
+   "action": "Rewritten without から; d=まで."
+  },
+  {
+   "file": "items/x-ni-e-made.jsonl",
+   "jp_before": "右[みぎ]{に/へ|e-direction}曲[ま]がる{と|to-conditional}、郵便局[ゆうびんきょく]{が/は|ga-existence}あります。",
+   "problem": "Clinic item: distractors must be the other members of the clinic set (に/へ/まで), not unrelated particles such as で/を/が/と/の/から.",
+   "action": "d changed from まで/と/が to まで"
+  },
+  {
+   "file": "items/x-ni-e-made.jsonl",
+   "jp_before": "男[おとこ]の子[こ]{は/が|wa-topic}母[はは]{の|no-possessive}ほう{へ/に|e-direction}走[はし]っていきました。",
+   "problem": "Clinic item: distractors must be the other members of the clinic set (に/へ/まで), not unrelated particles such as で/を/が/と/の/から.",
+   "action": "d changed from で/と/が to まで"
+  },
+  {
+   "file": "items/x-ni-e-made.jsonl",
+   "jp_before": "彼女[かのじょ]{は|wa-topic}カメラ{を|o-object}山[やま]{へ/に|e-direction}向[む]けました。",
+   "problem": "Clinic item: distractors must be the other members of the clinic set (に/へ/まで), not unrelated particles such as で/を/が/と/の/から.",
+   "action": "d changed from で/と/が to まで"
+  },
+  {
+   "file": "items/x-ni-e-made.jsonl",
+   "jp_before": "次[つぎ]{の|no-possessive}角[かど]{を|o-path}左[ひだり]{に/へ|e-direction}曲[ま]がってください。",
+   "problem": "Clinic item: distractors must be the other members of the clinic set (に/へ/まで), not unrelated particles such as で/を/が/と/の/から.",
+   "action": "d changed from で/まで/と to まで"
+  },
+  {
+   "file": "items/x-ni-e-made.jsonl",
+   "jp_before": "矢印[やじるし]{の|no-possessive}方向[ほうこう]{へ/に|e-direction}進[すす]んでください。",
+   "problem": "Clinic item: distractors must be the other members of the clinic set (に/へ/まで), not unrelated particles such as で/を/が/と/の/から.",
+   "action": "d changed from で/と/の to まで"
+  },
+  {
+   "file": "items/x-ni-e-made.jsonl",
+   "jp_before": "鳥[とり]{は/が|wa-topic}秋[あき]{に|ni-change}なる{と|to-conditional}南[みなみ]{へ/に|e-direction}飛[と]んでいきます。",
+   "problem": "Clinic item: distractors must be the other members of the clinic set (に/へ/まで), not unrelated particles such as で/を/が/と/の/から.",
+   "action": "d changed from で/と/の to まで"
+  },
+  {
+   "file": "items/x-ni-e-made.jsonl",
+   "jp_before": "彼[かれ]{は/が|wa-topic}ゴール{の|no-possessive}ほう{へ/に|e-direction}走[はし]りました。",
+   "problem": "Near-duplicate of item 25 (ran toward X のほう); non-clinic distractors.",
+   "action": "Rewritten with 倒れる; d=まで."
+  },
+  {
+   "file": "items/x-ni-e-made.jsonl",
+   "jp_before": "昨日[きのう]{は|wa-topic}夜[よる]十二時[じゅうにじ]{まで|made-until}勉強[べんきょう]しました。",
+   "problem": "Clinic item: distractors must be the other members of the clinic set (に/へ/まで), not unrelated particles such as で/を/が/と/の/から.",
+   "action": "d changed from に/へ/から to に/へ"
+  },
+  {
+   "file": "items/x-ni-e-made.jsonl",
+   "jp_before": "この店[みせ]{は|wa-topic}朝[あさ]九時[くじ]{から|kara-from}夜[よる]十時[じゅうじ]{まで|made-until}開[あ]いています。",
+   "problem": "Clinic item: distractors must be the other members of the clinic set (に/へ/まで), not unrelated particles such as で/を/が/と/の/から.",
+   "action": "d changed from に/へ/で to に/へ"
+  },
+  {
+   "file": "items/x-ni-e-made.jsonl",
+   "jp_before": "ここ{から|kara-from}空港[くうこう]{まで|made-until}一時間[いちじかん]かかります。",
+   "problem": "Clinic item: distractors must be the other members of the clinic set (に/へ/まで), not unrelated particles such as で/を/が/と/の/から.",
+   "action": "d changed from に/へ/で to に/へ"
+  },
+  {
+   "file": "items/x-ni-e-made.jsonl",
+   "jp_before": "友達[ともだち]{が/の|ga-sub-clause}来[く]る{まで|made-until}、ここ{で|de-place}待[ま]ちます。",
+   "problem": "Clinic item: distractors must be the other members of the clinic set (に/へ/まで), not unrelated particles such as で/を/が/と/の/から.",
+   "action": "d changed from に/へ/から to に/へ"
+  },
+  {
+   "file": "items/x-ni-e-made.jsonl",
+   "jp_before": "雨[あめ]{が|ga-sub-clause}止[や]む{まで|made-until}、喫茶店[きっさてん]{で|de-place}休[やす]みましょう。",
+   "problem": "Clinic item: distractors must be the other members of the clinic set (に/へ/まで), not unrelated particles such as で/を/が/と/の/から.",
+   "action": "d changed from に/へ/から to に/へ"
+  },
+  {
+   "file": "items/x-ni-e-made.jsonl",
+   "jp_before": "先週[せんしゅう]、夜[よる]遅[おそ]く{まで|made-until}仕事[しごと]{を|o-object}しました。",
+   "problem": "Clinic item: distractors must be the other members of the clinic set (に/へ/まで), not unrelated particles such as で/を/が/と/の/から.",
+   "action": "d changed from に/へ/から to に/へ"
+  },
+  {
+   "file": "items/x-ni-e-made.jsonl",
+   "jp_before": "子[こ]どもたち{は|wa-topic}暗[くら]くなる{まで|made-until}外[そと]{で|de-place}遊[あそ]びました。",
+   "problem": "Clinic item: distractors must be the other members of the clinic set (に/へ/まで), not unrelated particles such as で/を/が/と/の/から.",
+   "action": "d changed from に/へ/から to に/へ"
+  },
+  {
+   "file": "items/x-ni-e-made.jsonl",
+   "jp_before": "夜[よる]{は|wa-topic}十時[じゅうじ]{まで|made-until}テレビ{を|o-object}見[み]ます。",
+   "problem": "Clinic item: distractors must be the other members of the clinic set (に/へ/まで), not unrelated particles such as で/を/が/と/の/から.",
+   "action": "d changed from に/へ/で to に/へ"
+  },
+  {
+   "file": "items/x-ni-e-made.jsonl",
+   "jp_before": "この本[ほん]{を|o-object}最後[さいご]{まで|made-until}読[よ]みました。",
+   "problem": "Clinic item: distractors must be the other members of the clinic set (に/へ/まで), not unrelated particles such as で/を/が/と/の/から.",
+   "action": "d changed from に/へ/から to に/へ"
+  },
+  {
+   "file": "items/x-ni-e-made.jsonl",
+   "jp_before": "先生[せんせい]{は|wa-topic}三時[さんじ]{まで|made-until}学校[がっこう]{に|ni-location}います。",
+   "problem": "Clinic item: distractors must be the other members of the clinic set (に/へ/まで), not unrelated particles such as で/を/が/と/の/から.",
+   "action": "d changed from に/へ/から to に/へ"
+  },
+  {
+   "file": "items/x-ni-e-made.jsonl",
+   "jp_before": "おなか{が|ga-subject}いっぱい{に|ni-change}なる{まで|made-until}食[た]べました。",
+   "problem": "Clinic item: distractors must be the other members of the clinic set (に/へ/まで), not unrelated particles such as で/を/が/と/の/から.",
+   "action": "d changed from に/へ/から to に/へ"
+  },
+  {
+   "file": "items/x-ni-e-made.jsonl",
+   "jp_before": "去年[きょねん]{は|wa-topic}三月[さんがつ]{まで|made-until}大阪[おおさか]{に|ni-location}住[す]んでいました。",
+   "problem": "Clinic item: distractors must be the other members of the clinic set (に/へ/まで), not unrelated particles such as で/を/が/と/の/から.",
+   "action": "d changed from に/へ/から to に/へ"
+  },
+  {
+   "file": "items/x-ni-e-made.jsonl",
+   "jp_before": "この切符[きっぷ]{は|wa-topic}三日[みっか]{まで|made-until}使[つか]えます。",
+   "problem": "Clinic item: distractors must be the other members of the clinic set (に/へ/まで), not unrelated particles such as で/を/が/と/の/から.",
+   "action": "d changed from に/へ/から to に/へ"
+  },
+  {
+   "file": "items/x-ni-e-made.jsonl",
+   "jp_before": "パーティー{は|wa-topic}夕方[ゆうがた]{まで|made-until}続[つづ]きました。",
+   "problem": "Clinic item: distractors must be the other members of the clinic set (に/へ/まで), not unrelated particles such as で/を/が/と/の/から.",
+   "action": "d changed from に/へ/から to に/へ"
+  },
+  {
+   "file": "items/x-ni-e-made.jsonl",
+   "jp_before": "山田[やまだ]さん{は|wa-topic}先月[せんげつ]{まで|made-until}この会社[かいしゃ]{で|de-place}働[はたら]いていました。",
+   "problem": "Clinic item: distractors must be the other members of the clinic set (に/へ/まで), not unrelated particles such as で/を/が/と/の/から.",
+   "action": "d changed from に/へ/から to に/へ"
+  },
+  {
+   "file": "items/x-ni-e-made.jsonl",
+   "jp_before": "毎日[まいにち]、家[いえ]{から|kara-from}駅[えき]{まで|made-until}歩[ある]きます。",
+   "problem": "家から駅へ歩きます is a natural から…へ pair with the same meaning, so へ (and に) were not plainly wrong.",
+   "action": "Rewritten with 止まる; d=に/へ."
+  },
+  {
+   "file": "items/x-ni-e-made.jsonl",
+   "jp_before": "ここ{から|kara-from}あそこ{まで|made-until}走[はし]りましょう。",
+   "problem": "ここからあそこへ走りましょう is a natural から…へ pair with the same meaning, so へ was not plainly wrong.",
+   "action": "Rewritten with 寝る; d=に/へ."
+  }
+ ]
+}

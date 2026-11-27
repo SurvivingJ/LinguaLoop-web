@@ -1,0 +1,9 @@
+{"batch":"packs-032",
+ "files":["packs/noni-although.json","packs/noni-purpose.json","packs/kedo-but.json","packs/ga-but.json"],
+ "checked":6,"fixed":4,"deleted":0,
+ "issues":[
+  {"file":"packs/kedo-but.json","pack":"kedo-but-1","problem":"home values この部屋 / 借りた部屋 (a single room) clash with bad values like 駐車場がありません / 台所が狭いです (\"This room has no parking\").","action":"Replaced with この家 (This house) and 姉のアパート (My older sister's apartment)."},
+  {"file":"packs/kedo-but.json","pack":"kedo-but-2","problem":"Bare 昼休み as a time adverb (without に) is marginal before 電話した.","action":"Replaced with 先週 (last week)."},
+  {"file":"packs/noni-although.json","pack":"noni-although-1","problem":"English \"saw no rise in grades\" reads awkwardly in every combination.","action":"Changed to \"saw no improvement in grades\"."},
+  {"file":"packs/ga-but.json","pack":"ga-but-2","problem":"English \"go to the city hall\" has an unidiomatic article.","action":"Changed to \"city hall\"."}
+ ]}

@@ -1,0 +1,200 @@
+[
+ {
+  "id": "x-conditionals-1",
+  "lv": 3,
+  "tpl": "<when><place>{に/へ|ni-destination}{いくなら|x-conditionals}、<advice>。",
+  "en": "If you're going to <place> <when>, <advice>.",
+  "f": 1,
+  "d": [
+   "いくと",
+   "いけば",
+   "いったら"
+  ],
+  "why": "The advice applies before the trip, so only なら ('if that is your plan') fits; と, ば and たら need the going to happen first.",
+  "vars": {
+   "when": [
+    [
+     "来週[らいしゅう]",
+     "next week"
+    ],
+    [
+     "来月[らいげつ]",
+     "next month"
+    ],
+    [
+     "週末[しゅうまつ]",
+     "this weekend"
+    ],
+    [
+     "来年[らいねん]",
+     "next year"
+    ],
+    [
+     "今週[こんしゅう]",
+     "this week"
+    ],
+    [
+     "年末[ねんまつ]",
+     "at the end of the year"
+    ]
+   ],
+   "place": [
+    [
+     "京都[きょうと]",
+     "Kyoto"
+    ],
+    [
+     "大阪[おおさか]",
+     "Osaka"
+    ],
+    [
+     "静岡[しずおか]",
+     "Shizuoka"
+    ],
+    [
+     "名古屋[なごや]",
+     "Nagoya"
+    ],
+    [
+     "仙台[せんだい]",
+     "Sendai"
+    ],
+    [
+     "金沢[かなざわ]",
+     "Kanazawa"
+    ],
+    [
+     "新潟[にいがた]",
+     "Niigata"
+    ],
+    [
+     "長野[ながの]",
+     "Nagano"
+    ]
+   ],
+   "advice": [
+    [
+     "新幹線[しんかんせん]{が|ga-subject}便利[べんり]です",
+     "the bullet train is convenient"
+    ],
+    [
+     "夜行[やこう]バス{が|ga-subject}安[やす]いです",
+     "the night bus is cheap"
+    ],
+    [
+     "席[せき]{を|o-object}早[はや]めに予約[よやく]したほうがいいです",
+     "you should book a seat early"
+    ],
+    [
+     "新幹線[しんかんせん]{で|de-means}行[い]く{の|no-nominalizer}{が|ga-subject}いちばん速[はや]いです",
+     "going by bullet train is the fastest"
+    ],
+    [
+     "朝早[あさはや]い電車[でんしゃ]{が|ga-subject}すいていますよ",
+     "the early morning trains are not crowded"
+    ],
+    [
+     "飛行機[ひこうき]{より|yori-comparison}新幹線[しんかんせん]{が|ga-subject}いいです",
+     "the bullet train is better than flying"
+    ]
+   ]
+  }
+ },
+ {
+  "id": "x-conditionals-2",
+  "lv": 3,
+  "tpl": "<when><place>{に|ni-destination}{ついたら|x-conditionals}、<req>。",
+  "en": "When you get to <place> <when>, please <req>.",
+  "f": 1,
+  "d": [
+   "つくと",
+   "つけば",
+   "つくなら"
+  ],
+  "why": "A request about a one-off future arrival takes たら; と and ば cannot be followed by a request, and なら would mean before you arrive.",
+  "vars": {
+   "when": [
+    [
+     "明日[あした]",
+     "tomorrow"
+    ],
+    [
+     "今夜[こんや]",
+     "tonight"
+    ],
+    [
+     "今日[きょう]",
+     "today"
+    ],
+    [
+     "来週[らいしゅう]",
+     "next week"
+    ],
+    [
+     "週末[しゅうまつ]",
+     "at the weekend"
+    ],
+    [
+     "夕方[ゆうがた]",
+     "in the evening"
+    ]
+   ],
+   "place": [
+    [
+     "駅[えき]",
+     "the station"
+    ],
+    [
+     "空港[くうこう]",
+     "the airport"
+    ],
+    [
+     "ホテル",
+     "the hotel"
+    ],
+    [
+     "会場[かいじょう]",
+     "the venue"
+    ],
+    [
+     "京都[きょうと]",
+     "Kyoto"
+    ],
+    [
+     "大阪[おおさか]",
+     "Osaka"
+    ],
+    [
+     "東京[とうきょう]",
+     "Tokyo"
+    ]
+   ],
+   "req": [
+    [
+     "電話[でんわ]{を|o-object}ください",
+     "give me a call"
+    ],
+    [
+     "メール{を|o-object}ください",
+     "send me an email"
+    ],
+    [
+     "連絡[れんらく]してください",
+     "get in touch"
+    ],
+    [
+     "すぐ知[し]らせてください",
+     "let me know right away"
+    ],
+    [
+     "メッセージ{を|o-object}送[おく]ってください",
+     "send me a message"
+    ],
+    [
+     "電話[でんわ]{で|de-means}知[し]らせてください",
+     "let me know by phone"
+    ]
+   ]
+  }
+ }
+]

@@ -1,0 +1,72 @@
+[
+ {
+  "id": "to-and-1",
+  "lv": 5,
+  "tpl": "<a>{と|to-and}<b>{の|no-possessive}間[あいだ]{に|ni-location}<thing>{が|ga-existence}あります。",
+  "en": "There is <thing> between <a> and <b>.",
+  "f": 0,
+  "d": ["や", "か", "も"],
+  "why": "\"Between A and B\" names exactly two things, so they are joined with と.",
+  "vars": {
+   "a": [
+    ["駅[えき]", "the station"],
+    ["銀行[ぎんこう]", "the bank"],
+    ["郵便局[ゆうびんきょく]", "the post office"],
+    ["図書館[としょかん]", "the library"],
+    ["病院[びょういん]", "the hospital"],
+    ["公園[こうえん]", "the park"]
+   ],
+   "b": [
+    ["スーパー", "the supermarket"],
+    ["学校[がっこう]", "the school"],
+    ["市役所[しやくしょ]", "the city hall"],
+    ["ホテル", "the hotel"],
+    ["本屋[ほんや]", "the bookshop"],
+    ["映画館[えいがかん]", "the cinema"]
+   ],
+   "thing": [
+    ["コンビニ", "a convenience store"],
+    ["小[ちい]さい神社[じんじゃ]", "a small shrine"],
+    ["駐車場[ちゅうしゃじょう]", "a car park"],
+    ["カフェ", "a café"],
+    ["交番[こうばん]", "a police box"],
+    ["パン屋[や]", "a bakery"]
+   ]
+  }
+ },
+ {
+  "id": "to-and-2",
+  "lv": 5,
+  "tpl": "<a>{と|to-and}<b>{と|to-and}、どちら<pred>。",
+  "en": "Which <pred>, <a> or <b>?",
+  "f": 0,
+  "d": ["や", "も", "に"],
+  "why": "When you compare exactly two things with どちら, you list them as A と B と.",
+  "vars": {
+   "a": [
+    ["すし", "sushi"],
+    ["ラーメン", "ramen"],
+    ["カレー", "curry"],
+    ["てんぷら", "tempura"],
+    ["うどん", "udon"],
+    ["そば", "soba"]
+   ],
+   "b": [
+    ["ピザ", "pizza"],
+    ["パスタ", "pasta"],
+    ["ハンバーガー", "burgers"],
+    ["サンドイッチ", "sandwiches"],
+    ["ステーキ", "steak"],
+    ["サラダ", "salad"]
+   ],
+   "pred": [
+    ["{が|ga-stative}好[す]きです{か|ka-question}", "do you like better"],
+    ["{を|o-object}よく食[た]べます{か|ka-question}", "do you eat more often"],
+    ["{が|ga-question}作[つく]りやすいです{か|ka-question}", "is easier to make"],
+    ["{が|ga-question}安[やす]いです{か|ka-question}", "is cheaper"],
+    ["{が|ga-question}おいしいと思[おも]います{か|ka-question}", "do you think tastes better"],
+    ["{が/を|ga-stative}食[た]べたいです{か|ka-question}", "would you rather eat"]
+   ]
+  }
+ }
+]

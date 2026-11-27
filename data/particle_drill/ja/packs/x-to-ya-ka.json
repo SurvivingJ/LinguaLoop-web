@@ -1,0 +1,20 @@
+[
+ {"id":"x-to-ya-ka-1","lv":4,
+  "tpl":"<who>{は|wa-topic}<a>{と|to-and}<b>{を|o-object}両方[りょうほう]買[か]いました。",
+  "en":"<who> bought both <a> and <b>.",
+  "f":1,"d":["や","か"],
+  "why":"両方 means exactly these two, a complete list, so と; や hints at more items and か offers a choice.",
+  "vars":{
+   "who":[["父[ちち]","My father"],["母[はは]","My mother"],["兄[あに]","My older brother"],["姉[あね]","My older sister"],["田中[たなか]さん","Mr. Tanaka"],["鈴木[すずき]さん","Ms. Suzuki"],["山本[やまもと]さん","Mr. Yamamoto"]],
+   "a":[["牛乳[ぎゅうにゅう]","milk"],["卵[たまご]","eggs"],["パン","bread"],["肉[にく]","meat"],["魚[さかな]","fish"],["野菜[やさい]","vegetables"],["お米[こめ]","rice"]],
+   "b":[["りんご","apples"],["バナナ","bananas"],["みかん","mandarins"],["いちご","strawberries"],["ぶどう","grapes"],["トマト","tomatoes"]]}},
+ {"id":"x-to-ya-ka-2","lv":5,
+  "tpl":"<when>{は|wa-topic}<a>{か|ka-or}<b>{に/へ|ni-destination}行[い]きたいです。",
+  "en":"<when> I want to go to either <a> or <b>.",
+  "f":1,"d":["と","や"],
+  "why":"Only one of the two places will be chosen, so か; と or や would mean going to both.",
+  "vars":{
+   "when":[["明日[あした]","Tomorrow"],["週末[しゅうまつ]","This weekend"],["土曜日[どようび]","On Saturday"],["日曜日[にちようび]","On Sunday"],["来週[らいしゅう]","Next week"],["夏休[なつやす]み","In the summer holidays"]],
+   "a":[["京都[きょうと]","Kyoto"],["大阪[おおさか]","Osaka"],["奈良[なら]","Nara"],["神戸[こうべ]","Kobe"],["名古屋[なごや]","Nagoya"],["横浜[よこはま]","Yokohama"]],
+   "b":[["鎌倉[かまくら]","Kamakura"],["日光[にっこう]","Nikko"],["箱根[はこね]","Hakone"],["金沢[かなざわ]","Kanazawa"],["広島[ひろしま]","Hiroshima"],["仙台[せんだい]","Sendai"]]}}
+]

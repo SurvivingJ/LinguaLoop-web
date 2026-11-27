@@ -1,0 +1,30 @@
+[
+ {"id":"made-until-1","lv":5,
+  "tpl":"<who>{は|wa-topic}<time>{まで|made-until}<act>。",
+  "en":"<who> <act> until <time>.",
+  "f":1,"d":["までに","から","に"],
+  "why":"An activity that goes on and stops at a point in time takes まで; までに would be a deadline.",
+  "vars":{
+   "who":[["父[ちち]","My father"],["兄[あに]","My older brother"],["姉[あね]","My older sister"],["田中[たなか]さん","Mr. Tanaka"],["鈴木[すずき]さん","Ms. Suzuki"],["山本[やまもと]さん","Mr. Yamamoto"],["妹[いもうと]","My younger sister"],["弟[おとうと]","My younger brother"]],
+   "time":[["九時[くじ]","nine"],["十時[じゅうじ]","ten"],["十一時[じゅういちじ]","eleven"],["十二時[じゅうにじ]","twelve"],["夜遅[よるおそ]く","late at night"],["朝[あさ]","morning"]],
+   "act":[["勉強[べんきょう]しました","studied"],["働[はたら]きました","worked"],["テレビ{を|o-object}見[み]ました","watched TV"],["ゲーム{を|o-object}しました","played video games"],["本[ほん]{を|o-object}読[よ]みました","read a book"],["宿題[しゅくだい]{を|o-object}しました","did homework"],["手紙[てがみ]{を|o-object}書[か]きました","wrote letters"]]}},
+ {"id":"made-until-2","lv":5,
+  "tpl":"<who>{は|wa-topic}<start>{から|kara-from}<end>{まで|made-until}<move>。",
+  "en":"<who> <move> from <start> to <end>.",
+  "f":2,"d":["までに","で","を"],
+  "why":"The place where a trip ends is marked with まで, often paired with から for the start.",
+  "vars":{
+   "who":[["父[ちち]","My father"],["田中[たなか]さん","Mr. Tanaka"],["鈴木[すずき]さん","Ms. Suzuki"],["兄[あに]","My older brother"],["姉[あね]","My older sister"],["山本[やまもと]さん","Mr. Yamamoto"]],
+   "start":[["家[いえ]","home"],["ホテル","the hotel"],["会社[かいしゃ]","the office"],["学校[がっこう]","school"],["公園[こうえん]","the park"],["病院[びょういん]","the hospital"]],
+   "end":[["駅[えき]","the station"],["図書館[としょかん]","the library"],["銀行[ぎんこう]","the bank"],["スーパー","the supermarket"],["郵便局[ゆうびんきょく]","the post office"],["美術館[びじゅつかん]","the art museum"]],
+   "move":[["歩[ある]きました","walked"],["走[はし]りました","ran"],["ゆっくり歩[ある]きました","walked slowly"],["ジョギングしました","jogged"],["タクシー{に|ni-target}乗[の]りました","took a taxi"],["バス{に|ni-target}乗[の]りました","took a bus"]]}},
+ {"id":"made-until-3","lv":5,
+  "tpl":"<place>{は|wa-topic}<day><time>{まで|made-until}開[あ]いています。",
+  "en":"<place> is open until <time> <day>.",
+  "f":1,"d":["までに","から","に"],
+  "why":"Being open lasts up to a closing time, so the end point takes まで.",
+  "vars":{
+   "place":[["スーパー","The supermarket"],["本屋[ほんや]","The bookshop"],["薬屋[くすりや]","The pharmacy"],["図書館[としょかん]","The library"],["パン屋[や]","The bakery"],["デパート","The department store"],["喫茶店[きっさてん]","The café"],["あの店[みせ]","That shop"]],
+   "day":[["毎日[まいにち]","every day"],["平日[へいじつ]","on weekdays"],["今日[きょう]","today"],["明日[あした]","tomorrow"],["今週[こんしゅう]","this week"],["普段[ふだん]","as a rule"]],
+   "time":[["夕方[ゆうがた]六時[ろくじ]","6 p.m."],["夜[よる]七時[しちじ]","7 p.m."],["夜[よる]七時半[しちじはん]","7.30 p.m."],["夜[よる]八時[はちじ]","8 p.m."],["夜[よる]九時[くじ]","9 p.m."],["夜[よる]十時[じゅうじ]","10 p.m."]]}}
+]

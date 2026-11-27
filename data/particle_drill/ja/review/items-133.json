@@ -1,0 +1,132 @@
+{
+ "batch": "items-133",
+ "files": [
+  "items/nitotte.jsonl"
+ ],
+ "checked": 49,
+ "fixed": 19,
+ "deleted": 0,
+ "replaced": 0,
+ "issues": [
+  {
+   "file": "items/nitotte.jsonl",
+   "jp_before": "会社[かいしゃ]{にとって|nitotte}、お客[きゃく]さん{の|no-possessive}信頼[しんらい]{が|ga-subject}一番[いちばん]大事[だいじ]です。",
+   "problem": "会社として、お客さんの信頼が一番大事です is natural Japanese with nearly the same meaning, so として is not a wrong answer.",
+   "action": "Replaced distractor として with に対[たい]して."
+  },
+  {
+   "file": "items/nitotte.jsonl",
+   "jp_before": "小[ちい]さな店[みせ]{にとって|nitotte}、一人[ひとり]{の|no-possessive}お客[きゃく]さん{は|wa-topic}とても大切[たいせつ]です。",
+   "problem": "小さな店として、一人一人のお客さんは大切です is acceptable (shop speaking of itself as a small shop); として is not plainly wrong.",
+   "action": "Replaced distractor として with について."
+  },
+  {
+   "file": "items/nitotte.jsonl",
+   "jp_before": "先生[せんせい]{にとって|nitotte}、生徒[せいと]{の|no-possessive}成長[せいちょう]{が|ga-subject}一番[いちばん]うれしいことです。",
+   "problem": "先生として、生徒の成長が一番うれしい is natural for a teacher speaking of their role; として is not plainly wrong.",
+   "action": "Replaced distractor として with について."
+  },
+  {
+   "file": "items/nitotte.jsonl",
+   "jp_before": "農家[のうか]{にとって|nitotte}、雨[あめ]{は|wa-topic}ありがたいものです。",
+   "problem": "農家として、雨はありがたい is a plausible thing for a farmer to say; として is only slightly marked.",
+   "action": "Replaced distractor として with によって."
+  },
+  {
+   "file": "items/nitotte.jsonl",
+   "jp_before": "若[わか]い夫婦[ふうふ]{にとって|nitotte}、家賃[やちん]{は|wa-topic}大[おお]きな出費[しゅっぴ]です。",
+   "problem": "若い夫婦として、家賃は大きな出費 is only mildly marked for a young couple speaking of themselves.",
+   "action": "Replaced distractor として with に対[たい]して."
+  },
+  {
+   "file": "items/nitotte.jsonl",
+   "jp_before": "学生[がくせい]{にとって|nitotte}、図書館[としょかん]{は|wa-topic}大切[たいせつ]な勉強[べんきょう]{の|no-possessive}場所[ばしょ]です。",
+   "problem": "学生として、図書館は大切な勉強の場所 is only mildly marked; として too close to acceptable.",
+   "action": "Replaced distractor として with によって."
+  },
+  {
+   "file": "items/nitotte.jsonl",
+   "jp_before": "私[わたし]{にとって|nitotte}、家族[かぞく]{が/は|ga-subject}一番[いちばん]大切[たいせつ]です。",
+   "problem": "私として(は)、家族が一番大切 is close to acceptable (私としては = from my standpoint).",
+   "action": "Replaced distractor として with によって."
+  },
+  {
+   "file": "items/nitotte.jsonl",
+   "jp_before": "私[わたし]{にとって|nitotte}、朝[あさ]{の|no-possessive}三十分[さんじゅっぷん]{は|wa-topic}大切[たいせつ]な自分[じぶん]{の|no-possessive}時間[じかん]です。",
+   "problem": "私として(は) is close to acceptable as 'from my standpoint'.",
+   "action": "Replaced distractor として with によって."
+  },
+  {
+   "file": "items/nitotte.jsonl",
+   "jp_before": "彼女[かのじょ]{にとって|nitotte}、祖母[そぼ]{の|no-possessive}手紙[てがみ]{は|wa-topic}宝物[たからもの]です。",
+   "problem": "彼女として(は) can read as 'from her standpoint'; として is too close to acceptable.",
+   "action": "Replaced distractor として with に対[たい]して."
+  },
+  {
+   "file": "items/nitotte.jsonl",
+   "jp_before": "山田[やまだ]さん{にとって|nitotte}、英語[えいご]{は|wa-topic}仕事[しごと]{の|no-possessive}道具[どうぐ]です。",
+   "problem": "山田さんとして(は) can read as 'from Mr. Yamada's standpoint'; として is too close to acceptable.",
+   "action": "Replaced distractor として with に対[たい]して."
+  },
+  {
+   "file": "items/nitotte.jsonl",
+   "jp_before": "彼[かれ]{にとって|nitotte}、日本語[にほんご]{の|no-possessive}勉強[べんきょう]{は|wa-topic}楽[たの]しい趣味[しゅみ]です。",
+   "problem": "彼として(は) can read as 'from his standpoint'; として is too close to acceptable.",
+   "action": "Replaced distractor として with によって."
+  },
+  {
+   "file": "items/nitotte.jsonl",
+   "jp_before": "運転[うんてん]{を|o-object}しない人[ひと]{にとって|nitotte}、駐車場[ちゅうしゃじょう]{は|wa-topic}要[い]りません。",
+   "problem": "Xにとって ...要りません is awkward; にとって favours an evaluative predicate, and 'parking lot' mistranslates the sense.",
+   "action": "Rewrote predicate as 必要ないものです and fixed English."
+  },
+  {
+   "file": "items/nitotte.jsonl",
+   "jp_before": "初[はじ]めて日本[にほん]{に|ni-destination}来[き]た人[ひと]{にとって|nitotte}、電車[でんしゃ]{の|no-possessive}乗[の]り換[か]え{は|wa-topic}難[むずか]しいです。",
+   "problem": "Non-focus slot 日本に来た omits the equally natural alternative へ.",
+   "action": "Added へ as alternative."
+  },
+  {
+   "file": "items/nitotte.jsonl",
+   "jp_before": "小[ちい]さな店[みせ]{にとって|nitotte}、一人[ひとり]{の|no-possessive}お客[きゃく]さん{は|wa-topic}とても大切[たいせつ]です。",
+   "problem": "一人のお客さん means 'one customer', not 'every single customer'.",
+   "action": "Changed to 一人一人のお客さん."
+  },
+  {
+   "file": "items/nitotte.jsonl",
+   "jp_before": "このアプリ{は|wa-topic}、目[め]{が|ga-subject}悪[わる]い人[ひと]{にとって|nitotte}とても便利[べんり]です。",
+   "problem": "Subject slot inside a noun-modifying clause omits the equally natural alternative の (が/の conversion).",
+   "action": "Added の as alternative."
+  },
+  {
+   "file": "items/nitotte.jsonl",
+   "jp_before": "アレルギー{が|ga-existence}ある人[ひと]{にとって|nitotte}、食[た]べ物[もの]{の|no-possessive}表示[ひょうじ]{は|wa-topic}とても大切[たいせつ]です。",
+   "problem": "Subject slot inside a noun-modifying clause omits the equally natural alternative の (が/の conversion).",
+   "action": "Added の as alternative."
+  },
+  {
+   "file": "items/nitotte.jsonl",
+   "jp_before": "運動[うんどう]{が|ga-subject}苦手[にがて]な人[ひと]{にとって|nitotte}、長[なが]い距離[きょり]{を|o-object}走[はし]る{の|no-nominalizer}{は|wa-topic}つらいことです。",
+   "problem": "Subject slot inside a noun-modifying clause omits the equally natural alternative の (が/の conversion).",
+   "action": "Added の as alternative; corrected skill id (stative predicate / existence)."
+  },
+  {
+   "file": "items/nitotte.jsonl",
+   "jp_before": "夜勤[やきん]{は|wa-topic}小[ちい]さい子供[こども]{が|ga-existence}いる家庭[かてい]{にとって|nitotte}大[おお]きな負担[ふたん]です。",
+   "problem": "Subject slot inside a noun-modifying clause omits the equally natural alternative の (が/の conversion).",
+   "action": "Added の as alternative."
+  },
+  {
+   "file": "items/nitotte.jsonl",
+   "jp_before": "この仕事[しごと]{は|wa-topic}経験[けいけん]{が|ga-subject}ない人[ひと]{にとって|nitotte}難[むずか]しいです{か|ka-question}。",
+   "problem": "Subject slot inside a noun-modifying clause omits the equally natural alternative の (が/の conversion).",
+   "action": "Added の as alternative; corrected skill id (stative predicate / existence)."
+  },
+  {
+   "file": "items/nitotte.jsonl",
+   "jp_before": "旅行[りょこう]{が|ga-subject}好[す]きな人[ひと]{にとって|nitotte}、パスポート{は|wa-topic}一番[いちばん]大事[だいじ]な物[もの]です。",
+   "problem": "Subject slot inside a noun-modifying clause omits the equally natural alternative の (が/の conversion).",
+   "action": "Added の as alternative; corrected skill id (stative predicate / existence)."
+  }
+ ]
+}

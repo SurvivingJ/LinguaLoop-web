@@ -1,0 +1,7 @@
+{"batch":"packs-017","files":["packs/ka-indefinite.json","packs/ka-embedded.json","packs/kara-from.json"],"checked":7,"fixed":4,"deleted":0,"issues":[
+ {"file":"packs/ka-indefinite.json","pack":"ka-indefinite-2","problem":"verb variable had only 4 values (minimum 6)","action":"added キャンプに行きたいです, 食事に行きたいです, 遊びに行きたいです (each with its に marked ni-purpose; slots sit after the focus, so f is unaffected)"},
+ {"file":"packs/ka-indefinite.json","pack":"ka-indefinite-2","problem":"when values 今度の休み and 今年の夏 contained an unmarked の before the focus slot; marking it would shift f for those values only","action":"replaced with 夏休み / In the summer holidays and 冬休み / In the winter holidays"},
+ {"file":"packs/ka-embedded.json","pack":"ka-embedded-1","problem":"who values 受付の人, 係の人, 事務の人 had an unmarked possessive の","action":"marked {の|no-possessive} (after the focus slot, so f is unchanged)"},
+ {"file":"packs/ka-embedded.json","pack":"ka-embedded-2","problem":"act value 明日の会議に来る had an unmarked の before the focus slot; marking it would give that value 2 slots and shift f","action":"replaced with 会議に来る / is coming to the meeting"},
+ {"file":"packs/kara-from.json","pack":"kara-from-3","problem":"when value 去年の夏 had an unmarked の before the focus slot; marking it would shift f from 0 to 1 for that value","action":"replaced with 夏休み / the summer holidays"}
+]}

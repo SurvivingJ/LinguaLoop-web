@@ -1,0 +1,212 @@
+[
+ {
+  "id": "dake-only-1",
+  "lv": 4,
+  "tpl": "<who>{は|wa-topic}<food>{だけ|dake-only}<verb>。",
+  "en": "<who> <verb> only <food>.",
+  "f": 2,
+  "d": [
+   "しか",
+   "も",
+   "ほど"
+  ],
+  "why": "だけ right after the number limits it: just that many and no more.",
+  "vars": {
+   "who": [
+    [
+     "母[はは]",
+     "My mother"
+    ],
+    [
+     "父[ちち]",
+     "My father"
+    ],
+    [
+     "田中[たなか]さん",
+     "Mr. Tanaka"
+    ],
+    [
+     "鈴木[すずき]さん",
+     "Ms. Suzuki"
+    ],
+    [
+     "兄[あに]",
+     "My older brother"
+    ],
+    [
+     "妹[いもうと]",
+     "My younger sister"
+    ],
+    [
+     "山田[やまだ]さん",
+     "Mr. Yamada"
+    ],
+    [
+     "祖母[そぼ]",
+     "My grandmother"
+    ]
+   ],
+   "food": [
+    [
+     "りんご{を|o-object}一[ひと]つ",
+     "one apple"
+    ],
+    [
+     "ケーキ{を|o-object}一切[ひとき]れ",
+     "one slice of cake"
+    ],
+    [
+     "おにぎり{を|o-object}二[ふた]つ",
+     "two rice balls"
+    ],
+    [
+     "みかん{を|o-object}三[みっ]つ",
+     "three mandarins"
+    ],
+    [
+     "クッキー{を|o-object}二枚[にまい]",
+     "two biscuits"
+    ],
+    [
+     "ピザ{を|o-object}一切[ひとき]れ",
+     "one slice of pizza"
+    ],
+    [
+     "ドーナツ{を|o-object}一[ひと]つ",
+     "one doughnut"
+    ],
+    [
+     "卵[たまご]{を|o-object}二[ふた]つ",
+     "two eggs"
+    ]
+   ],
+   "verb": [
+    [
+     "買[か]いました",
+     "bought"
+    ],
+    [
+     "食[た]べました",
+     "ate"
+    ],
+    [
+     "もらいました",
+     "got"
+    ],
+    [
+     "取[と]りました",
+     "took"
+    ],
+    [
+     "選[えら]びました",
+     "chose"
+    ],
+    [
+     "持[も]って帰[かえ]りました",
+     "took home"
+    ]
+   ]
+  }
+ },
+ {
+  "id": "dake-only-2",
+  "lv": 4,
+  "tpl": "<when>、<who>{だけ|dake-only}<event>。",
+  "en": "<when>, only <who> <event>.",
+  "f": 0,
+  "d": [
+   "しか",
+   "も",
+   "ほど"
+  ],
+  "why": "だけ after a person singles them out: they did it and nobody else did.",
+  "vars": {
+   "when": [
+    [
+     "昨日[きのう]",
+     "Yesterday"
+    ],
+    [
+     "今日[きょう]",
+     "Today"
+    ],
+    [
+     "一昨日[おととい]",
+     "The day before yesterday"
+    ],
+    [
+     "今朝[けさ]",
+     "This morning"
+    ],
+    [
+     "先日[せんじつ]",
+     "The other day"
+    ],
+    [
+     "この前[まえ]",
+     "Last time"
+    ]
+   ],
+   "who": [
+    [
+     "田中[たなか]さん",
+     "Mr. Tanaka"
+    ],
+    [
+     "鈴木[すずき]さん",
+     "Ms. Suzuki"
+    ],
+    [
+     "山田[やまだ]さん",
+     "Mr. Yamada"
+    ],
+    [
+     "佐藤[さとう]さん",
+     "Ms. Sato"
+    ],
+    [
+     "高橋[たかはし]さん",
+     "Mr. Takahashi"
+    ],
+    [
+     "中村[なかむら]さん",
+     "Ms. Nakamura"
+    ],
+    [
+     "小林[こばやし]さん",
+     "Mr. Kobayashi"
+    ]
+   ],
+   "event": [
+    [
+     "会議[かいぎ]{に|ni-target}遅[おく]れました",
+     "was late for the meeting"
+    ],
+    [
+     "宿題[しゅくだい]{を|o-object}出[だ]しました",
+     "handed in the homework"
+    ],
+    [
+     "休[やす]みました",
+     "was absent"
+    ],
+    [
+     "早[はや]く来[き]ました",
+     "came early"
+    ],
+    [
+     "傘[かさ]{を|o-object}持[も]って来[き]ました",
+     "brought an umbrella"
+    ],
+    [
+     "お弁当[べんとう]{を|o-object}持[も]って来[き]ました",
+     "brought a packed lunch"
+    ],
+    [
+     "電車[でんしゃ]{で|de-means}来[き]ました",
+     "came by train"
+    ]
+   ]
+  }
+ }
+]

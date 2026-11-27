@@ -1,0 +1,14 @@
+{"batch":"items-126","files":["items/tai-ga-o.jsonl","items/te-hoshii.jsonl"],"checked":81,"fixed":11,"deleted":0,"replaced":3,
+"issues":[
+{"file":"items/tai-ga-o.jsonl","jp_before":"今夜[こんや]{は|wa-topic}温[あたた]かいスープ{が/を|tai-ga-o}飲[の]みたいです。","problem":"Near-duplicate of the cold water / cold juice / cold drink items, and the verb 飲む is used more than three times in the batch.","action":"Replaced with a ピザを頼みたい item (same skill, same slot structure)."},
+{"file":"items/tai-ga-o.jsonl","jp_before":"駅前[えきまえ]{で|de-place}傘[かさ]{を/が|tai-ga-o}買[か]いたいです。","problem":"The verb 買う is used four times in the file (lines 3, 23, 34, 47).","action":"Replaced with タクシーを拾いたい."},
+{"file":"items/tai-ga-o.jsonl","jp_before":"最近[さいきん]{は|wa-topic}ドラマ{を/が|tai-ga-o}ゆっくり見[み]たいです。","problem":"Semantically awkward ('want to watch dramas slowly lately'), and 見る is used four times.","action":"Replaced with もっと漢字を覚えたいです。"},
+{"file":"items/tai-ga-o.jsonl","jp_before":"小[ちい]さい頃[ころ]{は|wa-topic}サッカー{が/を|tai-ga-o}したかったです。","problem":"Distractor に gives サッカーにしたかった ('wanted to go with soccer'), which is grammatical and close to the English.","action":"Distractors changed to の / へ / と."},
+{"file":"items/tai-ga-o.jsonl","jp_before":"海外[かいがい]{で|de-place}いろいろな経験[けいけん]{を/が|tai-ga-o}したいです。","problem":"Distractor に gives 経験にしたい, which is grammatical (with a different meaning but plausible), so it is not plainly wrong.","action":"Distractors changed to の / へ / と."},
+{"file":"items/tai-ga-o.jsonl","jp_before":"寝[ね]る前[まえ]{に|maeni-atode}日記[にっき]{を/が|tai-ga-o}書[か]きたいです。","problem":"Distractor に gives 日記に書きたい, which is natural and matches the English 'write in my diary'. へ is also marginal.","action":"English changed to 'write my diary'; distractors changed to の / と / で."},
+{"file":"items/te-hoshii.jsonl","jp_before":"彼女[かのじょ]{に|te-hoshii}いつも笑[わら]っていてほしいです。","problem":"Distractor が: with a state predicate (笑っていてほしい) 彼女が is natural.","action":"Added が as an alternative ({に/が}); distractors changed to を / と / で; why updated."},
+{"file":"items/te-hoshii.jsonl","jp_before":"娘[むすめ]{に|te-hoshii}幸[しあわ]せ{に|ni-change}なってほしいです。","problem":"Distractor が: 娘が幸せになってほしい is very common and natural with a non-volitional change.","action":"Added が as an alternative ({に/が}); distractors changed to を / と / で; why updated."},
+{"file":"items/te-hoshii.jsonl","jp_before":"友達[ともだち]{に|te-hoshii}この本[ほん]{を|o-object}読[よ]んでほしいです。","problem":"lv 5 is too low because ～てほしい is N4 grammar.","action":"lv changed to 4."},
+{"file":"items/te-hoshii.jsonl","jp_before":"母[はは]{に|te-hoshii}日曜日[にちようび]{に|ni-time}カレー{を|o-object}作[つく]ってほしいです。","problem":"lv 5 is too low because ～てほしい is N4 grammar.","action":"lv changed to 4."},
+{"file":"items/te-hoshii.jsonl","jp_before":"学生[がくせい]{に|te-hoshii}もっと本[ほん]{を|o-object}読[よ]んでほしい{と|to-quote}先生[せんせい]{は|wa-topic}言[い]いました。","problem":"The English assumed the teacher's gender ('he').","action":"English changed to 'The teacher said they want ...'."}
+]}

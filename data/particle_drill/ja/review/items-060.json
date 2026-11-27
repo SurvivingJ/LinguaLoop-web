@@ -1,0 +1,6 @@
+{"batch":"items-060","files":["items/x-ni-de__2.jsonl"],"checked":48,"fixed":2,"deleted":2,"replaced":2,"issues":[
+{"file":"items/x-ni-de__2.jsonl","jp_before":"会社[かいしゃ]{で|de-place}先輩[せんぱい]{に|ni-source}仕事[しごと]{を|o-object}習[なら]いました。","problem":"Non-focus slot missing alternative: 先輩から習う is equally natural.","action":"Slot changed to {に/から|ni-source}."},
+{"file":"items/x-ni-de__2.jsonl","jp_before":"先生[せんせい]{は/が|wa-topic}教室[きょうしつ]{で|de-place}学生[がくせい]{に|ni-recipient}英語[えいご]{を|o-object}教[おし]えます。","problem":"Near-duplicate of the item 母は小学校で英語を教えています (same verb and object).","action":"Rewritten as 先生は教室で学生にテストを返しました (de-place focus kept)."},
+{"file":"items/x-ni-de__2.jsonl","jp_before":"先生[せんせい]{は|wa-topic}教室[きょうしつ]{の|no-possessive}前[まえ]{に|ni-location}立[た]っています。","problem":"Distractor で is acceptable: 教室の前で立っています is natural Japanese with the same meaning, so the item has no single answer.","action":"Deleted; replaced with 新しい学生が私たちのクラスに入りました (ni-target, で plainly wrong)."},
+{"file":"items/x-ni-de__2.jsonl","jp_before":"バス{が|ga-subject}学校[がっこう]{の|no-possessive}前[まえ]{に|ni-location}止[と]まりました。","problem":"Distractor で is fully natural: バスが学校の前で止まりました is the more common phrasing for 'the bus stopped in front of the school'.","action":"Deleted; replaced with 毎朝、駅前で学校のバスに乗ります (focus バスに, ni-target)."}
+]}

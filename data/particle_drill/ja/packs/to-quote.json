@@ -1,0 +1,20 @@
+[
+ {"id":"to-quote-1","lv":4,
+  "tpl":"<who>{は|wa-topic}<clause>{と|to-quote}<verb>。",
+  "en":"<who> <verb> that <clause>.",
+  "f":2,"d":["を","に","で"],
+  "why":"と closes the reported words or thought before a verb of saying, writing or thinking.",
+  "vars":{
+   "who":[["田中[たなか]さん","Mr. Tanaka"],["鈴木[すずき]さん","Ms. Suzuki"],["山田[やまだ]さん","Mr. Yamada"],["母[はは]","My mother"],["父[ちち]","My father"],["兄[あに]","My older brother"],["先生[せんせい]","The teacher"],["友達[ともだち]","My friend"]],
+   "clause":[["明日[あした]{は|wa-topic}雨[あめ]だ","it will rain tomorrow"],["この店[みせ]{は|wa-topic}安[やす]い","this shop is cheap"],["電車[でんしゃ]{が/は|ga-subject}遅[おく]れている","the train is running late"],["来週[らいしゅう]{は|wa-topic}寒[さむ]くなる","it will get cold next week"],["その映画[えいが]{は|wa-topic}面白[おもしろ]い","the film is interesting"],["試験[しけん]{は|wa-topic}難[むずか]しかった","the exam was difficult"],["図書館[としょかん]{は|wa-topic}今日[きょう]休[やす]みだ","the library is closed today"],["道[みち]{が/は|ga-subject}混[こ]んでいる","the roads are busy"]],
+   "verb":[["言[い]っていました","said"],["言[い]っています","says"],["思[おも]っています","thinks"],["書[か]いていました","wrote"],["話[はな]していました","was saying"],["電話[でんわ]{で|de-means}言[い]っていました","said on the phone"]]}},
+ {"id":"to-quote-2","lv":4,
+  "tpl":"<who>{に|ni-recipient}<thing>{は/が|wa-topic}<state>{と|to-quote}伝[つた]えてください。",
+  "en":"Please tell <who> that <thing> <state>.",
+  "f":2,"d":["を","に","で"],
+  "why":"The message you pass on is closed with と before 伝える.",
+  "vars":{
+   "who":[["田中[たなか]さん","Mr. Tanaka"],["鈴木[すずき]さん","Ms. Suzuki"],["山田[やまだ]さん","Mr. Yamada"],["佐藤[さとう]さん","Ms. Sato"],["中村[なかむら]さん","Mr. Nakamura"],["小林[こばやし]さん","Ms. Kobayashi"],["高橋[たかはし]さん","Mr. Takahashi"],["伊藤[いとう]さん","Ms. Ito"]],
+   "thing":[["手紙[てがみ]","the letter"],["荷物[にもつ]","the package"],["新[あたら]しいパソコン","the new computer"],["新[あたら]しい椅子[いす]","the new chairs"],["新[あたら]しい机[つくえ]","the new desk"],["プリンター","the printer"],["カタログ","the catalogues"],["写真[しゃしん]","the photos"]],
+   "state":[["今朝[けさ]届[とど]いた","arrived this morning"],["昨日[きのう]届[とど]いた","arrived yesterday"],["さっき届[とど]いた","arrived a moment ago"],["届[とど]かなかった","did not arrive"],["明日[あした]届[とど]く","will arrive tomorrow"],["来週[らいしゅう]届[とど]く","will arrive next week"],["午後[ごご]届[とど]く","will arrive this afternoon"],["明後日[あさって]届[とど]く","will arrive the day after tomorrow"]]}}
+]

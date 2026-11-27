@@ -12,15 +12,15 @@
   "tpl":"<name>、<obj>{を|o-object}<req>",
   "en":"<name>, <req> <obj>.",
   "f":0,"d":["が","に","で"],
-  "why":"The thing you ask someone to lend, show or pass is the direct object of the verb, so it takes を.",
+  "why":"The thing you ask someone to lend, pass or bring is the direct object of the verb, so it takes を.",
   "vars":{
    "name":[["田中[たなか]さん","Mr. Tanaka"],["山田[やまだ]さん","Ms. Yamada"],["鈴木[すずき]さん","Mr. Suzuki"],["佐藤[さとう]さん","Ms. Sato"],["中村[なかむら]さん","Mr. Nakamura"],["高橋[たかはし]さん","Ms. Takahashi"],["小林[こばやし]さん","Mr. Kobayashi"]],
    "obj":[["ペン","the pen"],["辞書[じしょ]","the dictionary"],["傘[かさ]","the umbrella"],["地図[ちず]","the map"],["ノート","the notebook"],["本[ほん]","the book"],["鉛筆[えんぴつ]","the pencil"],["雑誌[ざっし]","the magazine"]],
-   "req":[["貸[か]してください。","please lend me"],["見[み]せてください。","please show me"],["取[と]ってください。","please pass me"],["持[も]ってきてください。","please bring"],["片付[かたづ]けてください。","please put away"],["返[かえ]してください。","please return"]]}},
+   "req":[["貸[か]してください。","please lend me"],["使[つか]わせてください。","please let me use"],["取[と]ってください。","please pass me"],["持[も]ってきてください。","please bring"],["片付[かたづ]けてください。","please put away"],["返[かえ]してください。","please return"]]}},
  {"id":"o-object-3","lv":5,
   "tpl":"<who>{は|wa-topic}<when>何[なに]{を|o-object}<verb>か。",
   "en":"What did <who> <verb> <when>?",
-  "f":1,"d":["が","に","で"],
+  "f":1,"d":["が","に","は"],
   "why":"何 asks about the object of the verb here, so it takes を, just as the answer would.",
   "vars":{
    "who":[["田中[たなか]さん","Mr. Tanaka"],["お父[とう]さん","your father"],["山田[やまだ]さん","Ms. Yamada"],["先生[せんせい]","the teacher"],["子[こ]どもたち","the children"],["妹[いもうと]さん","your younger sister"],["皆[みな]さん","everyone"]],

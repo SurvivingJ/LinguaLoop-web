@@ -1,0 +1,9 @@
+{"batch":"items-070","files":["items/x-to-ni.jsonl"],"checked":57,"fixed":7,"deleted":0,"replaced":0,"issues":[
+{"file":"items/x-to-ni.jsonl","jp_before":"同僚[どうりょう]{と|to-with}昼[ひる]ご飯[はん]{を|o-object}食[た]べ{に|ni-purpose}行[い]きます。","problem":"行く used five times in the file (limit is three).","action":"Rewrote as 同僚と駅前の店で昼ご飯を食べました; same focus と (to-with)."},
+{"file":"items/x-to-ni.jsonl","jp_before":"夏休[なつやす]み{に|ni-time}、友達[ともだち]{と|to-with}海[うみ]{に/へ|ni-destination}行[い]きます。","problem":"Overuse of 行く (fifth use).","action":"Rewrote as 夏休みに、友達と海で泳ぎます; same focus と."},
+{"file":"items/x-to-ni.jsonl","jp_before":"けんかをした友達[ともだち]{と|to-reciprocal}仲直[なかなお]りしました。","problem":"The を in けんかをした was not marked as a slot.","action":"Marked けんか{を|o-object}した and moved f from 0 to 1."},
+{"file":"items/x-to-ni.jsonl","jp_before":"友達[ともだち]{と|to-with}将来[しょうらい]{の|no-possessive}夢[ゆめ]{を|o-object}話[はな]し合[あ]いました。","problem":"Wrong skill id: と with 話し合う marks the other party in a mutual action, so it is to-reciprocal, not to-with (the why already says so).","action":"Changed the focus slot skill to to-reciprocal."},
+{"file":"items/x-to-ni.jsonl","jp_before":"私[わたし]{は|wa-topic}兄[あに]{と|to-reciprocal}けんか{を|o-object}したことがありません。","problem":"Near-duplicate of item 3 (fighting with a brother/friend); けんか appeared three times in the file.","action":"Replaced with 友達と連絡先を交換しました (to-reciprocal, f=0)."},
+{"file":"items/x-to-ni.jsonl","jp_before":"駅[えき]{で|de-place}友達[ともだち]{と|to-reciprocal}待[ま]ち合[あ]わせ{を|o-object}しました。","problem":"The English 'arranged to meet' misreads 待ち合わせをする, which means actually meeting at an agreed place.","action":"Changed en to 'I met up with a friend at the station as arranged.'"},
+{"file":"items/x-to-ni.jsonl","jp_before":"彼[かれ]{の|no-possessive}話[はなし]{に|ni-reason}みんな{が|ga-subject}笑[わら]いました。","problem":"話に笑う is slightly unnatural.","action":"Changed 話 to 冗談: 彼の冗談にみんなが笑いました / 'Everyone laughed at his joke.', lv 3."}
+]}

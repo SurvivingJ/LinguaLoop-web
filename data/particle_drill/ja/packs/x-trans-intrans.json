@@ -1,0 +1,38 @@
+[
+ {"id":"x-trans-intrans-1","lv":3,
+  "tpl":"<who>{は/が|wa-topic}<obj>{を|o-object}<verb>。",
+  "en":"<who> <verb> <obj>.",
+  "f":1,"d":["が"],
+  "why":"開ける and 閉める are transitive: a person does them to something, so the thing opened or closed takes を.",
+  "vars":{
+   "who":[["父[ちち]","My father"],["母[はは]","My mother"],["兄[あに]","My older brother"],["姉[あね]","My older sister"],["田中[たなか]さん","Mr. Tanaka"],["山田[やまだ]さん","Ms. Yamada"],["祖母[そぼ]","My grandmother"],["弟[おとうと]","My younger brother"]],
+   "obj":[["ドア","the door"],["窓[まど]","the window"],["門[もん]","the gate"],["カーテン","the curtains"],["引[ひ]き出[だ]し","the drawer"],["冷蔵庫[れいぞうこ]","the fridge"],["玄関[げんかん]","the front door"]],
+   "verb":[["開[あ]けました","opened"],["閉[し]めました","closed"],["開[あ]けませんでした","did not open"],["閉[し]めませんでした","did not close"],["閉[し]め忘[わす]れました","forgot to close"],["開[あ]けたそうです","apparently opened"]]}},
+ {"id":"x-trans-intrans-2","lv":3,
+  "tpl":"<when><obj>{が|ga-subject}<verb>。",
+  "en":"<obj> <verb> <when>.",
+  "f":0,"d":["を"],
+  "why":"開く and 閉まる are intransitive: the thing opens or closes by itself, so it is the subject and takes が.",
+  "vars":{
+   "when":[["急[きゅう]に","suddenly"],["突然[とつぜん]","all of a sudden"],["さっき","a moment ago"],["昨夜[ゆうべ]","last night"],["今朝[けさ]","this morning"],["夕方[ゆうがた]","in the evening"],["静[しず]かに","quietly"]],
+   "obj":[["ドア","The door"],["窓[まど]","The window"],["門[もん]","The gate"],["引[ひ]き出[だ]し","The drawer"],["冷蔵庫[れいぞうこ]","The fridge"],["自動[じどう]ドア","The automatic door"],["戸[と]","The sliding door"]],
+   "verb":[["開[あ]きました","opened"],["閉[し]まりました","closed"],["開[あ]いたようです","seems to have opened"],["閉[し]まったようです","seems to have closed"],["開[あ]いたそうです","apparently opened"],["閉[し]まったそうです","apparently closed"]]}},
+ {"id":"x-trans-intrans-3","lv":4,
+  "tpl":"<call>、<obj>{を|o-object}<verb>。",
+  "en":"<call>, <verb> <obj>?",
+  "f":0,"d":["が"],
+  "why":"つける and 消す are transitive: someone switches the device on or off, so the device takes を.",
+  "vars":{
+   "call":[["すみません","Excuse me"],["あの","Um"],["田中[たなか]さん","Mr. Tanaka"],["鈴木[すずき]さん","Ms. Suzuki"],["山田[やまだ]さん","Mr. Yamada"],["佐藤[さとう]さん","Ms. Sato"],["お母[かあ]さん","Mum"]],
+   "obj":[["電気[でんき]","the light"],["テレビ","the TV"],["エアコン","the air conditioner"],["ラジオ","the radio"],["ストーブ","the heater"],["暖房[だんぼう]","the heating"],["扇風機[せんぷうき]","the fan"]],
+   "verb":[["つけましょうか","shall I turn on"],["消[け]しましょうか","shall I turn off"],["つけてもいいですか","may I turn on"],["消[け]してもいいですか","may I turn off"],["つけてくれませんか","could you turn on"],["消[け]してくれませんか","could you turn off"],["消[け]したほうがいいですか","should I turn off"]]}},
+ {"id":"x-trans-intrans-4","lv":3,
+  "tpl":"<who>{は|wa-topic}<event>{が|ga-sub-clause}始[はじ]まる前[まえ]{に|ni-time}<act>。",
+  "en":"<who> <act> before <event> started.",
+  "f":1,"d":["を"],
+  "why":"始まる is intransitive: the event starts by itself, so inside the clause it is the subject and takes が.",
+  "vars":{
+   "who":[["父[ちち]","My father"],["母[はは]","My mother"],["兄[あに]","My older brother"],["姉[あね]","My older sister"],["田中[たなか]さん","Mr. Tanaka"],["山田[やまだ]さん","Ms. Yamada"],["友達[ともだち]","My friend"],["祖父[そふ]","My grandfather"]],
+   "event":[["会議[かいぎ]","the meeting"],["授業[じゅぎょう]","the lesson"],["映画[えいが]","the film"],["コンサート","the concert"],["試合[しあい]","the match"],["試験[しけん]","the exam"],["パーティー","the party"],["式[しき]","the ceremony"]],
+   "act":[["飲[の]み物[もの]{を|o-object}買[か]いました","bought a drink"],["トイレ{に/へ|ni-destination}行[い]きました","went to the toilet"],["家[いえ]{に|ni-recipient}電話[でんわ]しました","phoned home"],["少[すこ]し休[やす]みました","had a short rest"],["何[なに]か食[た]べました","ate something"],["新聞[しんぶん]{を|o-object}読[よ]みました","read the newspaper"],["外[そと]{を|o-path}少[すこ]し歩[ある]きました","took a short walk outside"]]}}
+]

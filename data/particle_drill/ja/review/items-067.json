@@ -1,0 +1,8 @@
+{"batch":"items-067","files":["items/x-o-ni__1.jsonl"],"checked":55,"fixed":5,"deleted":1,"replaced":1,"issues":[
+{"file":"items/x-o-ni__1.jsonl","jp_before":"妹[いもうと]{は/が|wa-topic}次[つぎ]{の|no-possessive}駅[えき]{で|de-place}電車[でんしゃ]{を|o-departure}降[お]ります。","problem":"電車から降ります is equally natural but was not listed, so a correct から answer would be marked wrong.","action":"Added から as an alternative in the focus slot and mentioned it in why."},
+{"file":"items/x-o-ni__1.jsonl","jp_before":"祖母[そぼ]{は/が|wa-topic}毎日[まいにち]近[ちか]く{の|no-possessive}公園[こうえん]{を|o-path}散歩[さんぽ]します。","problem":"公園で散歩します is fully natural with the same meaning but was not listed.","action":"Added で as an alternative in the focus slot."},
+{"file":"items/x-o-ni__1.jsonl","jp_before":"母[はは]{は/が|wa-topic}庭[にわ]{で|de-place}洗濯物[せんたくもの]{を|o-object}干[ほ]します。","problem":"Non-focus slot: 庭に洗濯物を干す is equally natural.","action":"Added に as an alternative in the で slot."},
+{"file":"items/x-o-ni__1.jsonl","jp_before":"毎朝[まいあさ]、何時[なんじ]{に|ni-time}起[お]きます{か|ka-question}。","problem":"Near-duplicate of item 1 (起きる at a clock time with ni-time) and drills time, not the verb government this clinic is about.","action":"Deleted and replaced with a 慣れる + に item: 娘さんは新しい学校にもう慣れましたか。"},
+{"file":"items/x-o-ni__1.jsonl","jp_before":"母[はは]{は/が|wa-topic}赤[あか]ちゃん{を|o-object}ベッド{に|ni-destination}寝[ね]かせました。","problem":"ベッドで寝かせました is also natural for 'put the baby to bed' but was not listed.","action":"Added で as an alternative in the focus slot (it is not a distractor)."},
+{"file":"items/x-o-ni__1.jsonl","jp_before":"姉[あね]{は/が|wa-topic}毎晩[まいばん]子[こ]ども{に|ni-recipient}絵本[えほん]{を|o-object}読[よ]みます。","problem":"子どもに絵本を読みます is stilted; reading to a child is naturally 読んであげます.","action":"Changed the verb to 読んであげます."}
+]}

@@ -1,0 +1,20 @@
+[
+ {"id":"passive-agent-1","lv":4,
+  "tpl":"<who>{は|wa-topic}<agent>{に/から|passive-agent}<act>。",
+  "en":"<who> was <act> by <agent>.",
+  "f":1,"d":["を","が","で"],
+  "why":"In a passive sentence the person who does the action is marked with に; から also works for praise, scolding and calls.",
+  "vars":{
+   "who":[["弟[おとうと]","My younger brother"],["妹[いもうと]","My younger sister"],["兄[あに]","My older brother"],["姉[あね]","My older sister"],["息子[むすこ]","My son"],["娘[むすめ]","My daughter"]],
+   "agent":[["先生[せんせい]","the teacher"],["コーチ","the coach"],["祖母[そぼ]","my grandmother"],["祖父[そふ]","my grandfather"],["校長先生[こうちょうせんせい]","the head teacher"],["近所[きんじょ]の人[ひと]","a neighbour"]],
+   "act":[["褒[ほ]められました","praised"],["叱[しか]られました","scolded"],["注意[ちゅうい]されました","warned"],["呼[よ]ばれました","called over"],["励[はげ]まされました","encouraged"],["慰[なぐさ]められました","comforted"]]}},
+ {"id":"passive-agent-2","lv":4,
+  "tpl":"<place>{で|de-place}<agent>{に|passive-agent}<act>。",
+  "en":"<place>, <agent> <act>.",
+  "f":1,"d":["を","が","で"],
+  "why":"In a passive sentence the person who does the action to you is marked with に.",
+  "vars":{
+   "place":[["駅[えき]","At the station"],["電車[でんしゃ]の中[なか]","On the train"],["バスの中[なか]","On the bus"],["空港[くうこう]","At the airport"],["店[みせ]の中[なか]","In the shop"],["人混[ひとご]みの中[なか]","In the crowd"]],
+   "agent":[["知[し]らない人[ひと]","a stranger"],["隣[となり]の人[ひと]","the person next to me"],["若[わか]い男[おとこ]の人[ひと]","a young man"],["女[おんな]の人[ひと]","a woman"],["子供[こども]","a child"],["外国人[がいこくじん]の観光客[かんこうきゃく]","a foreign tourist"],["酔[よ]っ払[ぱら]い","a drunk"]],
+   "act":[["足[あし]{を|passive-suffering}踏[ふ]まれました","stepped on my foot"],["写真[しゃしん]{を|passive-suffering}撮[と]られました","took a photo of me"],["肩[かた]{を|passive-suffering}叩[たた]かれました","tapped me on the shoulder"],["傘[かさ]{を|passive-suffering}持[も]って行[い]かれました","walked off with my umbrella"],["押[お]されました","pushed me"],["じろじろ見[み]られました","stared at me"]]}}
+]

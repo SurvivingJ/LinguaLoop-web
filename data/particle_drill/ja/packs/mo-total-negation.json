@@ -1,0 +1,20 @@
+[
+ {"id":"mo-total-negation-1","lv":5,
+  "tpl":"<who>{は|wa-topic}<time>何[なに]{も|mo-total-negation}<verb>。",
+  "en":"<who> didn't <verb> anything <time>.",
+  "f":1,"d":["か","を","が"],
+  "why":"何 + も with a negative verb means 'nothing at all'; を drops out and も takes its place.",
+  "vars":{
+   "who":[["兄[あに]","My older brother"],["父[ちち]","My father"],["妹[いもうと]","My younger sister"],["田中[たなか]さん","Mr. Tanaka"],["佐藤[さとう]さん","Ms. Sato"],["祖父[そふ]","My grandfather"]],
+   "time":[["昨日[きのう]","yesterday"],["今朝[けさ]","this morning"],["今日[きょう]","today"],["週末[しゅうまつ]","at the weekend"],["一日中[いちにちじゅう]","all day"],["先週[せんしゅう]","last week"]],
+   "verb":[["食[た]べませんでした","eat"],["飲[の]みませんでした","drink"],["買[か]いませんでした","buy"],["読[よ]みませんでした","read"],["書[か]きませんでした","write"],["言[い]いませんでした","say"],["しませんでした","do"]]}},
+ {"id":"mo-total-negation-2","lv":4,
+  "tpl":"<who>{は|wa-topic}<time>誰[だれ]{に|ni-recipient}{も|mo-total-negation}<act>。",
+  "en":"<who> didn't <act> <time>.",
+  "f":2,"d":["か","を","は"],
+  "why":"誰に + も with a negative verb means 'to nobody'; に stays and も is added after it.",
+  "vars":{
+   "who":[["兄[あに]","My older brother"],["姉[あね]","My older sister"],["父[ちち]","My father"],["田中[たなか]さん","Mr. Tanaka"],["佐藤[さとう]さん","Ms. Sato"],["祖母[そぼ]","My grandmother"]],
+   "time":[["昨日[きのう]","yesterday"],["今日[きょう]","today"],["週末[しゅうまつ]","at the weekend"],["先週[せんしゅう]","last week"],["旅行中[りょこうちゅう]","during the trip"],["結局[けっきょく]","in the end"]],
+   "act":[["そのこと{を|o-object}話[はな]しませんでした","tell anyone about it"],["写真[しゃしん]{を|o-object}見[み]せませんでした","show the photos to anyone"],["お金[かね]{を|o-object}貸[か]しませんでした","lend money to anyone"],["住所[じゅうしょ]{を|o-object}教[おし]えませんでした","give the address to anyone"],["メール{を|o-object}送[おく]りませんでした","send an email to anyone"],["手紙[てがみ]{を|o-object}書[か]きませんでした","write a letter to anyone"],["鍵[かぎ]{を|o-object}渡[わた]しませんでした","hand the key to anyone"],["電話番号[でんわばんごう]{を|o-object}教[おし]えませんでした","give the phone number to anyone"]]}}
+]

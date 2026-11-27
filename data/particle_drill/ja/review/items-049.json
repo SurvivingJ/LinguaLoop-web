@@ -1,0 +1,6 @@
+{"batch":"items-049","files":["items/kara-from.jsonl"],"checked":71,"fixed":3,"deleted":1,"replaced":1,"issues":[
+{"file":"items/kara-from.jsonl","jp_before":"毎日[まいにち]何時[なんじ]{から|kara-from}何時[なんじ]{まで|made-until}ピアノ{の|no-possessive}練習[れんしゅう]{を|o-object}しますか。","problem":"The question particle か was not marked as a slot (ka-question exists in the catalog).","action":"Marked it as {か|ka-question}."},
+{"file":"items/kara-from.jsonl","jp_before":"毎朝[まいあさ]プール{の|no-possessive}こちら{から|kara-from}あちら{まで|made-until}泳[およ]ぎます。","problem":"プールのこちら/あちら is an unnatural way to say 'this side/the other side of the pool'.","action":"Rewrote as プールの端から端まで泳ぎます ('from one end of the pool to the other') and adjusted the English and why."},
+{"file":"items/kara-from.jsonl","jp_before":"秋[あき]{から|kara-from}冬[ふゆ]{まで|made-until}この花[はな]{が|ga-subject}咲[さ]きます。","problem":"The non-focus slot could just as naturally be は (この花は), but no alternative was listed.","action":"Added は as an alternative: {が/は|ga-subject}."},
+{"file":"items/kara-from.jsonl","jp_before":"昨日[きのう]{から|kara-from}頭[あたま]{が|ga-sense}痛[いた]いです。","problem":"Near-duplicate of 昨夜からのどが痛いです (same frame: time から + body part が 痛い).","action":"Deleted and replaced with a place-starting-point item:この窓[まど]{から|kara-from}海[うみ]{が|ga-sense}見[み]えます。"}
+]}

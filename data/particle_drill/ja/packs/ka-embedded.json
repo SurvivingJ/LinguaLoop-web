@@ -1,0 +1,20 @@
+[
+ {"id":"ka-embedded-1","lv":4,
+  "tpl":"<event>{が/は|ga-sub-clause}何時[なんじ]{に|ni-time}始[はじ]まる{か|ka-embedded}、<who>{に|ni-target}<ask>。",
+  "en":"<ask> <who> what time <event> starts.",
+  "f":2,"d":["と","を","が"],
+  "why":"A question with a question word (何時) used inside a larger sentence ends in か.",
+  "vars":{
+   "event":[["会議[かいぎ]","the meeting"],["授業[じゅぎょう]","the class"],["試験[しけん]","the exam"],["説明会[せつめいかい]","the information session"],["コンサート","the concert"],["パーティー","the party"],["試合[しあい]","the match"]],
+   "who":[["先生[せんせい]","the teacher"],["田中[たなか]さん","Mr. Tanaka"],["山田[やまだ]さん","Ms. Yamada"],["受付[うけつけ]{の|no-possessive}人[ひと]","the receptionist"],["係[かかり]{の|no-possessive}人[ひと]","the person in charge"],["事務[じむ]{の|no-possessive}人[ひと]","the office staff"]],
+   "ask":[["聞[き]きました","I asked"],["聞[き]いてください","Please ask"],["聞[き]いてみます","I'll ask"],["聞[き]きましょう","Let's ask"],["確認[かくにん]しました","I checked with"],["確認[かくにん]してください","Please check with"]]}},
+ {"id":"ka-embedded-2","lv":4,
+  "tpl":"<who>{が/は|ga-sub-clause}<act>{か|ka-embedded}どうか<know>。",
+  "en":"<know> whether <who> <act>.",
+  "f":2,"d":["と","の","が"],
+  "why":"A yes/no question inside a larger sentence takes か, often followed by どうか (\"whether or not\").",
+  "vars":{
+   "who":[["田中[たなか]さん","Mr. Tanaka"],["山田[やまだ]さん","Ms. Yamada"],["佐藤[さとう]さん","Mr. Sato"],["鈴木[すずき]さん","Ms. Suzuki"],["部長[ぶちょう]","the manager"],["先生[せんせい]","the teacher"],["新[あたら]しい学生[がくせい]","the new student"]],
+   "act":[["会議[かいぎ]{に|ni-destination}来[く]る","is coming to the meeting"],["その本[ほん]{を|o-object}もう読[よ]んだ","has already read that book"],["車[くるま]{を|o-object}持[も]っている","has a car"],["お酒[さけ]{を|o-object}飲[の]む","drinks alcohol"],["英語[えいご]{を/が|o-object}話[はな]せる","can speak English"],["もう切符[きっぷ]{を|o-object}買[か]った","has already bought a ticket"]],
+   "know":[["分[わ]かりません","I don't know"],["知[し]りたいです","I want to know"],["確認[かくにん]してください","Please check"],["聞[き]いてみます","I'll ask"],["聞[き]く{の|no-nominalizer}{を|o-object}忘[わす]れました","I forgot to ask"],["教[おし]えてください","Please let me know"]]}}
+]

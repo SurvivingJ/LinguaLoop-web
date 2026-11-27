@@ -1,0 +1,5 @@
+{"batch":"packs-006","files":["packs/ni-recipient.json","packs/ni-target.json"],"checked":6,"fixed":3,"deleted":0,"issues":[
+{"file":"packs/ni-recipient.json","pack":"ni-recipient-1","problem":"Act values 手紙を書きました, メールを送りました and プレゼントを送りました also accept へ for the recipient (友達へ手紙を書く), which cannot be listed as an alternative because the other acts (見せる, 貸す, 渡す, 教える) reject へ; a learner answering へ would be marked wrong.","action":"Replaced with お土産をあげました (gave a souvenir to), 花をあげました (gave flowers to), お茶を出しました (served tea to), which take only に."},
+{"file":"packs/ni-recipient.json","pack":"ni-recipient-2","problem":"Act value メールを送って accepts へ for the recipient, unlike the rest of the frame.","action":"Replaced with お茶を出して (serve tea to)."},
+{"file":"packs/ni-recipient.json","pack":"ni-recipient-3","problem":"Act values 写真を送って and 手紙を出して accept へ for the recipient, unlike the rest of the frame.","action":"Replaced with お礼を言って (hasn't said thank you to) and 電話番号を教えて (hasn't given the phone number to)."}
+]}

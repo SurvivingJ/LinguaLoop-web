@@ -1,0 +1,6 @@
+{"batch":"packs-023","files":["packs/x-ni-e-made.json","packs/x-to-ni.json","packs/x-to-ya-ka.json"],"checked":6,"fixed":4,"deleted":0,"issues":[
+ {"file":"packs/x-ni-e-made.json","pack":"x-ni-e-made-1","problem":"time value 夕方 gives unnatural English 'until the evening yesterday' and an odd pairing with 寝ました","action":"replaced 夕方 with 一時 'one'"},
+ {"file":"packs/x-ni-e-made.json","pack":"x-ni-e-made-2","problem":"会社{に/へ}着きます: へ with 着く is not as natural as に, so it should not be accepted as an equal alternative","action":"non-focus slot changed to {に|ni-destination}"},
+ {"file":"packs/x-to-ni.json","pack":"x-to-ni-2","problem":"手紙を書きました: へ (先生へ手紙を書く) is also natural but was not listed, and listing it would only fit some values","action":"replaced with お礼を言いました 'thanked'"},
+ {"file":"packs/x-to-ni.json","pack":"x-to-ni-2","problem":"メールを送りました: へ is also natural for 送る but was not listed","action":"replaced with 電話しました 'phoned'"}
+]}

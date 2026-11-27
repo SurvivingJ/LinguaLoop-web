@@ -1,0 +1,20 @@
+[
+ {"id":"node-because-1","lv":4,
+  "tpl":"<day>{は/が|wa-topic}休[やす]みな{ので|node-because}、<comp>{と|to-with}<act>。",
+  "en":"I'm off <day>, so I'm going to <act> with <comp>.",
+  "f":1,"d":["のに","から","けど"],
+  "why":"After a noun or na-adjective, ので attaches with な (休みなので); から would need だ instead.",
+  "vars":{
+   "day":[["明日[あした]","tomorrow"],["あさって","the day after tomorrow"],["今日[きょう]","today"],["午後[ごご]","this afternoon"],["土曜日[どようび]","on Saturday"],["金曜日[きんようび]","on Friday"],["月曜日[げつようび]","on Monday"],["水曜日[すいようび]","on Wednesday"]],
+   "comp":[["家族[かぞく]","my family"],["友[とも]だち","a friend"],["母[はは]","my mother"],["妹[いもうと]","my younger sister"],["子[こ]どもたち","the children"],["姉[あね]","my older sister"],["祖母[そぼ]","my grandmother"]],
+   "act":[["買[か]い物[もの]{に|ni-purpose}行[い]きます","go shopping"],["映画[えいが]{を|o-object}見[み]{に|ni-purpose}行[い]きます","go and see a film"],["公園[こうえん]{に/へ|ni-destination}行[い]きます","go to the park"],["美術館[びじゅつかん]{に/へ|ni-destination}行[い]きます","go to an art museum"],["ケーキ{を|o-object}焼[や]きます","bake a cake"],["昼[ひる]ご飯[はん]{を|o-object}食[た]べ{に|ni-purpose}行[い]きます","go out for lunch"],["海[うみ]{に/へ|ni-destination}行[い]きます","go to the seaside"],["料理[りょうり]{を|o-object}作[つく]ります","cook"]]}},
+ {"id":"node-because-2","lv":4,
+  "tpl":"<part>{が|ga-subject}<deg>{ので/から|node-because}、<req>。",
+  "en":"My <part> <deg>, so <req>?",
+  "f":1,"d":["のに","と","ても"],
+  "why":"ので gives the reason for a polite request in a soft, matter-of-fact way.",
+  "vars":{
+   "part":[["頭[あたま]","head"],["お腹[なか]","stomach"],["喉[のど]","throat"],["背中[せなか]","back"],["腰[こし]","lower back"],["膝[ひざ]","knee"],["足[あし]","leg"],["耳[みみ]","ear"]],
+   "deg":[["少[すこ]し痛[いた]い","hurts a little"],["とても痛[いた]い","hurts a lot"],["ずっと痛[いた]い","has been hurting for a while"],["まだ痛[いた]い","still hurts"],["急[きゅう]に痛[いた]くなった","suddenly started hurting"],["なかなか治[なお]らない","just won't get better"]],
+   "req":[["早[はや]めに帰[かえ]ってもいいですか","may I leave early"],["明日[あした]{は|wa-contrast}休[やす]んでもいいですか","may I take tomorrow off"],["病院[びょういん]{に/へ|ni-destination}行[い]ってもいいですか","may I go to the hospital"],["休憩[きゅうけい]してもいいですか","may I take a break"],["今日[きょう]{の|no-possessive}練習[れんしゅう]{を|o-object}休[やす]んでもいいですか","may I miss today's practice"],["薬[くすり]{を|o-object}飲[の]んでもいいですか","may I take some medicine"],["保健室[ほけんしつ]{に/へ|ni-destination}行[い]ってもいいですか","may I go to the sick room"]]}}
+]

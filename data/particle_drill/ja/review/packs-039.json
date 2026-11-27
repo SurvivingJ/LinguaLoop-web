@@ -1,0 +1,9 @@
+{"batch":"packs-039",
+ "files":["packs/give-te-forms.json","packs/passive-agent.json","packs/passive-suffering.json","packs/passive-niyotte.json"],
+ "checked":6,"fixed":2,"deleted":0,
+ "issues":[
+  {"file":"packs/give-te-forms.json","pack":"give-te-forms-2","problem":"why said に applies with 'a verb of giving or showing', but the act values include baked, made tea and bought, so the explanation did not fit those combinations.","action":"Rewrote why to cover every act value."},
+  {"file":"packs/passive-agent.json","pack":"passive-agent-1","problem":"English 'was called by' for 呼ばれました could be read as 'was named by' or 'was phoned by'.","action":"Changed the gloss to 'called over'."},
+  {"file":"packs/passive-suffering.json","pack":"passive-suffering-1","problem":"A direct passive with が (母に日記が読まれた) is grammatical but marked and less natural than the を suffering passive; が is not a distractor, so the answer key teaches nothing false.","action":"No change; noted only."},
+  {"file":"packs/passive-niyotte.json","pack":"passive-niyotte-1","problem":"に after 〜年前 is optional; the non-focus ni-time slot cannot show an empty alternative.","action":"No change; に is natural there and the slot is not the focus."}
+ ]}

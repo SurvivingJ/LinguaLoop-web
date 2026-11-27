@@ -1,0 +1,13 @@
+{"batch":"items-127","files":["items/na-musing.jsonl","items/na-prohibition.jsonl"],"checked":56,"fixed":11,"deleted":0,"replaced":0,"issues":[
+{"file":"items/na-musing.jsonl","jp_before":"あれ、鍵[かぎ]{が|ga-existence}ない{な|na-musing}。","problem":"Distractor ぞ is natural self-talk on noticing something wrong (あれ、鍵がないぞ), so the item had two right answers.","action":"Rewrote the line as a gentle musing where ぞ is plainly wrong: この写真の父は若いなあ。"},
+{"file":"items/na-musing.jsonl","jp_before":"また電車[でんしゃ]{が|ga-subject}遅[おく]れている{な|na-musing}。","problem":"ぞ (irritated self-talk) and resigned か (また遅れているか) are both acceptable.","action":"Distractors changed to ぜ, の, よ."},
+{"file":"items/na-musing.jsonl","jp_before":"桜[さくら]{が|ga-subject}もう咲[さ]いている{な|na-musing}。","problem":"ぞ as an exclamation of discovery and か as realisation are both plausible.","action":"Distractors changed to の, よ, ぜ."},
+{"file":"items/na-musing.jsonl","jp_before":"日本語[にほんご]{は|wa-topic}やっぱり難[むずか]しい{な|na-musing}。","problem":"やっぱり難しいか is a natural resigned realisation to oneself.","action":"Distractor か replaced with ぜ."},
+{"file":"items/na-musing.jsonl","jp_before":"ああ、今日[きょう]{も|mo-also}一日[いちにち]{が|ga-subject}終[お]わった{な|na-musing}。","problem":"ああ、今日も一日が終わったか is a natural sigh to oneself.","action":"Distractor か replaced with ぜ."},
+{"file":"items/na-musing.jsonl","jp_before":"ここ{の|no-possessive}コーヒー{は|wa-topic}ちょっと高[たか]い{な|na-musing}。","problem":"ちょっと高いか works as a self-assessing musing.","action":"Distractor か replaced with の."},
+{"file":"items/na-musing.jsonl","jp_before":"ああ、早[はや]く家[いえ]{に/へ|ni-destination}帰[かえ]りたい{なあ|na-musing}。","problem":"Distractor よお gives 帰りたいよお, a very natural whine to oneself.","action":"よお replaced with の."},
+{"file":"items/na-musing.jsonl","jp_before":"友達[ともだち]{は|wa-topic}もう結婚[けっこん]した。いい{なあ|na-musing}。","problem":"よお is a non-standard spelling, and いいよお can work as a whining sigh.","action":"よお replaced with の."},
+{"file":"items/na-musing.jsonl","jp_before":"新[あたら]しいパソコン{が|ga-stative}欲[ほ]しい{なあ|na-musing}。","problem":"欲しいよお is a natural self-directed whine.","action":"よお replaced with の."},
+{"file":"items/na-musing.jsonl","jp_before":"昨日[きのう]{は|wa-topic}よく寝[ね]ていない{から|kara-because}、眠[ねむ]い{な|na-musing}。","problem":"昨日はよく寝ていない is awkward, the English (since yesterday) mistranslates it, and the から slot was missing ので as an alternative.","action":"Rewrote as 昨日はあまり寝られなかった{から/ので}、眠いな with the English 'I couldn't sleep much last night'."},
+{"file":"items/na-prohibition.jsonl","jp_before":"友達[ともだち]{と|to-with}けんかする{な|na-prohibition}。","problem":"The と with けんかする marks the other party of a mutual action, which is to-reciprocal, not to-with.","action":"Skill id changed to to-reciprocal."}
+]}

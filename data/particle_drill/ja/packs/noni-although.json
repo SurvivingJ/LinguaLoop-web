@@ -1,0 +1,20 @@
+[
+ {"id":"noni-although-1","lv":3,
+  "tpl":"<who>{は|wa-topic}<effort>{のに|noni-although}、<result>。",
+  "en":"<who> <result> despite having <effort>.",
+  "f":1,"d":["ので","から","ても"],
+  "why":"The effort should have led to success but did not, so the clashing clauses are joined with のに.",
+  "vars":{
+   "who":[["田中[たなか]さん","Mr. Tanaka"],["山田[やまだ]さん","Ms. Yamada"],["兄[あに]","My older brother"],["姉[あね]","My older sister"],["弟[おとうと]","My younger brother"],["妹[いもうと]","My younger sister"],["その学生[がくせい]","That student"],["友達[ともだち]","My friend"]],
+   "effort":[["毎日[まいにち]勉強[べんきょう]した","studied every day"],["一生懸命[いっしょうけんめい]勉強[べんきょう]した","studied hard"],["毎晩[まいばん]復習[ふくしゅう]した","reviewed every night"],["三[さん]か月[げつ]準備[じゅんび]した","prepared for three months"],["夏休[なつやす]み中[じゅう]勉強[べんきょう]した","studied all through the summer holidays"],["一年間[いちねんかん]勉強[べんきょう]した","studied for a whole year"],["毎日[まいにち]二時間[にじかん]勉強[べんきょう]した","studied for two hours every day"]],
+   "result":[["試験[しけん]{に|ni-target}落[お]ちました","failed the exam"],["試験[しけん]{に|ni-target}合格[ごうかく]できませんでした","did not pass the exam"],["点数[てんすう]{が|ga-subject}悪[わる]かったです","got a poor score"],["成績[せいせき]{が|ga-subject}上[あ]がりませんでした","saw no improvement in grades"],["思[おも]った{より|yori-comparison}点数[てんすう]{が|ga-subject}低[ひく]かったです","scored lower than expected"],["単語[たんご]{を|o-object}覚[おぼ]えられませんでした","could not learn the vocabulary"]]}},
+ {"id":"noni-although-2","lv":3,
+  "tpl":"<cond>{のに|noni-although}、<who>{は/が|wa-topic}<act>。",
+  "en":"Even though <cond>, <who> <act>.",
+  "f":1,"d":["ので","から","ても"],
+  "why":"Bad weather should stop the activity, so the unexpected result is joined to it with のに.",
+  "vars":{
+   "cond":[["雨[あめ]{が|ga-sub-clause}降[ふ]っている","it is raining"],["雪[ゆき]{が|ga-sub-clause}降[ふ]っている","it is snowing"],["大雨[おおあめ]{が|ga-sub-clause}降[ふ]っている","it is pouring"],["台風[たいふう]{が|ga-sub-clause}近[ちか]づいている","a typhoon is approaching"],["雷[かみなり]{が|ga-sub-clause}鳴[な]っている","it is thundering"],["大雪[おおゆき]{が|ga-sub-clause}降[ふ]っている","it is snowing heavily"]],
+   "who":[["父[ちち]","my father"],["兄[あに]","my older brother"],["弟[おとうと]","my younger brother"],["妹[いもうと]","my younger sister"],["祖父[そふ]","my grandfather"],["田中[たなか]さん","Mr. Tanaka"],["山田[やまだ]さん","Ms. Yamada"],["姉[あね]","my older sister"]],
+   "act":[["公園[こうえん]{を|o-path}走[はし]っています","is out running in the park"],["海[うみ]{で|de-place}泳[およ]いでいます","is swimming in the sea"],["山[やま]{に|ni-destination}登[のぼ]っています","is climbing a mountain"],["庭[にわ]{で|de-place}草[くさ]{を|o-object}取[と]っています","is pulling weeds in the garden"],["川[かわ]{で|de-place}釣[つ]り{を|o-object}しています","is fishing in the river"],["屋根[やね]{に|ni-destination}上[のぼ]っています","is up on the roof"],["外[そと]{で|de-place}車[くるま]{を|o-object}洗[あら]っています","is washing the car outside"]]}}
+]

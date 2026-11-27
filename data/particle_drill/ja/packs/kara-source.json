@@ -1,0 +1,20 @@
+[
+ {"id":"kara-source-1","lv":4,
+  "tpl":"<when>、<sender>{から|kara-source}<thing>{が|ga-subject}届[とど]きました。",
+  "en":"<when>, <thing> arrived from <sender>.",
+  "f":0,"d":["に","で","を"],
+  "why":"The person something is sent from is its source, marked with から; に would make them the one it reached.",
+  "vars":{
+   "when":[["昨日[きのう]","Yesterday"],["今朝[けさ]","This morning"],["先週[せんしゅう]","Last week"],["今日[きょう]","Today"],["おととい","The day before yesterday"],["先月[せんげつ]","Last month"]],
+   "sender":[["祖母[そぼ]","my grandmother"],["祖父[そふ]","my grandfather"],["友達[ともだち]","a friend"],["姉[あね]","my older sister"],["兄[あに]","my older brother"],["山田[やまだ]さん","Ms. Yamada"],["おじ","my uncle"],["先生[せんせい]","my teacher"]],
+   "thing":[["手紙[てがみ]","a letter"],["荷物[にもつ]","a parcel"],["はがき","a postcard"],["メール","an email"],["プレゼント","a present"],["写真[しゃしん]","some photos"],["花[はな]","flowers"],["果物[くだもの]","some fruit"]]}},
+ {"id":"kara-source-2","lv":4,
+  "tpl":"<when>、<sender>{から|kara-source}<thing>{は/が|wa-topic}ありましたか。",
+  "en":"Was there <thing> from <sender> <when>?",
+  "f":0,"d":["に","で","を"],
+  "why":"A message comes from someone: the sender of a call, reply or news is marked with から.",
+  "vars":{
+   "when":[["今日[きょう]","today"],["今朝[けさ]","this morning"],["昨日[きのう]","yesterday"],["先週[せんしゅう]","last week"],["週末[しゅうまつ]","at the weekend"],["おととい","the day before yesterday"]],
+   "sender":[["学校[がっこう]","the school"],["会社[かいしゃ]","the company"],["病院[びょういん]","the hospital"],["銀行[ぎんこう]","the bank"],["田中[たなか]さん","Mr. Tanaka"],["大家[おおや]さん","the landlord"],["先生[せんせい]","the teacher"],["市役所[しやくしょ]","the city office"]],
+   "thing":[["返事[へんじ]","a reply"],["連絡[れんらく]","any word"],["メール","an email"],["電話[でんわ]","a call"],["手紙[てがみ]","a letter"],["知[し]らせ","any news"]]}}
+]

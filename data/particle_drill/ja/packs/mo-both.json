@@ -1,0 +1,20 @@
+[
+ {"id":"mo-both-1","lv":5,
+  "tpl":"<who>{は|wa-topic}<a>{も|mo-both}<b>{も|mo-both}好[す]きです。",
+  "en":"<who> likes both <a> and <b>.",
+  "f":2,"d":["と","や","が"],
+  "why":"AもBも puts も after each item to say 'both A and B'; the second も is needed to close the pair.",
+  "vars":{
+   "who":[["母[はは]","My mother"],["父[ちち]","My father"],["姉[あね]","My older sister"],["弟[おとうと]","My younger brother"],["田中[たなか]さん","Mr. Tanaka"],["佐藤[さとう]さん","Ms. Sato"],["祖母[そぼ]","My grandmother"],["息子[むすこ]","My son"]],
+   "a":[["ラーメン","ramen"],["寿司[すし]","sushi"],["カレー","curry"],["天[てん]ぷら","tempura"],["うどん","udon"],["ハンバーガー","hamburgers"],["ピザ","pizza"],["焼[や]き鳥[とり]","yakitori"]],
+   "b":[["ケーキ","cake"],["アイスクリーム","ice cream"],["チョコレート","chocolate"],["クッキー","cookies"],["プリン","custard pudding"],["ドーナツ","doughnuts"],["和菓子[わがし]","Japanese sweets"],["果物[くだもの]","fruit"]]}},
+ {"id":"mo-both-2","lv":4,
+  "tpl":"<a>{も|mo-both}<b>{も|mo-both}<event>{に|ni-destination}来[き]ませんでした。",
+  "en":"Neither <a> nor <b> came to <event>.",
+  "f":1,"d":["が","を","や"],
+  "why":"With a negative verb, AもBも means 'neither A nor B'; each person takes its own も.",
+  "vars":{
+   "a":[["田中[たなか]さん","Mr. Tanaka"],["山田[やまだ]さん","Mr. Yamada"],["鈴木[すずき]さん","Mr. Suzuki"],["高橋[たかはし]さん","Mr. Takahashi"],["伊藤[いとう]さん","Mr. Ito"],["渡辺[わたなべ]さん","Mr. Watanabe"]],
+   "b":[["佐藤[さとう]さん","Ms. Sato"],["中村[なかむら]さん","Ms. Nakamura"],["小林[こばやし]さん","Ms. Kobayashi"],["加藤[かとう]さん","Ms. Kato"],["吉田[よしだ]さん","Ms. Yoshida"],["山本[やまもと]さん","Ms. Yamamoto"]],
+   "event":[["昨日[きのう]のパーティー","yesterday's party"],["今朝[けさ]の会議[かいぎ]","this morning's meeting"],["先週[せんしゅう]の授業[じゅぎょう]","last week's class"],["土曜日[どようび]の試合[しあい]","Saturday's match"],["日曜日[にちようび]の練習[れんしゅう]","Sunday's practice"],["金曜日[きんようび]の飲[の]み会[かい]","Friday's drinks"]]}}
+]

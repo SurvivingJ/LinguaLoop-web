@@ -1,0 +1,20 @@
+[
+ {"id":"ba-conditional-1","lv":4,
+  "tpl":"<item>{が/は|ga-sub-clause}<amount>安[やす]けれ{ば|ba-conditional}、<result>。",
+  "en":"If <item> were <amount> cheaper, <result>.",
+  "f":1,"d":["と","たら","ても"],
+  "why":"The けれ stem of an i-adjective takes ば: 安ければ, 'if it were cheaper'. たら, と and ても need other forms.",
+  "vars":{
+   "item":[["このパソコン","this computer"],["このカメラ","this camera"],["この自転車[じてんしゃ]","this bicycle"],["このソファー","this sofa"],["このコート","this coat"],["この時計[とけい]","this watch"],["このテレビ","this TV"],["この掃除機[そうじき]","this vacuum cleaner"]],
+   "amount":[["もう少[すこ]し","a little"],["もう千円[せんえん]","a thousand yen"],["もう二千円[にせんえん]","two thousand yen"],["もう三千円[さんぜんえん]","three thousand yen"],["もう五千円[ごせんえん]","five thousand yen"],["もう一万円[いちまんえん]","ten thousand yen"]],
+   "result":[["すぐ買[か]います","I would buy it right away"],["今日[きょう]買[か]います","I would buy it today"],["すぐ注文[ちゅうもん]します","I would order it right away"],["迷[まよ]わずに買[か]います","I would buy it without a second thought"],["母[はは]{に|ni-recipient}勧[すす]めます","I would recommend it to my mother"],["買[か]い替[か]えます","I would replace my old one"]]}},
+ {"id":"ba-conditional-2","lv":4,
+  "tpl":"<who>{が|ga-sub-clause}<neg>{ば|ba-conditional}、<result>。",
+  "en":"If <who> <neg>, <result>.",
+  "f":1,"d":["と","たら","ても"],
+  "why":"A negative verb takes ば through its なけれ stem: 来なければ, 'if he doesn't come'.",
+  "vars":{
+   "who":[["田中[たなか]さん","Mr. Tanaka"],["山田[やまだ]さん","Ms. Yamada"],["鈴木[すずき]さん","Mr. Suzuki"],["佐藤[さとう]さん","Ms. Sato"],["兄[あに]","my older brother"],["父[ちち]","my father"],["部長[ぶちょう]","the manager"],["先輩[せんぱい]","my senior colleague"]],
+   "neg":[["来[こ]なけれ","doesn't come"],["手伝[てつだ]わなけれ","doesn't help"],["急[いそ]がなけれ","doesn't hurry"],["運転[うんてん]しなけれ","doesn't drive"],["連絡[れんらく]しなけれ","doesn't get in touch"],["早[はや]く起[お]きなけれ","doesn't get up early"],["残業[ざんぎょう]しなけれ","doesn't work overtime"]],
+   "result":[["困[こま]ります","we'll be in trouble"],["間[ま]に合[あ]いません","we won't make it in time"],["無理[むり]だ{と|to-quote}思[おも]います","I think it's impossible"],["計画[けいかく]{は|wa-topic}だめになります","the plan will fall through"],["どうしようもありません","there's nothing we can do"],["大変[たいへん]なことになります","things will get serious"]]}}
+]

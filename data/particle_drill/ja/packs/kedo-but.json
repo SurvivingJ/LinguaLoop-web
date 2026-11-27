@@ -1,0 +1,20 @@
+[
+ {"id":"kedo-but-1","lv":4,
+  "tpl":"<home>{は|wa-topic}<good>{けど/けれど/けれども/が|kedo-but}、<bad>。",
+  "en":"<home> is <good>, but it <bad>.",
+  "f":1,"d":["から","ので","と"],
+  "why":"A good point is followed by a drawback, so the contrast is joined with けど.",
+  "vars":{
+   "home":[["この家[いえ]","This house"],["このアパート","This apartment"],["あの家[いえ]","That house"],["そのマンション","That flat"],["姉[あね]のアパート","My older sister's apartment"],["先週[せんしゅう]見[み]た家[いえ]","The house I saw last week"]],
+   "good":[["広[ひろ]い","spacious"],["明[あか]るい","bright"],["新[あたら]しい","new"],["静[しず]かだ","quiet"],["きれいだ","clean"],["安[やす]い","cheap"],["おしゃれだ","stylish"]],
+   "bad":[["駅[えき]{から|kara-from}遠[とお]いです","is far from the station"],["クローゼット{が|ga-existence}ありません","has no closet"],["エアコン{が|ga-existence}ありません","has no air conditioning"],["台所[だいどころ]{が|ga-subject}狭[せま]いです","has a small kitchen"],["駐車場[ちゅうしゃじょう]{が|ga-existence}ありません","has no parking"],["お風呂[ふろ]{が|ga-subject}小[ちい]さいです","has a small bath"]]}},
+ {"id":"kedo-but-2","lv":4,
+  "tpl":"<when>、<who>{に|ni-recipient}電話[でんわ]した{けど/けれど/けれども/が|kedo-but}、<result>。",
+  "en":"I called <who> <when>, but <result>.",
+  "f":1,"d":["から","ので","と"],
+  "why":"The call did not get the expected answer, so the two clauses are joined with けど.",
+  "vars":{
+   "when":[["昨日[きのう]","yesterday"],["今朝[けさ]","this morning"],["さっき","a moment ago"],["昨夜[ゆうべ]","last night"],["一時間前[いちじかんまえ]","an hour ago"],["先週[せんしゅう]","last week"]],
+   "who":[["田中[たなか]さん","Mr. Tanaka"],["山田[やまだ]さん","Ms. Yamada"],["母[はは]","my mother"],["父[ちち]","my father"],["兄[あに]","my older brother"],["姉[あね]","my older sister"],["友達[ともだち]","a friend"],["祖母[そぼ]","my grandmother"]],
+   "result":[["出[で]なかった","there was no answer"],["話[はな]し中[ちゅう]だった","the line was busy"],["つながらなかった","the call did not go through"],["留守番電話[るすばんでんわ]だった","it went to voicemail"],["誰[だれ]{も|mo-total-negation}出[で]なかった","nobody picked up"],["すぐ切[き]れてしまった","the call cut off at once"]]}}
+]

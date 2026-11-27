@@ -1,0 +1,7 @@
+{"batch":"packs-026",
+ "files":["packs/dake-only.json","packs/dake-extent.json","packs/shika-nai.json","packs/bakari-only.json"],
+ "checked":7,"fixed":2,"deleted":0,
+ "issues":[
+  {"file":"packs/dake-only.json","pack":"dake-only-2","problem":"Month/week time frames (先月, 先週, 今週) combined with one-off events gave odd sentences ('Last month, only X brought an umbrella / went home early / came to the party'); 風邪をひきました and 早く帰りました also clashed with some time values.","action":"Replaced 'when' with day-level times (昨日, 今日, 一昨日, 今朝, 先日, この前) and replaced the clashing events with 休みました, 早く来ました, お弁当を持って来ました (6 x 7 x 7 = 294 combinations). Focus index unchanged at 0."},
+  {"file":"packs/shika-nai.json","pack":"shika-nai-2","problem":"寝ませんでした with minute values gave the implausible 'Yesterday X slept for only ten minutes'.","action":"Replaced with ピアノを弾きませんでした ('played the piano'); its new slot falls after the focus slot, so f=1 still holds."}
+ ]}

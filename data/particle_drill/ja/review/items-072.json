@@ -1,0 +1,6 @@
+{"batch":"items-072","files":["items/x-made-madeni.jsonl"],"checked":56,"fixed":4,"deleted":0,"replaced":0,"issues":[
+{"file":"items/x-made-madeni.jsonl","jp_before":"試験[しけん]{までに|madeni-deadline}、漢字[かんじ]{を|o-object}三百[さんびゃく]覚[おぼ]えたいです。","problem":"Bare number 三百 after 漢字を lacks the counter; 三百字 is the natural form.","action":"Changed 三百 to 三百字[さんびゃくじ]."},
+{"file":"items/x-made-madeni.jsonl","jp_before":"今月[こんげつ]{の|no-possessive}終[お]わり{までに|madeni-deadline}、部屋[へや]{を|o-object}探[さが]します。","problem":"探す means 'look for', not 'find'; 'look for a room by the end of the month' is an odd deadline and mismatches the English 'find'.","action":"Rewrote as 新しいアパートを見つけたいです / 'I want to find a new apartment by the end of this month.'"},
+{"file":"items/x-made-madeni.jsonl","jp_before":"一年[いちねん]{の|no-possessive}終[お]わり{までに|madeni-deadline}、旅行[りょこう]{に|ni-purpose}行[い]きたいです。","problem":"一年の終わり is unnatural for 'the end of the year' (this calendar year).","action":"Changed 一年[いちねん] to 今年[ことし]."},
+{"file":"items/x-made-madeni.jsonl","jp_before":"今日[きょう]{は|wa-topic}夜[よる]{まで|made-until}雨[あめ]{が|ga-subject}降[ふ]るでしょう。","problem":"English 'until evening' mistranslates 夜 (night).","action":"Changed English to 'It will probably rain until tonight.'"}
+]}

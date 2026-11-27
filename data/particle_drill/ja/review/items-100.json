@@ -1,0 +1,19 @@
+{
+ "batch": "items-100",
+ "files": ["items/te-sequence.jsonl"],
+ "checked": 66,
+ "fixed": 9,
+ "deleted": 0,
+ "replaced": 0,
+ "issues": [
+  {"file": "items/te-sequence.jsonl", "jp_before": "山田[やまだ]さん{は|wa-topic}親切[しんせつ]{で|te-sequence}、おもしろい人[ひと]です。", "problem": "English 'kind and an interesting person' is unnatural", "action": "Rewrote en: 'Mr. Yamada is a kind and interesting person.'"},
+  {"file": "items/te-sequence.jsonl", "jp_before": "田中[たなか]さん{は|wa-topic}元気[げんき]{で|te-sequence}、よく笑[わら]う人[ひと]です。", "problem": "English 'a person who laughs often' is stilted", "action": "Rewrote en: 'Ms. Tanaka is cheerful and laughs a lot.'"},
+  {"file": "items/te-sequence.jsonl", "jp_before": "このアパート{は|wa-topic}駅[えき]{から|kara-from}近[ちか]く{て|te-sequence}、便利[べんり]です。", "problem": "駅に近い is equally natural; alternative missing in a non-focus slot", "action": "Slot changed to {から/に|kara-from}"},
+  {"file": "items/te-sequence.jsonl", "jp_before": "夏休[なつやす]み{に|ni-time}海[うみ]{で|de-place}泳[およ]い{で|te-sequence}、花火[はなび]{を|o-object}見[み]ました。", "problem": "why gave a wrong reason ('voiced い-sound stem')", "action": "Rewrote why: verbs ending in ぐ form the te-form with いで"},
+  {"file": "items/te-sequence.jsonl", "jp_before": "先生[せんせい]{に|ni-source}本[ほん]{を|o-object}借[か]り{て|te-sequence}、家[いえ]{で|de-place}読[よ]みました。", "problem": "先生から借りる is equally natural; alternative missing", "action": "Slot changed to {に/から|ni-source}"},
+  {"file": "items/te-sequence.jsonl", "jp_before": "母[はは]{に|ni-source}料理[りょうり]{を|o-object}習[なら]っ{て|te-sequence}、カレー{を|o-object}作[つく]りました。", "problem": "母から習う is equally natural; alternative missing", "action": "Slot changed to {に/から|ni-source}"},
+  {"file": "items/te-sequence.jsonl", "jp_before": "兄[あに]{は|wa-topic}ご飯[はん]{を|o-object}食[た]べ{て|te-sequence}、すぐ出[で]かけました。", "problem": "Near-duplicate of the other eating items; 食べる used four times in the file", "action": "Rewrote as 兄[あに]{は|wa-topic}服[ふく]{を|o-object}着替[きが]え{て|te-sequence}、すぐ出[で]かけました。 (changed clothes, lv3)"},
+  {"file": "items/te-sequence.jsonl", "jp_before": "頭[あたま]{が|ga-subject}痛[いた]く{て|te-sequence}、仕事[しごと]{が|ga-stative}できませんでした。", "problem": "why did not say that the te-form here links a cause to its result", "action": "Rewrote why to explain the 'and so' link"},
+  {"file": "items/te-sequence.jsonl", "jp_before": "今日[きょう]{は|wa-topic}天気[てんき]{が|ga-subject}よく{て|te-sequence}、暖[あたた]かいです。", "problem": "English 'The weather is good and warm today' is awkward", "action": "Rewrote en: 'The weather is nice today, and it's warm.'"}
+ ]
+}

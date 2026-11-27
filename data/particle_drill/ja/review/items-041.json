@@ -1,0 +1,108 @@
+{
+ "batch": "items-041",
+ "files": [
+  "items/to-quote.jsonl"
+ ],
+ "checked": 71,
+ "fixed": 16,
+ "deleted": 0,
+ "replaced": 0,
+ "issues": [
+  {
+   "file": "items/to-quote.jsonl",
+   "jp_before": "先生[せんせい]{に|ni-target}「明日[あした]{は|wa-topic}何時[なんじ]{に|ni-time}来[き]ますか{か|ka-question}」{と|to-quote}聞[き]きました。",
+   "problem": "か written twice (来ますか + slot か renders 来ますかか); listener of 聞く tagged ni-target",
+   "action": "Removed the literal か before the slot; listener retagged ni-recipient"
+  },
+  {
+   "file": "items/to-quote.jsonl",
+   "jp_before": "駅員[えきいん]{に|ni-target}「この電車[でんしゃ]{は|wa-topic}京都[きょうと]{に/へ|ni-destination}行[い]きますか{か|ka-question}」{と|to-quote}聞[き]きました。",
+   "problem": "か written twice (行きますかか); listener tagged ni-target",
+   "action": "Removed the literal か; listener retagged ni-recipient"
+  },
+  {
+   "file": "items/to-quote.jsonl",
+   "jp_before": "彼[かれ]{は|wa-topic}「分[わ]かりました」{と|to-quote}小[ちい]さな声[こえ]{で|de-means}答[こた]えました。",
+   "problem": "Distractor で is borderline acceptable (「はい」で答える pattern: 'answered with \"I understand\"')",
+   "action": "Replaced distractor で with を"
+  },
+  {
+   "file": "items/to-quote.jsonl",
+   "jp_before": "看板[かんばん]{に|ni-location}「立[た]ち入[い]り禁止[きんし]」{と|to-quote}書[か]いてあります。",
+   "problem": "Distractor が is acceptable with 〜てある (「立ち入り禁止」が書いてある, same meaning)",
+   "action": "Replaced distractor が with へ"
+  },
+  {
+   "file": "items/to-quote.jsonl",
+   "jp_before": "手紙[てがみ]{に|ni-location}「元気[げんき]です」{と|to-quote}書[か]いてありました。",
+   "problem": "Distractor が is acceptable-ish with 〜てある (「元気です」が書いてあった)",
+   "action": "Replaced distractor が with の"
+  },
+  {
+   "file": "items/to-quote.jsonl",
+   "jp_before": "彼[かれ]{は|wa-topic}日本[にほん]{が/は|ga-sense}大好[だいす]きだ{と|to-quote}言[い]っていました。",
+   "problem": "Object of 大好き tagged ga-sense (perception); correct skill is ga-stative",
+   "action": "Retagged ga-stative"
+  },
+  {
+   "file": "items/to-quote.jsonl",
+   "jp_before": "友達[ともだち]{に|ni-target}「ありがとう」{と|to-quote}言[い]いました。",
+   "problem": "Person spoken/told/promised/phoned is a recipient (言う・話す・伝える・約束する・電話をかける), not ni-target (contact: 会う・乗る)",
+   "action": "Retagged that listener に slot ni-recipient"
+  },
+  {
+   "file": "items/to-quote.jsonl",
+   "jp_before": "先生[せんせい]{は|wa-topic}学生[がくせい]{に|ni-target}「静[しず]かにしてください」{と|to-quote}言[い]いました。",
+   "problem": "Person spoken/told/promised/phoned is a recipient (言う・話す・伝える・約束する・電話をかける), not ni-target (contact: 会う・乗る)",
+   "action": "Retagged that listener に slot ni-recipient"
+  },
+  {
+   "file": "items/to-quote.jsonl",
+   "jp_before": "母[はは]{は|wa-topic}私[わたし]{に|ni-target}早[はや]く寝[ね]なさい{と|to-quote}言[い]いました。",
+   "problem": "Person spoken/told/promised/phoned is a recipient (言う・話す・伝える・約束する・電話をかける), not ni-target (contact: 会う・乗る)",
+   "action": "Retagged that listener に slot ni-recipient"
+  },
+  {
+   "file": "items/to-quote.jsonl",
+   "jp_before": "駅[えき]{で|de-place}友達[ともだち]{に|ni-target}会[あ]った{と|to-quote}母[はは]{に|ni-target}話[はな]しました。",
+   "problem": "Person spoken/told/promised/phoned is a recipient (言う・話す・伝える・約束する・電話をかける), not ni-target (contact: 会う・乗る)",
+   "action": "Retagged that listener に slot ni-recipient"
+  },
+  {
+   "file": "items/to-quote.jsonl",
+   "jp_before": "母[はは]{は|wa-topic}私[わたし]{に|ni-target}「傘[かさ]{を|o-object}持[も]っ{て|te-sequence}行[い]きなさい」{と|to-quote}言[い]いました。",
+   "problem": "Person spoken/told/promised/phoned is a recipient (言う・話す・伝える・約束する・電話をかける), not ni-target (contact: 会う・乗る)",
+   "action": "Retagged that listener に slot ni-recipient"
+  },
+  {
+   "file": "items/to-quote.jsonl",
+   "jp_before": "私[わたし]{は|wa-topic}母[はは]{に|ni-target}毎日[まいにち]電話[でんわ]する{と|to-quote}約束[やくそく]しました。",
+   "problem": "Person spoken/told/promised/phoned is a recipient (言う・話す・伝える・約束する・電話をかける), not ni-target (contact: 会う・乗る)",
+   "action": "Retagged that listener に slot ni-recipient"
+  },
+  {
+   "file": "items/to-quote.jsonl",
+   "jp_before": "先生[せんせい]{に|ni-target}何[なん]{と|to-quote}言[い]え{ば|ba-conditional}いいです{か|ka-question}。",
+   "problem": "Person spoken/told/promised/phoned is a recipient (言う・話す・伝える・約束する・電話をかける), not ni-target (contact: 会う・乗る)",
+   "action": "Retagged that listener に slot ni-recipient"
+  },
+  {
+   "file": "items/to-quote.jsonl",
+   "jp_before": "彼[かれ]{に|ni-target}駅[えき]{で|de-place}待[ま]っている{と|to-quote}伝[つた]えてください。",
+   "problem": "Person spoken/told/promised/phoned is a recipient (言う・話す・伝える・約束する・電話をかける), not ni-target (contact: 会う・乗る)",
+   "action": "Retagged that listener に slot ni-recipient"
+  },
+  {
+   "file": "items/to-quote.jsonl",
+   "jp_before": "姉[あね]{は|wa-topic}留学[りゅうがく]したい{と|to-quote}両親[りょうしん]{に|ni-target}話[はな]しました。",
+   "problem": "Person spoken/told/promised/phoned is a recipient (言う・話す・伝える・約束する・電話をかける), not ni-target (contact: 会う・乗る)",
+   "action": "Retagged that listener に slot ni-recipient"
+  },
+  {
+   "file": "items/to-quote.jsonl",
+   "jp_before": "兄[あに]{に|ni-target}電話[でんわ]{を|o-object}かけ{て|te-sequence}、明日[あした]行[い]けない{と|to-quote}伝[つた]えました。",
+   "problem": "Person spoken/told/promised/phoned is a recipient (言う・話す・伝える・約束する・電話をかける), not ni-target (contact: 会う・乗る)",
+   "action": "Retagged that listener に slot ni-recipient"
+  }
+ ]
+}
