@@ -50,3 +50,20 @@ instead of a table read. Model cost to pre-write is separate: ~$0.00025 per item
 
 Keep the lazy table for live use. If everything is to be written ahead, write it to Storage
 files, not the table; or upgrade the plan, which removes the database constraint.
+
+## Follow-up the same day: model choice and the pilot
+
+The OpenRouter key had $0.22 left, so the owner chose their Anthropic key. 20 random ja items
+needing an explanation (12 spot, 8 pick), effort medium, standard price, all answers valid:
+
+| Model | In / out tokens | Per item | 17,256 items | Batched (50%) | Time |
+|---|---|---|---|---|---|
+| Claude Opus 5.5 | 730 / 722 | $0.0174 | ~$300 | ~$150 | 7.0 s |
+| Claude Sonnet 5.5 | 726 / 460 | $0.0061 | ~$105 | ~$52 | 3.7 s |
+| Claude Haiku 5.5 | 726 / 1,075 | $0.0006 | ~$10.50 | ~$5.30 | 5.2 s |
+
+Owner chose Sonnet 5.5. Pilot through the Message Batches API: 20 senses, 38 items, all 38
+returned within 2 minutes, 37 usable (one answer appended a corrected second JSON — the parser
+now takes the last valid one), 20 files written, $0.1239 (estimate $0.12); the serving path
+attached all 37 from the files with the model disabled. Storage reads of cold files took up to
+~2 s, so the serving read budget was raised to the hydration's 3 s.

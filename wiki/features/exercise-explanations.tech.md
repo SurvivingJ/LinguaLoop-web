@@ -122,6 +122,33 @@ are shuffled; styles in `static/css/redesign/session.css`). While waiting: `.ex-
 nothing, the item's own note is shown under the wrong sentence; the feedback bar carries the old
 spot note only when explanations could not be asked for at all (no id / no `authFetch`). i18n keys `exercises.spot.*` in all four bundles.
 
+## 3. Pre-written explanations in Storage (2026-11-27)
+
+`services/explanation_files.py`: `file_path(lang, sense, nl, v)` →
+`explanations/{lang}/{sense}.{nl}.p{v}.json`; `encode`/`decode` (format 1: `{format, language_id,
+sense_id, nl_language_id, prompt_version, exercises: {exercise_id: {content_version, model,
+payload}}}`); `write_file` (immutable: `'written'` or `'exists'`); `read_for_senses` (own
+`explain-file` pool, 8 MB byte LRU, 600 s negative cache, deadline; never raises). The sweep
+script lists only `{lang}/` folders and never touches `explanations/`.
+
+Serving (`exercise_explanations`): memory → `stored_entries` → file entry (content_version and
+`_aligned` must match) → table row → generate. `prefetch()` returns `Prefetched(files, rows)`,
+reading files (8-worker pool, `EXERCISE_CONTENT_DEADLINE_S`, 3 s) and table concurrently beside
+content hydration. `_job` re-reads the sense's file (10 s) before calling a model.
+
+Batch writers (dry run unless `--apply`; run directories under the git-ignored
+`data/exercise_explanations/`):
+- `scripts/prewrite_explanations_anthropic_batch.py` — the owner's Anthropic key (`CLAUDE_API`,
+  `https://api.anthropic.com` explicitly; every call in `~/.claude_api_ledger.jsonl`), Message
+  Batches of 5,000: prepare (senses without a file; a sense with unreadable content held back;
+  corrections in chunks of 100 senses) → submit (pending marker, no SDK retry, adoption on
+  resume) → collect (one retry batch for failures; a sense written only when complete and
+  current; parallel writes) → report.json. Answers are parsed with
+  `explanations_anthropic.payload_from_message`, which takes the last valid JSON object (the
+  model sometimes appends a corrected JSON).
+- `scripts/prewrite_exercise_explanations.py` — the same over OpenRouter, synchronous, with a
+  cost cap; sets `LLM_CALLS_DB_LOGGING=false` so 17k calls don't write ~24 MB of `llm_calls`.
+
 ## Configuration
 `EXERCISE_EXPLANATIONS_ENABLED` (True), `EXERCISE_EXPLANATION_MODEL`
 (`deepseek/deepseek-v4.1-flash`), `EXERCISE_EXPLANATION_FALLBACK_MODEL`

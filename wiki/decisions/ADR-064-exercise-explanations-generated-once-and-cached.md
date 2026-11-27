@@ -76,3 +76,30 @@ right or wrong).
 - **Machine-translate the stored note**: explains only the wrong sentence, and the note is often
   terse; the owner asked for every option.
 - **Generate on every view without a cache**: repeated cost and latency for every learner.
+
+## Amendment 2026-11-27: written ahead into Storage files, on the owner's Anthropic key
+
+Owner: "pre write all explanations" (after the storage estimate,
+[[evaluations/explanation-storage-2026-11-27]]), then "run agent swarm to write the storage file
+version and run the Japanese batch"; billing: "Use my Anthropic API key"; model: Claude Sonnet 5.5.
+
+- **Where:** pre-written explanations are immutable per-sense files in the Storage bucket
+  `exercise-content` (`explanations/{lang}/{sense}.{nl}.p{prompt_version}.json`,
+  `services/explanation_files.py`), not the table: the database is 473 MB of the Free plan's
+  500 MB, and Japanese alone would be ~35 MB in the table (~27 MB as files).
+- **Serving order:** process memory → the item's own complete English notes → Storage file →
+  table → model. The file read runs beside content hydration with the same 3 s budget; a
+  background job re-reads the file before paying for a model. The table and live generation
+  stay for items with no file (new items, held-back senses).
+- **Writing:** `scripts/prewrite_explanations_anthropic_batch.py`, Message Batches API (50% of
+  standard price) on the owner's key (`CLAUDE_API`, `services/explanations_anthropic.py`, the
+  live prompt and validation). The OpenRouter key had $0.22 of its $11.25 limit left.
+- **Model:** measured on 20 live ja items at effort medium, all answers valid: Opus 5.5
+  $0.0174/item, Sonnet 5.5 $0.0061, Haiku 5.5 $0.0006 (standard price); quality looked
+  equivalent on the 10 items all three wrote. Owner chose Sonnet 5.5 (~$52 batched for 17,256
+  items).
+- **Immutability rules** (independent review): a sense's file is written only when every item of
+  it has a usable answer (after one retry batch) at its current content version; otherwise the
+  sense is held back for a later run. Reviewed corrected sentences are read in URL-sized chunks.
+  Batch creation is never retried blindly (no idempotency key); an unconfirmed create is matched
+  to the server's batch list on resume.
