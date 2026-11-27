@@ -59,6 +59,10 @@ unchanged.
 - Angle: `ANGLES[(topic_index + tier) % 8]`, appended to the prose prompt through
   `generate_prose(extra_instruction=...)`. The dedup retry keeps the angle and adds the nudge.
 - Shard *k* of *N* takes slots with `index % N == k`.
+- A later bundle over the same topics: `--exclude-bundle DIR` (repeatable) skips slot keys and
+  passage hashes of earlier bundles; `--angle-offset K` shifts the angle rotation; `--variant N`
+  makes keys `<topic>:T<tier>:vN` for (topic, tier) pairs already used. With 165 ja topics and
+  tiers 1–6 there are only 990 (topic, tier) pairs, so a third ja bundle needs variants or new topics.
 - Slug: the generated slug plus `-<first 8 hex of test_id>`. Without it, two slots of one topic
   at the same difficulty in the same second produce the same slug (seen in the pilot).
 
@@ -119,3 +123,5 @@ covers `LLM_FORCE_PROVIDER`.
 | Bundle | Built | Tests | Notes |
 |---|---|---|---|
 | `data/offline_tests/ja-2026-11-27/` | 2026-11-27 | 506 (2,419 questions, 165 topics) | ja listening; target tiers 1–4 (125 + 6 extra slots); assigned T1 44 / T2 163 / T3 63 / T4 161 / T5 65 / T6 10; seeded ELO 1054–1664, median 1339 (by target tier 1246 / 1291 / 1372 / 1442); 294 within 1190–1390; answer positions 592 / 619 / 606 / 602; 0.9 MB xz (19.7 MB raw); every call headless Claude, no DB rows written; not uploaded |
+| `data/offline_tests/zh-2026-11-27/` | 2026-11-27 | 500 (2,488 questions, 324 topics) | zh listening; target tiers 1–6; assigned T1 22 / T2 132 / T3 63 / T4 127 / T5 95 / T6 61; seeded ELO 1051–1804, median 1430 (by target tier 1248 / 1287 / 1383 / 1472 / 1544 / 1641); mean passage 70–436 chars by tier; 0.87 MB xz; headless Claude only, no DB rows; not uploaded |
+| `data/offline_tests/ja-2026-11-27b/` | 2026-11-27 | 503 (2,397 questions, 165 topics) | ja listening; target tiers 1–6 over the (topic, tier) pairs the first ja bundle did not use (`--exclude-bundle`, `--angle-offset 3`), plus 19 `:v2` variant slots (`--variant 2 --angle-offset 5`); so it leans hard: assigned T5 207 / T6 113; seeded ELO 1122–1755, median 1460; no passage, hash, slot or id shared with the first bundle; 1.5 MB xz; not uploaded |
