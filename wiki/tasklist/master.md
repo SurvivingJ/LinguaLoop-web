@@ -19,15 +19,15 @@ below.
 
 | Status | Rows in this file | All task files (union, file status wins) |
 |--------|-------------------|------------------------------------------|
-| Not Started | 80 | 96 |
+| Not Started | 79 | 95 |
 | In Progress (`[~]`) | 18 | 25 |
-| Blocked / Deferred / Awaiting decision (`[?]`; includes "Done (repo), awaiting live apply") | 67 | 66 |
+| Blocked / Deferred / Awaiting decision (`[?]`; includes "Done (repo), awaiting live apply") | 68 | 67 |
 | Won't Do (obsolete) | 3 | 3 |
 | Superseded | 2 | 2 |
 | Done | 224 | 368 |
 | **Total distinct task ids** | **394** | **560** |
 
-*2026-11-27 (llm_calls archive):* added TASK-1253 (Not Started).
+*2026-11-27 (llm_calls archive):* added TASK-1253; then Not Started → Done (repo), awaiting deploy (weekly job; counted under Blocked / awaiting).
 
 *2026-11-27 (word-option batches):* TASK-1247 awaiting → Done, TASK-1248 Not Started → Done; added TASK-1252 (awaiting the owner).
 
@@ -1589,7 +1589,7 @@ Full spec: [[tasklist/review-2026-11-22.tasks]]. Record: [[evaluations/codebase-
 | TASK-1250 | fixes-2026-11-26 | English word definitions in fill the blank, word form and synonym questions | [ ] | S | TASK-1234 |
 | TASK-1251 | fixes-2026-11-26 | Listening questions: notes in English, wrong-option notes shown | [ ] | S | — |
 | TASK-1252 | fixes-2026-11-26 | OWNER: Anthropic credit exhausted; then finish 2 held-back senses | [?] | XS | TASK-1247 |
-| TASK-1253 | fixes-2026-11-26 | Keep llm_calls small: archive it to Storage regularly | [ ] | S | — |
+| TASK-1253 | fixes-2026-11-26 | Keep llm_calls small: archive it to Storage regularly (weekly job) | Done (repo) — not deployed | S | — |
 
 ### Language Packs (existing — unchanged)
 

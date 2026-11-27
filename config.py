@@ -160,6 +160,9 @@ class Config:
     # inside a scheduled job, before it fails instead of holding a worker.
     SUPABASE_POSTGREST_TIMEOUT = float(os.environ.get('SUPABASE_POSTGREST_TIMEOUT', '10'))
     SUPABASE_JOB_TIMEOUT = float(os.environ.get('SUPABASE_JOB_TIMEOUT', '120'))
+    # Weekly llm_calls archive (services/llm_calls_archive.py): whole UTC days of
+    # rows kept in the table; older rows move to Storage.
+    LLM_CALLS_ARCHIVE_KEEP_DAYS = int(os.environ.get('LLM_CALLS_ARCHIVE_KEEP_DAYS', '3'))
 
     # ==========================================================================
     # EXERCISE CONTENT STORAGE (ADR-049)

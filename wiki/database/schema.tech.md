@@ -1999,7 +1999,11 @@ smoke-test volume since. **Storage archives** (bucket `llm-logs-archive`, `llm_c
 `scripts/archive_llm_calls.py` (export, upload never overwriting, download-back check of sha256,
 count and id set, then `--delete` of exactly those ids), followed by `VACUUM (FULL, ANALYZE)`:
 table 46 MB → 3.1 MB, database 496,462,995 → 451,472,531 B. Restore: gunzip and insert the
-lines (every column is present). `cost_usd`/`latency_ms`/`language_code` are already
+lines (every column is present; if a run stopped between upload and delete, a later archive
+repeats those rows — keep one per id). **Weekly since 2026-11-27 (once deployed):** job
+`llm_calls_archive_weekly` (Sun 03:40 UTC, `services/llm_calls_archive.py`) keeps the last
+`LLM_CALLS_ARCHIVE_KEEP_DAYS` (3) whole UTC days and archives + deletes the rest; deleted space is
+reused by new rows (no VACUUM FULL through PostgREST). `cost_usd`/`latency_ms`/`language_code` are already
 populated on every `call_llm()` invocation regardless of pipeline; the seven
 columns below (prompt_tokens .. generation_batch_id) are Phase 0 cost-instrumentation
 additions ([migrations/llm_calls_cost_instrumentation.sql](../../migrations/llm_calls_cost_instrumentation.sql),
