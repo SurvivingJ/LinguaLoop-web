@@ -1,0 +1,10 @@
+{"batch":"items-100","files":["items/pt-deshou.jsonl"],"checked":47,"fixed":8,"deleted":0,"replaced":0,"issues":[
+{"file":"items/pt-deshou.jsonl","jp_before":"明日[あした]は朝[あさ]から強[つよ]い風[かぜ]が吹[ふ]く{でしょう|pt-deshou}。","problem":"English dropped 'strong' (強い風) and read awkwardly.","action":"Rewrote English: 'Tomorrow there will probably be strong winds from the morning.'"},
+{"file":"items/pt-deshou.jsonl","jp_before":"あの店[みせ]は日曜日[にちようび]なので、混[こ]んでいる{でしょう|pt-deshou}。","problem":"あの店は日曜日なので literally says 'that shop is Sunday'; unnatural.","action":"Rewrote as 今日[きょう]は日曜日[にちようび]なので、あの店[みせ]は混[こ]んでいる{でしょう}; English adjusted."},
+{"file":"items/pt-deshou.jsonl","jp_before":"今年[ことし]の夏[なつ]は去年[きょねん]より暑[あつ]くなる{だろう|pt-deshou}と思[おも]います。","problem":"why gave a false reason ('the others cannot describe weather').","action":"Rewrote why: the others express timing or intention, not a guess."},
+{"file":"items/pt-deshou.jsonl","jp_before":"道[みち]が込[こ]んでいるので、約束[やくそく]の時間[じかん]に間[ま]に合[あ]わない{かもしれません|pt-deshou}。","problem":"込んでいる is the non-standard spelling for crowded roads; 混んでいる is standard.","action":"Changed to 混[こ]んでいる."},
+{"file":"items/pt-deshou.jsonl","jp_before":"この計画[けいかく]は、少[すこ]し無理[むり]{ではないでしょうか|pt-deshou}。","problem":"why was vacuous ('the others do not fit').","action":"Rewrote why to name what the distractors express (past, hearsay, intention)."},
+{"file":"items/pt-deshou.jsonl","jp_before":"この牛乳[ぎゅうにゅう]は、まだ飲[の]める{かもしれない|pt-deshou}けど、においがちょっと変[へん]だ。","problem":"Distractor はずだ is natural here (まだ飲めるはずだけど、においが変だ) with nearly the same sense.","action":"Replaced distractor はずだ with ところだ."},
+{"file":"items/pt-deshou.jsonl","jp_before":"十年後[じゅうねんご]、この町[まち]はもっと便利[べんり]になっている{でしょう|pt-deshou}。","problem":"Set rotation skewed: だろう appeared far less often than でしょう / かもしれない.","action":"Converted item to plain だろう with plain-form distractors (つもりだった, ことだった, ようだった) and updated why."},
+{"file":"items/pt-deshou.jsonl","jp_before":"夜[よる]は寒[さむ]かった{でしょう|pt-deshou}。風邪[かぜ]をひかなかった？","problem":"English was ungrammatical ('It must have been cold at night, wasn't it?').","action":"Rewrote English: 'It must have been cold at night. You didn't catch a cold, did you?'"}
+]}

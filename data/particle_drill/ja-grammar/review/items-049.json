@@ -1,0 +1,54 @@
+{
+ "batch": "items-049",
+ "files": [
+  "items/av-zenzen.jsonl"
+ ],
+ "checked": 46,
+ "fixed": 7,
+ "deleted": 0,
+ "replaced": 0,
+ "issues": [
+  {
+   "file": "items/av-zenzen.jsonl",
+   "jp_before": "約束[やくそく]は{決[けっ]して|av-zenzen}忘[わす]れません。",
+   "problem": "Distractor とても is close to the natural とても忘れられない ('can never forget'), not plainly wrong.",
+   "action": "Replaced distractor とても with すっかり."
+  },
+  {
+   "file": "items/av-zenzen.jsonl",
+   "jp_before": "三時間[さんじかん]待[ま]ったのに、{ちっとも/全然[ぜんぜん]|av-zenzen}順番[じゅんばん]が来[き]ません。",
+   "problem": "English 'my turn doesn't come at all' was unnatural.",
+   "action": "Rewrote English."
+  },
+  {
+   "file": "items/av-zenzen.jsonl",
+   "jp_before": "他[ほか]の人[ひと]には{決[けっ]して|av-zenzen}言[い]わないでください。",
+   "problem": "Distractor ぜひ + ないでください is heard in casual speech as an emphatic request, so it is not plainly wrong.",
+   "action": "Replaced distractor ぜひ with すっかり."
+  },
+  {
+   "file": "items/av-zenzen.jsonl",
+   "jp_before": "スーパーの魚[さかな]は{あまり|av-zenzen}新[あたら]しくなかった。",
+   "problem": "新しい for fish freshness is colloquial; 新鮮 is the standard word.",
+   "action": "Changed to 新鮮[しんせん]じゃなかった, lv 5 -> 3."
+  },
+  {
+   "file": "items/av-zenzen.jsonl",
+   "jp_before": "駅[えき]の近[ちか]くを探[さが]しましたが、財布[さいふ]は全然[ぜんぜん]{見[み]つかりませんでした|av-zenzen}。",
+   "problem": "English 'my wallet wasn't found at all' was unnatural.",
+   "action": "Rewrote English: 'I couldn't find my wallet anywhere.'"
+  },
+  {
+   "file": "items/av-zenzen.jsonl",
+   "jp_before": "先輩[せんぱい]に聞[き]いても、ちっとも{教[おし]えてくれない|av-zenzen}。",
+   "problem": "English assumed the senior's gender ('he') and was awkward.",
+   "action": "Rewrote English with 'they ... anything at all'."
+  },
+  {
+   "file": "items/av-zenzen.jsonl",
+   "jp_before": "母[はは]はお酒[さけ]をあまり{飲[の]みません|av-zenzen}。",
+   "problem": "Near-duplicate of コーヒーはあまり飲みません and of the 母は料理を item (same verb and subject pattern).",
+   "action": "Rewrote as このかばんは最近あまり使っていません with matching distractors."
+  }
+ ]
+}

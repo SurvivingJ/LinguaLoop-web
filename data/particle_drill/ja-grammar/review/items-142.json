@@ -1,0 +1,6 @@
+{"batch":"items-142","files":["items/nt-okurigana.jsonl"],"checked":48,"fixed":4,"deleted":0,"replaced":0,"issues":[
+{"file":"items/nt-okurigana.jsonl","jp_before":"雨[あめ]の日[ひ]は市場[いちば]に来[き]たお客[きゃく]さんが{少[すく]なかった|nt-okurigana}です。","problem":"Generic 雨の日は with a single past event reads awkwardly; English 'on the rainy day' does not match.","action":"Rewrote as 雨だったので、市場に来たお客さんは少なかったです / 'Because it was raining, few customers came to the market.'"},
+{"file":"items/nt-okurigana.jsonl","jp_before":"先生[せんせい]は授業[じゅぎょう]の前[まえ]に、小[ちい]さいテストを{行[おこな]った|nt-okurigana}。","problem":"小さいテスト is unnatural (a native says 小テスト or 簡単なテスト).","action":"Changed to 簡単なテストを行った; English adjusted."},
+{"file":"items/nt-okurigana.jsonl","jp_before":"この映画[えいが]は{短[みじか]くない|nt-okurigana}ので、二時間[にじかん]かかります。","problem":"Illogical causal link: 'not short, so it takes two hours'.","action":"Rewrote second clause: 時間があるときに見ましょう / 'so let's watch it when we have time.'"},
+{"file":"items/nt-okurigana.jsonl","jp_before":"このセーターを着[き]ていると、体[からだ]が{冷[ひ]えない|nt-okurigana}です。","problem":"Ending 冷えないです is stilted.","action":"Changed to 冷えないので、助かります; English adjusted."}
+]}

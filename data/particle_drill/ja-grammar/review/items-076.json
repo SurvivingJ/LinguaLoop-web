@@ -1,0 +1,6 @@
+{"batch":"items-076","files":["items/cd-n2.jsonl"],"checked":46,"fixed":4,"deleted":0,"replaced":0,"issues":[
+{"file":"items/cd-n2.jsonl","jp_before":"東京[とうきょう]から大阪[おおさか]まで車[くるま]で{行[い]くとしたら/行[い]くとすれば|cd-n2}、七時間[しちじかん]はかかるでしょう。","problem":"English 'about seven hours' mistranslates 七時間はかかる (at least seven hours).","action":"Changed English to 'it would take at least seven hours'."},
+{"file":"items/cd-n2.jsonl","jp_before":"もし生[う]まれ変[か]わる{としたら/とすれば|cd-n2}、また日本人[にほんじん]になりたいです。","problem":"Slot held only the ending while the distractors are whole words (生まれ変わるものの etc.), so a distractor would render the verb twice.","action":"Moved the verb into the slot: {生[う]まれ変[か]わるとしたら/生[う]まれ変[か]わるとすれば|cd-n2}."},
+{"file":"items/cd-n2.jsonl","jp_before":"彼女[かのじょ]の悪口[わるくち]を{言[い]おうものなら|cd-n2}、友達[ともだち]みんなに嫌[きら]われてしまう。","problem":"English 'all her friends' is not what 友達みんな says; the friends are the listener's or generic.","action":"Changed English to 'all your friends will turn against you'."},
+{"file":"items/cd-n2.jsonl","jp_before":"雨[あめ]が{降[ふ]らない限[かぎ]り|cd-n2}、運動会[うんどうかい]は行[おこな]われます。","problem":"lv 3 is too low for ない限り (N2).","action":"Set lv to 2."}
+]}

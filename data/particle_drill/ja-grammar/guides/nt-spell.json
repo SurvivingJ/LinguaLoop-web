@@ -1,0 +1,43 @@
+{"group":"nt-spell",
+ "intro":"When you hear a word, you still have to decide how to write it. Two problems recur. Several common words share one sound but have different kanji, so meaning picks the kanji: あつい is 暑い, 熱い or 厚い depending on what is hot or thick. And the kana that follow a kanji (okurigana) are fixed by rule, so 少ない, never 少い. Choose the kanji by asking what the word means here, then write the okurigana the dictionary gives.",
+ "skills":[
+  {"id":"nt-homophone",
+   "rule":"Same sound, different word: choose the kanji by the meaning in this sentence, and test it with the opposite word.",
+   "explain":"あう: 会う is meeting a person (友達に会う). 合う is fitting or matching (サイズが合う, 答えが合う, 間に合う). 遭う is running into something bad (事故に遭う).\n\nあつい: 暑い is hot weather or a hot room, felt by the whole body (opposite 寒い). 熱い is something hot you touch or drink, or a strong feeling (opposite 冷たい). 厚い is thick (opposite 薄い).\n\nはやい: 早い is early, or quick to happen (朝早く, 早口). 速い is fast speed (足が速い, 速く走る). きく: 聞く is hear or ask; 効く is take effect (薬が効く, エアコンが効く).\n\nきる and かえる: 着る (wear) and 変える (change) are ichidan, so 着て, 変えて; 切る (cut) and 帰る (go home) are godan, so 切って, 帰って. The spoken form already tells you which word it is.",
+   "patterns":["人に 会う / サイズ・答えが 合う / 事故に 遭う","暑い (↔寒い) / 熱い (↔冷たい) / 厚い (↔薄い)","早い = early / 速い = fast","聞く = hear, ask / 効く = work, take effect","きて = 着る (or 来る) / きって = 切る; かえて = 変える / かえって = 帰る"],
+   "examples":[
+    {"jp":"駅[えき]で先生[せんせい]に{会[あ]いました}。","en":"I met my teacher at the station."},
+    {"jp":"今日[きょう]はとても{暑[あつ]い}ですね。","en":"It's really hot today, isn't it?"},
+    {"jp":"{熱[あつ]い}お茶[ちゃ]をゆっくり飲[の]みました。","en":"I slowly drank some hot tea."},
+    {"jp":"兄[あに]は走[はし]るのがとても{速[はや]い}です。","en":"My older brother runs very fast."},
+    {"jp":"この薬[くすり]は頭痛[ずつう]によく{効[き]きます}。","en":"This medicine works well for headaches."},
+    {"jp":"答[こた]えが{合[あ]って}いるか確[たし]かめてください。","en":"Please check whether your answers are correct."}],
+   "contrast":[
+    {"vs":"合う / 遭う","note":"会う needs a person you meet. 合う is about fit or match (no person met), and 遭う is reserved for accidents, storms and other bad luck."},
+    {"vs":"熱い / 厚い","note":"Weather and rooms are 暑い. A drink, a bath or a stove is 熱い. A book or a coat is 厚い. Say the opposite: 寒い, 冷たい or 薄い."},
+    {"vs":"早い","note":"早い answers 'when?' (early, soon). 速い answers 'how fast?' (speed). A train that leaves early is 早い; a train that goes fast is 速い."}],
+   "mistakes":[
+    {"bad":"今日[きょう]は{熱[あつ]い}ですね。","good":"今日[きょう]は{暑[あつ]い}ですね。","note":"The weather is 暑い; the opposite is 寒い, not 冷たい."},
+    {"bad":"この電車[でんしゃ]はスピードがとても{早[はや]い}です。","good":"この電車[でんしゃ]はスピードがとても{速[はや]い}です。","note":"Speed is 速い. 早い is about time: early, or soon."},
+    {"bad":"帰[かえ]り道[みち]で事故[じこ]に{会[あ]いました}。","good":"帰[かえ]り道[みち]で事故[じこ]に{遭[あ]いました}。","note":"An accident is not a person you meet; bad events take 遭う."}],
+   "tip":"Name the opposite: if it is 寒い, write 暑い; if 冷たい, write 熱い; if 薄い, write 厚い. For はやい ask: when, or how fast?"},
+  {"id":"nt-okurigana",
+   "rule":"Okurigana usually starts where the word begins to conjugate; learn the listed exceptions as whole spellings.",
+   "explain":"For i-adjectives the kana usually start at the final い: 短い, 高い, 長い. Adjectives ending in しい start at し: 新しい, 楽しい, 美しい. So 短かい and 新らしい are wrong.\n\nSome words send more kana to tell two words with one kanji apart. 少ない (すくない) keeps な so it cannot be read as 少し (すこし). 細い (ほそい, thin) and 細かい (こまかい, fine, detailed) are told apart only by か. 冷たい (つめたい, cold to touch), 冷える (ひえる, get cold) and 冷やす (ひやす, chill) share 冷; the kana show which word you mean.\n\nVerbs start at the conjugating ending: 行う (おこなう), 行います. Since 行った can be いった or おこなった, context decides; the spelling 行なう is an older permitted variant, but 行う is the standard. When in doubt, write the dictionary spelling, not the one that seems logical.",
+   "patterns":["短い / 高い (from い)","新しい / 楽しい (from し)","少ない (すくない) / 少し (すこし)","細い (ほそい) / 細かい (こまかい)","冷たい / 冷える / 冷やす","行う (おこなう)"],
+   "examples":[
+    {"jp":"今年[ことし]は雨[あめ]が{少[すく]ない}です。","en":"There has been little rain this year."},
+    {"jp":"砂糖[さとう]を{少[すこ]し}入[い]れてください。","en":"Please put in a little sugar."},
+    {"jp":"{新[あたら]しい}靴[くつ]を買[か]いました。","en":"I bought new shoes."},
+    {"jp":"野菜[やさい]を{細[こま]かく}切[き]ってください。","en":"Please chop the vegetables finely."},
+    {"jp":"冷蔵庫[れいぞうこ]でジュースを{冷[ひ]やして}おきます。","en":"I'll chill the juice in the fridge."},
+    {"jp":"来月[らいげつ]、新[あたら]しい試験[しけん]を{行[おこな]います}。","en":"We will hold a new exam next month."}],
+   "contrast":[
+    {"vs":"少し","note":"Same kanji. 少ない (すくない) is the adjective 'few, little'; 少し (すこし) is the adverb 'a little'. The な is what makes it すくない."},
+    {"vs":"細い / 細かい","note":"細い is thin (a thin road, thin fingers). 細かい is fine or detailed (fine sand, small change, detailed rules). The extra か changes the word."},
+    {"vs":"冷える / 冷やす","note":"冷たい describes something cold to touch. 冷える is the thing getting cold by itself; 冷やす is you chilling it. One kanji, three words, three spellings."}],
+   "mistakes":[
+    {"bad":"公園[こうえん]には人[ひと]が{少[すく]い}です。","good":"公園[こうえん]には人[ひと]が{少[すく]ない}です。","note":"少ない always keeps な."},
+    {"bad":"夏休[なつやす]みは{短[みじか]かい}です。","good":"夏休[なつやす]みは{短[みじか]い}です。","note":"Only the final い is okurigana: 短い."},
+    {"bad":"{冷[つめ]い}水[みず]を飲[の]みたいです。","good":"{冷[つめ]たい}水[みず]を飲[の]みたいです。","note":"つめたい is written 冷たい; the た is part of the okurigana."}],
+   "tip":"Default: send only い (or しい). Then recall this set's words that keep an extra kana: 少ない, 細かい, 冷たい."}]}

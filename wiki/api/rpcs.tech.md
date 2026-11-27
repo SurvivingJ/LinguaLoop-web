@@ -84,6 +84,8 @@ Pages are client-side rendered: each route only renders its template (no data, n
 | `/placement` | `placement_page` | `templates/placement.html` (the page says "not available" while its API answers 404) |
 | `/classifier-drill` | `classifier_drill_page` | `templates/classifier_drill.html` |
 | `/counter-drill` | `counter_drill_page` | `templates/counter_drill.html` |
+| `/grammar-drill` | `grammar_drill_page` | `templates/grammar_drill.html` (the grammar course; the particle page script with `data-course="grammar"`; [[features/grammar-drill.tech]]) |
+| `/reading-drill` | `reading_drill_page` | `templates/reading_drill.html` (numbers, times, dates, katakana; same script, `data-home="read"`) |
 | `/conjugation-drill` | `conjugation_drill_page` | `templates/conjugation_drill.html` (the conjugation drill; same script as `/particle-drill`) |
 | `/particle-drill` | `particle_drill_page` | `templates/particle_drill.html` (hash-routed: ladder, guide, drill, conjugation; [[features/particle-drill.tech]]) |
 | `/dual-translation` | `dual_translation_page` | `templates/dual_translation.html` |
@@ -231,8 +233,9 @@ All `@jwt_required`.
 | POST | `/api/classifier-drill/submit` | `classifier_drill.submit_drill` | `{language_id, correct_items, total_items, time_taken?, idempotency_key?, item_results?}`; RPC `process_classifier_drill_submission`, then `update_classifier_mastery` per answer; `attempts.apply_timing_and_progress` (kind `drill`) | yes |
 | GET | `/api/counter-drill/session?language_id=3&count=` | `counter_drill.get_drill_session` | RPC `get_counter_drill_session` | `classifier_drill.js` (shared engine) |
 | POST | `/api/counter-drill/submit` | `counter_drill.submit_drill` | same, no mastery step | yes |
-| GET | `/api/particle-drill/catalog?language_id=3` | `particle_drill.get_catalog` | static content (`services/particle_drill/content.py`): stages, groups, skills with item and pack counts; ETag by content version, `private, max-age=3600`; no database | `pages/particle-drill.js` |
+| GET | `/api/particle-drill/catalog?language_id=3[&course=grammar]` | `particle_drill.get_catalog` | static content (`services/particle_drill/content.py`): stages, groups, skills with item and pack counts; ETag by content version, `private, max-age=3600`; no database | `pages/particle-drill.js` |
 | GET | `/api/particle-drill/skill/<skill_id>?language_id=3` | `particle_drill.get_skill` | the skill's guide section, every exercise item and its pattern packs; 404 unknown skill | yes |
+| GET | `/api/particle-drill/reading?language_id=3` | `particle_drill.get_reading` | `{katakana[{k, en, lv}]}` for the reading drill, from `data/particle_drill/ja-grammar/reading/katakana.json` | yes |
 | GET | `/api/particle-drill/conjugation?language_id=3` | `particle_drill.get_conjugation` | conjugation guides, verb and adjective lists | yes |
 | GET | `/api/particle-drill/conjugation/words?language_id=3` | `particle_drill.get_conjugation_words` | `services/particle_drill/conjugation.known_words`: the caller's known verbs and adjectives from `user_vocabulary_knowledge`, classified (`{d, k, c, en, lv, known}`); read only | yes |
 | GET | `/api/particle-drill/progress?language_id=3` | `particle_drill.get_progress` | `services/particle_drill/progress.load`: `{available, state, updated_at}` from `user_drill_progress` (`available: false` until `migrations/particle_drill_progress.sql` is applied) | `particles/store.js` |

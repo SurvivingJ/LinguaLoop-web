@@ -141,6 +141,7 @@ the setup page and from the feedback after a miss.
 ## Related Pages
 
 - [[features/particle-drill.tech]] — technical specification
+- [[features/grammar-drill]] — the second course on this ladder, and the reading drill
 - [[features/knowledge-report]] — the vocabulary record the conjugation drill reads
 - [[decisions/ADR-064-particle-drill-static-content-client-engine]] — why the content is files and the engine runs in the browser
 - [[tasklist/particle-drill.tasks]] — tasks, done and open

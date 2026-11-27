@@ -1,0 +1,15 @@
+{"batch":"items-143","files":["items/x-nita.jsonl"],"checked":60,"fixed":12,"deleted":0,"replaced":1,"issues":[
+{"file":"items/x-nita.jsonl","jp_before":"夏休[なつやす]みに小[ちい]さな{島[しま]|nt-n4-a}へ行[い]きました。","problem":"English 'in the summer vacation' is unidiomatic.","action":"English changed to 'during the summer vacation'."},
+{"file":"items/x-nita.jsonl","jp_before":"冬[ふゆ]は{厚[あつ]い|nt-homophone}コートが必要[ひつよう]です。","problem":"Distractor 圧い is not a word; a homophone item should use real あつい words.","action":"Replaced 圧い with 篤い."},
+{"file":"items/x-nita.jsonl","jp_before":"夏[なつ]の午後[ごご]は{暑[あつ]い|nt-homophone}ですね。","problem":"Distractor 圧い is not a word.","action":"Replaced 圧い with 篤い."},
+{"file":"items/x-nita.jsonl","jp_before":"{熱[あつ]い|nt-homophone}お茶[ちゃ]で、舌[した]をやけどしました。","problem":"Distractor 圧い is not a word.","action":"Replaced 圧い with 篤い."},
+{"file":"items/x-nita.jsonl","jp_before":"この部屋[へや]は暖[あたた]かくて、とても{快適[かいてき]|nt-n3-a}です。","problem":"Distractor 快商 uses 商, which does not look like 適 and is not a real look-alike.","action":"Replaced 快商 with 快摘."},
+{"file":"items/x-nita.jsonl","jp_before":"{午後[ごご]|nt-n4-a}は雨[あめ]が降[ふ]るそうです。","problem":"'why' had the stroke difference reversed: it is 牛, not 午, whose vertical stroke goes through the top.","action":"why rewritten: '午 has no stroke poking through the top, unlike 牛.'"},
+{"file":"items/x-nita.jsonl","jp_before":"ジュースを冷蔵庫[れいぞうこ]で{冷[ひ]やし|nt-okurigana}ます。","problem":"The only distractor, 冷し, is an officially allowed okurigana variant (許容; compare 冷し中華), so it is not plainly wrong.","action":"Replaced the item with a new okurigana item: 姉は小学校で英語を{教えて}います, distractors 教[お]しえて / 教[おしえ]て."},
+{"file":"items/x-nita.jsonl","jp_before":"毎晩[まいばん]、七時[しちじ]に家[いえ]へ{帰[かえ]り|nt-homophone}ます。","problem":"Distractor 飼 has no かえ reading and is not a homophone or a look-alike.","action":"Replaced 飼り with the homophone 替り."},
+{"file":"items/x-nita.jsonl","jp_before":"{右[みぎ]|nt-n5}の手[て]に傘[かさ]を持[も]っています。","problem":"右の手 sounds unnatural; the normal word is 右手.","action":"Rewrote the sentence as {右手[みぎて]}に傘を持っています and changed the distractors to 石手/古手/左手."},
+{"file":"items/x-nita.jsonl","jp_before":"このカレーは{辛[から]い|nt-n3-b}ので、水[みず]が必要[ひつよう]です。","problem":"English 'hot' is ambiguous (temperature vs spice).","action":"English changed to 'spicy'."},
+{"file":"items/x-nita.jsonl","jp_before":"この町[まち]の{特徴[とくちょう]|nt-n3-b}は、古[ふる]い橋[はし]です。","problem":"'why' described the 徴/微 difference inaccurately ('王 and a bar').","action":"why rewritten: '徴 has 王 under the 山 in the middle, where 微 has 几.'"},
+{"file":"items/x-nita.jsonl","jp_before":"{細[こま]かい|nt-okurigana}字[じ]は、読[よ]めません。","problem":"English 'such' is not in the Japanese.","action":"English changed to 'I cannot read fine print.'"},
+{"file":"items/x-nita.jsonl","jp_before":"駅[えき]で友達[ともだち]に{会[あ]い|nt-homophone}ました。","problem":"Distractor 逢い is an accepted (non-jōyō) way to write 'meet', so it is not plainly wrong.","action":"Replaced 逢い with the look-alike 全い."}
+]}

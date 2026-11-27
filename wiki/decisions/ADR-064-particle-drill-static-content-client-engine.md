@@ -74,6 +74,9 @@ Three facts shaped the design:
 - A content error reported by a learner cannot be patched in place; it needs an edit to a
   file and `scripts/particle_drill_build.py --apply`.
 
+**2026-11-27, later the same day:** the decision was reused unchanged for a second course
+(`data/particle_drill/ja-grammar/`, [[features/grammar-drill]]): 8,340 more items as files, no table.
+
 ## Alternatives Considered
 
 - **Database tables and a session RPC, like the measure-word drill** (`dim_classifiers` …,

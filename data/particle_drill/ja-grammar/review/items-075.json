@@ -1,0 +1,9 @@
+{"batch":"items-075","files":["items/cd-regret.jsonl","items/cd-temo.jsonl"],"checked":82,"fixed":7,"deleted":0,"replaced":0,"issues":[
+{"file":"items/cd-regret.jsonl","jp_before":"時間[じかん]が{あれば/あったら|cd-regret}、もっとゆっくり話[はな]せるのに。","problem":"English 'talk with you more slowly' mistranslates ゆっくり話す (talk at leisure).","action":"English changed to 'If I had time, we could have a longer, more relaxed talk.'"},
+{"file":"items/cd-regret.jsonl","jp_before":"聞[き]きたいことがあるなら、{聞[き]けばよかったのに/聞[き]いたらよかったのに|cd-regret}。","problem":"Tense clash: present あるなら with a past reproach; the English already says 'had'.","action":"Changed あるなら to あったなら."},
+{"file":"items/cd-regret.jsonl","jp_before":"宝[たから]くじが{当[あ]たったら/当[あ]たれば|cd-regret}いいのに。","problem":"Unnatural English 'I wish I would win the lottery'.","action":"English changed to 'If only I could win the lottery.'"},
+{"file":"items/cd-temo.jsonl","jp_before":"たとえ{高[たか]くなくても|cd-temo}、おいしい店[みせ]はたくさんあります。","problem":"たとえ (hypothetical) is unnatural with a general statement about restaurants, and the sentence lacked a subject for 高くない.","action":"Rewrote as 値段[ねだん]が{高[たか]くなくても|cd-temo}、おいしい店[みせ]はたくさんあります。 with matching English."},
+{"file":"items/cd-temo.jsonl","jp_before":"たとえお金[かね]が{なくても|cd-temo}、彼[かれ]はいつも楽[たの]しそうです。","problem":"たとえ is odd with a habitual factual statement (いつも).","action":"Dropped たとえ; English 'Even when he has no money...'."},
+{"file":"items/cd-temo.jsonl","jp_before":"毎日[まいにち]{練習[れんしゅう]しても|cd-temo}、なかなか上手[じょうず]になりません。","problem":"English 'Even if I practise... I don't get good easily' is unnatural for a factual concession.","action":"English changed to 'Even though I practise every day, I'm not getting much better.'"},
+{"file":"items/cd-temo.jsonl","jp_before":"たとえ年[とし]を{とっても|cd-temo}、新[あたら]しいことに挑戦[ちょうせん]したい。","problem":"たとえ is unnatural with an inevitable event like ageing.","action":"Dropped たとえ and rewrote 'why' accordingly."}
+]}

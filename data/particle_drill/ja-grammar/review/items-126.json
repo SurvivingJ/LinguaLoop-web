@@ -1,0 +1,6 @@
+{"batch":"items-126","files":["items/ym-n5-move.jsonl"],"checked":55,"fixed":2,"deleted":2,"replaced":2,"issues":[
+{"file":"items/ym-n5-move.jsonl","jp_before":"学校[がっこう]で避難[ひなん]訓練[くんれん]を{行[おこな]いました|ym-n5-move}。","problem":"避難訓練 is N1/N2 vocabulary in an N5 reading item; lv 4 was wrong.","action":"Rewrote as 先週、学校で漢字の試験を行いました (\"Last week we held a kanji test at school.\"), same distractors."},
+{"file":"items/ym-n5-move.jsonl","jp_before":"友達[ともだち]は{自分[じぶん]|ym-n5-move}で作[つく]ったケーキを持[も]ってきました。","problem":"The English assumed the friend is female (\"she had made herself\"); the Japanese does not say so.","action":"Changed the English to \"My friend brought a cake they had made themselves.\""},
+{"file":"items/ym-n5-move.jsonl","jp_before":"{先生[せんせい]|ym-n5-move}に質問[しつもん]があります。","problem":"Third 先生 item, almost the same as two others, while 来 had only 4 of 55 items (set rotation uneven).","action":"Replaced with a 来 item: {来週[らいしゅう]}の月曜日は学校が休みです, d くるしゅう/きしゅう/こしゅう."},
+{"file":"items/ym-n5-move.jsonl","jp_before":"あなたはどこで{生[う]まれました|ym-n5-move}か。","problem":"Fifth 生まれる item with the same 生まれました answer as items 1 and 5; 来る (the verb) was not drilled at all.","action":"Replaced with 明日、友達がうちに遊びに{来[き]ます}, d くます/こます/らいます."}
+]}

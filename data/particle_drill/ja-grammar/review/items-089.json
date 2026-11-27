@@ -1,0 +1,5 @@
+{"batch":"items-089","files":["items/pt-hajimeru.jsonl","items/pt-dekiru.jsonl"],"checked":77,"fixed":3,"deleted":0,"replaced":0,"issues":[
+{"file":"items/pt-hajimeru.jsonl","jp_before":"来[く]る前[まえ]は食[た]べられませんでしたが、日本[にほん]に来[き]てから納豆[なっとう]も食[た]べ{始[はじ]めました|pt-hajimeru}。","problem":"The first clause had no object, so 'it' referred to nothing, and 納豆も ('natto too') did not fit with it. 食べられませんでした (could not eat) also did not match the idea of starting a new habit.","action":"Rewrote it as 日本[にほん]に来[く]る前[まえ]は納豆[なっとう]を食[た]べませんでしたが、来[き]てから食[た]べ{始[はじ]めました|pt-hajimeru}。 and updated the English and the why to match."},
+{"file":"items/pt-hajimeru.jsonl","jp_before":"祖父[そふ]は八十歳[はっさい]になっても、毎日[まいにち]畑[はたけ]で働[はたら]き{続[つづ]けています|pt-hajimeru}。","problem":"Wrong furigana: 八十歳 was read はっさい.","action":"Corrected the reading to 八十歳[はちじゅっさい]."},
+{"file":"items/pt-dekiru.jsonl","jp_before":"この辞書[じしょ]は電子[でんし]なので、どこでも{引[ひ]くことができます/引[ひ]けます|pt-dekiru}。","problem":"この辞書は電子なので is unnatural: 電子 cannot stand alone as a predicate here.","action":"Rewrote it as この辞書[じしょ]はスマホに入[はい]っているので、… and changed the English to 'This dictionary is on my phone, so I can look words up anywhere.'"}
+]}

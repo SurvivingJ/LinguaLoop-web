@@ -21,11 +21,13 @@ below.
 |--------|-------------------|------------------------------------------|
 | Not Started | 72 | 88 |
 | In Progress (`[~]`) | 18 | 25 |
-| Blocked / Deferred / Awaiting decision (`[?]`; includes "Done (repo), awaiting live apply") | 63 | 62 |
+| Blocked / Deferred / Awaiting decision (`[?]`; includes "Done (repo), awaiting live apply") | 64 | 63 |
 | Won't Do (obsolete) | 3 | 3 |
 | Superseded | 2 | 2 |
-| Done | 225 | 369 |
-| **Total distinct task ids** | **383** | **549** |
+| Done | 228 | 372 |
+| **Total distinct task ids** | **387** | **553** |
+
+*2026-11-27 (grammar drill):* added TASK-1243 to TASK-1246 by arithmetic on the table above (Done +3, Awaiting +1); no other row changed.
 
 *2026-11-27 (particle drill):* added TASK-1234 to TASK-1242 by arithmetic on the table above (Done +4, Not Started +1, Awaiting +4); no other row changed.
 
@@ -1570,6 +1572,17 @@ Full spec: [[tasklist/particle-drill.tasks]]. Feature: [[features/particle-drill
 | TASK-1240 | particle-drill | Guides and reasons in the learner's interface language | [?] | L | TASK-1235 |
 | TASK-1241 | particle-drill | "Report this sentence" from the drill | [ ] | S | TASK-1236 |
 | TASK-1242 | particle-drill | Conjugation drill as its own page, fed by the words the learner knows | [x] | M | TASK-1236 |
+
+### Grammar Drill and Reading Drill (Japanese)
+
+Full spec: [[tasklist/grammar-drill.tasks]]. Feature: [[features/grammar-drill]]. A second course on the particle pipeline and ladder (182 skills, 8,340 reviewed items, 48 guides) and a rule-generated reading drill.
+
+| ID | Feature | Title | Status | Complexity | Depends On |
+|----|---------|-------|--------|------------|------------|
+| TASK-1243 | grammar-drill | Second course in the pipeline, service, routes and page | [x] | L | TASK-1236 |
+| TASK-1244 | grammar-drill | Author and review the grammar content | [x] | XL | TASK-1243 |
+| TASK-1245 | grammar-drill | Reading drill (numbers, prices, times, dates, durations, ages, katakana) | [x] | M | TASK-1242 |
+| TASK-1246 | grammar-drill | Native-speaker spot check of the grammar answer keys | [?] | M | TASK-1244 |
 
 ### Language Packs (existing — unchanged)
 

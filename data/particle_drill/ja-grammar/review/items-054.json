@@ -1,0 +1,163 @@
+{
+ "batch": "items-054",
+ "files": [
+  "items/av-marude.jsonl",
+  "items/av-sekkaku.jsonl"
+ ],
+ "checked": 65,
+ "fixed": 25,
+ "deleted": 0,
+ "replaced": 0,
+ "issues": [
+  {
+   "file": "items/av-marude.jsonl",
+   "jp_before": "{まるで|av-marude}夢[ゆめ]のような話[はなし]だ。",
+   "problem": "English 'It is a story like a dream' is unnatural.",
+   "action": "English changed to 'It sounds just like a dream.'"
+  },
+  {
+   "file": "items/av-marude.jsonl",
+   "jp_before": "彼女[かのじょ]は{まるで|av-marude}プロの歌手[かしゅ]のように歌[うた]がうまい。",
+   "problem": "English 'as well as if she were' is awkward.",
+   "action": "English changed to 'She sings just as well as a professional singer.'"
+  },
+  {
+   "file": "items/av-marude.jsonl",
+   "jp_before": "湖[みずうみ]の水[みず]は{あたかも/まるで|av-marude}鏡[かがみ]のようにきれいだった。",
+   "problem": "鏡のようにきれい is an unidiomatic collocation; a mirror image calls for a still surface.",
+   "action": "Rewritten: 湖の水面は…鏡のように静かだった / 'as still as a mirror'."
+  },
+  {
+   "file": "items/av-marude.jsonl",
+   "jp_before": "母[はは]は{まるで|av-marude}私[わたし]の心[こころ]が読[よ]めるみたいに、いつも正[ただ]しく当[あ]てる。",
+   "problem": "当てる has no object, and 正しく当てる is unnatural.",
+   "action": "Rewritten: …考えていることをいつも当てる; English updated."
+  },
+  {
+   "file": "items/av-marude.jsonl",
+   "jp_before": "先生[せんせい]の説明[せつめい]は、{まるで|av-marude}歌[うた]を聞[き]いているように楽[たの]しかった。",
+   "problem": "An explanation as enjoyable as listening to a song is an odd, unnatural simile.",
+   "action": "Rewritten: 先生の話は、まるで映画を見ているように面白かった; English and why updated."
+  },
+  {
+   "file": "items/av-marude.jsonl",
+   "jp_before": "彼[かれ]の話[はなし]は、まるで本当[ほんとう]に見[み]てきた{ようでした|av-marude}。",
+   "problem": "話は…見てきたようでした mismatches its subject (the story did not 'see'); unnatural.",
+   "action": "Rewritten: 彼はまるで自分の目で見てきた{ように/みたいに}話した, with distractors ために/ばかりに/ところに; English and why updated."
+  },
+  {
+   "file": "items/av-marude.jsonl",
+   "jp_before": "大[おお]きな犬[いぬ]は、まるで人[ひと]の{ように|av-marude}ソファーに座[すわ]っていた。",
+   "problem": "With の outside the slot, the equally natural 人みたいに could not be listed as an alternative.",
+   "action": "Slot widened to {のように/みたいに}; distractors changed to のために/のうちに/のおかげで."
+  },
+  {
+   "file": "items/av-marude.jsonl",
+   "jp_before": "まるで夢[ゆめ]{のようです|av-marude}",
+   "problem": "The ending slot takes the よう- and みたい- forms equally with the same meaning, but only one form was listed.",
+   "action": "Alternative added: のようです/みたいです."
+  },
+  {
+   "file": "items/av-marude.jsonl",
+   "jp_before": "まるで子[こ]ども{みたいだ|av-marude}",
+   "problem": "The ending slot takes the よう- and みたい- forms equally with the same meaning, but only one form was listed.",
+   "action": "Alternative added: みたいだ/のようだ."
+  },
+  {
+   "file": "items/av-marude.jsonl",
+   "jp_before": "まるで雪[ゆき]{のように|av-marude}",
+   "problem": "The ending slot takes the よう- and みたい- forms equally with the same meaning, but only one form was listed.",
+   "action": "Alternative added: のように/みたいに."
+  },
+  {
+   "file": "items/av-marude.jsonl",
+   "jp_before": "何[なに]も見[み]なかった{ような|av-marude}",
+   "problem": "The ending slot takes the よう- and みたい- forms equally with the same meaning, but only one form was listed.",
+   "action": "Alternative added: ような/みたいな."
+  },
+  {
+   "file": "items/av-marude.jsonl",
+   "jp_before": "まるで割[わ]れる{ようだ|av-marude}",
+   "problem": "The ending slot takes the よう- and みたい- forms equally with the same meaning, but only one form was listed.",
+   "action": "Alternative added: ようだ/みたいだ."
+  },
+  {
+   "file": "items/av-marude.jsonl",
+   "jp_before": "まるで春[はる]{みたいに|av-marude}",
+   "problem": "The ending slot takes the よう- and みたい- forms equally with the same meaning, but only one form was listed.",
+   "action": "Alternative added: みたいに/のように."
+  },
+  {
+   "file": "items/av-marude.jsonl",
+   "jp_before": "まるで海[うみ]{のような|av-marude}",
+   "problem": "The ending slot takes the よう- and みたい- forms equally with the same meaning, but only one form was listed.",
+   "action": "Alternative added: のような/みたいな."
+  },
+  {
+   "file": "items/av-marude.jsonl",
+   "jp_before": "まるで人形[にんぎょう]{みたいな|av-marude}",
+   "problem": "The ending slot takes the よう- and みたい- forms equally with the same meaning, but only one form was listed.",
+   "action": "Alternative added: みたいな/のような."
+  },
+  {
+   "file": "items/av-marude.jsonl",
+   "jp_before": "遊園地[ゆうえんち]に来[き]た{みたいに|av-marude}",
+   "problem": "The ending slot takes the よう- and みたい- forms equally with the same meaning, but only one form was listed.",
+   "action": "Alternative added: みたいに/ように."
+  },
+  {
+   "file": "items/av-marude.jsonl",
+   "jp_before": "人間[にんげん]の言葉[ことば]が分[わ]かる{ようだ|av-marude}",
+   "problem": "The ending slot takes the よう- and みたい- forms equally with the same meaning, but only one form was listed.",
+   "action": "Alternative added: ようだ/みたいだ."
+  },
+  {
+   "file": "items/av-marude.jsonl",
+   "jp_before": "まるで死[し]んだ{ように|av-marude}",
+   "problem": "The ending slot takes the よう- and みたい- forms equally with the same meaning, but only one form was listed.",
+   "action": "Alternative added: ように/みたいに."
+  },
+  {
+   "file": "items/av-marude.jsonl",
+   "jp_before": "まるで夫婦[ふうふ]{みたいです|av-marude}",
+   "problem": "The ending slot takes the よう- and みたい- forms equally with the same meaning, but only one form was listed.",
+   "action": "Alternative added: みたいです/のようです."
+  },
+  {
+   "file": "items/av-marude.jsonl",
+   "jp_before": "まるで別[べつ]の国[くに]{のようだった|av-marude}",
+   "problem": "The ending slot takes the よう- and みたい- forms equally with the same meaning, but only one form was listed.",
+   "action": "Alternative added: のようだった/みたいだった."
+  },
+  {
+   "file": "items/av-marude.jsonl",
+   "jp_before": "台風[たいふう]が来[き]た{ような|av-marude}",
+   "problem": "The ending slot takes the よう- and みたい- forms equally with the same meaning, but only one form was listed.",
+   "action": "Alternative added: ような/みたいな."
+  },
+  {
+   "file": "items/av-marude.jsonl",
+   "jp_before": "まるで氷[こおり]{みたいに|av-marude}",
+   "problem": "The ending slot takes the よう- and みたい- forms equally with the same meaning, but only one form was listed.",
+   "action": "Alternative added: みたいに/のように."
+  },
+  {
+   "file": "items/av-sekkaku.jsonl",
+   "jp_before": "せっかくの日曜日[にちようび]な{のに|av-sekkaku}、一日[いちにち]中[じゅう]仕事[しごと]だった。",
+   "problem": "Near-duplicate of line 1 (せっかくの日曜日なのに); distractors のおかげで / のために produced the ill-formed strings なのおかげで / なのために.",
+   "action": "Rewritten: せっかくの連休{なのに}、ずっと仕事だった with distractors なのだから/なので/だから; English and why updated."
+  },
+  {
+   "file": "items/av-sekkaku.jsonl",
+   "jp_before": "せっかく約束[やくそく]した{のに|av-sekkaku}、彼[かれ]は来[こ]なかった。",
+   "problem": "Distractor たびに forms a grammatical sentence ('every time we made a promise, he didn't come'), so it is not plainly wrong.",
+   "action": "たびに replaced with ので."
+  },
+  {
+   "file": "items/av-sekkaku.jsonl",
+   "jp_before": "せっかく心配[しんぱい]して教[おし]えてあげた{のに|av-sekkaku}、彼[かれ]は聞[き]こうとしない。",
+   "problem": "English loses the せっかく nuance of wasted effort.",
+   "action": "English changed to 'I was worried about him and went to the trouble of telling him, but he won't listen.'"
+  }
+ ]
+}
