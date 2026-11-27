@@ -18,9 +18,13 @@
 --
 -- Writes only through Flask (service role): RLS on, no policy, no client privilege.
 --
--- SIZE: ~1.2 KB per row (four sentences of feedback); the whole ja + zh corpus
---       (~24k spot items) in one learner language would be ~30 MB, but rows are
---       only written for items a learner was actually served.
+-- SIZE (measured 2026-11-27 on three live ja items): payload jsonb 1.47-1.68 KB, row
+--       ~1.66 KB, 4-5 rows per 8 KB page, so ~1.9 KB per item on disk plus ~40 B of
+--       primary-key index. Rows are written only for items a learner is served
+--       (~5 MB a year for one daily learner). Writing every item ahead would be
+--       ~35 MB for ja (17.9k items) and ~38 MB for zh (19.4k), one learner
+--       language each: more than the Free plan's 500 MB cap leaves (DB 473 MB on
+--       2026-11-27). See wiki/evaluations/explanation-storage-2026-11-27.md.
 -- VERIFY (read-only, after apply):
 --   SELECT count(*) FROM public.exercise_explanations;        -> 0 right after apply
 --   SELECT relrowsecurity FROM pg_class WHERE relname = 'exercise_explanations';  -> true
