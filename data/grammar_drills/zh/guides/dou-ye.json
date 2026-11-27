@@ -5,7 +5,7 @@
     {
       "key": "dou-position",
       "label": "都 after what it totals",
-      "focus": "Place 都 after the plural or listed subject (or time phrase) it totals and before the verb, adjective, modal or 在/跟 phrase. Classic errors: English order 都我们去, 都 after the verb (我们去都), 都 after the coverb phrase instead of before it."
+      "focus": "Place 都 after the plural or listed subject (or time phrase) it totals and before the verb, adjective or modal. Classic errors: English order 都我们去, 都 after the verb (我们去都). With a 在 / 跟 phrase 都 normally comes first, but 在 + place + 都 is also natural: give both alts, never mark it wrong."
     },
     {
       "key": "object-fronted",
@@ -74,7 +74,7 @@
     },
     {
       "sub": "dou-position",
-      "rule": "If the sentence has a modal verb or a 在 / 跟 / 给 phrase before the verb, 都 comes before all of it.",
+      "rule": "If the sentence has a modal verb or a 在 / 跟 / 给 phrase before the verb, 都 normally comes before all of it.",
       "pattern": "Plural subject + 都 + modal / coverb phrase + Verb",
       "examples": [
         {
@@ -92,7 +92,8 @@
           "py": "zhè jǐ tiān dōu hěn lěng",
           "en": "It has been cold all these past few days."
         }
-      ]
+      ],
+      "note": "Before a modal verb this is fixed (我们都想去). After a 在 + place phrase 都 is also natural (他们在北京都工作过), so 都 first is the default, not the only correct order."
     },
     {
       "sub": "object-fronted",
@@ -143,7 +144,7 @@
           "en": "I want to learn Chinese too."
         }
       ],
-      "note": "A time word may come before the subject (明天我也去) but 也 still follows the subject. For 'Also, ...' opening a sentence, Chinese uses 还有 or 另外, not 也. The short answer 'Me too' needs a verb: 我也是, 我也去."
+      "note": "A time word may come before the subject (明天我也去) but 也 still follows the subject. 也 may also follow a 在 + place phrase (我在家也喝茶). For 'Also, ...' opening a sentence, Chinese uses 还有 or 另外, not 也. The short answer 'Me too' needs a verb: 我也是, 我也去."
     },
     {
       "sub": "ye-dou-order",

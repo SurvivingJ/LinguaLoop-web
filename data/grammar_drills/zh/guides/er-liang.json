@@ -3,13 +3,13 @@
   "summary": "Both mean 'two'. 两 answers 'how many?': it stands in front of a measure word or a unit (两个人, 两天, 两点). 二 is the number itself: counting, digits, ordinals, dates, and every 二 inside a bigger number (十二, 二十). If you could put 'second' or read the figure out as a digit, use 二; if you are counting things, use 两.",
   "subs": [
     {"key": "liang-measure", "label": "两 + measure word", "focus": "A plain quantity of two before a measure word or money/weight unit: 两个, 两本, 两位, 两次, 两块钱, 两杯, 两张. The learner must choose 两 over 二 (classic error: 二个人, 二本书). Distractors: 二, 俩, 第二. Do not use the old weight unit 两 (二两) or 二位 as a polite address, where 二 is normal."},
-    {"key": "liang-time", "label": "两 for clock time and durations", "focus": "两点 (two o'clock), 两点半, 两分钟, 两天, 两年, 两个小时, 两个星期, 两个月. The learner must choose 两 for the hour and for any amount of time (classic errors: 二点, 二天, 二年, 二个月). Include 十二点 and 两点二十 as traps where only the bare hour 'two' is 两."},
+    {"key": "liang-time", "label": "两 for clock time and durations", "focus": "两点 (two o'clock), 两点半, 两分钟, 两天, 两年, 两个小时, 两个星期, 两个月. The learner must choose 两 for the hour and for any amount of time (errors: 二天, 二年, 二个月; 二点 is heard regionally: distractor only). Include 十二点 and 两点二十 as traps where only the bare hour 'two' is 两."},
     {"key": "er-ordinal-date", "label": "二 for ordinals, dates and labels", "focus": "第二, 二月, 二号, 星期二, 二楼, 二年级, 二哥: a position in a series, not an amount. The learner must choose 二 (classic errors: 第两, 两月, 两号, 两楼). Best items contrast a label with a quantity in a context that forces one reading: 二月 / 两个月, 第二天 / 两天, 第二次 / 两次, 二楼 / 两层楼, 二年级 / 两年."},
     {"key": "er-count-digits", "label": "二 for counting, digits and maths", "focus": "Counting aloud (一二三), reading out digits (room, bus, phone and year numbers), sums (一加一等于二), decimals (零点二) and fractions (二分之一, 三分之二). No measure word follows, so the learner must choose 二 (classic error: 零点两, 两分之一, 一加一等于两)."},
     {"key": "er-in-tens", "label": "二 inside 十二, 二十, 二十二", "focus": "In the tens and units places 二 never changes, even when a measure word follows: 十二个, 二十个, 二十二岁, 三十二块. The learner sees a measure word and wrongly reaches for 两 (classic errors: 十两个, 两十个, 两十两). Blank either the 二 before 十 or the 二 after 十; distractor is always 两."},
     {"key": "bai-qian-wan", "label": "Two before 百, 千, 万, 亿", "focus": "Leading 'two' in big numbers: 两千, 两万, 两亿 are the normal spoken forms, but 二千, 二万 and 二百 / 两百 are also correct, so never offer 二 and 两 as rival options there (use 俩, 双, 第二 as distractors). Force a choice only next to 十: 二十万, 十二万. Judge items may mark only 两十万 or 十两万 wrong."},
     {"key": "liang-couple", "label": "两 = a couple, a few", "focus": "两 as a loose 'a couple of': 过两天, 这两天, 说两句, 吃两口, 等两分钟. The English cue says 'a couple of / a few' and the learner must still pick 两, not 二 and not 几个 forms that break the sentence (classic error: 过二天). Make the vague reading clear in the English."},
-    {"key": "lia", "label": "俩 = 两个", "focus": "俩 already contains the measure word: 我们俩, 他们俩, 你们俩, 俩人, 俩孩子. The learner must decide between 俩 and 两 depending on whether 个 follows (classic errors: 俩个, 我们两 with nothing after it, 俩本书). Options should include 俩, 两, 二 and the sentence must show whether 个 is already there."}
+    {"key": "lia", "label": "俩 = 两个", "focus": "俩 already contains the measure word: 我们俩, 他们俩, 你们俩, 俩人, 俩孩子. The learner must decide between 俩 and 两 depending on whether 个 follows (errors: 我们两 alone, 俩本书; 俩个 is colloquial: distractor only, not judge-wrong). Options should include 俩, 两, 二 and the sentence must show whether 个 is already there."}
   ],
   "rules": [
     {"sub": "liang-measure", "rule": "Counting two of something: 两 + measure word. Never 二 directly before a measure word.", "pattern": "两 + measure word + noun", "examples": [
@@ -23,7 +23,7 @@
       {"zh": "我学了两年汉语。", "py": "wǒ xué le liǎng nián hàn yǔ", "en": "I have studied Chinese for two years."},
       {"zh": "他在上海住了两个月。", "py": "tā zài shàng hǎi zhù le liǎng ge yuè", "en": "He lived in Shanghai for two months."},
       {"zh": "我们两点二十见面。", "py": "wǒ men liǎng diǎn èr shí jiàn miàn", "en": "Let's meet at two twenty."}
-    ], "note": "Only the bare hour 'two' is 两点. Twelve o'clock is 十二点, and the minutes follow the normal number rules (二十分, 零二分)."},
+    ], "note": "Only the bare hour 'two' is 两点 (二点 is heard from some speakers but is not standard). Twelve o'clock is 十二点, and the minutes follow the normal number rules (二十分, 零二分)."},
     {"sub": "er-ordinal-date", "rule": "A position in a series takes 二: 第二, months, days of the month, weekdays, floors, school years.", "pattern": "第 + 二 + measure word;  二 + 月 / 号 / 楼 / 年级;  星期 + 二", "examples": [
       {"zh": "今天是二月二号。", "py": "jīn tiān shì èr yuè èr hào", "en": "Today is the second of February."},
       {"zh": "这是我第二次来中国。", "py": "zhè shì wǒ dì èr cì lái zhōng guó", "en": "This is my second time in China."},
@@ -58,7 +58,7 @@
       {"zh": "这两天我特别忙。", "py": "zhè liǎng tiān wǒ tè bié máng", "en": "I've been really busy these last few days."},
       {"zh": "我想说两句。", "py": "wǒ xiǎng shuō liǎng jù", "en": "I'd like to say a few words."}
     ], "note": "Context decides whether 两天 is exactly two days or just 'a few'; the grammar is the same."},
-    {"sub": "lia", "rule": "俩 = 两个. It goes after a plural pronoun or straight before a noun, and never takes another measure word.", "pattern": "我们 / 你们 / 他们 + 俩;  俩 + noun", "examples": [
+    {"sub": "lia", "rule": "俩 = 两个. It goes after a plural pronoun or straight before a noun, and takes no further measure word in standard usage.", "pattern": "我们 / 你们 / 他们 + 俩;  俩 + noun", "examples": [
       {"zh": "我们俩是同学。", "py": "wǒ men liǎ shì tóng xué", "en": "The two of us are classmates."},
       {"zh": "他们俩都喜欢打篮球。", "py": "tā men liǎ dōu xǐ huan dǎ lán qiú", "en": "Both of them like playing basketball."},
       {"zh": "你们两个去哪儿？", "py": "nǐ men liǎng ge qù nǎ r", "en": "Where are you two going?"}
@@ -66,13 +66,13 @@
   ],
   "contrasts": [
     {"wrong": "我有二个哥哥。", "right": {"zh": "我有两个哥哥。", "py": "wǒ yǒu liǎng ge gē ge", "en": "I have two older brothers."}, "why": "A quantity before a measure word is 两. 二 does not stand directly before 个."},
-    {"wrong": "我们二点见吧。", "right": {"zh": "我们两点见吧。", "py": "wǒ men liǎng diǎn jiàn ba", "en": "Let's meet at two."}, "why": "Two o'clock is always 两点. 点 behaves like a measure word here."},
+    {"wrong": "我们二点见吧。", "right": {"zh": "我们两点见吧。", "py": "wǒ men liǎng diǎn jiàn ba", "en": "Let's meet at two."}, "why": "Two o'clock is 两点 in standard Mandarin (二点 is heard from some speakers, but 两点 is the form to use). 点 behaves like a measure word here."},
     {"wrong": "我学了二年汉语。", "right": {"zh": "我学了两年汉语。", "py": "wǒ xué le liǎng nián hàn yǔ", "en": "I have studied Chinese for two years."}, "why": "A length of time is an amount, so 两年. 二年 only appears in labels such as 二年级."},
     {"wrong": "我的生日是两月五号。", "right": {"zh": "我的生日是二月五号。", "py": "wǒ de shēng rì shì èr yuè wǔ hào", "en": "My birthday is the fifth of February."}, "why": "February is the second month, a label, so 二月. 两个月 means two months long."},
     {"wrong": "这是我第两次来上海。", "right": {"zh": "这是我第二次来上海。", "py": "zhè shì wǒ dì èr cì lái shàng hǎi", "en": "This is my second time in Shanghai."}, "why": "After 第 it is always 二, even with a measure word after it. 两次 without 第 means twice."},
     {"wrong": "我们班有十两个学生。", "right": {"zh": "我们班有十二个学生。", "py": "wǒ men bān yǒu shí èr ge xué sheng", "en": "There are twelve students in our class."}, "why": "Inside 十二 the 二 is part of the number, so the measure word after it changes nothing."},
     {"wrong": "这本书两十块钱。", "right": {"zh": "这本书二十块钱。", "py": "zhè běn shū èr shí kuài qián", "en": "This book costs twenty kuai."}, "why": "Before 十 only 二 is possible. 两 starts a number only before 百, 千, 万, 亿."},
-    {"wrong": "他们俩个都是学生。", "right": {"zh": "他们俩都是学生。", "py": "tā men liǎ dōu shì xué sheng", "en": "The two of them are both students."}, "why": "俩 already means 两个, so adding 个 doubles the measure word. Say 他们俩 or 他们两个."},
+    {"wrong": "他们俩个都是学生。", "right": {"zh": "他们俩都是学生。", "py": "tā men liǎ dōu shì xué sheng", "en": "The two of them are both students."}, "why": "俩 already means 两个, so adding 个 doubles the measure word. 俩个 is common in casual speech and typing but counts as an error: say 他们俩 or 他们两个."},
     {"wrong": "过二天我给你打电话。", "right": {"zh": "过两天我给你打电话。", "py": "guò liǎng tiān wǒ gěi nǐ dǎ diàn huà", "en": "I'll call you in a couple of days."}, "why": "'A couple of days' is still a quantity of days, so 两天."},
     {"wrong": "我住在两楼。", "right": {"zh": "我住在二楼。", "py": "wǒ zhù zài èr lóu", "en": "I live on the second floor."}, "why": "A floor number is a label: 二楼. Two floors as an amount would be 两层."}
   ],
@@ -83,6 +83,6 @@
     "Touching 十? Always 二: 十二个, 二十个, 二十二.",
     "Front of a big number: 两千, 两万; 二百 or 两百 both work.",
     "Bare number, digit, decimal or fraction: 二 (零点二, 二分之一).",
-    "俩 = 两个, so never 俩个; 我们俩 = 我们两个."
+    "俩 = 两个, so not 俩个 in standard usage; 我们俩 = 我们两个."
   ]
 }

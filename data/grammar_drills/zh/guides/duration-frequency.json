@@ -10,7 +10,7 @@
     {
       "key": "dur-object",
       "label": "Duration with an object",
-      "focus": "Thing object or verb-object word (睡觉, 游泳, 聊天). Learner must choose V+了+duration+(的)+O or verb-copy V+O+V+了+duration. Classic errors: 我学了中文两年, 我学中文了两年, 我睡觉了八个小时. Order items: give both forms as alts if the tiles allow. 来/去/到/毕业/结婚 only in 'time since' items."
+      "focus": "Thing object or verb-object word (睡觉, 游泳, 聊天). Learner must choose V+了+duration+(的)+O or verb-copy V+O+V+了+duration. Classic errors: 我学了中文两年, 我学中文了两年. 开会了三个小时 / 生病过三次 are colloquial: never judge-wrong. Order items: give both forms as alts if the tiles allow. 来/去/到/毕业/结婚 only in 'time since' items."
     },
     {
       "key": "dur-person-object",
@@ -25,7 +25,7 @@
     {
       "key": "neg-before-verb",
       "label": "Negative: duration before 没",
-      "focus": "'Have not done it for X': learner must put the duration BEFORE 没 + verb, with final 了 if still true: 我们两年没见了. Classic error: 我们没见两年了. Rewrites: positive to negative moves the duration forward. Do not mark 没 + V + duration wrong where it denies the amount (没学两年，只学了一年)."
+      "focus": "'Have not done it for X': learner must put the duration BEFORE 没 + verb, with final 了 if still true: 我们两年没见了. Error: 我们没见两年了 (colloquial: not judge-wrong). Rewrites: positive to negative moves the duration forward. Do not mark 没 + V + duration wrong where it denies the amount (没学两年，只学了一年)."
     },
     {
       "key": "freq-measure",
@@ -35,7 +35,7 @@
     {
       "key": "freq-object",
       "label": "Frequency with an object",
-      "focus": "Learner must order object and count: pronoun BEFORE the count (见过他一次, 等我一下); place either side (去过两次北京 / 去过北京两次: both as alts); thing AFTER the count (打了三次电话); split verb-object words (见过一次面). Judge-wrong items only on clear errors: 见过一次他, 见面过一次, 见面过他."
+      "focus": "Learner must order object and count: pronoun BEFORE the count (见过他一次, 等我一下); place either side (去过两次北京 / 去过北京两次: both as alts); thing AFTER the count (打了三次电话); split verb-object words (见过一次面). Judge-wrong items only on clear errors: 见过一次他, 见面过他."
     },
     {
       "key": "when-vs-duration",
@@ -93,7 +93,7 @@
           "en": "I ride the subway for an hour every day."
         }
       ],
-      "note": "Words like 睡觉, 游泳, 跑步, 聊天, 上课 are verb + object inside, so they split the same way: 睡了八个小时的觉, 游了一个小时泳. Never 睡觉了八个小时."
+      "note": "Words like 睡觉, 游泳, 跑步, 聊天, 上课 are verb + object inside, so they split the same way: 睡了八个小时的觉, 游了一个小时泳. Not 睡觉了八个小时 in standard usage, though it is heard casually."
     },
     {
       "sub": "dur-object",
@@ -218,7 +218,7 @@
           "en": "Last year I didn't work for three months."
         }
       ],
-      "note": "Here 没 and the final 了 do go together: the 了 marks the situation so far, not a completed action. 没 + verb + duration is a different sentence that denies the amount: 我没学两年，只学了一年 (I didn't study for two years, only one)."
+      "note": "Here 没 and the final 了 go together: 了 marks the situation so far. 没 + verb + duration denies the amount: 我没学两年，只学了一年 (not two years, only one). Casual speech also puts the period last (没给我打电话一个月了); period first is standard."
     },
     {
       "sub": "freq-measure",
@@ -376,7 +376,7 @@
         "py": "wǒ zuó tiān shuì le bā gè xiǎo shí",
         "en": "I slept for eight hours yesterday."
       },
-      "why": "睡觉 is verb + object. 了 and the duration attach to 睡, with 觉 dropped or moved to the end (睡了八个小时的觉)."
+      "why": "睡觉 is verb + object. In standard usage 了 and the duration attach to 睡, with 觉 dropped or moved to the end (睡了八个小时的觉)."
     },
     {
       "wrong": "我等了半天他。",
@@ -394,7 +394,7 @@
         "py": "wǒ men liǎng nián méi jiàn le",
         "en": "We haven't seen each other for two years."
       },
-      "why": "When the action did not happen there is nothing after the verb to measure. The period of not doing goes before 没."
+      "why": "When the action did not happen there is nothing after the verb to measure, so the standard order puts the period of not doing before 没."
     },
     {
       "wrong": "我学了三年中文，现在还在学。",

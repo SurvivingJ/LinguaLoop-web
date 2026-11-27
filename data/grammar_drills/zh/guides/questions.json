@@ -5,7 +5,7 @@
     {
       "key": "ma-anota",
       "label": "吗 vs A-not-A (去不去, 有没有)",
-      "focus": "Choose 吗 or A-not-A, or build the A-not-A form. Errors: both together (你去不去吗), 有不有 for 有没有, doubling the main verb instead of the modal (你想去不去), A-not-A after 也 / 都 / 很 where only 吗 works (你也去不去). Include 喜不喜欢, 可不可以 and 是不是 before a predicate."
+      "focus": "Choose 吗 or A-not-A, or build the A-not-A form. Errors: both together (你去不去吗), 有不有 for 有没有, doubling the main verb instead of the modal (你想去不去), A-not-A after 很 (你很忙不忙). After 也 / 都 teach 吗, but 也 / 都 + A-not-A is said colloquially: never judge-wrong. Include 喜不喜欢, 可不可以 and 是不是 before a predicate."
     },
     {
       "key": "haishi-choice",
@@ -70,7 +70,7 @@
           "en": "Are you going too?"
         }
       ],
-      "note": "After 也, 都 or a degree word like 很, only 吗 is possible; A-not-A cannot follow them."
+      "note": "After a degree word like 很, only 吗 is possible. After 也 or 都, 吗 is the standard choice too (你们也去吗？); 也 / 都 + A-not-A (你们都去不去？) is heard in casual speech but is not the form to produce."
     },
     {
       "sub": "ma-anota",
@@ -374,7 +374,7 @@
         "py": "nǐ míng tiān qù bù qù",
         "en": "Are you going tomorrow?"
       },
-      "why": "去不去 is already the question. 吗 and A-not-A never appear together."
+      "why": "去不去 is already the question. Standard Chinese does not add 吗 to an A-not-A form."
     },
     {
       "wrong": "你有不有时间？",
@@ -386,13 +386,13 @@
       "why": "有 is negated only with 没, so its A-not-A form is 有没有."
     },
     {
-      "wrong": "你们也去不去？",
+      "wrong": "你很忙不忙？",
       "right": {
-        "zh": "你们也去吗？",
-        "py": "nǐ men yě qù ma",
-        "en": "Are you going too?"
+        "zh": "你忙不忙？",
+        "py": "nǐ máng bù máng",
+        "en": "Are you busy?"
       },
-      "why": "A-not-A cannot follow 也, 都 or 很. With those adverbs ask with 吗."
+      "why": "A-not-A is built on the bare adjective, so 很 cannot stand in front of it. With 很 ask 你很忙吗？ After 也 / 都 the standard question also uses 吗 (你们也去吗？)."
     },
     {
       "wrong": "什么你想吃？",
@@ -459,9 +459,9 @@
     }
   ],
   "cheat": [
-    "One question marker per sentence: 吗, or A-not-A, or 还是, or a question word. Never two.",
+    "One question marker per sentence: 吗, or A-not-A, or 还是, or a question word. Don't stack two.",
     "Question word goes where the answer goes. Don't move it to the front.",
-    "也 / 都 / 很 in the sentence? Use 吗, not A-not-A. With a modal, double the modal: 想不想去.",
+    "也 / 都 / 很 in the sentence? Ask with 吗. With a modal, double the modal: 想不想去.",
     "Asking someone to choose: 还是. 'Or' in a statement: 或者.",
     "几 + measure word for small numbers; 多少 for anything else and for 钱.",
     "怎么 + verb = how to; 怎么样 = how is it; 多 + adjective = how big / long / far.",

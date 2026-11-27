@@ -25,7 +25,7 @@
     {
       "key": "neg-modal-position",
       "label": "没 / 别 / modals / adverbs go before 把",
-      "focus": "没, 别, 不要, modals (可以, 能, 要, 想, 应该) and time adverbs (已经, 还没, 马上) go before 把, never between object and verb. Errors: 我把作业没做完, 你把车可以停在这儿. Also test 没 (not 不, and no 了) for an action not done. Keep 把 and the negator or modal as separate tiles."
+      "focus": "没, 别, 不要, modals (可以, 能, 要, 想, 应该) and time adverbs (已经, 还没, 马上) go before 把, not between object and verb. Errors: 你把车可以停在这儿, 我把没作业做完. 把…没 + verb is said colloquially: never judge-wrong. Also test 没 (not 不, and no 了) for an action not done. Keep 把 and the negator or modal as separate tiles."
     },
     {
       "key": "no-ba-verbs",
@@ -35,7 +35,7 @@
     {
       "key": "definite-object",
       "label": "The 把 object is specific",
-      "focus": "The 把 object is identifiable (这 / 那, 我的, pronoun, bare noun = 'the ...'); a new counted object (一本书, 两杯咖啡) stays after the verb. Learner chooses 把那本书看完了 or 看完了一本书 from the cue ('the / that / my' or 'a / some / two'). Error: 我把一本书看完了. Avoid the rare specific 一 + measure."
+      "focus": "The 把 object is identifiable (这 / 那, 我的, pronoun, bare noun = 'the ...'); a new counted object (一本书, 两杯咖啡) stays after the verb. Learner chooses 把那本书看完了 or 看完了一本书 from the cue ('the / that / my' or 'a / some / two'). 把 + 一 + measure is accepted colloquially: never use it as a judge-wrong sentence."
     },
     {
       "key": "ba-vs-svo",
@@ -102,7 +102,7 @@
     },
     {
       "sub": "ba-destination",
-      "rule": "If the verb is followed by 在 / 到 + place, or has 给 + person attached to it, a specific object cannot stay after the verb. Move it forward with 把.",
+      "rule": "If the verb is followed by 在 / 到 + place, or has 给 + person attached to it, in standard Mandarin a specific object does not stay after the verb. Move it forward with 把.",
       "pattern": "Subject + 把 + Object + Verb + 在 / 到 / 给 + Place / Person",
       "examples": [
         {
@@ -181,7 +181,7 @@
     },
     {
       "sub": "neg-modal-position",
-      "rule": "Negation goes before 把, never before the verb. Use 没 for something that did not get done (and drop 了); use 别 or 不要 for 'don't'.",
+      "rule": "Negation goes before 把, not before the verb. Use 没 for something that did not get done (and drop 了); use 别 or 不要 for 'don't'.",
       "pattern": "Subject + 没 / 别 / 不要 + 把 + Object + Verb + more",
       "examples": [
         {
@@ -205,7 +205,7 @@
           "en": "Don't tell him about this."
         }
       ],
-      "note": "Plain 不 before 把 is limited to attitudes and conditions (他不把我当朋友; 你不把饭吃完，就不能出去玩). For a past event that did not happen, it is always 没把."
+      "note": "Plain 不 before 把 is for attitudes, conditions and refusals (他不把我当朋友; 你不把饭吃完，就不能出去玩). A past event that did not happen takes 没把. 把…没 + verb (他把作业没做完) is heard in casual speech but is not the standard order."
     },
     {
       "sub": "neg-modal-position",
@@ -265,7 +265,7 @@
     },
     {
       "sub": "definite-object",
-      "rule": "The object of 把 must be something specific that the listener can identify (这 / 那, 我的, a pronoun, or a bare noun meaning 'the ...'). A new object counted with 一 / 两 / 几 stays after the verb.",
+      "rule": "The object of 把 is normally something specific that the listener can identify (这 / 那, 我的, a pronoun, or a bare noun meaning 'the ...'). A new object counted with 一 / 两 / 几 stays after the verb.",
       "pattern": "把 + 这 / 那 / 我的 / bare noun ...   BUT   Verb + Result + 了 + number + measure + Object",
       "examples": [
         {
@@ -289,7 +289,7 @@
           "en": "I bought two pieces of clothing at the shop."
         }
       ],
-      "note": "一 + measure does occur after 把 when the speaker has one particular thing in mind (我把一件重要的事忘了), but that is uncommon. As a working rule: 'a / some' in English means no 把."
+      "note": "一 + measure does occur after 把 when the speaker has one particular thing in mind (我把一件重要的事忘了), and casual speech allows more (我把一杯咖啡喝完了). As a working rule: 'a / some' in English means no 把."
     },
     {
       "sub": "ba-vs-svo",
@@ -359,7 +359,7 @@
         "py": "wǒ bǎ shǒu jī fàng zài zhuō zi shàng le",
         "en": "I put my phone on the table."
       },
-      "why": "English order 'put the phone on the table' does not work: nothing can come between 放 and 在. The object has to move forward with 把."
+      "why": "English order 'put the phone on the table' does not work in standard Mandarin: 放 and 在 stay together, so the object moves forward with 把. (放手机在桌子上 is heard in some regional speech.)"
     },
     {
       "wrong": "他翻译这个句子成中文了。",
@@ -371,13 +371,13 @@
       "why": "翻译成 must be followed straight away by the new form (中文), so the thing translated goes before the verb with 把."
     },
     {
-      "wrong": "我把作业没做完。",
+      "wrong": "我把没作业做完。",
       "right": {
         "zh": "我没把作业做完。",
         "py": "wǒ méi bǎ zuò yè zuò wán",
         "en": "I didn't finish my homework."
       },
-      "why": "没 goes before 把, not before the verb, and 了 is dropped after 没."
+      "why": "没 goes before 把, not after it, and 了 is dropped after 没. (把作业没做完 is heard in casual speech, but 没把 is the standard order.)"
     },
     {
       "wrong": "你把车可以停在这儿。",
@@ -407,15 +407,6 @@
       "why": "Seeing someone does not change or move them. 看见 takes its object after the verb."
     },
     {
-      "wrong": "我把一本书看完了。",
-      "right": {
-        "zh": "我看完了一本书。",
-        "py": "wǒ kàn wán le yī běn shū",
-        "en": "I finished a book."
-      },
-      "why": "'A book' is new and unspecified, so it stays after the verb. 把 would need 那本书 or 这本书."
-    },
-    {
       "wrong": "我把这些作业做不完。",
       "right": {
         "zh": "我做不完这些作业。",
@@ -436,7 +427,7 @@
   ],
   "cheat": [
     "把 + the thing + verb + what happened to it. Never stop at the bare verb.",
-    "放在 / 送到 / 交给 / 翻译成 / 当作 with a specific object: 把 is the only way.",
+    "放在 / 送到 / 交给 / 翻译成 / 当作 with a specific object: 把 is the standard way.",
     "没, 别, 不要, 可以, 想, 要, 已经 all go BEFORE 把. Didn't happen = 没把, with no 了.",
     "English 'a / some / two ...' object: no 把, plain SVO. 'The / that / my ...': 把 is open.",
     "是, 有, 喜欢, 知道, 觉得, 来, 去, 看见, 听到: no 把.",

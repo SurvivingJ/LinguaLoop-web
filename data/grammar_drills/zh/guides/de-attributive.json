@@ -25,7 +25,7 @@
     {
       "key": "nominal",
       "label": "的 with no noun: 我的, 红的, 吃的",
-      "focus": "Keep 的 when the noun is dropped: 这本书是我的, 我要大的, 有吃的吗, 这是我昨天买的. Mistakes: dropping 的 with the noun (✗这本书是我, ✗我要大), adding an English 'one' (✗大的一个 for 'the big one'). Test with A 还是 B choices, 谁的 answers, and 吃的 / 喝的 / 穿的 as 'things to eat / drink / wear'."
+      "focus": "Keep 的 when the noun is dropped: 这本书是我的, 我要大的, 有吃的吗, 这是我昨天买的. Mistakes: dropping 的 with the noun (✗这本书是我, ✗我要大), a bare adjective for 'the big one' (大的一个 is colloquial: never judge-wrong). Test with A 还是 B choices, 谁的 answers, and 吃的 / 喝的 / 穿的 as 'things to eat / drink / wear'."
     },
     {
       "key": "num-order",
@@ -83,7 +83,7 @@
           "en": "Is your home far from the office?"
         }
       ],
-      "note": "我的妈妈 and 我们的学校 are not wrong; they sound heavier or more emphatic. The version without 的 is the everyday default."
+      "note": "我的妈妈 and 我们的学校 are not wrong; they sound heavier or more emphatic. The version without 的 is the everyday default. 我学校 and 我公司 are also said in casual speech."
     },
     {
       "sub": "kin-drop",
@@ -151,7 +151,7 @@
           "en": "I want to find a quiet place to read."
         }
       ],
-      "note": "很多 and 不少 are exceptions: 很多人, 很多问题 need no 的."
+      "note": "很多 and 不少 are exceptions: 很多人, 很多问题 need no 的. A two-syllable adjective without 的 (一个安静地方) is also heard, so it is not a safe 'wrong' sentence."
     },
     {
       "sub": "rel-clause",
@@ -207,7 +207,7 @@
           "en": "This isn't the one I bought yesterday."
         }
       ],
-      "note": "Do not add a word for 'one': 'the big one' is just 大的."
+      "note": "You need no word for 'one': 'the big one' is just 大的. 大的那个 and colloquial 大的一个 also exist."
     },
     {
       "sub": "num-order",
@@ -339,13 +339,13 @@
       "why": "'Two of my friends' is not built in English order. The owner goes first, then number + measure word, then the noun."
     },
     {
-      "wrong": "我要大的一个。",
+      "wrong": "我要那个大。",
       "right": {
-        "zh": "我要大的。",
-        "py": "wǒ yào dà de",
-        "en": "I want the big one."
+        "zh": "我要那个大的。",
+        "py": "wǒ yào nà ge dà de",
+        "en": "I want that big one."
       },
-      "why": "的 already stands in for the missing noun, so 大的 is 'the big one'. No extra word for 'one' is added."
+      "why": "When the noun is left out, 的 must stay: 大的 is 'the big one'. A bare adjective cannot stand in for the noun."
     },
     {
       "wrong": "这个的人是谁？",

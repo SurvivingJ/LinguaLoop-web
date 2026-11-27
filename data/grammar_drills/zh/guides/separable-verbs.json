@@ -15,12 +15,12 @@
     {
       "key": "aspect-inside",
       "label": "了 / 过 / 着 inside: 见过面",
-      "focus": "过 and 着 attach to the verb half, not to the whole word: 见过面, 结过婚, 请过假, 说着话. Verb 了 also goes inside when the sentence continues or something is counted (吃了饭就走). Classic mistake: 见面过, 结婚过, 请假过. Sentence-final 了 after the whole word (他结婚了, 我们放假了) is correct and must never be marked wrong."
+      "focus": "过 and 着 attach to the verb half, not to the whole word: 见过面, 结过婚, 请过假, 说着话. Verb 了 also goes inside when the sentence continues or something is counted (吃了饭就走). 见面过 / 结婚过 are non-standard but heard: traps, never judge-wrong. Sentence-final 了 after the whole word (他结婚了, 我们放假了) is correct."
     },
     {
       "key": "duration-inside",
       "label": "Duration inside: 睡了八个小时觉",
-      "focus": "How long the action lasted goes between the two halves, after 了: 睡了八个小时(的)觉, 请了三天假, or the verb is repeated: 睡觉睡了八个小时. Classic mistake: 睡觉了八个小时, 游泳了一个小时. Also test the opposite case: point-like words (结婚, 毕业, 离婚) put the time since after the whole word: 结婚十年了, not 结了十年婚."
+      "focus": "How long the action lasted goes between the two halves, after 了: 睡了八个小时(的)觉, 请了三天假, or the verb is repeated: 睡觉睡了八个小时. Classic mistake: 睡觉了八个小时, 游泳了一个小时. Also test the opposite case: point-like words (结婚, 毕业, 离婚) put the time since after the whole word: 结婚十年了 (结婚了十年了 is also natural)."
     },
     {
       "key": "count-inside",
@@ -30,7 +30,7 @@
     {
       "key": "reduplication",
       "label": "Double only the verb: 散散步",
-      "focus": "For 'do a bit of' only the first half doubles: 散散步, 聊聊天, 帮帮忙, 见见面, 洗洗澡. Classic mistake: doubling the whole word like an ordinary two-syllable verb (散步散步, 聊天聊天), by analogy with 休息休息 and 学习学习. Items may contrast a separable verb with a normal one."
+      "focus": "For 'do a bit of' only the first half doubles: 散散步, 聊聊天, 帮帮忙, 见见面, 洗洗澡. Whole-word doubling (散步散步, 聊天聊天), by analogy with 休息休息, is said colloquially: key AAB, but never use ABAB as a judge-wrong sentence. Clear error: 散步一散步. Items may contrast a separable verb with a normal one."
     },
     {
       "key": "degree-complement",
@@ -102,7 +102,7 @@
         {"zh": "他上个月请了三天假。", "py": "tā shàng gè yuè qǐng le sān tiān jià", "en": "He took three days off last month."},
         {"zh": "她游泳游了半个小时。", "py": "tā yóu yǒng yóu le bàn gè xiǎo shí", "en": "She swam for half an hour."}
       ],
-      "note": "Never put the duration after the unsplit word with 了: 睡觉了八个小时 is wrong."
+      "note": "The standard forms do not put 了 + duration after the unsplit word: 睡了八个小时觉, not 睡觉了八个小时 (which some speakers say casually)."
     },
     {
       "sub": "duration-inside",
@@ -129,7 +129,7 @@
     },
     {
       "sub": "reduplication",
-      "rule": "To say 'do a bit of it', double only the verb half. Ordinary two-syllable verbs double as a whole (休息休息), separable ones never do.",
+      "rule": "To say 'do a bit of it', double only the verb half. Ordinary two-syllable verbs double as a whole (休息休息); for separable ones the standard form is AAB.",
       "pattern": "Subject + verb + verb + object",
       "examples": [
         {"zh": "吃完饭我们出去散散步吧。", "py": "chī wán fàn wǒ men chū qù sàn sàn bù ba", "en": "Let's go out for a little walk after dinner."},
@@ -137,7 +137,7 @@
         {"zh": "请你帮帮忙。", "py": "qǐng nǐ bāng bāng máng", "en": "Please lend a hand."},
         {"zh": "周末我喜欢在家唱唱歌。", "py": "zhōu mò wǒ xǐ huan zài jiā chàng chàng gē", "en": "At weekends I like to sing a bit at home."}
       ],
-      "note": "Only casual, deliberate activities double. 结婚, 毕业, 离婚, 生气 and 出差 are not doubled at all. For a finished action 了 goes between the two verbs: 我们昨天聊了聊天."
+      "note": "Only casual, deliberate activities double; 结婚, 毕业, 离婚, 生气 and 出差 do not. Finished action: 了 between the two verbs (我们昨天聊了聊天). Whole-word 散步散步 is heard in casual speech; AAB is the form to produce."
     },
     {
       "sub": "degree-complement",
@@ -188,22 +188,22 @@
     {
       "wrong": "我们见面过。",
       "right": {"zh": "我们见过面。", "py": "wǒ men jiàn guo miàn", "en": "We have met."},
-      "why": "过 attaches to the verb 见, not to the noun 面, just as in 吃过饭."
+      "why": "过 attaches to the verb 见, not to the noun 面, just as in 吃过饭. 见面过 is heard in casual speech, but 见过面 is the standard form."
     },
     {
       "wrong": "我睡觉了八个小时。",
       "right": {"zh": "我睡了八个小时觉。", "py": "wǒ shuì le bā gè xiǎo shí jiào", "en": "I slept for eight hours."},
-      "why": "了 and the duration follow the verb 睡 and come before the object 觉. 睡觉睡了八个小时 also works."
+      "why": "In standard usage 了 and the duration follow the verb 睡 and come before the object 觉. 睡觉睡了八个小时 also works."
     },
     {
       "wrong": "他结婚过两次。",
       "right": {"zh": "他结过两次婚。", "py": "tā jié guo liǎng cì hūn", "en": "He has been married twice."},
-      "why": "过 and the count 两次 belong inside 结婚: 结 + 过 + 两次 + 婚."
+      "why": "过 and the count 两次 belong inside 结婚 in standard usage: 结 + 过 + 两次 + 婚."
     },
     {
-      "wrong": "我们出去散步散步吧。",
+      "wrong": "我们出去散步一散步吧。",
       "right": {"zh": "我们出去散散步吧。", "py": "wǒ men chū qù sàn sàn bù ba", "en": "Let's go out for a little walk."},
-      "why": "Only the verb half doubles. 散步散步 treats 散步 like 休息, but 步 is its object."
+      "why": "Only the verb half doubles, and 一 cannot join two whole words: 散散步. (散步散步 is heard in casual speech; AAB is the standard form.)"
     },
     {
       "wrong": "他唱歌得很好。",
@@ -213,7 +213,7 @@
     {
       "wrong": "我洗澡完就睡觉。",
       "right": {"zh": "我洗完澡就睡觉。", "py": "wǒ xǐ wán zǎo jiù shuì jiào", "en": "I'll go to bed as soon as I've had my shower."},
-      "why": "The result word 完 attaches to the verb 洗, before the object 澡, like 吃完饭."
+      "why": "The result word 完 attaches to the verb 洗, before the object 澡, like 吃完饭. (洗澡完 is occasionally heard, but it is not standard.)"
     }
   ],
   "cheat": [

@@ -20,7 +20,7 @@
     {
       "key": "hai-more",
       "label": "还: in addition, and 'again' in questions",
-      "focus": "还 adding something to what is already there (还要一个, 还有, 还会说日语, 还想买什么) and 还 for a future repeat in a yes/no question (你明天还来吗). The learner chooses 还 over 再 and 又. Classic mistake: 又 or 也 for 'what else', or 再 in the yes/no question."
+      "focus": "还 adding something to what is already there (还要一个, 还有, 还会说日语, 还想买什么) and 还 for a future repeat in a yes/no question (你明天还来吗). Classic mistake: 又 or 也 for 'what else'. In the yes/no question 再 is also natural: never make a cloze choose between 还 and 再 there."
     },
     {
       "key": "modal-position",
@@ -40,7 +40,7 @@
     {
       "key": "you-you",
       "label": "又…又: both A and B",
-      "focus": "Two qualities or two actions true at the same time: 又便宜又好吃, 又累又饿, 又唱又跳. Both sides point the same way (both good or both bad) and take no 很. The learner chooses 又…又 over 还…还 and 再…再 and leaves 很 out. Classic mistake: 又很大又很干净."
+      "focus": "Two qualities or two actions true at the same time: 又便宜又好吃, 又累又饿, 又唱又跳. Both sides point the same way and the adjectives are normally bare. The learner chooses 又…又 over 还…还 and 再…再. Classic mistake: second 又 missing or 和 instead (又大和干净). 又很大又很干净 is colloquial: never judge-wrong."
     },
     {
       "key": "zai-adj",
@@ -113,13 +113,13 @@
     },
     {
       "sub": "hai-more",
-      "rule": "In a yes/no question about whether a future action will be repeated, 'again' is 还, not 再.",
+      "rule": "In a yes/no question about whether a future action will be repeated, 'again' is usually 还.",
       "pattern": "Subject + Time + 还 + Verb + 吗",
       "examples": [
         {"zh": "你明天还来吗？", "py": "nǐ míng tiān hái lái ma", "en": "Are you coming again tomorrow?"},
         {"zh": "那家饭馆你以后还去吗？", "py": "nà jiā fàn guǎn nǐ yǐ hòu hái qù ma", "en": "Will you go to that restaurant again?"}
       ],
-      "note": "This holds for plain 吗 and verb-not-verb questions. After a modal the question takes 再 as usual: 你想再来吗？"
+      "note": "This holds for plain 吗 and verb-not-verb questions; 再 is also heard there (你明天再来吗？), so 还 is the default, not the only option. After a modal the question takes 再 as usual: 你想再来吗？"
     },
     {
       "sub": "modal-position",
@@ -142,7 +142,7 @@
         {"zh": "我们吃完饭再走吧。", "py": "wǒ men chī wán fàn zài zǒu ba", "en": "Let's leave after we finish eating."},
         {"zh": "这件事等他回来再说。", "py": "zhè jiàn shì děng tā huí lái zài shuō", "en": "Let's talk about this when he gets back."}
       ],
-      "note": "先 and 再 are adverbs: they follow the subject and come before the verb, never before the subject."
+      "note": "先 and 再 are adverbs: they follow the subject and come before the verb. (先 before the subject, 先我们…, is colloquial.)"
     },
     {
       "sub": "zaiye",
@@ -157,13 +157,14 @@
     },
     {
       "sub": "you-you",
-      "rule": "'Both A and B' at once is 又 A 又 B. The two sides are both good or both bad, and the adjectives take no 很. Two short verbs work too.",
+      "rule": "'Both A and B' at once is 又 A 又 B. The two sides are both good or both bad, and the adjectives are normally bare, with no 很. Two short verbs work too.",
       "pattern": "Subject + 又 + Adjective / Verb + 又 + Adjective / Verb",
       "examples": [
         {"zh": "这个菜又便宜又好吃。", "py": "zhè ge cài yòu pián yi yòu hǎo chī", "en": "This dish is both cheap and tasty."},
         {"zh": "我现在又累又饿。", "py": "wǒ xiàn zài yòu lèi yòu è", "en": "I'm tired and hungry right now."},
         {"zh": "孩子们高兴得又唱又跳。", "py": "hái zi men gāo xìng de yòu chàng yòu tiào", "en": "The children were so happy they sang and danced."}
-      ]
+      ],
+      "note": "In casual speech people do say 又很大又很干净, but the standard pattern uses bare adjectives."
     },
     {
       "sub": "zai-adj",
@@ -214,9 +215,9 @@
       "why": "'Never again' is the fixed frame 再也不. It looks forward from now, which is 再 territory, and 又也不 does not exist."
     },
     {
-      "wrong": "这个房间又很大又很干净。",
+      "wrong": "这个房间又大和干净。",
       "right": {"zh": "这个房间又大又干净。", "py": "zhè ge fáng jiān yòu dà yòu gān jìng", "en": "This room is both big and clean."},
-      "why": "Inside 又…又 the adjectives stand bare. 很 and other degree words cannot be added."
+      "why": "Each quality takes its own 又; 和 cannot stand in for the second one. Keep the adjectives bare: 又很大又很干净 is heard in casual speech, but the standard pattern has no 很."
     },
     {
       "wrong": "有没有又大一点儿的？",
@@ -236,6 +237,6 @@
     "Yes/no question about a future repeat: 你明天还来吗？",
     "先 pairs with 再; 'do it after...' is also 再.",
     "Never again: 再也不…了 from now on, 再也没…过 since then.",
-    "Both A and B: 又 A 又 B, no 很. A bit more: 再 + adjective + 一点儿."
+    "Both A and B: 又 A 又 B, bare adjectives. A bit more: 再 + adjective + 一点儿."
   ]
 }

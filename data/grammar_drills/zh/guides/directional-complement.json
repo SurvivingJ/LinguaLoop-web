@@ -15,7 +15,7 @@
     {
       "key": "place-object",
       "label": "Place goes before 来/去 (回家去)",
-      "focus": "Put a place object (家, 教室, 楼, 北京) between the direction word and 来/去, never after 来/去. Classic mistake: 回去家, 走进来教室, 上去楼. Make 来/去 its own tile in order items. Dropping 来/去 (他走进教室) is also correct: never mark it wrong."
+      "focus": "Put a place object (家, 教室, 楼, 北京) between the direction word and 来/去, not after 来/去. Standard-usage mistake: 回去家, 走进来教室, 上去楼. 回来北京 / 回去学校 are said colloquially: order traps only, never judge-wrong or cloze-wrong. Make 来/去 its own tile. Dropping 来/去 (他走进教室) is also correct."
     },
     {
       "key": "thing-object",
@@ -35,7 +35,7 @@
     {
       "key": "xiaqu-xialai",
       "label": "下去 keep going, 下来 settle or record",
-      "focus": "The learner must choose between 下去 (continue from now on: 说下去, 学下去, 这样下去), 下来 (come to rest or stay: 停下来, 安静下来, 留下来; fix on paper or in memory: 写下来, 记下来) and 起来 (start). Classic mistakes: 写下去 for 'write down', 安静起来 for 'quieten down', 说起来 for 'go on talking', and putting an object after 下去 (学下去汉语)."
+      "focus": "The learner must choose between 下去 (continue from now on: 说下去, 学下去, 这样下去), 下来 (come to rest or stay: 停下来, 安静下来, 留下来; fix on paper or in memory: 写下来, 记下来) and 起来 (start). Classic mistakes: 写下去 for 'write down', 停起来 for 'come to a stop', 说起来 for 'go on talking', and putting an object after 下去 (学下去汉语)."
     },
     {
       "key": "chulai",
@@ -102,7 +102,7 @@
     },
     {
       "sub": "place-object",
-      "rule": "A place can never follow 来 or 去. Put it right after the direction word and let 来/去 close the phrase.",
+      "rule": "In standard Mandarin a place does not follow 来 or 去. Put it right after the direction word and let 来/去 close the phrase.",
       "pattern": "Subject + (Verb) + direction + Place + 来 / 去",
       "examples": [
         {
@@ -126,7 +126,7 @@
           "en": "When are you coming back to Beijing?"
         }
       ],
-      "note": "With a place, 来/去 is often simply left out (他走进教室, 他回家了). That is fine. What is wrong in standard Mandarin is the place after 来/去: 回去家, 走进来教室."
+      "note": "With a place, 来/去 is often simply left out (他走进教室, 他回家了). That is fine. Place after 来/去 (回来北京, 回去学校) is heard in casual speech, especially in the south; the form to produce is 回北京来 or simply 回北京."
     },
     {
       "sub": "thing-object",
@@ -383,7 +383,7 @@
         "py": "tā huí jiā qù le",
         "en": "He has gone home."
       },
-      "why": "A place cannot follow 去. It goes between 回 and 去."
+      "why": "In standard Mandarin a place does not follow 去. It goes between 回 and 去, or 去 is simply dropped (他回家了)."
     },
     {
       "wrong": "老师走进来教室了。",
@@ -392,7 +392,7 @@
         "py": "lǎo shī zǒu jìn jiào shì lái le",
         "en": "The teacher walked into the classroom."
       },
-      "why": "教室 is a place, so it must come before 来, splitting 进 and 来."
+      "why": "教室 is a place, so the standard order puts it before 来, splitting 进 and 来. 走进来教室 is heard in casual speech but is not the form to produce."
     },
     {
       "wrong": "我在楼上，你快上去吧。",
@@ -428,7 +428,7 @@
         "py": "wǒ xiǎng qǐ lái le tā jiào xiǎo wáng",
         "en": "Now I remember, his name is Xiao Wang."
       },
-      "why": "A name you knew and forgot is recalled: 想起来. 想出来 is for inventing something new, like an idea."
+      "why": "A name you knew and forgot is recalled, and the standard word for that is 想起来. 想出来 is for producing something new, like an idea (some speakers stretch it to recalling)."
     },
     {
       "wrong": "别停，请你说起来。",
@@ -449,13 +449,13 @@
       "why": "Fixing something on paper is 下来. 写下去 means 'keep on writing'."
     },
     {
-      "wrong": "教室里慢慢安静起来了。",
+      "wrong": "车慢慢停起来了。",
       "right": {
-        "zh": "教室里慢慢安静下来了。",
-        "py": "jiào shì lǐ màn màn ān jìng xià lái le",
-        "en": "The classroom slowly quietened down."
+        "zh": "车慢慢停下来了。",
+        "py": "chē màn màn tíng xià lái le",
+        "en": "The car slowly came to a stop."
       },
-      "why": "Calming, slowing and stopping settle downward with 下来. 起来 is for things that grow or liven up."
+      "why": "Stopping, slowing and calming settle downward with 下来. 起来 is for things that start up, grow or liven up."
     },
     {
       "wrong": "请搬进来把椅子。",
@@ -469,7 +469,7 @@
   ],
   "cheat": [
     "Where am I? Toward me 来, away from me 去.",
-    "Place word? It goes before 来/去: 回家去, 走进教室来. Never 回去家.",
+    "Place word? It goes before 来/去: 回家去, 走进教室来, not 回去家 (standard usage).",
     "Specific thing being moved? 把 + thing + verb + direction + 来/去.",
     "起来 starts (object inside: 下起雨来) or gives an impression (看起来). 下去 keeps going.",
     "下来: stop, calm down, stay, write down. 写下来, not 写下去.",

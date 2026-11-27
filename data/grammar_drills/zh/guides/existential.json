@@ -10,7 +10,7 @@
     {
       "key": "zai-definite",
       "label": "Known thing + 在 + place",
-      "focus": "Cue locates a clearly definite thing (我的, 那本, a name, 'the bank') or asks 在哪儿: force 在 and thing-first order. Classic errors: place + 有 + definite thing (桌子上有我的手机 for 'my phone is on the table'), dropping 在."
+      "focus": "Cue locates a clearly definite thing (我的, 那本, a name, 'the bank') or asks 在哪儿: force 在 and thing-first order. Classic errors: 有 for 在 (我的手机有桌子上), dropping 在. Place + 有 + definite thing (桌子上有你的手机) is natural speech: never use it as a judge-wrong sentence."
     },
     {
       "key": "shi-identify",
@@ -70,7 +70,7 @@
           "en": "Is there a bank near here?"
         }
       ],
-      "note": "The place normally stands at the start without 在. 在桌子上有一本书 is heard, but the bare place is the standard form. A definite noun after 有 is possible only when listing what a place contains (我家有爸爸、妈妈和我), not when saying where a known thing is."
+      "note": "The place normally stands at the start without 在 (在桌子上有一本书 is heard). A definite noun after 有 does occur when saying what is at a place (我家有爸爸、妈妈和我; 柜台上有你的手机); to say where a known thing is, produce thing + 在 + place."
     },
     {
       "sub": "zai-definite",
@@ -310,13 +310,13 @@
       "why": "A new, indefinite thing cannot open the sentence as the subject of 在. Start with the place and introduce the thing after 有."
     },
     {
-      "wrong": "桌子上有你的手机。",
+      "wrong": "你的手机有桌子上。",
       "right": {
         "zh": "你的手机在桌子上。",
         "py": "nǐ de shǒu jī zài zhuō zi shàng",
         "en": "Your phone is on the table."
       },
-      "why": "你的手机 is a known thing whose location is the news, so it goes first with 在. 有 introduces something the listener has not heard about."
+      "why": "你的手机 is a known thing whose location is the news, so it goes first and the verb is 在. 有 cannot link a thing to its location."
     },
     {
       "wrong": "学校对面在银行。",
