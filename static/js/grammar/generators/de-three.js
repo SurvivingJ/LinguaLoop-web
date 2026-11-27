@@ -114,7 +114,12 @@ function makeDe(rng) {
     const want = rng() < 0.4;
     const art = /^[aeiou]/.test(moden) ? 'an' : 'a';
     return three(rng, '的', {
-      pre: [s, want ? '想买一|xiǎng mǎi yī' : '买了一|mǎi le yī', { zh: m, py: mpy }, { zh: mod, py: modpy }],
+      pre: [
+        s,
+        want ? '想买一|xiǎng mǎi yī' : '买了一|mǎi le yī',
+        { zh: m, py: mpy },
+        { zh: mod, py: modpy },
+      ],
       post: [{ zh: n, py: npy }, '。'],
       en: `${s.en} ${want ? `${vb(s, 'want')} to buy` : 'bought'} ${art} ${moden} ${en}.`,
       why: `${mod} describes the noun ${n}. A describing phrase in front of a noun is linked with 的; 得 would need a verb before it and 地 a verb after it.`,
@@ -246,7 +251,9 @@ function makeDeComplement(rng) {
     rng,
     DEGREES.filter((x) => x[0] !== '不太' || !'慢少晚远近'.includes(adj))
   );
-  const head = o ? [s, { zh: v + o, py: `${vpy} ${opy}` }, { zh: v, py: vpy }] : [s, { zh: v, py: vpy }];
+  const head = o
+    ? [s, { zh: v + o, py: `${vpy} ${opy}` }, { zh: v, py: vpy }]
+    : [s, { zh: v, py: vpy }];
   const en =
     d === '不太'
       ? `${s.en} ${dont(s)} ${enV} very ${enAdv}.`

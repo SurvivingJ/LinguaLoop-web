@@ -50,7 +50,7 @@ const ACTIVITIES = rows(`
 看|kàn|电视|diàn shì|{S} watched TV for {d}.|h
 看|kàn|书|shū|{S} read for {d}.|h
 坐|zuò|飞机|fēi jī|{S} flew for {d}.|h
-坐|zuò|火车|huǒ chē|{S} was on the train for {d}.|h
+坐|zuò|火车|huǒ chē|{S} {was} on the train for {d}.|h
 坐|zuò|地铁|dì tiě|{S} rode the subway for {d}.|n
 打|dǎ|篮球|lán qiú|{S} played basketball for {d}.|h
 打|dǎ|电话|diàn huà|{S} talked on the phone for {d}.|n
@@ -182,10 +182,7 @@ function makeDuration(rng) {
   if (kind === 'de' || kind === 'plain') {
     const [v, vpy, o, opy, en, units] = pick(rng, ACTIVITIES);
     const [, d, dpy, den] = pick(rng, durations(units));
-    const english = fillEn(en, s)
-      .replace('{d}', den)
-      .replace(/^(We|They) was/, '$1 were')
-      .replace(/^I was/, 'I was');
+    const english = fillEn(en, s).replace('{d}', den);
     const verb = part(`${v}了`, `${vpy} le`);
     if (kind === 'de') {
       return order(rng, {
@@ -210,7 +207,12 @@ function makeDuration(rng) {
     const [v, vpy, en, units] = pick(rng, PERSON_VERBS);
     const [o, opy, oen] = pick(
       rng,
-      OBJECTS.filter((x) => x[0] !== s.zh && !(x[0] === '朋友' && s.zh === '我朋友'))
+      OBJECTS.filter(
+        (x) =>
+          x[0] !== s.zh &&
+          !(x[0] === '朋友' && s.zh === '我朋友') &&
+          !(x[0] === '我' && s.zh === '我们')
+      )
     );
     const [, d, dpy, den] = pick(rng, durations(units));
     const phrase = en.includes('{p}') ? en.replace('{p}', oen) : `${en} ${oen} for`;
@@ -239,7 +241,7 @@ function makeDuration(rng) {
     const [v, vpy, ven] = pick(rng, PRONOUN_VERBS);
     const [o, opy, oen] = pick(
       rng,
-      PRONOUNS.filter((x) => x[0] !== s.zh)
+      PRONOUNS.filter((x) => x[0] !== s.zh && !(x[0] === '我' && s.zh.startsWith('我')))
     );
     const [c, cpy, cen] = pick(rng, COUNTS);
     return order(rng, {

@@ -461,7 +461,18 @@ function makeYi(rng) {
     } else {
       const tens = pick(rng, [1, 2, 3, 4, 5, 6, 7, 8, 9]);
       const head = readNumber(tens * 10 + 1);
-      const headPy = { 一: 'yī', 二: 'èr', 三: 'sān', 四: 'sì', 五: 'wǔ', 六: 'liù', 七: 'qī', 八: 'bā', 九: 'jiǔ', 十: 'shí' };
+      const headPy = {
+        一: 'yī',
+        二: 'èr',
+        三: 'sān',
+        四: 'sì',
+        五: 'wǔ',
+        六: 'liù',
+        七: 'qī',
+        八: 'bā',
+        九: 'jiǔ',
+        十: 'shí',
+      };
       phrase = `${head}${m.zh}${noun.zh}`;
       syl = [...[...head].map((c) => headPy[c]), ...tail];
       at = head.length - 1;

@@ -135,7 +135,16 @@ function combo(rng, equal = false) {
     rng,
     ADJS.filter((x) => x[0].includes(g) && !(equal && g === 'p' && x[1] === '小'))
   );
-  return { A: part(a, apy), aen, B: part(b, bpy), ben, adj: part(adj, adjpy), comp, plain, kinds: kinds.split(' ') };
+  return {
+    A: part(a, apy),
+    aen,
+    B: part(b, bpy),
+    ben,
+    adj: part(adj, adjpy),
+    comp,
+    plain,
+    kinds: kinds.split(' '),
+  };
 }
 
 const amountFor = (rng, c) =>

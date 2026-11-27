@@ -281,7 +281,9 @@ const PAIRS = [
     '上|shàng',
     '',
     '',
-    ["这条裤子太小了|zhè tiáo kù zi tài xiǎo le|These trousers are too small. {S} can't get them on."],
+    [
+      "这条裤子太小了|zhè tiáo kù zi tài xiǎo le|These trousers are too small. {S} can't get them on.",
+    ],
     ['这条裤子不小|zhè tiáo kù zi bù xiǎo|These trousers are not small. {S} can get them on.']
   ),
   pair('考|kǎo', '上|shàng', '大学|dà xué', '', [
@@ -326,6 +328,4 @@ function makePotential(rng) {
   });
 }
 
-export const generators = [
-  { key: 'potential-form', label: 'V不R / V得R', make: makePotential },
-];
+export const generators = [{ key: 'potential-form', label: 'V不R / V得R', make: makePotential }];

@@ -145,10 +145,7 @@ function makeTimePlace(rng) {
     key: KEY,
     tiles,
     alts: [[1, 0, ...rest]],
-    en:
-      tense === 'f'
-        ? `${s.en} will ${en} ${pen} ${ten}.`
-        : `${s.en} ${vb(s, en)} ${pen} ${ten}.`,
+    en: tense === 'f' ? `${s.en} will ${en} ${pen} ${ten}.` : `${s.en} ${vb(s, en)} ${pen} ${ten}.`,
     why: `Subject + time + place + verb: ${t} (when) comes before ${place} (where), and both come before ${v}. The time word may also open the sentence, but neither time nor place can follow the verb as in English.`,
   });
 }

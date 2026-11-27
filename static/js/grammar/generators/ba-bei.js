@@ -89,8 +89,9 @@ const BA_WHY = {
   neg: 'Negation goes before 把, not before the verb: 没把… + verb + result. Since it did not happen, there is no 了.',
   modal: (m) =>
     `Modal verbs such as ${m} stand before 把, not between the object and the verb: ${m} + 把 + object + verb + result.`,
-  dont: '别 (don\'t) comes before 把, like every negative or modal: 别把 + object + verb + result.',
-  please: '请 opens the request and 把 follows it: 请把 + object + verb + result. The object cannot stay behind the verb here.',
+  dont: "别 (don't) comes before 把, like every negative or modal: 别把 + object + verb + result.",
+  please:
+    '请 opens the request and 把 follows it: 请把 + object + verb + result. The object cannot stay behind the verb here.',
 };
 
 function makeBaOrder(rng) {
@@ -310,7 +311,11 @@ function makeBeiOrder(rng) {
   }
   const [adv, advpy, en] = {
     nearly: ['差点儿', 'chà diǎn r', `${R} ${be} nearly ${t.pp} by ${den}.`],
-    already: ['已经', 'yǐ jīng', `${R} ${t.plural ? 'have' : 'has'} already been ${t.pp} by ${den}.`],
+    already: [
+      '已经',
+      'yǐ jīng',
+      `${R} ${t.plural ? 'have' : 'has'} already been ${t.pp} by ${den}.`,
+    ],
     again: ['又', 'yòu', `${R} ${be} ${t.pp} by ${den} again.`],
   }[kind];
   return order(rng, {
@@ -364,4 +369,3 @@ export const beiGenerators = [
   { key: 'bei-order', label: '被 sentence order', make: makeBeiOrder },
   { key: 'bei-or-ba', label: '被 or 把', make: makeBaOrBei('bei-or-ba') },
 ];
-

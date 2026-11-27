@@ -207,7 +207,8 @@ const WHY = {
   result: (v) =>
     `${v} is a verb plus result, and saying that the result was not reached is 没 + verb + result. 不${v} is not possible for a past fact.`,
   yet: '还…呢 means "not yet": something that has not happened so far is negated with 没. 不 would mean refusing or never doing it.',
-  adj: (a) => `${a} is an adjective describing how things are, and adjectives are negated with 不. 没 does not negate a plain quality.`,
+  adj: (a) =>
+    `${a} is an adjective describing how things are, and adjectives are negated with 不. 没 does not negate a plain quality.`,
 };
 
 const part = (zh, py) => ({ zh, py });
