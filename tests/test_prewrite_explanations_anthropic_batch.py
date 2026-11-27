@@ -827,7 +827,7 @@ def test_a_self_corrected_answer_uses_the_last_valid_json():
 def test_the_options_family_selects_its_types_kind_and_prompt_version():
     assert ab.FAMILIES['options'] == (sorted(xe.OPTION_TYPES), 'o', xe.OPTION_PROMPT_VERSION)
     assert ab.FAMILIES['sentences'] == (sorted(xe.SENTENCE_TYPES), 'p', xe.PROMPT_VERSION)
-    assert ab.build_parser().parse_args([]).family == 'sentences'
+    assert ab.build_parser().parse_args([]).family is None      # prepare: sentences
     assert ab.build_parser().parse_args(['--family', 'options']).family == 'options'
 
 

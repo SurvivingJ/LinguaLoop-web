@@ -718,12 +718,16 @@ const ExRenderers = (function () {
    * (what a particle marks, a form's name, a word's meaning), shown as it is:
    * no quotes and no "Literally:" (word-option types).
    */
-  function showOptionExplanations(entries, sentences, labels) {
+  function showOptionExplanations(entries, sentences, labels, list) {
     labels = labels || {};
+    list = list || document.getElementById('optionsList');
     clearExplanationLoading();
-    const index = new Map(sentences.map((s, i) => [String(s.text), i]));
-    document.querySelectorAll('#optionsList .exercise-option').forEach((o) => {
-      const i = index.get(o.dataset.value);
+    if (!list) return;
+    // Trimmed on both sides: the server and optionUnits trim, an option's
+    // data-value is its raw text.
+    const index = new Map(sentences.map((s, i) => [String(s.text).trim(), i]));
+    list.querySelectorAll('.exercise-option').forEach((o) => {
+      const i = index.get(String(o.dataset.value).trim());
       const e = i === undefined ? null : entries[i];
       const s = i === undefined ? null : sentences[i];
       if (!e || !s) return;
@@ -795,6 +799,10 @@ const ExRenderers = (function () {
     let answered = false;
     let pending = false;
     let asked = false;
+    // This item's options, taken when it is answered: a fetch that lands after
+    // the learner moved on must not paint the next item (particle options
+    // repeat across items, so matching by text would find them).
+    let list = null;
     if (!entries) {
       const request = fetchExplanations(ex.exercise_id, n);
       if (request) {
@@ -803,9 +811,9 @@ const ExRenderers = (function () {
         request.then((got) => {
           pending = false;
           if (got) entries = got;
-          if (!answered) return;
-          if (got) showOptionExplanations(entries, sentences, labels);
-          else if (fallback) showOptionExplanations(fallback, sentences, labels);
+          if (!answered || !list || !list.isConnected) return;
+          if (got) showOptionExplanations(entries, sentences, labels, list);
+          else if (fallback) showOptionExplanations(fallback, sentences, labels, list);
           else clearExplanationLoading();
         });
       }
@@ -816,13 +824,14 @@ const ExRenderers = (function () {
       asked: () => asked,
       answered() {
         answered = true;
+        list = document.getElementById('optionsList');
         if (entries) {
-          showOptionExplanations(entries, sentences, labels);
+          showOptionExplanations(entries, sentences, labels, list);
           return;
         }
         const fallbackHere = fallback && (asked || !opts.fallbackOnlyIfAsked);
         if (fallbackHere && (!pending || opts.fallbackWhilePending))
-          showOptionExplanations(fallback, sentences, labels);
+          showOptionExplanations(fallback, sentences, labels, list);
         if (pending) showExplanationLoading();
       },
     };
@@ -843,7 +852,10 @@ const ExRenderers = (function () {
     if (opts.length < 2 || !key || opts.some((t) => !t)) return null;
     if (new Set(opts).size !== opts.length || opts.filter((t) => t === key).length !== 1)
       return null;
-    if (Array.isArray(c.accepted_answers) && new Set(c.accepted_answers.map(text)).size > 1)
+    if (
+      Array.isArray(c.accepted_answers) &&
+      new Set(c.accepted_answers.map(text).filter(Boolean)).size > 1
+    )
       return null;
     return opts.map((t) => ({ text: t, is_correct: t === key }));
   }

@@ -153,7 +153,7 @@ def prepare(db, args, language_id: int, nl_language_id: int, run_dir: str, say) 
     be read, the sense is left for a later run (a file is immutable, so writing it
     without that item would leave the item out for good).
     """
-    family = getattr(args, 'family', 'sentences')
+    family = getattr(args, 'family', None) or 'sentences'
     types, kind, version = FAMILIES[family]
     sense_ids = [int(s) for s in args.sense_ids.split(',')] if args.sense_ids else None
     rows = pw.list_items(db, language_id, types, sense_ids)
@@ -485,9 +485,9 @@ def build_parser() -> argparse.ArgumentParser:
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('--language', default='ja')
     ap.add_argument('--nl', default='en')
-    ap.add_argument('--family', default='sentences', choices=sorted(FAMILIES),
+    ap.add_argument('--family', default=None, choices=sorted(FAMILIES),
                     help='sentences: spot / pick (default); options: particle / word form / '
-                         'synonym-antonym')
+                         'synonym-antonym. On resume the run directory\'s family is used.')
     ap.add_argument('--model', default=DEFAULT_MODEL, choices=sorted(MEASURED_COST_PER_ITEM))
     ap.add_argument('--effort', default=DEFAULT_EFFORT, choices=['low', 'medium', 'high'])
     ap.add_argument('--limit-senses', type=int, default=0)
@@ -515,6 +515,10 @@ def main(argv: Optional[list[str]] = None) -> int:
         info = load_json(os.path.join(run_dir, 'prepare.json'))
         if info is None:
             info = prepare(db, args, language_id, nl_language_id, run_dir, say)
+        elif args.family and args.family != info.get('family', 'sentences'):
+            say(f"--family {args.family} does not match this run directory's family "
+                f"{info.get('family', 'sentences')}: nothing done")
+            return 2
         manifest = read_manifest(run_dir)
         if not args.apply:
             say('dry run: nothing submitted (add --apply)')

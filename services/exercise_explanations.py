@@ -348,7 +348,7 @@ def _option_prompt(units: list[dict], content: dict, tl: str, nl: str,
         meaning = (f'for the correct option, a natural {nl} translation of the complete sentence. '
                    'For a wrong option, the name of that form and what it expresses, in a few '
                    'words (for example "past form: \'was cool\'" or "negative form: \'does not '
-                   'use\'"). Name forms in English; a Japanese term may follow in brackets.')
+                   f'use\'"). Name forms in {nl}; the {tl} term may follow in brackets.')
         explanation = ('one or two short sentences a learner can follow. For the correct option, '
                        'what in the sentence calls for this form (what follows the blank, the tense, '
                        'the kind of clause). For a wrong option, why that form does not fit this '

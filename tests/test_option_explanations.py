@@ -284,3 +284,26 @@ def test_batch_request_and_answer_for_an_option_item():
     payload = xa.payload_from_message(msg, FORM, EN, xe.FORM, None)
     assert payload['prompt_version'] == xe.OPTION_PROMPT_VERSION
     assert [e['is_correct'] for e in payload['sentences']] == [False, True, False, False]
+
+
+def test_the_traditional_mirror_swap_keeps_explanations_without_flagging_them():
+    from services.vocabulary_ladder import script_serving
+    content = {'word': '出售', 'correct_answer': '购买', 'options': ['购买', '种植'],
+               'relation': 'antonym',
+               'option_explanations': [{'meaning': 'gòumǎi — to buy', 'explanation': 'Opposite.',
+                                        'correction': None},
+                                       {'meaning': 'zhòngzhí — to plant', 'explanation': 'Unrelated.',
+                                        'correction': None}],
+               'explanation_language': 'en',
+               'hant': {'word': '出售', 'correct_answer': '購買', 'options': ['購買', '種植'],
+                        'relation': 'antonym'}}
+    out = script_serving.select_script_fields(content, script_serving.VARIANT_TRADITIONAL, ZH)
+    assert out['options'] == ['購買', '種植']
+    assert out['option_explanations'] == content['option_explanations']
+    assert out['explanation_language'] == 'en'
+    assert script_serving.FALLBACK_KEY not in out
+
+
+def test_the_form_prompt_names_forms_in_the_learners_language():
+    user = xe.build_prompt(xe.sentences_of(FORM, xe.FORM), JA, EN, xe.FORM, content=FORM)[1]
+    assert 'Name forms in English; the Japanese term may follow in brackets.' in user

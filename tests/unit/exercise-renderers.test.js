@@ -984,6 +984,51 @@ describe('word-option explanations (particle, word form, synonym / antonym)', ()
     expect(card.querySelectorAll('.ex-opt-expl').length).toBe(1);
   });
 
+  it('a fetch that lands after the learner moved on does not paint the next item', async () => {
+    let release;
+    const gate = new Promise((r) => {
+      release = r;
+    });
+    window.authFetch = async (url) => {
+      if (!url.endsWith('/p-A')) return new Promise(() => {}); // B still loading
+      await gate;
+      return { ok: true, json: async () => ({ state: 'ready', option_explanations: ENTRIES }) };
+    };
+    R().dispatch('particle_selection', { exercise_id: 'p-A' }, { ...PARTICLE }, '');
+    pickText('を');
+    answered = false; // Next: item B, same particles in another order, not yet answered
+    R().dispatch(
+      'particle_selection',
+      { exercise_id: 'p-B' },
+      { ...PARTICLE, correct_answer: 'を', options: ['が', 'を', 'と', 'から'] },
+      ''
+    );
+    release();
+    await new Promise((r) => setTimeout(r, 0));
+    await new Promise((r) => setTimeout(r, 0));
+    expect(card.querySelectorAll('.ex-opt-expl').length).toBe(0);
+  });
+
+  it('matches options whose stored text has surrounding spaces', () => {
+    R().dispatch(
+      'morphology_slot',
+      { exercise_id: 'm-spaces' },
+      {
+        base_form: '扱う',
+        correct_answer: '扱って ',
+        options: [' 扱った', '扱って '],
+        sentence_with_blank: '公平に___くれた。',
+        option_explanations: [
+          { meaning: 'past form', explanation: 'くれた needs the te-form.' },
+          { meaning: 'He treated it fairly for us.', explanation: 'て joins くれた.' },
+        ],
+      },
+      ''
+    );
+    pickText('扱って ');
+    expect(card.querySelectorAll('.ex-opt-expl').length).toBe(2);
+  });
+
   it('does not ask for an item with duplicate options', () => {
     const asked = [];
     window.authFetch = async (url) => {
