@@ -207,3 +207,11 @@ def test_load_prior_bundles_reads_xz(tmp_path):
     with lzma.open(tmp_path / 'tests.jsonl.xz', 'wt', encoding='utf-8') as f:
         f.write(json.dumps({'slot_key': 'a:T1', 'passage_hash': 'h'}) + '\n')
     assert exp.load_prior_bundles([str(tmp_path)]) == [{'slot_key': 'a:T1', 'passage_hash': 'h'}]
+
+
+def test_variant_slots_have_distinct_keys():
+    base = exp.build_slots(['a'], [1, 2], 2)
+    v2 = exp.build_slots(['a'], [1, 2], 2, variant=2, angle_offset=5,
+                         exclude=frozenset(s['key'] for s in base))
+    assert [s['key'] for s in v2] == ['a:T1:v2', 'a:T2:v2']
+    assert exp.slot_key('a', 3) == 'a:T3'
