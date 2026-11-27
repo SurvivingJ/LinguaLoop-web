@@ -87,3 +87,6 @@ batch_errors_*
 
 # Agent worktrees (local only)
 .claude/worktrees/
+
+# Offline test bundles: per-shard working files (the assembled tests.jsonl.xz + manifest.json are committed)
+data/offline_tests/*/shards/
