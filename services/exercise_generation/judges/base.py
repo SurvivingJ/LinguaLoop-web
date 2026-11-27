@@ -381,6 +381,9 @@ def log_judge_verdict(
             model = _resolve_model(model, None, forced)
     except Exception:  # noqa: BLE001 -- a label must never break logging
         pass
+    from services.llm_service import db_call_logging_enabled
+    if not db_call_logging_enabled():
+        return
     try:
         from services.supabase_factory import get_supabase_admin, get_supabase
         client = get_supabase_admin() or get_supabase()

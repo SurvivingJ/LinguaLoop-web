@@ -63,6 +63,9 @@ def log_stage_seconds(
     """
     if not stages:
         return
+    from services.llm_service import db_call_logging_enabled
+    if not db_call_logging_enabled():
+        return
     try:
         from services.supabase_factory import get_supabase_admin, get_supabase
         client = get_supabase_admin() or get_supabase()

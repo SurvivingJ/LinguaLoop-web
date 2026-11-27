@@ -143,6 +143,17 @@ def _resolve_provider(provider: str | None) -> tuple[str, str]:
         )
 
 
+def db_call_logging_enabled() -> bool:
+    """``LLM_CALLS_DB_LOG=0`` stops observability rows going to the database.
+
+    Covers llm_calls (call rows and judge verdict rows) and
+    generation_stage_timings. The daily CSV under logs/llm_usage is still
+    written. For offline runs whose output is stored outside the database;
+    default on.
+    """
+    return (os.environ.get('LLM_CALLS_DB_LOG') or '1').strip().lower() not in ('0', 'false', 'no', 'off')
+
+
 def forced_provider() -> str | None:
     """``LLM_FORCE_PROVIDER``: one provider for every ``call_llm`` call.
 
@@ -580,6 +591,10 @@ def _csv_log_path(when: datetime) -> str:
     return os.path.join(directory, f'llm_calls_{when:%Y-%m-%d}.csv')
 
 
+class _SkipDbLog(Exception):
+    """Internal: LLM_CALLS_DB_LOG=0 skips the database insert only."""
+
+
 def _log_llm_call_csv(row: dict) -> None:
     """Append one row to the daily LLM-usage CSV. Best-effort; never raises."""
     try:
@@ -778,6 +793,8 @@ def _log_llm_call(
     })
 
     try:
+        if not db_call_logging_enabled():
+            raise _SkipDbLog
         from services.supabase_factory import get_supabase_admin, get_supabase
         admin_client = get_supabase_admin()
         if admin_client:
@@ -813,6 +830,8 @@ def _log_llm_call(
             'generation_batch_id': effective_batch_id,
         }
         _insert_llm_call_row(client, row)
+    except _SkipDbLog:
+        pass
     except Exception as exc:
         # Observability must never break the calling pipeline.
         logger.warning("llm_calls logging failed: %s", exc)

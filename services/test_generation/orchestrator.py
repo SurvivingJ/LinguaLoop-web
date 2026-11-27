@@ -67,6 +67,13 @@ TIER_LABELS = {
 }
 
 
+def _jsonable(value):
+    """Deep copy of a question dict as plain JSON types (judge flags may hold
+    tuples or dataclasses)."""
+    import json as _json
+    return _json.loads(_json.dumps(value, ensure_ascii=False, default=str))
+
+
 def _prose_model_label(lang_config) -> Optional[str]:
     """The model that served the prose call, as llm_calls.model records it.
 
@@ -495,9 +502,17 @@ class TestGenerationOrchestrator:
         tier_id: int,
         test_type: str = 'listening',
         dry_run: bool = False,
+        prose_extra_instruction: str = '',
+        export_sink: Optional[Callable[[dict], None]] = None,
     ) -> bool:
         """
         Generate a single test at the specified complexity tier.
+
+        ``prose_extra_instruction`` is appended to the prose prompt (offline
+        runs use it to vary passages, since claude-cli has no sampling
+        control). ``export_sink``, with ``dry_run=True``, receives the finished
+        test as one JSON-serialisable record (see ``_export_record``) instead of
+        it being saved; ``persist_exported_test`` saves such a record later.
 
         Args:
             topic: Topic details
@@ -562,7 +577,8 @@ class TestGenerationOrchestrator:
                 keywords=translated_keywords,  # Use translated keywords
                 complexity_tier=target_complexity_tier,
                 prompt_template=prose_template,
-                model_override=lang_config.prose_model
+                model_override=lang_config.prose_model,
+                extra_instruction=prose_extra_instruction or None,
             )
 
         logger.debug(f"Generated prose: {len(prose.split())} words")
@@ -610,7 +626,7 @@ class TestGenerationOrchestrator:
                     complexity_tier=target_complexity_tier,
                     prompt_template=prose_template,
                     model_override=lang_config.prose_model,
-                    extra_instruction=DEDUP_RETRY_NUDGE,
+                    extra_instruction=(prose_extra_instruction or '') + DEDUP_RETRY_NUDGE,
                 )
 
             if not prose or len(prose.strip()) < 50:
@@ -775,7 +791,6 @@ class TestGenerationOrchestrator:
             for error in errors:
                 logger.warning(f"Question validation: {error}")
 
-        cfg = get_test_gen_config()
         # Survival floor. At the lowest tier (T1 toddler passages, ~74 words)
         # a 5-question set cannot reliably survive validation: vocabulary_context
         # rejects ~30% of the time at this level and 3 literal_detail questions
@@ -832,158 +847,34 @@ class TestGenerationOrchestrator:
         # Step 3.5: Generate test UUID early (will use for both audio filename and test.id)
         test_id = uuid4()
 
-        # Step 4: Generate audio (listening tests only)
-        audio_url = ""
+        voice = None
         if test_type == 'listening':
             voice = self.audio_synthesizer.select_voice(
                 voice_ids=lang_config.tts_voice_ids,
                 language_code=lang_config.language_code
             )
 
-            if not dry_run:
-                with stage('audio', stage_seconds):
-                    audio_url = self.audio_synthesizer.generate_and_upload(
-                        text=prose,
-                        file_id=str(test_id),
-                        voice=voice,
-                        speed=lang_config.tts_speed
-                    )
-            else:
-                logger.info(f"[DRY RUN] Would generate audio: {test_id}.mp3")
-        else:
-            logger.info(f"Skipping audio generation for {test_type} test")
+        record = self._export_record(
+            test_id=test_id, slug=slug, lang_config=lang_config, topic=topic,
+            category_name=category_name, target_tier_id=target_tier_id,
+            tier_id=tier_id, legacy_difficulty=legacy_difficulty,
+            prose=prose, title=title, initial_elo=initial_elo,
+            seeded_elo=seeded_elo, assessment=assessment,
+            passage_hash=passage_hash, valid_questions=valid_questions,
+            test_type=test_type, voice=voice,
+            prose_extra_instruction=prose_extra_instruction,
+        )
 
-        # Step 5: Save to database
         if not dry_run:
-            # Insert test
-            test = GeneratedTest(
-                id=test_id,
-                slug=slug,
-                language_id=lang_config.id,
-                language_name=lang_config.language_name,
-                topic_id=topic.id,
-                topic_name=topic.concept_english,
-                difficulty=legacy_difficulty,
-                transcript=prose,
-                gen_user=cfg.system_user_id,
-                initial_elo=initial_elo,
-                audio_url=audio_url,
-                title=title,
-                seeded_elo=seeded_elo,
-                target_age_tier=tier_id,
-                age_tier_score=assessment.score,
-                age_tier_confidence=assessment.confidence,
-                age_tier_probabilities={
-                    f'T{t}': p for t, p in assessment.probabilities.items()
-                },
-                age_tier_model=assessment.model,
-                age_tier_calibration=assessment.calibration,
-                passage_hash=passage_hash,
+            self._persist_test(
+                record, lang_config=lang_config,
                 passage_embedding=passage_embedding,
-                generation_model=_prose_model_label(lang_config),
-            )
-            self.db.insert_test(test)
-
-            # Insert questions — pre-generate UUIDs so flagged questions can be
-            # referenced in generation_review_queue before the rows exist there.
-            db_questions = []
-            for i, q in enumerate(valid_questions):
-                type_id = self.db.get_question_type_id(q.get('type_code', ''))
-                db_questions.append(GeneratedQuestion(
-                    id=uuid4(),
-                    test_id=test_id,
-                    question_id=f"{slug}-q{i+1}",
-                    question_text=q['question'],
-                    choices=q['choices'],
-                    answer=q['answer'],
-                    question_type_id=type_id,
-                    distractor_types=q.get('distractor_types')
-                ))
-            self.db.insert_questions(db_questions)
-
-            # Enqueue judge-flagged questions for human review.
-            _write_review_queue_rows(
-                db=self.db.client,
-                valid_questions=valid_questions,
-                db_questions=db_questions,
-            )
-
-            # Insert skill ratings
-            self.db.insert_test_skill_ratings(
-                test_id=test_id,
-                initial_elo=initial_elo,
-                has_audio=bool(audio_url),
-                language_id=lang_config.id
-            )
-
-            # Generate pinyin payload for Chinese tests
-            if lang_config.language_code == 'zh' and prose:
-                try:
-                    from services.pinyin_service import process_passage
-                    pinyin_payload = process_passage(prose)
-                    self.db.client.table('tests').update({
-                        'pinyin_payload': pinyin_payload
-                    }).eq('id', str(test_id)).execute()
-                    logger.info(f"Pinyin payload generated for {slug}")
-                except Exception as e:
-                    logger.warning(f"Pinyin payload generation failed (non-fatal): {e}")
-
-            # Japanese script payloads — the counterpart to the zh branch above.
-            # This path had no ja equivalent, so every test generated by the
-            # batch runner shipped with furigana_payload NULL (all 83 live ja
-            # tests, as of 2026-08-22) and relied on
-            # scripts/batch_generate_pitch_accent.py to fill pitch after the
-            # fact. services/test_service.py (the single-test UI path) has
-            # always written both here; this brings the batch path in line.
-            #
-            # Both are non-fatal for the same reason the rest of this step is:
-            # the prose, questions and audio are already written and paid for,
-            # and both payloads have standalone backfill scripts
-            # (batch_generate_furigana.py, batch_generate_pitch_accent.py).
-            if lang_config.language_code == 'ja' and prose:
-                try:
-                    from services.pitch_accent_service import (
-                        process_passage as process_pitch_passage,
-                    )
-                    self.db.client.table('tests').update({
-                        'pitch_payload': process_pitch_passage(prose)
-                    }).eq('id', str(test_id)).execute()
-                    logger.info(f"Pitch accent payload generated for {slug}")
-                except Exception as e:
-                    logger.warning(
-                        f"Pitch accent payload generation failed (non-fatal): {e}"
-                    )
-
-                try:
-                    from services.furigana_service import process_test_payload
-                    # valid_questions is the SAME list, in the SAME order, that
-                    # built db_questions above with question_id "<slug>-qN" —
-                    # so payload index i corresponds to question N=i+1. The
-                    # frontend looks questions up positionally
-                    # (furiganaPayload.questions[index]), which is only sound
-                    # because the read paths sort by question_id.
-                    self.db.client.table('tests').update({
-                        'furigana_payload': process_test_payload(
-                            prose, valid_questions
-                        )
-                    }).eq('id', str(test_id)).execute()
-                    logger.info(f"Furigana payload generated for {slug}")
-                except Exception as e:
-                    logger.warning(
-                        f"Furigana payload generation failed (non-fatal): {e}"
-                    )
-
-            logger.info(f"Test saved: {slug}")
-
-            # Step 6: Extract vocabulary and generate word senses
-            self._generate_vocabulary(
-                test_id=test_id,
-                transcript=prose,
-                lang_config=lang_config,
                 stage_seconds=stage_seconds,
             )
         else:
             logger.info(f"[DRY RUN] Would save test: {slug}")
+            if export_sink is not None:
+                export_sink(record)
 
         logger.info(
             "Stage timing for %s: %s (total %.1fs)",
@@ -998,6 +889,202 @@ class TestGenerationOrchestrator:
             run_id=str(self._run_id) if self._run_id else None,
         )
         return True
+
+    # Bump when the record layout changes; persist_exported_test refuses
+    # records of an unknown version.
+    EXPORT_RECORD_VERSION = 1
+
+    def _export_record(
+        self, *, test_id, slug, lang_config, topic, category_name,
+        target_tier_id, tier_id, legacy_difficulty, prose, title, initial_elo,
+        seeded_elo, assessment, passage_hash, valid_questions, test_type,
+        voice, prose_extra_instruction,
+    ) -> dict:
+        """Everything ``_persist_test`` needs to save a test, as plain JSON.
+
+        Furigana and pitch payloads are computed here (local, deterministic)
+        so an exported test carries them; audio and vocabulary linking are
+        not, because both write outside the record (R2, the dictionary).
+        """
+        record = {
+            'record_version': self.EXPORT_RECORD_VERSION,
+            'test_id': str(test_id),
+            'slug': slug,
+            'language_id': lang_config.id,
+            'language_code': lang_config.language_code,
+            'language_name': lang_config.language_name,
+            'topic_id': str(topic.id),
+            'topic_concept_english': topic.concept_english,
+            'category_name': category_name,
+            'target_tier_id': target_tier_id,
+            'tier_id': tier_id,
+            'legacy_difficulty': legacy_difficulty,
+            'transcript': prose,
+            'title': title,
+            'initial_elo': initial_elo,
+            'seeded_elo': seeded_elo,
+            'age_tier_score': assessment.score,
+            'age_tier_confidence': assessment.confidence,
+            'age_tier_probabilities': {
+                f'T{t}': p for t, p in assessment.probabilities.items()
+            },
+            'age_tier_model': assessment.model,
+            'age_tier_calibration': assessment.calibration,
+            'passage_hash': passage_hash,
+            'generation_model': _prose_model_label(lang_config),
+            'test_type': test_type,
+            'voice': voice,
+            'tts_speed': lang_config.tts_speed,
+            'prose_extra_instruction': prose_extra_instruction or '',
+            'questions': [_jsonable(q) for q in valid_questions],
+            'pinyin_payload': None,
+            'pitch_payload': None,
+            'furigana_payload': None,
+            'created_at': datetime.now(timezone.utc).isoformat(),
+        }
+        if lang_config.language_code == 'zh' and prose:
+            try:
+                from services.pinyin_service import process_passage
+                record['pinyin_payload'] = process_passage(prose)
+            except Exception as e:
+                logger.warning(f"Pinyin payload generation failed (non-fatal): {e}")
+        if lang_config.language_code == 'ja' and prose:
+            try:
+                from services.pitch_accent_service import (
+                    process_passage as process_pitch_passage,
+                )
+                record['pitch_payload'] = process_pitch_passage(prose)
+            except Exception as e:
+                logger.warning(f"Pitch accent payload generation failed (non-fatal): {e}")
+            try:
+                from services.furigana_service import process_test_payload
+                record['furigana_payload'] = process_test_payload(prose, valid_questions)
+            except Exception as e:
+                logger.warning(f"Furigana payload generation failed (non-fatal): {e}")
+        return record
+
+    def persist_exported_test(self, record: dict, *, passage_embedding=None) -> None:
+        """Save a record produced by an offline (``export_sink``) run.
+
+        Same path as a live run's save: audio, test row, questions, review
+        queue, skill ratings, script payloads, then vocabulary linking.
+        """
+        version = record.get('record_version')
+        if version != self.EXPORT_RECORD_VERSION:
+            raise ValueError(f'unsupported export record_version {version!r}')
+        lang_config = self.db.get_language_config_by_code(record['language_code'])
+        if not lang_config:
+            raise ValueError(f"unknown language {record['language_code']!r}")
+        self._persist_test(
+            record, lang_config=lang_config,
+            passage_embedding=passage_embedding, stage_seconds={},
+        )
+
+    def _persist_test(
+        self, record: dict, *, lang_config, passage_embedding, stage_seconds,
+    ) -> None:
+        """Steps 4-6 of ``_generate_test``: audio, save, payloads, vocabulary."""
+        cfg = get_test_gen_config()
+        test_id = UUID(record['test_id'])
+        slug = record['slug']
+        prose = record['transcript']
+        valid_questions = record['questions']
+        voice = record.get('voice')
+
+        # Step 4: Generate audio (listening tests only)
+        audio_url = ""
+        if record['test_type'] == 'listening':
+            with stage('audio', stage_seconds):
+                audio_url = self.audio_synthesizer.generate_and_upload(
+                    text=prose,
+                    file_id=str(test_id),
+                    voice=voice,
+                    speed=record.get('tts_speed'),
+                )
+        else:
+            logger.info(f"Skipping audio generation for {record['test_type']} test")
+
+        # Step 5: Save to database
+        test = GeneratedTest(
+            id=test_id,
+            slug=slug,
+            language_id=record['language_id'],
+            language_name=record['language_name'],
+            topic_id=UUID(record['topic_id']),
+            topic_name=record['topic_concept_english'],
+            difficulty=record['legacy_difficulty'],
+            transcript=prose,
+            gen_user=cfg.system_user_id,
+            initial_elo=record['initial_elo'],
+            audio_url=audio_url,
+            title=record.get('title'),
+            seeded_elo=record.get('seeded_elo'),
+            target_age_tier=record['tier_id'],
+            age_tier_score=record.get('age_tier_score'),
+            age_tier_confidence=record.get('age_tier_confidence'),
+            age_tier_probabilities=record.get('age_tier_probabilities'),
+            age_tier_model=record.get('age_tier_model'),
+            age_tier_calibration=record.get('age_tier_calibration'),
+            passage_hash=record.get('passage_hash'),
+            passage_embedding=passage_embedding,
+            generation_model=record.get('generation_model'),
+        )
+        self.db.insert_test(test)
+        # Insert questions — pre-generate UUIDs so flagged questions can be
+        # referenced in generation_review_queue before the rows exist there.
+        db_questions = []
+        for i, q in enumerate(valid_questions):
+            type_id = self.db.get_question_type_id(q.get('type_code', ''))
+            db_questions.append(GeneratedQuestion(
+                id=uuid4(),
+                test_id=test_id,
+                question_id=f"{slug}-q{i+1}",
+                question_text=q['question'],
+                choices=q['choices'],
+                answer=q['answer'],
+                question_type_id=type_id,
+                distractor_types=q.get('distractor_types')
+            ))
+        self.db.insert_questions(db_questions)
+
+        # Enqueue judge-flagged questions for human review.
+        _write_review_queue_rows(
+            db=self.db.client,
+            valid_questions=valid_questions,
+            db_questions=db_questions,
+        )
+
+        # Insert skill ratings
+        self.db.insert_test_skill_ratings(
+            test_id=test_id,
+            initial_elo=record['initial_elo'],
+            has_audio=bool(audio_url),
+            language_id=lang_config.id
+        )
+
+        # Script payloads were computed when the record was built.
+        payload_update = {
+            key: record.get(key)
+            for key in ('pinyin_payload', 'pitch_payload', 'furigana_payload')
+            if record.get(key) is not None
+        }
+        if payload_update:
+            try:
+                self.db.client.table('tests').update(payload_update) \
+                    .eq('id', str(test_id)).execute()
+                logger.info(f"Script payloads saved for {slug}: {sorted(payload_update)}")
+            except Exception as e:
+                logger.warning(f"Script payload save failed (non-fatal): {e}")
+
+        logger.info(f"Test saved: {slug}")
+
+        # Step 6: Extract vocabulary and generate word senses
+        self._generate_vocabulary(
+            test_id=test_id,
+            transcript=prose,
+            lang_config=lang_config,
+            stage_seconds=stage_seconds,
+        )
 
     def _generate_vocabulary(
         self,
