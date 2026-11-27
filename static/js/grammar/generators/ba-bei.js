@@ -217,7 +217,6 @@ const OWNERS = rows(`
 小王的|xiǎo wáng de|Xiao Wang's
 老师的|lǎo shī de|the teacher's
 我妈妈的|wǒ mā ma de|my mom's
-我们的|wǒ men de|our
 `);
 const WHEN = rows(`
 昨天|zuó tiān|yesterday
