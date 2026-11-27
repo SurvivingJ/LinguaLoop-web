@@ -1,5 +1,7 @@
 # LinguaDojo Wiki Index
-Last updated: 2026-11-23 (**OWNER DECISIONS AFTER THE REVIEW** — token economy retired (TASK-1210), Mystery and Listening Lab removed (TASK-1227), FSRS review day at Sydney midnight (TASK-1211, code done, SQL pending as group 10 of `migrations/PENDING-2026-11-23.md`), 20 unused API routes removed (TASK-1221; 116 URL rules), scripts write only with `--apply` (TASK-1218, partly done); see [[evaluations/codebase-review-2026-11-22]]; offline pytest 6,494 passed, ruff clean) | Pages: 291
+Last updated: 2026-11-27 (**CHINESE GRAMMAR DRILLS BUILT, NOT DEPLOYED** — `/grammar-drill`: 39 topics, 10,209 reviewed items as static files, 22 browser-side generators for 13 topics, four-stage ladder, progress in localStorage; no database rows, no API; see [[features/grammar-drills]], [[decisions/ADR-064-grammar-drills-static-content-local-progress]], [[tasklist/grammar-drills.tasks]] (TASK-1234–1248); pytest 6,519 passed, vitest 1,088, 117 URL rules) | Pages: 295
+
+Prior: 2026-11-23 (**OWNER DECISIONS AFTER THE REVIEW** — token economy retired (TASK-1210), Mystery and Listening Lab removed (TASK-1227), FSRS review day at Sydney midnight (TASK-1211, code done, SQL pending as group 10 of `migrations/PENDING-2026-11-23.md`), 20 unused API routes removed (TASK-1221; 116 URL rules), scripts write only with `--apply` (TASK-1218, partly done); see [[evaluations/codebase-review-2026-11-22]]; offline pytest 6,494 passed, ruff clean) | Pages: 291
 
 Prior: 2026-11-23 (**CODEBASE REVIEW, CLEAN-UP AND WIKI SYNC** — see [[evaluations/codebase-review-2026-11-22]]: all 108 tables and views and 214 functions documented, all 137 routes documented, four new package pages with tech pairs, ADR-061–063 proposed, follow-ups TASK-1200–1233 in [[tasklist/review-2026-11-22.tasks]]; nothing deployed, no migration applied) | Pages: 291
 
@@ -230,6 +232,8 @@ Prior: 2026-08-12 (**Exercise Generation v2 batch closed** — TASK-521 sense-em
 - [[features/furigana-overlay.tech]] — fugashi + UniDic generation, payload schema, render path, dampener wiring
 - [[features/measure-word-trainer]] — Chinese classifier (量词) infinite drill, MC + Typed modes, curated dictionary
 - [[features/measure-word-trainer.tech]] — dim_classifiers schema, session RPC, sentinel-test ELO pattern. **+2026-11-16**: tone-marked pinyin only (`format_pinyin`), translated Auto badge, session RPC returns no levels (TASK-998) **+2026-11-17**: levels and mastery restored (v2 session RPC, per-level promotion, 661 cloze sentences) — TASK-998 done; owner decisions TASK-1002
+- [[features/grammar-drills]] — **NEW 2026-11-27 (built, not deployed)**: Chinese grammar drills at `/grammar-drill`, 39 topics, 10,209 static items, four-stage ladder (Recognise, Build, Recall, Speed) to "Instant", Mixed review, Endless mode; progress per browser; 10 open questions
+- [[features/grammar-drills.tech]] — content contract, `scripts/grammar_drills.py` commands, static file shapes, frontend modules, ladder / selection / store rules, generator interface; no database, no API
 - [[features/model-arena]] — Admin tool: head-to-head OpenRouter model comparison (prose + questions, blind-judged)
 - [[features/model-arena.tech]] — Arena orchestrator, judge rubrics, OpenRouter pricing integration
 - [[features/dual-translation]] — **NEW 2026-06-23 (planned)**: L1→L2 back-translation practice; noticing/diff loop; explained errors + spaced remediation. **+2026-11-17**: all-done screen + explicit re-serve (repeats kept out of the error profile), passages from untaken tests after attempted ones, preview-page entry (`test-available`)
@@ -356,6 +360,7 @@ Prior: 2026-08-12 (**Exercise Generation v2 batch closed** — TASK-521 sense-em
 - [[decisions/ADR-061-one-transactional-write-per-dt-submission]] — **PROPOSED 2026-11-23**: one transactional write per dual-translation submission (TASK-1206)
 - [[decisions/ADR-062-retire-dt-card-and-select-next-window-in-sql]] — **PROPOSED 2026-11-23**: retire `dt_card` review cards, choose the `/next` window in SQL (TASK-1207)
 - [[decisions/ADR-063-vocabulary-ladder-generation-paths]] — **PROPOSED 2026-11-23**: fat-seed as the bulk ladder path, nightly drain as the only top-up (TASK-1208)
+- [[decisions/ADR-064-grammar-drills-static-content-local-progress]] — **ACCEPTED 2026-11-27**: grammar drill content as static files, generators in the browser, progress in localStorage (provisional); no database rows while the database is at its 475 MB line
 
 ## Task Lists
 - [[tasklist/zh-ja-content-seeding.tasks]] — **NEW 2026-11-22** (TASK-1034–1043, draft for owner review): apply the staged zh/ja fat-seed exercise assets and the 573 staged topics; database-space decision first (TASK-1034)
@@ -398,6 +403,7 @@ Prior: 2026-08-12 (**Exercise Generation v2 batch closed** — TASK-521 sense-em
 - [[tasklist/archive/evidence-first-grading.tasks]] — DT Grading v2 (TASK-621–649): measure → prompts → structural → UX + hardening batch; implements ADR-019 — archived
 - [[tasklist/archive/daily-session-hardening.tasks]] — Daily Session hardening (TASK-700–713): weekly seeding, practice timing, shortfall telemetry, interleaving, retry slots, UX/a11y — archived
 - [[tasklist/review-2026-11-22.tasks]] — **NEW 2026-11-23**: follow-ups from the codebase review, TASK-1200–1233 (34 tasks, 10 of them `[?]` owner decisions)
+- [[tasklist/grammar-drills.tasks]] — **NEW 2026-11-27** (TASK-1234–1248): 5 done (contract and script, guides, content, page, generators), 5 not started (server sync, native audit, UI string review, generator sentence quality, reuse for Japanese), 5 `[?]` owner decisions (session/ELO integration, explanation languages, Recall timing, audio, measure-word overlap)
 - [[tasklist/content-pipeline-remediation.plan]] — Content pipeline remediation plan
 - [[tasklist/exercise-gen-cost.implementation-plan]] — Exercise generation cost reduction implementation plan (TASK-809..816)
 - [[tasklist/word-list-import.plan]] — Word-list upload to ladder exposure and matched-test queueing, implementation plan (v3)

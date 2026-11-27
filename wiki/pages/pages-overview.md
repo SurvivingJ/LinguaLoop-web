@@ -51,6 +51,7 @@ All public pages are registered from the `PAGES` table in `web/pages.py` (`regis
 | `/test/<slug>/pitch-accent` | `test_pitch_accent.html` | Japanese pitch-accent trainer (Quick + Contour) | *task*. Calls `/api/tests/test/<slug>` then `/api/tests/<slug>/submit-pitch-accent` |
 | `/test/<slug>/dictation` | `test_dictation.html` | Listen + type the full transcript | *task*. Calls `/api/tests/test/<slug>` then `/api/tests/<slug>/submit-dictation` |
 | `/classifier-drill` | `classifier_drill.html` | Chinese classifier (量词) infinite drill, MC + Typed | *task* (from Me / desktop bar, zh only). Calls `/api/classifier-drill/*` |
+| `/grammar-drill` | `grammar_drill.html` | Chinese grammar drills: 39 topics, four-stage ladder, Mixed review, Endless ([[features/grammar-drills]]) | *task* (from Me, zh only). Calls no API: loads `static/data/grammar/zh/*.json`; progress in localStorage |
 | `/dual-translation` | `dual_translation.html` | L1→L2 back-translation practice + graded feedback | *task*. Calls `/api/dual-translation/next` + `/submit` |
 | `/dual-translation/profile` | `dual_translation_profile.html` | Ranked error-profile dashboard | *task*, Back = history (from Me). Calls `/api/dual-translation/profile` |
 | ~~`/listening-lab`, `/listening-lab/<slug>`~~ **(removed 2026-09-21 — archived)** | `listening_lab_list.html`, `listening_lab.html` | Listening Lab (feature-flagged — registered only when enabled) | |

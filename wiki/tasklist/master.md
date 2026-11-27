@@ -1,6 +1,6 @@
 ---
 title: Master Task List
-last_updated: 2026-11-25
+last_updated: 2026-11-27
 ---
 
 # Master Task List
@@ -19,13 +19,15 @@ below.
 
 | Status | Rows in this file | All task files (union, file status wins) |
 |--------|-------------------|------------------------------------------|
-| Not Started | 71 | 87 |
+| Not Started | 76 | 92 |
 | In Progress (`[~]`) | 18 | 25 |
-| Blocked / Deferred / Awaiting decision (`[?]`; includes "Done (repo), awaiting live apply") | 59 | 58 |
+| Blocked / Deferred / Awaiting decision (`[?]`; includes "Done (repo), awaiting live apply") | 64 | 63 |
 | Won't Do (obsolete) | 3 | 3 |
 | Superseded | 2 | 2 |
-| Done | 221 | 365 |
-| **Total distinct task ids** | **374** | **540** |
+| Done | 226 | 370 |
+| **Total distinct task ids** | **389** | **555** |
+
+*2026-11-27 (NEW — Chinese Grammar Drills, TASK-1234–1248):* 15 new ids, each with a row here and a block in [[tasklist/grammar-drills.tasks]]: 5 Done (repo, not deployed), 5 Not Started, 5 `[?]` awaiting an owner decision. Both columns moved by the same amounts (Not Started +5, Blocked/awaiting +5, Done +5, total +15), added by hand to the counts above; the checker (`check_wiki.py`) is not in this repository and was not run. The TASK-1034–1043 collision is untouched.
 
 *2026-11-25 (after merging main, PR #44, into the JLPT seeding branch):* kept main's checker-based table and moved
 the one status this branch changed: TASK-1058 Not Started → Done (repo), awaiting deploy (counted under Blocked /
@@ -1553,6 +1555,27 @@ Full spec: [[tasklist/review-2026-11-22.tasks]]. Record: [[evaluations/codebase-
 | TASK-1231 | codebase-review-2026-11-22 | Wiki structure decisions | [?] | M | — |
 | TASK-1232 | codebase-review-2026-11-22 | Wiki pages still citing deleted files, and code with no spec | [ ] | L | — |
 | TASK-1233 | codebase-review-2026-11-22 | Deploy checklist for this review's code | [ ] | S | TASK-1200 |
+
+### Chinese Grammar Drills — NEW 2026-11-27
+Full spec: [[tasklist/grammar-drills.tasks]]. Feature: [[features/grammar-drills]]. Decision: [[decisions/ADR-064-grammar-drills-static-content-local-progress]]. Built on `claude/happy-gates-qp9ifs`, not deployed. The five `[?]` rows each wait on an owner decision stated in the task.
+
+| ID | Feature | Title | Status | Complexity | Depends On |
+|----|---------|-------|--------|------------|------------|
+| TASK-1234 | grammar-drills | Content contract, topic plan and the `grammar_drills.py` script | Done | L | — |
+| TASK-1235 | grammar-drills | Topic guides (39) written, validated and reconciled with reviewer notes | Done | L | TASK-1234 |
+| TASK-1236 | grammar-drills | Drill content authored, blind-reviewed and built (105 batches, 10,209 items) | Done | XL | TASK-1234, TASK-1235 |
+| TASK-1237 | grammar-drills | `/grammar-drill` page: engine, four-stage ladder, local progress, i18n, profile link | Done | XL | TASK-1234 |
+| TASK-1238 | grammar-drills | Infinite-practice generators (22 generators, 13 topics) and Endless mode | Done | L | TASK-1237 |
+| TASK-1239 | grammar-drills | Sync grammar-drill progress to the server | [ ] | L | — |
+| TASK-1240 | grammar-drills | Decide whether grammar drills join the Study Plan / daily session and feed ELO | [?] | XL | TASK-1239 |
+| TASK-1241 | grammar-drills | Native-speaker audit of the drill content | [ ] | XL | — |
+| TASK-1242 | grammar-drills | Decide the languages for guide and explanation text | [?] | XL | — |
+| TASK-1243 | grammar-drills | Review the es / ja / zh interface strings for the grammar-drill page | [ ] | S | — |
+| TASK-1244 | grammar-drills | Decide how Recall time is measured | [?] | M | — |
+| TASK-1245 | grammar-drills | Improve the meaning of generated sentences | [ ] | M | — |
+| TASK-1246 | grammar-drills | Make the contract and script reusable for Japanese particles | [ ] | M | — |
+| TASK-1247 | grammar-drills | Decide whether grammar drills get audio | [?] | L | — |
+| TASK-1248 | grammar-drills | Decide the relation between the measure-words topic and the Measure Word Trainer | [?] | S | — |
 
 ### Language Packs (existing — unchanged)
 
