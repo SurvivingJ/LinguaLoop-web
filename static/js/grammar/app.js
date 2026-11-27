@@ -34,16 +34,9 @@ import {
   topicStatus,
 } from './ladder.js';
 import { createRound } from './round.js';
-import {
-  answerBank,
-  mixedTopics,
-  pickMixed,
-  pickRound,
-  recommendTopic,
-  ROUND_SIZE,
-} from './select.js';
+import { mixedTopics, pickMixed, pickRound, recommendTopic, ROUND_SIZE } from './select.js';
 import { createStore } from './store.js';
-import { EMPTY, guessPinyin, readingMap, seconds, tokenPinyin } from './text.js';
+import { EMPTY, clozeSegments, guessPinyin, readingMap, seconds, tokenPinyin } from './text.js';
 import {
   clozeHtml,
   guideHtml,
@@ -74,8 +67,9 @@ function shuffleWith(list, rng) {
 
 /**
  * Mount the app in `root`. `opts.manifestUrl` is the versioned URL of
- * manifest.json; `opts.store`, `opts.rng` and `opts.generators` (a
- * slug -> list function) can be injected by tests. Returns { destroy() }.
+ * manifest.json and `opts.generatorsUrl` (default: root's data-generators)
+ * that of the optional generators module; `opts.store`, `opts.rng` and
+ * `opts.generators` (a slug -> list function) can be injected by tests. Returns { destroy() }.
  */
 export function mountGrammar(root, opts = {}) {
   const store = opts.store || createStore();
@@ -249,7 +243,7 @@ export function mountGrammar(root, opts = {}) {
         'typing',
         s.typing,
         t('set_typing', null, 'Type answers'),
-        t('set_typing_sub', null, 'At Recall and Speed, type the missing word')
+        t('set_typing_sub', null, 'At Recall and Speed, type the missing word instead')
       ) +
       '</section>'
     );
@@ -415,7 +409,7 @@ export function mountGrammar(root, opts = {}) {
   const STAGE_SUBS = {
     recognise: 'Pick the right form',
     build: 'Build sentences',
-    recall: 'No options given',
+    recall: 'Recall, then confirm',
     speed: 'Against the clock',
   };
 
@@ -682,10 +676,14 @@ export function mountGrammar(root, opts = {}) {
       limitMs: 0,
     };
     if (item.type === 'cloze') {
-      // Generated items keep their own options: their answers are not in the bank.
+      // Generated items show their options at once.
       const recall = def.recall && !cur.entry.generated && Array.isArray(item.opts);
-      state.options = recall ? answerBank(data.items, item) : (item.opts || []).slice();
+      // Recall, then confirm: the item's own options stay hidden until the
+      // learner has thought of the answer and asks for them (or types it).
+      state.options = (item.opts || []).slice();
       state.typing = recall && store.settings().typing;
+      state.hidden = recall && !state.typing;
+      state.revealMs = 0;
     } else if (item.type === 'order' || item.type === 'rewrite') {
       const own = tokenPinyin(item.tokens, item.py);
       const extra = (item.extra || []).map((x) => guessPinyin(x, data.readings));
@@ -713,14 +711,16 @@ export function mountGrammar(root, opts = {}) {
       state.limitMs = speedLimit(session.speedBase, item);
       session.timer = setTimeout(() => submit(false, { timeout: true }), state.limitMs);
     }
+    session.pausedAt = 0;
     session.cur = state;
   }
 
   function itemHasPinyin(state) {
     const it = state.item;
-    if (state.answered)
+    if (it.type === 'cloze') return clozeSegments(it).some((seg) => seg.pairs && seg.pairs.length);
+    if (state.answered) {
       return hasPinyin(correctSentence(it), it.py) || hasPinyin(it.s, it.s_py || it.py);
-    if (it.type === 'cloze') return hasPinyin(it.zh, it.py);
+    }
     if (it.type === 'judge') return hasPinyin(it.s, it.s_py || it.py);
     if (it.type === 'rewrite' && hasPinyin(it.src, it.src_py)) return true;
     return (state.tiles || []).some((x) => x.py);
@@ -729,21 +729,32 @@ export function mountGrammar(root, opts = {}) {
   function submit(ok, detail) {
     if (!session || !session.cur || session.cur.answered) return;
     const state = session.cur;
-    const ms = detail && detail.timeout ? state.limitMs : Math.round(nowMs() - state.startedAt);
+    resumeClock();
+    const timeout = !!(detail && detail.timeout);
+    const totalMs = timeout ? state.limitMs : Math.round(nowMs() - state.startedAt);
+    // The recall time is what counts at a recall cloze: up to "Show choices".
+    const ms = !timeout && state.revealMs ? state.revealMs : totalMs;
     clearTimers();
+    state.hidden = false;
     const { first } = session.round.answer(ok, ms);
-    state.answered = { ok, ms, ...(detail || {}) };
-    if (first) record(state, ok, ms);
+    state.answered = { ok, ms, totalMs, ...(detail || {}) };
+    if (first) record(state, ok, ms, totalMs);
     drawDrill();
     if (ok && state.limitMs) {
       session.auto = setTimeout(next, AUTO_NEXT_MS);
     }
   }
 
-  function record(state, ok, ms) {
+  function record(state, ok, ms, totalMs) {
     const { slug, item, generated } = state.entry;
     if (session.kind === 'round') {
-      const { unlocked } = store.record(slug, { id: item.id, stage: session.stage, ok, ms });
+      const { unlocked } = store.record(slug, {
+        id: item.id,
+        stage: session.stage,
+        ok,
+        ms,
+        totalMs,
+      });
       if (unlocked) session.unlocked = unlocked;
       if (state.limitMs) {
         session.speedBase = nextSpeedBase(session.speedBase, ok, session.round.streak());
@@ -858,7 +869,6 @@ export function mountGrammar(root, opts = {}) {
     const right = rightOption(state.item);
     return (
       '<div class="gd-opts' +
-      (state.options.length > 4 ? ' gd-opts--bank' : '') +
       '" lang="zh">' +
       state.options
         .map((opt, k) => {
@@ -968,7 +978,15 @@ export function mountGrammar(root, opts = {}) {
         clozeHtml(it, !!a) +
         '</p>' +
         cueHtml(it) +
-        (state.typing ? typedHtml(state) : optionsHtml(state))
+        (state.typing
+          ? typedHtml(state)
+          : state.hidden
+            ? '<p class="gd-recall">' +
+              escapeHtml(
+                t('recall_hint', null, 'Say the missing word to yourself, then show the choices.')
+              ) +
+              '</p>'
+            : optionsHtml(state))
       );
     }
     if (it.type === 'judge') {
@@ -1087,6 +1105,13 @@ export function mountGrammar(root, opts = {}) {
         '</button>'
       );
     }
+    if (state.hidden) {
+      return (
+        '<button type="button" class="ld-btn" data-act="reveal">' +
+        escapeHtml(t('show_choices', null, 'Show choices')) +
+        '</button>'
+      );
+    }
     if (state.typing) {
       return (
         '<button type="button" class="ld-btn" data-act="check">' +
@@ -1174,6 +1199,7 @@ export function mountGrammar(root, opts = {}) {
       guideHtml(data && data.guide) +
       '</div>';
     root.querySelector('.gd').appendChild(sheet);
+    pauseClock();
     sheet.querySelector('[data-act="guide-close"]').focus();
   }
 
@@ -1181,7 +1207,38 @@ export function mountGrammar(root, opts = {}) {
     const sheet = root.querySelector('.gd-sheet');
     if (!sheet) return false;
     sheet.remove();
+    resumeClock();
     return true;
+  }
+
+  /**
+   * Reading the guide is not answering: the item's clock (and the speed
+   * countdown) stops while the guide is open.
+   */
+  function pauseClock() {
+    if (!session || !session.cur || session.pausedAt) return;
+    session.pausedAt = nowMs();
+    clearTimeout(session.timer);
+    session.timer = null;
+    // After a right answer on the speed stage: stay on the item until Next.
+    clearTimeout(session.auto);
+    session.auto = null;
+    const bar = root.querySelector('.gd-timer > i');
+    if (bar) bar.style.animationPlayState = 'paused';
+  }
+
+  function resumeClock() {
+    if (!session || !session.pausedAt) return;
+    const away = nowMs() - session.pausedAt;
+    session.pausedAt = 0;
+    const state = session.cur;
+    if (!state || state.answered) return;
+    state.startedAt += away;
+    if (state.limitMs) {
+      const left = state.limitMs - (nowMs() - state.startedAt);
+      session.timer = setTimeout(() => submit(false, { timeout: true }), Math.max(0, left));
+      if (drawn === 'drill') drawDrill(); // the bar picks up where it stopped
+    }
   }
 
   // ---------------------------------------------------------------- results
@@ -1212,7 +1269,9 @@ export function mountGrammar(root, opts = {}) {
       '<div class="ld-stats">' +
         stat(
           t('seconds', { n: seconds(r.medianMs) }, '{n} s'),
-          t('median_time', null, 'Median time')
+          session.kind === 'round' && stageDef(session.stage).recall
+            ? t('median_recall', null, 'Median recall time')
+            : t('median_time', null, 'Median time')
         ) +
         stat(r.missed.length, t('missed', null, 'Missed')) +
         (session.kind === 'endless'
@@ -1350,9 +1409,19 @@ export function mountGrammar(root, opts = {}) {
   }
 
   // ----------------------------------------------------------------- events
+  /** Recall cloze: show the item's options; the time so far is the recall time. */
+  function reveal() {
+    const state = session && session.cur;
+    if (!state || state.answered || !state.hidden) return;
+    state.hidden = false;
+    state.revealMs = Math.max(1, Math.round(nowMs() - state.startedAt));
+    drawDrill();
+  }
+
   function chooseOption(k) {
     const state = session && session.cur;
     if (!state || state.answered || state.item.type !== 'cloze' || state.typing) return;
+    if (state.hidden) return;
     const opt = state.options[k];
     if (opt == null) return;
     submit(checkCloze(state.item, opt), { choice: opt });
@@ -1433,6 +1502,7 @@ export function mountGrammar(root, opts = {}) {
     else if (act === 'place') place(Number(el.dataset.i));
     else if (act === 'unplace') unplace(Number(el.dataset.i));
     else if (act === 'check') check();
+    else if (act === 'reveal') reveal();
     else if (act === 'typed-none') {
       const state = session && session.cur;
       if (state && !state.answered)
@@ -1485,6 +1555,7 @@ export function mountGrammar(root, opts = {}) {
       if (onControl || inField) return; // the control's own click / the form's submit
       e.preventDefault();
       if (state.answered) next();
+      else if (state.hidden) reveal();
       else check();
       return;
     }
@@ -1527,7 +1598,11 @@ export function mountGrammar(root, opts = {}) {
     try {
       [manifest, gens] = await Promise.all([
         opts.manifest ? Promise.resolve(opts.manifest) : loadManifest(manifestUrl),
-        opts.generators ? Promise.resolve(opts.generators) : loadGenerators(),
+        opts.generators
+          ? Promise.resolve(opts.generators)
+          : loadGenerators(
+              opts.generatorsUrl != null ? opts.generatorsUrl : root.dataset.generators
+            ),
       ]);
     } catch {
       manifest = null;

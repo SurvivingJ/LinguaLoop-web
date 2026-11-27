@@ -260,6 +260,117 @@ describe('grammar drill app', () => {
     expect(view.items).toEqual({});
   });
 
+  const seedStage = (stage, extra = {}) =>
+    memoryStorage({
+      'ld.grammar.zh.v1': JSON.stringify({
+        v: 1,
+        s: {},
+        t: { le: { s: stage, u: 4, r: [[], [], [], []], i: {}, q: 0, l: 0, ...extra } },
+      }),
+    });
+
+  async function startRound(storage) {
+    await mount(storage);
+    root.querySelector('.gd-topic[data-slug="le"]').click();
+    await flush();
+    root.querySelector('[data-act="start"]').click();
+    await flush();
+  }
+
+  /** Move on until the item with this English cue is on screen. */
+  function skipTo(item) {
+    let guard = 0;
+    while (!root.querySelector('.gd-item').textContent.includes(item.en) && guard++ < 6) {
+      if (root.querySelector('[data-act="reveal"]')) press(' ');
+      answer(true);
+      root.querySelector('[data-act="next"]').click();
+    }
+  }
+
+  describe('recall, then confirm', () => {
+    beforeEach(() => {
+      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'performance', 'Date'] });
+    });
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('hides the item options until "Show choices" and times the recall apart from the total', async () => {
+      await startRound(seedStage(3));
+      skipTo(CLOZE);
+      expect(root.querySelectorAll('.gd-opt')).toHaveLength(0);
+      expect(root.querySelector('.gd-recall')).not.toBeNull();
+      press('1'); // nothing to pick yet
+      expect(root.querySelector('.gd-fb')).toBeNull();
+      vi.advanceTimersByTime(1500);
+      press(' ');
+      // The item's OWN options, nothing borrowed from other items.
+      expect([...root.querySelectorAll('.gd-opt__text')].map((x) => x.textContent)).toEqual(
+        CLOZE.opts
+      );
+      vi.advanceTimersByTime(700);
+      press('1');
+      expect(root.querySelector('.gd-fb').classList.contains('ld-feedback--ok')).toBe(true);
+      const view = store.topic('le');
+      expect(view.results[3].at(-1)).toBe(1500);
+      expect(view.totals[3].at(-1)).toBe(2200);
+    });
+
+    it('lets the button reveal too, and a wrong pick after it is a miss', async () => {
+      await startRound(seedStage(3));
+      skipTo(CLOZE);
+      vi.advanceTimersByTime(400);
+      root.querySelector('[data-act="reveal"]').click();
+      root.querySelectorAll('.gd-opt')[1].click();
+      expect(root.querySelector('.gd-fb').classList.contains('ld-feedback--bad')).toBe(true);
+      expect(store.topic('le').results[3].at(-1)).toBe(-400);
+    });
+
+    it('types instead of revealing when "type answers" is on', async () => {
+      const storage = seedStage(3);
+      const data = JSON.parse(storage.data['ld.grammar.zh.v1']);
+      data.s.ty = 1;
+      storage.data['ld.grammar.zh.v1'] = JSON.stringify(data);
+      await startRound(storage);
+      skipToTyped();
+      expect(root.querySelector('[data-act="reveal"]')).toBeNull();
+      const input = root.querySelector('#gdTyped');
+      input.value = '了';
+      root.querySelector('[data-act="check"]').click();
+      expect(root.querySelector('.gd-fb').classList.contains('ld-feedback--ok')).toBe(true);
+    });
+
+    function skipToTyped() {
+      let guard = 0;
+      while (!root.querySelector('.gd-item').textContent.includes(CLOZE.en) && guard++ < 6) {
+        const item = ITEMS.find((it) => root.querySelector('.gd-item').textContent.includes(it.en));
+        if (item.type === 'judge') answer(true);
+        else root.querySelector('[data-act="typed-none"]').click();
+        root.querySelector('[data-act="next"]').click();
+      }
+    }
+
+    it('runs the speed countdown over both steps and pauses it while the guide is open', async () => {
+      await startRound(seedStage(4, { sp: 8000 }));
+      skipTo(CLOZE);
+      expect(root.querySelector('.gd-timer')).not.toBeNull();
+      vi.advanceTimersByTime(3000);
+      press(' '); // reveal: the countdown keeps running
+      expect(root.querySelector('.gd-timer')).not.toBeNull();
+      vi.advanceTimersByTime(2000);
+      root.querySelector('[data-act="guide"]').click();
+      vi.advanceTimersByTime(60000); // reading the guide: no timeout
+      expect(root.querySelector('.gd-fb')).toBeNull();
+      press('Escape');
+      expect(root.querySelector('.gd-sheet')).toBeNull();
+      vi.advanceTimersByTime(2900); // 7.9 s on the clock
+      expect(root.querySelector('.gd-fb')).toBeNull();
+      vi.advanceTimersByTime(200); // 8.1 s: time is up
+      expect(root.querySelector('.gd-fb').textContent).toContain('Time is up');
+      expect(store.topic('le').results[4].at(-1)).toBe(-8000);
+    });
+  });
+
   it('opens the guide over a drill and closes it with Escape', async () => {
     await mount();
     root.querySelector('.gd-topic[data-slug="le"]').click();

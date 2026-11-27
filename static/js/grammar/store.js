@@ -8,7 +8,10 @@
 //     s: { py: 0|1, ty: 0|1 },                 settings
 //     t: { <slug>: {
 //       s: stage, u: highest unlocked stage,
-//       r: [[...], [...], [...], [...]],       last WINDOW results per stage (ladder.encodeResult)
+//       r: [[...], [...], [...], [...]],       last WINDOW results per stage (ladder.encodeResult);
+//                                              the time is the recall time (to "Show choices"
+//                                              on a recall cloze, else the whole answer)
+//       w: [[...], [...], [...], [...]],       the same answers' total times (ms)
 //       i: { <id suffix>: [box, seq] },        Leitner box 0-5 and when last seen
 //       q: seq,                                answers recorded for the topic
 //       l: epoch seconds of the last answer,
@@ -29,7 +32,17 @@ export function itemKey(slug, id) {
 }
 
 function blankTopic() {
-  return { s: 1, u: 1, r: [[], [], [], []], i: {}, q: 0, l: 0, sp: SPEED_START_MS, e: [0, 0, 0] };
+  return {
+    s: 1,
+    u: 1,
+    r: [[], [], [], []],
+    w: [[], [], [], []],
+    i: {},
+    q: 0,
+    l: 0,
+    sp: SPEED_START_MS,
+    e: [0, 0, 0],
+  };
 }
 
 function clean(raw) {
@@ -77,6 +90,7 @@ export function createStore(storage = defaultStorage(), key = KEY, now = Date.no
         if (t[k] == null) t[k] = base[k];
       });
       while (t.r.length < LAST_STAGE) t.r.push([]);
+      while (t.w.length < LAST_STAGE) t.w.push([]);
     }
     return t;
   }
@@ -85,13 +99,16 @@ export function createStore(storage = defaultStorage(), key = KEY, now = Date.no
   function topic(slug) {
     const t = raw(slug, false) || blankTopic();
     const results = {};
+    const totals = {};
     t.r.forEach((list, k) => {
       results[k + 1] = list.slice();
+      totals[k + 1] = (t.w[k] || []).slice();
     });
     return {
       stage: t.s,
       unlocked: t.u,
       results,
+      totals,
       items: t.i,
       seq: t.q,
       last: t.l,
@@ -138,10 +155,11 @@ export function createStore(storage = defaultStorage(), key = KEY, now = Date.no
     /**
      * Record a first answer to an item. `stage` null (mixed review, endless)
      * moves the item's box only; a stage number also feeds that stage's
-     * rolling results and may unlock the next stage. Returns { unlocked } with
-     * the newly opened stage number, or 0.
+     * rolling results and may unlock the next stage. `ms` is the recall time
+     * (the stage metric); `totalMs` the whole answer, when it differs. Returns
+     * { unlocked } with the newly opened stage number, or 0.
      */
-    record(slug, { id, stage, ok, ms }) {
+    record(slug, { id, stage, ok, ms, totalMs }) {
       const t = raw(slug, true);
       t.q += 1;
       t.l = Math.floor(now() / 1000);
@@ -155,6 +173,9 @@ export function createStore(storage = defaultStorage(), key = KEY, now = Date.no
         const list = t.r[stage - 1];
         list.push(encodeResult(ok, ms));
         if (list.length > WINDOW) list.splice(0, list.length - WINDOW);
+        const totals = t.w[stage - 1];
+        totals.push(Math.abs(encodeResult(true, totalMs == null ? ms : totalMs)));
+        if (totals.length > WINDOW) totals.splice(0, totals.length - WINDOW);
         if (stage === t.u && stage < LAST_STAGE && unlocksNext(list)) {
           t.u = stage + 1;
           unlocked = t.u;

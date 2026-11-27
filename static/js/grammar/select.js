@@ -1,15 +1,12 @@
 // static/js/grammar/select.js
-// Grammar drills: which items a round holds, the answer bank of the recall
-// stage, and which topic to recommend. No DOM; randomness comes in as `rng`.
+// Grammar drills: which items a round holds and which topic to recommend. No DOM; randomness comes in as `rng`.
 
-import { blankCount, rightOption } from './check.js';
 import { isInstant, levelCap, stageDef } from './ladder.js';
 import { itemKey } from './store.js';
 
 export const ROUND_SIZE = 20;
 /** Share of a round kept for items missed before, when there are any. */
 export const MISSED_SHARE = 0.3;
-export const BANK_SIZE = 8;
 
 /** Answers that must pass before a box's items are due again (box 1-5). */
 const BOX_GAP = [0, 15, 40, 100, 250, 600];
@@ -105,32 +102,6 @@ export function pickRound({ items, slug, topic, stage, size = ROUND_SIZE, rng = 
   }
   add(take(left(), size - picked.size, rng));
   return shuffled([...picked], rng).map((c) => c.item);
-}
-
-/**
- * The chips a recall-stage cloze is answered from: distinct right answers used
- * across the topic's cloze items (same number of blanks), most frequent first,
- * always with this item's answer and with those of its own distractors that
- * are answers elsewhere; at most `cap`, in a fixed (code point) order so a
- * form keeps its place from item to item. Falls back to the item's own
- * options when the topic has fewer than two distinct answers.
- */
-export function answerBank(items, item, cap = BANK_SIZE) {
-  const right = rightOption(item);
-  const blanks = blankCount(right);
-  const freq = new Map();
-  (items || []).forEach((it) => {
-    if (it.type !== 'cloze' || !it.opts) return;
-    const ans = rightOption(it);
-    if (blankCount(ans) !== blanks) return;
-    freq.set(ans, (freq.get(ans) || 0) + 1);
-  });
-  if (!freq.has(right)) freq.set(right, 1);
-  if (freq.size < 2) return (item.opts || []).slice();
-  const byFreq = [...freq.keys()].sort((a, b) => freq.get(b) - freq.get(a) || (a < b ? -1 : 1));
-  const own = (item.opts || []).filter((o) => o !== right && freq.has(o));
-  const bank = [...new Set([right, ...own, ...byFreq])].slice(0, cap);
-  return bank.sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
 }
 
 /**

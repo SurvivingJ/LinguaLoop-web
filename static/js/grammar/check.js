@@ -1,7 +1,7 @@
 // static/js/grammar/check.js
 // Grammar drills: answer checking. No DOM.
 
-import { EMPTY, fillCloze, optionParts } from './text.js';
+import { EMPTY, fillCloze } from './text.js';
 
 /** The option string that is right for a cloze item. */
 export function rightOption(item) {
@@ -48,9 +48,4 @@ export function correctSentence(item) {
   if (item.type === 'cloze') return fillCloze(item.q, rightOption(item));
   if (item.tokens) return item.tokens.join('');
   return '';
-}
-
-/** Number of blanks an option fills. */
-export function blankCount(opt) {
-  return optionParts(opt).length;
 }

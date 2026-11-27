@@ -124,6 +124,22 @@ describe('store', () => {
     expect(topicStatus(again.topic('le'))).toBe('recognise');
   });
 
+  it('keeps the total time beside the recall time', () => {
+    const storage = memoryStorage();
+    const store = createStore(storage);
+    store.record('le', { id: 'le-01-001', stage: 3, ok: true, ms: 1200, totalMs: 2600 });
+    store.record('le', { id: 'le-01-002', stage: 3, ok: false, ms: 900 });
+    expect(store.topic('le').results[3]).toEqual([1200, -900]);
+    expect(store.topic('le').totals[3]).toEqual([2600, 900]);
+    // Progress saved before totals existed still loads.
+    const old = JSON.parse(storage.data[KEY]);
+    delete old.t.le.w;
+    const again = createStore(memoryStorage({ [KEY]: JSON.stringify(old) }));
+    expect(again.topic('le').totals[3]).toEqual([]);
+    again.record('le', { id: 'le-01-003', stage: 3, ok: true, ms: 700, totalMs: 1500 });
+    expect(again.topic('le').totals[3]).toEqual([1500]);
+  });
+
   it('moves an item up a box when right and back to box 0 when missed', () => {
     const store = createStore(memoryStorage());
     const rec = (ok) => store.record('le', { id: 'le-01-001', stage: 1, ok, ms: 1000 });

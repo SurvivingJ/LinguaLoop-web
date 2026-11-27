@@ -78,6 +78,25 @@ describe('pinyin alignment', () => {
     expect(segs.every((s) => s.pairs === null)).toBe(true);
   });
 
+  it('gives no ruby to a question that spells out pinyin (it would show the answer)', () => {
+    const tone = {
+      q: '我妈妈不喝 → wǒ mā ma ___ hē',
+      opts: ['bú', 'bù'],
+      a: 1,
+      zh: '我妈妈不喝 → wǒ mā ma bù hē',
+      py: 'wǒ mā ma bù hē',
+    };
+    expect(clozeSegments(tone).every((s) => s.pairs === null)).toBe(true);
+    const third = {
+      q: '雨伞 → ___',
+      opts: ['yǔ sǎn', 'yú sǎn'],
+      a: 1,
+      zh: '雨伞 → yú sǎn',
+      py: 'yú sǎn',
+    };
+    expect(clozeSegments(third).every((s) => s.pairs === null)).toBe(true);
+  });
+
   it('splits the sentence pinyin over tiles', () => {
     expect(tokenPinyin(ORDER.tokens, ORDER.py)).toEqual([
       'wǒ',

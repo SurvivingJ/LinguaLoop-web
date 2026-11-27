@@ -3,7 +3,8 @@
 //
 //   1 Recognise  cloze with the item's options, judge
 //   2 Build      + order and rewrite (half the round)
-//   3 Recall     cloze answered from the topic's answer bank, or typed
+//   3 Recall     cloze with its options hidden: recall the answer (or type
+//                it), then show the item's own options and confirm
 //   4 Speed      everything against a per-item countdown
 //
 // A stage unlocks the next when the last WINDOW answers at it are at least

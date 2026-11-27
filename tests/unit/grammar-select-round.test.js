@@ -1,13 +1,12 @@
 /**
  * static/js/grammar/select.js + round.js: which items a round holds (unseen
  * first, missed ones kept a share, then least recently seen; sub-points
- * balanced; the stage's types; levels), the recall answer bank, the topic to
+ * balanced; the stage's types; levels), the topic to
  * continue with, and the round queue that brings a missed item back until it
  * is answered right.
  */
 import { describe, it, expect } from 'vitest';
 import {
-  answerBank,
   itemClass,
   mixedTopics,
   pickMixed,
@@ -16,7 +15,7 @@ import {
 } from '../../static/js/grammar/select.js';
 import { createRound } from '../../static/js/grammar/round.js';
 import { createStore } from '../../static/js/grammar/store.js';
-import { CLOZE, CLOZE_PAIR, makeItems, memoryStorage, seeded } from './fixtures/grammar.js';
+import { makeItems, memoryStorage, seeded } from './fixtures/grammar.js';
 
 const fresh = () => createStore(memoryStorage());
 
@@ -114,50 +113,6 @@ describe('pickRound', () => {
     const items = makeItems('le', 6, ['cloze']);
     expect(pickRound({ items, slug: 'le', topic: fresh().topic('le'), stage: 1 })).toHaveLength(6);
     expect(pickRound({ items: [], slug: 'le', topic: fresh().topic('le'), stage: 1 })).toEqual([]);
-  });
-});
-
-describe('answerBank', () => {
-  it('offers the distinct answers of the topic, always with the right one', () => {
-    const items = makeItems('le', 30, ['cloze']);
-    const bank = answerBank(items, items[0]);
-    expect(bank).toEqual(['了', '着', '过'].sort());
-    expect(bank).toContain(items[0].opts[items[0].a]);
-  });
-
-  it('caps at eight chips and still includes a rare right answer and the item distractors', () => {
-    const answers = '一二三四五六七八九十'.split('');
-    const items = answers.flatMap((ans, k) =>
-      Array.from({ length: 10 - k }, (_, j) => ({
-        id: `x-01-${k}${j}`,
-        type: 'cloze',
-        q: '___',
-        opts: [ans, '零'],
-        a: 0,
-      }))
-    );
-    const rare = { id: 'x-01-999', type: 'cloze', q: '___', opts: ['九', '十'], a: 1 };
-    const bank = answerBank([...items, rare], rare);
-    expect(bank).toHaveLength(8);
-    expect(bank).toContain('十');
-    expect(bank).toContain('九');
-    expect(bank).not.toContain('零'); // never an answer in this topic
-    expect(bank).toEqual([...bank].sort());
-  });
-
-  it('keeps two-blank answers apart from one-blank ones', () => {
-    const other = {
-      ...CLOZE_PAIR,
-      id: 'connectors-01-004',
-      opts: ['虽然|但是', '因为|所以'],
-      a: 0,
-    };
-    const bank = answerBank([CLOZE, CLOZE_PAIR, other], CLOZE_PAIR);
-    expect(bank.sort()).toEqual(['因为|所以', '虽然|但是'].sort());
-  });
-
-  it('falls back to the item options when the topic has one answer only', () => {
-    expect(answerBank([CLOZE], CLOZE)).toEqual(CLOZE.opts);
   });
 });
 

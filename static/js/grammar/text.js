@@ -7,6 +7,7 @@ export const BLANK = '___';
 export const EMPTY = '∅';
 
 const HANZI = /[一-鿿]/;
+const LATIN = /[A-Za-z\u00C0-\u024F]/;
 const PY_SPLIT = /[\s，。？！、；：“”‘’（）《》…—,.?!;:]+/;
 
 export const isHanzi = (ch) => HANZI.test(ch);
@@ -58,13 +59,16 @@ export function fillCloze(q, opt) {
  * A cloze question cut at its blanks, each piece with the pinyin it has in the
  * full sentence: [{ text, pairs } | { blank: true, fill, pairs }]. `fill` is
  * what the right option puts there ('' for ∅). `pairs` is null throughout when
- * the item has no usable pinyin or `zh` is not the question filled in.
+ * the item has no usable pinyin, `zh` is not the question filled in, or the
+ * question or its answer is itself pinyin.
  */
 export function clozeSegments(item) {
   const pieces = String(item.q || '').split(BLANK);
   const right = optionParts(item.opts ? item.opts[item.a] : '');
   const filled = fillCloze(item.q, item.opts ? item.opts[item.a] : '');
-  const all = filled === item.zh ? rubyPairs(item.zh, item.py) : null;
+  // A question or answer that spells out pinyin (generated tone drills) is
+  // asking for a reading: ruby over its characters would give the answer away.
+  const all = filled === item.zh && !LATIN.test(filled) ? rubyPairs(item.zh, item.py) : null;
   let pos = 0;
   const cut = (text) => {
     const n = Array.from(text).length;

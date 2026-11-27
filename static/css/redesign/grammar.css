@@ -578,7 +578,8 @@
   font-weight: 600;
 }
 
-/* Options: large buttons, two by two (the recall bank: up to eight). */
+/* Options: large buttons, two by two. At a recall cloze they are hidden
+   behind .gd-recall until the learner asks for them. */
 .gd .gd-opts {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -604,17 +605,9 @@
     background-color 0.12s;
 }
 
-.gd .gd-opts--bank .gd-opt {
-  min-height: 56px;
-}
-
 .gd .gd-opt__text {
   font: 600 1.5rem/1.15 var(--f-cjk);
   overflow-wrap: anywhere;
-}
-
-.gd .gd-opts--bank .gd-opt__text {
-  font-size: 1.3125rem;
 }
 
 .gd .gd-opt__text--none {
@@ -667,6 +660,18 @@
 .gd .gd-opt.is-wrong .gd-key {
   background: var(--bad);
   color: var(--surface);
+}
+
+.gd .gd-recall {
+  display: grid;
+  place-items: center;
+  min-height: 68px;
+  margin-top: 6px;
+  padding: 10px 14px;
+  border: 1.5px dashed var(--line-strong);
+  border-radius: 15px;
+  font-size: 0.9rem;
+  color: var(--ink-2);
 }
 
 /* Typed answer (the "type answers" setting, recall and speed stages). */
@@ -896,10 +901,6 @@
   }
 
   .gd .gd-stages {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-
-  .gd .gd-opts--bank {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 

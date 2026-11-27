@@ -39,20 +39,24 @@ export function loadTopic(manifestUrl, topic) {
   return topicCache.get(url);
 }
 
-// Held in a variable so that tooling does not require the optional file to exist.
-const GENERATORS_MODULE = './generators/index.js';
 let generatorsModule;
 
 /**
- * slug -> [{ key, label, make(rng) }]. The generators module is optional:
- * when it is missing or broken every topic simply has none.
+ * slug -> [{ key, label, make(rng) }]. The generators module is optional.
+ * `url` is its URL when the server has the file (the template checks) and ''
+ * when it does not: then nothing is requested, so a missing module leaves no
+ * failed request in the console. A module that fails to load or to run is
+ * ignored the same way: every topic simply has no generators.
  */
-export async function loadGenerators() {
+export async function loadGenerators(url) {
   if (generatorsModule === undefined) {
-    try {
-      generatorsModule = await import(/* @vite-ignore */ GENERATORS_MODULE);
-    } catch {
-      generatorsModule = null;
+    generatorsModule = null;
+    if (url) {
+      try {
+        generatorsModule = await import(/* @vite-ignore */ url);
+      } catch {
+        generatorsModule = null;
+      }
     }
   }
   const mod = generatorsModule;
