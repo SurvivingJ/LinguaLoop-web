@@ -1,5 +1,6 @@
 # LinguaDojo Wiki Index
-Last updated: 2026-11-23 (**OWNER DECISIONS AFTER THE REVIEW** — token economy retired (TASK-1210), Mystery and Listening Lab removed (TASK-1227), FSRS review day at Sydney midnight (TASK-1211, code done, SQL pending as group 10 of `migrations/PENDING-2026-11-23.md`), 20 unused API routes removed (TASK-1221; 116 URL rules), scripts write only with `--apply` (TASK-1218, partly done); see [[evaluations/codebase-review-2026-11-22]]; offline pytest 6,494 passed, ruff clean) | Pages: 291
+Last updated: 2026-11-27 (**JAPANESE TESTS ON HEADLESS CLAUDE + OFFLINE BUNDLE** — 101 ja listening tests generated and live; `LLM_FORCE_PROVIDER=claude_cli` keeps a run off OpenRouter, `LLM_CALLS_DB_LOG=0` keeps it out of the database; 500-test ja bundle built offline under `data/offline_tests/ja-2026-11-27/`, not uploaded; see [[decisions/ADR-064-claude-only-offline-test-generation]], [[features/offline-test-bundles]]) | Pages: 294
+Prior: 2026-11-23 (**OWNER DECISIONS AFTER THE REVIEW** — token economy retired (TASK-1210), Mystery and Listening Lab removed (TASK-1227), FSRS review day at Sydney midnight (TASK-1211, code done, SQL pending as group 10 of `migrations/PENDING-2026-11-23.md`), 20 unused API routes removed (TASK-1221; 116 URL rules), scripts write only with `--apply` (TASK-1218, partly done); see [[evaluations/codebase-review-2026-11-22]]; offline pytest 6,494 passed, ruff clean)
 
 Prior: 2026-11-23 (**CODEBASE REVIEW, CLEAN-UP AND WIKI SYNC** — see [[evaluations/codebase-review-2026-11-22]]: all 108 tables and views and 214 functions documented, all 137 routes documented, four new package pages with tech pairs, ADR-061–063 proposed, follow-ups TASK-1200–1233 in [[tasklist/review-2026-11-22.tasks]]; nothing deployed, no migration applied) | Pages: 291
 
@@ -245,6 +246,8 @@ Prior: 2026-08-12 (**Exercise Generation v2 batch closed** — TASK-521 sense-em
 - [[features/practice-package.tech]] — Technical specification of `services/practice` (`record_exercise_attempt` path, FSRS dating limitation)
 - [[features/study-session-package]] — **NEW 2026-11-23**: the study-session package (daily session, plan load) in plain English
 - [[features/study-session-package.tech]] — Technical specification of the study-session package
+- [[features/offline-test-bundles]] — **NEW 2026-11-27**: generate tests now, store them compressed in the repo, upload later (audio and vocabulary at upload)
+- [[features/offline-test-bundles.tech]] — Export/upload scripts, record format, the Claude-only and DB-silent run settings
 
 ## Algorithms
 - [[algorithms/practice-unified-score]] — Four-signal scoring for the merged Practice Engine — **NEW 2026-05-21**
@@ -356,6 +359,7 @@ Prior: 2026-08-12 (**Exercise Generation v2 batch closed** — TASK-521 sense-em
 - [[decisions/ADR-061-one-transactional-write-per-dt-submission]] — **PROPOSED 2026-11-23**: one transactional write per dual-translation submission (TASK-1206)
 - [[decisions/ADR-062-retire-dt-card-and-select-next-window-in-sql]] — **PROPOSED 2026-11-23**: retire `dt_card` review cards, choose the `/next` window in SQL (TASK-1207)
 - [[decisions/ADR-063-vocabulary-ladder-generation-paths]] — **PROPOSED 2026-11-23**: fat-seed as the bulk ladder path, nightly drain as the only top-up (TASK-1208)
+- [[decisions/ADR-064-claude-only-offline-test-generation]] — **ACCEPTED 2026-11-27**: `LLM_FORCE_PROVIDER=claude_cli` (judges, tiering, phrase detection on headless Claude; Claude-rated tiers uncalibrated) and offline test bundles
 
 ## Task Lists
 - [[tasklist/zh-ja-content-seeding.tasks]] — **NEW 2026-11-22** (TASK-1034–1043, draft for owner review): apply the staged zh/ja fat-seed exercise assets and the 573 staged topics; database-space decision first (TASK-1034)
