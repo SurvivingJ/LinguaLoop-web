@@ -85,18 +85,17 @@ export const WORDS = rows(`
 洗|xǐ|wash it|v
 玩|wán|play|v
 穿|chuān|wear it|v
-带|dài|bring it|v
-借|jiè|lend it|v
 信|xìn|believe it|v
 笑|xiào|laugh|v
 哭|kū|cry|v
 唱|chàng|sing|v
 跳|tiào|jump|v
-开|kāi|open it|v
-关|guān|close it|v
-搬|bān|move house|v
-换|huàn|change it|v
 回家|huí jiā|go home|v
+搬家|bān jiā|move house|v
+帮忙|bāng máng|help out|v
+请假|qǐng jià|ask for leave|v
+散步|sàn bù|go for walks|v
+聊天|liáo tiān|chat|v
 知道|zhī dào|know|v
 认识|rèn shi|know him|v
 喜欢|xǐ huan|like it|v
@@ -135,7 +134,6 @@ export const WORDS = rows(`
 加班|jiā bān|work overtime|v
 出门|chū mén|go out|v
 参加|cān jiā|take part|v
-帮忙|bāng máng|help|v
 迟到|chí dào|arrive late|v
 回答|huí dá|answer|v
 旅行|lǚ xíng|travel|v

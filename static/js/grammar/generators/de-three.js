@@ -55,7 +55,7 @@ const CLAUSES = rows(`
 朋友送|péng you sòng|礼物|lǐ wù|the present a friend gave|很漂亮|hěn piào liang|is very pretty
 昨天买|zuó tiān mǎi|衣服|yī fu|the clothes bought yesterday|有点儿大|yǒu diǎn r dà|are a bit big
 昨天买|zuó tiān mǎi|水果|shuǐ guǒ|the fruit bought yesterday|很新鲜|hěn xīn xiān|is very fresh
-上个星期看|shàng ge xīng qī kàn|电影|diàn yǐng|the film seen last week|很有意思|hěn yǒu yì si|is very interesting
+上个星期看|shàng ge xīng qī kàn|电影|diàn yǐng|the film seen last week|很有意思|hěn yǒu yì si|was very interesting
 老师介绍|lǎo shī jiè shào|书|shū|the book the teacher recommended|很有用|hěn yǒu yòng|is very useful
 他唱|tā chàng|歌|gē|the songs he sings|很好听|hěn hǎo tīng|sound lovely
 她画|tā huà|画|huà|the pictures she paints|很漂亮|hěn piào liang|are very pretty
