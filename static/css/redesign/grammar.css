@@ -513,8 +513,9 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  margin: auto 0;
-  padding: 4px 0;
+  /* Anchored near the top, not centred: the prompt must not jump when the
+     feedback opens in the dock and the stage gets shorter. */
+  padding: clamp(6px, 5dvh, 44px) 0 4px;
   text-align: center;
 }
 
