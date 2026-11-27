@@ -1,0 +1,441 @@
+{
+  "topic": "le",
+  "summary": "了 is not a past tense. After a verb it marks one action as done and bounded (often with a counted object); at the end of a sentence it says the situation is new or has changed. Ask two questions: is this a single finished event, and is something different now? If the sentence only describes a habit, a state, or something that did not happen, there is no 了.",
+  "subs": [
+    {
+      "key": "completed-quantified",
+      "label": "了 right after the verb: one finished action",
+      "focus": "Learner decides that one finished event takes 了 and that with a counted, timed or specific object 了 sits right after the verb, before the number. Classic errors: omitting 了 because 昨天 is there; pushing 了 past a counted object (我买三本书了). Distractors: 过, 着, 的, ∅."
+    },
+    {
+      "key": "sentence-le",
+      "label": "了 at the end: a new situation",
+      "focus": "Learner sees that the sentence reports a change (not so before, so now) and ends it with 了: after adjectives, ages, times, 会/能, and with 快/要 for 'about to'. Classic error: dropping 了, leaving a plain description. Context or cue must make the change explicit so ∅ is wrong."
+    },
+    {
+      "key": "double-le",
+      "label": "Verb 了 + amount + 了: so far, and still going",
+      "focus": "Learner chooses one 了 (amount of a finished action) or two (amount so far, still going). Classic error: one 了 for 'have been doing for ...', or no final 了 after 已经. Force the reading: 已经/到现在/'still' for double; a closed past frame (去年, 以前) for single."
+    },
+    {
+      "key": "sequence",
+      "label": "Verb 了 + object + 就/再: after doing A, do B",
+      "focus": "Learner puts 了 after the first verb, before its object, for 'once A is done, B', also in future plans. Classic errors: omitting it, placing it after the object (吃饭了就走), or refusing 了 because it is about tomorrow. Past sequences: a second 了 closes the sentence."
+    },
+    {
+      "key": "no-le-habitual",
+      "label": "No 了 for habits and repeated actions",
+      "focus": "Learner leaves 了 out for routines and repeated actions, present or past: 每天, 常常, 经常, 总是, 一般, 以前/小时候 + habit. Classic error: adding 了 to a past habit because English has past tense. Answer is ∅. Avoid newly begun habits (现在每天跑步了), where final 了 is right."
+    },
+    {
+      "key": "no-le-mei",
+      "label": "没 + verb: no 了",
+      "focus": "Learner negates a completed action with 没(有) + verb and deletes 了; never 不 + verb + 了 for 'did not'. Classic errors: 我没去了, 我没买了三本书. Rewrites: make a 了 sentence negative. Avoid the legitimate 没…了 patterns (没钱了, 三天没睡觉了, 好久没见了)."
+    },
+    {
+      "key": "no-le-stative",
+      "label": "No 了 for past states: 是, 在, 有, 喜欢, 觉得, adjectives",
+      "focus": "Learner leaves 了 out when a past sentence describes how things were: 是, 在, 有, 喜欢, 想, 知道, 觉得, 很 + adjective. Classic errors: 昨天很冷了, 他以前是了老师, 我觉得了很好. Pure description only; avoid changed states (天冷了, 我知道了), which take final 了."
+    },
+    {
+      "key": "tai-le",
+      "label": "太 + adjective + 了",
+      "focus": "Learner closes a 太 remark with 了 (太贵了, 太好了) and adds no 了 after 很, 非常 or 不太. Classic errors: 太好!, 很贵了 for 'too expensive', 不太冷了 for 'not very cold'. Test as a complete remark ending in the adjective; avoid 太 + adjective inside a longer phrase (太贵的东西)."
+    },
+    {
+      "key": "bu-le",
+      "label": "不 … 了 / 没有 … 了: no longer, not any more",
+      "focus": "Learner says 'not any more' or a changed plan with 不 + verb + 了 ('none left': 没有 + noun + 了), 了 at the end. Classic errors: dropping 了 (plain 'don't'), 没 + verb for a decision not to go, 了 after the verb. Cues ('any more', 'after all', 已经, 现在) must force the change."
+    }
+  ],
+  "rules": [
+    {
+      "sub": "completed-quantified",
+      "rule": "One finished action with a counted, timed or specific object: put 了 directly after the verb, before the number.",
+      "pattern": "Subject + (time) + Verb + 了 + number + measure + Object",
+      "examples": [
+        {
+          "zh": "我昨天买了三本书。",
+          "py": "wǒ zuó tiān mǎi le sān běn shū",
+          "en": "I bought three books yesterday."
+        },
+        {
+          "zh": "她喝了两杯咖啡。",
+          "py": "tā hē le liǎng bēi kā fēi",
+          "en": "She drank two cups of coffee."
+        },
+        {
+          "zh": "我们在那儿等了半个小时。",
+          "py": "wǒ men zài nà r děng le bàn ge xiǎo shí",
+          "en": "We waited there for half an hour."
+        },
+        {
+          "zh": "他给我打了一个电话。",
+          "py": "tā gěi wǒ dǎ le yī ge diàn huà",
+          "en": "He gave me a call."
+        }
+      ],
+      "note": "A time word such as 昨天 does not replace 了: a single finished event still needs it."
+    },
+    {
+      "sub": "completed-quantified",
+      "rule": "With a plain, uncounted object, a simple 'this happened' statement usually puts 了 at the end of the sentence; verb + 了 + bare object alone sounds unfinished.",
+      "pattern": "Subject + Verb + Object + 了",
+      "examples": [
+        {
+          "zh": "我吃饭了。",
+          "py": "wǒ chī fàn le",
+          "en": "I've eaten."
+        },
+        {
+          "zh": "他昨天去上海了。",
+          "py": "tā zuó tiān qù shàng hǎi le",
+          "en": "He went to Shanghai yesterday."
+        },
+        {
+          "zh": "我买了那本词典。",
+          "py": "wǒ mǎi le nà běn cí diǎn",
+          "en": "I bought that dictionary."
+        }
+      ],
+      "note": "This is a tendency, not a law: a specific object (那本词典) is fine after 了, and 我吃了饭 is fine when more follows (see the sequence pattern). Drill items should use counted or clearly specific objects when testing the position after the verb."
+    },
+    {
+      "sub": "sentence-le",
+      "rule": "If the sentence means 'it is now so, and it was not before', end it with 了. This works after adjectives, ages, times and 会/能/可以.",
+      "pattern": "Subject + adjective / Verb phrase / number phrase + 了",
+      "examples": [
+        {
+          "zh": "下雨了。",
+          "py": "xià yǔ le",
+          "en": "It's raining now. (It has started to rain.)"
+        },
+        {
+          "zh": "我饿了,我们去吃饭吧。",
+          "py": "wǒ è le wǒ men qù chī fàn ba",
+          "en": "I'm hungry now, let's go and eat."
+        },
+        {
+          "zh": "他会开车了。",
+          "py": "tā huì kāi chē le",
+          "en": "He can drive now."
+        },
+        {
+          "zh": "我女儿八岁了。",
+          "py": "wǒ nǚ ér bā suì le",
+          "en": "My daughter is eight now."
+        }
+      ],
+      "note": "Without 了 these are plain descriptions (他会开车 = he can drive); 了 adds 'this is new'."
+    },
+    {
+      "sub": "sentence-le",
+      "rule": "Something about to happen is a change on its way: 快 / 要 / 快要 / 就要 … 了.",
+      "pattern": "Subject + 快(要) / 就要 + Verb phrase + 了",
+      "examples": [
+        {
+          "zh": "火车快要开了。",
+          "py": "huǒ chē kuài yào kāi le",
+          "en": "The train is about to leave."
+        },
+        {
+          "zh": "我们快到了。",
+          "py": "wǒ men kuài dào le",
+          "en": "We're almost there."
+        },
+        {
+          "zh": "他们下个月就要结婚了。",
+          "py": "tā men xià ge yuè jiù yào jié hūn le",
+          "en": "They are getting married next month."
+        }
+      ]
+    },
+    {
+      "sub": "double-le",
+      "rule": "For 'have done this much so far' (and it is still going on or still counts now), use 了 after the verb and again at the end. One 了 only gives the amount of an action that is over.",
+      "pattern": "Subject + (已经) + Verb + 了 + duration / amount + (Object) + 了",
+      "examples": [
+        {
+          "zh": "我学了两年中文了。",
+          "py": "wǒ xué le liǎng nián zhōng wén le",
+          "en": "I've been studying Chinese for two years (and still am)."
+        },
+        {
+          "zh": "他已经喝了三杯咖啡了。",
+          "py": "tā yǐ jīng hē le sān bēi kā fēi le",
+          "en": "He has already had three cups of coffee (so far)."
+        },
+        {
+          "zh": "我们等了半个小时了,他还没来。",
+          "py": "wǒ men děng le bàn ge xiǎo shí le tā hái méi lái",
+          "en": "We've been waiting for half an hour and he still hasn't come."
+        },
+        {
+          "zh": "我以前在上海住了三年。",
+          "py": "wǒ yǐ qián zài shàng hǎi zhù le sān nián",
+          "en": "I lived in Shanghai for three years (in the past)."
+        }
+      ],
+      "note": "The single-了 sentence is normally understood as finished, but only context (以前, 去年, what comes next) makes that certain. With 已经, the final 了 is expected."
+    },
+    {
+      "sub": "sequence",
+      "rule": "For 'after A, then B', put 了 after the first verb, before its object. This 了 means 'once A is done', so it is used for future plans too.",
+      "pattern": "Subject + Verb1 + 了 + Object1 + 就 / 再 + Verb2",
+      "examples": [
+        {
+          "zh": "我吃了饭就走。",
+          "py": "wǒ chī le fàn jiù zǒu",
+          "en": "I'll leave as soon as I've eaten."
+        },
+        {
+          "zh": "你下了课给我打电话。",
+          "py": "nǐ xià le kè gěi wǒ dǎ diàn huà",
+          "en": "Call me after class."
+        },
+        {
+          "zh": "洗了手再吃饭。",
+          "py": "xǐ le shǒu zài chī fàn",
+          "en": "Wash your hands before you eat."
+        },
+        {
+          "zh": "他昨天下了班就回家了。",
+          "py": "tā zuó tiān xià le bān jiù huí jiā le",
+          "en": "Yesterday he went home right after work."
+        }
+      ],
+      "note": "When the whole sequence is in the past, a second 了 normally closes the sentence, as in the last example. 就 = straight after; 再 = only then."
+    },
+    {
+      "sub": "no-le-habitual",
+      "rule": "Habits and repeated actions take no 了, even when they are in the past. Words like 每天, 常常, 经常, 总是 and 一般 are the signal.",
+      "pattern": "Subject + (以前 / 小时候) + 每天 / 常常 + Verb + Object",
+      "examples": [
+        {
+          "zh": "我每天早上喝咖啡。",
+          "py": "wǒ měi tiān zǎo shang hē kā fēi",
+          "en": "I drink coffee every morning."
+        },
+        {
+          "zh": "他以前常常迟到。",
+          "py": "tā yǐ qián cháng cháng chí dào",
+          "en": "He often used to be late."
+        },
+        {
+          "zh": "小时候我每个星期天都去奶奶家。",
+          "py": "xiǎo shí hou wǒ měi ge xīng qī tiān dōu qù nǎi nai jiā",
+          "en": "When I was little I went to my grandmother's every Sunday."
+        }
+      ],
+      "note": "A final 了 is possible when the habit itself is new (我现在每天跑步了 = I now run every day). That is the change-of-state 了, not this pattern."
+    },
+    {
+      "sub": "no-le-mei",
+      "rule": "To say an action did not happen, use 没(有) + verb and drop 了. Never 不 + verb + 了 for 'did not'.",
+      "pattern": "Subject + (还) + 没(有) + Verb + Object",
+      "examples": [
+        {
+          "zh": "我昨天没去。",
+          "py": "wǒ zuó tiān méi qù",
+          "en": "I didn't go yesterday."
+        },
+        {
+          "zh": "他还没吃饭。",
+          "py": "tā hái méi chī fàn",
+          "en": "He hasn't eaten yet."
+        },
+        {
+          "zh": "我没买那本书。",
+          "py": "wǒ méi mǎi nà běn shū",
+          "en": "I didn't buy that book."
+        }
+      ],
+      "note": "没 and 了 do meet in two other patterns that are not negated completed actions: 没有 + noun + 了 (我没有钱了, I'm out of money) and time + 没 + verb + 了 (我三天没睡觉了, I haven't slept for three days)."
+    },
+    {
+      "sub": "no-le-stative",
+      "rule": "A past state is not an event. 是, 在, 有, 喜欢, 想, 知道, 觉得 and adjectives take no 了 when you only describe how things were; the time word shows the past.",
+      "pattern": "Time + Subject + 是 / 在 / 喜欢 / 觉得 / 很 + adjective (no 了)",
+      "examples": [
+        {
+          "zh": "昨天很冷。",
+          "py": "zuó tiān hěn lěng",
+          "en": "It was cold yesterday."
+        },
+        {
+          "zh": "他去年是我的老师。",
+          "py": "tā qù nián shì wǒ de lǎo shī",
+          "en": "He was my teacher last year."
+        },
+        {
+          "zh": "我小时候很喜欢游泳。",
+          "py": "wǒ xiǎo shí hou hěn xǐ huan yóu yǒng",
+          "en": "I really liked swimming when I was little."
+        },
+        {
+          "zh": "我觉得那个电影很有意思。",
+          "py": "wǒ jué de nà ge diàn yǐng hěn yǒu yì si",
+          "en": "I thought that film was interesting."
+        }
+      ],
+      "note": "The same words can take a final 了 when the state is new: 天冷了 (it has turned cold), 我知道了 (now I know, got it). What is never right is 了 directly after 是, 在 or 觉得 to mean 'was' or 'thought'."
+    },
+    {
+      "sub": "tai-le",
+      "rule": "太 + adjective as a remark ('so ...!', 'too ...') ends in 了. 很, 非常 and 不太 do not take it.",
+      "pattern": "Subject + 太 + adjective + 了",
+      "examples": [
+        {
+          "zh": "这件衣服太贵了。",
+          "py": "zhè jiàn yī fu tài guì le",
+          "en": "This piece of clothing is too expensive."
+        },
+        {
+          "zh": "太好了!",
+          "py": "tài hǎo le",
+          "en": "That's great!"
+        },
+        {
+          "zh": "你太客气了。",
+          "py": "nǐ tài kè qi le",
+          "en": "You're too kind."
+        },
+        {
+          "zh": "今天不太冷。",
+          "py": "jīn tiān bù tài lěng",
+          "en": "It's not very cold today."
+        }
+      ],
+      "note": "In speech 了 is sometimes dropped, and it is not used when 太 + adjective is only part of a larger phrase (太贵的东西我不买). As a complete remark, include it."
+    },
+    {
+      "sub": "bu-le",
+      "rule": "'Not any more' or 'not after all' is 不 + verb/adjective + 了, with 了 at the end. 'Have none left' is 没有 + noun + 了.",
+      "pattern": "Subject + 不 + (想 / 能 / 会) + Verb + (Object) + 了",
+      "examples": [
+        {
+          "zh": "我不喝酒了。",
+          "py": "wǒ bù hē jiǔ le",
+          "en": "I don't drink any more."
+        },
+        {
+          "zh": "他不在这儿工作了。",
+          "py": "tā bù zài zhè r gōng zuò le",
+          "en": "He doesn't work here any more."
+        },
+        {
+          "zh": "太晚了,我不去了。",
+          "py": "tài wǎn le wǒ bù qù le",
+          "en": "It's too late, I'm not going after all."
+        },
+        {
+          "zh": "我没有钱了。",
+          "py": "wǒ méi yǒu qián le",
+          "en": "I have no money left."
+        }
+      ],
+      "note": "Compare 我没去 (I didn't go: a fact about the past) with 我不去了 (I've changed my mind and am not going)."
+    }
+  ],
+  "contrasts": [
+    {
+      "wrong": "我昨天买三本书。",
+      "right": {
+        "zh": "我昨天买了三本书。",
+        "py": "wǒ zuó tiān mǎi le sān běn shū",
+        "en": "I bought three books yesterday."
+      },
+      "why": "昨天 gives the time but does not mark the action as done. One finished event with a counted object needs 了 right after the verb."
+    },
+    {
+      "wrong": "我昨天没去了。",
+      "right": {
+        "zh": "我昨天没去。",
+        "py": "wǒ zuó tiān méi qù",
+        "en": "I didn't go yesterday."
+      },
+      "why": "没 already says the action did not happen, so there is nothing for 了 to mark as completed."
+    },
+    {
+      "wrong": "我每天早上喝了咖啡。",
+      "right": {
+        "zh": "我每天早上喝咖啡。",
+        "py": "wǒ měi tiān zǎo shang hē kā fēi",
+        "en": "I drink coffee every morning."
+      },
+      "why": "每天 makes this a routine, not one finished event. Habits take no 了."
+    },
+    {
+      "wrong": "昨天很冷了。",
+      "right": {
+        "zh": "昨天很冷。",
+        "py": "zuó tiān hěn lěng",
+        "en": "It was cold yesterday."
+      },
+      "why": "English 'was' tempts you to add 了, but this describes a state. 昨天 already shows it is past."
+    },
+    {
+      "wrong": "他以前是了我的老师。",
+      "right": {
+        "zh": "他以前是我的老师。",
+        "py": "tā yǐ qián shì wǒ de lǎo shī",
+        "en": "He used to be my teacher."
+      },
+      "why": "是 is not an action that can be completed; 是了 never means 'was'. 以前 carries the past."
+    },
+    {
+      "wrong": "我吃饭了就去找你。",
+      "right": {
+        "zh": "我吃了饭就去找你。",
+        "py": "wǒ chī le fàn jiù qù zhǎo nǐ",
+        "en": "I'll come and find you as soon as I've eaten."
+      },
+      "why": "In 'after A, then B', 了 goes straight after the first verb, before its object, even though this is about the future."
+    },
+    {
+      "wrong": "我学了两年中文。",
+      "right": {
+        "zh": "我学了两年中文了。",
+        "py": "wǒ xué le liǎng nián zhōng wén le",
+        "en": "I've been studying Chinese for two years (and still am)."
+      },
+      "why": "The one-了 sentence is grammatical but says the wrong thing: the two years sound like a closed chapter. For 'so far, and still going' add the second 了 at the end."
+    },
+    {
+      "wrong": "太好!",
+      "right": {
+        "zh": "太好了!",
+        "py": "tài hǎo le",
+        "en": "That's great!"
+      },
+      "why": "An exclamation with 太 is closed by 了; without it the remark sounds cut off."
+    },
+    {
+      "wrong": "我已经不住在北京。",
+      "right": {
+        "zh": "我已经不住在北京了。",
+        "py": "wǒ yǐ jīng bù zhù zài běi jīng le",
+        "en": "I don't live in Beijing any more."
+      },
+      "why": "'No longer' is a change of situation, so 不 … needs 了 at the end. Without 了 it is only a plain 'don't', which does not fit 已经."
+    },
+    {
+      "wrong": "下雨,我们别出去了。",
+      "right": {
+        "zh": "下雨了,我们别出去了。",
+        "py": "xià yǔ le wǒ men bié chū qù le",
+        "en": "It's raining, let's not go out."
+      },
+      "why": "The rain is a new situation, so the clause needs 了 at the end. Bare 下雨 does not report that it has started."
+    }
+  ],
+  "cheat": [
+    "One finished event with a number or duration? 了 goes right after the verb, before the number.",
+    "Something is different now (now hungry, now eight, now able, about to)? 了 at the very end.",
+    "'So far, and still going' or 已经 + amount? Two 了: after the verb and at the end.",
+    "'After A, then B' with 就 or 再? Verb + 了 + object in the first half, past or future.",
+    "每天, 常常, 总是, or a past state with 是 / 在 / 喜欢 / 觉得 / 很 + adjective? No 了.",
+    "没 + verb means it did not happen: delete 了.",
+    "太 … 了 for 'so / too'; 不 … 了 for 'not any more'."
+  ]
+}
