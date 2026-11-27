@@ -141,9 +141,22 @@ export function build(item, mode, rng = Math.random) {
     typed: uniq([...accepted(slot), ...slot.kana]),
     ruby,
   };
+  if (item.ask === 'reading') {
+    // The kanji word is shown (cue) and its reading is the answer.
+    ex.cue = slot.a;
+    ex.accepted = uniq(slot.kana);
+    ex.answer = ex.accepted[0];
+    ex.typed = ex.accepted;
+    ex.bare = true; // options are plain readings; `ruby` is for the feedback line
+    slot.kana.forEach((k, i) => (ruby[k] = slot.raw[i]));
+  } else if (item.ask === 'kanji') {
+    // The reading is shown (cue) and the written form is chosen, without furigana.
+    ex.cue = slot.kana[0];
+    ex.bare = true;
+  }
   if (mode === 'meet' || mode === 'choose' || mode === 'speed') {
     const wrong = shuffle(wrongs, rng).slice(0, mode === 'meet' ? 2 : 3);
-    ex.options = shuffle([slot.a, ...wrong], rng);
+    ex.options = shuffle([ex.answer, ...wrong], rng);
   } else if (mode === 'fill') {
     const chips = p.slots.map((sl) => sl.a);
     const extra = shuffle(

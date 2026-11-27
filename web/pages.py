@@ -27,6 +27,8 @@ PAGES = (
     ('/counter-drill', 'counter_drill_page', 'counter_drill.html'),
     ('/particle-drill', 'particle_drill_page', 'particle_drill.html'),
     ('/conjugation-drill', 'conjugation_drill_page', 'conjugation_drill.html'),
+    ('/grammar-drill', 'grammar_drill_page', 'grammar_drill.html'),
+    ('/reading-drill', 'reading_drill_page', 'reading_drill.html'),
     ('/dual-translation', 'dual_translation_page', 'dual_translation.html'),
     ('/dual-translation/profile', 'dual_translation_profile_page', 'dual_translation_profile.html'),
     # Knowledge Report ("My vocabulary"); always on.

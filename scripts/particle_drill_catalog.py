@@ -480,27 +480,31 @@ STAGES = [
 ]
 
 
-def build():
+def build(stage_rows=None, target_total=None):
+    stage_rows = STAGES if stage_rows is None else stage_rows
+    target_total = TARGET_TOTAL if target_total is None else target_total
     stages, skills, total = [], [], 0
-    for sid, stitle, blurb, groups in STAGES:
+    for sid, stitle, blurb, groups in stage_rows:
         gout = []
         for gid, display, name, rows in groups:
             ids = []
             for row in rows:
-                kid, particle, title, lv, n, conf, packs = row
+                kid, particle, title, lv, n, conf, packs = row[:7]
                 ids.append(kid)
                 skills.append({'id': kid, 'group': gid, 'stage': sid, 'p': particle,
                                'title': title, 'lv': lv, 'n': n,
                                'conf': conf.split(), 'packs': packs})
+                if len(row) > 7:
+                    skills[-1]['ask'] = row[7]
                 total += n
             gout.append({'id': gid, 'p': display, 'name': name, 'skills': ids})
         stages.append({'id': sid, 'title': stitle, 'blurb': blurb, 'groups': gout})
     # The rows above are relative weights; scale them to TARGET_TOTAL exactly
     # (multiples of 5, at least 20 a skill, remainder on the largest skills).
-    factor = TARGET_TOTAL / total
+    factor = target_total / total
     for s in skills:
         s['n'] = max(20, int(round(s['n'] * factor / 5.0)) * 5)
-    diff = TARGET_TOTAL - sum(s['n'] for s in skills)
+    diff = target_total - sum(s['n'] for s in skills)
     big = sorted(skills, key=lambda s: -s['n'])
     i = 0
     while diff:

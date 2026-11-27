@@ -32,6 +32,7 @@ import {
   shuffle,
 } from '../particles/exercises.js';
 import { answerMatches, romajiToKana } from '../particles/kana.js';
+import { CATS, CAT_IDS, generate } from '../particles/numbers.js';
 import { esc, parse, toHtml } from '../particles/markup.js';
 import * as M from '../particles/mastery.js';
 import { createStore } from '../particles/store.js';
@@ -77,6 +78,19 @@ const MODE_NAME = {
   speed: ['level_speed', 'Speed'],
 };
 const modeName = (m) => t(...MODE_NAME[m]);
+// The grammar course and its kanji skills word the task differently.
+const INSTRUCTION_GRAMMAR = {
+  meet: ['ask_choose_g', 'Choose what fits.'],
+  choose: ['ask_choose_g', 'Choose what fits.'],
+  speed: ['ask_speed', 'Choose. Fast.'],
+  type: ['ask_type_g', 'Type what fits.'],
+  fill: ['ask_fill_g', 'Fill in every blank.'],
+  fix: ['ask_fix_g', 'One part is wrong. Tap it.'],
+};
+const INSTRUCTION_ASK = {
+  reading: ['ask_reading', 'How is the marked word read?'],
+  kanji: ['ask_kanji', 'Which is the right writing?'],
+};
 const INSTRUCTION = {
   meet: ['ask_choose', 'Choose the particle.'],
   choose: ['ask_choose', 'Choose the particle.'],
@@ -97,13 +111,19 @@ const app = {
   bundles: new Map(), // id -> promise of the skill payload
   conj: null, // conjugation payload
   myWords: null, // the learner's own verbs and adjectives
+  reading: null, // word lists of the reading drill
+  course: '', // '' (particles) or 'grammar'
   session: null,
   timers: [],
 };
 
 async function getJson(path) {
+  const course =
+    app.course && (path === '/catalog' || path.startsWith('/skill/'))
+      ? `&course=${app.course}`
+      : '';
   const resp = await window.authFetch(
-    `${API}${path}${path.includes('?') ? '&' : '?'}language_id=${LANGUAGE_ID}`
+    `${API}${path}${path.includes('?') ? '&' : '?'}language_id=${LANGUAGE_ID}${course}`
   );
   if (!resp.ok) throw new Error(`particle drill request failed: ${resp.status}`);
   return resp.json();
@@ -111,10 +131,16 @@ async function getJson(path) {
 
 function loadSkill(id) {
   if (!app.bundles.has(id)) {
-    const p = getJson(`/skill/${encodeURIComponent(id)}`).catch((err) => {
-      app.bundles.delete(id);
-      throw err;
-    });
+    const p = getJson(`/skill/${encodeURIComponent(id)}`)
+      .then((b) => {
+        // Kanji skills: every item of the skill is asked the same way.
+        if (b.skill && b.skill.ask) b.items.forEach((it) => (it.ask = b.skill.ask));
+        return b;
+      })
+      .catch((err) => {
+        app.bundles.delete(id);
+        throw err;
+      });
     app.bundles.set(id, p);
   }
   return app.bundles.get(id);
@@ -140,8 +166,22 @@ async function loadMyWords() {
 
 const MIN_OWN_WORDS = 8; // below this the level lists are switched on as well
 const isConjHome = () => !!app.root && app.root.dataset.home === 'conj';
-const conjHome = () => (isConjHome() ? '#/' : '#/conj');
+const isReadHome = () => !!app.root && app.root.dataset.home === 'read';
+const conjHome = () => (isConjHome() || isReadHome() ? '#/' : '#/conj');
 const conjDrill = () => (isConjHome() ? '#/drill' : '#/conj/drill');
+
+/** Word lists of the reading drill (katakana); empty when the request fails. */
+async function loadReading() {
+  if (!app.reading) {
+    try {
+      app.reading = await getJson('/reading');
+    } catch (err) {
+      console.error('reading drill: word list unavailable', err);
+      return { katakana: [] };
+    }
+  }
+  return app.reading;
+}
 
 /** Chosen word pools: 'mine' and / or JLPT levels 5, 4, 3. */
 function conjPools(mine) {
@@ -281,7 +321,15 @@ function renderHub() {
       </div>
       <div class="pd-actions">
         <a class="ld-btn" href="#/mix">${esc(t('hub_mix', 'Daily mix'))}<small>${esc(t('hub_mix_sub', 'due reviews and what you are learning'))}</small></a>
+        ${
+          app.course === 'grammar'
+            ? `<a class="ld-btn ld-btn--ghost" href="/particle-drill">${esc(t('hub_particles', 'Particles'))}<small>${esc(t('hub_particles_sub', 'は, が, を, に … the other ladder'))}</small></a>`
+            : `<a class="ld-btn ld-btn--ghost" href="/grammar-drill">${esc(t('hub_grammar', 'Grammar'))}<small>${esc(t('hub_grammar_sub', 'patterns, keigo, あげる・くれる, kanji readings …'))}</small></a>`
+        }
+      </div>
+      <div class="pd-actions">
         <a class="ld-btn ld-btn--ghost" href="/conjugation-drill">${esc(t('hub_conj', 'Conjugation gym'))}<small>${esc(t('hub_conj_sub', 'て, ない, potential, passive …'))}</small></a>
+        <a class="ld-btn ld-btn--ghost" href="/reading-drill">${esc(t('hub_read', 'Numbers and kana'))}<small>${esc(t('hub_read_sub', 'prices, times, dates, カタカナ'))}</small></a>
       </div>
       <label class="pd-furi"><input type="checkbox" id="pdFuri"${furiganaOn() ? ' checked' : ''}> ${esc(t('furigana', 'Show furigana'))}</label>
       <h2 class="ld-sech">${esc(t('hub_path', 'The ladder'))}</h2>
@@ -442,9 +490,11 @@ function renderDrillShell() {
     {
       title: only
         ? only.p
-        : ses.kind === 'conj'
-          ? t('conj_title', 'Conjugation')
-          : t('hub_mix', 'Daily mix'),
+        : ses.gen === 'read'
+          ? t('read_title', 'Numbers and kana')
+          : ses.kind === 'conj'
+            ? t('conj_title', 'Conjugation')
+            : t('hub_mix', 'Daily mix'),
       dock: `
       <div class="pd-feedback" id="pdFeedback" role="status" aria-live="polite" hidden></div>
       <button type="button" class="ld-btn ld-btn--block" id="pdCheck" hidden>${esc(t('check', 'Check'))}</button>
@@ -541,7 +591,10 @@ function renderQuestion(q) {
   $('#pdSkillName').textContent = isInterleaved(ses) ? '' : skill.title;
   $('#pdCount').textContent = String(Math.min(ses.done, ses.roundSize));
   $('#pdFill').style.width = `${Math.min(100, (ses.done / ses.roundSize) * 100)}%`;
-  $('#pdAsk').textContent = t(...INSTRUCTION[mode]);
+  const asks =
+    (q.item.ask && mode !== 'speed' && INSTRUCTION_ASK[q.item.ask]) ||
+    (app.course === 'grammar' ? INSTRUCTION_GRAMMAR : INSTRUCTION)[mode];
+  $('#pdAsk').textContent = t(...asks);
   $('#pdFeedback').hidden = true;
   $('#pdNext').hidden = true;
   $('#pdCheck').hidden = true;
@@ -566,11 +619,16 @@ function drawSentence(q, slotHtml) {
 }
 
 const blank = (cls = '') => `<span class="pd-blank ${cls}">&nbsp;</span>`;
+/** The focus blank: empty, or (kanji skills) the word or the reading that is asked about. */
+const focusBlank = (q) =>
+  q.ex.cue ? `<span class="pd-blank is-focus is-cue">${esc(q.ex.cue)}</span>` : blank('is-focus');
 const focusOnly = (q, focusHtml) => (slot, i) =>
   i === q.ex.focus ? focusHtml : `<span class="pd-other">${rubyHtml(slot.raw[0])}</span>`;
 
 function optionsHtml(options, render = esc) {
-  return `<div class="pd-options">${options
+  // Long answers (whole readings, verb phrases) get a row each.
+  const wide = options.some((o) => String(o).length > 5);
+  return `<div class="pd-options${wide ? ' pd-options--wide' : ''}">${options
     .map(
       (o, i) =>
         `<button type="button" class="ld-opt pd-opt" data-i="${i}" lang="ja"><span class="ld-opt__key" aria-hidden="true">${i + 1}</span><span class="pd-opt__t${String(o).length > 4 ? ' is-long' : ''}">${render(o)}</span></button>`
@@ -580,8 +638,8 @@ function optionsHtml(options, render = esc) {
 
 function askChoice(q) {
   const ses = app.session;
-  drawSentence(q, focusOnly(q, blank('is-focus')));
-  $('#pdAnswer').innerHTML = optionsHtml(q.ex.options, (o) => rb(q.ex, o));
+  drawSentence(q, focusOnly(q, focusBlank(q)));
+  $('#pdAnswer').innerHTML = optionsHtml(q.ex.options, q.ex.bare ? esc : (o) => rb(q.ex, o));
   const choose = (i) => {
     if (q.answered || i >= q.ex.options.length) return;
     const picked = q.ex.options[i];
@@ -656,8 +714,14 @@ function bindTyped(submit) {
 }
 
 function askTyped(q) {
-  drawSentence(q, focusOnly(q, blank('is-focus')));
-  $('#pdAnswer').innerHTML = typedInputHtml(t('typed_placeholder', 'particle'));
+  drawSentence(q, focusOnly(q, focusBlank(q)));
+  $('#pdAnswer').innerHTML = typedInputHtml(
+    q.item.ask === 'reading'
+      ? t('typed_reading', 'reading')
+      : app.course === 'grammar'
+        ? t('typed_answer', 'answer')
+        : t('typed_placeholder', 'particle')
+  );
   bindTyped((value, input) => {
     if (q.answered) return;
     input.disabled = true;
@@ -866,7 +930,9 @@ function finishRound() {
   app.store.flush();
   const label = (e) =>
     ses.kind === 'conj'
-      ? FORMS[e.skillId].label
+      ? e.skillId.startsWith('read:')
+        ? CATS[e.skillId.slice(5)].label
+        : FORMS[e.skillId].label
       : `${ses.bundles.get(e.skillId).skill.p} · ${ses.bundles.get(e.skillId).skill.title}`;
   const max = ses.kind === 'conj' ? CONJ_MAX_LEVEL : M.MAX_LEVEL;
   const events = ses.events
@@ -1032,6 +1098,102 @@ async function startConj() {
   newRound();
 }
 
+async function renderRead() {
+  const title = t('read_title', 'Numbers and kana');
+  setView(`<p class="drill-msg">${esc(t('loading', 'Loading…'))}</p>`, { title });
+  const lists = await loadReading();
+  const hasKata = (lists.katakana || []).length >= 4;
+  const cats = CAT_IDS.filter((id) => id !== 'kata' || hasKata);
+  const chosen = new Set(
+    app.store
+      .setting('readCats', ['num100', 'price', 'time', 'date'])
+      .filter((c) => cats.includes(c))
+  );
+  const mode = app.store.setting('conjMode', 'auto');
+  const chip = (id) => {
+    const s = conjState(`read:${id}`);
+    return `<button type="button" class="ld-chip pd-form" data-form="${id}" aria-pressed="${chosen.has(id)}">
+      <b lang="ja">${esc(CATS[id].label)}</b><small>${esc(t(`read_cat_${id}`, CATS[id].hint))}</small>${pips(s.n ? s.l : 0, CONJ_MAX_LEVEL)}</button>`;
+  };
+  const notes = cats
+    .map(
+      (id) =>
+        `<div class="pd-readnote"><b lang="ja">${esc(CATS[id].label)}</b><span lang="ja">${esc(CATS[id].note)}</span></div>`
+    )
+    .join('');
+  setView(
+    `<div class="pd-conj">
+      <p class="ld-hint">${esc(t('read_intro', 'Read it the moment you see it. Every number, time and date is generated, so it never runs out; three rungs: Choose, Type, Speed.'))}</p>
+      <h2 class="ld-sech">${esc(t('read_cats', 'What to read'))}</h2>
+      <div class="pd-forms">${cats.map(chip).join('')}</div>
+      <h2 class="ld-sech">${esc(t('read_rules', 'The readings that trip people up'))}</h2>
+      <div class="ld-card pd-group pd-readnotes">${notes}</div>
+    </div>`,
+    {
+      title,
+      dock: `<div class="ld-seg pd-modes" role="group">${['auto', 'choose', 'type', 'speed']
+        .map(
+          (m) =>
+            `<button type="button" data-mode="${m}" aria-pressed="${m === mode}" class="${m === mode ? 'active' : ''}">${esc(modeName(m))}</button>`
+        )
+        .join('')}</div>
+        <button type="button" class="ld-btn ld-btn--block" id="pdConjStart">${esc(t('drill_start', 'Start drilling'))}</button>`,
+    }
+  );
+  $$('.pd-form').forEach((btn) =>
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.form;
+      if (chosen.has(id)) chosen.delete(id);
+      else chosen.add(id);
+      btn.setAttribute('aria-pressed', String(chosen.has(id)));
+      app.store.setSetting('readCats', Array.from(chosen));
+      $('#pdConjStart').disabled = !chosen.size;
+    })
+  );
+  $$('.pd-modes button').forEach((btn) =>
+    btn.addEventListener('click', () => {
+      app.store.setSetting('conjMode', btn.dataset.mode);
+      $$('.pd-modes button').forEach((b) => {
+        b.classList.toggle('active', b === btn);
+        b.setAttribute('aria-pressed', String(b === btn));
+      });
+    })
+  );
+  $('#pdConjStart').disabled = !chosen.size;
+  $('#pdConjStart').addEventListener('click', () => go('#/drill'));
+}
+
+async function startRead() {
+  const lists = await loadReading();
+  const hasKata = (lists.katakana || []).length >= 4;
+  const cats = app.store
+    .setting('readCats', ['num100', 'price', 'time', 'date'])
+    .filter((c) => CATS[c] && (c !== 'kata' || hasKata));
+  if (!cats.length) return go('#/');
+  app.session = {
+    kind: 'conj',
+    gen: 'read',
+    forms: cats.map((c) => `read:${c}`),
+    lists,
+    mode: app.store.setting('conjMode', 'auto'),
+    roundSize: MIX_ROUND,
+    total: 0,
+    recent: [],
+  };
+  newRound();
+}
+
+/** A generated reading question in the shape the conjugation drill uses. */
+function nextReadQuestion(ses, form) {
+  const cat = form.slice(5);
+  let gen = generate(cat, Math.random, ses.lists);
+  for (let tries = 0; tries < 10 && gen && ses.recent.includes(gen.show); tries++)
+    gen = generate(cat, Math.random, ses.lists);
+  ses.recent.push(gen.show);
+  if (ses.recent.length > 15) ses.recent.shift();
+  return { skillId: form, gen };
+}
+
 function nextConjQuestion(ses) {
   // Weakest forms come up more often.
   const weights = ses.forms.map((f) => {
@@ -1047,6 +1209,7 @@ function nextConjQuestion(ses) {
       break;
     }
   }
+  if (ses.gen === 'read') return nextReadQuestion(ses, form);
   const pool = form.startsWith('adj_') ? ses.adjs : ses.verbs;
   let word = pool[0];
   for (let tries = 0; tries < 30; tries++) {
@@ -1064,21 +1227,26 @@ function nextConjQuestion(ses) {
 function renderConjQuestion(q) {
   const ses = app.session;
   const s = conjState(q.skillId);
-  const form = FORMS[q.skillId];
+  const cat = q.gen ? CATS[q.gen.cat] : null;
+  const form = cat ? { label: cat.label, hint: '' } : FORMS[q.skillId];
   let level = Math.min(s.l, CONJ_MAX_LEVEL);
   let counts = true;
   if (ses.mode !== 'auto') {
     level = { choose: 1, type: 2, speed: 3 }[ses.mode];
     counts = false;
   }
-  const mode = { 1: 'choose', 2: 'type', 3: 'speed' }[level];
-  const right = conjugate(q.word, q.skillId);
+  let mode = { 1: 'choose', 2: 'type', 3: 'speed' }[level];
+  // Katakana is matched to its meaning: there is nothing to type.
+  if (cat && cat.choiceOnly && mode === 'type') mode = 'choose';
+  const right = q.gen
+    ? { kanji: [q.gen.readings[0]], kana: [q.gen.readings[0]] }
+    : conjugate(q.word, q.skillId);
   Object.assign(q, {
     level,
     mode,
     counts,
     right,
-    accepted: acceptedAnswers(q.word, q.skillId),
+    accepted: q.gen ? q.gen.readings : acceptedAnswers(q.word, q.skillId),
     answered: false,
     started: performance.now(),
   });
@@ -1086,15 +1254,20 @@ function renderConjQuestion(q) {
   $('#pdSkillName').textContent = '';
   $('#pdCount').textContent = String(Math.min(ses.done, ses.roundSize));
   $('#pdFill').style.width = `${Math.min(100, (ses.done / ses.roundSize) * 100)}%`;
-  $('#pdAsk').textContent = t('conj_ask', 'Give this form:');
+  $('#pdAsk').textContent = !q.gen
+    ? t('conj_ask', 'Give this form:')
+    : q.gen.meaning
+      ? t('read_ask_meaning', 'What does it mean?')
+      : t('read_ask', 'Read it:');
   $('#pdFeedback').hidden = true;
   $('#pdNext').hidden = true;
   $('#pdCheck').hidden = true;
   $('#pdClock').hidden = mode !== 'speed';
-  $('#pdSentence').innerHTML =
-    `<span class="pd-word"><ruby>${esc(q.word.d)}<rt>${esc(q.word.d === q.word.k ? '' : q.word.k)}</rt></ruby></span>
+  $('#pdSentence').innerHTML = q.gen
+    ? `<span class="pd-word pd-word--read">${esc(q.gen.show)}</span>`
+    : `<span class="pd-word"><ruby>${esc(q.word.d)}<rt>${esc(q.word.d === q.word.k ? '' : q.word.k)}</rt></ruby></span>
     <span class="pd-arrow" aria-hidden="true">→</span><span class="pd-target">${esc(form.label)}<small>${esc(form.hint)}</small></span>`;
-  $('#pdEn').textContent = q.word.en || '';
+  $('#pdEn').textContent = q.gen ? '' : q.word.en || '';
   $('#pdEn').classList.remove('is-hidden');
   ses.onKey = null;
   ses.onCheck = null;
@@ -1107,7 +1280,10 @@ function renderConjQuestion(q) {
     });
     return;
   }
-  const options = shuffle([right.kanji[0], ...distractors(q.word, q.skillId, 3)]);
+  const options = shuffle([
+    right.kanji[0],
+    ...(q.gen ? q.gen.wrong : distractors(q.word, q.skillId, 3)),
+  ]);
   q.options = options;
   $('#pdAnswer').innerHTML = optionsHtml(options);
   const choose = (i) => {
@@ -1166,10 +1342,11 @@ function settleConj(q, correct, given, timedOut = false) {
   }
   ses.streak = correct ? ses.streak + 1 : 0;
   if (!correct && !q.retry)
-    ses.retry.push({ at: ses.asked + 3, q: { skillId: q.skillId, word: q.word } });
+    ses.retry.push({ at: ses.asked + 3, q: { skillId: q.skillId, word: q.word, gen: q.gen } });
   $('#pdCount').textContent = String(Math.min(ses.done, ses.roundSize));
   $('#pdFill').style.width = `${Math.min(100, (ses.done / ses.roundSize) * 100)}%`;
 
+  if (q.gen) return settleRead(q, correct, given, timedOut);
   const form = FORMS[q.skillId];
   const guide = ses.guide.get(form.guide);
   const answer = q.right.kanji[0];
@@ -1196,6 +1373,27 @@ function settleConj(q, correct, given, timedOut = false) {
   }
 }
 
+/** Feedback of a reading question: the reading, its variants, the rule of the category. */
+function settleRead(q, correct, given, timedOut) {
+  const ses = app.session;
+  const alts = q.gen.readings.slice(1);
+  const fb = $('#pdFeedback');
+  fb.hidden = false;
+  fb.className = `pd-feedback ${correct ? 'is-ok' : 'is-bad'}`;
+  const answer = `<span class="pd-feedback__ans" lang="ja">${esc(q.gen.show)} <b>${esc(q.gen.readings[0])}</b>${alts.length && !q.gen.meaning ? ` <small>(${esc(t('fb_also', 'also'))} ${esc(alts.join('、'))})</small>` : ''}</span>`;
+  fb.innerHTML = correct
+    ? `<b>${esc(ses.streak >= 3 ? t('fb_streak', '{n} in a row', { n: ses.streak }) : t('fb_right', 'Right'))}</b> ${answer}`
+    : `<b>${esc(timedOut ? t('fb_time', 'Too slow') : t('fb_wrong', 'Not quite'))}</b>
+       ${given && !timedOut ? `<span class="pd-feedback__ans" lang="ja">${esc(given)} →</span>` : ''} ${answer}
+       <span class="pd-feedback__why" lang="ja">${esc(CATS[q.gen.cat].note)}</span>`;
+  if (correct) later(advance, q.event ? 1300 : 700);
+  else {
+    const next = $('#pdNext');
+    next.hidden = false;
+    next.focus();
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Routing and start-up
 // ---------------------------------------------------------------------------
@@ -1210,6 +1408,12 @@ async function route() {
   if (app.session) app.store.flush();
   app.session = null;
   try {
+    if (isReadHome()) {
+      // /reading-drill: numbers, times, dates and katakana.
+      if (view === 'drill') await startRead();
+      else await renderRead();
+      return;
+    }
     if (isConjHome()) {
       // /conjugation-drill: the setup is the home view.
       if (view === 'drill') await startConj();
@@ -1256,12 +1460,13 @@ function onKeydown(e) {
 
 export async function mount(root) {
   app.root = root;
+  app.course = root.dataset.course || '';
   app.store = createStore();
   root.innerHTML = `<p class="drill-msg">${esc(t('loading', 'Loading…'))}</p>`;
   try {
     // The conjugation page needs no particle catalog.
     const [catalog] = await Promise.all([
-      root.dataset.home === 'conj' ? null : getJson('/catalog'),
+      root.dataset.home === 'conj' || root.dataset.home === 'read' ? null : getJson('/catalog'),
       app.store.pull(),
     ]);
     app.catalog = catalog;

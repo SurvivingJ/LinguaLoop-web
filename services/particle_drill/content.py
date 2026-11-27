@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 DATA_ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                           '..', '..', 'data', 'particle_drill'))
 LANGUAGES = {3: 'ja'}          # language_id -> content directory
+COURSES = {None: '', '': '', 'particles': '', 'grammar': '-grammar'}   # course -> directory suffix
 CONJUGATION_LEXICONS = ('verbs', 'adjectives')
 
 _lock = threading.Lock()
@@ -131,8 +132,10 @@ class Content:
         for s in self.catalog['skills']:
             c = counts.get(s['id']) or {}
             skills.append({'id': s['id'], 'group': s['group'], 'stage': s['stage'], 'p': s['p'],
-                           'title': s['title'], 'lv': s['lv'],
+                           'title': s['title'], 'lv': s['lv'], 'conf': s.get('conf') or [],
                            'items': int(c.get('items') or 0), 'packs': int(c.get('packs') or 0)})
+            if s.get('ask'):
+                skills[-1]['ask'] = s['ask']
         return {'version': self.version(), 'stages': self.catalog['stages'], 'skills': skills}
 
     def skill_payload(self, skill_id: str) -> Optional[dict]:
@@ -141,13 +144,19 @@ class Content:
             return None
         group = self.groups.get(skill['group']) or {}
         return {
-            'skill': {k: skill[k] for k in ('id', 'group', 'stage', 'p', 'title', 'lv', 'conf')},
+            'skill': {k: skill[k] for k in ('id', 'group', 'stage', 'p', 'title', 'lv', 'conf', 'ask')
+                      if k in skill},
             'group': {'id': group.get('id'), 'p': group.get('p'), 'name': group.get('name'),
                       'skills': group.get('skills', [])},
             'guide': self.skill_guide(skill_id),
             'items': self.items(skill_id),
             'packs': self.packs(skill_id),
         }
+
+    def reading_payload(self) -> dict:
+        """Word lists of the rule-generated reading drill (numbers need none)."""
+        rows = _read_json(os.path.join(self.root, 'reading', 'katakana.json')) or []
+        return {'katakana': [r for r in rows if isinstance(r, dict) and r.get('k')]}
 
     def conjugation_payload(self) -> dict:
         with self._lock:
@@ -166,11 +175,15 @@ class Content:
             return self._conjugation
 
 
-def get_content(language_id: int) -> Optional[Content]:
-    """The content for a language id, or None when the drill has none for it."""
+def get_content(language_id: int, course: Optional[str] = None) -> Optional[Content]:
+    """The content of a course for a language id, or None when there is none.
+
+    ``course`` is None / 'particles' (the particle course) or 'grammar'.
+    """
     code = LANGUAGES.get(language_id)
-    if not code:
+    if not code or course not in COURSES:
         return None
+    code += COURSES[course]
     with _lock:
         if code not in _cache:
             _cache[code] = Content(os.path.join(DATA_ROOT, code))

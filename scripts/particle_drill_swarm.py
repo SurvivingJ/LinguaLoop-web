@@ -31,11 +31,15 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import particle_drill_validate as validate  # noqa: E402
 
 ROOT = validate.ROOT
-RUN_DIR = os.path.join(REPO, 'data', 'particle_drill', '_run')
+COURSE = validate.COURSE                 # 'ja' (particles) or 'ja-grammar' (PD_COURSE)
+GRAMMAR = COURSE != 'ja'
+RUN_DIR = os.path.join(REPO, 'data', 'particle_drill', '_run' + ('-grammar' if GRAMMAR else ''))
+VALIDATOR = 'grammar_drill_validate.py' if GRAMMAR else 'particle_drill_validate.py'
 THEMES = ['home, family and daily routine', 'school, study and work',
           'travel, transport and the city', 'food, shopping and money',
           'hobbies, sport, nature and health', 'friends, plans, feelings and opinions']
-AUTHOR_MODEL = {'items': 'sonnet', 'guides': 'opus', 'packs': 'opus', 'lex': 'sonnet', 'conj': 'opus'}
+AUTHOR_MODEL = {'items': 'sonnet', 'guides': 'opus', 'packs': 'opus', 'lex': 'sonnet', 'conj': 'opus',
+                'kata': 'sonnet'}
 REVIEW_MODEL = 'opus'
 ALLOWED_TOOLS = 'Read,Write,Edit,Glob,Grep,Bash(python:*),Bash(python3:*),Bash(cd:*),Bash(wc:*),Bash(ls:*)'
 TIMEOUT_S = 45 * 60
@@ -58,7 +62,7 @@ LEX = [
 
 
 def _row(s):
-    return {k: s[k] for k in ('id', 'p', 'title', 'lv', 'conf')}
+    return {k: s[k] for k in ('id', 'p', 'title', 'lv', 'conf', 'ask') if k in s}
 
 
 def _item_counts():
@@ -148,6 +152,9 @@ def build_plan(topup=False, tag=''):
     for i, b in enumerate(pb):
         jobs[f'packs-{i:03d}'] = {'kind': 'packs', 'tasks': b['tasks']}
 
+    if GRAMMAR:
+        jobs['kata-list'] = {'kind': 'kata', 'file': 'reading/katakana.json'}
+        return jobs
     for jid, path, what in LEX:
         jobs[jid] = {'kind': 'lex', 'file': path, 'what': what}
     jobs['conj-guide'] = {'kind': 'conj', 'file': 'conjugation/guide.json'}
@@ -164,6 +171,10 @@ def job_files(job):
 
 # --------------------------------------------------------------------------- prompts
 def common():
+    if GRAMMAR:
+        return f"""You are one member of a content team for a Japanese grammar drill in the repository {REPO}. This is a content-writing task only: do not touch the wiki, do not commit, do not edit any file other than the ones named in your assignment, and do not call any external model API.
+First read {REPO}/data/particle_drill/AUTHORING.md and then {REPO}/data/particle_drill/AUTHORING_GRAMMAR.md in full. Together they define the file formats and the quality rules, and they override your habits; where they differ, AUTHORING_GRAMMAR.md wins. THIS IS THE GRAMMAR COURSE: wherever these instructions say "particle", read "the expression in the slot" (a verb, a pattern, a connector, an adverb, a kanji word ...); one slot per sentence is enough and particles are NOT marked; a skill that covers a set of words rotates its answers over the set. Each task row gives the skill's "title" (the words or patterns it covers) and, for the kanji areas, "ask". Skill ids come from {REPO}/data/particle_drill/{COURSE}/catalog.json (grep it for ids; do not read all of it unless you need to). All content paths below are relative to {REPO}/data/particle_drill/{COURSE}/.
+Validator (read-only): cd {REPO} && python scripts/{VALIDATOR} <relative paths>. It must end with "0 errors" for your files."""
     return f"""You are one member of a content team for a Japanese particle drill in the repository {REPO}. This is a content-writing task only: do not touch the wiki, do not commit, do not edit any file other than the ones named in your assignment, and do not call any external model API.
 First read {REPO}/data/particle_drill/AUTHORING.md in full: it defines the file formats and the quality rules, and it overrides your habits. Skill ids come from {REPO}/data/particle_drill/ja/catalog.json (grep it for ids; do not read all of it unless you need to). All content paths below are relative to {REPO}/data/particle_drill/ja/.
 Validator (read-only): cd {REPO} && python scripts/particle_drill_validate.py <relative paths>. It must end with "0 errors" for your files."""
@@ -195,6 +206,11 @@ YOUR ASSIGNMENT: {plan_path} lists skills with a number of pattern packs each ("
 A pack is a frame whose parts are swapped at random to give endless drill sentences, so EVERY combination must be natural Japanese, must keep every particle answer and alternative correct, and must make every distractor plainly wrong. Design each pack so this holds by construction: pick semantically tight value sets (all places where one can do every listed action; all people who could do them), keep dependent parts inside one value, and avoid values that would make a distractor acceptable. 6 to 10 values per variable, 150+ combinations, English that reads correctly for every combination. Different packs of one skill use clearly different frames. For clinic skills (x-...), build packs whose values force one member of the set, and split the members across packs.
 After writing, test yourself: pick 12 random combinations per pack, write them out in full, and reject any that sound odd; fix the value sets. Run the validator on your files until 0 errors.
 Finish with one line naming the files you wrote and the number of packs in each."""
+    if kind == 'kata':
+        return f"""{common()}
+
+YOUR ASSIGNMENT: write {job['file']} (section 7 of AUTHORING_GRAMMAR.md): a JSON array of about 600 common katakana loanwords for a speed-reading drill, one object per line inside the array, most common first: about 200 at JLPT N5 to N4 (コーヒー, テレビ, パン ...), 250 at N3 and 150 at N2 to N1, across food, technology, work, sport, clothes, places and abstract words. Include words with small ッ, long ー, and the extended sounds (ファ, ティ, ウィ, ヴ, デュ) so every reading habit is drilled. Spell each word the standard dictionary way. No brands, no personal names, no duplicates. Run the validator on the file until 0 errors.
+Finish with one line: the file and the entry count."""
     if kind == 'lex':
         return f"""{common()}
 
@@ -210,7 +226,12 @@ Use the furigana markup of section 1 in all Japanese. Be exact and complete: thi
 
 def review_prompt(jid, job, plan_path):
     kind = job['kind']
-    record = f'{REPO}/data/particle_drill/ja/review/{jid}.json'
+    record = f'{REPO}/data/particle_drill/{COURSE}/review/{jid}.json'
+    if kind == 'kata':
+        return f"""{common()}
+
+YOU ARE THE INDEPENDENT REVIEWER of {job['file']} (section 7 of AUTHORING_GRAMMAR.md). You did not write it. Check every entry: is it a real, common loanword; is the katakana spelling the standard dictionary spelling (long vowels, small ッ, ィ / ェ / ォ); is the gloss right; is the level plausible. Remove brands, names and rare words; fix spellings in place. Run the validator until 0 errors.
+Then write {record}: {{"batch":"{jid}","files":["{job['file']}"],"checked":N,"fixed":N,"deleted":N,"issues":[{{"entry":"...","problem":"...","action":"..."}}]}}. Writing this record is required: it marks the review as done."""
     if kind == 'items':
         return f"""{common()}
 
@@ -241,7 +262,7 @@ YOU ARE THE INDEPENDENT REVIEWER of the pattern-pack files named in {plan_path} 
 - Expand combinations systematically (each value of each variable against at least three values of the others) and judge each sentence: natural? every slot answer right? every equally natural alternative listed? each distractor in "d" plainly wrong for EVERY combination? English correct for every combination (agreement, articles, tense)?
 - Check that the focus index "f" points at the intended slot for every combination (values with slots shift indexes).
 - Remove or replace values that break any combination; tighten the frame if needed. Keep at least 6 values per variable and 150 combinations.
-Print expansions with: cd {REPO} && python scripts/particle_drill_validate.py --expand packs/<skill>.json
+Print expansions with: cd {REPO} && python scripts/{VALIDATOR} --expand packs/<skill>.json
 Fix in place, run the validator until 0 errors.
 Then write {record}: {{"batch":"{jid}","files":[...],"checked":<packs>,"fixed":N,"deleted":N,"issues":[{{"file":"...","pack":"...","problem":"...","action":"..."}}]}}. Writing this record is required: it marks the review as done."""
     if kind == 'lex':
@@ -283,6 +304,10 @@ def files_valid(job):
                 errs, _n = validate.check_packs_file(path, skills)
             elif kind == 'guides':
                 errs = validate.check_guide_file(path, catalog)
+            elif kind == 'reading':
+                errs, n = validate.check_katakana_file(path)
+                if not errs and n < 450:
+                    errs = [f'{rel}: {n} entries, wanted about 600']
             elif os.path.basename(rel).startswith('guide'):
                 with open(path, encoding='utf-8') as fh:
                     errs = [] if isinstance(json.load(fh), list) else ['guide.json is not a list']

@@ -9,6 +9,7 @@ import { join } from 'node:path';
 import { expand, parse, plain, toHtml } from '../../static/js/particles/markup.js';
 import { answerMatches, normalizeAnswer, romajiToKana } from '../../static/js/particles/kana.js';
 import * as M from '../../static/js/particles/mastery.js';
+import * as N from '../../static/js/particles/numbers.js';
 import {
   Deck,
   build,
@@ -479,7 +480,7 @@ describe('conjugation', () => {
 });
 
 describe('interleaving: companions of a one-skill drill', () => {
-  const sk = (id, p, conf = [], items = 10) => ({ id, p, conf, items, packs: 0 });
+  const sk = (id, p, conf = [], items = 10) => ({ id, p, group: p, conf, items, packs: 0 });
   const skills = [
     sk('wa', 'は', ['が', 'を']),
     sk('ga', 'が', ['は', 'を']),
@@ -514,5 +515,301 @@ describe('interleaving: companions of a one-skill drill', () => {
     const all = Object.fromEntries(skills.map((k) => [k.id, started]));
     expect(ids(all, 'wa', { size: 3 })).toEqual(['ga', 'wo', 'ni-time']);
     expect(ids(all, 'nope')).toEqual([]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Grammar course: the two kanji question kinds
+// ---------------------------------------------------------------------------
+describe('kanji skills: reading and writing', () => {
+  const reading = () => ({
+    jp: '{今朝[けさ]|ym-n5-time}は早[はや]く起[お]きました。',
+    f: 0,
+    d: ['こんあさ', 'いまあさ', 'こんちょう'],
+    ask: 'reading',
+  });
+  const writing = () => ({
+    jp: '友達[ともだち]を{待[ま]って|nt-n5}います。',
+    f: 0,
+    d: ['持[ま]って', '特[ま]って', '侍[ま]って'],
+    ask: 'kanji',
+  });
+
+  it('a reading skill shows the word and asks for its reading', () => {
+    const ex = build(reading(), 'choose', () => 0.3);
+    expect(ex.cue).toBe('今朝');
+    expect(ex.answer).toBe('けさ');
+    expect(ex.bare).toBe(true);
+    expect(ex.options.slice().sort()).toEqual(
+      ['いまあさ', 'けさ', 'こんあさ', 'こんちょう'].sort()
+    );
+    expect(gradeChoice(ex, 'けさ')).toBe(true);
+    expect(gradeChoice(ex, 'こんあさ')).toBe(false);
+    // after the answer the reading is drawn over its kanji
+    expect(ex.ruby['けさ']).toBe('今朝[けさ]');
+    const typed = build(reading(), 'type');
+    expect(gradeTyped(typed, 'kesa')).toBe(true);
+    expect(gradeTyped(typed, 'けさ')).toBe(true);
+    expect(gradeTyped(typed, 'こんあさ')).toBe(false);
+  });
+
+  it('a writing skill shows the reading and offers bare written forms', () => {
+    const ex = build(writing(), 'choose', () => 0.3);
+    expect(ex.cue).toBe('まって');
+    expect(ex.bare).toBe(true);
+    expect(ex.options.slice().sort()).toEqual(['侍って', '待って', '持って', '特って'].sort());
+    expect(gradeChoice(ex, '待って')).toBe(true);
+    expect(gradeChoice(ex, '持って')).toBe(false);
+  });
+
+  it('their ladders skip what cannot be asked', () => {
+    const r = reading();
+    const w = writing();
+    expect([1, 2, 3, 4, 5, 6].map((l) => M.modeFor(l, r))).toEqual([
+      'meet',
+      'choose',
+      'type',
+      'type',
+      'speed',
+      'speed',
+    ]);
+    expect([1, 2, 3, 4, 5, 6].map((l) => M.modeFor(l, w))).toEqual([
+      'meet',
+      'choose',
+      'choose',
+      'choose',
+      'speed',
+      'speed',
+    ]);
+  });
+
+  it('skills of the same group are companions before they are started', () => {
+    const sk = (id, p, group) => ({ id, p, group, conf: [], items: 10, packs: 0 });
+    const skills = [
+      sk('a', 'てもいい', 'g1'),
+      sk('b', 'てはいけない', 'g1'),
+      sk('c', 'たい', 'g2'),
+      sk('d', 'なくてもいい', 'g1'),
+    ];
+    expect(M.pickCompanions(skills, {}, 'd').map((k) => k.id)).toEqual(['b', 'a']);
+    expect(M.pickCompanions(skills, {}, 'c')).toEqual([]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Reading drill: numbers, prices, times, dates, durations, ages
+// ---------------------------------------------------------------------------
+describe('number readings', () => {
+  it.each([
+    [1, 'いち'],
+    [10, 'じゅう'],
+    [14, 'じゅうよん'],
+    [20, 'にじゅう'],
+    [99, 'きゅうじゅうきゅう'],
+    [100, 'ひゃく'],
+    [101, 'ひゃくいち'],
+    [300, 'さんびゃく'],
+    [600, 'ろっぴゃく'],
+    [800, 'はっぴゃく'],
+    [400, 'よんひゃく'],
+    [700, 'ななひゃく'],
+    [900, 'きゅうひゃく'],
+    [365, 'さんびゃくろくじゅうご'],
+    [1000, 'せん'],
+    [3000, 'さんぜん'],
+    [8000, 'はっせん'],
+    [4000, 'よんせん'],
+    [1900, 'せんきゅうひゃく'],
+    [10000, 'いちまん'],
+    [35000, 'さんまんごせん'],
+    [100000, 'じゅうまん'],
+    [1000000, 'ひゃくまん'],
+    [3600, 'さんぜんろっぴゃく'],
+    [18800, 'いちまんはっせんはっぴゃく'],
+    [10000000, 'いっせんまん'],
+    [30000000, 'さんぜんまん'],
+    [12345678, 'いっせんにひゃくさんじゅうよんまんごせんろっぴゃくななじゅうはち'],
+  ])('%i is %s', (n, want) => {
+    expect(N.readNumber(n)).toBe(want);
+  });
+
+  it('accepts the other endings of 4, 7 and 9', () => {
+    expect(N.numberReadings(14)).toEqual(['じゅうよん', 'じゅうし']);
+    expect(N.numberReadings(17)).toContain('じゅうしち');
+    expect(N.numberReadings(19)).toContain('じゅうく');
+    expect(N.numberReadings(21000)).toEqual(['にまんせん', 'にまんいっせん']);
+    expect(N.numberReadings(10000000)).toContain('せんまん');
+  });
+
+  it.each([
+    [1, 'いちじ'],
+    [4, 'よじ'],
+    [7, 'しちじ'],
+    [9, 'くじ'],
+    [10, 'じゅうじ'],
+    [11, 'じゅういちじ'],
+    [12, 'じゅうにじ'],
+  ])('%i時 is %s', (h, want) => {
+    expect(N.hourReadings(h)[0]).toBe(want);
+  });
+
+  it.each([
+    [1, 'いっぷん'],
+    [2, 'にふん'],
+    [3, 'さんぷん'],
+    [4, 'よんぷん'],
+    [5, 'ごふん'],
+    [6, 'ろっぷん'],
+    [7, 'ななふん'],
+    [8, 'はっぷん'],
+    [9, 'きゅうふん'],
+    [10, 'じゅっぷん'],
+    [11, 'じゅういっぷん'],
+    [15, 'じゅうごふん'],
+    [20, 'にじゅっぷん'],
+    [30, 'さんじゅっぷん'],
+    [36, 'さんじゅうろっぷん'],
+    [45, 'よんじゅうごふん'],
+    [58, 'ごじゅうはっぷん'],
+  ])('%i分 is %s', (m, want) => {
+    expect(N.minuteReadings(m)[0]).toBe(want);
+  });
+
+  it('minutes accept じっぷん and はちふん', () => {
+    expect(N.minuteReadings(10)).toEqual(['じゅっぷん', 'じっぷん']);
+    expect(N.minuteReadings(40)).toEqual(['よんじゅっぷん', 'よんじっぷん']);
+    expect(N.minuteReadings(8)).toContain('はちふん');
+  });
+
+  it.each([
+    [1, 'いちがつ'],
+    [4, 'しがつ'],
+    [7, 'しちがつ'],
+    [9, 'くがつ'],
+    [10, 'じゅうがつ'],
+    [11, 'じゅういちがつ'],
+    [12, 'じゅうにがつ'],
+  ])('%i月 is %s', (m, want) => {
+    expect(N.monthReadings(m)).toEqual([want]);
+  });
+
+  it.each([
+    [1, 'ついたち'],
+    [2, 'ふつか'],
+    [3, 'みっか'],
+    [4, 'よっか'],
+    [5, 'いつか'],
+    [6, 'むいか'],
+    [7, 'なのか'],
+    [8, 'ようか'],
+    [9, 'ここのか'],
+    [10, 'とおか'],
+    [11, 'じゅういちにち'],
+    [14, 'じゅうよっか'],
+    [17, 'じゅうしちにち'],
+    [19, 'じゅうくにち'],
+    [20, 'はつか'],
+    [21, 'にじゅういちにち'],
+    [24, 'にじゅうよっか'],
+    [29, 'にじゅうくにち'],
+    [31, 'さんじゅういちにち'],
+  ])('%i日 is %s', (d, want) => {
+    expect(N.dayReadings(d)[0]).toBe(want);
+  });
+
+  const seeded = (seed) => () => {
+    seed = (seed * 1664525 + 1013904223) % 4294967296;
+    return seed / 4294967296;
+  };
+
+  it('every generated question has a reading and three wrong readings that are not accepted', () => {
+    const rng = seeded(7);
+    for (const cat of N.CAT_IDS.filter((c) => c !== 'kata')) {
+      for (let i = 0; i < 1500; i++) {
+        const q = N.generate(cat, rng);
+        expect(q.readings[0]).toMatch(/^[ぁ-ゖー]+$/);
+        expect(q.wrong).toHaveLength(3);
+        expect(new Set(q.wrong).size).toBe(3);
+        q.wrong.forEach((w) => {
+          expect(q.readings).not.toContain(w);
+          expect(w).toMatch(/^[ぁ-ゖー]+$/);
+        });
+        expect(q.show).toMatch(/\d/);
+      }
+    }
+  });
+
+  it('generated readings agree with the tables', () => {
+    const rng = seeded(11);
+    for (let i = 0; i < 400; i++) {
+      const t = N.generate('time', rng);
+      const m = /^(午前|午後)?(\d+)時(半|(\d+)分)?$/.exec(t.show);
+      expect(m).not.toBeNull();
+      const pre = { 午前: 'ごぜん', 午後: 'ごご' }[m[1]] || '';
+      const min = m[3] === '半' ? 'はん' : m[4] ? N.minuteReadings(Number(m[4]))[0] : '';
+      expect(t.readings).toContain(pre + N.hourReadings(Number(m[2]))[0] + min);
+      const d = N.generate('date', rng);
+      const md = /^(\d+)月(\d+)日$/.exec(d.show);
+      expect(d.readings[0]).toBe(
+        N.monthReadings(Number(md[1]))[0] + N.dayReadings(Number(md[2]))[0]
+      );
+    }
+  });
+
+  it.each([
+    ['duration', /^4時間$/, 'よじかん'],
+    ['duration', /^9時間$/, 'くじかん'],
+    ['duration', /^1週間$/, 'いっしゅうかん'],
+    ['duration', /^8週間$/, 'はっしゅうかん'],
+    ['duration', /^1か月$/, 'いっかげつ'],
+    ['duration', /^6か月$/, 'ろっかげつ'],
+    ['duration', /^10か月$/, 'じゅっかげつ'],
+    ['duration', /^4年間$/, 'よねんかん'],
+    ['duration', /^2日間$/, 'ふつかかん'],
+    ['duration', /^20日間$/, 'はつかかん'],
+    ['duration', /^10分間$/, 'じゅっぷんかん'],
+    ['age', /^1歳$/, 'いっさい'],
+    ['age', /^8歳$/, 'はっさい'],
+    ['age', /^10歳$/, 'じゅっさい'],
+    ['age', /^20歳$/, 'はたち'],
+    ['age', /^18歳$/, 'じゅうはっさい'],
+    ['age', /^30歳$/, 'さんじゅっさい'],
+    ['price', /^800円$/, 'はっぴゃくえん'],
+    ['price', /^3,000円$/, 'さんぜんえん'],
+  ])('%s %s is %s', (cat, show, want) => {
+    const rng = seeded(3);
+    let found = null;
+    for (let i = 0; i < 20000 && !found; i++) {
+      const q = N.generate(cat, rng);
+      if (show.test(q.show)) found = q;
+    }
+    expect(found, `never generated ${show}`).not.toBeNull();
+    expect(found.readings[0]).toBe(want);
+  });
+
+  it('4円 is よえん, and よんえん is accepted', () => {
+    const rng = seeded(5);
+    let q = null;
+    for (let i = 0; i < 5000 && !(q && /4円$/.test(q.show)); i++) q = N.generate('price', rng);
+    expect(q.show).toMatch(/4円$/);
+    expect(q.readings[0]).toMatch(/よえん$/);
+    expect(q.readings[1]).toMatch(/よんえん$/);
+  });
+
+  it('katakana is matched to its meaning', () => {
+    const words = [
+      { k: 'コーヒー', en: 'coffee' },
+      { k: 'テレビ', en: 'television' },
+      { k: 'パン', en: 'bread' },
+      { k: 'ドア', en: 'door' },
+      { k: 'バス', en: 'bus' },
+    ];
+    const q = N.generate('kata', seeded(2), { katakana: words });
+    expect(q.meaning).toBe(true);
+    expect(words.find((w) => w.k === q.show).en).toBe(q.readings[0]);
+    expect(q.wrong).toHaveLength(3);
+    expect(q.wrong).not.toContain(q.readings[0]);
+    expect(N.generate('kata', seeded(2), { katakana: words.slice(0, 2) })).toBeNull();
+    expect(N.CATS.kata.choiceOnly).toBe(true);
   });
 });

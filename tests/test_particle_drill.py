@@ -267,7 +267,8 @@ def test_content_merges_part_files_and_drops_repeats(tiny_root):
     payload = content.catalog_payload()
     assert [(s['id'], s['items'], s['packs']) for s in payload['skills']] == \
         [('ni-time', 2, 0), ('ni-location', 0, 0)]
-    assert 'n' not in payload['skills'][0] and 'conf' not in payload['skills'][0]
+    # the target count stays on the server; conf goes out (the client picks companions from it)
+    assert 'n' not in payload['skills'][0] and payload['skills'][0]['conf'] == ['で']
 
 
 def test_skill_payload_carries_guide_items_and_packs(tiny_root):

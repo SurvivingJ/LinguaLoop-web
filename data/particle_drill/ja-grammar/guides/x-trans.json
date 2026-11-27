@@ -1,0 +1,23 @@
+{"group":"x-trans",
+ "intro":"This clinic mixes every transitive and intransitive pair. Do not guess from the English: 'the door closed' and 'I closed the door' both use 'close', but Japanese needs 閉まる for one and 閉める for the other. Read the sentence in a fixed order: the particle in front of the verb, then whether a doer acts on something, then the verb's shape. Most items are settled at the first step.",
+ "skills":[
+  {"id":"x-trans",
+   "rule":"Read the particle before the verb: を means transitive, が means intransitive; if a は or も hides it, ask whether someone acts on the thing.",
+   "explain":"Step 1, the particle. X を + verb: transitive (ドアを閉める). X が + verb: intransitive (ドアが閉まる). Exceptions: を also marks the place you move through, and the place you leave, so 道を渡る, 公園を通る, 家を出る are intransitive. And が goes with a transitive verb in てある and in the passive or potential (窓が開けてある).\n\nStep 2, if は or も hides the particle, restore it. 窓は私が開けました: someone acted on the window, so 開ける. 窓はもう開いています: no doer, so 開く.\n\nStep 3, does the subject change itself or act on something else? Intransitives can be done on purpose by a person: 起きる, 並ぶ, 乗る, 集まる. A request like 並んでください (line up) is fine; 並べてください means 'arrange them'.\n\nStep 4, the shape. -su is transitive (消す, 残す; not 暮らす); -aru is intransitive (始まる, 決まる; not 預かる). In most -u / -eru pairs -eru is transitive (開ける, 並べる), but 割る・割れる, 焼く・焼ける reverse it. In -eru / -su pairs, -eru is intransitive (消える, 冷える).",
+   "patterns":["X を [verb] → transitive (except route or exit: 渡る, 通る, 出る)","X が [verb] → intransitive (except てある, passive, potential)","X は … → restore が or を, then decide","-su → transitive; -aru → intransitive"],
+   "examples":[
+    {"jp":"授業[じゅぎょう]は九時[くじ]に{始[はじ]まります}。","en":"Class starts at nine."},
+    {"jp":"先生[せんせい]が授業[じゅぎょう]を{始[はじ]めました}。","en":"The teacher started the lesson."},
+    {"jp":"皆[みな]さん、ここに一列[いちれつ]に{並[なら]んで}ください。","en":"Everyone, please line up here in a single row."},
+    {"jp":"いすを一列[いちれつ]に{並[なら]べて}ください。","en":"Please put the chairs out in a single row."},
+    {"jp":"交差点[こうさてん]で事故[じこ]が{起[お]きました}。","en":"An accident happened at the junction."},
+    {"jp":"信号[しんごう]が青[あお]になってから道[みち]を{渡[わた]りましょう}。","en":"Let's cross the road once the light turns green."}],
+   "contrast":[
+    {"vs":"他動詞 (transitive)","note":"Someone acts on something, which is marked with を: 電気を消す, 皿を割る. Use it for requests aimed at a thing: ドアを閉めてください."},
+    {"vs":"自動詞 (intransitive)","note":"The subject changes or moves itself, marked with が: 電気が消える, 皿が割れる. Japanese prefers it when the cause is unknown or beside the point: 電気が消えた."}],
+   "mistakes":[
+    {"bad":"寝[ね]る前[まえ]に電気[でんき]を{消[き]えて}ください。","good":"寝[ね]る前[まえ]に電気[でんき]を{消[け]して}ください。","note":"を and a request to act on the light: transitive 消す."},
+    {"bad":"落[お]として、お皿[さら]が{割[わ]りました}。","good":"落[お]として、お皿[さら]が{割[わ]れました}。","note":"The plate (が) broke: intransitive 割れる. With お皿を, use 割りました."},
+    {"bad":"窓[まど]は私[わたし]が{開[あ]きました}。","good":"窓[まど]は私[わたし]が{開[あ]けました}。","note":"は hides を: I opened the window, so transitive 開ける."}],
+   "tip":"Glance left of the verb: を → transitive, が → intransitive, は → put back the real particle first."}
+ ]}

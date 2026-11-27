@@ -17,8 +17,10 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
 from services.particle_drill import markup  # noqa: E402
 
+# PD_COURSE picks the course directory: 'ja' (particles, the default) or 'ja-grammar'.
+COURSE = os.environ.get('PD_COURSE', 'ja')
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                     '..', 'data', 'particle_drill', 'ja'))
+                                     '..', 'data', 'particle_drill', COURSE))
 VERB_CLASSES = {'godan', 'ichidan', 'suru', 'kuru'}
 ADJ_CLASSES = {'i', 'na'}
 _ASCII_LETTER = re.compile(r'[A-Za-z]')
@@ -84,11 +86,26 @@ def check_item(item, file_skill, skills, *, pack_expansion=False):
             errs.append(f'd needs {need if need == 3 else "1-3"} distractors, got {len(d)}')
         if len(set(d)) != len(d):
             errs.append('repeated distractor')
+        # Kanji areas of the grammar course: 'reading' shows the kanji and asks its
+        # reading; 'kanji' shows the reading and asks the written form.
+        ask = (skills.get(file_skill) or {}).get('ask') if isinstance(skills, dict) else None
         accepted = {focus['a'], *focus['alt'], *focus['kana']}
+        if ask == 'kanji':
+            accepted = {focus['a'], *focus['alt']}
+        has_kanji = re.compile(r'[㐀-鿿々]')
+        if ask and not has_kanji.search(focus['a']):
+            errs.append('focus slot must be a word written with kanji')
         for x in d:
-            if markup.strip_reading(x) in accepted or markup.reading_of(x) in accepted:
+            if markup.strip_reading(x) in accepted or (ask != 'kanji' and markup.reading_of(x) in accepted):
                 errs.append(f'distractor "{x}" is an accepted answer')
             errs += [f'distractor {e}' for e in markup.answer_errors(x)]
+            if ask == 'reading' and not markup.is_kana(x):
+                errs.append(f'distractor "{x}" must be a reading in kana')
+            if ask == 'kanji':
+                if not has_kanji.search(x):
+                    errs.append(f'distractor "{x}" must be written with kanji')
+                elif markup.reading_of(x) not in focus['kana']:
+                    errs.append(f'distractor "{x}" must carry the answer\'s reading')
         if len({markup.strip_reading(x) for x in d}) != len(d) and len(set(d)) == len(d):
             errs.append('repeated distractor')
     why = item.get('why')
@@ -285,6 +302,34 @@ def check_guide_file(path, catalog):
     return errs
 
 
+def check_katakana_file(path):
+    """reading/katakana.json: loanwords for the speed-reading drill."""
+    errs = []
+    try:
+        with open(path, encoding='utf-8') as fh:
+            rows = json.load(fh)
+    except ValueError as exc:
+        return [f'{path}: invalid JSON ({exc})'], 0
+    if not isinstance(rows, list):
+        return [f'{path}: must be a JSON array'], 0
+    seen = set()
+    for i, r in enumerate(rows):
+        where = f'{path}[{i}]'
+        if not isinstance(r, dict) or not isinstance(r.get('k'), str) or not isinstance(r.get('en'), str):
+            errs.append(f'{where}: needs k and en')
+            continue
+        if not re.match(r'^[ァ-ヺー]{2,9}$', r['k']):
+            errs.append(f'{where}: k must be 2-9 katakana')
+        if not _ASCII_LETTER.search(r['en']):
+            errs.append(f'{where}: en missing')
+        if r.get('lv') not in (1, 2, 3, 4, 5):
+            errs.append(f'{where}: lv must be 1-5')
+        if r['k'] in seen:
+            errs.append(f'{where}: duplicate {r["k"]}')
+        seen.add(r['k'])
+    return errs, len(rows)
+
+
 def check_lexicon_file(path):
     name = os.path.basename(path)
     errs = []
@@ -344,7 +389,7 @@ def main():
     skills = {s['id']: s for s in catalog['skills']}
     paths = [p if os.path.isabs(p) else os.path.join(args.root, p) for p in args.paths]
     if not paths:
-        for sub in ('items', 'packs', 'guides', 'conjugation'):
+        for sub in ('items', 'packs', 'guides', 'conjugation', 'reading'):
             d = os.path.join(args.root, sub)
             if os.path.isdir(d):
                 paths += sorted(os.path.join(d, f) for f in os.listdir(d)
@@ -363,6 +408,8 @@ def main():
             packs += n
         elif kind == 'guides':
             errs = check_guide_file(path, catalog)
+        elif kind == 'reading':
+            errs = check_katakana_file(path)[0]
         elif kind == 'conjugation':
             errs = [] if os.path.basename(path).startswith('guide') else check_lexicon_file(path)[0]
         else:

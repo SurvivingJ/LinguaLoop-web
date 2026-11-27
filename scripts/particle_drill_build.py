@@ -20,7 +20,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import particle_drill_validate as validate  # noqa: E402
 from services.particle_drill.content import Content  # noqa: E402
 
-CONTENT_DIRS = ('items', 'packs', 'guides', 'conjugation')
+CONTENT_DIRS = ('items', 'packs', 'guides', 'conjugation', 'reading')
 
 
 def content_files(root):
@@ -48,9 +48,11 @@ def build_manifest(root):
               for sid in content.skills}
     conj = content.conjugation_payload()
     guides = sum(1 for gid in content.groups if content.guide(gid))
+    katakana = len(content.reading_payload()['katakana'])
     return {
         'version': content_version(root),
         'totals': {
+            **({'katakana': katakana} if katakana else {}),
             'skills': len(skills),
             'skills_with_items': sum(1 for c in skills.values() if c['items']),
             'items': sum(c['items'] for c in skills.values()),
@@ -77,6 +79,8 @@ def validation_errors(root):
             errs += validate.check_packs_file(path, skills)[0]
         elif kind == 'guides':
             errs += validate.check_guide_file(path, catalog)
+        elif kind == 'reading':
+            errs += validate.check_katakana_file(path)[0]
         elif not os.path.basename(path).startswith('guide'):
             errs += validate.check_lexicon_file(path)[0]
     return errs

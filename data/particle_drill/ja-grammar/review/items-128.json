@@ -1,0 +1,7 @@
+{"batch":"items-128","files":["items/ym-jukuji.jsonl"],"checked":65,"fixed":5,"deleted":0,"replaced":0,"issues":[
+{"file":"items/ym-jukuji.jsonl","jp_before":"絵[え]を描[か]くのが{上手[じょうず]|ym-jukuji}なので、美術[びじゅつ]の先生[せんせい]になりました。","problem":"lv 5 too low: 美術 is N3 vocabulary.","action":"Set lv to 3."},
+{"file":"items/ym-jukuji.jsonl","jp_before":"弟[おとうと]はまだ高校生[こうこうせい]ですが、考[かんが]え方[かた]は{大人[おとな]|ym-jukuji}です。","problem":"考え方は大人です is unnatural as a predicate for 'thinks like an adult'.","action":"Rewrote as 考え方はもう大人のようです and adjusted the English ('already thinks like an adult')."},
+{"file":"items/ym-jukuji.jsonl","jp_before":"日本語[にほんご]がお{上手[じょうず]|ym-jukuji}ですね。","problem":"English 'Your Japanese is good, isn't it?' is an unnatural rendering of a compliment.","action":"English changed to 'Your Japanese is very good!'."},
+{"file":"items/ym-jukuji.jsonl","jp_before":"先生[せんせい]、{明日[あした]|ym-jukuji}は学校[がっこう]を休[やす]んでもいいですか。","problem":"'stay away from school' is unidiomatic for 学校を休む.","action":"English changed to 'Teacher, may I be absent from school tomorrow?'."},
+{"file":"items/ym-jukuji.jsonl","jp_before":"弟[おとうと]は説明[せつめい]が{下手[へた]|ym-jukuji}で、いつも話[はなし]が長[なが]くなります。","problem":"English 'his stories always get long' mistranslates 話が長くなる in the context of explaining.","action":"English changed to 'My younger brother is bad at explaining things, so he always ends up talking for a long time.'."}
+]}

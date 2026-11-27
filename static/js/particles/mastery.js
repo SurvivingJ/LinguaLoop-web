@@ -122,6 +122,11 @@ export function progress(s, maxLevel = MAX_LEVEL) {
  * Fill needs a second slot, Fix and the choose modes need a wrong answer.
  */
 export function modeFor(level, item) {
+  // Kanji skills of the grammar course: a reading is chosen or typed; a written
+  // form can only be chosen.
+  const at = Math.min(Math.max(level, 1), 6) - 1;
+  if (item.ask === 'reading') return ['meet', 'choose', 'type', 'type', 'speed', 'speed'][at];
+  if (item.ask === 'kanji') return ['meet', 'choose', 'choose', 'choose', 'speed', 'speed'][at];
   const slots = item.slotCount || 1;
   const hasWrong = (item.d || []).length > 0;
   if (level <= 1) return hasWrong ? 'meet' : 'type';
@@ -174,7 +179,8 @@ export function pickCompanions(skills, states, focusId, { now = Date.now(), size
       k,
       i,
       started: isStarted(states[k.id]),
-      confuser: conf.has(k.p),
+      // Listed confusers, and (grammar course) the other skills of the same group.
+      confuser: conf.has(k.p) || k.group === focus.group,
       due: isDue(states[k.id], now),
     }))
     .filter(

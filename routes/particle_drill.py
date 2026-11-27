@@ -40,12 +40,28 @@ def _cached(payload: dict, version: str) -> ApiResponse:
     return resp, resp.status_code
 
 
+def _course_content(language_id: int):
+    """The content of the course named by ?course= (particles by default)."""
+    return get_content(language_id, request.args.get('course') or None)
+
+
+@particle_drill_bp.route('/reading', methods=['GET'])
+@supabase_jwt_required
+@api_errors("Failed to load the reading drill")
+@require_language_id
+def get_reading(language_id: int) -> ApiResponse:
+    content = get_content(language_id, 'grammar')
+    if content is None:
+        return bad_request(WRONG_LANGUAGE)
+    return _cached(content.reading_payload(), f'{content.version()}-reading')
+
+
 @particle_drill_bp.route('/catalog', methods=['GET'])
 @supabase_jwt_required
 @api_errors("Failed to load the particle drill")
 @require_language_id
 def get_catalog(language_id: int) -> ApiResponse:
-    content = get_content(language_id)
+    content = _course_content(language_id)
     if content is None:
         return bad_request(WRONG_LANGUAGE)
     return _cached(content.catalog_payload(), content.version())
@@ -56,7 +72,7 @@ def get_catalog(language_id: int) -> ApiResponse:
 @api_errors("Failed to load the particle skill")
 @require_language_id
 def get_skill(skill_id: str, language_id: int) -> ApiResponse:
-    content = get_content(language_id)
+    content = _course_content(language_id)
     if content is None:
         return bad_request(WRONG_LANGUAGE)
     payload = content.skill_payload(skill_id)
