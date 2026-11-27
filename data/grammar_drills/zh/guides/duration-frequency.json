@@ -1,0 +1,454 @@
+{
+  "topic": "duration-frequency",
+  "summary": "How long and how many times are complements: they go AFTER the verb (学了两年, 去过两次), while the time WHEN something happens goes before it. The one idea: the verb comes first, then the amount. The amount moves in front of the verb only when the action did not happen (两年没见).",
+  "subs": [
+    {
+      "key": "dur-after-verb",
+      "label": "Duration after the verb",
+      "focus": "No object at issue. Learner must put the duration (两年, 三个小时, 一会儿, 很久) after the verb and 了, not in the time-when slot. Classic error: 我两个小时睡了. Include habits and plans without 了. Never use duration + 就/都 + verb as a wrong option: that 'within' pattern is correct."
+    },
+    {
+      "key": "dur-object",
+      "label": "Duration with an object",
+      "focus": "Thing object or verb-object word (睡觉, 游泳, 聊天). Learner must choose V+了+duration+(的)+O or verb-copy V+O+V+了+duration. Classic errors: 我学了中文两年, 我学中文了两年, 我睡觉了八个小时. Order items: give both forms as alts if the tiles allow. 来/去/到/毕业/结婚 only in 'time since' items."
+    },
+    {
+      "key": "dur-person-object",
+      "label": "Pronoun or person object: 等了他半天",
+      "focus": "Object is a pronoun (他, 我, 你们). Learner must put it BEFORE the duration: 等了他半天, 教了我们两年. Classic errors: 等了半天他, 等了半天的他. Use pronouns in wrong options; with a noun like 小王 the other order is not clearly wrong. Verbs: 等, 找, 教, 陪, 照顾, 帮."
+    },
+    {
+      "key": "double-le",
+      "label": "了 … 了: still going on",
+      "focus": "Learner must decide one 了 (stretch that is over) versus 了 + duration + 了 (so far, still going). Force it with context: 现在还在…, 还没来 for double 了; 以前, 后来, a past time for single 了. Also test the place of the second 了: at the very end, after the object."
+    },
+    {
+      "key": "neg-before-verb",
+      "label": "Negative: duration before 没",
+      "focus": "'Have not done it for X': learner must put the duration BEFORE 没 + verb, with final 了 if still true: 我们两年没见了. Classic error: 我们没见两年了. Rewrites: positive to negative moves the duration forward. Do not mark 没 + V + duration wrong where it denies the amount (没学两年，只学了一年)."
+    },
+    {
+      "key": "freq-measure",
+      "label": "次 / 遍 / 趟 / 回 / 下 after the verb",
+      "focus": "(1) Position: number + 次/遍/趟/回/下 follows the verb and 了/过; classic error 我两次去过. (2) Choice: 遍 whole thing through, 趟 round trip, 下 brief action, 次/回 occasions. 次 is often also acceptable (去一次/一趟, 再说一次/一遍): never use it as a distractor there; use real mismatches (去了一遍, 看了一趟)."
+    },
+    {
+      "key": "freq-object",
+      "label": "Frequency with an object",
+      "focus": "Learner must order object and count: pronoun BEFORE the count (见过他一次, 等我一下); place either side (去过两次北京 / 去过北京两次: both as alts); thing AFTER the count (打了三次电话); split verb-object words (见过一次面). Judge-wrong items only on clear errors: 见过一次他, 见面过一次, 见面过他."
+    },
+    {
+      "key": "when-vs-duration",
+      "label": "Time-when before, duration after",
+      "focus": "Learner must tell a point in time (三点, 三月, 星期二, 去年) from a length (三个小时, 三个月, 两个星期, 一年): point before the verb, length after. Use pairs 两点/两个小时, 三月/三个月 and sentences with both. Classic errors: 我睡觉十一点, 我住了三月 for 'three months', 我八个小时睡觉."
+    }
+  ],
+  "rules": [
+    {
+      "sub": "dur-after-verb",
+      "rule": "How long an action lasts goes after the verb. If the action is finished or measured so far, 了 sits between the verb and the duration.",
+      "pattern": "Subject + Verb + 了 + duration",
+      "examples": [
+        {
+          "zh": "我昨天晚上睡了八个小时。",
+          "py": "wǒ zuó tiān wǎn shang shuì le bā gè xiǎo shí",
+          "en": "I slept for eight hours last night."
+        },
+        {
+          "zh": "他在上海住了三年。",
+          "py": "tā zài shàng hǎi zhù le sān nián",
+          "en": "He lived in Shanghai for three years."
+        },
+        {
+          "zh": "我们休息一会儿吧。",
+          "py": "wǒ men xiū xi yī huì r ba",
+          "en": "Let's rest for a while."
+        },
+        {
+          "zh": "她每天工作十个小时。",
+          "py": "tā měi tiān gōng zuò shí gè xiǎo shí",
+          "en": "She works ten hours every day."
+        }
+      ],
+      "note": "Habits and plans take no 了, but the duration still follows the verb. A duration before the verb exists with other meanings: 'within that time' (我两个小时就写完了, I finished it in just two hours) and 'per period' (一天吃三次, three times a day). Those are not the 'for how long' pattern."
+    },
+    {
+      "sub": "dur-object",
+      "rule": "With a thing as object, put the duration between the verb and the object; 的 after the duration is optional.",
+      "pattern": "Subject + Verb + 了 + duration + (的) + Object",
+      "examples": [
+        {
+          "zh": "我学了两年中文。",
+          "py": "wǒ xué le liǎng nián zhōng wén",
+          "en": "I studied Chinese for two years."
+        },
+        {
+          "zh": "他看了一个晚上的电视。",
+          "py": "tā kàn le yī gè wǎn shang de diàn shì",
+          "en": "He watched television all evening."
+        },
+        {
+          "zh": "我每天坐一个小时的地铁。",
+          "py": "wǒ měi tiān zuò yī gè xiǎo shí de dì tiě",
+          "en": "I ride the subway for an hour every day."
+        }
+      ],
+      "note": "Words like 睡觉, 游泳, 跑步, 聊天, 上课 are verb + object inside, so they split the same way: 睡了八个小时的觉, 游了一个小时泳. Never 睡觉了八个小时."
+    },
+    {
+      "sub": "dur-object",
+      "rule": "Or say the verb twice: first with its object, then again with 了 and the duration. 了 goes only on the second verb.",
+      "pattern": "Subject + Verb + Object + Verb + 了 + duration",
+      "examples": [
+        {
+          "zh": "我学中文学了两年。",
+          "py": "wǒ xué zhōng wén xué le liǎng nián",
+          "en": "I studied Chinese for two years."
+        },
+        {
+          "zh": "她打电话打了一个小时。",
+          "py": "tā dǎ diàn huà dǎ le yī gè xiǎo shí",
+          "en": "She was on the phone for an hour."
+        },
+        {
+          "zh": "我们昨天聊天聊了很久。",
+          "py": "wǒ men zuó tiān liáo tiān liáo le hěn jiǔ",
+          "en": "We chatted for a long time yesterday."
+        }
+      ],
+      "note": "Both forms mean the same. What is wrong is the English order with an activity verb: Verb + Object + duration (我学了中文两年)."
+    },
+    {
+      "sub": "dur-object",
+      "rule": "Time since: with verbs that happen in an instant (来, 去, 到, 离开, 毕业, 结婚) the time counts from that moment, so it follows the object and the sentence ends in 了.",
+      "pattern": "Subject + Verb + Object + duration + 了",
+      "examples": [
+        {
+          "zh": "他来中国三年了。",
+          "py": "tā lái zhōng guó sān nián le",
+          "en": "He has been in China for three years."
+        },
+        {
+          "zh": "我们结婚十年了。",
+          "py": "wǒ men jié hūn shí nián le",
+          "en": "We have been married for ten years."
+        },
+        {
+          "zh": "她大学毕业两年了。",
+          "py": "tā dà xué bì yè liǎng nián le",
+          "en": "It has been two years since she graduated from university."
+        }
+      ],
+      "note": "This is the one case where Verb + Object + duration is right. It does not work for activities that last: 我学中文两年了 is heard in speech, but the forms to learn are 我学了两年中文了 and 我学中文学了两年了."
+    },
+    {
+      "sub": "dur-person-object",
+      "rule": "A pronoun object goes straight after the verb and 了, before the duration. The 的 form is impossible with a pronoun.",
+      "pattern": "Subject + Verb + 了 + pronoun + duration",
+      "examples": [
+        {
+          "zh": "我等了他半天。",
+          "py": "wǒ děng le tā bàn tiān",
+          "en": "I waited for him for ages."
+        },
+        {
+          "zh": "王老师教了我们两年。",
+          "py": "wáng lǎo shī jiāo le wǒ men liǎng nián",
+          "en": "Mr. Wang taught us for two years."
+        },
+        {
+          "zh": "妈妈找了你一个下午。",
+          "py": "mā ma zhǎo le nǐ yī gè xià wǔ",
+          "en": "Mum looked for you all afternoon."
+        }
+      ],
+      "note": "A person named with a noun usually follows the pronoun order too (等了小王半天), and verb-copy also works (等小王等了半天). 半天 here means 'a long time', not half a day."
+    },
+    {
+      "sub": "double-le",
+      "rule": "A second 了 at the end of the sentence says the amount is counted up to now and the action is still going on. With one 了 the amount is simply what was done, usually in the past.",
+      "pattern": "Subject + Verb + 了 + duration + (Object) + 了",
+      "examples": [
+        {
+          "zh": "我学了两年中文了，现在还在学。",
+          "py": "wǒ xué le liǎng nián zhōng wén le xiàn zài hái zài xué",
+          "en": "I have been studying Chinese for two years, and I'm still studying."
+        },
+        {
+          "zh": "我以前学了两年中文，后来不学了。",
+          "py": "wǒ yǐ qián xué le liǎng nián zhōng wén hòu lái bù xué le",
+          "en": "I studied Chinese for two years before, then gave it up."
+        },
+        {
+          "zh": "我们已经等了四十分钟了。",
+          "py": "wǒ men yǐ jīng děng le sì shí fēn zhōng le",
+          "en": "We have already been waiting for forty minutes."
+        },
+        {
+          "zh": "他在这儿住了十年了。",
+          "py": "tā zài zhè r zhù le shí nián le",
+          "en": "He has lived here for ten years."
+        }
+      ],
+      "note": "The double 了 is a firm signal of 'so far, still going'. A single 了 is less firm: it normally reads as over, but context decides. The same works for counts: 我看了两遍了 (twice so far). In the verb-copy form the second 了 again goes last: 我学中文学了两年了."
+    },
+    {
+      "sub": "neg-before-verb",
+      "rule": "For 'have not done it for this long' the duration goes before 没 + verb. Add 了 at the end when it is still true now.",
+      "pattern": "Subject + duration + 没 + Verb + (Object) + 了",
+      "examples": [
+        {
+          "zh": "我们两年没见了。",
+          "py": "wǒ men liǎng nián méi jiàn le",
+          "en": "We haven't seen each other for two years."
+        },
+        {
+          "zh": "他三天没睡觉了。",
+          "py": "tā sān tiān méi shuì jiào le",
+          "en": "He hasn't slept for three days."
+        },
+        {
+          "zh": "我很久没吃中国菜了。",
+          "py": "wǒ hěn jiǔ méi chī zhōng guó cài le",
+          "en": "I haven't had Chinese food for a long time."
+        },
+        {
+          "zh": "去年我有三个月没工作。",
+          "py": "qù nián wǒ yǒu sān gè yuè méi gōng zuò",
+          "en": "Last year I didn't work for three months."
+        }
+      ],
+      "note": "Here 没 and the final 了 do go together: the 了 marks the situation so far, not a completed action. 没 + verb + duration is a different sentence that denies the amount: 我没学两年，只学了一年 (I didn't study for two years, only one)."
+    },
+    {
+      "sub": "freq-measure",
+      "rule": "How many times goes after the verb, and after 了 or 过: number + 次 for occasions. 回 is the same in casual speech.",
+      "pattern": "Subject + Verb + 了/过 + number + 次",
+      "examples": [
+        {
+          "zh": "我去过两次。",
+          "py": "wǒ qù guo liǎng cì",
+          "en": "I have been there twice."
+        },
+        {
+          "zh": "这个星期他迟到了三次。",
+          "py": "zhè ge xīng qī tā chí dào le sān cì",
+          "en": "He was late three times this week."
+        },
+        {
+          "zh": "我们一个星期见一次。",
+          "py": "wǒ men yī gè xīng qī jiàn yī cì",
+          "en": "We meet once a week."
+        }
+      ],
+      "note": "The period in 'once a week' (一个星期, 每天) goes before the verb; only the count follows it. 第一次 'the first time' is a time-when expression and goes before the verb: 我第一次来中国."
+    },
+    {
+      "sub": "freq-measure",
+      "rule": "Pick the word by the kind of action: 遍 = through the whole thing from start to finish; 趟 = a trip there and back; 下 = a quick, light action, and 一下 softens a request to 'for a moment'.",
+      "pattern": "Verb + number + 遍 / 趟 / 下",
+      "examples": [
+        {
+          "zh": "这本书我看了三遍。",
+          "py": "zhè běn shū wǒ kàn le sān biàn",
+          "en": "I have read this book three times through."
+        },
+        {
+          "zh": "我下午要去一趟银行。",
+          "py": "wǒ xià wǔ yào qù yī tàng yín háng",
+          "en": "I need to make a trip to the bank this afternoon."
+        },
+        {
+          "zh": "请等一下。",
+          "py": "qǐng děng yī xià",
+          "en": "Please wait a moment."
+        },
+        {
+          "zh": "请你再说一遍。",
+          "py": "qǐng nǐ zài shuō yī biàn",
+          "en": "Please say it once more."
+        }
+      ],
+      "note": "次 can often replace 遍 or 趟 with a small loss of meaning (看了三次 just counts occasions, maybe not to the end; 去一次银行 is fine). The reverse fails: 遍 cannot count trips and 趟 cannot count readings. 一下 does not count: 看一下 is 'have a look', not 'look once'."
+    },
+    {
+      "sub": "freq-object",
+      "rule": "Pronoun object: before the count. Place object: either side of the count. Other noun objects: after the count.",
+      "pattern": "Verb + 过/了 + pronoun + count  |  Verb + 过/了 + count + place/thing",
+      "examples": [
+        {
+          "zh": "我见过他一次。",
+          "py": "wǒ jiàn guo tā yī cì",
+          "en": "I have met him once."
+        },
+        {
+          "zh": "我去过两次北京。",
+          "py": "wǒ qù guo liǎng cì běi jīng",
+          "en": "I have been to Beijing twice."
+        },
+        {
+          "zh": "我去过北京两次。",
+          "py": "wǒ qù guo běi jīng liǎng cì",
+          "en": "I have been to Beijing twice."
+        },
+        {
+          "zh": "他今天给我打了三次电话。",
+          "py": "tā jīn tiān gěi wǒ dǎ le sān cì diàn huà",
+          "en": "He phoned me three times today."
+        }
+      ],
+      "note": "一下 follows the same rule: 等我一下, 问他一下, but 看一下这个, 用一下你的手机. A specific thing (这本书, 那个电影) usually moves to the front as topic instead: 那个电影我看过两遍. A person named with a noun can go on either side (见过小王一次 / 见过一次小王)."
+    },
+    {
+      "sub": "freq-object",
+      "rule": "Verb-object words (见面, 洗澡, 游泳, 生病, 请假) split: 过/了 and the count go in the middle. They cannot take another object after them.",
+      "pattern": "Verb + 过/了 + count + Object part",
+      "examples": [
+        {
+          "zh": "我们只见过一次面。",
+          "py": "wǒ men zhǐ jiàn guo yī cì miàn",
+          "en": "We have only met once."
+        },
+        {
+          "zh": "我跟他见过两次面。",
+          "py": "wǒ gēn tā jiàn guo liǎng cì miàn",
+          "en": "I have met him twice."
+        },
+        {
+          "zh": "他上个月请了三次假。",
+          "py": "tā shàng gè yuè qǐng le sān cì jià",
+          "en": "He took leave three times last month."
+        }
+      ]
+    },
+    {
+      "sub": "when-vs-duration",
+      "rule": "A point in time (when) goes before the verb; a length of time (how long) goes after it. Both can appear in one sentence. Check the form: 两点 is a time, 两个小时 a length; 三月 is March, 三个月 three months.",
+      "pattern": "Subject + time-when + Verb + 了 + duration",
+      "examples": [
+        {
+          "zh": "我昨天晚上十一点睡觉。",
+          "py": "wǒ zuó tiān wǎn shang shí yī diǎn shuì jiào",
+          "en": "I went to bed at eleven last night."
+        },
+        {
+          "zh": "我昨天晚上睡了九个小时。",
+          "py": "wǒ zuó tiān wǎn shang shuì le jiǔ gè xiǎo shí",
+          "en": "I slept for nine hours last night."
+        },
+        {
+          "zh": "他三月去北京，在那儿住三个月。",
+          "py": "tā sān yuè qù běi jīng zài nà r zhù sān gè yuè",
+          "en": "He is going to Beijing in March and will stay there for three months."
+        },
+        {
+          "zh": "我星期二下午上了两个小时的课。",
+          "py": "wǒ xīng qī èr xià wǔ shàng le liǎng gè xiǎo shí de kè",
+          "en": "I had two hours of class on Tuesday afternoon."
+        }
+      ],
+      "note": "Lengths: 年, 天 and 分钟 take no 个 (两年, 三天, 十分钟); 月 must have 个 (三个月); 小时 and 星期 normally take 个 (两个小时, 一个星期), though it is sometimes dropped. Two as a length is 两, never 二: 两天, 两个月."
+    }
+  ],
+  "contrasts": [
+    {
+      "wrong": "我两个小时看了电视。",
+      "right": {
+        "zh": "我看了两个小时电视。",
+        "py": "wǒ kàn le liǎng gè xiǎo shí diàn shì",
+        "en": "I watched television for two hours."
+      },
+      "why": "A length of time is not a time-when. It goes after the verb, not in the slot before it."
+    },
+    {
+      "wrong": "我学了中文两年。",
+      "right": {
+        "zh": "我学了两年中文。",
+        "py": "wǒ xué le liǎng nián zhōng wén",
+        "en": "I studied Chinese for two years."
+      },
+      "why": "English puts 'for two years' after the object. Chinese puts the duration between verb and object, or repeats the verb: 我学中文学了两年."
+    },
+    {
+      "wrong": "我昨天睡觉了八个小时。",
+      "right": {
+        "zh": "我昨天睡了八个小时。",
+        "py": "wǒ zuó tiān shuì le bā gè xiǎo shí",
+        "en": "I slept for eight hours yesterday."
+      },
+      "why": "睡觉 is verb + object. 了 and the duration attach to 睡, with 觉 dropped or moved to the end (睡了八个小时的觉)."
+    },
+    {
+      "wrong": "我等了半天他。",
+      "right": {
+        "zh": "我等了他半天。",
+        "py": "wǒ děng le tā bàn tiān",
+        "en": "I waited for him for ages."
+      },
+      "why": "A pronoun object comes before the duration, the opposite of an ordinary noun object."
+    },
+    {
+      "wrong": "我们没见两年了。",
+      "right": {
+        "zh": "我们两年没见了。",
+        "py": "wǒ men liǎng nián méi jiàn le",
+        "en": "We haven't seen each other for two years."
+      },
+      "why": "When the action did not happen there is nothing after the verb to measure. The period of not doing goes before 没."
+    },
+    {
+      "wrong": "我学了三年中文，现在还在学。",
+      "right": {
+        "zh": "我学了三年中文了，现在还在学。",
+        "py": "wǒ xué le sān nián zhōng wén le xiàn zài hái zài xué",
+        "en": "I have been studying Chinese for three years, and I'm still studying."
+      },
+      "why": "Still going on calls for the second 了 at the end of the clause. With one 了 the three years read as a finished stretch, which sits badly with 现在还在学."
+    },
+    {
+      "wrong": "我两次去过上海。",
+      "right": {
+        "zh": "我去过两次上海。",
+        "py": "wǒ qù guo liǎng cì shàng hǎi",
+        "en": "I have been to Shanghai twice."
+      },
+      "why": "The count follows the verb and 过, like a duration. With a place, 去过上海两次 is equally good."
+    },
+    {
+      "wrong": "我见过一次他。",
+      "right": {
+        "zh": "我见过他一次。",
+        "py": "wǒ jiàn guo tā yī cì",
+        "en": "I have met him once."
+      },
+      "why": "A pronoun object goes before the count. Only places and ordinary nouns can follow it."
+    },
+    {
+      "wrong": "这个电影我看了两趟。",
+      "right": {
+        "zh": "这个电影我看了两遍。",
+        "py": "zhè ge diàn yǐng wǒ kàn le liǎng biàn",
+        "en": "I have watched this film twice."
+      },
+      "why": "趟 counts trips. Watching something through from beginning to end is counted with 遍 (次 is also possible)."
+    },
+    {
+      "wrong": "我在北京住了三月。",
+      "right": {
+        "zh": "我在北京住了三个月。",
+        "py": "wǒ zài běi jīng zhù le sān gè yuè",
+        "en": "I lived in Beijing for three months."
+      },
+      "why": "三月 is the month of March, a time-when. The length is 三个月, and it goes after the verb."
+    }
+  ],
+  "cheat": [
+    "How long or how many times? After the verb. When? Before the verb.",
+    "Thing object: Verb + 了 + duration + (的) + Object, or Verb + Object + Verb + 了 + duration. Never Verb + Object + duration.",
+    "Pronoun object (他, 我, 你们): right after the verb, before the duration or count: 等了他半天, 见过他一次.",
+    "Still going on now? Add a second 了 at the very end.",
+    "Did not happen for a period? Duration + 没 + Verb (+ 了): 两年没见了.",
+    "Place: 去过两次北京 = 去过北京两次. Split verb-object words: 睡了八个小时觉, 见过一次面.",
+    "遍 = start to finish, 趟 = there and back, 一下 = for a moment, 次 = occasions. 两点 / 三月 are times; 两个小时 / 三个月 are lengths."
+  ]
+}

@@ -70,6 +70,7 @@ EXPECTED_PAGE_URLS = {
     'placement_page': '/placement',
     'classifier_drill_page': '/classifier-drill',
     'counter_drill_page': '/counter-drill',
+    'grammar_drill_page': '/grammar-drill',
     'dual_translation_page': '/dual-translation',
     'dual_translation_profile_page': '/dual-translation/profile',
     'knowledge_page': '/knowledge',

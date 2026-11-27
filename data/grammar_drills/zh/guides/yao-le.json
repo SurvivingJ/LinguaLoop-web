@@ -1,0 +1,364 @@
+{
+  "topic": "yao-le",
+  "summary": "要…了, 快…了, 快要…了 and 就要…了 all say that something is about to happen. The 了 at the very end of the sentence is part of the pattern: it marks the new situation that is arriving, not a finished action. The four are close in meaning; what you have to decide is whether there is a specific time word (then use 就要), whether a noun or number follows directly (then use 快), and whether the 了 belongs at all.",
+  "subs": [
+    {
+      "key": "final-le",
+      "label": "了 closes the pattern",
+      "focus": "Supply the final 了 after 快 / 快要 / 就要 / 要 + verb or adjective, placed at the very end, after any object (快要到北京了). Classic mistakes: dropping 了 (火车快要开) or putting it between verb and object (快要到了北京). Cloze: 了 against ∅, 过, 着, 的; order: where the 了 tile goes."
+    },
+    {
+      "key": "time-word",
+      "label": "Specific time: 就要…了",
+      "focus": "With a specific time or countdown (明天, 八点, 还有五分钟) choose 就要, not 快 / 快要. Classic mistake: 我们明天快要考试了. Also test the no-time-word case, where 快 / 快要 is fine. Wrong options here must be 快 or 快要 only: plain 要…了 with a time word (他明天要走了) is acceptable, so never mark 要 wrong."
+    },
+    {
+      "key": "kuai-noun",
+      "label": "快 + noun / number + 了",
+      "focus": "Put 快 directly before a clock time, age, date, festival or amount, with no verb, and end with 了: 快十点了, 我快二十岁了. Classic mistakes: adding 是 (快是十点了), dropping 了 (快十点), using 很快 or 几乎. Never offer 要, 就要 or 快要 as wrong options here; natives accept them variably before a number."
+    },
+    {
+      "key": "position",
+      "label": "Where the adverb goes",
+      "focus": "Order and rewrite items: 快 / 快要 / 要 / 就要 go after the subject, directly before the verb; a time word precedes 就要 (before or after the subject); 马上 precedes 就要. Classic mistakes: 快 before the subject (快我们毕业了), time word after 就要 (我们就要明天考试了), 快 after the verb (我们到快了)."
+    },
+    {
+      "key": "plain-yao",
+      "label": "要 without 了: want / will / should",
+      "focus": "Decide whether a 要 sentence takes final 了. A wish, a plan or prediction for a stated later time, or advice (want, will, should) takes no 了; something just about to happen does. Classic mistakes: 我要一杯咖啡了; reading 我要回国了 as 'I want to go home'. The English cue must fix the meaning."
+    },
+    {
+      "key": "vs-completed",
+      "label": "About to vs. already happened",
+      "focus": "Choose between about-to and plain 了 for what has already happened or started: 他要走了 (still here) vs 他走了 (gone), 要下雨了 vs 下雨了. Classic mistakes: reading every 了 as past, or 要…了 with a past time word (昨天要下雨了). Each item needs a clue (昨天, 已经, a second clause) that forces one reading."
+    },
+    {
+      "key": "not-yet",
+      "label": "Questions and 'not yet'",
+      "focus": "The pattern has no negative form. The learner must ask with 吗 at the end, after 了 (快到了吗), and answer in the negative with 还没…呢 or 还有 + time. Classic mistakes: negating the pattern with 不 or 没 (我不快到了, 火车没要开了) and putting 吗 before 了. Keep this sub-point to a small share of a batch."
+    }
+  ],
+  "rules": [
+    {
+      "sub": "final-le",
+      "rule": "To say something is about to happen, put 快, 快要, 要 or 就要 before the verb or adjective and end the sentence with 了. With 快, 快要 and 就要 the sentence is wrong without 了.",
+      "pattern": "Subject + 快 / 快要 / 要 / 就要 + Verb or Adjective + 了",
+      "examples": [
+        {
+          "zh": "要下雨了。",
+          "py": "yào xià yǔ le",
+          "en": "It's about to rain."
+        },
+        {
+          "zh": "火车快要开了。",
+          "py": "huǒ chē kuài yào kāi le",
+          "en": "The train is about to leave."
+        },
+        {
+          "zh": "天快黑了。",
+          "py": "tiān kuài hēi le",
+          "en": "It's almost dark."
+        },
+        {
+          "zh": "我的手机快没电了。",
+          "py": "wǒ de shǒu jī kuài méi diàn le",
+          "en": "My phone is about to run out of battery."
+        }
+      ],
+      "note": "Bare 要 without 了 is still a correct sentence, but it means 'will' or 'want to', not 'about to' (see the plain 要 rule)."
+    },
+    {
+      "sub": "final-le",
+      "rule": "If the verb has an object, 了 goes after the object, at the very end of the sentence. Never put it between the verb and the object in this pattern.",
+      "pattern": "Subject + 快 / 快要 / 要 / 就要 + Verb + Object + 了",
+      "examples": [
+        {
+          "zh": "我们快到北京了。",
+          "py": "wǒ men kuài dào běi jīng le",
+          "en": "We're almost in Beijing."
+        },
+        {
+          "zh": "他们快要结婚了。",
+          "py": "tā men kuài yào jié hūn le",
+          "en": "They're about to get married."
+        },
+        {
+          "zh": "姐姐就要上大学了。",
+          "py": "jiě jie jiù yào shàng dà xué le",
+          "en": "My older sister is about to start university."
+        }
+      ]
+    },
+    {
+      "sub": "time-word",
+      "rule": "When the sentence names a specific time or a countdown, use 就要…了. 快…了 and 快要…了 already mean 'soon' in a vague way and do not combine with a specific time.",
+      "pattern": "Subject + time word + 就要 + Verb + 了",
+      "examples": [
+        {
+          "zh": "我们明天就要考试了。",
+          "py": "wǒ men míng tiān jiù yào kǎo shì le",
+          "en": "We have our exam tomorrow."
+        },
+        {
+          "zh": "他下个月就要回国了。",
+          "py": "tā xià gè yuè jiù yào huí guó le",
+          "en": "He's going back to his country next month."
+        },
+        {
+          "zh": "还有五分钟就要下课了。",
+          "py": "hái yǒu wǔ fēn zhōng jiù yào xià kè le",
+          "en": "Class ends in five minutes."
+        }
+      ],
+      "note": "Plain 要…了 is also heard with a time word (他明天要走了). 就要 is the safe choice and adds the feeling 'as soon as that'; only 快 and 快要 are wrong here."
+    },
+    {
+      "sub": "time-word",
+      "rule": "With no time word, 快, 快要, 要 and 就要 are all possible. 马上 (right away) is not a specific time; it goes before 就要 or 要.",
+      "pattern": "Subject + 马上 + 就要 + Verb + 了",
+      "examples": [
+        {
+          "zh": "飞机马上就要起飞了。",
+          "py": "fēi jī mǎ shàng jiù yào qǐ fēi le",
+          "en": "The plane is about to take off any moment."
+        },
+        {
+          "zh": "快要放假了，你打算去哪儿？",
+          "py": "kuài yào fàng jià le nǐ dǎ suàn qù nǎ r",
+          "en": "The holidays are almost here. Where do you plan to go?"
+        },
+        {
+          "zh": "春天就要来了。",
+          "py": "chūn tiān jiù yào lái le",
+          "en": "Spring is just around the corner."
+        }
+      ]
+    },
+    {
+      "sub": "kuai-noun",
+      "rule": "For 'it's almost + time / age / date / amount', put 快 directly before the noun or number and end with 了. No verb and no 是 is needed.",
+      "pattern": "(Subject) + 快 + time / number / noun + 了",
+      "examples": [
+        {
+          "zh": "快十点了，我得回家了。",
+          "py": "kuài shí diǎn le wǒ děi huí jiā le",
+          "en": "It's almost ten; I have to go home."
+        },
+        {
+          "zh": "我女儿快五岁了。",
+          "py": "wǒ nǚ ér kuài wǔ suì le",
+          "en": "My daughter is almost five."
+        },
+        {
+          "zh": "他学中文快三年了。",
+          "py": "tā xué zhōng wén kuài sān nián le",
+          "en": "He has been learning Chinese for almost three years."
+        },
+        {
+          "zh": "快春节了，大家都很忙。",
+          "py": "kuài chūn jié le dà jiā dōu hěn máng",
+          "en": "It's almost Spring Festival and everyone is busy."
+        }
+      ],
+      "note": "快要 can also stand before a number (快要十点了). 要 and 就要 normally take a verb such as 到 (就要到春节了), though you will hear them directly before a number in speech. In the drills, use 快."
+    },
+    {
+      "sub": "position",
+      "rule": "The about-to word is an adverb: it comes after the subject and directly before the verb or adjective. A time word comes before 就要, never after it.",
+      "pattern": "Subject + (time word) + 快 / 快要 / 就要 + Verb + 了",
+      "examples": [
+        {
+          "zh": "我们快毕业了。",
+          "py": "wǒ men kuài bì yè le",
+          "en": "We're about to graduate."
+        },
+        {
+          "zh": "妈妈快回来了。",
+          "py": "mā ma kuài huí lái le",
+          "en": "Mum will be back soon."
+        },
+        {
+          "zh": "明天我就要离开上海了。",
+          "py": "míng tiān wǒ jiù yào lí kāi shàng hǎi le",
+          "en": "I'm leaving Shanghai tomorrow."
+        }
+      ],
+      "note": "The time word may stand before or after the subject (明天我就要… / 我明天就要…); both are correct, so order items must list both."
+    },
+    {
+      "sub": "plain-yao",
+      "rule": "要 with no 了 at the end means want, will or should. Use it for wishes, for plans and predictions at a stated later time, and for advice. Add 了 only when the thing is about to happen.",
+      "pattern": "Subject + 要 + Verb (+ Object)",
+      "examples": [
+        {
+          "zh": "我要一杯咖啡。",
+          "py": "wǒ yào yī bēi kā fēi",
+          "en": "I'd like a cup of coffee."
+        },
+        {
+          "zh": "我明年要去中国学习。",
+          "py": "wǒ míng nián yào qù zhōng guó xué xí",
+          "en": "I'm going to study in China next year."
+        },
+        {
+          "zh": "你要多喝水。",
+          "py": "nǐ yào duō hē shuǐ",
+          "en": "You should drink more water."
+        },
+        {
+          "zh": "我要回国了。",
+          "py": "wǒ yào huí guó le",
+          "en": "I'm about to go back to my country."
+        }
+      ],
+      "note": "要 + noun (我要一杯咖啡) can only mean 'want'; it never takes the about-to 了."
+    },
+    {
+      "sub": "vs-completed",
+      "rule": "了 alone after a verb or at the end of a sentence says the thing has happened or has started. Add 要 / 快 / 就要 in front and the same sentence says it has not happened yet but is close.",
+      "pattern": "Verb + 了 (happened) / 要 + Verb + 了 (about to)",
+      "examples": [
+        {
+          "zh": "他要走了，你快去跟他说再见。",
+          "py": "tā yào zǒu le nǐ kuài qù gēn tā shuō zài jiàn",
+          "en": "He's about to leave; go and say goodbye to him quickly."
+        },
+        {
+          "zh": "他已经走了。",
+          "py": "tā yǐ jīng zǒu le",
+          "en": "He has already left."
+        },
+        {
+          "zh": "电影快开始了，我们进去吧。",
+          "py": "diàn yǐng kuài kāi shǐ le wǒ men jìn qù ba",
+          "en": "The film is about to start; let's go in."
+        },
+        {
+          "zh": "外面下雨了，带上伞吧。",
+          "py": "wài miàn xià yǔ le dài shàng sǎn ba",
+          "en": "It's raining outside; take an umbrella."
+        }
+      ],
+      "note": "The about-to pattern looks forward from now, so it does not go with past time words such as 昨天 or 上个星期, or with 已经 before 要."
+    },
+    {
+      "sub": "not-yet",
+      "rule": "Ask by adding 吗 after the final 了. The pattern cannot be negated with 不 or 没: for 'not yet' say 还没…呢, or say how long is left with 还有….",
+      "pattern": "Subject + 快 + Verb + 了 + 吗 / Subject + 还没 + Verb + 呢",
+      "examples": [
+        {
+          "zh": "你快到了吗？",
+          "py": "nǐ kuài dào le ma",
+          "en": "Are you nearly there?"
+        },
+        {
+          "zh": "我还没到呢。",
+          "py": "wǒ hái méi dào ne",
+          "en": "I'm not there yet."
+        },
+        {
+          "zh": "饭快好了吗？",
+          "py": "fàn kuài hǎo le ma",
+          "en": "Is dinner almost ready?"
+        },
+        {
+          "zh": "离考试还有两个月呢。",
+          "py": "lí kǎo shì hái yǒu liǎng gè yuè ne",
+          "en": "The exam is still two months away."
+        }
+      ]
+    }
+  ],
+  "contrasts": [
+    {
+      "wrong": "火车快要开。",
+      "right": {
+        "zh": "火车快要开了。",
+        "py": "huǒ chē kuài yào kāi le",
+        "en": "The train is about to leave."
+      },
+      "why": "快要 needs the final 了 to complete the pattern; without it the sentence is unfinished."
+    },
+    {
+      "wrong": "我们快要到了北京。",
+      "right": {
+        "zh": "我们快要到北京了。",
+        "py": "wǒ men kuài yào dào běi jīng le",
+        "en": "We're about to arrive in Beijing."
+      },
+      "why": "The 了 of this pattern goes at the end of the sentence, after the object. 到了北京 would mean the arrival is already complete, which clashes with 快要."
+    },
+    {
+      "wrong": "我们明天快要考试了。",
+      "right": {
+        "zh": "我们明天就要考试了。",
+        "py": "wǒ men míng tiān jiù yào kǎo shì le",
+        "en": "We have our exam tomorrow."
+      },
+      "why": "明天 is a specific time, so 就要 is needed. 快要 already means 'some time soon' and does not combine with a specific time."
+    },
+    {
+      "wrong": "现在快是十点了。",
+      "right": {
+        "zh": "现在快十点了。",
+        "py": "xiàn zài kuài shí diǎn le",
+        "en": "It's almost ten o'clock now."
+      },
+      "why": "快 goes directly before the time; Chinese needs no 是 for 'it is almost ten'."
+    },
+    {
+      "wrong": "快我们毕业了。",
+      "right": {
+        "zh": "我们快毕业了。",
+        "py": "wǒ men kuài bì yè le",
+        "en": "We're about to graduate."
+      },
+      "why": "快 is an adverb and stands after the subject, directly before the verb. English 'soon we graduate' cannot be copied."
+    },
+    {
+      "wrong": "我们就要下个星期搬家了。",
+      "right": {
+        "zh": "我们下个星期就要搬家了。",
+        "py": "wǒ men xià gè xīng qī jiù yào bān jiā le",
+        "en": "We're moving house next week."
+      },
+      "why": "The time word comes before 就要, and 就要 stays right in front of the verb."
+    },
+    {
+      "wrong": "服务员，我要一杯咖啡了。",
+      "right": {
+        "zh": "服务员，我要一杯咖啡。",
+        "py": "fú wù yuán wǒ yào yī bēi kā fēi",
+        "en": "Waiter, I'd like a cup of coffee."
+      },
+      "why": "Here 要 means 'want' and is followed by a noun. The about-to 了 only goes with 要 + verb for something that is about to happen."
+    },
+    {
+      "wrong": "昨天要下雨了。",
+      "right": {
+        "zh": "昨天下雨了。",
+        "py": "zuó tiān xià yǔ le",
+        "en": "It rained yesterday."
+      },
+      "why": "要…了 looks forward from now and means 'about to rain'. For something that happened yesterday, use the verb with 了 and no 要."
+    },
+    {
+      "wrong": "我不快到了。",
+      "right": {
+        "zh": "我还没到呢。",
+        "py": "wǒ hái méi dào ne",
+        "en": "I'm not there yet."
+      },
+      "why": "快…了 has no negative form. 'Not yet' is 还没 + verb, usually with 呢."
+    }
+  ],
+  "cheat": [
+    "About to happen? Check the end of the sentence: 了 must be there, after any object.",
+    "Specific time or countdown in the sentence (明天, 八点, 还有五分钟)? Use 就要…了, not 快 or 快要.",
+    "Number, clock time, age or festival straight after it? 快 + noun + 了, with no 是.",
+    "快 / 快要 / 就要 go after the subject, right before the verb; the time word goes before 就要.",
+    "要 with no 了 means want, will or should; 要 + noun is always 'want'.",
+    "了 without 要 or 快 means it has already happened or started. Past time word? No 要…了.",
+    "Not yet? 还没…呢. Never 不快 or 没要."
+  ]
+}

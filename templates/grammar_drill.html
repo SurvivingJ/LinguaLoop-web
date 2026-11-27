@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% set defer_base_scripts = true %}
+{% set page_js = module_assets('js/pages', 'grammar-drill.js') %}
+{# One task per screen (FOUNDATION.md): Back pill header, each screen a scrolling
+   stage with its actions in a pinned dock. The Back pill steps drill -> topic
+   -> hub (static/js/grammar/app.js) and leaves the page from the hub. #}
+{% set task_mode = true %}
+{% set task_back = 'history' %}
+
+{% block title %}Grammar Drills | LinguaDojo{% endblock %}
+
+{% block body_class %}bg-slate-50 trainer-page{% endblock %}
+
+{% block task_back_href %}{{ url_for('profile') }}{% endblock %}
+{% block task_title %}<span data-i18n="grammar_drill.title">Grammar Drills</span>{% endblock %}
+{% block task_glyph %}法{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/redesign/grammar.css') }}">
+{# The page is an ES-module app (page_js.entry -> js/grammar/app.js). The import
+   map gives every relative import its ?v= URL: the grammar modules (and the
+   optional generators, loaded with import()) plus js/session for dom.js. #}
+{% set _imports = dict(module_assets('js/session').import_map.imports, **module_assets('js/grammar').import_map.imports) %}
+<script type="importmap">{{ {'imports': _imports}|tojson }}</script>
+{% for href in page_js.preload %}<link rel="modulepreload" href="{{ href }}">
+{% endfor %}
+{% endblock %}
+
+{% block content %}
+{# Content is static JSON built by scripts/grammar_drills.py; the manifest URL
+   is versioned here and names each topic file's version. #}
+<div id="grammarRoot" class="trainer-host" lang="zh"
+     data-manifest="{{ url_for('static', filename='data/grammar/zh/manifest.json') }}">
+    <div class="ld-screen gd"><div class="ld-stage"><div class="gd-msg" data-i18n="grammar_drill.loading">Loading…</div></div></div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script type="module" src="{{ page_js.entry }}"></script>
+{% endblock %}

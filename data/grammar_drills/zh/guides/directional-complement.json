@@ -1,0 +1,479 @@
+{
+  "topic": "directional-complement",
+  "summary": "A direction word after a verb says where the action goes: 进来 come in, 拿出去 take out, 站起来 stand up. 来 means toward the speaker, 去 means away. The one idea: the verb says how, the complement says which way, and a place word must sit before 来/去 (回家去). The same endings also carry fixed extra meanings: 起来 start or judge, 下去 keep going, 下来 settle or record, 出来 figure out or produce, 上 attach or achieve.",
+  "subs": [
+    {
+      "key": "lai-qu",
+      "label": "来 or 去: where is the speaker?",
+      "focus": "Choose 来 or 去 after 进/出/上/下/回/过 from where the speaker is. Each item needs a clause fixing the speaker's position (我在楼上, 他不在这儿). Classic mistake: picking by English come/go, e.g. 我在楼上，你快上去吧. Avoid 'going to the listener' cases (我马上过去/过来): both occur."
+    },
+    {
+      "key": "compound",
+      "label": "Verb + direction + 来/去 (走进来, 站起来)",
+      "focus": "Pick the right direction word (上下进出回过起) and the order action verb + direction + 来/去. Classic mistakes: wrong direction word (站上来 for 'stand up'), 起去 (does not exist), reversed order (进走来), direction word left out (从包里拿来 for 'take out')."
+    },
+    {
+      "key": "place-object",
+      "label": "Place goes before 来/去 (回家去)",
+      "focus": "Put a place object (家, 教室, 楼, 北京) between the direction word and 来/去, never after 来/去. Classic mistake: 回去家, 走进来教室, 上去楼. Make 来/去 its own tile in order items. Dropping 来/去 (他走进教室) is also correct: never mark it wrong."
+    },
+    {
+      "key": "thing-object",
+      "label": "Thing objects: before or after 来/去",
+      "focus": "Place a thing object. 拿出一本书来 and 拿出来一本书 are both right: list both in alts, never make a cloze choose between them. Test forced cases: request or plan puts the object before 来/去 (带一本词典来吧); scrambled parts (拿来出一本书) are wrong. Classic mistake: scrambling the three parts."
+    },
+    {
+      "key": "ba",
+      "label": "把 + object + verb + direction",
+      "focus": "Build 把 + specific object + verb + direction (+ place) + 来/去, with 没/别/modals before 把 and 了 last. Classic mistakes: object after the complement (搬进来把椅子), bare verb (把椅子搬), 没 after 把, place after 来/去 (把行李拿上去楼). Good for 'Rewrite with 把.'"
+    },
+    {
+      "key": "qilai",
+      "label": "起来: start, or judging by (看起来)",
+      "focus": "Start: verb/adjective + 起来 (笑起来), object inside (下起雨来). Impression: 看/听/吃/穿/用 + 起来 + comment (看起来很累). Classic mistakes: 下雨起来, 看出来很累, bare 你看很累, 起来 where 下去 or 下来 is meant. Never use 看上去 as a wrong option: it is a correct synonym."
+    },
+    {
+      "key": "xiaqu-xialai",
+      "label": "下去 keep going, 下来 settle or record",
+      "focus": "The learner must choose between 下去 (continue from now on: 说下去, 学下去, 这样下去), 下来 (come to rest or stay: 停下来, 安静下来, 留下来; fix on paper or in memory: 写下来, 记下来) and 起来 (start). Classic mistakes: 写下去 for 'write down', 安静起来 for 'quieten down', 说起来 for 'go on talking', and putting an object after 下去 (学下去汉语)."
+    },
+    {
+      "key": "chulai",
+      "label": "出来: figure out, recognise, produce",
+      "focus": "Use 出来 when something hidden becomes known (看出来, 听出来, 认出来) or something new is produced (想出来, 写出来, 做出来, 说出来). Classic mistakes: 想起来 (recall) for 想出来 (think up) and the reverse, 看起来 for 看出来. Context must show whether the thing was known before."
+    },
+    {
+      "key": "shang-guo",
+      "label": "上 (attach, achieve) and 过来 / 过去",
+      "focus": "(1) Verb + 上, no 来/去: close or put on (关上, 穿上, 戴上, 写上), reach a goal (考上, 爱上). Mistakes: 穿起, 考到大学, 关上来. (2) 过来 across toward the speaker, 过去 away (走过来, 跑过去); 过来 also back to normal (醒过来, 改过来). Mistakes: the two swapped, 醒起来."
+    }
+  ],
+  "rules": [
+    {
+      "sub": "lai-qu",
+      "rule": "After 进, 出, 上, 下, 回, 过 add 来 if the movement ends nearer the speaker, 去 if it ends farther away. Ask: where am I standing?",
+      "pattern": "Subject + 进 / 出 / 上 / 下 / 回 / 过 + 来 / 去",
+      "examples": [
+        {
+          "zh": "外面很冷，你快进来吧。",
+          "py": "wài miàn hěn lěng nǐ kuài jìn lái ba",
+          "en": "It's cold outside, come in quickly. (I am inside.)"
+        },
+        {
+          "zh": "我在楼下等你，你下来吧。",
+          "py": "wǒ zài lóu xià děng nǐ nǐ xià lái ba",
+          "en": "I'm waiting for you downstairs, come down."
+        },
+        {
+          "zh": "他已经回去了，不在这儿。",
+          "py": "tā yǐ jīng huí qù le bú zài zhè r",
+          "en": "He has already gone back; he isn't here."
+        }
+      ],
+      "note": "When you are going to where the listener is, Chinese normally keeps your own viewpoint and says 去 (我马上过去), though 我马上过来 is also heard. English 'I'm coming' is not a safe guide."
+    },
+    {
+      "sub": "compound",
+      "rule": "To say how something moves and which way, stack three parts: the action verb, then the direction word, then 来 or 去. 起 only combines with 来: 起来 is rising from where you are, 坐下来 is sitting down.",
+      "pattern": "Subject + Verb + 上 / 下 / 进 / 出 / 回 / 过 / 起 + 来 / 去",
+      "examples": [
+        {
+          "zh": "老师走进来了。",
+          "py": "lǎo shī zǒu jìn lái le",
+          "en": "The teacher walked in."
+        },
+        {
+          "zh": "孩子们都跑出去了。",
+          "py": "hái zi men dōu pǎo chū qù le",
+          "en": "The children all ran out."
+        },
+        {
+          "zh": "请大家站起来。",
+          "py": "qǐng dà jiā zhàn qǐ lái",
+          "en": "Everyone, please stand up."
+        },
+        {
+          "zh": "你坐下来，我们慢慢说。",
+          "py": "nǐ zuò xià lái wǒ men màn màn shuō",
+          "en": "Sit down and let's talk it over slowly."
+        }
+      ],
+      "note": "There is no 起去. 起来 is upward with no destination (站起来, 拿起来); moving up to a higher place uses 上 (走上来, 跑上去)."
+    },
+    {
+      "sub": "place-object",
+      "rule": "A place can never follow 来 or 去. Put it right after the direction word and let 来/去 close the phrase.",
+      "pattern": "Subject + (Verb) + direction + Place + 来 / 去",
+      "examples": [
+        {
+          "zh": "他回家去了。",
+          "py": "tā huí jiā qù le",
+          "en": "He has gone home."
+        },
+        {
+          "zh": "老师走进教室来了。",
+          "py": "lǎo shī zǒu jìn jiào shì lái le",
+          "en": "The teacher walked into the classroom."
+        },
+        {
+          "zh": "下课以后，学生们都跑出教室去了。",
+          "py": "xià kè yǐ hòu xué sheng men dōu pǎo chū jiào shì qù le",
+          "en": "After class the students all ran out of the classroom."
+        },
+        {
+          "zh": "你什么时候回北京来？",
+          "py": "nǐ shén me shí hou huí běi jīng lái",
+          "en": "When are you coming back to Beijing?"
+        }
+      ],
+      "note": "With a place, 来/去 is often simply left out (他走进教室, 他回家了). That is fine. What is wrong in standard Mandarin is the place after 来/去: 回去家, 走进来教室."
+    },
+    {
+      "sub": "thing-object",
+      "rule": "An object that is a thing may go before 来/去 or after it. For a request or a plan (not done yet), put it before 来/去.",
+      "pattern": "Subject + Verb + (direction) + Object + 来 / 去, or Verb + (direction) + 来 / 去 + Object",
+      "examples": [
+        {
+          "zh": "她从包里拿出一本书来。",
+          "py": "tā cóng bāo lǐ ná chū yī běn shū lái",
+          "en": "She took a book out of her bag."
+        },
+        {
+          "zh": "她从包里拿出来一本书。",
+          "py": "tā cóng bāo lǐ ná chū lái yī běn shū",
+          "en": "She took a book out of her bag."
+        },
+        {
+          "zh": "朋友给我带来了一些水果。",
+          "py": "péng you gěi wǒ dài lái le yī xiē shuǐ guǒ",
+          "en": "A friend brought me some fruit."
+        },
+        {
+          "zh": "你明天带一本词典来吧。",
+          "py": "nǐ míng tiān dài yī běn cí diǎn lái ba",
+          "en": "Bring a dictionary tomorrow."
+        }
+      ],
+      "note": "This is a tendency, not a hard rule: the object after 来/去 is most natural when the action has already happened and the object is 'a / some' something. If the object is a specific known thing, 把 is usually the best choice."
+    },
+    {
+      "sub": "ba",
+      "rule": "To move a specific thing somewhere, use 把: the object goes before the verb and the whole directional complement stays together after it. 没, 别 and modal verbs go before 把; 了 goes at the end.",
+      "pattern": "Subject + 把 + Object + Verb + direction + (Place) + 来 / 去",
+      "examples": [
+        {
+          "zh": "请把椅子搬进来。",
+          "py": "qǐng bǎ yǐ zi bān jìn lái",
+          "en": "Please carry the chairs in."
+        },
+        {
+          "zh": "他把手机从包里拿出来了。",
+          "py": "tā bǎ shǒu jī cóng bāo lǐ ná chū lái le",
+          "en": "He took his phone out of his bag."
+        },
+        {
+          "zh": "我帮你把行李拿上楼去。",
+          "py": "wǒ bāng nǐ bǎ xíng li ná shàng lóu qù",
+          "en": "I'll help you take the luggage upstairs."
+        },
+        {
+          "zh": "别忘了把伞带回去。",
+          "py": "bié wàng le bǎ sǎn dài huí qù",
+          "en": "Don't forget to take the umbrella back with you."
+        }
+      ],
+      "note": "The place rule still holds inside a 把 sentence: 拿上楼去, not 拿上去楼."
+    },
+    {
+      "sub": "qilai",
+      "rule": "Verb or adjective + 起来 means something starts and keeps going. If the verb has an object, the object goes between 起 and 来.",
+      "pattern": "Subject + Verb / Adjective + 起来   or   Subject + Verb + 起 + Object + 来",
+      "examples": [
+        {
+          "zh": "听了他的话，大家都笑起来了。",
+          "py": "tīng le tā de huà dà jiā dōu xiào qǐ lái le",
+          "en": "Hearing what he said, everyone started laughing."
+        },
+        {
+          "zh": "天气暖和起来了。",
+          "py": "tiān qì nuǎn huo qǐ lái le",
+          "en": "The weather is starting to get warm."
+        },
+        {
+          "zh": "外面突然下起雨来了。",
+          "py": "wài miàn tū rán xià qǐ yǔ lái le",
+          "en": "It suddenly started raining outside."
+        },
+        {
+          "zh": "他们一见面就聊起天来。",
+          "py": "tā men yī jiàn miàn jiù liáo qǐ tiān lái",
+          "en": "They start chatting the moment they meet."
+        }
+      ],
+      "note": "With adjectives, 起来 fits things that grow or get livelier (热, 多, 忙, 胖, 好). Getting quieter, slower or darker takes 下来 (安静下来, 慢下来)."
+    },
+    {
+      "sub": "qilai",
+      "rule": "看 / 听 / 吃 / 穿 / 用 / 说 / 做 + 起来 + a comment gives your impression: 'it looks, sounds, tastes, feels ...' or 'when it comes to doing it ...'.",
+      "pattern": "Subject + 看 / 听 / 吃 / 穿 / 用 / 做 + 起来 + comment",
+      "examples": [
+        {
+          "zh": "你看起来很累。",
+          "py": "nǐ kàn qǐ lái hěn lèi",
+          "en": "You look tired."
+        },
+        {
+          "zh": "这个办法听起来不错。",
+          "py": "zhè ge bàn fǎ tīng qǐ lái bú cuò",
+          "en": "This idea sounds good."
+        },
+        {
+          "zh": "这件衣服穿起来很舒服。",
+          "py": "zhè jiàn yī fu chuān qǐ lái hěn shū fu",
+          "en": "This piece of clothing is comfortable to wear."
+        },
+        {
+          "zh": "这件事说起来容易，做起来难。",
+          "py": "zhè jiàn shì shuō qǐ lái róng yì zuò qǐ lái nán",
+          "en": "This is easy to say but hard to do."
+        }
+      ],
+      "note": "看上去 means the same as 看起来 for 'looks'. 看出来 is different: it means you managed to tell something by looking."
+    },
+    {
+      "sub": "xiaqu-xialai",
+      "rule": "Verb + 下去 means carry on with something already under way. It takes no object after it.",
+      "pattern": "Subject + Verb + 下去",
+      "examples": [
+        {
+          "zh": "请你说下去，我们都在听。",
+          "py": "qǐng nǐ shuō xià qù wǒ men dōu zài tīng",
+          "en": "Please go on, we are all listening."
+        },
+        {
+          "zh": "汉语很难，可是我一定要学下去。",
+          "py": "hàn yǔ hěn nán kě shì wǒ yī dìng yào xué xià qù",
+          "en": "Chinese is hard, but I'm definitely going to keep studying it."
+        },
+        {
+          "zh": "再这样下去，你的身体会出问题。",
+          "py": "zài zhè yàng xià qù nǐ de shēn tǐ huì chū wèn tí",
+          "en": "If you go on like this, your health will suffer."
+        }
+      ],
+      "note": "起来 is the start, 下去 is the continuation from now on. 坚持下去 is 'keep it up from here'; 坚持下来 is 'have kept it up until now'."
+    },
+    {
+      "sub": "xiaqu-xialai",
+      "rule": "Verb + 下来 means something comes to rest or stays (stop, calm down, remain), or gets fixed so it will not be lost (write down, note down, remember).",
+      "pattern": "Subject + Verb / Adjective + 下来",
+      "examples": [
+        {
+          "zh": "车在学校门口停下来了。",
+          "py": "chē zài xué xiào mén kǒu tíng xià lái le",
+          "en": "The car came to a stop at the school gate."
+        },
+        {
+          "zh": "教室里慢慢安静下来了。",
+          "py": "jiào shì lǐ màn màn ān jìng xià lái le",
+          "en": "The classroom slowly quietened down."
+        },
+        {
+          "zh": "请把你的电话号码写下来。",
+          "py": "qǐng bǎ nǐ de diàn huà hào mǎ xiě xià lái",
+          "en": "Please write down your phone number."
+        },
+        {
+          "zh": "毕业以后，他决定留下来工作。",
+          "py": "bì yè yǐ hòu tā jué dìng liú xià lái gōng zuò",
+          "en": "After graduating he decided to stay on and work."
+        }
+      ]
+    },
+    {
+      "sub": "chulai",
+      "rule": "Verb + 出来 means something comes out into the open: you work out who or what it is (看, 听, 认), or you bring something new into being (想, 写, 做, 说).",
+      "pattern": "Subject + 看 / 听 / 认 / 想 / 写 / 做 / 说 + 出来 + (Object)",
+      "examples": [
+        {
+          "zh": "我一听就听出来是你。",
+          "py": "wǒ yī tīng jiù tīng chū lái shì nǐ",
+          "en": "The moment I heard the voice I could tell it was you."
+        },
+        {
+          "zh": "他想出来一个好办法。",
+          "py": "tā xiǎng chū lái yī gè hǎo bàn fǎ",
+          "en": "He came up with a good idea."
+        },
+        {
+          "zh": "他变化很大，我没认出来。",
+          "py": "tā biàn huà hěn dà wǒ méi rèn chū lái",
+          "en": "He has changed a lot; I didn't recognise him."
+        },
+        {
+          "zh": "你心里有什么话就说出来吧。",
+          "py": "nǐ xīn lǐ yǒu shén me huà jiù shuō chū lái ba",
+          "en": "Whatever is on your mind, just say it."
+        }
+      ],
+      "note": "想出来 is thinking up something that did not exist (an idea, a plan). 想起来 is recalling something you already knew (a name, a date)."
+    },
+    {
+      "sub": "shang-guo",
+      "rule": "Verb + 上 (no 来/去) means two things join or close (shut, put on, write on), or a goal is reached and a new state begins (get into university, fall in love).",
+      "pattern": "Subject + Verb + 上 + Object",
+      "examples": [
+        {
+          "zh": "外面很冷，你穿上这件衣服吧。",
+          "py": "wài miàn hěn lěng nǐ chuān shàng zhè jiàn yī fu ba",
+          "en": "It's cold outside, put this on."
+        },
+        {
+          "zh": "请把门关上。",
+          "py": "qǐng bǎ mén guān shàng",
+          "en": "Please close the door."
+        },
+        {
+          "zh": "他今年考上了大学。",
+          "py": "tā jīn nián kǎo shàng le dà xué",
+          "en": "He got into university this year."
+        },
+        {
+          "zh": "她爱上了这个城市。",
+          "py": "tā ài shàng le zhè ge chéng shì",
+          "en": "She fell in love with this city."
+        }
+      ],
+      "note": "The opposite of putting on is 下 (脱下大衣), and opening takes 开 (打开门), not 上."
+    },
+    {
+      "sub": "shang-guo",
+      "rule": "过来 is across the space toward the speaker, 过去 is across it away from the speaker. 过来 also means coming back to a normal or correct state (wake up, put right).",
+      "pattern": "Subject + Verb + 过来 / 过去",
+      "examples": [
+        {
+          "zh": "他看见我，就走过来了。",
+          "py": "tā kàn jiàn wǒ jiù zǒu guò lái le",
+          "en": "He saw me and walked over."
+        },
+        {
+          "zh": "你把那把椅子拿过来。",
+          "py": "nǐ bǎ nà bǎ yǐ zi ná guò lái",
+          "en": "Bring that chair over here."
+        },
+        {
+          "zh": "公共汽车来了，我们快跑过去吧。",
+          "py": "gōng gòng qì chē lái le wǒ men kuài pǎo guò qù ba",
+          "en": "The bus is here, let's run over to it."
+        },
+        {
+          "zh": "他睡了十个小时才醒过来。",
+          "py": "tā shuì le shí gè xiǎo shí cái xǐng guò lái",
+          "en": "He slept for ten hours before he woke up."
+        }
+      ],
+      "note": "The mirror image, 过去 for losing a normal state, exists too (to faint is 晕过去), but the words are above this level."
+    }
+  ],
+  "contrasts": [
+    {
+      "wrong": "他回去家了。",
+      "right": {
+        "zh": "他回家去了。",
+        "py": "tā huí jiā qù le",
+        "en": "He has gone home."
+      },
+      "why": "A place cannot follow 去. It goes between 回 and 去."
+    },
+    {
+      "wrong": "老师走进来教室了。",
+      "right": {
+        "zh": "老师走进教室来了。",
+        "py": "lǎo shī zǒu jìn jiào shì lái le",
+        "en": "The teacher walked into the classroom."
+      },
+      "why": "教室 is a place, so it must come before 来, splitting 进 and 来."
+    },
+    {
+      "wrong": "我在楼上，你快上去吧。",
+      "right": {
+        "zh": "我在楼上，你快上来吧。",
+        "py": "wǒ zài lóu shàng nǐ kuài shàng lái ba",
+        "en": "I'm upstairs, come up quickly."
+      },
+      "why": "The speaker is upstairs, so the movement is toward the speaker: 来, not 去."
+    },
+    {
+      "wrong": "外面突然下雨起来了。",
+      "right": {
+        "zh": "外面突然下起雨来了。",
+        "py": "wài miàn tū rán xià qǐ yǔ lái le",
+        "en": "It suddenly started raining outside."
+      },
+      "why": "With 起来 'start', the object 雨 goes between 起 and 来, never before 起来."
+    },
+    {
+      "wrong": "你看出来很累。",
+      "right": {
+        "zh": "你看起来很累。",
+        "py": "nǐ kàn qǐ lái hěn lèi",
+        "en": "You look tired."
+      },
+      "why": "An impression ('you look ...') is 看起来. 看出来 means to work something out by looking."
+    },
+    {
+      "wrong": "我想出来了，他叫小王。",
+      "right": {
+        "zh": "我想起来了，他叫小王。",
+        "py": "wǒ xiǎng qǐ lái le tā jiào xiǎo wáng",
+        "en": "Now I remember, his name is Xiao Wang."
+      },
+      "why": "A name you knew and forgot is recalled: 想起来. 想出来 is for inventing something new, like an idea."
+    },
+    {
+      "wrong": "别停，请你说起来。",
+      "right": {
+        "zh": "别停，请你说下去。",
+        "py": "bié tíng qǐng nǐ shuō xià qù",
+        "en": "Don't stop, please go on."
+      },
+      "why": "Carrying on with something already started is 下去. 起来 would be starting."
+    },
+    {
+      "wrong": "请把你的名字写下去。",
+      "right": {
+        "zh": "请把你的名字写下来。",
+        "py": "qǐng bǎ nǐ de míng zi xiě xià lái",
+        "en": "Please write your name down."
+      },
+      "why": "Fixing something on paper is 下来. 写下去 means 'keep on writing'."
+    },
+    {
+      "wrong": "教室里慢慢安静起来了。",
+      "right": {
+        "zh": "教室里慢慢安静下来了。",
+        "py": "jiào shì lǐ màn màn ān jìng xià lái le",
+        "en": "The classroom slowly quietened down."
+      },
+      "why": "Calming, slowing and stopping settle downward with 下来. 起来 is for things that grow or liven up."
+    },
+    {
+      "wrong": "请搬进来把椅子。",
+      "right": {
+        "zh": "请把椅子搬进来。",
+        "py": "qǐng bǎ yǐ zi bān jìn lái",
+        "en": "Please carry the chairs in."
+      },
+      "why": "把 and its object go before the verb; verb + direction + 来 stays together at the end."
+    }
+  ],
+  "cheat": [
+    "Where am I? Toward me 来, away from me 去.",
+    "Place word? It goes before 来/去: 回家去, 走进教室来. Never 回去家.",
+    "Specific thing being moved? 把 + thing + verb + direction + 来/去.",
+    "起来 starts (object inside: 下起雨来) or gives an impression (看起来). 下去 keeps going.",
+    "下来: stop, calm down, stay, write down. 写下来, not 写下去.",
+    "出来: something new or hidden appears (想出来 think up, 听出来 recognise). 想起来 is remember.",
+    "上 with no 来/去: close it, put it on, make it (关上, 穿上, 考上)."
+  ]
+}

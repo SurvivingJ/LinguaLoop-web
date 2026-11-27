@@ -1,0 +1,352 @@
+{
+  "topic": "bei",
+  "summary": "被 puts the thing affected first and the doer second: Receiver + 被 + doer + verb + what happened to it. The sentence is about the receiver and how it ended up, so the verb has to carry a result or 了, exactly as in a 把 sentence turned around. Chinese uses 被 far less than English uses 'was done': when a thing obviously cannot act by itself, the plain sentence (作业写完了) is already passive.",
+  "subs": [
+    {
+      "key": "basic-order",
+      "label": "Receiver + 被 + doer + verb",
+      "focus": "Force the order: receiver before 被, doer right after 被, all of it before the verb. Classic errors: 被 + doer after the verb like English 'by ...' (手机偷走了被小偷), or doer and receiver swapped. Make 被 and the doer separate tiles; in cloze, offer 把 and 给 as distractors."
+    },
+    {
+      "key": "agent-drop",
+      "label": "被 with no doer; 被人",
+      "focus": "Decide whether the doer can be left out. After 被 it can (钱包被偷了), or use 人 for an unknown doer. After 叫/让 a doer is required: 让偷了 is wrong, 让人偷了 is right. Cloze: 被 against 叫/让 with no doer following. Judge: 叫/让 directly before the verb (wrong), 被 directly before the verb (correct trap)."
+    },
+    {
+      "key": "neg-modal",
+      "label": "没, 不会, 已经, 别 go before 被",
+      "focus": "Place 没, 不会, 会, 可能, 已经, 也, 都, 别 before 被, never between the doer and the verb. Also: a past event is negated with 没(有)被, not 不被, and 没 drops the final 了. Classic errors: 被没偷, 被老师会批评, 没被偷了. Make the negator or modal its own tile."
+    },
+    {
+      "key": "needs-result",
+      "label": "The verb cannot stand bare",
+      "focus": "A one-syllable verb cannot end a 被 sentence alone: it needs a result (完, 走, 坏, 破, 开), a direction, 到 + place, 得 + description, or at least 了. Classic error: 蛋糕被弟弟吃. Cloze: complement or 了 against ∅. Never mark a bare two-syllable verb after a modal as wrong (会被批评 is fine)."
+    },
+    {
+      "key": "jiao-rang",
+      "label": "Spoken 叫 / 让 for 被",
+      "focus": "Recognise 叫/让 as spoken passive markers: same order as 被, doer always stated (自行车让人骑走了). Keep it apart from 让/叫 'let, tell to': subject is the thing affected and the verb has a result. Errors: dropping the doer, reading 让 as 'let'. Never offer 被 and 叫/让 together when both fit."
+    },
+    {
+      "key": "unmarked",
+      "label": "Passive without 被",
+      "focus": "Leave 被 out when a thing that cannot act is the subject, no doer is named and nothing bad happened: 作业写完了, 饭做好了. Error: 被 for every English 'was done'. The 被 version is odd, not impossible, so use cloze (被 vs ∅, cue asks for the natural sentence), 被 as an extra tile, or correct judge items only."
+    },
+    {
+      "key": "ba-bei",
+      "label": "把 ⇄ 被 conversion",
+      "focus": "Convert both ways: 把 object becomes 被 subject, 把 subject becomes the doer after 被, everything from the verb on is unchanged, negation and modals stay before 把/被. Errors: keeping 把 inside the 被 sentence, losing the result. Mostly rewrite items; for 被 to 把 the source must name a doer."
+    }
+  ],
+  "rules": [
+    {
+      "sub": "basic-order",
+      "rule": "Start with the thing or person affected, then 被, then who did it, then the verb with its result. The 被 phrase always comes before the verb.",
+      "pattern": "Receiver + 被 + Doer + Verb + result / 了",
+      "examples": [
+        {
+          "zh": "我的手机被小偷偷走了。",
+          "py": "wǒ de shǒu jī bèi xiǎo tōu tōu zǒu le",
+          "en": "My phone was stolen by a thief."
+        },
+        {
+          "zh": "蛋糕被弟弟吃完了。",
+          "py": "dàn gāo bèi dì di chī wán le",
+          "en": "The cake was finished off by my little brother."
+        },
+        {
+          "zh": "那本书被小王借走了。",
+          "py": "nà běn shū bèi xiǎo wáng jiè zǒu le",
+          "en": "That book was borrowed by Xiao Wang."
+        }
+      ],
+      "note": "被 is most at home with things that are unwelcome for the receiver (stolen, broken, scolded), but neutral and good events are also normal in modern Chinese, especially in writing."
+    },
+    {
+      "sub": "agent-drop",
+      "rule": "If you do not know or do not care who did it, put the verb right after 被, or use 人 for 'someone'.",
+      "pattern": "Receiver + 被 + (人) + Verb + result / 了",
+      "examples": [
+        {
+          "zh": "我的钱包被偷了。",
+          "py": "wǒ de qián bāo bèi tōu le",
+          "en": "My wallet was stolen."
+        },
+        {
+          "zh": "杯子被打破了。",
+          "py": "bēi zi bèi dǎ pò le",
+          "en": "The cup got broken."
+        },
+        {
+          "zh": "我的伞被人拿走了。",
+          "py": "wǒ de sǎn bèi rén ná zǒu le",
+          "en": "Someone took my umbrella."
+        }
+      ],
+      "note": "Only 被 can do this. 叫 and 让 must be followed by a doer, even if it is just 人."
+    },
+    {
+      "sub": "neg-modal",
+      "rule": "Negatives, modal verbs and adverbs go in front of 被. For something that did not happen use 没 or 没有, and leave out 了.",
+      "pattern": "Receiver + 没 / 不会 / 已经 / 也 + 被 + (Doer) + Verb + result",
+      "examples": [
+        {
+          "zh": "还好，我的钱包没被偷走。",
+          "py": "hái hǎo wǒ de qián bāo méi bèi tōu zǒu",
+          "en": "Luckily my wallet wasn't stolen."
+        },
+        {
+          "zh": "你这样做会被老师批评的。",
+          "py": "nǐ zhè yàng zuò huì bèi lǎo shī pī píng de",
+          "en": "You'll be criticised by the teacher if you do that."
+        },
+        {
+          "zh": "放心，我们不会被发现的。",
+          "py": "fàng xīn wǒ men bù huì bèi fā xiàn de",
+          "en": "Don't worry, we won't be found out."
+        },
+        {
+          "zh": "蛋糕已经被吃完了。",
+          "py": "dàn gāo yǐ jīng bèi chī wán le",
+          "en": "The cake has already been eaten up."
+        }
+      ],
+      "note": "不被 exists, but for general or habitual statements (他不被大家理解, 'he is not understood by people'), not for a single past event."
+    },
+    {
+      "sub": "neg-modal",
+      "rule": "To warn someone, put 别 before 被.",
+      "pattern": "别 + 被 + Doer + Verb + 了 / result",
+      "examples": [
+        {
+          "zh": "别被他骗了。",
+          "py": "bié bèi tā piàn le",
+          "en": "Don't let him fool you."
+        },
+        {
+          "zh": "小声点儿，别被老师发现了。",
+          "py": "xiǎo shēng diǎn r bié bèi lǎo shī fā xiàn le",
+          "en": "Keep your voice down, don't let the teacher catch us."
+        }
+      ]
+    },
+    {
+      "sub": "needs-result",
+      "rule": "After the verb, say how things ended up: a result word, a direction, 到 + place, or at least 了. A bare one-syllable verb cannot end the sentence.",
+      "pattern": "Receiver + 被 + (Doer) + Verb + 完 / 走 / 坏 / 开 / 到… + 了",
+      "examples": [
+        {
+          "zh": "窗户被风吹开了。",
+          "py": "chuāng hu bèi fēng chuī kāi le",
+          "en": "The window was blown open by the wind."
+        },
+        {
+          "zh": "我的衣服被弄脏了。",
+          "py": "wǒ de yī fu bèi nòng zāng le",
+          "en": "My clothes got dirty."
+        },
+        {
+          "zh": "他被送到医院去了。",
+          "py": "tā bèi sòng dào yī yuàn qù le",
+          "en": "He was taken to hospital."
+        }
+      ],
+      "note": "Two-syllable verbs are freer: after a modal or in formal style they can stand alone (会被批评, 被发现). For a finished single event they still take 了 or a result."
+    },
+    {
+      "sub": "needs-result",
+      "rule": "To describe the state something was left in, use Verb + 得 + description.",
+      "pattern": "Receiver + 被 + (Doer) + Verb + 得 + description",
+      "examples": [
+        {
+          "zh": "房间被他弄得很乱。",
+          "py": "fáng jiān bèi tā nòng de hěn luàn",
+          "en": "He left the room in a mess."
+        },
+        {
+          "zh": "我被他气得说不出话来。",
+          "py": "wǒ bèi tā qì de shuō bù chū huà lái",
+          "en": "He made me so angry I couldn't speak."
+        }
+      ]
+    },
+    {
+      "sub": "jiao-rang",
+      "rule": "In everyday speech 叫 or 让 can replace 被. The order is the same, but the doer must be said.",
+      "pattern": "Receiver + 叫 / 让 + Doer + Verb + result / 了",
+      "examples": [
+        {
+          "zh": "我的自行车让人骑走了。",
+          "py": "wǒ de zì xíng chē ràng rén qí zǒu le",
+          "en": "Someone rode off on my bike."
+        },
+        {
+          "zh": "蛋糕叫弟弟吃光了。",
+          "py": "dàn gāo jiào dì di chī guāng le",
+          "en": "My little brother ate all the cake."
+        },
+        {
+          "zh": "我的词典让小王借走了。",
+          "py": "wǒ de cí diǎn ràng xiǎo wáng jiè zǒu le",
+          "en": "My dictionary was borrowed by Xiao Wang."
+        }
+      ],
+      "note": "让 and 叫 also mean 'let / tell someone to' (妈妈让我洗碗). It is passive when the subject is the thing affected and the verb has a result. In writing, use 被."
+    },
+    {
+      "sub": "unmarked",
+      "rule": "When the subject is a thing that plainly cannot do the action and you only report the result, use no 被 at all: thing + verb + result + 了.",
+      "pattern": "Thing + (已经 / 还没) + Verb + result + 了",
+      "examples": [
+        {
+          "zh": "作业写完了。",
+          "py": "zuò yè xiě wán le",
+          "en": "The homework is done."
+        },
+        {
+          "zh": "饭做好了，快来吃吧。",
+          "py": "fàn zuò hǎo le kuài lái chī ba",
+          "en": "Dinner is ready, come and eat."
+        },
+        {
+          "zh": "票已经卖完了。",
+          "py": "piào yǐ jīng mài wán le",
+          "en": "The tickets have already sold out."
+        },
+        {
+          "zh": "衣服还没洗干净。",
+          "py": "yī fu hái méi xǐ gān jìng",
+          "en": "The clothes haven't been washed clean yet."
+        }
+      ],
+      "note": "Adding 被 here is not strictly ungrammatical, but it sounds odd or suggests something unwanted. Use 被 when you name the doer, when something bad happened to the receiver, or when the subject is a person who could otherwise be taken as the doer (他打了 'he hit' against 他被打了 'he was hit')."
+    },
+    {
+      "sub": "ba-bei",
+      "rule": "把 to 被: move the 把 object to the front, put the old subject after 被, and copy everything from the verb onward unchanged.",
+      "pattern": "Doer + 把 + Receiver + Verb + result  →  Receiver + 被 + Doer + Verb + result",
+      "examples": [
+        {
+          "zh": "弟弟把蛋糕吃完了。",
+          "py": "dì di bǎ dàn gāo chī wán le",
+          "en": "My little brother finished the cake."
+        },
+        {
+          "zh": "蛋糕被弟弟吃完了。",
+          "py": "dàn gāo bèi dì di chī wán le",
+          "en": "The cake was finished by my little brother."
+        },
+        {
+          "zh": "风把我的帽子吹走了。",
+          "py": "fēng bǎ wǒ de mào zi chuī zǒu le",
+          "en": "The wind blew my hat away."
+        },
+        {
+          "zh": "我的帽子被风吹走了。",
+          "py": "wǒ de mào zi bèi fēng chuī zǒu le",
+          "en": "My hat was blown away by the wind."
+        }
+      ],
+      "note": "把 and 被 never appear together for the same object in these sentences: pick one."
+    },
+    {
+      "sub": "ba-bei",
+      "rule": "Negatives and modals keep their place in front: before 把 in the active sentence, before 被 in the passive one.",
+      "pattern": "Doer + 没 + 把 + Receiver + Verb + result  →  Receiver + 没 + 被 + Doer + Verb + result",
+      "examples": [
+        {
+          "zh": "他没把我的车开走。",
+          "py": "tā méi bǎ wǒ de chē kāi zǒu",
+          "en": "He didn't drive my car away."
+        },
+        {
+          "zh": "我的车没被他开走。",
+          "py": "wǒ de chē méi bèi tā kāi zǒu",
+          "en": "My car wasn't driven away by him."
+        }
+      ]
+    }
+  ],
+  "contrasts": [
+    {
+      "wrong": "我的手机偷走了被小偷。",
+      "right": {
+        "zh": "我的手机被小偷偷走了。",
+        "py": "wǒ de shǒu jī bèi xiǎo tōu tōu zǒu le",
+        "en": "My phone was stolen by a thief."
+      },
+      "why": "English puts 'by a thief' at the end; Chinese puts 被 + doer before the verb."
+    },
+    {
+      "wrong": "蛋糕被弟弟吃。",
+      "right": {
+        "zh": "蛋糕被弟弟吃完了。",
+        "py": "dàn gāo bèi dì di chī wán le",
+        "en": "The cake was eaten up by my little brother."
+      },
+      "why": "A bare one-syllable verb cannot end a 被 sentence; say what became of the cake with a result or 了."
+    },
+    {
+      "wrong": "我的钱包被没偷走。",
+      "right": {
+        "zh": "我的钱包没被偷走。",
+        "py": "wǒ de qián bāo méi bèi tōu zǒu",
+        "en": "My wallet wasn't stolen."
+      },
+      "why": "没 goes before 被, not between 被 and the verb."
+    },
+    {
+      "wrong": "我的钱包没被偷走了。",
+      "right": {
+        "zh": "我的钱包没被偷走。",
+        "py": "wǒ de qián bāo méi bèi tōu zǒu",
+        "en": "My wallet wasn't stolen."
+      },
+      "why": "没 says it did not happen, so the completion 了 is dropped."
+    },
+    {
+      "wrong": "他被老师会批评。",
+      "right": {
+        "zh": "他会被老师批评的。",
+        "py": "tā huì bèi lǎo shī pī píng de",
+        "en": "He will be criticised by the teacher."
+      },
+      "why": "Modal verbs such as 会 go before 被, not after the doer."
+    },
+    {
+      "wrong": "我的自行车让骑走了。",
+      "right": {
+        "zh": "我的自行车让人骑走了。",
+        "py": "wǒ de zì xíng chē ràng rén qí zǒu le",
+        "en": "Someone rode off on my bike."
+      },
+      "why": "让 and 叫 need a doer after them. With no doer use 被 (被骑走了) or add 人."
+    },
+    {
+      "wrong": "蛋糕被弟弟把吃完了。",
+      "right": {
+        "zh": "蛋糕被弟弟吃完了。",
+        "py": "dàn gāo bèi dì di chī wán le",
+        "en": "The cake was finished by my little brother."
+      },
+      "why": "When turning 把 into 被, 把 disappears: its object has already moved to the front."
+    },
+    {
+      "wrong": "饭被做好了，快来吃吧。",
+      "right": {
+        "zh": "饭做好了，快来吃吧。",
+        "py": "fàn zuò hǎo le kuài lái chī ba",
+        "en": "Dinner is ready, come and eat."
+      },
+      "why": "Unnatural rather than impossible: food cannot cook, nothing bad happened and no doer is named, so Chinese leaves 被 out."
+    }
+  ],
+  "cheat": [
+    "Receiver first, then 被 + doer, then the verb. Never 被 + doer at the end.",
+    "Verb in a 被 sentence needs a tail: result, direction, 得 or 了.",
+    "没 / 不会 / 会 / 已经 / 别 all go before 被; with 没, drop 了.",
+    "No doer? 被 works alone. 叫 and 让 need at least 人.",
+    "Thing that cannot act + result, no doer, nothing bad: skip 被 (作业写完了).",
+    "把 → 被: swap the two nouns, keep everything from the verb onward, delete 把."
+  ]
+}

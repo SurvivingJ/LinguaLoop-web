@@ -1,0 +1,473 @@
+{
+  "topic": "result-complement",
+  "summary": "A Chinese verb names only the attempt: 找 is 'look for', 看 is 'look', 听 is 'listen'. To say what came of it you glue a result word straight onto the verb: 找到 found, 看见 saw, 听懂 understood, 做完 finished. Verb + result behaves as one word: nothing goes between them, 了 and the object come after both, and 'it did not turn out' is 没.",
+  "subs": [
+    {
+      "key": "finish-ready",
+      "label": "完 / 好 / 会: finished, ready, mastered",
+      "focus": "Choose 完 (reached the end, used up), 好 (done properly, ready) or 会 (learned, can now do it) from a cue that forces one, or see that a bare verb is not enough. Mistakes: verb + 了 for 'finished' or 'learned to'; 会 after non-learning verbs. Don't make 完 and 好 compete where both work (做完 / 做好作业)."
+    },
+    {
+      "key": "perceive-reach",
+      "label": "见 / 到 / 懂: saw, got, understood",
+      "focus": "Pick the result for the meaning after 看 听 找 买 收: 见 (registered), 到 (reached the target: found, got), 懂 (understood), versus 完 or the bare verb. Mistakes: 看了 / 找了 for 'saw' / 'found', 看见 for 'understood', 找见. Never make 看见 and 看到 (or 听见 and 听到) compete: they are interchangeable."
+    },
+    {
+      "key": "wrong-right-clear",
+      "label": "错 / 对 / 清楚 / 干净: how it came out",
+      "focus": "Attach 错, 对, 清楚 or 干净 straight after the verb (写错, 猜对, 听清楚, 洗干净) and pick the one that fits the cue. Mistakes: English order (错写), 写了错, inserting 得 or 很, and 听懂 where the problem is hearing clearly (听清楚), not understanding."
+    },
+    {
+      "key": "hold-off-away",
+      "label": "住 / 开 / 掉 / 走 / 光 / 着: fixed, apart, gone",
+      "focus": "Choose 住 (held, stopped: 记住), 开 (open, apart: 打开), 掉 (got rid of: 扔掉), 走 (taken away: 拿走), 光 (none left: 花光) or 着 zháo (succeeded: 睡着). Mistakes: bare 记 for 'keep in mind', 睡觉着 or 睡了 for 'fell asleep', 走 and 掉 swapped, 着 read as zhe."
+    },
+    {
+      "key": "gei-zai-cheng",
+      "label": "给 / 在 / 成: to someone, at a place, into something",
+      "focus": "给, 在, 成 need the receiver, place or new form right after them (送给他, 放在桌子上, 翻译成中文), so the thing acted on goes in front with 把 or as topic. Learner picks which of the three and places the object. Mistakes: 放书在桌子上, 翻译这句话成中文, 了 between the verb and 给 / 在 / 成."
+    },
+    {
+      "key": "negation",
+      "label": "没 + verb + result",
+      "focus": "A result that did not happen (yet) takes 没 / 还没 before the whole verb + result, with no 了. Mistakes: 不听懂 for a past event, 没…了, 听没懂. Also: 不 + verb + result only for 'if not', refusal, habit; 听不懂 is 'cannot', not 'did not'. Make the time frame explicit so only one of 没 / 不 fits."
+    },
+    {
+      "key": "object-placement",
+      "label": "Object after the whole verb + result",
+      "focus": "The object follows verb + result as a unit or is fronted (topic or 把); it never splits them. Verb-object words take the result after the verb part: 吃完饭, 洗完澡, 上完课. Mistakes: 看书完了, 吃饭完, 睡觉着了. Best as order and judge items; list every correct topic-first order in alts."
+    },
+    {
+      "key": "le-placement",
+      "label": "了 after verb + result",
+      "focus": "了 goes after the result or at the end of the sentence, never between verb and result: 听懂了, 写完了作业, 写完作业了. First of two actions in a row (吃完饭就走) usually has no 了. Mistakes: 写了完, 听了懂, 找了到. Don't make 写完了作业 and 写完作业了 compete; both are correct."
+    },
+    {
+      "key": "questions",
+      "label": "Asking about a result: …了吗 / …了没有",
+      "focus": "Form yes-no questions with verb + result + 了吗 / 了没有; answer verb + result + 了 or (还)没 + verb + result. Mistakes: 你不听懂吗 for a past event, 你听懂没有了, answering 是 / 不, answering 没听懂了. Don't mark 你听没听懂 or 你有没有听懂 wrong: both are in common use."
+    }
+  ],
+  "rules": [
+    {
+      "sub": "finish-ready",
+      "rule": "完 says the action reached its end or the thing is used up. 好 says it is done properly and ready. 会 says you learned it and can now do it; it follows 学 (and a few verbs like 练).",
+      "pattern": "Subject + Verb + 完 / 好 / 会 + (Object) + 了",
+      "examples": [
+        {
+          "zh": "这本书我看完了。",
+          "py": "zhè běn shū wǒ kàn wán le",
+          "en": "I've finished reading this book."
+        },
+        {
+          "zh": "饭做好了，快来吃吧。",
+          "py": "fàn zuò hǎo le kuài lái chī ba",
+          "en": "The food is ready, come and eat."
+        },
+        {
+          "zh": "我学会开车了。",
+          "py": "wǒ xué huì kāi chē le",
+          "en": "I've learned to drive."
+        },
+        {
+          "zh": "你准备好了吗？",
+          "py": "nǐ zhǔn bèi hǎo le ma",
+          "en": "Are you ready?"
+        }
+      ],
+      "note": "完 and 好 often both fit (作业做完了 / 作业做好了). 完 only says you reached the end; 好 adds that it is in a satisfactory, usable state. 准备, 想, 说 (in the sense of 'agree') and 放 normally take 好, not 完."
+    },
+    {
+      "sub": "perceive-reach",
+      "rule": "见: the sight or sound registered; only with perception verbs (看见, 听见). 到: the action reached its target, with almost any verb (找到 found, 买到 got, 收到 received). 懂: you understood what you read or heard.",
+      "pattern": "Subject + 看 / 听 / 找 / 买 / 收 + 见 / 到 / 懂 + Object + 了",
+      "examples": [
+        {
+          "zh": "我在路上看见李老师了。",
+          "py": "wǒ zài lù shàng kàn jiàn lǐ lǎo shī le",
+          "en": "I saw Teacher Li on the street."
+        },
+        {
+          "zh": "我找到手机了。",
+          "py": "wǒ zhǎo dào shǒu jī le",
+          "en": "I found my phone."
+        },
+        {
+          "zh": "他说的话我都听懂了。",
+          "py": "tā shuō de huà wǒ dōu tīng dǒng le",
+          "en": "I understood everything he said."
+        },
+        {
+          "zh": "你的信我昨天收到了。",
+          "py": "nǐ de xìn wǒ zuó tiān shōu dào le",
+          "en": "I received your letter yesterday."
+        }
+      ],
+      "note": "看见 and 看到 mean the same for 'saw', and so do 听见 and 听到. But 见 cannot replace 到 after other verbs: 找到, 买到, 收到 only."
+    },
+    {
+      "sub": "perceive-reach",
+      "rule": "The bare verb is only the attempt. 看 look, 听 listen, 找 look for; add the result to say it worked. One verb takes different results for different meanings: 看见 saw, 看懂 understood, 看完 read to the end.",
+      "pattern": "Verb + 了 + 半天 / 很久，没 + Verb + Result",
+      "examples": [
+        {
+          "zh": "我找了半天，没找到。",
+          "py": "wǒ zhǎo le bàn tiān méi zhǎo dào",
+          "en": "I looked for ages and didn't find it."
+        },
+        {
+          "zh": "这本书我看完了，可是没看懂。",
+          "py": "zhè běn shū wǒ kàn wán le kě shì méi kàn dǒng",
+          "en": "I finished this book, but I didn't understand it."
+        },
+        {
+          "zh": "你说什么？我没听见。",
+          "py": "nǐ shuō shén me wǒ méi tīng jiàn",
+          "en": "What did you say? I didn't hear."
+        }
+      ]
+    },
+    {
+      "sub": "wrong-right-clear",
+      "rule": "To say an action came out wrong, right, clear or clean, put the adjective directly after the verb. No 得, no 很, and the adjective never goes in front as in English 'wrongly wrote'.",
+      "pattern": "Subject + Verb + 错 / 对 / 清楚 / 干净 + (Object) + 了",
+      "examples": [
+        {
+          "zh": "对不起，我打错电话了。",
+          "py": "duì bu qǐ wǒ dǎ cuò diàn huà le",
+          "en": "Sorry, I dialled the wrong number."
+        },
+        {
+          "zh": "这个问题你答对了。",
+          "py": "zhè gè wèn tí nǐ dá duì le",
+          "en": "You got this question right."
+        },
+        {
+          "zh": "我没听清楚，请再说一遍。",
+          "py": "wǒ méi tīng qīng chu qǐng zài shuō yī biàn",
+          "en": "I didn't hear clearly, please say it again."
+        },
+        {
+          "zh": "衣服都洗干净了。",
+          "py": "yī fu dōu xǐ gān jìng le",
+          "en": "The clothes have all been washed clean."
+        }
+      ],
+      "note": "没听清楚 is a hearing problem (noise, speed); 没听懂 is an understanding problem. 洗得很干净 with 得 is a different pattern that describes how well, not what resulted."
+    },
+    {
+      "sub": "hold-off-away",
+      "rule": "住 means held in place or stopped; 开 means open or apart; 着 (read zháo) means the action hit its mark, most often in 睡着 'fall asleep'.",
+      "pattern": "Subject + Verb + 住 / 开 / 着 + (Object) + 了",
+      "examples": [
+        {
+          "zh": "请记住我的电话号码。",
+          "py": "qǐng jì zhù wǒ de diàn huà hào mǎ",
+          "en": "Please remember my phone number."
+        },
+        {
+          "zh": "请大家打开书。",
+          "py": "qǐng dà jiā dǎ kāi shū",
+          "en": "Everyone, please open your books."
+        },
+        {
+          "zh": "孩子已经睡着了。",
+          "py": "hái zi yǐ jīng shuì zháo le",
+          "en": "The child is already asleep."
+        },
+        {
+          "zh": "警察叫他站住。",
+          "py": "jǐng chá jiào tā zhàn zhù",
+          "en": "The police officer told him to stop."
+        }
+      ],
+      "note": "找着 and 买着 (zháo) are colloquial equivalents of 找到 and 买到, heard mostly in the north; 到 is always safe. 睡着 cannot be replaced by 睡到."
+    },
+    {
+      "sub": "hold-off-away",
+      "rule": "掉 means the thing is removed or got rid of; 走 means it leaves with someone; 光 means nothing is left.",
+      "pattern": "Subject + (把 + Object) + Verb + 掉 / 走 / 光 + 了",
+      "examples": [
+        {
+          "zh": "这些旧东西都扔掉吧。",
+          "py": "zhè xiē jiù dōng xi dōu rēng diào ba",
+          "en": "Let's throw all these old things away."
+        },
+        {
+          "zh": "他把我的自行车骑走了。",
+          "py": "tā bǎ wǒ de zì xíng chē qí zǒu le",
+          "en": "He rode off on my bike."
+        },
+        {
+          "zh": "这个月的钱都花光了。",
+          "py": "zhè gè yuè de qián dōu huā guāng le",
+          "en": "This month's money is all spent."
+        },
+        {
+          "zh": "蛋糕被孩子们吃光了。",
+          "py": "dàn gāo bèi hái zi men chī guāng le",
+          "en": "The cake was eaten up by the children."
+        }
+      ],
+      "note": "吃完 and 吃光 can both mean 'ate it all'; 光 stresses that not a bit is left, and 吃完 can also just mean 'finished eating'. 吃掉 and 喝掉 are also common for 'eat up, drink up'."
+    },
+    {
+      "sub": "gei-zai-cheng",
+      "rule": "给 (to a receiver), 在 (ending up at a place) and 成 (turning into something) must be followed at once by the receiver, the place or the new form. Move the thing acted on to the front with 把 or as a topic.",
+      "pattern": "Subject + 把 + Thing + Verb + 给 / 在 / 成 + Receiver / Place / New form + (了)",
+      "examples": [
+        {
+          "zh": "我把那本书还给他了。",
+          "py": "wǒ bǎ nà běn shū huán gěi tā le",
+          "en": "I gave that book back to him."
+        },
+        {
+          "zh": "你把包放在桌子上吧。",
+          "py": "nǐ bǎ bāo fàng zài zhuō zi shàng ba",
+          "en": "Just put your bag on the table."
+        },
+        {
+          "zh": "请把这句话翻译成中文。",
+          "py": "qǐng bǎ zhè jù huà fān yì chéng zhōng wén",
+          "en": "Please translate this sentence into Chinese."
+        },
+        {
+          "zh": "朋友送给我一张电影票。",
+          "py": "péng you sòng gěi wǒ yī zhāng diàn yǐng piào",
+          "en": "A friend gave me a film ticket."
+        }
+      ],
+      "note": "With 给 the thing may also follow the receiver (送给我一张票). With 在 and 成 it cannot follow, so 把 or a topic is needed. 了 goes at the end of the sentence or right after 给 / 成, never between the verb and 给 / 在 / 成."
+    },
+    {
+      "sub": "negation",
+      "rule": "A result that did not come about, or has not yet, is negated with 没 (还没) in front of the whole verb + result, and 了 disappears.",
+      "pattern": "Subject + (还) + 没(有) + Verb + Result + (Object)",
+      "examples": [
+        {
+          "zh": "昨天的课我没听懂。",
+          "py": "zuó tiān de kè wǒ méi tīng dǒng",
+          "en": "I didn't understand yesterday's class."
+        },
+        {
+          "zh": "我还没做完作业。",
+          "py": "wǒ hái méi zuò wán zuò yè",
+          "en": "I haven't finished my homework yet."
+        },
+        {
+          "zh": "他没看见我。",
+          "py": "tā méi kàn jiàn wǒ",
+          "en": "He didn't see me."
+        }
+      ],
+      "note": "听不懂 (with 不 in the middle) is a different pattern meaning 'cannot understand'. For one past occasion say 没听懂."
+    },
+    {
+      "sub": "negation",
+      "rule": "不 before verb + result is not past: it is used for 'if you don't…', for refusing or not intending to, and for habits.",
+      "pattern": "不 + Verb + Result + (Object)，(就) + consequence",
+      "examples": [
+        {
+          "zh": "不做完作业，不能看电视。",
+          "py": "bù zuò wán zuò yè bù néng kàn diàn shì",
+          "en": "No TV unless you finish your homework."
+        },
+        {
+          "zh": "你不说清楚，我怎么知道？",
+          "py": "nǐ bù shuō qīng chu wǒ zěn me zhī dào",
+          "en": "If you don't say it clearly, how would I know?"
+        },
+        {
+          "zh": "他吃饭常常不吃完。",
+          "py": "tā chī fàn cháng cháng bù chī wán",
+          "en": "He often doesn't finish his food."
+        }
+      ]
+    },
+    {
+      "sub": "object-placement",
+      "rule": "Verb + result is one unit. The object comes after both, or goes to the front as the topic; it never stands between them. With verb-object words like 吃饭, 洗澡, 上课, the result follows the verb part only.",
+      "pattern": "Subject + Verb + Result + Object + (了)   or   Object + Subject + Verb + Result + 了",
+      "examples": [
+        {
+          "zh": "我看完那本书了。",
+          "py": "wǒ kàn wán nà běn shū le",
+          "en": "I've finished that book."
+        },
+        {
+          "zh": "今天的作业我写完了。",
+          "py": "jīn tiān de zuò yè wǒ xiě wán le",
+          "en": "I've finished today's homework."
+        },
+        {
+          "zh": "我们吃完饭去看电影吧。",
+          "py": "wǒ men chī wán fàn qù kàn diàn yǐng ba",
+          "en": "Let's go and see a film after we eat."
+        },
+        {
+          "zh": "我洗完澡就睡觉。",
+          "py": "wǒ xǐ wán zǎo jiù shuì jiào",
+          "en": "I'll go to bed as soon as I've had a shower."
+        }
+      ],
+      "note": "睡觉 drops 觉 with a result: 睡着了, not 睡觉着了 or 睡着觉了. Long or specific objects sound most natural at the front or with 把."
+    },
+    {
+      "sub": "le-placement",
+      "rule": "了 follows the result, never the bare verb. With an object, 了 may come right after the result or at the end of the sentence.",
+      "pattern": "Subject + Verb + Result + 了 + (Object)   or   Subject + Verb + Result + Object + 了",
+      "examples": [
+        {
+          "zh": "我听懂了。",
+          "py": "wǒ tīng dǒng le",
+          "en": "I understood."
+        },
+        {
+          "zh": "我买到了两张票。",
+          "py": "wǒ mǎi dào le liǎng zhāng piào",
+          "en": "I managed to get two tickets."
+        },
+        {
+          "zh": "他找到工作了。",
+          "py": "tā zhǎo dào gōng zuò le",
+          "en": "He's found a job."
+        },
+        {
+          "zh": "我吃完饭就去找你。",
+          "py": "wǒ chī wán fàn jiù qù zhǎo nǐ",
+          "en": "I'll come and find you as soon as I've eaten."
+        }
+      ],
+      "note": "With a counted object, 了 right after the result is usual (买到了两张票). With a plain object, sentence-final 了 is most common in speech (找到工作了). In 'after A, do B', 完 normally carries no 了 (吃完饭就去)."
+    },
+    {
+      "sub": "questions",
+      "rule": "Ask whether a result came about with 了吗 or 了没有 at the end. Answer with verb + result + 了, or 没 + verb + result (还没 for 'not yet').",
+      "pattern": "Subject + Verb + Result + (Object) + 了吗 / 了没有？",
+      "examples": [
+        {
+          "zh": "你听懂了吗？",
+          "py": "nǐ tīng dǒng le ma",
+          "en": "Did you understand?"
+        },
+        {
+          "zh": "你做完作业了没有？",
+          "py": "nǐ zuò wán zuò yè le méi yǒu",
+          "en": "Have you finished your homework?"
+        },
+        {
+          "zh": "你的手机找到了没有？",
+          "py": "nǐ de shǒu jī zhǎo dào le méi yǒu",
+          "en": "Have you found your phone?"
+        },
+        {
+          "zh": "还没找到。",
+          "py": "hái méi zhǎo dào",
+          "en": "Not yet."
+        }
+      ],
+      "note": "你听没听懂？ and 你有没有听懂？ are also widely used; the 了没有 and 了吗 forms are the ones to produce first."
+    }
+  ],
+  "contrasts": [
+    {
+      "wrong": "昨天的课我不听懂。",
+      "right": {
+        "zh": "昨天的课我没听懂。",
+        "py": "zuó tiān de kè wǒ méi tīng dǒng",
+        "en": "I didn't understand yesterday's class."
+      },
+      "why": "A result that failed to happen on a past occasion is negated with 没. 不听懂 is not a way to say 'didn't understand'."
+    },
+    {
+      "wrong": "我没找到手机了。",
+      "right": {
+        "zh": "我没找到手机。",
+        "py": "wǒ méi zhǎo dào shǒu jī",
+        "en": "I didn't find my phone."
+      },
+      "why": "没 already says the result did not happen, so the 了 of 找到了 is dropped."
+    },
+    {
+      "wrong": "我看书完了。",
+      "right": {
+        "zh": "我看完书了。",
+        "py": "wǒ kàn wán shū le",
+        "en": "I've finished reading."
+      },
+      "why": "看完 is one unit; the object 书 comes after it, not between 看 and 完."
+    },
+    {
+      "wrong": "我写了完作业。",
+      "right": {
+        "zh": "我写完作业了。",
+        "py": "wǒ xiě wán zuò yè le",
+        "en": "I've finished my homework."
+      },
+      "why": "了 never goes between the verb and its result. It follows 完 or ends the sentence."
+    },
+    {
+      "wrong": "我昨天在公园看了小王。",
+      "right": {
+        "zh": "我昨天在公园看见小王了。",
+        "py": "wǒ zuó tiān zài gōng yuán kàn jiàn xiǎo wáng le",
+        "en": "I saw Xiao Wang in the park yesterday."
+      },
+      "why": "看 alone is 'look at' or 'visit'. English 'saw' is a result, so it needs 看见 or 看到."
+    },
+    {
+      "wrong": "我找了我的钥匙，太好了！",
+      "right": {
+        "zh": "我找到钥匙了，太好了！",
+        "py": "wǒ zhǎo dào yào shi le tài hǎo le",
+        "en": "I found my keys, great!"
+      },
+      "why": "找 is 'look for'. 'Found' is 找到: the search reached its target."
+    },
+    {
+      "wrong": "他太累了，很快就睡觉着了。",
+      "right": {
+        "zh": "他太累了，很快就睡着了。",
+        "py": "tā tài lèi le hěn kuài jiù shuì zháo le",
+        "en": "He was so tired that he fell asleep very quickly."
+      },
+      "why": "The result attaches to the verb 睡, and 觉 is dropped: 睡着 (zháo) is 'fall asleep'."
+    },
+    {
+      "wrong": "我放书在桌子上了。",
+      "right": {
+        "zh": "我把书放在桌子上了。",
+        "py": "wǒ bǎ shū fàng zài zhuō zi shàng le",
+        "en": "I put the book on the table."
+      },
+      "why": "放在 must be followed at once by the place, so the book moves in front with 把."
+    },
+    {
+      "wrong": "对不起，我错写了你的名字。",
+      "right": {
+        "zh": "对不起，我写错了你的名字。",
+        "py": "duì bu qǐ wǒ xiě cuò le nǐ de míng zi",
+        "en": "Sorry, I wrote your name wrong."
+      },
+      "why": "The result 错 comes after the verb. English 'wrongly wrote' order does not work."
+    },
+    {
+      "wrong": "你做完作业没有了？",
+      "right": {
+        "zh": "你做完作业了没有？",
+        "py": "nǐ zuò wán zuò yè le méi yǒu",
+        "en": "Have you finished your homework?"
+      },
+      "why": "In this question form 了 comes first and 没有 is the last word of the sentence."
+    }
+  ],
+  "cheat": [
+    "English verb already contains the outcome (saw, found, heard, understood, finished)? Chinese needs verb + result: 看见, 找到, 听见, 听懂, 做完.",
+    "Verb and result are glued: no 了, no object, no 得 between them.",
+    "Didn't or hasn't yet: 没 + verb + result, and no 了. 不 + verb + result only for 'if not', refusals and habits.",
+    "Object goes after the pair (看完书) or to the front (书看完了); 吃饭 becomes 吃完饭, 睡觉 becomes 睡着.",
+    "给 / 在 / 成 want their receiver, place or new form right behind them, so use 把 for the thing.",
+    "Pick by meaning: 完 the end, 好 ready, 会 can now do it, 见 registered, 到 reached, 懂 understood, 住 fixed, 掉 gone, 走 taken away, 光 none left.",
+    "Question: …了吗 or …了没有, answered 听懂了 or 没听懂, never 是 or 不."
+  ]
+}

@@ -1,0 +1,394 @@
+{
+  "topic": "existential",
+  "summary": "Chinese picks the verb and the word order by whether the thing is new or already known. New, indefinite thing: start with the place and put the thing last (Place + 有 / V着 / V了 + a thing). Known, definite thing: put it first and locate it with 在. 是 after a place identifies what occupies it. A place is a noun plus a location word (桌子上), never an English-style preposition phrase.",
+  "subs": [
+    {
+      "key": "you-indefinite",
+      "label": "Place + 有 + a new thing",
+      "focus": "Cue is 'there is/are' + indefinite noun (一本书, 很多人): force 有 (not 在/是) and place-first order. Classic errors: indefinite noun first (一本书在桌子上), 在 as the verb after the place. Never hinge an item on whether 在 may precede the place (variable)."
+    },
+    {
+      "key": "zai-definite",
+      "label": "Known thing + 在 + place",
+      "focus": "Cue locates a clearly definite thing (我的, 那本, a name, 'the bank') or asks 在哪儿: force 在 and thing-first order. Classic errors: place + 有 + definite thing (桌子上有我的手机 for 'my phone is on the table'), dropping 在."
+    },
+    {
+      "key": "shi-identify",
+      "label": "Place + 是 + what is there",
+      "focus": "Force 是 against 有/在 when the sentence names what occupies a known spot. 有 must be impossible: use a definite or named occupant (我旁边是小王), 都是/全是, or 是什么地方/是谁. Classic error: 在 after the place (学校对面在银行)."
+    },
+    {
+      "key": "locative-needed",
+      "label": "When 上 / 里 is needed",
+      "focus": "Decide if 上/里 must follow the noun: objects need one (在桌子上, 在包里), cities and countries never take 里 (在北京), 上 for surfaces, vehicles, 墙, 黑板. Classic errors: 在桌子, 在冰箱, 在北京里. Do not test 里 after 学校, 公司, 家, 图书馆, 医院 (optional)."
+    },
+    {
+      "key": "locative-order",
+      "label": "Noun first, location word after",
+      "focus": "Force reference noun + location word (学校旁边, 椅子下面, 我后面) and the right word for the cue (旁边 前面 后面 中间 对面 附近 外面 下面). Classic errors: English order (旁边学校, 在前面我), 的 after 上/里 (桌子的上). Do not test optional 的 (学校的旁边 is fine)."
+    },
+    {
+      "key": "v-zhe-place",
+      "label": "Place + V着 + a thing",
+      "focus": "Force Place + V着 + number-measure + noun (门口站着一个人) and 着 over 了/在/过. Classic errors: indefinite noun first (一个人站着在门口), 着 misplaced or missing. Verbs: 站 坐 躺 住 放 挂 写 画 贴 停 摆. Affirmative items only."
+    },
+    {
+      "key": "appear-disappear",
+      "label": "Place / time + V了 + a new arrival",
+      "focus": "Force the newcomer after the verb: Place/time + 来/走/搬来/搬走/出现 + 了 + number-measure + noun (我们班来了一个新同学), against the expected definite one before the verb (客人来了). Classic error: place last as in English (一个新同学来了我们班)."
+    },
+    {
+      "key": "negation",
+      "label": "没有 and 不在",
+      "focus": "Force 没有 for 'there is no X' and 不在 for 'X is not there'. Classic errors: 不有, number-measure after 没有 in a plain negative (桌子上没有一本书), negating the wrong verb (他没有家 for 'not at home'). Never offer 没在 as a distractor: it overlaps with 不在."
+    }
+  ],
+  "rules": [
+    {
+      "sub": "you-indefinite",
+      "rule": "To say 'there is / there are', start with the place and put the new thing after 有. The thing is indefinite: a number and measure word, 很多, 几, or a bare noun.",
+      "pattern": "Place + 有 + number + measure + Noun",
+      "examples": [
+        {
+          "zh": "桌子上有一本书。",
+          "py": "zhuō zi shàng yǒu yī běn shū",
+          "en": "There is a book on the table."
+        },
+        {
+          "zh": "学校旁边有一个公园。",
+          "py": "xué xiào páng biān yǒu yī gè gōng yuán",
+          "en": "There is a park next to the school."
+        },
+        {
+          "zh": "我家附近有很多饭馆。",
+          "py": "wǒ jiā fù jìn yǒu hěn duō fàn guǎn",
+          "en": "There are a lot of restaurants near my home."
+        },
+        {
+          "zh": "这儿附近有没有银行？",
+          "py": "zhè r fù jìn yǒu méi yǒu yín háng",
+          "en": "Is there a bank near here?"
+        }
+      ],
+      "note": "The place normally stands at the start without 在. 在桌子上有一本书 is heard, but the bare place is the standard form. A definite noun after 有 is possible only when listing what a place contains (我家有爸爸、妈妈和我), not when saying where a known thing is."
+    },
+    {
+      "sub": "zai-definite",
+      "rule": "To say where a known thing or person is, put it first and use 在 as the verb. 'The', 'my', 'that', a name or a pronoun in English means 在, not 有.",
+      "pattern": "Known thing + 在 + Place",
+      "examples": [
+        {
+          "zh": "你的手机在桌子上。",
+          "py": "nǐ de shǒu jī zài zhuō zi shàng",
+          "en": "Your phone is on the table."
+        },
+        {
+          "zh": "小王在教室里。",
+          "py": "xiǎo wáng zài jiào shì lǐ",
+          "en": "Xiao Wang is in the classroom."
+        },
+        {
+          "zh": "银行在超市对面。",
+          "py": "yín háng zài chāo shì duì miàn",
+          "en": "The bank is across from the supermarket."
+        },
+        {
+          "zh": "我的书在哪儿？",
+          "py": "wǒ de shū zài nǎ r",
+          "en": "Where is my book?"
+        }
+      ]
+    },
+    {
+      "sub": "shi-identify",
+      "rule": "Use Place + 是 when you are naming what occupies a spot rather than announcing that something exists there. The thing after 是 can be definite, and 都是 / 全是 means the place is full of it.",
+      "pattern": "Place + 是 + Thing",
+      "examples": [
+        {
+          "zh": "学校对面是一家银行。",
+          "py": "xué xiào duì miàn shì yī jiā yín háng",
+          "en": "Across from the school is a bank."
+        },
+        {
+          "zh": "我旁边是小王。",
+          "py": "wǒ páng biān shì xiǎo wáng",
+          "en": "The person next to me is Xiao Wang."
+        },
+        {
+          "zh": "桌子上都是书。",
+          "py": "zhuō zi shàng dōu shì shū",
+          "en": "The table is covered in books."
+        },
+        {
+          "zh": "前面是什么地方？",
+          "py": "qián miàn shì shén me dì fang",
+          "en": "What is that place up ahead?"
+        }
+      ],
+      "note": "With an indefinite noun both verbs are often possible: 学校对面有一家银行 says a bank exists there (perhaps among other things); 学校对面是一家银行 says the thing over there is a bank. Only 是 works when the occupant is definite or a named person."
+    },
+    {
+      "sub": "locative-needed",
+      "rule": "An ordinary object is not a place by itself. Add 上 for a surface and 里 for an inside before it can follow 在 or start an existence sentence.",
+      "pattern": "在 + Noun + 上 / 里",
+      "examples": [
+        {
+          "zh": "牛奶在冰箱里。",
+          "py": "niú nǎi zài bīng xiāng lǐ",
+          "en": "The milk is in the fridge."
+        },
+        {
+          "zh": "地图在墙上。",
+          "py": "dì tú zài qiáng shàng",
+          "en": "The map is on the wall."
+        },
+        {
+          "zh": "包里有两个苹果。",
+          "py": "bāo lǐ yǒu liǎng gè píng guǒ",
+          "en": "There are two apples in the bag."
+        },
+        {
+          "zh": "他在火车上看书。",
+          "py": "tā zài huǒ chē shàng kàn shū",
+          "en": "He is reading on the train."
+        }
+      ],
+      "note": "Chinese uses 上 where English says 'in' or 'on' for vehicles and flat things you read: 在飞机上, 在公共汽车上, 在黑板上, 在报纸上. A person is made into a place with 这儿 / 那儿: 你的书在我这儿."
+    },
+    {
+      "sub": "locative-needed",
+      "rule": "City and country names are already places: never add 里 after them. Buildings and institutions (学校, 公司, 家, 图书馆, 医院) are places too, so 里 is optional with them.",
+      "pattern": "在 + Place name (no 里)",
+      "examples": [
+        {
+          "zh": "他在北京工作。",
+          "py": "tā zài běi jīng gōng zuò",
+          "en": "He works in Beijing."
+        },
+        {
+          "zh": "我姐姐现在在上海。",
+          "py": "wǒ jiě jie xiàn zài zài shàng hǎi",
+          "en": "My older sister is in Shanghai now."
+        },
+        {
+          "zh": "中国有很多大城市。",
+          "py": "zhōng guó yǒu hěn duō dà chéng shì",
+          "en": "There are many big cities in China."
+        }
+      ],
+      "note": "他在学校 and 他在学校里 are both correct; 里 only stresses 'inside the grounds'."
+    },
+    {
+      "sub": "locative-order",
+      "rule": "The location word comes after the noun it refers to, the reverse of English: 'next to the school' is 学校旁边. 上 and 里 attach directly with no 的.",
+      "pattern": "Reference noun + location word",
+      "examples": [
+        {
+          "zh": "猫在椅子下面。",
+          "py": "māo zài yǐ zi xià miàn",
+          "en": "The cat is under the chair."
+        },
+        {
+          "zh": "超市在银行和书店中间。",
+          "py": "chāo shì zài yín háng hé shū diàn zhōng jiān",
+          "en": "The supermarket is between the bank and the bookshop."
+        },
+        {
+          "zh": "小王坐在我后面。",
+          "py": "xiǎo wáng zuò zài wǒ hòu miàn",
+          "en": "Xiao Wang sits behind me."
+        },
+        {
+          "zh": "教室外面有很多学生。",
+          "py": "jiào shì wài miàn yǒu hěn duō xué shēng",
+          "en": "There are a lot of students outside the classroom."
+        }
+      ],
+      "note": "Two-syllable location words may take 的 (学校的旁边), but it is usually left out. A location word can also stand alone as a place: 前面有一家咖啡店."
+    },
+    {
+      "sub": "v-zhe-place",
+      "rule": "To say how something is sitting, standing, hanging or lying somewhere, replace 有 with a posture or placement verb plus 着. The order stays place first, new thing last.",
+      "pattern": "Place + Verb + 着 + number + measure + Noun",
+      "examples": [
+        {
+          "zh": "门口站着一个人。",
+          "py": "mén kǒu zhàn zhe yī gè rén",
+          "en": "There is someone standing at the door."
+        },
+        {
+          "zh": "墙上挂着一张地图。",
+          "py": "qiáng shàng guà zhe yī zhāng dì tú",
+          "en": "There is a map hanging on the wall."
+        },
+        {
+          "zh": "桌子上放着两杯咖啡。",
+          "py": "zhuō zi shàng fàng zhe liǎng bēi kā fēi",
+          "en": "There are two cups of coffee on the table."
+        }
+      ],
+      "note": "If the thing is definite it goes first and the pattern changes to Verb + 在: 那张地图挂在墙上."
+    },
+    {
+      "sub": "appear-disappear",
+      "rule": "When someone or something new turns up or leaves, the newcomer goes after the verb. A place or a time word opens the sentence, and the verb takes 了.",
+      "pattern": "Place / Time + Verb + 了 + number + measure + Noun",
+      "examples": [
+        {
+          "zh": "我们班来了一个新同学。",
+          "py": "wǒ men bān lái le yī gè xīn tóng xué",
+          "en": "A new classmate has joined our class."
+        },
+        {
+          "zh": "昨天来了一位客人。",
+          "py": "zuó tiān lái le yī wèi kè rén",
+          "en": "A guest came yesterday."
+        },
+        {
+          "zh": "楼上搬走了一家人。",
+          "py": "lóu shàng bān zǒu le yī jiā rén",
+          "en": "A family has moved out from upstairs."
+        }
+      ],
+      "note": "Position shows whether the person is expected: 客人来了 means the guests (the ones we were waiting for) have arrived; 来客人了 or 来了一位客人 means a guest has turned up. Only verbs of appearing and disappearing work here (来, 走, 搬来, 搬走, 开来, 出现)."
+    },
+    {
+      "sub": "negation",
+      "rule": "'There is no X' is Place + 没有 + bare noun. 有 is never negated with 不, and the noun loses its number and measure word.",
+      "pattern": "Place + 没有 + Noun",
+      "examples": [
+        {
+          "zh": "桌子上没有书。",
+          "py": "zhuō zi shàng méi yǒu shū",
+          "en": "There are no books on the table."
+        },
+        {
+          "zh": "冰箱里没有牛奶了。",
+          "py": "bīng xiāng lǐ méi yǒu niú nǎi le",
+          "en": "There is no milk left in the fridge."
+        },
+        {
+          "zh": "这儿附近没有地铁站。",
+          "py": "zhè r fù jìn méi yǒu dì tiě zhàn",
+          "en": "There is no subway station near here."
+        }
+      ],
+      "note": "In speech 没有 is often shortened to 没 before the noun: 家里没人. To stress 'not even one', use 一 + measure + noun + 也没有: 桌子上一本书也没有."
+    },
+    {
+      "sub": "negation",
+      "rule": "'X is not at the place' is 不在. Choose the negative by the verb the positive sentence would use: 有 becomes 没有, 在 becomes 不在.",
+      "pattern": "Known thing + 不在 + Place",
+      "examples": [
+        {
+          "zh": "他不在家。",
+          "py": "tā bù zài jiā",
+          "en": "He is not at home."
+        },
+        {
+          "zh": "你的手机不在桌子上。",
+          "py": "nǐ de shǒu jī bù zài zhuō zi shàng",
+          "en": "Your phone is not on the table."
+        },
+        {
+          "zh": "李老师现在不在办公室。",
+          "py": "lǐ lǎo shī xiàn zài bù zài bàn gōng shì",
+          "en": "Teacher Li is not in the office right now."
+        }
+      ],
+      "note": "不在 works for the past as well (他昨天不在家). 没在 is also heard for a past occasion (他昨天没在家), so the two overlap there; 不在 is the safe choice."
+    }
+  ],
+  "contrasts": [
+    {
+      "wrong": "一本书在桌子上。",
+      "right": {
+        "zh": "桌子上有一本书。",
+        "py": "zhuō zi shàng yǒu yī běn shū",
+        "en": "There is a book on the table."
+      },
+      "why": "A new, indefinite thing cannot open the sentence as the subject of 在. Start with the place and introduce the thing after 有."
+    },
+    {
+      "wrong": "桌子上有你的手机。",
+      "right": {
+        "zh": "你的手机在桌子上。",
+        "py": "nǐ de shǒu jī zài zhuō zi shàng",
+        "en": "Your phone is on the table."
+      },
+      "why": "你的手机 is a known thing whose location is the news, so it goes first with 在. 有 introduces something the listener has not heard about."
+    },
+    {
+      "wrong": "学校对面在银行。",
+      "right": {
+        "zh": "学校对面是银行。",
+        "py": "xué xiào duì miàn shì yín háng",
+        "en": "Across from the school is the bank."
+      },
+      "why": "在 needs the thing before it and the place after it. When the place comes first, the verb is 是 (identifying) or 有 (existing)."
+    },
+    {
+      "wrong": "牛奶在冰箱。",
+      "right": {
+        "zh": "牛奶在冰箱里。",
+        "py": "niú nǎi zài bīng xiāng lǐ",
+        "en": "The milk is in the fridge."
+      },
+      "why": "冰箱 is an object, not a place. It needs 里 before it can follow 在."
+    },
+    {
+      "wrong": "我在北京里工作。",
+      "right": {
+        "zh": "我在北京工作。",
+        "py": "wǒ zài běi jīng gōng zuò",
+        "en": "I work in Beijing."
+      },
+      "why": "English 'in' is already covered by 在. City and country names never take 里."
+    },
+    {
+      "wrong": "银行在旁边学校。",
+      "right": {
+        "zh": "银行在学校旁边。",
+        "py": "yín háng zài xué xiào páng biān",
+        "en": "The bank is next to the school."
+      },
+      "why": "The location word follows its reference noun: 学校旁边, not the English order 'next to the school'."
+    },
+    {
+      "wrong": "教室里不有人。",
+      "right": {
+        "zh": "教室里没有人。",
+        "py": "jiào shì lǐ méi yǒu rén",
+        "en": "There is nobody in the classroom."
+      },
+      "why": "有 is only ever negated with 没. 不有 does not exist."
+    },
+    {
+      "wrong": "一个人站着在门口。",
+      "right": {
+        "zh": "门口站着一个人。",
+        "py": "mén kǒu zhàn zhe yī gè rén",
+        "en": "There is someone standing at the door."
+      },
+      "why": "An unknown person is introduced after the verb: place first, then 站着, then 一个人. 着 is not followed by 在 + place."
+    },
+    {
+      "wrong": "一个新同学来了我们班。",
+      "right": {
+        "zh": "我们班来了一个新同学。",
+        "py": "wǒ men bān lái le yī gè xīn tóng xué",
+        "en": "A new classmate has joined our class."
+      },
+      "why": "The place cannot trail after 来了 the way it does in English. The place opens the sentence and the newcomer follows the verb."
+    }
+  ],
+  "cheat": [
+    "'There is a ...'? Place first, then 有, then the thing.",
+    "'The / my / that ...' or a name? Thing first, then 在 + place.",
+    "Place first and you are naming what it is (or 都是)? Use 是, never 在.",
+    "Object after 在? Add 上 or 里. City or country? No 里.",
+    "Location word goes after the noun: 学校旁边, 桌子下面, 我后面.",
+    "New thing standing, hanging, lying, arriving? Place + V着 / V了 + 一 + measure + noun.",
+    "Positive has 有: 没有 + bare noun. Positive has 在: 不在."
+  ]
+}

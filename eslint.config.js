@@ -73,6 +73,8 @@ export default [
       'static/js/pages/test-pitch-accent.js',
       'static/js/pages/classifier-drill.js',
       'static/js/pages/counter-drill.js',
+      'static/js/pages/grammar-drill.js',
+      'static/js/grammar/**/*.js',
     ],
     languageOptions: { sourceType: 'module', globals: { escapeHtml: 'off' } },
   },
