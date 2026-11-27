@@ -47,7 +47,7 @@ A learner signs up with an emailed one-time code, picks a target language and ca
 | Measure-word and counter drills | Working | Chinese measure words and Japanese counters, with per-item mastery for Chinese. |
 | Word-list import and watchlist | Working | Learners upload up to 50 words; a nightly sweep is meant to match them to new tests (the sweep currently fails, see the technical page). |
 | Vocabulary check (calibration) | Working | Infinite multiple-choice check that measures vocabulary on a frequency scale. |
-| Vocabulary placement | Working | Adaptive placement test for Chinese, Japanese and English; always on (no switch); reached from the Me page, the empty "My vocabulary" page and the vocabulary check. The onboarding offer is not built (owner decision pending). |
+| Vocabulary placement | Working | Adaptive placement test for Chinese, Japanese and English; always on (no switch); reached from the Me page, the empty "My vocabulary" page and the vocabulary check. New learners are offered it during onboarding after "Have you studied {language} before?". |
 | Knowledge Report ("My vocabulary") | Working | Summary and growth of the learner's vocabulary; always on (no switch); nightly snapshots accrue history since 2026-11-24. |
 | Mobile app shell | Working | One task per screen, themes, shared components. |
 | Corpus analysis | Working (operator) | Ingestion, collocation extraction, style profiling, through admin-only endpoints. |

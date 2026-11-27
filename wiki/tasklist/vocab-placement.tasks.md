@@ -4,7 +4,7 @@ feature: vocab-placement
 prose_page: ../features/vocab-placement.md
 tech_page: ../features/vocab-placement.tech.md
 total_tasks: 23
-done: 10
+done: 11
 ---
 
 # Vocabulary placement — Task Breakdown
@@ -578,10 +578,10 @@ run per language; a Playwright smoke at 390 px (TASK-1055 pattern).
 
 ---
 
-## TASK-1085: Entry points — onboarding gate, report empty state, calibration page, Me row [?]
+## TASK-1085: Entry points — onboarding gate, report empty state, calibration page, Me row [x]
 
-**Status:** [?] Blocked — PQ7 (onboarding offer and the "studied before?" gate)
-**Progress (2026-11-27):** the Me row, the report's empty state (and its "not enough answers" state) and the calibration-page link are built and always shown; the links go to `/placement` without `?lang=` (the page opens on the study language). Only the onboarding gate remains, blocked on PQ7.
+**Status:** [x] Done 2026-11-27 (PQ7 answered by the owner: "build the onboarding offer"); not deployed
+**Progress (2026-11-27):** the Me row, the report's empty state (and its "not enough answers" state) and the calibration-page link are built and always shown; the links go to `/placement` without `?lang=` (the page opens on the study language). The onboarding gate followed the same day: it is on `/language-selection` (where the study language is chosen), shown only to a learner arriving from `/welcome`; see tech §15. The entry points stay visible after a placement (they double as the retake entry), which differs from the third criterion below.
 **Feature:** vocab-placement
 **Type:** feature
 **Complexity:** S (1-3h)
@@ -594,9 +594,9 @@ empty state and the Me row whenever the learner has no placement for that langua
 instead" on the calibration page (tech §8, §15).
 
 **Acceptance Criteria:**
-- [ ] Each entry opens `/placement?lang=…` for the current study language.
-- [ ] The two "not studied" answers write nothing and do not open the placement.
-- [ ] The report and Me-row offers disappear once a placement with a frozen result exists for the language.
+- [x] Each entry opens the placement for the current study language (the onboarding offer with `?lang=<id>`; the others open `/placement`, which reads the study language).
+- [x] The two "not studied" answers write nothing and do not open the placement.
+- [ ] The report and Me-row offers disappear once a placement with a frozen result exists for the language. **Not done on purpose** (always shown; owner told 2026-11-27).
 - [x] ~~Everything is hidden for a language not in `PLACEMENT_ENABLED_LANGS`.~~ Dropped: the switch was removed on 2026-11-23 and every study language (zh, en, ja) has the placement.
 
 **Files to Create / Modify:**
@@ -1021,7 +1021,7 @@ are excluded too.
 | TASK-1082 | vocab-placement | Intro drill (and prestudy) show zh pinyin for diacritic-only readings | Done (repo) | S | — |
 | TASK-1083 | vocab-placement | Placement feeds test selection and the rating writer | [?] OQ33 | M | TASK-1080 |
 | TASK-1084 | vocab-placement | Placement page and i18n | Done (repo) | L | TASK-1080 |
-| TASK-1085 | vocab-placement | Entry points incl. onboarding gate | [?] PQ7 | S | TASK-1084, TASK-1040 |
+| TASK-1085 | vocab-placement | Entry points incl. onboarding gate | Done 2026-11-27 | S | TASK-1084, TASK-1040 |
 | TASK-1086 | vocab-placement | Report integration (LIVE-DB, owner) | [ ] | L | TASK-1078, TASK-1079, TASK-1081, TASK-1036, TASK-1039, TASK-1040, TASK-1044 |
 | TASK-1087 | vocab-placement | Simulation regression harness (V0) | Done (repo) | M | TASK-1078 |
 | TASK-1088 | vocab-placement | Launch per language (LIVE env, owner) | [~] code done (nightly close, gate script); owner steps | S | TASK-1080, TASK-1081, TASK-1082, TASK-1084, TASK-1087, TASK-1092 (zh) (ja: TASK-1075) |

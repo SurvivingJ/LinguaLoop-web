@@ -935,13 +935,28 @@ counting the user's placement sessions for the pair since midnight UTC (429 `RAT
   strip is drawn as inline SVG with a dot per 5% of the pool.
 
 ### Onboarding gate (TASK-1085)
-`templates/onboarding.html` and `static/js/pages/onboarding.js`: after the study language is chosen,
-the gate question (§8) appears. "Yes" opens `/placement?lang=…`, and the learner can skip it. The other
-two answers continue onboarding without a placement and store nothing.
+Built 2026-11-27 (PQ7 answered). The study language is chosen on `/language-selection`, the page after
+`/welcome`, so the gate lives there:
+- `static/js/pages/onboarding.js`: "Get Started" sets `sessionStorage['ld_onboarding'] = '1'` (per tab).
+- `templates/language_selection.html`: `#langGate` (hidden card under the three languages; a `.ld-seg`
+  radiogroup of `[data-studied="yes|few|no"]`; `#langGateHint`) and `#placement-btn` (hidden link, first
+  in the dock).
+- `static/js/pages/language-selection.js` (`renderGate`): only when the mark is set and a language is
+  selected, the card shows "Have you studied {language} before?" (`onboarding.studied_before`, language
+  name from `lang_select.name_*`). "Yes" shows `#placement-btn` ("Take the placement test",
+  `onboarding.placement_cta`, href `/placement?lang=<id>`) as the main action, the hint
+  (`onboarding.placement_hint` with `{time}` = `placement.intro_time_en` for English, else
+  `placement.intro_time_cjk`), turns "Start Daily Session" into a ghost button (the skip) and hides
+  "Browse tests". "Only a few words" and "No" restore the page. Answering is optional: "Start Daily
+  Session" is enabled as soon as a language is chosen.
+- **Nothing is stored or sent**: the answer lives in a variable. Leaving the page by any of the three
+  actions saves `selectedLanguageId` as before and removes the mark, so a later visit to the page (or a
+  returning learner on a new device, who comes from `/login`) never sees the gate.
+- Test: `tests/unit/language-selection-gate.test.js` (5 cases).
 
 ### Entry points (TASK-1085)
 Built 2026-11-27 (all but onboarding); each is a plain link to `/placement`, which opens on the study language, and each is always shown (also after a placement, so it doubles as the retake entry):
-- Onboarding (above) — **not built**, waits for PQ7.
+- Onboarding (above).
 - The report's empty state and its "not enough answers" estimate state → "Take the 7-minute placement" (`knowledge.state.empty_placement`; `templates/knowledge.html`, `static/js/pages/knowledge.js`), the primary button ahead of the vocabulary check.
 - The calibration page: "Short placement instead" (`calibration.placement_instead`; a quiet link under the mode toggle in `templates/calibration.html`).
 - A Me-hub row "Vocabulary placement" under My vocabulary (`#mePlacementRow`, `placement.title` / `me.placement_sub`; `templates/profile.html`).
@@ -1136,7 +1151,7 @@ and results are filed under `wiki/evaluations/`.
 | PQ4 | Unscored, labelled probes (≤ 4 per test)? | They test the scoring's assumptions (V4, V6, V8, V9), which no live data covers; cost ≤ ~0.5 min. | **Yes.** |
 | PQ5 | **ANSWERED (owner, 2026-11-18): approved.** Placement evidence is its own kind, written per pair; meaning-only words go to reading practice; never rated known alone. | Without it the target case is pushed out of practice (LRN L6), and the result's copy would be untrue (LRN L7). | **Yes** (ADR-059 accepted); the open-ended check's kind is decided in TASK-1065. |
 | PQ6 | Offer the placement to English learners at launch? | en is meaning-only, 40 items, ~4.4 min; not simulated. | **Yes**, once V0 includes an en population. |
-| PQ7 | Offer it in onboarding, with the "studied before?" gate? | Beginners face ~50–60 items, most IDK (LRN L5); a first experience. | **Offered after the gate, skippable**; always on offer on the report and the Me row while the learner has no placement. |
+| PQ7 | Offer it in onboarding, with the "studied before?" gate? | Beginners face ~50–60 items, most IDK (LRN L5); a first experience. | **Offered after the gate, skippable**; always on offer on the report and the Me row while the learner has no placement. **ANSWERED (owner, 2026-11-27): build it** — built as the default. |
 | PQ8 | Retake policy | Disjoint words need supply (ja band 7: 68 ready words). | **Any time, ≤ 3 starts per language per day, no word within 180 days**; retake compared with the previous placement. |
 | PQ9 | Keep ADR-051's per-band minima for Medium/Good? | A placement alone is "Rough" or "Fewer than" (E25). | **Keep**; revisit after V2. |
 | PQ10 | **ANSWERED for zh/ja (owner, 2026-11-18): "About 60."** English was not part of the question and stays at 40 (meaning only, ≈ 4.4 min) unless the owner says otherwise. | 60 items ≈ 6.4–7.0 min (E31, E33). | **60 (zh/ja) / 40 (en), 9-minute active-time cap**, "about 7 / 5 minutes". |
