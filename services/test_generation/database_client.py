@@ -123,6 +123,9 @@ class GeneratedTest:
     # TASK-740 Phase 5: dedup fields, see services/test_generation/dedup.py.
     passage_hash: Optional[str] = None
     passage_embedding: Optional[List[float]] = None
+    # The model that wrote the prose. Without it the column default
+    # ('gpt-4.1-nano') is stored for every generated test.
+    generation_model: Optional[str] = None
 
 
 @dataclass
@@ -789,6 +792,9 @@ class TestDatabaseClient:
 
         if test.passage_embedding is not None:
             data['passage_embedding'] = test.passage_embedding
+
+        if test.generation_model:
+            data['generation_model'] = test.generation_model
 
         self.client.table('tests') \
             .insert(data) \

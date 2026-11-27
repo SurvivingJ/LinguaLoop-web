@@ -67,6 +67,19 @@ TIER_LABELS = {
 }
 
 
+def _prose_model_label(lang_config) -> Optional[str]:
+    """The model that served the prose call, as llm_calls.model records it.
+
+    Under the claude-cli provider the configured slug is ignored, so the label
+    comes from llm_service's resolver rather than lang_config.prose_model.
+    """
+    try:
+        from services.llm_service import _resolve_model
+        return _resolve_model(lang_config.prose_model, lang_config.language_code, None)
+    except Exception:  # a label must never fail a test
+        return lang_config.prose_model or None
+
+
 def _flag_reasons(flags: dict) -> list:
     """Judge names for `generation_review_queue.flag_reasons`, axis-qualified.
 
@@ -867,6 +880,7 @@ class TestGenerationOrchestrator:
                 age_tier_calibration=assessment.calibration,
                 passage_hash=passage_hash,
                 passage_embedding=passage_embedding,
+                generation_model=_prose_model_label(lang_config),
             )
             self.db.insert_test(test)
 
