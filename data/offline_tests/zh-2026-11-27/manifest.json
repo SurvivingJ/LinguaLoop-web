@@ -1,0 +1,35 @@
+{
+  "format": "lingualoop-offline-tests",
+  "record_version": 1,
+  "language": "zh",
+  "built_at": "2026-11-27T16:14:50.710116+00:00",
+  "tests": 500,
+  "questions": 2488,
+  "topics": 324,
+  "assigned_tiers": {
+    "1": 22,
+    "2": 132,
+    "3": 63,
+    "4": 127,
+    "5": 95,
+    "6": 61
+  },
+  "seeded_elo": {
+    "min": 1051,
+    "median": 1430,
+    "max": 1804
+  },
+  "generation_models": {
+    "claude-cli:sonnet": 500
+  },
+  "failed_slots": 0,
+  "file": "tests.jsonl.xz",
+  "sha256": "f0500487b67411c8333f8f7ffed2c7c60fe30c8964754bfc4f20fe0ab32b3e40",
+  "uncompressed_bytes": 22511571,
+  "compressed_bytes": 868540,
+  "not_included": [
+    "audio (made at upload)",
+    "vocabulary linking (made at upload)",
+    "passage_embedding (no OpenAI key at build time)"
+  ]
+}
