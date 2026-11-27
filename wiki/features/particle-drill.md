@@ -17,7 +17,7 @@ open_questions:
 
 Particles decide who did what to whom in every Japanese sentence, and a learner only owns them
 when the choice is made without thinking. This feature is a drill ground for exactly that: a
-guide for every use of every particle, a bank of {{ITEMS}} written exercises, sentence
+guide for every use of every particle, a bank of 10,549 written exercises, sentence
 generators that never run out, and a ladder that keeps a skill in rotation until the answer is
 instant. A conjugation gym sits beside it, because half the particles depend on the verb form
 in front of them.
@@ -36,7 +36,7 @@ round. They can do this for five minutes or an hour; the questions do not run ou
 
 ## How It Works
 
-**The catalog.** {{SKILLS}} skills in {{GROUPS}} particle groups and 10 stages. A skill is one
+**The catalog.** 245 skills in 138 particle groups and 10 stages. A skill is one
 use of one particle (に for time, に for a destination, に for the person receiving something
 are three skills). The stages run from the core case particles (は が を に へ で), through
 linking and listing (の と も や か から まで より), contrast clinics (は or が, に or で, を or
@@ -66,8 +66,8 @@ answers given that way are counted in the statistics but do not move the ladder.
 **Endless practice.** Each skill draws from its written exercises in shuffled order, previously
 missed sentences first. About three questions in ten are generated on the spot from a *pattern
 pack*: a sentence frame whose parts (who, where, what) are swapped at random, with every
-combination checked to keep the same answer. {{PACKS}} packs give well over
-{{PACK_SENTENCES}} distinct sentences. When the written exercises run out they are reshuffled,
+combination checked to keep the same answer. 278 packs give well over
+100,000 distinct sentences. When the written exercises run out they are reshuffled,
 so a round can always be followed by another.
 
 **Daily mix.** One button starts a 20-question session over up to six skills: reviews that are
@@ -81,8 +81,8 @@ by default for a learner with fewer than eight such words. The learner picks for
 potential, passive, causative, causative-passive, imperative and more for verbs; negative,
 past, て, adverb and conditionals for adjectives). A word and a target form
 appear; the learner chooses, then types, then answers against the clock (three rungs per
-form). Words come at random from the chosen pools (the level lists hold {{VERBS}} verbs and
-{{ADJECTIVES}} adjectives), every form is computed by rule so the practice never runs out, and the wrong options are the mistakes learners really make (treating
+form). Words come at random from the chosen pools (the level lists hold 378 verbs and
+254 adjectives), every form is computed by rule so the practice never runs out, and the wrong options are the mistakes learners really make (treating
 帰る as a る-verb, the wrong て sound change). Each of the 21 conjugation guides opens from
 the setup page and from the feedback after a miss.
 

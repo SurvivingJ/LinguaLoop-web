@@ -58,9 +58,9 @@ Slots were kana-only at first; kanji with furigana was added mid-run and
 **Depends On:** TASK-1234
 
 **Description:**
-Run the pipeline: guides for all {{GROUPS}} particle groups, {{ITEMS}} exercise items over
-{{SKILLS}} skills, {{PACKS}} pattern packs, the conjugation word lists ({{VERBS}} verbs,
-{{ADJECTIVES}} adjectives) and 21 conjugation guides. Every file written by one worker
+Run the pipeline: guides for all 138 particle groups, 10,549 exercise items over
+245 skills, 278 pattern packs, the conjugation word lists (378 verbs,
+254 adjectives) and 21 conjugation guides. Every file written by one worker
 (Sonnet for items and word lists, Opus for guides and packs) and reviewed by an Opus worker in
 a separate context.
 
@@ -70,7 +70,7 @@ a separate context.
 - [x] the whole content validates with 0 errors and `manifest.json` matches the files (tests)
 
 **Technical Notes:**
-Run record: {{RUN_SUMMARY}}
+Run record: 272 jobs (174 item batches, 47 guide batches, 46 pack batches, 4 word lists, the conjugation guide), each written by one headless Claude Code worker and reviewed by a second in a separate context, signed in with the session login (no model API key, no OpenRouter). Result: 10,549 items against the 10,000 target, no skill under target, 0 validation errors. Reviewers checked 11,818 entries, corrected 2,374 and deleted 112. Three guide batches were rerun after the mid-run change that allowed kanji in answers; no job failed at the end. No human has checked a sample (TASK-1237).
 
 **Files to Create / Modify:**
 - `data/particle_drill/ja/{items,guides,packs,conjugation,review}/`, `manifest.json`

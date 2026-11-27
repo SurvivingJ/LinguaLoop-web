@@ -1,0 +1,9 @@
+{"batch":"items-171","files":["items/katawara.jsonl"],"checked":20,"fixed":7,"deleted":0,"replaced":0,"issues":[
+{"file":"items/katawara.jsonl","jp_before":"教授[きょうじゅ]{は|wa-topic}研究[けんきゅう]{を|o-object}続[つづ]ける{かたわら|katawara}、一般[いっぱん]{の|no-possessive}人[ひと]{に|ni-recipient}わかりやすい本[ほん]{を|o-object}書[か]いている。","problem":"The に in 一般の人にわかりやすい is the 'easy for (someone)' standard of evaluation, not a recipient; no catalog skill fits it.","action":"Rewrote as 一般向けの本を書いている ('books for a general audience'), removing the mislabeled slot; focus slot unchanged."},
+{"file":"items/katawara.jsonl","jp_before":"…会社員[かいしゃいん]の{かたわら|katawara}、休日[きゅうじつ]{に|ni-time}小説[しょうせつ]…","problem":"休日は is equally natural with the same English; alternative missing.","action":"Changed slot to {に/は|ni-time}."},
+{"file":"items/katawara.jsonl","jp_before":"…休[やす]み{の|no-possessive}日[ひ]{に|ni-time}絵[え]…","problem":"休みの日は is equally natural; alternative missing.","action":"Changed slot to {に/は|ni-time}."},
+{"file":"items/katawara.jsonl","jp_before":"…看護師[かんごし]の{かたわら|katawara}、夜[よる]{は|wa-contrast}通信制[つうしんせい]…","problem":"夜に is equally natural with the same English; alternative missing.","action":"Changed slot to {は/に|wa-contrast}."},
+{"file":"items/katawara.jsonl","jp_before":"…夜間学校[やかんがっこう]{に|ni-destination}通[かよ]っていました。","problem":"へ is an equally natural alternative with 通う (already listed in the 大学に通う item); missing here.","action":"Changed slot to {に/へ|ni-destination}."},
+{"file":"items/katawara.jsonl","jp_before":"…銀行員[ぎんこういん]の{かたわら|katawara}、週末[しゅうまつ]{に|ni-time}ライブ…","problem":"週末は is equally natural; alternative missing.","action":"Changed slot to {に/は|ni-time}."},
+{"file":"items/katawara.jsonl","jp_before":"…働[はたら]く{かたわら|katawara}、夜[よる]{に|ni-time}手話[しゅわ]…","problem":"夜は is equally natural; alternative missing.","action":"Changed slot to {に/は|ni-time}."}
+]}

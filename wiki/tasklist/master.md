@@ -1,6 +1,6 @@
 ---
 title: Master Task List
-last_updated: 2026-11-25
+last_updated: 2026-11-27
 ---
 
 # Master Task List
@@ -19,13 +19,15 @@ below.
 
 | Status | Rows in this file | All task files (union, file status wins) |
 |--------|-------------------|------------------------------------------|
-| Not Started | 71 | 87 |
+| Not Started | 72 | 88 |
 | In Progress (`[~]`) | 18 | 25 |
-| Blocked / Deferred / Awaiting decision (`[?]`; includes "Done (repo), awaiting live apply") | 59 | 58 |
+| Blocked / Deferred / Awaiting decision (`[?]`; includes "Done (repo), awaiting live apply") | 63 | 62 |
 | Won't Do (obsolete) | 3 | 3 |
 | Superseded | 2 | 2 |
-| Done | 221 | 365 |
-| **Total distinct task ids** | **374** | **540** |
+| Done | 225 | 369 |
+| **Total distinct task ids** | **383** | **549** |
+
+*2026-11-27 (particle drill):* added TASK-1234 to TASK-1242 by arithmetic on the table above (Done +4, Not Started +1, Awaiting +4); no other row changed.
 
 *2026-11-25 (after merging main, PR #44, into the JLPT seeding branch):* kept main's checker-based table and moved
 the one status this branch changed: TASK-1058 Not Started → Done (repo), awaiting deploy (counted under Blocked /
@@ -1553,6 +1555,21 @@ Full spec: [[tasklist/review-2026-11-22.tasks]]. Record: [[evaluations/codebase-
 | TASK-1231 | codebase-review-2026-11-22 | Wiki structure decisions | [?] | M | — |
 | TASK-1232 | codebase-review-2026-11-22 | Wiki pages still citing deleted files, and code with no spec | [ ] | L | — |
 | TASK-1233 | codebase-review-2026-11-22 | Deploy checklist for this review's code | [ ] | S | TASK-1200 |
+
+### Particle Drill (Japanese) — NEW 2026-11-27
+Full spec: [[tasklist/particle-drill.tasks]]. Feature: [[features/particle-drill]]. Built in one session: 10,549 reviewed exercise items, 138 guides, 278 pattern packs, the conjugation gym and the `/particle-drill` page. Four rows are `[?]` (owner: spot check, live apply, two decisions).
+
+| ID | Feature | Title | Status | Complexity | Depends On |
+|----|---------|-------|--------|------------|------------|
+| TASK-1234 | particle-drill | Content format, catalog, validator and authoring pipeline | [x] | L | — |
+| TASK-1235 | particle-drill | Author and review the content (guides, items, packs, conjugation) | [x] | XL | TASK-1234 |
+| TASK-1236 | particle-drill | Drill page, engine, routes and tests | [x] | L | TASK-1234 |
+| TASK-1237 | particle-drill | Native-speaker spot check of the answer keys | [?] | M | TASK-1235 |
+| TASK-1238 | particle-drill | Apply the progress table (`migrations/particle_drill_progress.sql`) | [?] | XS | TASK-1236 |
+| TASK-1239 | particle-drill | Count particle drilling in study time, the daily session and (optionally) ELO | [?] | M | TASK-1238 |
+| TASK-1240 | particle-drill | Guides and reasons in the learner's interface language | [?] | L | TASK-1235 |
+| TASK-1241 | particle-drill | "Report this sentence" from the drill | [ ] | S | TASK-1236 |
+| TASK-1242 | particle-drill | Conjugation drill as its own page, fed by the words the learner knows | [x] | M | TASK-1236 |
 
 ### Language Packs (existing — unchanged)
 

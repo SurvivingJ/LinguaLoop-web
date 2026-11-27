@@ -55,9 +55,9 @@ A drill round makes no request: the skill's whole bank is fetched once (30 to 60
 are built and judged in the browser, and the ladder state is written to `localStorage` after
 every answer and to the server at most every 4 seconds and at the end of a round.
 
-Content totals (manifest, {{DATE}}): {{SKILLS}} skills in {{GROUPS}} groups, {{ITEMS}} items,
-{{PACKS}} pattern packs, {{GUIDES}} group guides, {{VERBS}} verbs, {{ADJECTIVES}} adjectives,
-21 conjugation guides. Version `{{VERSION}}`.
+Content totals (manifest, 2026-11-27): 245 skills in 138 groups, 10,549 items,
+278 pattern packs, 138 group guides, 378 verbs, 254 adjectives,
+21 conjugation guides. Version `fc82258d825e`.
 
 ## Content Formats
 

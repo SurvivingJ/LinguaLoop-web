@@ -1,5 +1,6 @@
 # LinguaDojo Wiki Index
-Last updated: 2026-11-23 (**OWNER DECISIONS AFTER THE REVIEW** — token economy retired (TASK-1210), Mystery and Listening Lab removed (TASK-1227), FSRS review day at Sydney midnight (TASK-1211, code done, SQL pending as group 10 of `migrations/PENDING-2026-11-23.md`), 20 unused API routes removed (TASK-1221; 116 URL rules), scripts write only with `--apply` (TASK-1218, partly done); see [[evaluations/codebase-review-2026-11-22]]; offline pytest 6,494 passed, ruff clean) | Pages: 291
+Last updated: 2026-11-27 (**PARTICLE DRILL (JAPANESE)** — `/particle-drill`: 245 skills, 10,549 reviewed exercises, 278 endless pattern packs, 138 guides, a six-rung ladder to Instant, and `/conjugation-drill`: endless conjugation of the verbs the learner already knows; content ships as files, drilled in the browser ([[features/particle-drill]], [[decisions/ADR-064-particle-drill-static-content-client-engine]]); progress table pending (TASK-1238)) |
+Prior: 2026-11-23 (**OWNER DECISIONS AFTER THE REVIEW** — token economy retired (TASK-1210), Mystery and Listening Lab removed (TASK-1227), FSRS review day at Sydney midnight (TASK-1211, code done, SQL pending as group 10 of `migrations/PENDING-2026-11-23.md`), 20 unused API routes removed (TASK-1221; 116 URL rules), scripts write only with `--apply` (TASK-1218, partly done); see [[evaluations/codebase-review-2026-11-22]]; offline pytest 6,494 passed, ruff clean) | Pages: 291
 
 Prior: 2026-11-23 (**CODEBASE REVIEW, CLEAN-UP AND WIKI SYNC** — see [[evaluations/codebase-review-2026-11-22]]: all 108 tables and views and 214 functions documented, all 137 routes documented, four new package pages with tech pairs, ADR-061–063 proposed, follow-ups TASK-1200–1233 in [[tasklist/review-2026-11-22.tasks]]; nothing deployed, no migration applied) | Pages: 291
 
@@ -230,6 +231,8 @@ Prior: 2026-08-12 (**Exercise Generation v2 batch closed** — TASK-521 sense-em
 - [[features/furigana-overlay.tech]] — fugashi + UniDic generation, payload schema, render path, dampener wiring
 - [[features/measure-word-trainer]] — Chinese classifier (量词) infinite drill, MC + Typed modes, curated dictionary
 - [[features/measure-word-trainer.tech]] — dim_classifiers schema, session RPC, sentinel-test ELO pattern. **+2026-11-16**: tone-marked pinyin only (`format_pinyin`), translated Auto badge, session RPC returns no levels (TASK-998) **+2026-11-17**: levels and mastery restored (v2 session RPC, per-level promotion, 661 cloze sentences) — TASK-998 done; owner decisions TASK-1002
+- [[features/particle-drill]] — **NEW 2026-11-27, in progress (built)**: Japanese particle ladder: a guide and a six-rung drill (Meet, Choose, Type, Fill all, Fix, Speed) for each of 245 particle uses, 10,549 written exercises, endless generated ones, daily mix; plus `/conjugation-drill`, which conjugates the verbs and adjectives the learner's vocabulary record says they know
+- [[features/particle-drill.tech]] — content formats (`data/particle_drill/`), `/api/particle-drill` routes, browser engine (`static/js/particles/`), ladder rules, authoring pipeline (`claude -p` author + reviewer), pending `user_drill_progress`
 - [[features/model-arena]] — Admin tool: head-to-head OpenRouter model comparison (prose + questions, blind-judged)
 - [[features/model-arena.tech]] — Arena orchestrator, judge rubrics, OpenRouter pricing integration
 - [[features/dual-translation]] — **NEW 2026-06-23 (planned)**: L1→L2 back-translation practice; noticing/diff loop; explained errors + spaced remediation. **+2026-11-17**: all-done screen + explicit re-serve (repeats kept out of the error profile), passages from untaken tests after attempted ones, preview-page entry (`test-available`)
@@ -356,6 +359,7 @@ Prior: 2026-08-12 (**Exercise Generation v2 batch closed** — TASK-521 sense-em
 - [[decisions/ADR-061-one-transactional-write-per-dt-submission]] — **PROPOSED 2026-11-23**: one transactional write per dual-translation submission (TASK-1206)
 - [[decisions/ADR-062-retire-dt-card-and-select-next-window-in-sql]] — **PROPOSED 2026-11-23**: retire `dt_card` review cards, choose the `/next` window in SQL (TASK-1207)
 - [[decisions/ADR-063-vocabulary-ladder-generation-paths]] — **PROPOSED 2026-11-23**: fat-seed as the bulk ladder path, nightly drain as the only top-up (TASK-1208)
+- [[decisions/ADR-064-particle-drill-static-content-client-engine]] — **ACCEPTED 2026-11-27**: particle drill content is committed files (the database is at its size line), served by cacheable routes and drilled in the browser; progress is a client document with an optional one-row server copy; must not carry ELO without a server-judged path
 
 ## Task Lists
 - [[tasklist/zh-ja-content-seeding.tasks]] — **NEW 2026-11-22** (TASK-1034–1043, draft for owner review): apply the staged zh/ja fat-seed exercise assets and the 573 staged topics; database-space decision first (TASK-1034)
@@ -398,6 +402,7 @@ Prior: 2026-08-12 (**Exercise Generation v2 batch closed** — TASK-521 sense-em
 - [[tasklist/archive/evidence-first-grading.tasks]] — DT Grading v2 (TASK-621–649): measure → prompts → structural → UX + hardening batch; implements ADR-019 — archived
 - [[tasklist/archive/daily-session-hardening.tasks]] — Daily Session hardening (TASK-700–713): weekly seeding, practice timing, shortfall telemetry, interleaving, retry slots, UX/a11y — archived
 - [[tasklist/review-2026-11-22.tasks]] — **NEW 2026-11-23**: follow-ups from the codebase review, TASK-1200–1233 (34 tasks, 10 of them `[?]` owner decisions)
+- [[tasklist/particle-drill.tasks]] — **NEW 2026-11-27** (TASK-1234–1242): format and pipeline, content, page and engine done; open: native-speaker spot check, apply the progress table, study-time / session / ELO decision, guide translation, report-a-sentence
 - [[tasklist/content-pipeline-remediation.plan]] — Content pipeline remediation plan
 - [[tasklist/exercise-gen-cost.implementation-plan]] — Exercise generation cost reduction implementation plan (TASK-809..816)
 - [[tasklist/word-list-import.plan]] — Word-list upload to ladder exposure and matched-test queueing, implementation plan (v3)

@@ -68,7 +68,7 @@ Three facts shaped the design:
   entitlements, placement or the knowledge report without re-validation.
 - The drill does not yet write `test_attempts`, study time or ELO, so it is invisible to the
   weekly-minutes total and the daily session ([[tasklist/particle-drill.tasks]] TASK-1238, 1239).
-- The repository grows by about {{SIZE_MB}} MB of JSON, and every web worker holds the loaded
+- The repository grows by about 5.8 MB of JSON, and every web worker holds the loaded
   skills in memory (at most that much).
 - Content fixes need a deploy.
 - A content error reported by a learner cannot be patched in place; it needs an edit to a

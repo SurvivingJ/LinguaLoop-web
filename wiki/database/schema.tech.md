@@ -2487,6 +2487,11 @@ Per-learner mastery of each Chinese classifier in Classifier Drill. Written by f
 
 Columns: `user_id` uuid NN, `classifier_id` smallint NN, `attempts` integer NN default `0`, `correct` integer NN default `0`, `ewma_accuracy` numeric NN default `0.0`, `current_level` smallint NN default `1` (CHECK 1..4), `last_wrong_streak` smallint NN default `0`, `promoted_at` timestamptz, `last_attempted_at` timestamptz, `created_at`, `updated_at` timestamptz NN default `now()`, `level_attempts` integer. PK `(user_id, classifier_id)`; FKs `classifier_id` -> `dim_classifiers(id)` and `user_id` -> `users(id)`, both ON DELETE CASCADE. Indexes `idx_user_classifier_mastery_classifier (classifier_id)`, `idx_user_classifier_mastery_level (user_id, current_level)`, `idx_user_classifier_mastery_user (user_id)`.
 
+#### `user_drill_progress` (PENDING: `migrations/particle_drill_progress.sql`, not applied)
+The particle drill's ladder state, one JSON document per learner and drill ([[features/particle-drill.tech]]). Read and upserted by `services/particle_drill/progress.py` through the service role; while the table is absent the service answers `available: false` and the drill keeps its state in the browser.
+
+Columns: `user_id` uuid NN (FK `public.users(id)` ON DELETE CASCADE), `drill` text NN (CHECK `^[a-z0-9_]{1,40}$`; `particles_ja`), `state` jsonb NN default `{}` (CHECK `pg_column_size(state) <= 300000`), `updated_at` timestamptz NN default `now()`. PK `(user_id, drill)`. RLS enabled, no policy; no grant to `anon` / `authenticated`.
+
 #### `user_skill_rating_adjustments`
 Append-only audit of ELO changes made from placement/calibration (seed, correction, or skipped). Written by `apply_calibration_to_skill_ratings`; the trigger function `usra_refuse_update` blocks UPDATEs. Migrations `task746_user_skill_rating_adjustments.sql`, `task747_apply_calibration_to_skill_ratings.sql`.
 
