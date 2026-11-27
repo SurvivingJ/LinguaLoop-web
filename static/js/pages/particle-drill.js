@@ -278,14 +278,14 @@ function guideHtml(guide) {
   return `
     <p class="pd-guide__rule">${esc(guide.rule || '')}</p>
     ${paras}
-    ${guide.intro ? `<h3 class="ld-sech">${esc(t('guide_big_picture', 'The particle as a whole'))}</h3><p class="pd-guide__intro">${esc(guide.intro)}</p>` : ''}
     ${list(guide.patterns, (p) => `<div class="pd-pattern" lang="ja">${esc(p)}</div>`)}
     ${guide.table ? `<div class="pd-tablewrap"><table class="pd-table">${guide.table.map((row, i) => `<tr>${row.map((c) => (i ? `<td lang="ja">${sentenceHtml(c)}</td>` : `<th>${esc(c)}</th>`)).join('')}</tr>`).join('')}</table></div>` : ''}
     <h3 class="ld-sech">${esc(t('guide_examples', 'Examples'))}</h3>
     <ul class="pd-examples">${list(guide.examples, (e) => `<li><span class="pd-jp" lang="ja">${sentenceHtml(e.jp)}</span><span class="pd-en">${esc(e.en)}</span></li>`)}</ul>
     ${guide.contrast && guide.contrast.length ? `<h3 class="ld-sech">${esc(t('guide_contrast', 'Not to be confused with'))}</h3>${list(guide.contrast, (c) => `<div class="pd-contrast"><b class="pd-p" lang="ja">${esc(c.vs)}</b><span>${esc(c.note)}</span></div>`)}` : ''}
     ${guide.mistakes && guide.mistakes.length ? `<h3 class="ld-sech">${esc(t('guide_mistakes', 'Common mistakes'))}</h3>${list(guide.mistakes, (m) => `<div class="pd-mistake"><div class="pd-bad" lang="ja">✕ ${sentenceHtml(m.bad)}</div><div class="pd-good" lang="ja">✓ ${sentenceHtml(m.good)}</div><small>${esc(m.note)}</small></div>`)}` : ''}
-    ${guide.tip ? `<p class="ld-note ld-note--ok pd-tip"><b>${esc(t('guide_tip', 'Quick test'))}</b> ${esc(guide.tip)}</p>` : ''}`;
+    ${guide.tip ? `<p class="ld-note ld-note--ok pd-tip"><b>${esc(t('guide_tip', 'Quick test'))}</b> ${esc(guide.tip)}</p>` : ''}
+    ${guide.intro ? `<h3 class="ld-sech">${esc(t('guide_big_picture', 'The particle as a whole'))}</h3><p class="pd-guide__intro">${esc(guide.intro)}</p>` : ''}`;
 }
 
 async function renderSkill(id) {
@@ -301,7 +301,7 @@ async function renderSkill(id) {
       <header class="pd-guide__head">
         <span class="pd-guide__p" lang="ja">${esc(skill.p)}</span>
         <div><h2>${esc(skill.title)}</h2>
-        <div class="pd-guide__meta">${jlpt(skill.lv)}${pips(s.l)}<span>${esc(levelName(s.l))}</span>${s.n ? `<span>${Math.round((s.c / s.n) * 100)}% · ${s.n}</span>` : ''}</div></div>
+        <div class="pd-guide__meta">${jlpt(skill.lv)}${pips(s.l)}<span>${esc(levelName(s.l))}</span>${s.n ? `<span>${Math.round((s.c / s.n) * 100)}% · ${s.n}</span>` : ''}${s.rt ? `<span>${(s.rt / 1000).toFixed(1)}s</span>` : ''}</div></div>
       </header>
       ${guideHtml(bundle.guide)}
       <p class="ld-hint">${esc(t('skill_supply', '{n} written exercises{inf}', { n: size, inf: bundle.packs.length ? t('skill_supply_inf', ' and endless generated ones') : '' }))}</p>

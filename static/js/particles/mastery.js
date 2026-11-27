@@ -11,6 +11,7 @@
 //
 // Promotion mirrors the measure-word drill: at least PROMOTE_MIN answers at
 // the current level with a running accuracy (EWMA) of PROMOTE_AT or better.
+// Leaving Speed also needs a running answer time of SPEED_RT_MS or less.
 
 export const MAX_LEVEL = 6;
 export const MASTERED = 7;
@@ -20,6 +21,7 @@ export const PROMOTE_MIN = 5;
 export const PROMOTE_AT = 0.8;
 export const SPEED_MIN = 8; // answers needed at the Speed level
 export const SPEED_AT = 0.85;
+export const SPEED_RT_MS = 4000; // running answer time needed to leave Speed
 export const DEMOTE_MIN = 4;
 export const DEMOTE_AT = 0.45;
 export const REVIEW_DAYS = [1, 3, 7, 14, 30, 60, 120];
@@ -81,7 +83,9 @@ export function record(prev, answer, now = Date.now(), maxLevel = MAX_LEVEL) {
   s.la += 1;
   const need = s.l === maxLevel ? SPEED_MIN : PROMOTE_MIN;
   const bar = s.l === maxLevel ? SPEED_AT : PROMOTE_AT;
-  if (correct && s.la >= need && s.e >= bar) {
+  // Speed is only passed fast: accuracy alone does not make a skill instant.
+  const fast = s.l !== maxLevel || (s.rt != null && s.rt <= SPEED_RT_MS);
+  if (correct && s.la >= need && s.e >= bar && fast) {
     s.l += 1;
     s.la = 0;
     if (s.l >= mastered) {

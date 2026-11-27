@@ -190,7 +190,7 @@ accuracy EWMA (α 0.3), answers, correct, response-time EWMA (ms, right answers)
 
 | Rule | Value |
 |------|-------|
-| Promote | answer right, `la ≥ 5`, `e ≥ 0.80` (Speed: `la ≥ 8`, `e ≥ 0.85`) → `l + 1`, `la = 0` |
+| Promote | answer right, `la ≥ 5`, `e ≥ 0.80` (Speed: `la ≥ 8`, `e ≥ 0.85` and `rt ≤ 4000` ms) → `l + 1`, `la = 0` |
 | Demote | answer wrong, `la ≥ 4`, `e < 0.45`, `l > 1` → `l − 1`, `la = 0`, `e = 0.6` |
 | Mastered | `l = 7`; `due = now + 1 day` |
 | Review | at `l = 7`, 3 right answers once due → next of 1, 3, 7, 14, 30, 60, 120 days |

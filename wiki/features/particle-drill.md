@@ -57,7 +57,8 @@ an order.
 6. **Speed** — choose within six seconds; running out of time counts as wrong.
 
 Five answers at a rung with a running accuracy of 80% move the skill up; sustained misses move
-it down one rung. Passing Speed (eight answers at 85%) marks the skill **Instant**. An Instant
+it down one rung. Passing Speed (eight answers at 85%, answered in about four seconds or less
+on a running average) marks the skill **Instant**. An Instant
 skill returns for a short speed review after 1, 3, 7, 14, 30, 60 and 120 days; failing a review
 sends it back to rung 5. The learner can also force any exercise type from the guide page;
 answers given that way are counted in the statistics but do not move the ladder.

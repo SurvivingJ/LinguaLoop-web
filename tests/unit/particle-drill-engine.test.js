@@ -193,6 +193,17 @@ describe('ladder', () => {
     expect(M.isDue(s, 1000 + 86400000)).toBe(true);
   });
 
+  it('does not leave Speed on accuracy alone: the answers must be fast', () => {
+    let s = { ...M.newState(), l: M.MAX_LEVEL, e: 0.9 };
+    for (let i = 0; i < 12; i++) ({ state: s } = answer(s, true, { ms: 5500 }));
+    expect(s.l).toBe(M.MAX_LEVEL);
+    expect(s.rt).toBeGreaterThan(M.SPEED_RT_MS);
+    let event = null;
+    for (let i = 0; i < 12 && event !== 'mastered'; i++)
+      ({ state: s, event } = answer(s, true, { ms: 1500 }));
+    expect(event).toBe('mastered');
+  });
+
   it('lengthens the interval after a passed review and drops back after a failed one', () => {
     const due = 5000;
     let s = { ...M.newState(), l: M.MASTERED, e: 0.95, due, iv: 0 };
@@ -223,7 +234,7 @@ describe('ladder', () => {
     let s = { ...M.newState(), l: 3, e: 0.9 };
     let event = null;
     for (let i = 0; i < 8; i++)
-      ({ state: s, event } = M.record(s, { correct: true, level: 3 }, 10, 3));
+      ({ state: s, event } = M.record(s, { correct: true, level: 3, ms: 1000 }, 10, 3));
     expect(event).toBe('mastered');
     expect(M.isMastered(s, 3)).toBe(true);
     expect(M.progress(s, 3)).toBe(1);
