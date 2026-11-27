@@ -1196,6 +1196,21 @@ Generated exercises sourced from grammar patterns, vocabulary senses, collocatio
 
 ---
 
+### `exercise_explanations` (NOT applied — `migrations/exercise_explanations.sql`, ADR-064)
+
+Per-option answer feedback for one exercise in one learner language, written once by
+`services/exercise_explanations.py` on first serve. Service role only (RLS on, no policy).
+
+| Column | Type | Nullable | Default | Notes |
+|--------|------|----------|---------|-------|
+| `exercise_id` | uuid | NO | | PK part; FK -> exercises ON DELETE CASCADE |
+| `nl_language_id` | smallint | NO | | PK part; FK -> dim_languages |
+| `content_version` | integer | NO | 0 | `exercises.content_version` it was written for; a mismatch means stale |
+| `payload` | jsonb | NO | | `{"sentences":[{"text","is_correct","meaning","explanation","correction"}]}` |
+| `model` | text | YES | | OpenRouter slug that wrote it |
+| `prompt_version` | smallint | NO | | `exercise_explanations.PROMPT_VERSION` |
+| `created_at` | timestamptz | NO | now() | |
+
 ### `exercise_attempts`
 
 Records each exercise attempt by a user.
@@ -1978,7 +1993,17 @@ row per API call, written centrally by `_log_llm_call()` — no call site insert
 directly, so no pipeline can skip logging by omission. Truncated 2026-09-21
 (43,605 rows moved to `archive/db_backups/llm-calls-log-2026-09-21.zip` by
 `migrations/archive_unused_modules_2026_09_21.sql`); the table has carried only
-smoke-test volume since. `cost_usd`/`latency_ms`/`language_code` are already
+smoke-test volume since. **Storage archives** (bucket `llm-logs-archive`, `llm_calls/…jsonl.gz` +
+`.manifest.json`, gzip JSON Lines, one PostgREST row per line): 2026-11-15, 75,163 rows
+2026-09-21 → 11-14 (tool not in the repo); 2026-11-27, 51,489 rows 2026-11-15 → 11-26, by
+`scripts/archive_llm_calls.py` (export, upload never overwriting, download-back check of sha256,
+count and id set, then `--delete` of exactly those ids), followed by `VACUUM (FULL, ANALYZE)`:
+table 46 MB → 3.1 MB, database 496,462,995 → 451,472,531 B. Restore: gunzip and insert the
+lines (every column is present; if a run stopped between upload and delete, a later archive
+repeats those rows — keep one per id). **Weekly since 2026-11-27 (once deployed):** job
+`llm_calls_archive_weekly` (Sun 03:40 UTC, `services/llm_calls_archive.py`) keeps the last
+`LLM_CALLS_ARCHIVE_KEEP_DAYS` (3) whole UTC days and archives + deletes the rest; deleted space is
+reused by new rows (no VACUUM FULL through PostgREST). `cost_usd`/`latency_ms`/`language_code` are already
 populated on every `call_llm()` invocation regardless of pipeline; the seven
 columns below (prompt_tokens .. generation_batch_id) are Phase 0 cost-instrumentation
 additions ([migrations/llm_calls_cost_instrumentation.sql](../../migrations/llm_calls_cost_instrumentation.sql),

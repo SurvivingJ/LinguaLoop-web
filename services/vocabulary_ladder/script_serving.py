@@ -46,8 +46,11 @@ MIRROR_KEY = 'hant'
 FALLBACK_KEY = 'script_fallback_fields'
 
 #: Never selected from the mirror. Schema bookkeeping is not learner-visible
-#: text, and a "converted" schema_version would be nonsense.
-_SKIP_KEYS = frozenset({'schema_version', 'nl_language', MIRROR_KEY, FALLBACK_KEY})
+#: text, and a "converted" schema_version would be nonsense. Per-option
+#: explanations (ADR-064) are attached at serve time in the learner's language,
+#: so the mirror never has them; they stay aligned by position.
+_SKIP_KEYS = frozenset({'schema_version', 'nl_language', MIRROR_KEY, FALLBACK_KEY,
+                        'option_explanations', 'explanation_language'})
 
 
 def variant_from_preferences(prefs: dict | None) -> str:

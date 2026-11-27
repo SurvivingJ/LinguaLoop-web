@@ -32,8 +32,12 @@ def _service(rpc_data=None):
 @pytest.fixture
 def session_svc(monkeypatch):
     monkeypatch.setattr(session_assembly, 'plan_today_iso', lambda db, u, lang: '2026-11-14')
+    monkeypatch.setattr(session_assembly, 'local_today_iso', lambda tz, now=None: '2026-11-14')
+    # Placeholder definition_match items: no definition language, no localising.
+    monkeypatch.setattr('services.vocabulary.gloss_lookup.get_user_definition_language_id',
+                        lambda db, user_id: None)
     monkeypatch.setattr(intro_drill, 'ENABLED', True)
-    monkeypatch.setattr(intro_drill, 'block_for_session', lambda *a: None)
+    monkeypatch.setattr(intro_drill, 'block_for_session', lambda *a, **k: None)
     items = seed_content_files([{'exercise_id': f'e{i}', 'sense_id': i, 'mode': 'maintenance',
                                  'exercise_type': 'definition_match'} for i in range(25)], 1)
     s = _service({'get_practice_session': {'items': items}})

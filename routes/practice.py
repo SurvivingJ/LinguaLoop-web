@@ -8,6 +8,7 @@ and [[decisions/ADR-007-merge-exercises-vocab-dojo]].
 Endpoints:
   GET  /api/practice/session   — fetch a session in the requested mode
   POST /api/practice/attempt   — submit an attempt, propagate BKT/FSRS/progress
+  GET  /api/practice/explanations/<exercise_id> — per-option feedback (ADR-064)
 
 Gate / stress-test marker items in the response carry only
 `is_gate_marker` / `is_stress_test_marker` + `sense_id` + `gate_name`.
@@ -305,6 +306,38 @@ def _grade_typed_if_needed(exercise_id: str, data: dict):
         typed,
         data.get('language_id') or item.get('language_id'),
     )
+
+
+# ---------------------------------------------------------------------------
+# GET /api/practice/explanations/<exercise_id>
+# ---------------------------------------------------------------------------
+
+@practice_bp.route('/explanations/<exercise_id>', methods=['GET'])
+@supabase_jwt_required
+@api_errors("Failed to load explanations")
+def get_exercise_explanations(exercise_id: str) -> ApiResponse:
+    """Why each option of an item is right or wrong, in the learner's language.
+
+    For a spot-the-error item: each sentence's meaning, explanation and (for
+    the wrong one) correction, aligned with ``content.sentences``. Generated
+    once per item and language, then cached (ADR-064); a first request waits
+    for the model (seconds) unless the session already started it.
+
+    Returns ``{state, exercise_id, option_explanations?, explanation_language?}``;
+    ``state`` is ``ready``, ``pending`` (ask again shortly), ``unsupported``
+    (not an explainable item) or ``unavailable`` (no usable answer).
+    """
+    import uuid
+    from services import exercise_explanations
+    from services.vocabulary.gloss_lookup import get_user_definition_language_id
+    try:
+        exercise_id = str(uuid.UUID(exercise_id))
+    except (ValueError, AttributeError):
+        return bad_request("exercise_id must be a UUID")
+    db = get_db()
+    state, payload = exercise_explanations.get_or_generate(
+        db, exercise_id, get_user_definition_language_id(db, g.current_user_id))
+    return api_success({'state': state, 'exercise_id': exercise_id, **(payload or {})})
 
 
 # ---------------------------------------------------------------------------

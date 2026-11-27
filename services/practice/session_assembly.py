@@ -9,7 +9,9 @@ from typing import Any, Dict, List, Optional
 from services.concurrency import run_parallel
 from services import study_plan_service as _plan
 from services.exercise_content import store
-from services.day_boundary import plan_today_iso
+from services.day_boundary import (
+    DEFAULT_TIMEZONE, local_today_iso, plan_row, plan_today_iso, remember_plan_row,
+)
 from services.practice.constants import (
     EXTRA_NEW_WORDS_MAX,
     EXTRA_REVIEW_ITEMS,
@@ -99,24 +101,59 @@ class SessionAssemblyMixin:
         # do not depend on its result.
         db = self.db
         from services import intro_drill, prestudy
-        from services.vocabulary_ladder import script_serving
+        from services.vocabulary.gloss_lookup import (
+            get_user_definition_language_id, remember_user_definition_language_id,
+        )
+        from services.vocabulary_ladder import definition_serving, script_serving
+        want_followups = mode in ('maintenance', 'auto') and not tail
+
+        def plan_and_followups():
+            # The plan row is read here, beside the RPC, instead of before it;
+            # the request cache is out of reach on a pool thread, so the row is
+            # handed back and stored there below for every later step.
+            row = plan_row(db, user_id, language_id)
+            if not want_followups:
+                return row, None
+            today = local_today_iso((row or {}).get('timezone') or DEFAULT_TIMEZONE)
+            return row, prestudy.due_followup_senses(
+                db, user_id, language_id, today, limit=PRESTUDY_FOLLOWUPS_PER_SESSION)
+
         reads: Dict[str, Any] = {
             'session': lambda: self._practice_session_rpc(
                 user_id, language_id, mode, target_minutes, user_theta),
+            'plan': plan_and_followups,
+            # The learner's definition language: the intro block's glosses and
+            # the definition_match options (definition_serving) both need it.
+            'nl': lambda: get_user_definition_language_id(db, user_id),
         }
-        want_followups = mode in ('maintenance', 'auto') and not tail
-        if want_followups:
-            # The plan row is cached per request, so resolve "today" here and
-            # not on a pool thread.
-            today_iso = _settled(lambda: plan_today_iso(db, user_id, language_id))()
-            reads['followups'] = lambda: prestudy.due_followup_senses(
-                db, user_id, language_id, _unwrap(today_iso),
-                limit=PRESTUDY_FOLLOWUPS_PER_SESSION)
         if intro_drill.ENABLED:
             reads['intro_ids'] = lambda: intro_drill.intro_sense_ids(db, user_id)
         if language_id in script_serving.SCRIPT_VARIANT_LANGUAGES:
             reads['preferences'] = lambda: self._exercise_preferences(user_id)
         fetched = dict(zip(reads, run_parallel(*[_settled(r) for r in reads.values()])))
+
+        followups_due: Any = None
+        try:
+            row, followups_due = _unwrap(fetched['plan'])
+            remember_plan_row(user_id, language_id, row)
+        except Exception as e:
+            # Read again on this thread, with plan_today_iso's UTC fail-safe.
+            logger.warning('plan read beside the session RPC failed: %s', e)
+            if want_followups:
+                try:
+                    followups_due = prestudy.due_followup_senses(
+                        db, user_id, language_id, plan_today_iso(db, user_id, language_id),
+                        limit=PRESTUDY_FOLLOWUPS_PER_SESSION)
+                except Exception as e2:
+                    logger.warning('prestudy follow-up read failed (non-fatal): %s', e2)
+        nl_language_id: Optional[int] = None
+        try:
+            nl_language_id = _unwrap(fetched['nl'])
+            remember_user_definition_language_id(user_id, nl_language_id)
+        except Exception as e:
+            logger.warning('definition language read failed: %s', e)
+        # Start loading the gloss pool now; the hydrate step below needs it.
+        definition_serving.warm(db, language_id, nl_language_id)
 
         try:
             payload = _unwrap(fetched['session'])
@@ -150,10 +187,10 @@ class SessionAssemblyMixin:
         # Test prestudy next-day review: senses flagged by yesterday's prestudy
         # (prestudy_followups) get one exercise each inside Maintenance. Not a
         # ladder admission, not counted against new_words_per_day.
-        if want_followups:
+        if want_followups and followups_due is not None:
             try:
                 self._inject_prestudy_followups(
-                    payload, user_id, language_id, due=_unwrap(fetched['followups']))
+                    payload, user_id, language_id, due=followups_due)
             except Exception as e:
                 logger.warning(
                     'prestudy follow-up injection failed (non-fatal) for user=%s '
@@ -185,7 +222,8 @@ class SessionAssemblyMixin:
                 if intro_ids and payload.get('items'):
                     payload['items'] = [i for i in payload['items']
                                         if i.get('sense_id') not in intro_ids]
-                block = intro_drill.block_for_session(self, user_id, language_id, mode)
+                block = intro_drill.block_for_session(self, user_id, language_id, mode,
+                                                      gloss_lang=nl_language_id)
                 if block:
                     payload['intro_drill'] = block
                     if payload.get('no_content_reason'):
@@ -222,7 +260,7 @@ class SessionAssemblyMixin:
         # drops or orders items (none of them reads content, so fewer files
         # are fetched) and before the steps that rewrite content in place
         # (script variant, jumbled preparation).
-        self._hydrate_items(payload, language_id)
+        self._hydrate_items(payload, language_id, nl_language_id=nl_language_id)
 
         # TASK-526: serve the Traditional mirror to learners who asked for it.
         # Pure field selection over content.hant, which TASK-509 dual-stored at
@@ -474,7 +512,9 @@ class SessionAssemblyMixin:
                 logger.warning('extra round: intro block failed (non-fatal): %s', e)
         # ADR-049: fill item content (see get_session), before the steps that
         # rewrite it in place.
-        self._hydrate_items(payload, language_id)
+        from services.vocabulary.gloss_lookup import get_user_definition_language_id
+        self._hydrate_items(payload, language_id,
+                            nl_language_id=get_user_definition_language_id(self.db, user_id))
         try:
             self._apply_script_variant(payload, user_id, language_id)
         except Exception as e:
@@ -753,6 +793,7 @@ class SessionAssemblyMixin:
 
     def _hydrate_items(
         self, payload: Dict[str, Any], language_id: int,
+        nl_language_id: Optional[int] = None,
     ) -> Optional[store.HydrationReport]:
         """Fill ``payload['items']`` content from the exercise-content store, in place.
 
@@ -763,18 +804,37 @@ class SessionAssemblyMixin:
 
         When that empties a non-empty list the payload says so
         (``no_content_reason = 'content_unavailable'``) with one ERROR log.
+        ``nl_language_id`` (the learner's definition language): definition_match
+        items are rebuilt with options in that language, or dropped when they
+        cannot be shown in it (definition_serving). Its one lookup runs while
+        the content is fetched.
+
         Returns the hydration report, or None when there was nothing to do or
         hydration failed.
         """
+        from services import exercise_explanations
+        from services.vocabulary_ladder import definition_serving
         items = payload.get('items')
         if not isinstance(items, list) or not items:
             return None
         before = len(items)
+        # The two lookups read only ids and types, so they run while the
+        # content is fetched (and ``items`` is edited by hydrate).
+        snapshot = list(items)
         report: Optional[store.HydrationReport] = None
-        try:
-            report = store.hydrate(
+        hydrated, prepared, explained = run_parallel(
+            _settled(lambda: store.hydrate(
                 items, language_id=language_id, id_key='exercise_id',
-                sense_key='sense_id')
+                sense_key='sense_id')),
+            _settled(lambda: definition_serving.prepare(
+                self.db, snapshot, language_id=language_id,
+                nl_language_id=nl_language_id)),
+            _settled(lambda: exercise_explanations.prefetch(
+                self.db, snapshot, language_id=language_id,
+                nl_language_id=nl_language_id)),
+        )
+        try:
+            report = _unwrap(hydrated)
         except Exception:
             # hydrate never raises for storage or network problems (ADR-049
             # §9), so this is a bug. Serve what has content rather than fail
@@ -783,6 +843,20 @@ class SessionAssemblyMixin:
                 'exercise content hydration failed (lang=%s, %d item(s))',
                 language_id, before)
             items[:] = [i for i in items if not _lacks_content(i)]
+        try:
+            plan = _unwrap(prepared)
+        except Exception as e:
+            logger.warning('definition_match localisation lookup failed: %s', e)
+            plan = definition_serving.Plan(
+                language_id=int(language_id), nl_language_id=int(nl_language_id),
+                pool=None, meanings={}) if definition_serving._wants_localising(
+                    language_id, nl_language_id) else None
+        definition_serving.apply(plan, items)
+        # Spot-the-error feedback in the learner's language (ADR-064): attach
+        # what is cached, start writing what is not.
+        exercise_explanations.prepare_items(
+            self.db, items, language_id=language_id, nl_language_id=nl_language_id,
+            prefetched=explained[0] if explained[1] is None else None)
         if report is not None and (report.fetched or report.dropped):
             logger.info(
                 'exercise content hydrated (lang=%s): items=%d groups=%d '

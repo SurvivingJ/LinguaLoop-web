@@ -506,7 +506,11 @@ describe('renderJumbled', () => {
     click(answer()[0]);
     expect(answer()).toHaveLength(0);
     expect(bank()).toHaveLength(3);
-    expect(bank().map((el) => el.dataset.chunk).sort()).toEqual(['0', '1', '2']);
+    expect(
+      bank()
+        .map((el) => el.dataset.chunk)
+        .sort()
+    ).toEqual(['0', '1', '2']);
   });
 
   it('removes only the clicked chunk, keeping the rest in order', () => {
@@ -589,5 +593,493 @@ describe('HTML escaping of exercise content', () => {
   it('renders an ordinary cefr_level unchanged', () => {
     R().dispatch('semantic_discrimination', { cefr_level: 'HSK3' }, sd('word'), '');
     expect(card.querySelector('.exercise-cefr-badge').textContent).toBe('HSK3');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Spot the error: per-option explanations in the learner's language (ADR-064)
+// ---------------------------------------------------------------------------
+
+describe('renderSpotSentence explanations', () => {
+  let card;
+  let feedback;
+  let answered;
+  const realFetch = window.authFetch;
+
+  const SENTENCES = [
+    { text: '人間は言葉を使う。', is_correct: true },
+    { text: '人間は言葉が使う。', is_correct: false, error_description: '助詞の誤り。' },
+    { text: '彼は優しい人間だ。', is_correct: true },
+  ];
+  const ENTRIES = [
+    { meaning: 'Humans use language.', explanation: 'を marks the object.', correction: null },
+    {
+      meaning: 'Humans use language.',
+      explanation: 'The object of 使う takes を, not が.',
+      correction: '人間は言葉を使う。',
+    },
+    { meaning: 'He is a kind person.', explanation: '優しい modifies 人間.', correction: null },
+  ];
+
+  beforeEach(() => {
+    card = document.createElement('div');
+    document.body.appendChild(card);
+    feedback = [];
+    answered = false;
+    R().init({
+      cardEl: card,
+      isAnswered: () => answered,
+      setAnswered: (v) => {
+        answered = v;
+      },
+      showFeedback: (ok, expl) => feedback.push({ ok, expl }),
+      submitAttempt: () => {},
+      nextExercise: () => {},
+    });
+  });
+
+  afterEach(() => {
+    card.remove();
+    window.authFetch = realFetch;
+  });
+
+  const pick = (i) => {
+    const options = card.querySelectorAll('#optionsList .exercise-option');
+    options[i].dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+  };
+
+  it('shows why every option is right or wrong once answered, from attached content', () => {
+    window.authFetch = () => {
+      throw new Error('must not fetch when explanations are attached');
+    };
+    R().dispatch(
+      'spot_incorrect_sentence',
+      { exercise_id: 'e-attached' },
+      { sentences: SENTENCES, option_explanations: ENTRIES },
+      ''
+    );
+    expect(card.querySelector('.ex-opt-expl')).toBeNull(); // nothing before answering
+    pick(0);
+    const notes = card.querySelectorAll('.ex-opt-expl');
+    expect(notes.length).toBe(3);
+    expect(notes[0].textContent).toContain('Humans use language.');
+    expect(notes[0].textContent).toContain('を marks the object.');
+    expect(notes[1].classList.contains('ex-opt-expl--bad')).toBe(true);
+    expect(notes[1].querySelector('.ex-opt-expl__fix').textContent).toContain('人間は言葉を使う。');
+    expect(notes[2].querySelector('.ex-opt-expl__fix')).toBeNull();
+    // the wrong sentence's meaning is labelled as literal; the right ones are not
+    expect(notes[1].querySelector('.ex-opt-expl__lit').textContent).toBe('Literally:');
+    expect(notes[0].querySelector('.ex-opt-expl__lit')).toBeNull();
+    // the target-language note is not used when ours is there
+    expect(feedback).toEqual([{ ok: false, expl: '' }]);
+  });
+
+  it('fetches explanations for an item served without them and shows them after answering', async () => {
+    const asked = [];
+    let release;
+    const gate = new Promise((r) => {
+      release = r;
+    });
+    window.authFetch = async (url) => {
+      asked.push(url);
+      await gate;
+      return { ok: true, json: async () => ({ state: 'ready', option_explanations: ENTRIES }) };
+    };
+    R().dispatch(
+      'spot_incorrect_sentence',
+      { exercise_id: 'e-fetch' },
+      { sentences: SENTENCES },
+      ''
+    );
+    expect(asked).toEqual(['/api/practice/explanations/e-fetch']); // asked on display
+    pick(1);
+    // nothing shown twice: no old note in the bar, a loading line under the options
+    expect(feedback[0]).toEqual({ ok: true, expl: '' });
+    expect(card.querySelector('.ex-opt-expl')).toBeNull();
+    expect(card.querySelector('.ex-opt-expl-loading')).not.toBeNull();
+    release();
+    await new Promise((r) => setTimeout(r, 0));
+    await new Promise((r) => setTimeout(r, 0));
+    expect(card.querySelectorAll('.ex-opt-expl').length).toBe(3);
+    expect(card.querySelector('.ex-opt-expl-loading')).toBeNull();
+  });
+
+  it("falls back to the item's own note under the wrong sentence when the server has none", async () => {
+    window.authFetch = async () => ({ ok: true, json: async () => ({ state: 'unavailable' }) });
+    R().dispatch(
+      'spot_incorrect_sentence',
+      { exercise_id: 'e-none' },
+      { sentences: SENTENCES },
+      ''
+    );
+    pick(1);
+    await new Promise((r) => setTimeout(r, 0));
+    await new Promise((r) => setTimeout(r, 0));
+    const notes = card.querySelectorAll('.ex-opt-expl');
+    expect(notes.length).toBe(1);
+    expect(notes[0].textContent).toContain('助詞の誤り。');
+    expect(card.querySelector('.ex-opt-expl-loading')).toBeNull();
+    expect(feedback[0]).toEqual({ ok: true, expl: '' });
+  });
+
+  it('keeps the old note in the feedback bar when explanations cannot be asked for', () => {
+    window.authFetch = undefined;
+    R().dispatch('spot_incorrect_sentence', {}, { sentences: SENTENCES }, '');
+    pick(1);
+    expect(feedback[0]).toEqual({ ok: true, expl: '助詞の誤り。' });
+    expect(card.querySelector('.ex-opt-expl')).toBeNull();
+  });
+});
+
+describe('renderSemDiscrim explanations', () => {
+  let card;
+  let feedback;
+  let answered;
+  const realFetch = window.authFetch;
+
+  const SENTENCES = [
+    { text: 'この回数券は無効になる。', is_correct: true },
+    { text: '回数券でピザを半額にした。', is_correct: false, explanation: 'Needs クーポン.' },
+    { text: '回数券を毎月更新する。', is_correct: false, explanation: 'Needs 定期券.' },
+  ];
+  const ENTRIES = [
+    { meaning: 'This ticket book expires.', explanation: '回数券 can expire.', correction: null },
+    {
+      meaning: 'I halved the pizza price.',
+      explanation: 'A discount needs クーポン.',
+      correction: null,
+    },
+    { meaning: 'I renew it monthly.', explanation: 'A monthly pass is 定期券.', correction: null },
+  ];
+
+  beforeEach(() => {
+    card = document.createElement('div');
+    document.body.appendChild(card);
+    feedback = [];
+    answered = false;
+    R().init({
+      cardEl: card,
+      isAnswered: () => answered,
+      setAnswered: (v) => {
+        answered = v;
+      },
+      showFeedback: (ok, expl) => feedback.push({ ok, expl }),
+      submitAttempt: () => {},
+      nextExercise: () => {},
+    });
+  });
+
+  afterEach(() => {
+    card.remove();
+    window.authFetch = realFetch;
+  });
+
+  const pickText = (text) => {
+    const el = card.querySelector(`.exercise-option[data-value="${text}"]`);
+    el.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+  };
+  const noteFor = (text) =>
+    card.querySelector(`.exercise-option[data-value="${text}"] .ex-opt-expl`);
+
+  it('matches attached explanations to shuffled options by sentence', () => {
+    window.authFetch = () => {
+      throw new Error('must not fetch when explanations are attached');
+    };
+    R().dispatch(
+      'semantic_discrimination',
+      { exercise_id: 's-attached' },
+      { target_word: '回数券', sentences: SENTENCES, option_explanations: ENTRIES },
+      ''
+    );
+    pickText(SENTENCES[1].text);
+    expect(noteFor(SENTENCES[0].text).textContent).toContain('This ticket book expires.');
+    expect(noteFor(SENTENCES[1].text).textContent).toContain('A discount needs クーポン.');
+    expect(noteFor(SENTENCES[1].text).querySelector('.ex-opt-expl__verdict').textContent).toBe(
+      'Wrong'
+    );
+    expect(noteFor(SENTENCES[2].text).textContent).toContain('定期券');
+    expect(feedback).toEqual([{ ok: false, expl: '' }]);
+  });
+
+  it('shows the stored notes first and replaces them when the fetch arrives', async () => {
+    let release;
+    const gate = new Promise((r) => {
+      release = r;
+    });
+    window.authFetch = async () => {
+      await gate;
+      return { ok: true, json: async () => ({ state: 'ready', option_explanations: ENTRIES }) };
+    };
+    R().dispatch(
+      'semantic_discrimination',
+      { exercise_id: 's-fetch' },
+      { target_word: '回数券', sentences: SENTENCES },
+      ''
+    );
+    pickText(SENTENCES[0].text);
+    expect(noteFor(SENTENCES[0].text)).toBeNull(); // no stored note on the right one
+    expect(noteFor(SENTENCES[1].text).textContent).toContain('Needs クーポン.');
+    expect(card.querySelector('.ex-opt-expl-loading')).not.toBeNull();
+    release();
+    await new Promise((r) => setTimeout(r, 0));
+    await new Promise((r) => setTimeout(r, 0));
+    expect(noteFor(SENTENCES[0].text).textContent).toContain('回数券 can expire.');
+    expect(noteFor(SENTENCES[1].text).textContent).toContain('A discount needs クーポン.');
+    expect(card.querySelectorAll('.ex-opt-expl').length).toBe(3);
+    expect(card.querySelector('.ex-opt-expl-loading')).toBeNull();
+  });
+});
+
+describe('word-option explanations (particle, word form, synonym / antonym)', () => {
+  let card;
+  let feedback;
+  let answered;
+  const realFetch = window.authFetch;
+
+  const PARTICLE = {
+    correct_answer: 'が',
+    options: ['から', 'を', 'と', 'が'],
+    sentence_with_blank: '机の上の時計___、朝七時を知らせた。',
+    explanation: '正解。「時計が」で主語を示す。',
+  };
+  const ENTRIES = [
+    { meaning: 'marks a starting point', explanation: 'から marks where something starts.' },
+    { meaning: 'marks the direct object', explanation: 'を would make the clock an object.' },
+    { meaning: 'joins nouns', explanation: 'と needs a second noun.' },
+    { meaning: 'The clock on the desk announced seven.', explanation: 'が marks the subject.' },
+  ];
+
+  beforeEach(() => {
+    card = document.createElement('div');
+    document.body.appendChild(card);
+    feedback = [];
+    answered = false;
+    R().init({
+      cardEl: card,
+      isAnswered: () => answered,
+      setAnswered: (v) => {
+        answered = v;
+      },
+      showFeedback: (ok, expl) => feedback.push({ ok, expl }),
+      submitAttempt: () => {},
+      nextExercise: () => {},
+    });
+  });
+
+  afterEach(() => {
+    card.remove();
+    window.authFetch = realFetch;
+  });
+
+  const pickText = (text) => {
+    const el = card.querySelector(`.exercise-option[data-value="${text}"]`);
+    el.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+  };
+  const noteFor = (text) =>
+    card.querySelector(`.exercise-option[data-value="${text}"] .ex-opt-expl`);
+
+  it("shows every particle option explained; a wrong one's meaning is a plain gloss", () => {
+    window.authFetch = () => {
+      throw new Error('must not fetch when explanations are attached');
+    };
+    R().dispatch(
+      'particle_selection',
+      { exercise_id: 'p-attached' },
+      { ...PARTICLE, option_explanations: ENTRIES },
+      ''
+    );
+    pickText('を');
+    expect(card.querySelectorAll('.ex-opt-expl').length).toBe(4);
+    const wrong = noteFor('を');
+    expect(wrong.querySelector('.ex-opt-expl__verdict').textContent).toBe('Wrong');
+    expect(wrong.querySelector('.ex-opt-expl__meaning').textContent).toBe(
+      'marks the direct object'
+    );
+    expect(wrong.querySelector('.ex-opt-expl__lit')).toBeNull();
+    const right = noteFor('が');
+    expect(right.querySelector('.ex-opt-expl__verdict').textContent).toBe('Correct');
+    expect(right.querySelector('.ex-opt-expl__meaning').textContent).toBe(
+      '“The clock on the desk announced seven.”'
+    );
+    expect(feedback).toEqual([{ ok: false, expl: '' }]); // the Japanese note is not repeated
+  });
+
+  it('fetches explanations for a word-form item served without them', async () => {
+    const asked = [];
+    window.authFetch = async (url) => {
+      asked.push(url);
+      return {
+        ok: true,
+        json: async () => ({
+          state: 'ready',
+          option_explanations: [
+            { meaning: 'past form', explanation: 'くれた needs the te-form.' },
+            { meaning: 'He treated it fairly for us.', explanation: 'て joins くれた.' },
+          ],
+        }),
+      };
+    };
+    R().dispatch(
+      'morphology_slot',
+      { exercise_id: 'm-fetch' },
+      {
+        base_form: '扱う',
+        correct_answer: '扱って',
+        options: ['扱った', '扱って'],
+        sentence_with_blank: '公平に___くれた。',
+        explanation: 'て形。',
+      },
+      ''
+    );
+    expect(asked).toEqual(['/api/practice/explanations/m-fetch']);
+    await new Promise((r) => setTimeout(r, 0));
+    await new Promise((r) => setTimeout(r, 0));
+    pickText('扱って');
+    expect(noteFor('扱った').textContent).toContain('past form');
+    expect(noteFor('扱って').textContent).toContain('“He treated it fairly for us.”');
+    expect(feedback).toEqual([{ ok: true, expl: '' }]);
+  });
+
+  it('gives every synonym / antonym option a plain gloss', () => {
+    R().dispatch(
+      'synonym_antonym_match',
+      { exercise_id: 'r-attached' },
+      {
+        word: '国内',
+        relation: 'antonym',
+        correct_answer: '海外',
+        options: ['海外', '城下'],
+        option_explanations: [
+          { meaning: 'かいがい — overseas', explanation: '海外 is outside the country.' },
+          { meaning: 'じょうか — castle town', explanation: 'Unrelated to 国内.' },
+        ],
+      },
+      ''
+    );
+    pickText('海外');
+    expect(noteFor('海外').querySelector('.ex-opt-expl__meaning').textContent).toBe(
+      'かいがい — overseas'
+    );
+    expect(noteFor('城下').querySelector('.ex-opt-expl__meaning').textContent).toBe(
+      'じょうか — castle town'
+    );
+  });
+
+  it("keeps the item's own note in the bar when explanations cannot be asked for", () => {
+    window.authFetch = undefined;
+    R().dispatch('particle_selection', { exercise_id: 'p-offline' }, { ...PARTICLE }, '');
+    pickText('が');
+    expect(feedback).toEqual([{ ok: true, expl: '正解。「時計が」で主語を示す。' }]);
+    expect(card.querySelector('.ex-opt-expl')).toBeNull();
+  });
+
+  it("shows the item's own note under the key when the fetch brings nothing", async () => {
+    window.authFetch = async () => ({ ok: false });
+    R().dispatch('particle_selection', { exercise_id: 'p-none' }, { ...PARTICLE }, '');
+    pickText('を');
+    expect(feedback).toEqual([{ ok: false, expl: '' }]);
+    await new Promise((r) => setTimeout(r, 0));
+    await new Promise((r) => setTimeout(r, 0));
+    expect(noteFor('が').textContent).toContain('正解。「時計が」で主語を示す。');
+    expect(card.querySelectorAll('.ex-opt-expl').length).toBe(1);
+  });
+
+  it('a fetch that lands after the learner moved on does not paint the next item', async () => {
+    let release;
+    const gate = new Promise((r) => {
+      release = r;
+    });
+    window.authFetch = async (url) => {
+      if (!url.endsWith('/p-A')) return new Promise(() => {}); // B still loading
+      await gate;
+      return { ok: true, json: async () => ({ state: 'ready', option_explanations: ENTRIES }) };
+    };
+    R().dispatch('particle_selection', { exercise_id: 'p-A' }, { ...PARTICLE }, '');
+    pickText('を');
+    answered = false; // Next: item B, same particles in another order, not yet answered
+    R().dispatch(
+      'particle_selection',
+      { exercise_id: 'p-B' },
+      { ...PARTICLE, correct_answer: 'を', options: ['が', 'を', 'と', 'から'] },
+      ''
+    );
+    release();
+    await new Promise((r) => setTimeout(r, 0));
+    await new Promise((r) => setTimeout(r, 0));
+    expect(card.querySelectorAll('.ex-opt-expl').length).toBe(0);
+  });
+
+  it('matches options whose stored text has surrounding spaces', () => {
+    R().dispatch(
+      'morphology_slot',
+      { exercise_id: 'm-spaces' },
+      {
+        base_form: '扱う',
+        correct_answer: '扱って ',
+        options: [' 扱った', '扱って '],
+        sentence_with_blank: '公平に___くれた。',
+        option_explanations: [
+          { meaning: 'past form', explanation: 'くれた needs the te-form.' },
+          { meaning: 'He treated it fairly for us.', explanation: 'て joins くれた.' },
+        ],
+      },
+      ''
+    );
+    pickText('扱って ');
+    expect(card.querySelectorAll('.ex-opt-expl').length).toBe(2);
+  });
+
+  it('does not ask for an item with duplicate options', () => {
+    const asked = [];
+    window.authFetch = async (url) => {
+      asked.push(url);
+      return { ok: false };
+    };
+    R().dispatch(
+      'particle_selection',
+      { exercise_id: 'p-dupes' },
+      { ...PARTICLE, options: ['が', 'が', 'を'] },
+      ''
+    );
+    expect(asked).toEqual([]);
+  });
+});
+
+describe('explanation loading line', () => {
+  it('is not shown when the fetch already came back empty before the answer', async () => {
+    const card = document.createElement('div');
+    document.body.appendChild(card);
+    let answered = false;
+    R().init({
+      cardEl: card,
+      isAnswered: () => answered,
+      setAnswered: (v) => {
+        answered = v;
+      },
+      showFeedback: () => {},
+      submitAttempt: () => {},
+      nextExercise: () => {},
+    });
+    const realFetch = window.authFetch;
+    window.authFetch = async () => ({ ok: true, json: async () => ({ state: 'unavailable' }) });
+    R().dispatch(
+      'spot_incorrect_sentence',
+      { exercise_id: 'e-early' },
+      {
+        sentences: [
+          { text: 'A。', is_correct: true },
+          { text: 'B。', is_correct: false },
+        ],
+      },
+      ''
+    );
+    await new Promise((r) => setTimeout(r, 0));
+    await new Promise((r) => setTimeout(r, 0));
+    card
+      .querySelectorAll('#optionsList .exercise-option')[1]
+      .dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+    expect(card.querySelector('.ex-opt-expl-loading')).toBeNull();
+    window.authFetch = realFetch;
+    card.remove();
   });
 });

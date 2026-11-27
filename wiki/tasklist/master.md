@@ -1,6 +1,6 @@
 ---
 title: Master Task List
-last_updated: 2026-11-25
+last_updated: 2026-11-27
 ---
 
 # Master Task List
@@ -19,13 +19,25 @@ below.
 
 | Status | Rows in this file | All task files (union, file status wins) |
 |--------|-------------------|------------------------------------------|
-| Not Started | 71 | 87 |
+| Not Started | 79 | 95 |
 | In Progress (`[~]`) | 18 | 25 |
-| Blocked / Deferred / Awaiting decision (`[?]`; includes "Done (repo), awaiting live apply") | 59 | 58 |
+| Blocked / Deferred / Awaiting decision (`[?]`; includes "Done (repo), awaiting live apply") | 68 | 67 |
 | Won't Do (obsolete) | 3 | 3 |
 | Superseded | 2 | 2 |
-| Done | 221 | 365 |
-| **Total distinct task ids** | **374** | **540** |
+| Done | 224 | 368 |
+| **Total distinct task ids** | **394** | **560** |
+
+*2026-11-27 (llm_calls archive):* added TASK-1253; then Not Started → Done (repo), awaiting deploy (weekly job; counted under Blocked / awaiting).
+
+*2026-11-27 (word-option batches):* TASK-1247 awaiting → Done, TASK-1248 Not Started → Done; added TASK-1252 (awaiting the owner).
+
+*2026-11-27 (word-option explanations):* TASK-1242 Not Started → Done (repo), awaiting deploy (counted under Blocked / awaiting); added TASK-1247 (awaiting the owner) and TASK-1248–1251 (Not Started).
+
+*2026-11-27:* TASK-1244 In Progress → Done (5,936 Japanese explanation files written, 17,218 items, $53.10); TASK-1244–1246 had been added the same day (1245 awaiting the owner, 1246 Not Started).
+
+*2026-11-26 (fixes: definition language, session speed, spot-the-error explanations):* added
+TASK-1234–1243 ([[tasklist/fixes-2026-11-26.tasks]]): 1234–1236 Done (repo), awaiting deploy, and 1237/1239
+awaiting the owner (counted under Blocked / awaiting); 1238, 1240–1243 Not Started.
 
 *2026-11-25 (after merging main, PR #44, into the JLPT seeding branch):* kept main's checker-based table and moved
 the one status this branch changed: TASK-1058 Not Started → Done (repo), awaiting deploy (counted under Blocked /
@@ -1553,6 +1565,31 @@ Full spec: [[tasklist/review-2026-11-22.tasks]]. Record: [[evaluations/codebase-
 | TASK-1231 | codebase-review-2026-11-22 | Wiki structure decisions | [?] | M | — |
 | TASK-1232 | codebase-review-2026-11-22 | Wiki pages still citing deleted files, and code with no spec | [ ] | L | — |
 | TASK-1233 | codebase-review-2026-11-22 | Deploy checklist for this review's code | [ ] | S | TASK-1200 |
+
+### Fixes 2026-11-26 — [[tasklist/fixes-2026-11-26.tasks]]
+
+| ID | Feature | Title | Status | Complexity | Depends On |
+|----|---------|-------|--------|------------|------------|
+| TASK-1234 | fixes-2026-11-26 | definition_match options in the learner's language | Done (repo) — not deployed | M | — |
+| TASK-1235 | fixes-2026-11-26 | Session-load latency cuts | Done (repo) — not deployed | M | — |
+| TASK-1236 | fixes-2026-11-26 | Per-option explanations: spot the error, pick the correct sentence (ADR-064) | Done (repo) — not deployed | L | — |
+| TASK-1237 | fixes-2026-11-26 | OWNER: apply `migrations/exercise_explanations.sql` | [?] | XS | TASK-1236 |
+| TASK-1238 | fixes-2026-11-26 | English glosses for Chinese words that have none | [ ] | L | — |
+| TASK-1239 | fixes-2026-11-26 | Verify ES256 tokens locally (JWKS) or lengthen the auth cache | [?] | S | — |
+| TASK-1240 | fixes-2026-11-26 | Serialise new-word admission per (user, language) | [ ] | M | — |
+| TASK-1241 | fixes-2026-11-26 | Prestudy spot-the-error / pick-the-sentence show per-option explanations | [ ] | S | TASK-1236 |
+| TASK-1242 | fixes-2026-11-26 | Explanations in the learner's language for particle, word form and synonym / antonym | Done (repo) — not deployed | M | TASK-1236 |
+| TASK-1243 | fixes-2026-11-26 | Generator writes learner-language definition options | [ ] | S | TASK-1234 |
+| TASK-1244 | fixes-2026-11-26 | Write every Japanese explanation ahead into Storage files (Sonnet 5.5, Message Batches) | [x] | M | TASK-1236 |
+| TASK-1245 | fixes-2026-11-26 | OWNER: OpenRouter key almost out of credit ($0.22 of $11.25 left) | [?] | XS | — |
+| TASK-1246 | fixes-2026-11-26 | Chinese explanations ahead of time | [ ] | M | TASK-1244 |
+| TASK-1247 | fixes-2026-11-26 | Write every Japanese particle / word-form / synonym explanation ahead ($28.39) | [x] | S | TASK-1242 |
+| TASK-1248 | fixes-2026-11-26 | Chinese synonym / antonym explanations ahead ($3.59) | [x] | XS | TASK-1247 |
+| TASK-1249 | fixes-2026-11-26 | Explanations for fill the blank, typed fill-in and word order (not chosen) | [ ] | M | TASK-1242 |
+| TASK-1250 | fixes-2026-11-26 | English word definitions in fill the blank, word form and synonym questions | [ ] | S | TASK-1234 |
+| TASK-1251 | fixes-2026-11-26 | Listening questions: notes in English, wrong-option notes shown | [ ] | S | — |
+| TASK-1252 | fixes-2026-11-26 | OWNER: Anthropic credit exhausted; then finish 2 held-back senses | [?] | XS | TASK-1247 |
+| TASK-1253 | fixes-2026-11-26 | Keep llm_calls small: archive it to Storage regularly (weekly job) | Done (repo) — not deployed | S | — |
 
 ### Language Packs (existing — unchanged)
 
