@@ -37,6 +37,7 @@ from routes.vocab_dojo import vocab_dojo_bp
 from routes.vocab_admin import vocab_admin_bp
 from routes.calibration import calibration_bp
 from routes.drills import classifier_drill_bp, counter_drill_bp
+from routes.grammar_drill import grammar_drill_bp
 from routes.practice import practice_bp
 from routes.study_plan import study_plan_bp
 from routes.study_session import study_session_bp
@@ -223,6 +224,7 @@ def _register_blueprints(app):
     app.register_blueprint(calibration_bp, url_prefix='/api/calibration')
     app.register_blueprint(classifier_drill_bp, url_prefix='/api/classifier-drill')
     app.register_blueprint(counter_drill_bp, url_prefix='/api/counter-drill')
+    app.register_blueprint(grammar_drill_bp, url_prefix='/api/grammar-drill')
     # Phase 12/13: unified Practice surface + Study Plan orchestration.
     app.register_blueprint(practice_bp, url_prefix='/api/practice')
     app.register_blueprint(study_plan_bp, url_prefix='/api/study-plan')

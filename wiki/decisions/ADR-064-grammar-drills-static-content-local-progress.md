@@ -6,6 +6,12 @@ date: 2026-11-27
 
 # ADR-064: Grammar drills as static files, client-side generators and localStorage progress
 
+> **Partly superseded 2026-11-27:** Decision point 3 (progress kept in `localStorage` only) and
+> the first two points under "Harder or now constrained" are superseded by
+> [[decisions/ADR-065-grammar-drill-daily-tracking]]: progress is also written to the server as
+> daily summaries plus one state row per topic, and the database stop line is 480 MB (was
+> 475 MB). Points 1, 2 and 4 stand. The text below is unchanged.
+
 ## Context
 
 The owner asked (2026-11-27) for particle-style drilling: "a drill drill drill thing. Build out a
@@ -92,3 +98,4 @@ Specification: [[features/grammar-drills.tech]].
 
 - [[features/grammar-drills]], [[features/grammar-drills.tech]]
 - [[tasklist/grammar-drills.tasks]]
+- [[decisions/ADR-065-grammar-drill-daily-tracking]] — supersedes point 3

@@ -5,7 +5,6 @@ status: in-progress
 tech_page: ./grammar-drills.tech.md
 last_updated: 2026-11-27
 open_questions:
-  - "GQ1 (OPEN): Should progress be synced to the server? Today it lives in one browser's localStorage; a second device or a cleared browser starts again (TASK-1239)."
   - "GQ2 (OPEN): Should grammar drills appear in the Study Plan / daily session, and should they feed ELO or any other learner model? Today they are a separate page with no link to either (TASK-1240)."
   - "GQ3 (OPEN): No native speaker has audited the content. Reviewer agents left borderline items in place and listed them in `data/grammar_drills/zh/review_concerns.md` (TASK-1241)."
   - "GQ4 (OPEN): Guides and per-item explanations are English only. Which other languages, and does that include the 10,209 `why` texts? (TASK-1242)"
@@ -14,6 +13,8 @@ open_questions:
   - "GQ7 (OPEN): Generated sentences are grammatical but sometimes semantically flat. How much curation of the generator word lists is wanted? (TASK-1245)"
   - "GQ8 (OPEN): The Japanese particle counterpart is work in progress elsewhere and should reuse this contract; the script is hard-wired to `zh` today (TASK-1246)."
   - "GQ9 (OPEN): There is no audio. Is audio wanted, and from what source? (TASK-1247)"
+  - "GQ11 (OPEN): A daily tracking row costs about 246 bytes with its index, not the 150 budgeted; the sub-point keys are the difference. Accept, or store sub-point misses more compactly? (ADR-065)"
+  - "GQ12 (OPEN): How long are daily tracking rows kept? The page reads the last 180 days; nothing deletes older rows."
   - "GQ10 (OPEN): The measure-words topic overlaps the existing database-backed Measure Word Trainer (`/classifier-drill`). Keep both, link them, or merge? (TASK-1248)"
 ---
 
@@ -27,6 +28,9 @@ exists because some grammar is learned by repetition rather than by explanation:
 request (2026-11-27) was for "a drill drill drill thing … drill them so it becomes instantaneous".
 
 **State on 2026-11-27:** built on branch `claude/happy-gates-qp9ifs`; not deployed. Chinese only.
+Progress tracking (daily history on the server, stages across devices, progress views) was built
+the same day; its database migration is not applied yet
+([[decisions/ADR-065-grammar-drill-daily-tracking]]).
 
 ## User Story
 
@@ -86,16 +90,49 @@ one point, getting faster, until the right form comes out at once.
     does not count toward opening stages. The tone-change topic (不 and 一 tone sandhi, third-tone
     rules) has a guide and Endless mode only; it has no written items.
 
+### Progress over time (2026-11-27; needs the tracking migration)
+
+After each finished round, Mixed review or stopped Endless session, the page sends that session's
+totals to the server: per topic, how many items were answered and how many were right first time,
+how long the right answers took, and which sub-points were missed. A session left part-way sends
+what was answered. If the send fails (offline, signed out) it waits in the browser and is sent on
+a later visit; the server counts it once.
+
+On opening the page, the learner's stages and totals are fetched and merged with what the browser
+has: the higher unlocked stage wins, and the more recent of the two sets of recent results. So a
+second device continues at the same stage.
+
+Two views appear once there is history:
+
+- **Topic screen, "Progress" card.** Accuracy and average recall time for each day the topic was
+  practised (the last 30 such days), each as a small line with the latest value in figures and
+  the change since the first week in words (since the first day while still in the first week).
+  Below it, "Needs work": the three sub-points missed most in the last 14 days. One recorded day
+  shows the figures and a note that a trend needs a second day.
+- **Hub, "Your progress".** Days practised in the last 30, total answers, the number of topics
+  that are instant, and a strip of the last 30 days shaded by how much was practised.
+
+Without a server history (not signed in, offline, tracking not applied) neither view is drawn
+and the page is as before.
+
 ## Constraints & Edge Cases
 
 - **Chinese only.** Simplified characters, mainland standard usage. A Japanese particle
   counterpart is being built elsewhere (GQ8).
-- **Progress is per browser.** Nothing is saved to the account. Clearing site data, or using
-  another device, starts from zero (GQ1). If the browser blocks storage the drills still work but
-  nothing is remembered.
+- **Progress follows the account once tracking is applied** (built 2026-11-27, migration
+  pending: TASK-1239). Stages, recent results and totals are copied to the server after each
+  session and merged on load. Until the migration is applied, or when the learner is signed out
+  or offline, progress is per browser as before, and nothing is shown about it. The per-item
+  review schedule always stays in the browser: a new device knows the stage but treats every
+  item as unseen. If the browser blocks storage the drills still work but nothing is remembered
+  locally.
+- **Progress history is by day.** The server keeps one summary per topic and day, never single
+  answers. History starts when tracking is applied; earlier practice is uploaded as the current
+  state only.
 - **A reload ends the running round.** The page returns to the topic (or the hub for Mixed review).
 - **No connection to the rest of the app.** Drills are not part of the daily session or Study
-  Plan, do not change ELO, and do not appear in the Knowledge Report (GQ2).
+  Plan, do not change ELO, and do not appear in the Knowledge Report (GQ2). The tracking above is
+  the feature's own.
 - **Content has not been checked by a native speaker** (GQ3). It was written and reviewed by
   Claude agents; the reviewers' notes name items they judged odd but left in.
 - **Explanations are in English** whatever the interface language (GQ4).
@@ -120,10 +157,16 @@ one point, getting faster, until the right form comes out at once.
 - Mixed review and Endless mode never open a stage.
 - Content was produced with Claude subagents only: no OpenRouter and no Anthropic API key
   (owner instruction).
+- Tracking keeps daily summaries and one state row per topic; never a row per answer or per item
+  ([[decisions/ADR-065-grammar-drill-daily-tracking]]). The database stop line is 480 MB.
+- A day is the app's review day (Sydney time), the same day the flashcards use.
+- A finished session is counted once, however often the browser has to resend it.
+- Local progress is never lost to the server copy: the unlocked stage and the totals only go up.
+- A failure of tracking is never shown to the learner and never blocks a drill.
 
 ## Open Questions
 
-- **GQ1 — OPEN.** Server sync of progress (TASK-1239).
+- **GQ1 — ANSWERED 2026-11-27.** Yes: daily summaries plus a state row per topic, owner decision "Do daily with the current space limit raised to 480mb" ([[decisions/ADR-065-grammar-drill-daily-tracking]]). Built; the migration is pending (TASK-1239).
 - **GQ2 — OPEN.** Study Plan / daily session integration and ELO (TASK-1240).
 - **GQ3 — OPEN.** Native-speaker audit of the content (TASK-1241).
 - **GQ4 — OPEN.** Guide and explanation text in languages other than English (TASK-1242).
@@ -133,11 +176,15 @@ one point, getting faster, until the right form comes out at once.
 - **GQ8 — OPEN.** Reuse of the contract for Japanese particles (TASK-1246).
 - **GQ9 — OPEN.** Audio (TASK-1247).
 - **GQ10 — OPEN.** Overlap with the Measure Word Trainer (TASK-1248).
+- **GQ11 — OPEN.** A daily row costs about 246 bytes, not the 150 budgeted. Accept, or store sub-point misses more compactly?
+- **GQ12 — OPEN.** Retention of daily rows (the page reads 180 days; nothing deletes older rows).
 
 ## Related Pages
 
 - [[features/grammar-drills.tech]] — technical specification
 - [[decisions/ADR-064-grammar-drills-static-content-local-progress]] — why static files, client-side generators and localStorage
+- [[decisions/ADR-065-grammar-drill-daily-tracking]] — server-side daily summaries and state; the 480 MB line
+- [[tasklist/grammar-drill-tracking-runbook]] — apply steps and the owner's SQL queries
 - [[tasklist/grammar-drills.tasks]] — TASK-1234 to TASK-1248
 - [[features/measure-word-trainer]] — database-backed measure-word drill that overlaps the measure-words topic
 - [[features/new-word-drill]] — the other "drill to a criterion" feature (vocabulary, database-backed)

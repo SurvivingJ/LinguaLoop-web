@@ -32,7 +32,9 @@
 {# The generators module is optional. Its URL carries ?v= only when the file
    exists; without it nothing is imported (no failed request in the console). #}
 {% set _gen = url_for('static', filename='js/grammar/generators/index.js') %}
-<div id="grammarRoot" class="trainer-host" lang="zh"
+{# data-language-id: Chinese (services/drill_service.ZH_LANGUAGE_ID), for the
+   progress tracking calls (/api/grammar-drill, static/js/grammar/sync.js). #}
+<div id="grammarRoot" class="trainer-host" lang="zh" data-language-id="1"
      data-manifest="{{ url_for('static', filename='data/grammar/zh/manifest.json') }}"
      data-generators="{{ _gen if '?v=' in _gen else '' }}">
     <div class="ld-screen gd"><div class="ld-stage"><div class="gd-msg" data-i18n="grammar_drill.loading">Loading…</div></div></div>

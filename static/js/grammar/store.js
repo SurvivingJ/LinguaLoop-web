@@ -1,7 +1,8 @@
 // static/js/grammar/store.js
 // Grammar drills: the learner's progress. This module is the only place that
-// knows where progress lives (localStorage today), so a server sync can
-// replace it without touching the engine.
+// knows where progress lives: localStorage, with the compact per-topic state
+// below (syncState / mergeRemote) copied to and from the server by sync.js.
+// The per-item boxes (i) never leave the browser.
 //
 // Stored shape (compact; one JSON value under KEY):
 //   { v: 1,
@@ -30,6 +31,26 @@ export function itemKey(slug, id) {
   if (!s || s.startsWith('gen:')) return '';
   return s.startsWith(slug + '-') ? s.slice(slug.length + 1) : s;
 }
+
+/** A stage's results for the server: '1200,-800,950' (signed ms, oldest first). */
+export function encodeResults(list) {
+  return (list || [])
+    .slice(-WINDOW)
+    .map((r) => Math.trunc(r))
+    .filter((r) => r)
+    .join(',');
+}
+
+/** The reverse of encodeResults; anything unreadable gives []. */
+export function decodeResults(text) {
+  if (typeof text !== 'string' || !text) return [];
+  const parts = text.split(',');
+  if (!parts.every((x) => /^-?[1-9]\d{0,5}$/.test(x))) return [];
+  return parts.map(Number).slice(-WINDOW);
+}
+
+const stageOf = (n) => Math.min(LAST_STAGE, Math.max(1, Math.trunc(Number(n)) || 1));
+const count = (n) => Math.max(0, Math.trunc(Number(n)) || 0);
 
 function blankTopic() {
   return {
@@ -195,7 +216,56 @@ export function createStore(storage = defaultStorage(), key = KEY, now = Date.no
       save();
     },
 
-    /** The whole stored value (for a later server sync). */
+    /**
+     * The part of a topic the server keeps (so progress follows the learner):
+     * { u, r: [4 strings], q, e: [answers, correct, best], l }. Null for a
+     * topic with nothing recorded.
+     */
+    syncState(slug) {
+      const t = raw(slug, false);
+      if (!t || (!t.q && !t.e[0])) return null;
+      return {
+        u: t.u,
+        r: t.r.slice(0, LAST_STAGE).map(encodeResults),
+        q: t.q,
+        e: [count(t.e[0]), count(t.e[1]), count(t.e[2])],
+        l: t.l,
+      };
+    },
+
+    /**
+     * Take in the server's state for a topic. Never loses local progress:
+     * the unlocked stage and the counts only go up, and the rolling results
+     * are replaced only when the server's last answer is later than the local
+     * one. Returns true when anything changed.
+     */
+    mergeRemote(slug, remote) {
+      if (!remote || typeof remote !== 'object') return false;
+      const had = raw(slug, false);
+      const fresh = !had || (!had.q && !had.e[0]);
+      const t = raw(slug, true);
+      const before = JSON.stringify(t);
+      t.u = Math.max(t.u, stageOf(remote.u));
+      const theirs = count(remote.l);
+      if (theirs > t.l && Array.isArray(remote.r)) {
+        for (let k = 0; k < LAST_STAGE; k++) {
+          t.r[k] = decodeResults(remote.r[k]);
+          t.w[k] = t.r[k].map((r) => Math.abs(r));
+        }
+        t.l = theirs;
+      }
+      t.q = Math.max(t.q, count(remote.q));
+      const e = Array.isArray(remote.e) ? remote.e : [];
+      t.e = [0, 1, 2].map((k) => Math.max(count(t.e[k]), count(e[k])));
+      // A browser that has never drilled the topic starts at the highest open stage.
+      if (fresh) t.s = t.u;
+      const changed = JSON.stringify(t) !== before;
+      if (changed) save();
+      else if (!had) delete data.t[slug];
+      return changed;
+    },
+
+    /** The whole stored value. */
     dump() {
       return JSON.parse(JSON.stringify(data));
     },

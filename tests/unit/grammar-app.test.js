@@ -38,7 +38,18 @@ const MANIFEST = {
   categories: [{ key: 'aspect', title: 'Aspect and time' }],
   total: 3,
   topics: [
-    { slug: 'le', title: '了: completed action', zh: '了', cat: 'aspect', count: 3, v: 'abc' },
+    {
+      slug: 'le',
+      title: '了: completed action',
+      zh: '了',
+      cat: 'aspect',
+      count: 3,
+      v: 'abc',
+      subs: [
+        { key: 'completed-quantified', label: '了 after the verb' },
+        { key: 'no-le', label: 'No 了 for habits' },
+      ],
+    },
     { slug: 'tone-sandhi', title: 'Tone changes', zh: '变调', cat: 'aspect', count: 0, v: 'def' },
   ],
 };
@@ -66,9 +77,10 @@ let app;
 let store;
 let fetched;
 
-async function mount(storage = memoryStorage()) {
+async function mount(storage = memoryStorage(), extra = {}) {
   store = createStore(storage);
   app = mountGrammar(root, {
+    ...extra,
     manifestUrl: '/static/data/grammar/zh/manifest.json?v=1',
     manifest: MANIFEST,
     store,
@@ -383,5 +395,209 @@ describe('grammar drill app', () => {
     expect(root.querySelector('.gd-fb')).toBeNull();
     press('Escape');
     expect(root.querySelector('.gd-sheet')).toBeNull();
+  });
+
+  describe('progress tracking (ADR-065)', () => {
+    /** A sync stand-in: records what the page hands over, serves `progress`. */
+    function fakeSync(progress = null) {
+      const sent = [];
+      return {
+        sent,
+        queueRound: vi.fn(async (mode, topics) => {
+          sent.push({ mode, topics });
+          return 1;
+        }),
+        pull: vi.fn(async () => progress),
+        progress: () => progress,
+      };
+    }
+    const day = (d, answers, correct, extra = {}) => ({
+      topic: 'le',
+      day: d,
+      answers,
+      correct,
+      timed: correct,
+      ms_sum: correct * 2500,
+      stage: 1,
+      instant: false,
+      sub_misses: {},
+      ...extra,
+    });
+    const HISTORY = {
+      today: '2026-11-27',
+      merged: 0,
+      states: {},
+      daily: [
+        day('2026-11-10', 20, 10, { sub_misses: { 'no-le': 9 } }),
+        day('2026-11-20', 20, 15, { sub_misses: { 'completed-quantified': 2, 'no-le': 3 } }),
+        day('2026-11-27', 20, 18, { ms_sum: 18 * 1500, sub_misses: { 'no-le': 1 } }),
+      ],
+    };
+
+    it('hands a finished round to the sync: first answers, misses by sub-point', async () => {
+      const sync = fakeSync();
+      await mount(memoryStorage(), { sync });
+      expect(sync.pull).toHaveBeenCalledTimes(1);
+      root.querySelector('.gd-topic[data-slug="le"]').click();
+      await flush();
+      root.querySelector('[data-act="start"]').click();
+      await flush();
+      const missed = answer(false);
+      root.querySelector('[data-act="next"]').click();
+      let guard = 0;
+      while (root.querySelector('.gd--drill') && guard++ < 10) {
+        answer(true);
+        press('Enter');
+      }
+      expect(root.querySelector('.gd--results')).not.toBeNull();
+      expect(sync.sent).toHaveLength(1);
+      expect(sync.sent[0].mode).toBe('round');
+      const [topic] = sync.sent[0].topics;
+      expect(topic).toMatchObject({ topic: 'le', answers: 3, correct: 2, timed: 2 });
+      // 'no-le' is a sub-point of the topic; an item whose sub the manifest does
+      // not list (the judge fixture) is counted as a miss without a sub-point.
+      const known = ['completed-quantified', 'no-le'];
+      expect(topic.sub_misses).toEqual(known.includes(missed.sub) ? { [missed.sub]: 1 } : {});
+      // Leaving the results sends nothing more.
+      root.querySelector('[data-act="hub"]').click();
+      await flush();
+      expect(sync.sent).toHaveLength(1);
+    });
+
+    it('sends the answers of a round left part-way, and nothing for one not started', async () => {
+      const sync = fakeSync();
+      await mount(memoryStorage(), { sync });
+      root.querySelector('.gd-topic[data-slug="le"]').click();
+      await flush();
+      root.querySelector('[data-act="start"]').click();
+      await flush();
+      history.back();
+      await new Promise((r) => setTimeout(r, 20));
+      await flush();
+      expect(sync.sent).toHaveLength(0);
+      root.querySelector('[data-act="start"]').click();
+      await flush();
+      answer(true);
+      app.destroy();
+      app = null;
+      expect(sync.sent).toHaveLength(1);
+      expect(sync.sent[0].topics[0]).toMatchObject({ topic: 'le', answers: 1, correct: 1 });
+    });
+
+    it('sends an Endless session when it is stopped', async () => {
+      const sync = fakeSync();
+      await mount(memoryStorage(), { sync });
+      root.querySelector('.gd-topic[data-slug="tone-sandhi"]').click();
+      await flush();
+      root.querySelector('[data-act="endless"]').click();
+      await flush();
+      root.querySelectorAll('.gd-opt')[0].click();
+      root.querySelector('[data-act="stop"]').click();
+      expect(sync.sent).toEqual([
+        {
+          mode: 'endless',
+          topics: [
+            expect.objectContaining({
+              topic: 'tone-sandhi',
+              answers: 1,
+              correct: 1,
+              sub_misses: {},
+            }),
+          ],
+        },
+      ]);
+    });
+
+    it('draws no progress view without server history, and the screens still work', async () => {
+      await mount(memoryStorage(), { sync: fakeSync(null) });
+      expect(root.querySelector('.gd-trend')).toBeNull();
+      root.querySelector('.gd-topic[data-slug="le"]').click();
+      await flush();
+      expect(root.querySelector('.gd-trend')).toBeNull();
+      expect(root.querySelector('.gd-guide')).not.toBeNull();
+      app.destroy();
+      history.replaceState(null, '', location.pathname);
+      // A sync whose pull fails outright changes nothing either.
+      const broken = fakeSync(null);
+      broken.pull = vi.fn(async () => {
+        throw new Error('offline');
+      });
+      await mount(memoryStorage(), { sync: broken });
+      expect(root.querySelectorAll('.gd-topic')).toHaveLength(2);
+      app.destroy();
+      await mount(memoryStorage(), { sync: false });
+      expect(root.querySelectorAll('.gd-topic')).toHaveLength(2);
+    });
+
+    it('shows the hub summary and the topic Progress card from the history', async () => {
+      await mount(memoryStorage(), { sync: fakeSync(HISTORY) });
+      const hub = root.querySelector('.gd-trend--hub');
+      expect(hub).not.toBeNull();
+      const stats = [...hub.querySelectorAll('.ld-stat__n')].map((x) => x.textContent);
+      expect(stats).toEqual(['3', '60', '0']);
+      const strip = hub.querySelector('.gd-trend__strip');
+      expect(strip.getAttribute('aria-label')).toBe('Practice on 3 of the last 30 days');
+      expect(strip.querySelectorAll('rect')).toHaveLength(30);
+      expect(strip.querySelectorAll('.gd-trend__cell--4')).toHaveLength(3);
+
+      root.querySelector('.gd-topic[data-slug="le"]').click();
+      await flush();
+      const card = root.querySelector('.gd-trend');
+      expect(card.dataset.days).toBe('3');
+      const acc = card.querySelector('[data-measure="acc"]');
+      expect(acc.querySelector('.gd-trend__v').textContent).toBe('90%');
+      expect(acc.querySelector('.gd-trend__d').textContent).toBe('+40 pts since your first week');
+      expect(acc.querySelector('svg').getAttribute('aria-label')).toBe(
+        'Accuracy over 3 practised days, from 50% to 90%'
+      );
+      expect(acc.querySelectorAll('.gd-trend__hit title')).toHaveLength(3);
+      expect(acc.querySelector('path').getAttribute('d')).toMatch(/^M6 /);
+      const secs = card.querySelector('[data-measure="secs"]');
+      expect(secs.querySelector('.gd-trend__v').textContent).toBe('1.5 s');
+      expect(secs.querySelector('.gd-trend__d').textContent).toBe('−1.0 s since your first week');
+      // Needs work: the last 14 days only (the 10th is outside), most missed first.
+      const needs = [...card.querySelectorAll('.gd-trend__needs li')].map((li) => li.textContent);
+      expect(needs).toEqual(['No 了 for habits4 missed', '了 after the verb2 missed']);
+    });
+
+    it('handles a topic with one recorded day and one with none', async () => {
+      const one = { ...HISTORY, daily: [day('2026-11-27', 10, 0)] };
+      await mount(memoryStorage(), { sync: fakeSync(one) });
+      root.querySelector('.gd-topic[data-slug="le"]').click();
+      await flush();
+      const card = root.querySelector('.gd-trend');
+      expect(card.dataset.days).toBe('1');
+      expect(card.querySelector('[data-measure="acc"] .gd-trend__v').textContent).toBe('0%');
+      expect(card.querySelector('[data-measure="acc"] path')).toBeNull();
+      expect(card.querySelector('[data-measure="acc"] .gd-trend__dot')).not.toBeNull();
+      expect(card.querySelector('[data-measure="acc"] .gd-trend__d').textContent).toBe('');
+      expect(card.querySelector('[data-measure="secs"]')).toBeNull();
+      expect(card.textContent).toContain('No timed answers yet.');
+      expect(card.textContent).toContain('One day recorded so far.');
+      expect(card.textContent).toContain('No misses in the last 14 days.');
+      app.destroy();
+
+      history.replaceState(null, '', location.pathname);
+      await mount(memoryStorage(), { sync: fakeSync({ ...HISTORY, daily: [] }) });
+      expect(root.querySelector('.gd-trend--hub')).toBeNull();
+      root.querySelector('.gd-topic[data-slug="le"]').click();
+      await flush();
+      expect(root.querySelector('.gd-trend').dataset.days).toBe('0');
+      expect(root.querySelector('.gd-trend svg')).toBeNull();
+    });
+
+    it('redraws the hub when the server state unlocked a stage elsewhere', async () => {
+      const storage = memoryStorage();
+      const sync = fakeSync({ ...HISTORY, merged: 1 });
+      sync.pull = vi.fn(async () => {
+        store.mergeRemote('le', { u: 3, r: ['900', '800', '700', ''], q: 60, e: [0, 0, 0], l: 99 });
+        return sync.progress();
+      });
+      await mount(storage, { sync });
+      expect(root.querySelector('.gd-topic[data-slug="le"] .ld-tag').textContent).toContain(
+        'Recall'
+      );
+      expect(root.querySelector('.gd-trend--hub')).not.toBeNull();
+    });
   });
 });

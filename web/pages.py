@@ -25,7 +25,8 @@ PAGES = (
     ('/placement', 'placement_page', 'placement.html'),
     ('/classifier-drill', 'classifier_drill_page', 'classifier_drill.html'),
     ('/counter-drill', 'counter_drill_page', 'counter_drill.html'),
-    # Chinese grammar drills: static content (static/data/grammar/zh), no API.
+    # Chinese grammar drills: static content (static/data/grammar/zh); progress
+    # tracking is routes/grammar_drill.py (/api/grammar-drill).
     ('/grammar-drill', 'grammar_drill_page', 'grammar_drill.html'),
     ('/dual-translation', 'dual_translation_page', 'dual_translation.html'),
     ('/dual-translation/profile', 'dual_translation_profile_page', 'dual_translation_profile.html'),

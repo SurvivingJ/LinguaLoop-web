@@ -3,7 +3,7 @@ title: Database Schema — Technical Specification
 type: schema-tech
 status: complete
 prose_page: ../database/schema.md
-last_updated: 2026-11-23
+last_updated: 2026-11-27
 dependencies:
   - "Supabase PostgreSQL"
   - "pgvector extension"
@@ -2756,6 +2756,48 @@ each one's stored statement equals its repo file once comments and whitespace ar
 compared). Readers of the filled `frequency_rank`: `selection_vocab_ability` (moves by ≤ 0.02 Zipf),
 `bkt_infer_from_frequency` (can raise low-evidence rows upward), `calibration_anchor_pool` (picks the
 words up on its next manual refresh). See [[decisions/ADR-047-basic-word-knowledge-prior]].
+
+### Grammar drill tracking (PENDING, written 2026-11-27; not live)
+
+`migrations/grammar_drill_tracking.sql` (TASK-1239, [[decisions/ADR-065-grammar-drill-daily-tracking]]; rollback `migrations/grammar_drill_tracking_rollback.sql`; apply entry `migrations/PENDING-2026-11-27.md`). Two new tables and one new function; nothing existing changes. Not counted in the live totals on this page until applied (then 102 tables). Owner decision 2026-11-27: the database stop line is **480 MB** (was 475 MB). Feature specification: [[features/grammar-drills.tech]].
+
+**`grammar_drill_daily`**: one row per learner, language, topic and practice day. Counts are over first answers. Written only by `record_grammar_drill_round`. Columns are ordered widest first.
+
+| Column | Type | Constraints | Notes |
+|--------|------|-------------|-------|
+| user_id | uuid | PK, NOT NULL, FK → users.id ON DELETE CASCADE | |
+| ms_sum | bigint | NOT NULL DEFAULT 0, CHECK 0 ≤ ms_sum ≤ timed × 30000 | Sum of recall ms over the `timed` answers, each at most 30000 |
+| updated_at | timestamptz | NOT NULL DEFAULT now() | |
+| practice_day | date | PK, NOT NULL | The app review day (Australia/Sydney), computed in Python (`day_boundary.review_today`) |
+| answers | integer | NOT NULL, CHECK 1 to 50000 | First answers that day |
+| correct | integer | NOT NULL DEFAULT 0, CHECK 0 ≤ correct ≤ answers | Right first time |
+| timed | integer | NOT NULL DEFAULT 0, CHECK 0 ≤ timed ≤ answers | First answers whose recall time is in `ms_sum` (the right ones) |
+| language_id | smallint | PK, NOT NULL, FK → dim_languages.id | 1 (Chinese) today |
+| stage | smallint | NOT NULL DEFAULT 1, CHECK 1 to 4 | Highest stage unlocked by the end of the day |
+| instant | boolean | NOT NULL DEFAULT false | Topic was "instant" at the day's last write |
+| topic | text | PK, NOT NULL, CHECK `^[a-z0-9-]{1,40}$` | Topic slug of the static manifest (no dimension table) |
+| sub_misses | jsonb | NOT NULL DEFAULT '{}', CHECK object and `pg_column_size < 1024` | Sub-point key → first-try misses; non-zero entries only |
+
+Primary key `grammar_drill_daily_pkey (user_id, language_id, topic, practice_day)`; no other index.
+
+**`grammar_drill_state`**: one row per learner, language and topic, so progress follows the learner across devices.
+
+| Column | Type | Constraints | Notes |
+|--------|------|-------------|-------|
+| user_id | uuid | PK, NOT NULL, FK → users.id ON DELETE CASCADE | |
+| last_round_key | uuid | nullable | Idempotency key of the last round written to this row |
+| updated_at | timestamptz | NOT NULL DEFAULT now() | |
+| language_id | smallint | PK, NOT NULL, FK → dim_languages.id | |
+| topic | text | PK, NOT NULL, CHECK `^[a-z0-9-]{1,40}$` | |
+| state | jsonb | NOT NULL DEFAULT '{}', CHECK object and `pg_column_size < 4096` | `{u: highest unlocked stage, r: [4 strings: last 30 results per stage as comma-separated signed ms], q: answers, e: [endless answers, correct, best streak], l: epoch seconds of the last answer}`. Per-item review boxes are not stored |
+
+Primary key `grammar_drill_state_pkey (user_id, language_id, topic)`; no other index.
+
+**RLS and grants (both tables):** RLS enabled; one policy each (`grammar_drill_daily_select_own`, `grammar_drill_state_select_own`: PERMISSIVE, FOR SELECT, TO authenticated, `(SELECT auth.uid()) = user_id`); `REVOKE ALL ... FROM PUBLIC, anon, authenticated`; `GRANT ALL ... TO service_role`. The policies are inert (no client SELECT grant), like `user_word_watchlist`: only the service role reads or writes.
+
+**`record_grammar_drill_round(p_user_id uuid, p_language_id smallint, p_round_key uuid, p_practice_day date, p_topics jsonb) RETURNS jsonb`**: plpgsql, VOLATILE, SECURITY DEFINER, `search_path = public, pg_temp`, owner postgres, EXECUTE service_role only. One transaction per round; per topic (in slug order) it creates or locks the state row, skips the topic when `last_round_key = p_round_key`, otherwise adds the counts to the daily row (creating it; `stage` = GREATEST, `instant` = new value, `sub_misses` added per key; a day's row stops growing at 50,000 answers), skips the daily row when `answers = 0`, and merges the state (the side with the later `l` wins; `u` never goes down). Returns `{success, recorded, replayed}`. Caller: `services/grammar_drill_tracking.record_round` (route `POST /api/grammar-drill/round`, [[api/rpcs.tech]]).
+
+**Size (measured on a scratch PostgreSQL 16, 472,680 daily rows):** about 246 bytes per daily row including the primary key index (167 heap + 79 index); 665 bytes per state row for two stages of results, about 1,250 at the most; both tables empty 32 kB. Queries for the owner, including table sizes against the 480 MB line: [[tasklist/grammar-drill-tracking-runbook]].
 
 ---
 

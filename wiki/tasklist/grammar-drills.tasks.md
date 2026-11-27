@@ -13,6 +13,8 @@ last_updated: 2026-11-27
 TASK-1234 to TASK-1248. TASK-1234 to 1238 record what was built on branch
 `claude/happy-gates-qp9ifs` (2026-11-27, not deployed). TASK-1239 to 1248 are the follow-ups;
 five of them are `[?]` because they wait on an owner decision, and each states the question.
+TASK-1239 (progress tracking) was built the same day and is `[?]` Done (repo), awaiting the live
+apply of its migration ([[decisions/ADR-065-grammar-drill-daily-tracking]]).
 Specification: [[features/grammar-drills.tech]]. Decision record:
 [[decisions/ADR-064-grammar-drills-static-content-local-progress]].
 
@@ -203,45 +205,60 @@ generators only. Sentence meaning is sometimes flat (TASK-1245).
 
 ---
 
-## TASK-1239: Sync grammar-drill progress to the server
+## TASK-1239: Track grammar-drill progress on the server (daily summaries + state)
 
-**Status:** [ ] Not Started
+**Status:** [?] Done (repo, 2026-11-27), awaiting live apply of `migrations/grammar_drill_tracking.sql`
 **Feature:** grammar-drills
 **Type:** feature
 **Complexity:** L (1-2d)
-**Depends On:** none (the live migration needs the owner's approval and database headroom)
+**Depends On:** none (the live migration needs the owner to apply it; the database must be under 480 MB)
 
 **Description:**
-Progress lives in one browser's `localStorage` and is lost with the site data or on another
-device. Store the same compact value on the server, one row per user and language, and merge it
-with the local value on load. `store.js` is the only module that knows where progress lives and
-already has `dump()`; the engine must not change.
+Progress lived in one browser's `localStorage`, so the server knew nothing about practice and a
+second device started again. The owner asked for tracking of improvement over time and chose
+daily rows with the stop line raised to 480 MB
+([[decisions/ADR-065-grammar-drill-daily-tracking]]). Built: one summary row per learner, topic
+and practice day, one state row per learner and topic, one idempotent function that writes both,
+two API routes, a browser queue that resends unsent rounds, a merge on load, and progress views
+on the topic screen and the hub. This replaces the first sketch of this task (one JSON value per
+user, GET/PUT, debounced writes), which gave sync but no history.
 
 **Acceptance Criteria:**
-- [ ] A table holds one JSON value per (user, language) with RLS so a user reads and writes only their own row
-- [ ] The page loads the server value on boot, merges it with the local one (per topic, the side with the larger answer count `q` plus Endless answers wins) and writes the result to both
-- [ ] Writes are debounced (no more than one request per round end or per 30 seconds) and a failed write never blocks the drill
-- [ ] A signed-out or offline learner keeps the current local behaviour
-- [ ] Row size is measured for a learner with all 39 topics practised and stated in the task result
-- [ ] Unit tests cover merge, debounce and failure; `store.js` keeps its current interface
+- [x] `grammar_drill_daily` (PK user, language, topic, practice day) and `grammar_drill_state` (PK user, language, topic) are defined with CHECK constraints, RLS on, an own-row SELECT policy, and no client privilege; no per-answer or per-item rows
+- [x] `record_grammar_drill_round` writes both in one transaction and does not double count a repeated `round_key`; SECURITY DEFINER with pinned `search_path`, EXECUTE service_role only; `tests/test_migration_security_lint.py` passes
+- [x] `POST /api/grammar-drill/round` validates language, round key, mode, topic slugs and sub-point keys against the manifest, and all bounds; `GET /api/grammar-drill/progress` returns only the caller's rows, `days` capped at 365
+- [x] The practice day is the app review day, computed in Python and passed in
+- [x] With the tables or function missing both routes answer a logged 503 and the page carries on locally with no message
+- [x] After every finished round, Mixed review and Endless stop the page sends per-topic first-try totals; unsent rounds wait in `localStorage` and are resent with the same key
+- [x] On load the page merges the server state (higher unlocked stage, fresher rolling results) and never loses local progress; local-only progress is uploaded once as state, without daily history
+- [x] Topic "Progress" card (accuracy and recall time over the last 30 practised days, change since the first week, "needs work" sub-points of the last 14 days) and hub summary (days practised in 30, answers, instant topics, activity strip), pure SVG; empty and one-day states handled; nothing drawn without server history
+- [x] i18n keys in all four bundles (21 new, 103 `grammar_drill.*` in total)
+- [x] Row size measured: about 246 bytes per daily row with index; 665 to 1,250 per state row (the 150-byte budget was not met, see GQ11)
+- [x] pytest (15 route tests), vitest (25 + 7 cases) and a Playwright check with stubbed routes pass
+- [ ] `migrations/grammar_drill_tracking.sql` applied live and its VERIFY AFTER checks pass
+- [ ] One real round recorded and read back on the deployed app (second browser shows the same stage)
 
 **Technical Notes:**
-Stored shape: [[features/grammar-drills.tech]] "Progress store". This adds the feature's first
-table and API route, so [[database/schema.tech]], [[api/rpcs.tech]] and
-[[decisions/ADR-064-grammar-drills-static-content-local-progress]] must be updated. The database
-was at 473.15 MB against the 475 MB line on 2026-11-24; one small JSON row per user is the reason
-this design is preferred over one row per answer. Follow the migration approval rule for the
-live database.
+Specification: [[features/grammar-drills.tech]] "API / RPC Surface" and "Progress tracking";
+tables: [[database/schema.tech]] "Grammar drill tracking"; apply steps and owner queries:
+[[tasklist/grammar-drill-tracking-runbook]]; pending entry `migrations/PENDING-2026-11-27.md`.
+The migration was run on a scratch PostgreSQL 16 only, never against Supabase. Known limits:
+one remembered round key per state row (a resend after another device wrote the same topic is
+counted twice); item review boxes stay per browser; history starts at apply time. Open: GQ11
+(row size against the budget) and GQ12 (retention) in [[features/grammar-drills]].
 
 **Files to Create / Modify:**
-- `migrations/grammar_drill_progress.sql` — table, RLS, upsert function
-- `routes/` (new or existing blueprint) — GET/PUT progress
-- `static/js/grammar/store.js` — server-backed store behind the same interface
-- `tests/`, `tests/unit/grammar-ladder-store.test.js` — route and merge tests
+- `migrations/grammar_drill_tracking.sql`, `migrations/grammar_drill_tracking_rollback.sql`, `migrations/PENDING-2026-11-27.md` — tables, RLS, function, rollback, apply entry
+- `services/grammar_drill_tracking.py`, `routes/grammar_drill.py`, `app.py`, `web/rate_limits.py` — validation, storage calls, the two routes, registration, limits
+- `static/js/grammar/sync.js`, `trends.js`, `trendview.js` (new); `store.js`, `app.js`; `static/css/redesign/grammar.css`; `templates/grammar_drill.html`; `static/i18n/{en,es,ja,zh}.json`
+- `tests/test_grammar_drill_tracking_routes.py`, `tests/unit/grammar-sync-trends.test.js`, `tests/unit/grammar-app.test.js`
 
 **Verification:**
-Practise a topic in one browser, sign in from a second browser, and see the same stage and
-accuracy on the hub.
+`python -m pytest tests/test_grammar_drill_tracking_routes.py tests/test_migration_security_lint.py -q`
+and `npx vitest run tests/unit/grammar-sync-trends.test.js tests/unit/grammar-app.test.js`. After
+the live apply: practise a topic signed in, run query 1 of
+[[tasklist/grammar-drill-tracking-runbook]] (`daily_rows` at least 1), reload and see "Your
+progress" on the hub; sign in from a second browser and see the same stage.
 
 ---
 

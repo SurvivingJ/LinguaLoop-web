@@ -3,8 +3,10 @@
 // round, endless stream or mixed review -> results. One task per screen: each
 // screen is .ld-screen > strip + scrolling .ld-stage + pinned .ld-dock.
 //
-// Content is static JSON (data.js); progress is local (store.js); the rules
-// are in pure modules (ladder.js, select.js, round.js, check.js, text.js).
+// Content is static JSON (data.js); progress is local (store.js) and copied
+// to the server after each session (sync.js), whose daily history feeds the
+// progress views (trends.js, trendview.js); the rules are in pure modules
+// (ladder.js, select.js, round.js, check.js, text.js).
 // Styles: static/css/redesign/grammar.css (.gd).
 //
 // Locations (location.hash): '' hub, '#<slug>' topic, '#<slug>/drill',
@@ -36,6 +38,8 @@ import {
 import { createRound } from './round.js';
 import { mixedTopics, pickMixed, pickRound, recommendTopic, ROUND_SIZE } from './select.js';
 import { createStore } from './store.js';
+import { createSync, createTally } from './sync.js';
+import { hubProgressHtml, topicProgressHtml } from './trendview.js';
 import { EMPTY, clozeSegments, guessPinyin, readingMap, seconds, tokenPinyin } from './text.js';
 import {
   clozeHtml,
@@ -49,12 +53,22 @@ import {
 
 /** Right answer on the speed stage: move on by itself after this long. */
 const AUTO_NEXT_MS = 800;
+/** A long session hands its counts to the server every this many answers of a topic. */
+const TALLY_FLUSH = 200;
 /** Endless mode: static items are drawn this many at a time. */
 const ENDLESS_BATCH = 10;
 
 const STAGE_NAMES = { recognise: 'Recognise', build: 'Build', recall: 'Recall', speed: 'Speed' };
 const stageName = (key) => t('stage_' + key, null, STAGE_NAMES[key] || key);
 const pct = (x) => Math.round(x * 100);
+
+function browserStorage() {
+  try {
+    return window.localStorage;
+  } catch {
+    return null;
+  }
+}
 
 function shuffleWith(list, rng) {
   const a = list.slice();
@@ -76,6 +90,18 @@ export function mountGrammar(root, opts = {}) {
   const rng = opts.rng || Math.random;
   const manifestUrl = opts.manifestUrl || root.dataset.manifest || '';
   const shell = () => window.LinguaShell || null;
+  // Server copy of the progress. `opts.sync` false: none (the store stays local).
+  const sync =
+    opts.sync === false
+      ? null
+      : opts.sync ||
+        createSync({
+          store,
+          storage: opts.syncStorage !== undefined ? opts.syncStorage : browserStorage(),
+          languageId: Number(root.dataset.languageId) || 1,
+          instant: (slug) => isInstant(store.topic(slug)),
+          known: (slug) => topics.has(slug),
+        });
 
   let manifest = null;
   let topics = new Map();
@@ -329,11 +355,31 @@ export function mountGrammar(root, opts = {}) {
           '</div></section>'
       );
     });
-    parts.splice(next ? 1 : 0, 0, settingsHtml());
+    parts.splice(next ? 1 : 0, 0, '<div data-gd-progress="hub"></div>', settingsHtml());
     root.innerHTML =
       '<div class="ld-screen gd gd--hub"><div class="ld-stage gd-stage">' +
       parts.join('') +
       '</div></div>';
+    fillProgress();
+  }
+
+  /**
+   * Draw the progress views into their place on the hub or the topic screen.
+   * Nothing is drawn without the server's history (signed out, offline, or
+   * tracking not deployed): the screens are then exactly as before.
+   */
+  function fillProgress() {
+    const slot = root.querySelector('[data-gd-progress]');
+    if (!slot) return;
+    const progress = sync ? sync.progress() : null;
+    const slug = slot.dataset.gdProgress;
+    if (slug === 'hub') {
+      const instant = [...topics.keys()].filter((s) => isInstant(store.topic(s))).length;
+      slot.innerHTML = hubProgressHtml(progress, instant);
+    } else {
+      const meta = topics.get(slug);
+      slot.innerHTML = topicProgressHtml(progress, slug, meta ? meta.subs : []);
+    }
   }
 
   // ------------------------------------------------------------------ topic
@@ -496,6 +542,9 @@ export function mountGrammar(root, opts = {}) {
       escapeHtml(statLine(meta, view)) +
       '</p></div></div>' +
       (hasItems ? stagePickerHtml(view) + unlockNoteHtml(view) : '') +
+      '<div data-gd-progress="' +
+      escapeHtml(slug) +
+      '"></div>' +
       (!hasItems && !gens.length
         ? '<p class="gd-note">' +
           escapeHtml(t('no_items', null, 'Drill items for this topic are not ready yet.')) +
@@ -512,6 +561,7 @@ export function mountGrammar(root, opts = {}) {
         ? '<div class="ld-dock gd-dock"><div class="ld-row">' + dock.join('') + '</div></div>'
         : '') +
       '</div>';
+    fillProgress();
   }
 
   function pinyinButtonHtml(on, usable) {
@@ -534,8 +584,20 @@ export function mountGrammar(root, opts = {}) {
     session.timer = session.auto = null;
   }
 
+  /** Hand the session's counts so far to the server queue (once per answer). */
+  function sendTally() {
+    if (!sync || !session || !session.tally) return;
+    const counts = session.tally.take();
+    if (!counts.length) return;
+    sync.queueRound(session.kind, counts).then(() => {
+      if (alive) fillProgress();
+    });
+  }
+
   function endSession() {
     clearTimers();
+    // A session left part-way: its answers are in the store already, so they count.
+    sendTally();
     session = null;
     results = null;
   }
@@ -561,6 +623,7 @@ export function mountGrammar(root, opts = {}) {
       round: createRound(items.map((item) => ({ slug, item }))),
       speedBase: view.speedMs,
       unlocked: 0,
+      tally: createTally(),
     };
     beginItem();
     go(slug + '/drill', parseHash().mode === 'drill');
@@ -611,6 +674,7 @@ export function mountGrammar(root, opts = {}) {
       data: new Map([[slug, data]]),
       round: createRound([], { more }),
       unlocked: 0,
+      tally: createTally(),
     };
     if (!session.round.current()) {
       session = null;
@@ -646,6 +710,7 @@ export function mountGrammar(root, opts = {}) {
       data: new Map(list.map((tp, k) => [tp.slug, loaded[k]])),
       round: createRound(entries),
       unlocked: 0,
+      tally: createTally(),
     };
     beginItem();
     go('mixed', parseHash().slug === 'mixed');
@@ -766,6 +831,10 @@ export function mountGrammar(root, opts = {}) {
       store.recordEndless(slug, ok, session.round.streak());
       if (!generated) store.record(slug, { id: item.id, stage: null, ok, ms });
     }
+    // The server's daily summary: first answers only, misses by sub-point.
+    const meta = topics.get(slug);
+    const sub = meta && (meta.subs || []).some((x) => x.key === item.sub) ? item.sub : '';
+    if (session.tally.add(slug, { ok, ms, sub }) >= TALLY_FLUSH) sendTally();
   }
 
   function next() {
@@ -783,6 +852,7 @@ export function mountGrammar(root, opts = {}) {
     if (!session) return;
     clearTimers();
     results = session.round.summary();
+    sendTally();
     drawResults();
   }
 
@@ -1623,6 +1693,20 @@ export function mountGrammar(root, opts = {}) {
     }
     applyI18n(root);
     route();
+    // Unsent rounds go up, the server's state comes down (stages unlocked on
+    // another device), and the progress views appear. Failure changes nothing.
+    if (sync) {
+      sync
+        .pull()
+        .then((progress) => {
+          if (!alive || !progress || session) return;
+          // Redraw the screen only when stages or totals changed under it.
+          if (!progress.merged) fillProgress();
+          else if (drawn === 'hub') drawHub();
+          else if (drawn.startsWith('topic:')) route();
+        })
+        .catch(() => {});
+    }
   }
 
   const onPop = () => route();

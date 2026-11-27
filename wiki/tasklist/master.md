@@ -19,13 +19,15 @@ below.
 
 | Status | Rows in this file | All task files (union, file status wins) |
 |--------|-------------------|------------------------------------------|
-| Not Started | 76 | 92 |
+| Not Started | 75 | 91 |
 | In Progress (`[~]`) | 18 | 25 |
-| Blocked / Deferred / Awaiting decision (`[?]`; includes "Done (repo), awaiting live apply") | 64 | 63 |
+| Blocked / Deferred / Awaiting decision (`[?]`; includes "Done (repo), awaiting live apply") | 65 | 64 |
 | Won't Do (obsolete) | 3 | 3 |
 | Superseded | 2 | 2 |
 | Done | 226 | 370 |
 | **Total distinct task ids** | **389** | **555** |
+
+*2026-11-27 (grammar-drill tracking built, TASK-1239):* TASK-1239 Not Started → `[?]` Done (repo), awaiting live apply (owner decision "Do daily with the current space limit raised to 480mb", [[decisions/ADR-065-grammar-drill-daily-tracking]]; the database stop line is now 480 MB). Both columns moved by one: Not Started 76 → 75 (92 → 91), Blocked/awaiting 64 → 65 (63 → 64). No new task id. Counts adjusted by hand from the previous line, not re-run with the checker.
 
 *2026-11-27 (NEW — Chinese Grammar Drills, TASK-1234–1248):* 15 new ids, each with a row here and a block in [[tasklist/grammar-drills.tasks]]: 5 Done (repo, not deployed), 5 Not Started, 5 `[?]` awaiting an owner decision. Both columns moved by the same amounts (Not Started +5, Blocked/awaiting +5, Done +5, total +15), added by hand to the counts above; the checker (`check_wiki.py`) is not in this repository and was not run. The TASK-1034–1043 collision is untouched.
 
@@ -1566,7 +1568,7 @@ Full spec: [[tasklist/grammar-drills.tasks]]. Feature: [[features/grammar-drills
 | TASK-1236 | grammar-drills | Drill content authored, blind-reviewed and built (105 batches, 10,209 items) | Done | XL | TASK-1234, TASK-1235 |
 | TASK-1237 | grammar-drills | `/grammar-drill` page: engine, four-stage ladder, local progress, i18n, profile link | Done | XL | TASK-1234 |
 | TASK-1238 | grammar-drills | Infinite-practice generators (22 generators, 13 topics) and Endless mode | Done | L | TASK-1237 |
-| TASK-1239 | grammar-drills | Sync grammar-drill progress to the server | [ ] | L | — |
+| TASK-1239 | grammar-drills | Track grammar-drill progress on the server (daily summaries + state row; ADR-065) — Done (repo) 2026-11-27, awaiting live apply of `migrations/grammar_drill_tracking.sql` | [?] | L | — |
 | TASK-1240 | grammar-drills | Decide whether grammar drills join the Study Plan / daily session and feed ELO | [?] | XL | TASK-1239 |
 | TASK-1241 | grammar-drills | Native-speaker audit of the drill content | [ ] | XL | — |
 | TASK-1242 | grammar-drills | Decide the languages for guide and explanation text | [?] | XL | — |
