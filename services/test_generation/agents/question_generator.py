@@ -5,7 +5,10 @@ Generates comprehension questions for tests using LLM.
 Supports 6 semantic question types.
 """
 
+import hashlib
+import json
 import logging
+import random
 import threading
 from concurrent.futures import as_completed
 from typing import List, Dict, Optional, Sequence, Tuple
@@ -237,10 +240,10 @@ class QuestionGenerator:
         }
 
         WAVE_SIZE = 2
-        waves = [
-            question_type_codes[i:i + WAVE_SIZE]
-            for i in range(0, len(question_type_codes), WAVE_SIZE)
-        ]
+        waves = self._build_waves(question_type_codes, WAVE_SIZE)
+        # (original index, entry): questions are returned in the mix's order,
+        # whatever wave each one was generated in.
+        indexed_questions: List[Tuple[int, Dict]] = []
 
         for wave in waves:
             if not wave:
@@ -267,22 +270,22 @@ class QuestionGenerator:
                         subject_keywords=subject_keywords,
                         language_code=language_code,
                         stem_directive=stem_directives.get(type_code, ''),
-                    ): type_code
-                    for type_code in wave
+                    ): idx
+                    for idx, type_code in wave
                 }
-                wave_results: Dict[str, Tuple] = {}
+                wave_results: Dict[int, Tuple] = {}
                 for future in as_completed(futures):
-                    type_code = futures[future]
+                    idx = futures[future]
                     # JudgeUnavailable propagates through result() to the
                     # caller — a wave must abort the batch the same way the
                     # old serial loop did, not swallow it into a missing type.
-                    wave_results[type_code] = future.result()
+                    wave_results[idx] = future.result()
 
             # Apply in the wave's original order, not completion order, so
             # kept_texts (and thus wave 2's context) is deterministic given
             # the same inputs.
-            for type_code in wave:
-                q_entry, attempt_rejections = wave_results[type_code]
+            for idx, type_code in wave:
+                q_entry, attempt_rejections = wave_results[idx]
 
                 # Record every rejected attempt for the funnel diagnostic
                 # (these are the original/per-attempt rejects, kept even when
@@ -293,9 +296,10 @@ class QuestionGenerator:
                 if q_entry is None:
                     continue
 
-                questions.append(q_entry)
+                indexed_questions.append((idx, q_entry))
                 kept_texts.append(q_entry['question'])
 
+        questions = [entry for _, entry in sorted(indexed_questions, key=lambda p: p[0])]
         logger.info(f"Generated {len(questions)}/{len(question_type_codes)} questions")
         return questions
 
@@ -429,8 +433,9 @@ class QuestionGenerator:
                 )
                 continue
 
-            # Passed both gates.
-            return q_entry, attempt_rejections
+            # Passed both gates. Shuffle last: judge flags name distractors by
+            # text, so they are unaffected by the order of the choices.
+            return self._shuffle_choices(q_entry), attempt_rejections
 
         # Budget exhausted without a surviving question for this type.
         logger.warning(
@@ -438,6 +443,64 @@ class QuestionGenerator:
             max_attempts, question_type_code,
         )
         return None, attempt_rejections
+
+    @staticmethod
+    def _build_waves(
+        question_type_codes: List[str], wave_size: int,
+    ) -> List[List[Tuple[int, str]]]:
+        """Split the mix into waves of at most ``wave_size`` (index, type) pairs,
+        never putting the same type twice in one wave.
+
+        Calls in one wave cannot see each other's output, so two calls for the
+        same type get the same prompt. A provider without sampling control
+        (the claude-cli transport ignores temperature) then returns the same
+        question twice and the validator rejects one as 100% similar. Putting
+        repeats of a type in later waves lets them see the earlier question in
+        ``kept_texts``. Order within the mix is kept as far as this allows.
+        """
+        pending = list(enumerate(question_type_codes))
+        waves: List[List[Tuple[int, str]]] = []
+        while pending:
+            wave: List[Tuple[int, str]] = []
+            rest: List[Tuple[int, str]] = []
+            seen: set = set()
+            for idx, code in pending:
+                if len(wave) < wave_size and code not in seen:
+                    wave.append((idx, code))
+                    seen.add(code)
+                else:
+                    rest.append((idx, code))
+            waves.append(wave)
+            pending = rest
+        return waves
+
+    @staticmethod
+    def _shuffle_choices(q_entry: Dict) -> Dict:
+        """Return a copy of ``q_entry`` with its choices in a shuffled order.
+
+        Writers tend to put the answer in one position (claude-cli put it first
+        every time), and nothing downstream reorders the choices, so the
+        position would give the answer away. The order is seeded from the
+        question's own text, so the same question always gets the same order.
+        ``distractor_types`` is permuted with the choices and
+        ``correct_answer_index`` is recomputed from ``answer``.
+        """
+        choices = list(q_entry.get('choices') or [])
+        answer = q_entry.get('answer')
+        if len(choices) < 2 or answer not in choices:
+            return q_entry
+        digest = hashlib.sha256(
+            json.dumps([q_entry.get('question'), choices], ensure_ascii=False).encode('utf-8')
+        ).digest()
+        order = list(range(len(choices)))
+        random.Random(digest).shuffle(order)
+        shuffled = dict(q_entry)
+        shuffled['choices'] = [choices[i] for i in order]
+        types = q_entry.get('distractor_types')
+        if isinstance(types, list) and len(types) == len(choices):
+            shuffled['distractor_types'] = [types[i] for i in order]
+        shuffled['correct_answer_index'] = shuffled['choices'].index(answer)
+        return shuffled
 
     @staticmethod
     def _append_avoid(avoid_context: str, question_text: str, reason: str) -> str:
