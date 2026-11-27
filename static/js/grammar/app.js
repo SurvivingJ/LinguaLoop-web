@@ -267,7 +267,7 @@ export function mountGrammar(root, opts = {}) {
       parts.push(
         '<section class="ld-hero gd-hero">' +
           '<span class="ld-hero__wm" lang="zh" aria-hidden="true">' +
-          escapeHtml(next.zh || '') +
+          escapeHtml(firstGlyph(next)) +
           '</span>' +
           '<p class="ld-eyebrow">' +
           escapeHtml(
