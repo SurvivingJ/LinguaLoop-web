@@ -107,3 +107,24 @@ version and run the Japanese batch"; billing: "Use my Anthropic API key"; model:
   pilot's 20); 0 senses held back; $53.10. Served with model calls disabled, 400/400 written items
   and 400/400 random live items were attached ([[evaluations/explanation-storage-2026-11-27]]).
   Chinese (~19,400 items, ~$59) is the owner's call (TASK-1246).
+
+## Amendment 2026-11-27 (2): word-option types
+
+Owner: "particle choice, word form and synonym/antonym should be the ones we add explanations for.
+Can we do it with Claude api?" (survey: [[evaluations/exercise-explanation-coverage-2026-11-27]]).
+
+- **Types:** `particle_selection`, `morphology_slot`, `synonym_antonym_match`
+  (`OPTION_TYPES`). Their options become the units (`{text, is_correct}`, stored order) of the same
+  machinery; each gets a meaning (the key: a translation of the complete sentence, or for
+  synonym / antonym the word's reading and meaning; a wrong option: what the particle marks, the
+  form's name, the word's meaning) and an explanation. The item's one note (often in Japanese) and
+  the particle items' `error_tags` are passed as hints. Not explained: items with duplicate
+  options, no single key, or several accepted answers.
+- **Versioned and stored apart:** `OPTION_PROMPT_VERSION = 1`, Storage kind `o`
+  (`explanations/{lang}/{sense}.{nl}.o1.json`) beside the sentence types' `p2` files, because a
+  sense's `p2` file already exists and files are immutable. A request reads both kinds of file in
+  one pooled wait (`explanation_files.read_files`).
+- **Display:** a wrong option's meaning is a gloss, shown plain (no quotes, no "Literally:");
+  the item's own note shows in the feedback bar only when explanations cannot be asked for.
+- **Writing:** the same batch script, `--family options`, Sonnet 5.5 on the owner's key. Pilot:
+  52/52 usable, $0.146; the rest ~$28 for ja (TASK-1247, awaiting the owner's go-ahead).

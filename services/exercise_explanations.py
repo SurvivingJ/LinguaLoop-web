@@ -45,6 +45,16 @@ written for the item's ``content_version`` and its sentences
 What is generated at serve time goes to memory and the table, never to a
 Storage file: files are immutable and belong to the batch.
 
+Two families of items (2026-11-27)
+----------------------------------
+Sentence types (``SENTENCE_TYPES``: spot the error, pick the sentence) list
+sentences, each right or wrong. Word-option types (``OPTION_TYPES``: choose the
+particle, the word form, the synonym / antonym) list word options and a key;
+``sentences_of(content, exercise_type)`` gives both the same shape (one unit
+per sentence or option, ``text`` and ``is_correct``), so validation, caching,
+files and the renderer are shared. Each family has its own prompt version
+(``prompt_version``) and Storage file kind (``file_kind``: ``p`` / ``o``).
+
 Before migrations/exercise_explanations.sql is applied the table read fails;
 that is remembered for a few minutes and explanations live only in this
 process's memory (``_MEMORY_MAX`` entries).
@@ -67,13 +77,22 @@ logger = logging.getLogger(__name__)
 
 SPOT = 'spot_incorrect_sentence'          # pick the sentence with an error
 PICK = 'semantic_discrimination'          # pick the sentence that uses the word correctly
-TYPES = frozenset({SPOT, PICK})
-_TASK_NAME = {SPOT: 'spot_error_explanation', PICK: 'pick_sentence_explanation'}
-# v2 (2026-11-26): a wrong sentence's meaning is its literal translation, so
-# the mistake shows ("I boiled the fragments with a broom", not "I swept them
-# up"); spot items are told the reviewed corrected sentence. Payloads from an
-# older version are not served.
+PARTICLE = 'particle_selection'           # choose the particle for the blank (ja)
+FORM = 'morphology_slot'                  # choose the word's form for the blank
+RELATION = 'synonym_antonym_match'        # choose the synonym / antonym of a word
+SENTENCE_TYPES = frozenset({SPOT, PICK})
+OPTION_TYPES = frozenset({PARTICLE, FORM, RELATION})
+TYPES = SENTENCE_TYPES | OPTION_TYPES
+_TASK_NAME = {SPOT: 'spot_error_explanation', PICK: 'pick_sentence_explanation',
+              PARTICLE: 'particle_choice_explanation', FORM: 'word_form_explanation',
+              RELATION: 'word_relation_explanation'}
+# Sentence types. v2 (2026-11-26): a wrong sentence's meaning is its literal
+# translation, so the mistake shows ("I boiled the fragments with a broom", not
+# "I swept them up"); spot items are told the reviewed corrected sentence.
+# Payloads from an older version are not served.
 PROMPT_VERSION = 2
+# Word-option types (2026-11-27), versioned on their own.
+OPTION_PROMPT_VERSION = 1
 TABLE = 'exercise_explanations'
 
 _MEMORY_MAX = 2000
@@ -105,6 +124,16 @@ def enabled() -> bool:
 
 def supported(exercise_type: Optional[str]) -> bool:
     return exercise_type in TYPES
+
+
+def prompt_version(exercise_type: Optional[str]) -> int:
+    """The prompt version an item of this type is explained with (and served at)."""
+    return OPTION_PROMPT_VERSION if exercise_type in OPTION_TYPES else PROMPT_VERSION
+
+
+def file_kind(exercise_type: Optional[str]) -> str:
+    """Its Storage file kind (``explanation_files.KINDS``)."""
+    return 'o' if exercise_type in OPTION_TYPES else 'p'
 
 
 def reset_state() -> None:
@@ -141,12 +170,15 @@ def _read_pool() -> ThreadPoolExecutor:
 # Content shape
 # ---------------------------------------------------------------------------
 
-def sentences_of(content: Any) -> Optional[list[dict]]:
-    """The item's sentences, or None when it is not an explainable shape
-    (at least two sentences, every one with text, at least one right and one
+def sentences_of(content: Any, exercise_type: Optional[str] = None) -> Optional[list[dict]]:
+    """The item's units (sentences, or for a word-option type its options as
+    ``{'text', 'is_correct'}``), or None when it is not an explainable shape
+    (at least two units, every one with text, at least one right and one
     wrong)."""
     if not isinstance(content, dict):
         return None
+    if exercise_type in OPTION_TYPES:
+        return _options_of(content)
     sents = content.get('sentences')
     if not isinstance(sents, list) or len(sents) < 2:
         return None
@@ -159,15 +191,66 @@ def sentences_of(content: Any) -> Optional[list[dict]]:
     return sents
 
 
-def stored_entries(sents: list[dict], nl_language_id: int) -> Optional[list[dict]]:
+def _option_text(option: Any) -> str:
+    if isinstance(option, dict):
+        option = option.get('text')
+    return str(option).strip() if isinstance(option, str) else ''
+
+
+def _options_of(content: dict) -> Optional[list[dict]]:
+    """A word-option item's options in stored order, the key marked; None unless there
+    are two or more distinct non-empty options and exactly one of them is the key (an
+    item with several accepted answers is not explained: its "wrong" options might not
+    be wrong)."""
+    options = content.get('options')
+    key = _option_text(content.get('correct_answer'))
+    if not isinstance(options, list) or len(options) < 2 or not key:
+        return None
+    accepted = content.get('accepted_answers')
+    if isinstance(accepted, list) and len({_option_text(a) for a in accepted} - {''}) > 1:
+        return None
+    texts = [_option_text(o) for o in options]
+    if not all(texts) or len(set(texts)) != len(texts) or texts.count(key) != 1:
+        return None
+    return [{'text': t, 'is_correct': t == key} for t in texts]
+
+
+def _item_note(content: dict) -> str:
+    """A word-option item's own one-line note on its key (flat ``explanation``, else
+    ``nl.<code>.explanation``, English first); '' when none."""
+    nl = content.get('nl') if isinstance(content.get('nl'), dict) else {}
+    blocks = [nl.get('en')] + [v for k, v in nl.items() if k != 'en']
+    for value in [content.get('explanation')] + [b.get('explanation') for b in blocks
+                                                  if isinstance(b, dict)]:
+        note = _clean(value, _CAP['explanation'])
+        if note:
+            return note
+    return ''
+
+
+def _item_definition(content: dict) -> str:
+    nl = content.get('nl') if isinstance(content.get('nl'), dict) else {}
+    for value in [content.get('word_definition')] + [b.get('definition') for b in nl.values()
+                                                     if isinstance(b, dict)]:
+        text = _clean(value, _CAP['explanation'])
+        if text:
+            return text
+    return ''
+
+
+def stored_entries(sents: list[dict], nl_language_id: int,
+                   exercise_type: Optional[str] = None) -> Optional[list[dict]]:
     """Entries built from the item's own per-sentence notes, when they already
     explain every sentence in the learner's language (no model call needed).
 
     Many pick-the-correct-sentence items carry an English note on every
     sentence; others lack one on the correct sentence, or have only a joined
     note in the target language. Only decidable for an English learner (a
-    CJK note could be the target language).
+    CJK note could be the target language). Never for a word-option type: its
+    one note is on the key only.
     """
+    if exercise_type in OPTION_TYPES:
+        return None
     if _FAMILY.get(_LANG.get(nl_language_id, ('',))[0]) != 'latin':
         return None
     notes = [_clean(s.get('explanation'), _CAP['explanation']) for s in sents]
@@ -182,10 +265,12 @@ def _texts(sents: Iterable[dict]) -> list[str]:
     return [str(s.get('text') or '').strip() for s in sents]
 
 
-def _aligned(payload: Any, sents: list[dict]) -> Optional[list[dict]]:
-    """``payload``'s entries when they were written for exactly these sentences
-    with the current prompt."""
-    if not isinstance(payload, dict) or payload.get('prompt_version') != PROMPT_VERSION:
+def _aligned(payload: Any, sents: list[dict],
+             exercise_type: Optional[str] = None) -> Optional[list[dict]]:
+    """``payload``'s entries when they were written for exactly these units with the
+    type's current prompt."""
+    if not isinstance(payload, dict) or \
+            payload.get('prompt_version') != prompt_version(exercise_type):
         return None
     entries = payload.get('sentences')
     if not isinstance(entries, list) or len(entries) != len(sents):
@@ -210,12 +295,115 @@ def _attach(content: dict, entries: list[dict], nl_language_id: int) -> None:
 # Prompt and validation
 # ---------------------------------------------------------------------------
 
+def _system(tl: str, nl: str) -> str:
+    return (f"You are an experienced {tl} teacher writing answer feedback for a learner whose "
+            f"native language is {nl}. You are precise about grammar and meaning and never "
+            "invent errors.")
+
+
+_TAIL = ('Quote {tl} words in {tl} script. Everything else in {nl}. Plain text, no markdown. '
+         'Do not begin an explanation with a verdict such as "Correct" or "Wrong": the app '
+         'shows the verdict.\n\n')
+_ALSO_GRAMMATICAL = ('If a wrong option would also be grammatical, say how it would change the '
+                     'meaning and why the sentence calls for the correct one.')
+
+
+def _option_prompt(units: list[dict], content: dict, tl: str, nl: str,
+                   exercise_type: str) -> tuple[str, str]:
+    """(system, user) for a word-option item: the options, which one is the key, the
+    item's own note and context; every option gets a meaning and an explanation."""
+    tags = content.get('error_tags') if isinstance(content.get('error_tags'), dict) else {}
+    lines = []
+    for i, u in enumerate(units, 1):
+        line = f"{i}. [{'CORRECT' if u['is_correct'] else 'WRONG'}] {u['text']}"
+        tag = _clean(tags.get(u['text']), 60) if not u['is_correct'] else ''
+        if tag:
+            line += f'   (item tag for this option, may be in another language: {tag})'
+        lines.append(line)
+    blank = _clean(content.get('sentence_with_blank'), 400)
+    full = _clean(content.get('original_sentence'), 400)
+    context = ''
+    if blank:
+        context += f'\nSentence with the blank: {blank}'
+    if full:
+        context += f'\nComplete sentence: {full}'
+    note = _item_note(content)
+    decided = 'Which option is correct is already decided and marked; do not change that judgement.'
+    if exercise_type == PARTICLE:
+        task = (f'A "choose the particle" exercise in {tl}. The learner sees the sentence below '
+                f'with a blank and picks the particle that fills it. {decided}{context}')
+        meaning = (f'for the correct option, a natural {nl} translation of the complete sentence. '
+                   'For a wrong option, what that particle generally marks, in a few words (for '
+                   'example "marks the topic" or "marks where an action happens").')
+        explanation = ('one or two short sentences a learner can follow. For the correct option, '
+                       'what the particle does in this sentence and why it is needed here. For a '
+                       'wrong option, why it does not fit this blank: what it would wrongly signal, '
+                       'or that it is ungrammatical here. ' + _ALSO_GRAMMATICAL)
+    elif exercise_type == FORM:
+        base = _clean(content.get('base_form') or content.get('target_word'), 80)
+        label = _clean(content.get('form_label'), 80)
+        task = (f'A "choose the word form" exercise in {tl}. The learner sees the sentence below '
+                f'with a blank and picks the form of 「{base}」 that fills it'
+                + (f' (the form asked for: {label})' if label else '') + f'. {decided}{context}')
+        meaning = (f'for the correct option, a natural {nl} translation of the complete sentence. '
+                   'For a wrong option, the name of that form and what it expresses, in a few '
+                   'words (for example "past form: \'was cool\'" or "negative form: \'does not '
+                   'use\'"). Name forms in English; a Japanese term may follow in brackets.')
+        explanation = ('one or two short sentences a learner can follow. For the correct option, '
+                       'what in the sentence calls for this form (what follows the blank, the tense, '
+                       'the kind of clause). For a wrong option, why that form does not fit this '
+                       'blank. ' + _ALSO_GRAMMATICAL)
+    else:
+        antonym = content.get('relation') == 'antonym'
+        relation, other = ('antonym', 'synonym') if antonym else ('synonym', 'antonym')
+        wanted = 'a word with the opposite meaning' if antonym else \
+            'a word with the same or a very close meaning'
+        word = _clean(content.get('word') or content.get('target_word'), 80)
+        definition = _item_definition(content)
+        task = (f'A "choose the {relation}" exercise in {tl}. The learner sees the word 「{word}」 '
+                f'and picks its {relation}: {wanted}. {decided}'
+                + (f'\nDictionary definition of 「{word}」 (may be in another language): '
+                   f'{definition}' if definition else ''))
+        if tl == 'Japanese':
+            meaning = (f'its reading in hiragana when it is written with kanji, then a dash and its '
+                       f'{nl} meaning in a few words (for example "かいがい — overseas").')
+        elif tl == 'Chinese':
+            meaning = (f'its pinyin with tone marks, then a dash and its {nl} meaning in a few words '
+                       '(for example "gòumǎi — to buy").')
+        else:
+            meaning = f'its {nl} meaning in a few words.'
+        relates = 'is the opposite of' if antonym else 'matches'
+        article = 'an' if relation == 'antonym' else 'a'
+        other_article = 'an' if other == 'antonym' else 'a'
+        explanation = (f'one or two short sentences a learner can follow. For the correct option, how '
+                       f'its meaning {relates} 「{word}」, including what 「{word}」 itself means. '
+                       f'For a wrong option, why it is not {article} {relation} of 「{word}」 (for '
+                       f'example unrelated in meaning, or {other_article} {other} rather than '
+                       f'{article} {relation}).')
+    if note:
+        lines.append(f"\nTeacher's note on the correct option (may be in another language): {note}")
+        explanation += f" Where a teacher's note is given, keep its point, written in {nl}."
+    user = (
+        task + '\n\nOptions:\n' + '\n'.join(lines) + '\n\n'
+        f'For EVERY option, write in {nl}:\n'
+        f'- "meaning": {meaning}\n'
+        f'- "explanation": {explanation}\n\n'
+        + _TAIL.format(tl=tl, nl=nl) +
+        'Return only JSON: {"options": [{"index": 1, "meaning": "...", "explanation": "..."}, ...]}'
+    )
+    return _system(tl, nl), user
+
+
 def build_prompt(sents: list[dict], tl_language_id: int, nl_language_id: int,
                  exercise_type: str = SPOT, target_word: Optional[str] = None,
-                 corrected: Optional[str] = None) -> tuple[str, str]:
-    """(system, user) messages for one item."""
+                 corrected: Optional[str] = None,
+                 content: Optional[dict] = None) -> tuple[str, str]:
+    """(system, user) messages for one item. ``content``: the item, needed for a
+    word-option type (its sentence, base form, relation, note)."""
     tl = _LANG.get(tl_language_id, (None, 'the target language'))[1]
     nl = _LANG.get(nl_language_id, (None, 'English'))[1]
+    if exercise_type in OPTION_TYPES:
+        return _option_prompt(sents, content or {}, tl, nl, exercise_type)
     pick = exercise_type == PICK
     word = f'「{target_word.strip()}」' if target_word and target_word.strip() else 'the target word'
     lines = []
@@ -229,9 +417,7 @@ def build_prompt(sents: list[dict], tl_language_id: int, nl_language_id: int,
         if corrected and not pick and not right:
             line += f"\n   Corrected sentence: {corrected.strip()}"
         lines.append(line)
-    system = (f"You are an experienced {tl} teacher writing answer feedback for a learner whose "
-              f"native language is {nl}. You are precise about grammar and meaning and never "
-              "invent errors.")
+    system = _system(tl, nl)
     if pick:
         task = (f'A "pick the correct sentence" exercise in {tl} about the word {word}. The learner '
                 f'sees the sentences below and must pick the one that uses {word} correctly; the '
@@ -267,9 +453,7 @@ def build_prompt(sents: list[dict], tl_language_id: int, nl_language_id: int,
         f'For EVERY sentence, write in {nl}:\n'
         f'- "meaning": {meaning}\n'
         f'- "explanation": {explanation}\n' + extra + '\n'
-        f'Quote {tl} words in {tl} script. Everything else in {nl}. Plain text, no markdown. '
-        'Do not begin an explanation with a verdict such as "Correct" or "Wrong": the app '
-        'shows the verdict.\n\n'
+        + _TAIL.format(tl=tl, nl=nl) +
         f'Return only JSON: {shape}'
     )
     return system, user
@@ -293,9 +477,13 @@ def parse(raw: Any, sents: list[dict], nl_language_id: int,
     in the learner's script (checked for English, where it is decidable).
     A correction is kept only on the wrong sentence of a spot-the-error item;
     ``corrected`` (the reviewed sentence from the item's generation asset)
-    takes its place when given.
+    takes its place when given. A word-option entry also needs a meaning.
     """
-    entries = raw.get('sentences') if isinstance(raw, dict) else raw
+    if isinstance(raw, dict):
+        entries = raw.get('options') if exercise_type in OPTION_TYPES and 'options' in raw \
+            else raw.get('sentences')
+    else:
+        entries = raw
     if not isinstance(entries, list) or len(entries) != len(sents):
         return None
     by_index: dict[int, dict] = {}
@@ -315,7 +503,7 @@ def parse(raw: Any, sents: list[dict], nl_language_id: int,
         e = by_index[pos]
         explanation = _clean(e.get('explanation'), _CAP['explanation'])
         meaning = _clean(e.get('meaning'), _CAP['meaning'])
-        if not explanation:
+        if not explanation or (exercise_type in OPTION_TYPES and not meaning):
             return None
         if want_family == 'latin' and _script_family(explanation) != 'latin':
             return None
@@ -343,12 +531,12 @@ def generate(content: dict, tl_language_id: int, nl_language_id: int,
 
     ``corrected``: the reviewed corrected sentence of a spot item (``stored_correction``).
     """
-    sents = sentences_of(content)
+    sents = sentences_of(content, exercise_type)
     if sents is None:
         return None
     from services.llm_service import call_llm
     system, user = build_prompt(sents, tl_language_id, nl_language_id, exercise_type,
-                                (content or {}).get('target_word'), corrected)
+                                (content or {}).get('target_word'), corrected, content)
     for model in _models():
         try:
             raw = call_llm(
@@ -356,7 +544,7 @@ def generate(content: dict, tl_language_id: int, nl_language_id: int,
                 temperature=0.2, max_tokens=_MAX_TOKENS, timeout=_LLM_TIMEOUT_S,
                 pipeline='exercise_explanations',
                 task_name=_TASK_NAME.get(exercise_type, 'exercise_explanation'),
-                template_version=PROMPT_VERSION, artifact_id=exercise_id,
+                template_version=prompt_version(exercise_type), artifact_id=exercise_id,
                 language_code=_LANG.get(tl_language_id, (None,))[0],
             )
         except Exception as exc:
@@ -365,7 +553,7 @@ def generate(content: dict, tl_language_id: int, nl_language_id: int,
             continue
         entries = parse(raw, sents, nl_language_id, exercise_type, corrected)
         if entries is not None:
-            return {'sentences': entries, 'prompt_version': PROMPT_VERSION}, model
+            return {'sentences': entries, 'prompt_version': prompt_version(exercise_type)}, model
         logger.warning('explanation from %s unusable for exercise %s', model, exercise_id)
     return None
 
@@ -422,7 +610,7 @@ def _write_row(db, exercise_id: str, nl_language_id: int, version: int,
         db.table(TABLE).upsert({
             'exercise_id': exercise_id, 'nl_language_id': nl_language_id,
             'content_version': version, 'payload': payload, 'model': model,
-            'prompt_version': PROMPT_VERSION,
+            'prompt_version': payload.get('prompt_version', PROMPT_VERSION),
         }, on_conflict='exercise_id,nl_language_id').execute()
     except Exception as exc:
         _table_failed(exc)
@@ -446,14 +634,25 @@ def _sense_of(item: dict) -> Optional[int]:
     return sense if sense > 0 else None
 
 
+def _wants(items: Iterable[dict], type_key: str = 'exercise_type') -> list[tuple[int, str, int]]:
+    """The Storage files ``(sense, kind, prompt_version)`` that could hold these items'
+    explanations: one per sense and family present."""
+    out: dict[tuple[int, str, int], None] = {}
+    for item in items:
+        sense, etype = _sense_of(item), item.get(type_key)
+        if sense is not None and supported(etype):
+            out.setdefault((sense, file_kind(etype), prompt_version(etype)), None)
+    return sorted(out)
+
+
 def _read_files(language_id: int, nl_language_id: int,
-                sense_ids: list[int]) -> dict[str, dict]:
-    """Pre-written entries ``{exercise_id: {content_version, model, payload}}`` from the
-    senses' Storage files at the current prompt version. Never raises."""
-    if not sense_ids or language_id not in _LANG or nl_language_id not in _LANG:
+                wants: list[tuple[int, str, int]]) -> dict[str, dict]:
+    """Pre-written entries ``{exercise_id: {content_version, model, payload}}`` from these
+    Storage files (``_wants``), read together under one deadline. Never raises."""
+    if not wants or language_id not in _LANG or nl_language_id not in _LANG:
         return {}
-    return explanation_files.read_for_senses(language_id, sense_ids, nl_language_id,
-                                             PROMPT_VERSION, deadline_s=_FILE_DEADLINE_S)
+    return explanation_files.read_files(language_id, nl_language_id, wants,
+                                        deadline_s=_FILE_DEADLINE_S)
 
 
 @dataclass
@@ -466,8 +665,8 @@ class Prefetched:
 
 
 def _read_sources(db, language_id: int, nl_language_id: int, exercise_ids: list[str],
-                  sense_ids: list[int]) -> Prefetched:
-    """The Storage files of ``sense_ids`` and the table rows of ``exercise_ids``. When
+                  sense_ids: list[tuple[int, str, int]]) -> Prefetched:
+    """The Storage files ``sense_ids`` (``_wants``) and the table rows of ``exercise_ids``. When
     both are wanted the file read waits on ``_read_pool`` while this thread reads the
     table, so the two round trips overlap."""
     want_rows = bool(exercise_ids) and db is not None and _table_usable()
@@ -491,12 +690,13 @@ def _read_sources(db, language_id: int, nl_language_id: int, exercise_ids: list[
     return Prefetched(files=files, rows=rows)
 
 
-def _usable(cached: Any, version: int, sents: list[dict]) -> Optional[tuple[list[dict], dict]]:
+def _usable(cached: Any, version: int, sents: list[dict],
+            exercise_type: Optional[str] = None) -> Optional[tuple[list[dict], dict]]:
     """(entries, payload) of a file entry or table row written for this content version
-    and these sentences with the current prompt; None otherwise."""
+    and these units with the type's current prompt; None otherwise."""
     if not isinstance(cached, dict) or _version(cached) != version:
         return None
-    entries = _aligned(cached.get('payload'), sents)
+    entries = _aligned(cached.get('payload'), sents, exercise_type)
     return None if entries is None else (entries, cached['payload'])
 
 
@@ -533,7 +733,7 @@ def _job(db, exercise_id: str, content: dict, version: int, tl_language_id: int,
         # A file read that missed the request's deadline has usually landed by
         # now: serve the pre-written entry instead of paying for a model.
         written = _file_entry(tl_language_id, nl_language_id, sense_id, exercise_id, version,
-                              content)
+                              content, exercise_type)
         if written is not None:
             _remember(key, version, written)
             return written
@@ -552,21 +752,22 @@ def _job(db, exercise_id: str, content: dict, version: int, tl_language_id: int,
 
 
 def _file_entry(language_id: int, nl_language_id: int, sense_id: Optional[int],
-                exercise_id: str, version: int, content: dict) -> Optional[dict]:
+                exercise_id: str, version: int, content: dict,
+                exercise_type: Optional[str] = SPOT) -> Optional[dict]:
     """The current pre-written payload of one item from its sense's file, or None."""
     if not sense_id or language_id not in _LANG or nl_language_id not in _LANG:
         return None
     try:
         entry = explanation_files.read_for_senses(
-            language_id, [int(sense_id)], nl_language_id, PROMPT_VERSION,
-            deadline_s=_JOB_FILE_DEADLINE_S).get(str(exercise_id))
+            language_id, [int(sense_id)], nl_language_id, prompt_version(exercise_type),
+            deadline_s=_JOB_FILE_DEADLINE_S, kind=file_kind(exercise_type)).get(str(exercise_id))
     except Exception:
         return None
-    sents = sentences_of(content)
+    sents = sentences_of(content, exercise_type)
     if not entry or sents is None or int(entry.get('content_version') or 0) != version:
         return None
     payload = entry.get('payload')
-    return payload if _aligned(payload, sents) is not None else None
+    return payload if _aligned(payload, sents, exercise_type) is not None else None
 
 
 def _start(db, exercise_id: str, content: dict, version: int, tl_language_id: int,
@@ -616,8 +817,8 @@ def prefetch(db, items: list[dict], *, language_id: Optional[int],
     if not wanted:
         return None
     ids = sorted({str(i.get(id_key)) for i in wanted})
-    senses = sorted({s for s in (_sense_of(i) for i in wanted) if s is not None})
-    return _read_sources(db, int(language_id), int(nl_language_id), ids, senses)
+    return _read_sources(db, int(language_id), int(nl_language_id), ids,
+                         _wants(wanted, type_key))
 
 
 def prepare_items(db, items: list[dict], *, language_id: Optional[int],
@@ -647,12 +848,13 @@ def _prepare(db, items, language_id, nl_language_id, id_key, type_key, warm_limi
     for item in items:
         if not isinstance(item, dict) or not supported(item.get(type_key)):
             continue
+        etype = item.get(type_key)
         eid, content = item.get(id_key), item.get('content')
-        sents = sentences_of(content)
+        sents = sentences_of(content, etype)
         if not eid or sents is None:
             continue
-        entries = stored_entries(sents, nl_language_id) or \
-            _aligned(_from_memory((str(eid), nl_language_id), _version(item)), sents)
+        entries = stored_entries(sents, nl_language_id, etype) or \
+            _aligned(_from_memory((str(eid), nl_language_id), _version(item)), sents, etype)
         if entries is not None:
             _attach(content, entries, nl_language_id)
         else:
@@ -662,7 +864,7 @@ def _prepare(db, items, language_id, nl_language_id, id_key, type_key, warm_limi
     if isinstance(prefetched, Prefetched):
         found = prefetched
     else:
-        senses = sorted({s for s in (_sense_of(item) for item, _, _ in todo) if s is not None})
+        senses = _wants([item for item, _, _ in todo], type_key)
         if isinstance(prefetched, dict):
             found = Prefetched(files=_read_files(language_id, nl_language_id, senses),
                                rows=prefetched)
@@ -671,9 +873,9 @@ def _prepare(db, items, language_id, nl_language_id, id_key, type_key, warm_limi
                                   [eid for _, eid, _ in todo], senses)
     missing = []
     for item, eid, sents in todo:
-        version = _version(item)
-        hit = _usable(found.files.get(eid), version, sents) or \
-            _usable(found.rows.get(eid), version, sents)
+        version, etype = _version(item), item.get(type_key)
+        hit = _usable(found.files.get(eid), version, sents, etype) or \
+            _usable(found.rows.get(eid), version, sents, etype)
         if hit is not None:
             entries, payload = hit
             _remember((eid, nl_language_id), version, payload)
@@ -702,22 +904,21 @@ def get_or_generate(db, exercise_id: str, nl_language_id: int,
     row = _exercise_row(db, exercise_id)
     if row is None or not supported(row.get('exercise_type')):
         return 'unsupported', None
-    content, version = row.get('content'), _version(row)
-    sents = sentences_of(content)
+    content, version, etype = row.get('content'), _version(row), row.get('exercise_type')
+    sents = sentences_of(content, etype)
     if sents is None:
         return 'unsupported', None
     key = (str(exercise_id), int(nl_language_id))
-    entries = stored_entries(sents, int(nl_language_id)) or \
-        _aligned(_from_memory(key, version), sents)
+    entries = stored_entries(sents, int(nl_language_id), etype) or \
+        _aligned(_from_memory(key, version), sents, etype)
     if entries is None:
         # The sense's pre-written file first; the table only when it has nothing usable.
-        sense = _sense_of(row)
         files = _read_files(int(row.get('language_id') or 0), int(nl_language_id),
-                            [sense] if sense is not None else [])
-        hit = _usable(files.get(str(exercise_id)), version, sents)
+                            _wants([row]))
+        hit = _usable(files.get(str(exercise_id)), version, sents, etype)
         if hit is None:
             hit = _usable(_read_rows(db, [str(exercise_id)], int(nl_language_id))
-                          .get(str(exercise_id)), version, sents)
+                          .get(str(exercise_id)), version, sents, etype)
         if hit is not None:
             entries, payload = hit
             _remember(key, version, payload)
@@ -732,7 +933,7 @@ def get_or_generate(db, exercise_id: str, nl_language_id: int,
         except Exception as exc:
             logger.warning('explanation generation failed for %s: %s', exercise_id, exc)
             return 'unavailable', None
-        entries = _aligned(payload, sents) if payload else None
+        entries = _aligned(payload, sents, etype) if payload else None
         if entries is None:
             return 'unavailable', None
     shaped: dict = {}

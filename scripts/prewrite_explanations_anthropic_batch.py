@@ -8,6 +8,11 @@ pick-the-correct-sentence explanation ahead of time, stored as Storage files
 the standard price). Measured on 20 live items: Sonnet 5.5 at effort medium,
 ~$0.006 an item standard, ~$0.003 batched, all answers valid.
 
+Families (``--family``): ``sentences`` (spot the error, pick the sentence; files
+``…p2.json``, the default) and ``options`` (2026-11-27: choose the particle, the
+word form, the synonym / antonym; files ``…o1.json``). Each family has its own
+prompt version and file kind, so a sense can have one file of each.
+
 Stages, each resumable from the run directory (``--run-dir``):
 
   prepare  senses of the language with no explanation file yet; their content
@@ -28,6 +33,7 @@ Usage:
   python scripts/prewrite_explanations_anthropic_batch.py --limit-senses 20 --apply   # pilot
   python scripts/prewrite_explanations_anthropic_batch.py --apply            # everything
   python scripts/prewrite_explanations_anthropic_batch.py --run-dir DIR --apply       # resume
+  python scripts/prewrite_explanations_anthropic_batch.py --family options --apply    # word-option types
 """
 
 from __future__ import annotations
@@ -73,6 +79,11 @@ WRITE_WORKERS = 16
 # the Batches API bills half.
 MEASURED_COST_PER_ITEM = {'claude-opus-5-5': 0.01736, 'claude-sonnet-5-5': 0.00606,
                           'claude-haiku-5-5': 0.00061}
+# family -> (exercise types, file kind, prompt version)
+FAMILIES = {
+    'sentences': (sorted(xe.SENTENCE_TYPES), 'p', xe.PROMPT_VERSION),
+    'options': (sorted(xe.OPTION_TYPES), 'o', xe.OPTION_PROMPT_VERSION),
+}
 
 
 def now_iso() -> str:
@@ -98,9 +109,10 @@ def save_json(path: str, data) -> None:
 # prepare
 # ---------------------------------------------------------------------------
 
-def existing_senses(language_id: int, nl_language_id: int) -> set[int]:
-    """Senses that already have a file for the current prompt version (one listing)."""
-    sample = xf.file_path(language_id, 0, nl_language_id, xe.PROMPT_VERSION)
+def existing_senses(language_id: int, nl_language_id: int, kind: str = 'p',
+                    prompt_version: int = xe.PROMPT_VERSION) -> set[int]:
+    """Senses that already have a file of this kind and prompt version (one listing)."""
+    sample = xf.file_path(language_id, 0, nl_language_id, prompt_version, kind)
     folder, name = sample.rsplit('/', 1)
     tail = name[1:]                       # '.en.p2.json' after the sense id '0'
     out = set()
@@ -141,10 +153,12 @@ def prepare(db, args, language_id: int, nl_language_id: int, run_dir: str, say) 
     be read, the sense is left for a later run (a file is immutable, so writing it
     without that item would leave the item out for good).
     """
+    family = getattr(args, 'family', 'sentences')
+    types, kind, version = FAMILIES[family]
     sense_ids = [int(s) for s in args.sense_ids.split(',')] if args.sense_ids else None
-    rows = pw.list_items(db, language_id, list(xe.TYPES), sense_ids)
+    rows = pw.list_items(db, language_id, types, sense_ids)
     units, no_sense = pw.group_by_sense(rows)
-    have = existing_senses(language_id, nl_language_id)
+    have = existing_senses(language_id, nl_language_id, kind, version)
     todo = [u for u in units if u.sense_id not in have]
     if args.limit_senses:
         todo = todo[:args.limit_senses]
@@ -179,39 +193,53 @@ def prepare(db, args, language_id: int, nl_language_id: int, run_dir: str, say) 
                 continue
             for item in unit.items:
                 content = got[item['id']]
-                sents = xe.sentences_of(content)
+                sents = xe.sentences_of(content, item['exercise_type'])
                 if sents is None:
                     counts['skipped_not_explainable'] += 1
                     continue
-                if xe.stored_entries(sents, nl_language_id) is not None:
+                if xe.stored_entries(sents, nl_language_id, item['exercise_type']) is not None:
                     counts['skipped_stored_notes'] += 1
                     continue
                 corrected = None
                 if item['exercise_type'] == xe.SPOT:
                     corrected = pw.match_correction(corrections.get(unit.sense_id, []), content)
                     counts['spot_with_correction' if corrected else 'spot_without_correction'] += 1
-                lines.append({'custom_id': item['id'], 'sense_id': unit.sense_id,
-                              'exercise_type': item['exercise_type'],
-                              'content_version': item['content_version'],
-                              'sentences': sents, 'target_word': content.get('target_word'),
-                              'corrected': corrected})
+                line = {'custom_id': item['id'], 'sense_id': unit.sense_id,
+                        'exercise_type': item['exercise_type'],
+                        'content_version': item['content_version'],
+                        'sentences': sents, 'target_word': content.get('target_word'),
+                        'corrected': corrected}
+                if item['exercise_type'] in xe.OPTION_TYPES:
+                    # the prompt also needs the sentence, base form, relation, note
+                    line['content'] = {k: v for k, v in content.items() if k != 'hant'}
+                    counts[item['exercise_type']] += 1
+                lines.append(line)
                 counts['to_write'] += 1
     with open(os.path.join(run_dir, 'manifest.jsonl'), 'w', encoding='utf-8') as fh:
         for line in lines:
             fh.write(json.dumps(line, ensure_ascii=False) + '\n')
     info = {'prepared_at': now_iso(), 'language_id': language_id, 'nl_language_id': nl_language_id,
-            'model': args.model, 'effort': args.effort, 'prompt_version': xe.PROMPT_VERSION,
+            'model': args.model, 'effort': args.effort, 'family': family, 'kind': kind,
+            'types': types, 'prompt_version': version,
             'senses_total': len(units), 'senses_with_file': len(have), 'senses_prepared': len(todo),
             'senses_held_back': held_back, 'rows_without_sense': no_sense, 'items': dict(counts),
-            'estimate_usd': estimate_usd(args.model, len(lines))}
+            'estimate_usd': estimate_usd(args.model, len(lines), family)}
     save_json(os.path.join(run_dir, 'prepare.json'), info)
     say(f"items: {dict(counts)}; {len(held_back)} senses held back; "
         f"estimate ${info['estimate_usd']} (batch price, {args.model})")
     return info
 
 
-def estimate_usd(model: str, n_requests: int) -> float:
-    return round(n_requests * MEASURED_COST_PER_ITEM.get(model, 0.02) / 2, 2)
+# Word-option items, measured on the options pilot 2026-11-27 (52 ja items, Sonnet 5.5,
+# effort medium): $0.146 batched = $0.00562 an item at standard price.
+MEASURED_OPTION_COST_PER_ITEM = {'claude-sonnet-5-5': 0.00562}
+
+
+def estimate_usd(model: str, n_requests: int, family: str = 'sentences') -> float:
+    per_item = MEASURED_COST_PER_ITEM.get(model, 0.02)
+    if family == 'options':
+        per_item = MEASURED_OPTION_COST_PER_ITEM.get(model, per_item)
+    return round(n_requests * per_item / 2, 2)
 
 
 def read_manifest(run_dir: str) -> list[dict]:
@@ -220,6 +248,8 @@ def read_manifest(run_dir: str) -> list[dict]:
 
 
 def item_content(rec: dict) -> dict:
+    if isinstance(rec.get('content'), dict):
+        return rec['content']
     return {'sentences': rec['sentences'], 'target_word': rec.get('target_word')}
 
 
@@ -410,7 +440,9 @@ def collect(client, db, manifest: list[dict], info: dict, run_dir: str, state: d
         for attempt in range(3):
             try:
                 return sense_id, xf.write_file(info['language_id'], sense_id,
-                                               info['nl_language_id'], xe.PROMPT_VERSION, exercises)
+                                               info['nl_language_id'],
+                                               info.get('prompt_version', xe.PROMPT_VERSION),
+                                               exercises, kind=info.get('kind', 'p'))
             except Exception as exc:
                 logger.warning('write failed for sense %s (attempt %d): %s', sense_id, attempt + 1, exc)
                 time.sleep(2.0 * (attempt + 1))
@@ -453,6 +485,9 @@ def build_parser() -> argparse.ArgumentParser:
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('--language', default='ja')
     ap.add_argument('--nl', default='en')
+    ap.add_argument('--family', default='sentences', choices=sorted(FAMILIES),
+                    help='sentences: spot / pick (default); options: particle / word form / '
+                         'synonym-antonym')
     ap.add_argument('--model', default=DEFAULT_MODEL, choices=sorted(MEASURED_COST_PER_ITEM))
     ap.add_argument('--effort', default=DEFAULT_EFFORT, choices=['low', 'medium', 'high'])
     ap.add_argument('--limit-senses', type=int, default=0)
@@ -472,7 +507,7 @@ def main(argv: Optional[list[str]] = None) -> int:
     nl_language_id = Config.LANGUAGE_CODE_TO_ID[args.nl]
     run_dir = args.run_dir or os.path.join(
         pw.DEFAULT_REPORT_DIR,
-        f'batch_{args.language}_{args.nl}_{datetime.now(timezone.utc):%Y%m%dT%H%M%SZ}')
+        f'batch_{args.language}_{args.nl}_{args.family}_{datetime.now(timezone.utc):%Y%m%dT%H%M%SZ}')
     os.makedirs(run_dir, exist_ok=True)
     say(f'run directory {run_dir}')
     db = pw.admin_db()
@@ -489,8 +524,9 @@ def main(argv: Optional[list[str]] = None) -> int:
             return 0
         state = load_state(run_dir)
         remaining = len(manifest) - sum(b['count'] for b in state['batches'])
-        if remaining > 0 and estimate_usd(info['model'], remaining) > args.max_usd:
-            say(f"estimate ${estimate_usd(info['model'], remaining)} for the {remaining} requests "
+        family = info.get('family', 'sentences')
+        if remaining > 0 and estimate_usd(info['model'], remaining, family) > args.max_usd:
+            say(f"estimate ${estimate_usd(info['model'], remaining, family)} for the {remaining} requests "
                 f"not yet submitted exceeds --max-usd {args.max_usd}: not submitted")
             return 2
         client = xa.make_client()

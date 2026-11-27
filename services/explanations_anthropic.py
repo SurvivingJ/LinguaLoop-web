@@ -58,11 +58,11 @@ def cost_usd(model: str, input_tokens: int, output_tokens: int, *, batch: bool =
 def request_params(content: dict, tl_language_id: int, nl_language_id: int, exercise_type: str,
                    corrected: Optional[str], model: str, effort: str) -> Optional[dict]:
     """Messages API parameters for one item (None when it is not explainable)."""
-    sents = xe.sentences_of(content)
+    sents = xe.sentences_of(content, exercise_type)
     if sents is None:
         return None
     system, user = xe.build_prompt(sents, tl_language_id, nl_language_id, exercise_type,
-                                   (content or {}).get('target_word'), corrected)
+                                   (content or {}).get('target_word'), corrected, content)
     return {
         'model': model,
         'max_tokens': MAX_TOKENS,
@@ -78,14 +78,16 @@ def payload_from_message(msg: Any, content: dict, nl_language_id: int, exercise_
     if getattr(msg, 'stop_reason', None) not in ('end_turn', 'stop_sequence'):
         return None
     text = ''.join(b.text for b in msg.content if getattr(b, 'type', '') == 'text')
-    sents = xe.sentences_of(content)
+    sents = xe.sentences_of(content, exercise_type)
+    if sents is None:
+        return None
     # The model now and then writes its JSON, notices a slip and writes a
     # corrected JSON after it ("Wait, ... Here is the corrected JSON:", pilot
     # 2026-11-27): the last object that validates is its final answer.
     for raw in reversed(json_objects(text)):
         entries = xe.parse(raw, sents, nl_language_id, exercise_type, corrected)
         if entries is not None:
-            return {'sentences': entries, 'prompt_version': xe.PROMPT_VERSION}
+            return {'sentences': entries, 'prompt_version': xe.prompt_version(exercise_type)}
     return None
 
 

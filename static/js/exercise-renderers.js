@@ -713,6 +713,10 @@ const ExRenderers = (function () {
    * one. Options are matched to sentences by text (pick-the-sentence shuffles
    * them); an entry may be null (no note for that sentence). Replaces any notes
    * shown before.
+   *
+   * `labels.plainMeaning`: 'wrong' or 'all' — those entries' meaning is a gloss
+   * (what a particle marks, a form's name, a word's meaning), shown as it is:
+   * no quotes and no "Literally:" (word-option types).
    */
   function showOptionExplanations(entries, sentences, labels) {
     labels = labels || {};
@@ -726,6 +730,7 @@ const ExRenderers = (function () {
       const old = o.querySelector('.ex-opt-expl');
       if (old) old.remove();
       const wrong = s.is_correct === false;
+      const plain = labels.plainMeaning === 'all' || (labels.plainMeaning === 'wrong' && wrong);
       const box = document.createElement('span');
       box.className = 'ex-opt-expl' + (wrong ? ' ex-opt-expl--bad' : ' ex-opt-expl--ok');
       let h = `<span class="ex-opt-expl__verdict">${escHtml(
@@ -734,7 +739,9 @@ const ExRenderers = (function () {
           : tr('exercises.spot.correct_label', 'Correct')
       )}</span>`;
       // A wrong sentence's meaning is its literal translation, so the mistake shows.
-      if (e.meaning)
+      if (e.meaning && plain)
+        h += ` <span class="ex-opt-expl__meaning">${escHtml(e.meaning)}</span>`;
+      else if (e.meaning)
         h +=
           ` <span class="ex-opt-expl__meaning">` +
           (wrong
@@ -818,6 +825,55 @@ const ExRenderers = (function () {
           showOptionExplanations(fallback, sentences, labels);
         if (pending) showExplanationLoading();
       },
+    };
+  }
+
+  /**
+   * A word-option item's options as explanation units, in stored order (the
+   * server's `option_explanations` follow it; see
+   * exercise_explanations._options_of), or null when it is not explainable.
+   */
+  function optionUnits(c) {
+    const text = (o) => {
+      const v = o && typeof o === 'object' ? o.text : o;
+      return typeof v === 'string' ? v.trim() : '';
+    };
+    const key = text(c.correct_answer);
+    const opts = Array.isArray(c.options) ? c.options.map(text) : [];
+    if (opts.length < 2 || !key || opts.some((t) => !t)) return null;
+    if (new Set(opts).size !== opts.length || opts.filter((t) => t === key).length !== 1)
+      return null;
+    if (Array.isArray(c.accepted_answers) && new Set(c.accepted_answers.map(text)).size > 1)
+      return null;
+    return opts.map((t) => ({ text: t, is_correct: t === key }));
+  }
+
+  /**
+   * mcq() arguments for a word-option type with per-option explanations
+   * (particle, word form, synonym / antonym): the feedback-bar note and the
+   * `extra` hooks. The item's own note (one line on the key, often in the
+   * target language) is shown in the bar only when explanations cannot even be
+   * asked for, otherwise under the key if the fetch brings nothing.
+   */
+  function wordOptionExplanations(ex, c, plainMeaning) {
+    const note = c.explanation || '';
+    const units = optionUnits(c);
+    if (!units) return { note, extra: undefined };
+    const expl = explanationRequest(
+      ex,
+      c,
+      units,
+      { wrongLabel: tr('exercises.semantic.wrong_label', 'Wrong'), plainMeaning },
+      {
+        fallback: units.map((u) =>
+          u.is_correct && note ? { meaning: '', explanation: note } : null
+        ),
+        fallbackOnlyIfAsked: true,
+      }
+    );
+    return {
+      note: expl.entries() || expl.asked() ? '' : note,
+      extra: { onAnswered: () => expl.answered() },
     };
   }
 
@@ -1214,6 +1270,7 @@ const ExRenderers = (function () {
       if (c.form_label) prompt += ` &mdash; fill in the <em>${escHtml(c.form_label)}</em>`;
       prompt += '</div>';
     }
+    const why = wordOptionExplanations(ex, c, 'wrong');
     mcq(
       'Morphology Slot',
       null,
@@ -1221,8 +1278,9 @@ const ExRenderers = (function () {
       prompt,
       c.options || [],
       c.correct_answer || '',
-      c.explanation || '',
-      w
+      why.note,
+      w,
+      why.extra
     );
   }
 
@@ -1372,6 +1430,7 @@ const ExRenderers = (function () {
       (c.word_definition
         ? `<div class="ex-note ex-note--def">${escHtml(c.word_definition)}</div>`
         : '');
+    const why = wordOptionExplanations(ex, c, 'all');
     mcq(
       fmtType('synonym_antonym_match'),
       ex.cefr_level,
@@ -1379,8 +1438,9 @@ const ExRenderers = (function () {
       prompt,
       c.options || [],
       c.correct_answer || '',
-      c.explanation || '',
-      w
+      why.note,
+      w,
+      why.extra
     );
   }
 
@@ -1415,6 +1475,7 @@ const ExRenderers = (function () {
    */
   function renderParticleSelection(ex, c, w) {
     const prompt = `<div class="ex-sentence">${withBlank(c.sentence_with_blank)}</div>`;
+    const why = wordOptionExplanations(ex, c, 'wrong');
     mcq(
       fmtType('particle_selection'),
       ex.cefr_level,
@@ -1422,8 +1483,9 @@ const ExRenderers = (function () {
       prompt,
       c.options || [],
       c.correct_answer || '',
-      c.explanation || '',
-      w
+      why.note,
+      w,
+      why.extra
     );
   }
 

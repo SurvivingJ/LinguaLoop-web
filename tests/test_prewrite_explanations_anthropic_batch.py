@@ -818,3 +818,35 @@ def test_a_self_corrected_answer_uses_the_last_valid_json():
     payload = xa.payload_from_message(message(json.dumps(first) + '\n{"sentences": [oops'),
                                       spot(1), EN, xe.SPOT, None)
     assert payload['sentences'][0]['explanation'] == first['sentences'][0]['explanation']
+
+
+# ---------------------------------------------------------------------------
+# --family options (2026-11-27): particle / word form / synonym-antonym
+# ---------------------------------------------------------------------------
+
+def test_the_options_family_selects_its_types_kind_and_prompt_version():
+    assert ab.FAMILIES['options'] == (sorted(xe.OPTION_TYPES), 'o', xe.OPTION_PROMPT_VERSION)
+    assert ab.FAMILIES['sentences'] == (sorted(xe.SENTENCE_TYPES), 'p', xe.PROMPT_VERSION)
+    assert ab.build_parser().parse_args([]).family == 'sentences'
+    assert ab.build_parser().parse_args(['--family', 'options']).family == 'options'
+
+
+def test_existing_senses_lists_only_files_of_the_kind_asked_for():   # conftest: empty in-memory store
+    xf.write_file(JA, 70, EN, xe.PROMPT_VERSION, {'e1': {'content_version': 0, 'model': None,
+                  'payload': {'sentences': [{'text': 'x'}], 'prompt_version': xe.PROMPT_VERSION}}})
+    xf.write_file(JA, 71, EN, xe.OPTION_PROMPT_VERSION, {'e2': {'content_version': 0, 'model': None,
+                  'payload': {'sentences': [{'text': 'を'}],
+                              'prompt_version': xe.OPTION_PROMPT_VERSION}}}, kind='o')
+    assert ab.existing_senses(JA, EN) == {70}
+    assert ab.existing_senses(JA, EN, 'o', xe.OPTION_PROMPT_VERSION) == {71}
+
+
+def test_an_option_record_carries_its_content_for_the_prompt():
+    content = {'options': ['が', 'を'], 'correct_answer': 'が',
+               'sentence_with_blank': '時計___鳴った。', 'original_sentence': '時計が鳴った。'}
+    rec = {'custom_id': 'e', 'exercise_type': xe.PARTICLE, 'content': content,
+           'sentences': xe.sentences_of(content, xe.PARTICLE), 'target_word': None}
+    assert ab.item_content(rec) is content
+    reqs = ab.build_requests([rec], {'language_id': JA, 'nl_language_id': EN,
+                                     'model': SONNET, 'effort': 'medium'})
+    assert 'Sentence with the blank: 時計___鳴った。' in reqs[0]['params']['messages'][0]['content']

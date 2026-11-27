@@ -13,10 +13,16 @@ content files (bucket ``exercise-content``, ADR-049), not in the table.
 
 Layout
 ------
-One immutable file per target language, sense, learner language and prompt
-version::
+One immutable file per target language, sense, learner language, kind and
+prompt version::
 
-    explanations/{lang}/{sense_id}.{nl}.p{prompt_version}.json   e.g. explanations/ja/35443.en.p2.json
+    explanations/{lang}/{sense_id}.{nl}.{kind}{prompt_version}.json   e.g. explanations/ja/35443.en.p2.json
+
+Kind ``p``: the sentence types (spot the error, pick the sentence); kind ``o``
+(2026-11-27): the word-option types (particle, word form, synonym / antonym),
+whose prompt is versioned separately. A sense's ``p`` file was written before
+its ``o`` items had explanations and files are immutable, hence a second file
+rather than a longer one. An ``o`` file also carries ``"kind": "o"``.
 
     {"format": 1, "language_id": 3, "sense_id": 35443, "nl_language_id": 2,
      "prompt_version": 2,
@@ -73,7 +79,8 @@ FETCH_THREAD_PREFIX = 'explain-file'
 DEFAULT_DEADLINE_S = 2.0
 CACHE_BYTES = 8 * 1024 * 1024          # ~8 MB of files, a few thousand senses
 NEGATIVE_TTL_S = 600.0
-MAX_SENSES_PER_CALL = 160              # the content reader's per-call cap
+MAX_SENSES_PER_CALL = 160              # files per call (the content reader's per-call cap)
+KINDS = ('p', 'o')                     # p: sentence types; o: word-option types
 _WORKERS = 6                           # beside the content reader's 16 on the same HTTP pool
 _LOG_PATHS = 5
 
@@ -110,18 +117,26 @@ def _code(name: str, language_id: Any) -> str:
     return code
 
 
-def file_path(language_id: int, sense_id: int, nl_language_id: int, prompt_version: int) -> str:
-    """``explanations/{lang}/{sense_id}.{nl}.p{prompt_version}.json``; ValueError for an
-    unknown language id or a sense id / prompt version that is not an int >= 0."""
+def _check_kind(kind: Any) -> str:
+    if kind not in KINDS:
+        raise ValueError(f'kind must be one of {KINDS}, got {kind!r}')
+    return kind
+
+
+def file_path(language_id: int, sense_id: int, nl_language_id: int, prompt_version: int,
+              kind: str = 'p') -> str:
+    """``explanations/{lang}/{sense_id}.{nl}.{kind}{prompt_version}.json``; ValueError for
+    an unknown language id or kind, or a sense id / prompt version that is not an int >= 0."""
     lang = _code('language_id', language_id)
     nl = _code('nl_language_id', nl_language_id)
     _check_int('sense_id', sense_id)
     _check_int('prompt_version', prompt_version)
-    return f'{PREFIX}/{lang}/{sense_id}.{nl}.p{prompt_version}.json'
+    _check_kind(kind)
+    return f'{PREFIX}/{lang}/{sense_id}.{nl}.{kind}{prompt_version}.json'
 
 
 def encode(language_id: int, sense_id: int, nl_language_id: int, prompt_version: int,
-           exercises: Mapping[str, Mapping]) -> bytes:
+           exercises: Mapping[str, Mapping], kind: str = 'p') -> bytes:
     """The file as UTF-8 JSON (compact, ``ensure_ascii=False``, exercises in id order, so
     the same input always gives the same bytes).
 
@@ -131,9 +146,10 @@ def encode(language_id: int, sense_id: int, nl_language_id: int, prompt_version:
     replaced), an exercise id that is not a non-empty str, a ``content_version`` that is
     not an int >= 0, a ``model`` that is neither str nor None, or a payload that is not an
     object with a non-empty ``sentences`` list and this file's ``prompt_version`` (any
-    other payload would never be served from it).
+    other payload would never be served from it). A ``p`` file's bytes carry no ``kind``
+    (as before kinds existed); any other kind is recorded in the file.
     """
-    file_path(language_id, sense_id, nl_language_id, prompt_version)
+    file_path(language_id, sense_id, nl_language_id, prompt_version, kind)
     if not isinstance(exercises, Mapping) or not exercises:
         raise ValueError('encode: exercises must be a non-empty mapping of id -> entry')
     body: dict[str, dict] = {}
@@ -159,8 +175,10 @@ def encode(language_id: int, sense_id: int, nl_language_id: int, prompt_version:
                              f'!= file prompt_version {prompt_version}')
         body[exercise_id] = {'content_version': version, 'model': model, 'payload': payload}
     doc = {'format': FORMAT, 'language_id': language_id, 'sense_id': sense_id,
-           'nl_language_id': nl_language_id, 'prompt_version': prompt_version,
-           'exercises': body}
+           'nl_language_id': nl_language_id, 'prompt_version': prompt_version}
+    if kind != 'p':
+        doc['kind'] = kind
+    doc['exercises'] = body
     try:
         text = json.dumps(doc, ensure_ascii=False, separators=(',', ':'))
     except (TypeError, ValueError) as exc:
@@ -180,6 +198,8 @@ def _problem(doc: Any) -> str | None:
     for name in ('sense_id', 'prompt_version'):
         if not _is_int(doc.get(name)) or doc[name] < 0:
             return f'bad {name} {doc.get(name)!r}'
+    if doc.get('kind', 'p') not in KINDS:
+        return f"bad kind {doc.get('kind')!r}"
     exercises = doc.get('exercises')
     if not isinstance(exercises, dict):
         return 'no exercises object'
@@ -266,13 +286,13 @@ store._on_reset('explanation_files', reset_cache)
 # ---------------------------------------------------------------------------
 
 def write_file(language_id: int, sense_id: int, nl_language_id: int, prompt_version: int,
-               exercises: Mapping[str, Mapping]) -> str:
+               exercises: Mapping[str, Mapping], kind: str = 'p') -> str:
     """Upload one sense's file with ``store.backend().put``: ``'written'``, or ``'exists'``
     when a file is already at that path (it is left exactly as it was: files are never
     overwritten or deleted). ValueError from ``encode`` before any call; every other
     backend error (``ContentStorageError``: no credentials, network, HTTP) propagates."""
-    path = file_path(language_id, sense_id, nl_language_id, prompt_version)
-    data = encode(language_id, sense_id, nl_language_id, prompt_version, exercises)
+    path = file_path(language_id, sense_id, nl_language_id, prompt_version, kind)
+    data = encode(language_id, sense_id, nl_language_id, prompt_version, exercises, kind)
     backend = store.backend()
     try:
         backend.put(path, data)
@@ -330,7 +350,8 @@ def _fetch_one(backend: Any, path: str, lru: ByteLRU, neg: NegativeCache) -> byt
 
 
 def read_for_senses(language_id: int, sense_ids: Iterable[int], nl_language_id: int,
-                    prompt_version: int, *, deadline_s: float | None = None) -> dict[str, dict]:
+                    prompt_version: int, *, deadline_s: float | None = None,
+                    kind: str = 'p') -> dict[str, dict]:
     """``{exercise_id: {"content_version", "model", "payload"}}`` from the files of these
     senses, merged (an exercise id belongs to one sense, so nothing collides).
 
@@ -339,22 +360,48 @@ def read_for_senses(language_id: int, sense_ids: Iterable[int], nl_language_id: 
     Storage is not configured (``store._storage_configured()``), for an unknown language
     id, or when nothing applies. Never raises; one WARNING per call for what went wrong.
     """
+    return read_files(language_id, nl_language_id,
+                      [(sense, kind, prompt_version) for sense in _sense_list(sense_ids)],
+                      deadline_s=deadline_s)
+
+
+def read_files(language_id: int, nl_language_id: int,
+               wants: Iterable[tuple[int, str, int]], *,
+               deadline_s: float | None = None) -> dict[str, dict]:
+    """Like ``read_for_senses``, for any mix of files: ``wants`` is ``(sense_id, kind,
+    prompt_version)`` triples, all fetched concurrently under one deadline (a request
+    with items of both kinds waits once, not twice). Never raises."""
     try:
-        return _read(language_id, sense_ids, nl_language_id, prompt_version, deadline_s)
+        return _read(language_id, wants, nl_language_id, deadline_s)
     except Exception as exc:              # a bug, or the pool shut down under us
         logger.warning('explanation_files.read_failed %s: %s', type(exc).__name__, exc)
         return {}
 
 
-def _read(language_id: Any, sense_ids: Iterable[Any], nl_language_id: Any,
-          prompt_version: Any, deadline_s: Any) -> dict[str, dict]:
+def _want_list(wants: Iterable[Any]) -> list[tuple[int, Any, Any]]:
+    """Unique ``(sense, kind, prompt_version)`` with the sense as an int >= 0, first-seen
+    order; kind and version are checked by ``file_path``."""
+    seen: dict[tuple, None] = {}
+    for want in wants or ():
+        try:
+            sense, kind, version = want
+        except (TypeError, ValueError):
+            continue
+        sense = store._as_int(sense)
+        if sense is not None and sense >= 0:
+            seen.setdefault((sense, kind, version), None)
+    return list(seen)
+
+
+def _read(language_id: Any, wants: Iterable[Any], nl_language_id: Any,
+          deadline_s: Any) -> dict[str, dict]:
     started = time.monotonic()
-    senses = _sense_list(sense_ids)
+    senses = _want_list(wants)            # each a (sense, kind, prompt_version) key
     if not senses:
         return {}
     try:
-        paths = {sense: file_path(language_id, sense, nl_language_id, prompt_version)
-                 for sense in senses}
+        paths = {key: file_path(language_id, key[0], nl_language_id, key[2], key[1])
+                 for key in senses}
     except ValueError as exc:
         logger.warning('explanation_files.bad_arguments %s', exc)
         return {}
@@ -370,8 +417,8 @@ def _read(language_id: Any, sense_ids: Iterable[Any], nl_language_id: Any,
 
     backend = store.backend()
     lru, neg = _caches(backend)
-    found: dict[int, bytes] = {}
-    to_fetch: list[int] = []
+    found: dict[tuple, bytes] = {}
+    to_fetch: list[tuple] = []
     for sense in senses:
         data = lru.get(paths[sense])
         if data is not None:
@@ -381,7 +428,7 @@ def _read(language_id: Any, sense_ids: Iterable[Any], nl_language_id: Any,
 
     if to_fetch:
         executor = _fetch_executor()
-        futures: dict[Future, int] = {
+        futures: dict[Future, tuple] = {
             executor.submit(_fetch_one, backend, paths[sense], lru, neg): sense
             for sense in to_fetch}
         budget = _deadline(deadline_s) - (time.monotonic() - started)
@@ -389,7 +436,7 @@ def _read(language_id: Any, sense_ids: Iterable[Any], nl_language_id: Any,
         late = [futures[f] for f in not_done]
         for future in not_done:
             future.cancel()
-        failed: list[tuple[int, BaseException]] = []
+        failed: list[tuple[tuple, BaseException]] = []
         for future in done:
             sense = futures[future]
             if future.cancelled():
@@ -418,9 +465,9 @@ def _read(language_id: Any, sense_ids: Iterable[Any], nl_language_id: Any,
         path = paths[sense]
         doc, problem = _parse(data)
         if doc is not None and (doc['language_id'], doc['sense_id'], doc['nl_language_id'],
-                                doc['prompt_version']) != (language_id, sense, nl_language_id,
-                                                           prompt_version):
-            doc, problem = None, 'names another sense, language or prompt version'
+                                doc['prompt_version'], doc.get('kind', 'p')) != (
+                language_id, sense[0], nl_language_id, sense[2], sense[1]):
+            doc, problem = None, 'names another sense, language, kind or prompt version'
         if doc is None:
             bad.append(f'{path} ({problem})')
             lru.discard(path)

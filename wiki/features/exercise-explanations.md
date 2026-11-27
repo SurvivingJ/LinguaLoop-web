@@ -3,9 +3,9 @@ title: Exercise Explanations in the Learner's Language
 type: feature
 status: in-progress
 tech_page: exercise-explanations.tech.md
-last_updated: 2026-11-26
+last_updated: 2026-11-27
 open_questions:
-  - "Which other exercise types should get per-option explanations next (cloze, semantic discrimination)? (TASK-1242)"
+  - "Fill the blank, typed fill-in, word order and listening explanations: not chosen for now (TASK-1249, TASK-1251)"
 ---
 
 # Exercise Explanations in the Learner's Language
@@ -33,7 +33,13 @@ to pick a word's meaning, I want the four meanings in English, not in Japanese.
    sentence; these are kept (rewritten only into the learner's language when needed), and the
    missing note on the correct sentence and the meanings are added. Items whose notes already
    cover every sentence in the learner's language need no model call.
-3. **Pick the meaning (definition match).** The four options are the word's meanings in the
+3. **Choose the particle, the word form, the synonym / antonym** (2026-11-27). After answering,
+   every option shows "Correct" or "Wrong" and a line on why. The right option also shows what
+   the whole sentence means (for synonym / antonym: the word's reading and meaning); a wrong
+   option shows what that particle marks, which form it is, or what that word means, and why it
+   does not fit here. Written ahead of time for Japanese by a batch; any item without one is
+   written on first view.
+4. **Pick the meaning (definition match).** The four options are the word's meanings in the
    learner's language: the right one and three meanings of other words that are about as common,
    about as long, and the same part of speech (so a verb is never the only "to …" option). Two
    options never share a listed equivalent ("merely" in both). If the word has no meaning written
@@ -56,7 +62,9 @@ to pick a word's meaning, I want the four meanings in English, not in Japanese.
 - Explanations are written once per item and language and reused for every learner.
 
 ## Open Questions
-- OPEN: other types with target-language notes (TASK-1242).
+- ANSWERED (2026-11-27): which types next — particle, word form, synonym / antonym (owner).
+- OPEN: fill the blank, typed fill-in, word order, listening — not chosen for now
+  ([[evaluations/exercise-explanation-coverage-2026-11-27]]).
 
 ## Related Pages
 - [[features/exercise-explanations.tech]]
@@ -65,3 +73,4 @@ to pick a word's meaning, I want the four meanings in English, not in Japanese.
 - [[features/new-word-drill]]
 - [[features/test-prestudy]]
 - [[tasklist/fixes-2026-11-26.tasks]]
+- [[evaluations/exercise-explanation-coverage-2026-11-27]]

@@ -764,7 +764,7 @@ def parse_types(value: str) -> list[str]:
     out = []
     for part in (p.strip() for p in value.split(',') if p.strip()):
         name = TYPE_ALIASES.get(part, part)
-        if name not in xe.TYPES:
+        if name not in xe.SENTENCE_TYPES:     # its files are the sentence kind ('p')
             raise ValueError(f'unknown type {part!r} (use spot, pick)')
         if name not in out:
             out.append(name)

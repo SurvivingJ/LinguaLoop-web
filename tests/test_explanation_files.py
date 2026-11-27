@@ -581,3 +581,50 @@ def test_a_background_job_generates_when_the_file_is_for_another_content_version
     item = spot(version=0)
     got = xe._start(None, EID, item['content'], 0, JA, EN, xe.SPOT, SENSE).result(timeout=5)
     assert got['sentences'][0]['meaning'] == answer()['sentences'][0]['meaning']
+
+
+# ---------------------------------------------------------------------------
+# kinds: 'p' (sentence types) and 'o' (word-option types), 2026-11-27
+# ---------------------------------------------------------------------------
+
+def test_kind_is_in_the_path_and_only_an_o_file_records_it():
+    assert xf.file_path(JA, 35443, EN, 1, 'o') == 'explanations/ja/35443.en.o1.json'
+    assert xf.file_path(JA, 35443, EN, 2) == xf.file_path(JA, 35443, EN, 2, 'p')
+    with pytest.raises(ValueError):
+        xf.file_path(JA, 35443, EN, 1, 'x')
+    p_doc = json.loads(xf.encode(JA, SENSE, EN, P, {EID: entry()}))
+    o_doc = json.loads(xf.encode(JA, SENSE, EN, P, {EID: entry()}, 'o'))
+    assert 'kind' not in p_doc and o_doc['kind'] == 'o'
+    assert list(o_doc) == ['format', 'language_id', 'sense_id', 'nl_language_id',
+                           'prompt_version', 'kind', 'exercises']
+
+
+def test_both_kinds_of_one_sense_live_side_by_side(mem):
+    assert xf.write_file(JA, SENSE, EN, P, {EID: entry()}) == 'written'
+    assert xf.write_file(JA, SENSE, EN, P, {EID2: entry(1)}, kind='o') == 'written'
+    assert set(xf.read_for_senses(JA, [SENSE], EN, P)) == {EID}
+    assert set(xf.read_for_senses(JA, [SENSE], EN, P, kind='o')) == {EID2}
+
+
+def test_read_files_fetches_both_kinds_under_one_deadline(mem):
+    seed_file(mem, {EID: entry()})
+    mem.seed(xf.file_path(JA, SENSE2, EN, 1, 'o'), xf.encode(JA, SENSE2, EN, 1, {EID2: entry(p={
+        'sentences': [{'text': 'を'}], 'prompt_version': 1})}, 'o'))
+    got = xf.read_files(JA, EN, [(SENSE, 'p', P), (SENSE2, 'o', 1), (SENSE2, 'o', 1), ('x', 'o', 1)])
+    assert set(got) == {EID, EID2}
+    assert sorted(mem.calls_for('get')) == sorted([path(), xf.file_path(JA, SENSE2, EN, 1, 'o')])
+
+
+def test_a_file_of_the_other_kind_at_a_path_is_refused(mem, caplog):
+    # a 'p' document stored where an 'o' file belongs names the wrong kind
+    mem.seed(xf.file_path(JA, SENSE, EN, P, 'o'), xf.encode(JA, SENSE, EN, P, {EID: entry()}))
+    with caplog.at_level(logging.WARNING, logger=LOGGER):
+        assert xf.read_for_senses(JA, [SENSE], EN, P, kind='o') == {}
+    assert 'names another sense, language, kind or prompt version' in caplog.text
+
+
+def test_read_files_with_a_bad_kind_reads_nothing(mem, caplog):
+    seed_file(mem, {EID: entry()})
+    with caplog.at_level(logging.WARNING, logger=LOGGER):
+        assert xf.read_files(JA, EN, [(SENSE, 'q', P)]) == {}
+    assert 'bad_arguments' in caplog.text

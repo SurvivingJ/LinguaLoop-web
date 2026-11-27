@@ -19,13 +19,15 @@ below.
 
 | Status | Rows in this file | All task files (union, file status wins) |
 |--------|-------------------|------------------------------------------|
-| Not Started | 77 | 93 |
+| Not Started | 80 | 96 |
 | In Progress (`[~]`) | 18 | 25 |
-| Blocked / Deferred / Awaiting decision (`[?]`; includes "Done (repo), awaiting live apply") | 65 | 64 |
+| Blocked / Deferred / Awaiting decision (`[?]`; includes "Done (repo), awaiting live apply") | 67 | 66 |
 | Won't Do (obsolete) | 3 | 3 |
 | Superseded | 2 | 2 |
 | Done | 222 | 366 |
-| **Total distinct task ids** | **387** | **553** |
+| **Total distinct task ids** | **392** | **558** |
+
+*2026-11-27 (word-option explanations):* TASK-1242 Not Started → Done (repo), awaiting deploy (counted under Blocked / awaiting); added TASK-1247 (awaiting the owner) and TASK-1248–1251 (Not Started).
 
 *2026-11-27:* TASK-1244 In Progress → Done (5,936 Japanese explanation files written, 17,218 items, $53.10); TASK-1244–1246 had been added the same day (1245 awaiting the owner, 1246 Not Started).
 
@@ -1572,11 +1574,16 @@ Full spec: [[tasklist/review-2026-11-22.tasks]]. Record: [[evaluations/codebase-
 | TASK-1239 | fixes-2026-11-26 | Verify ES256 tokens locally (JWKS) or lengthen the auth cache | [?] | S | — |
 | TASK-1240 | fixes-2026-11-26 | Serialise new-word admission per (user, language) | [ ] | M | — |
 | TASK-1241 | fixes-2026-11-26 | Prestudy spot-the-error / pick-the-sentence show per-option explanations | [ ] | S | TASK-1236 |
-| TASK-1242 | fixes-2026-11-26 | Explanations in the learner's language for the word-option types (fill the blank, particle, word form, relations) | [ ] | M | TASK-1236 |
+| TASK-1242 | fixes-2026-11-26 | Explanations in the learner's language for particle, word form and synonym / antonym | Done (repo) — not deployed | M | TASK-1236 |
 | TASK-1243 | fixes-2026-11-26 | Generator writes learner-language definition options | [ ] | S | TASK-1234 |
 | TASK-1244 | fixes-2026-11-26 | Write every Japanese explanation ahead into Storage files (Sonnet 5.5, Message Batches) | [x] | M | TASK-1236 |
 | TASK-1245 | fixes-2026-11-26 | OWNER: OpenRouter key almost out of credit ($0.22 of $11.25 left) | [?] | XS | — |
 | TASK-1246 | fixes-2026-11-26 | Chinese explanations ahead of time | [ ] | M | TASK-1244 |
+| TASK-1247 | fixes-2026-11-26 | Write every Japanese particle / word-form / synonym explanation ahead (~$28) | [?] | S | TASK-1242 |
+| TASK-1248 | fixes-2026-11-26 | Chinese synonym / antonym explanations ahead (~$4) | [ ] | XS | TASK-1247 |
+| TASK-1249 | fixes-2026-11-26 | Explanations for fill the blank, typed fill-in and word order (not chosen) | [ ] | M | TASK-1242 |
+| TASK-1250 | fixes-2026-11-26 | English word definitions in fill the blank, word form and synonym questions | [ ] | S | TASK-1234 |
+| TASK-1251 | fixes-2026-11-26 | Listening questions: notes in English, wrong-option notes shown | [ ] | S | — |
 
 ### Language Packs (existing — unchanged)
 

@@ -3,7 +3,7 @@ title: Exercise Explanations in the Learner's Language — Technical Specificati
 type: feature-tech
 status: in-progress
 prose_page: exercise-explanations.md
-last_updated: 2026-11-26
+last_updated: 2026-11-27
 dependencies:
   - "services/exercise_explanations.py (new)"
   - "services/vocabulary_ladder/definition_serving.py (new)"
@@ -154,6 +154,39 @@ none (TASK-1246). Cold file GETs from the US take ~1–1.8 s; with 6 readers a r
 distinct senses can pass the 3 s budget, and those items are then served by the job's re-read,
 not a model ([[evaluations/explanation-storage-2026-11-27]] "Serving check").
 
+## 4. Word-option types (2026-11-27, ADR-064 amendment 2)
+
+`exercise_explanations`: `SENTENCE_TYPES = {SPOT, PICK}`, `OPTION_TYPES = {PARTICLE, FORM,
+RELATION}` (`particle_selection`, `morphology_slot`, `synonym_antonym_match`), `TYPES` both.
+`prompt_version(type)` → 2 / `OPTION_PROMPT_VERSION` 1; `file_kind(type)` → `'p'` / `'o'`.
+Every reader passes the type: `sentences_of(content, type)` (options via `_options_of`: ≥ 2
+distinct non-empty options, exactly one equal to `correct_answer`, not several
+`accepted_answers`), `stored_entries(..., type)` (None for option types), `_aligned(..., type)`,
+`_usable(..., type)`, `_file_entry(..., type)`. Table rows record the payload's own
+`prompt_version`.
+
+Prompt (`_option_prompt`): options tagged CORRECT / WRONG, the sentence with the blank and the
+complete sentence (particle, form), base form and `form_label` (form), relation, word and its
+stored definition (relation), `error_tags` per wrong particle, the item's note
+(`explanation` or `nl.<code>.explanation`). Answer `{"options": [{index, meaning, explanation}]}`;
+`parse` also needs a non-empty meaning; no correction.
+
+Files: `explanation_files.file_path(..., kind)`, `encode/write_file(..., kind)` (an `o` file
+records `"kind": "o"`; `p` bytes unchanged), `read_for_senses(..., kind=)`, and
+`read_files(lang, nl, [(sense, kind, version)])` — one pooled wait; identity check includes the
+kind. `exercise_explanations._wants(items)` gives the (sense, kind, version) files a request needs.
+
+Renderer: `optionUnits(c)` mirrors `_options_of`; `wordOptionExplanations(ex, c, plainMeaning)`
+wraps `explanationRequest` for `renderParticleSelection`, `renderMorphologySlot` (`'wrong'`:
+the key's meaning quoted, wrong options' glosses plain) and `renderSynAnt` (`'all'`). Feedback
+bar: the item's note only when no request could be made; fallback under the key when the fetch
+returns nothing.
+
+Batch: `scripts/prewrite_explanations_anthropic_batch.py --family options` (`FAMILIES`): types,
+kind and version from the family; option records carry their `content` (less `hant`) for the
+prompt; estimate from `MEASURED_OPTION_COST_PER_ITEM` (pilot). The OpenRouter script keeps to the
+sentence types.
+
 ## Configuration
 `EXERCISE_EXPLANATIONS_ENABLED` (True), `EXERCISE_EXPLANATION_MODEL`
 (`deepseek/deepseek-v4.1-flash`), `EXERCISE_EXPLANATION_FALLBACK_MODEL`
@@ -175,6 +208,8 @@ The model never sees user input (only stored sentences).
 ## Testing Strategy
 `tests/test_definition_serving.py` (rebuild, POS/overlap/own-word exclusion, determinism, drops,
 pool paging/caching, intro pool from cache, prestudy and practice wiring);
+`tests/test_option_explanations.py` (word-option shape, prompts, parse, serving from `o` files,
+both kinds in one read, version separation, `get_or_generate`, batch helpers);
 `tests/test_exercise_explanations.py` (prompt, validation, fallback model, attach/warm/stale
 version/cap, memory-only without the table, in-flight de-duplication, pending/unsupported/
 unavailable, route); `tests/unit/exercise-renderers.test.js` "renderSpotSentence explanations".

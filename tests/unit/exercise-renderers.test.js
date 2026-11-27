@@ -830,6 +830,176 @@ describe('renderSemDiscrim explanations', () => {
   });
 });
 
+describe('word-option explanations (particle, word form, synonym / antonym)', () => {
+  let card;
+  let feedback;
+  let answered;
+  const realFetch = window.authFetch;
+
+  const PARTICLE = {
+    correct_answer: 'が',
+    options: ['から', 'を', 'と', 'が'],
+    sentence_with_blank: '机の上の時計___、朝七時を知らせた。',
+    explanation: '正解。「時計が」で主語を示す。',
+  };
+  const ENTRIES = [
+    { meaning: 'marks a starting point', explanation: 'から marks where something starts.' },
+    { meaning: 'marks the direct object', explanation: 'を would make the clock an object.' },
+    { meaning: 'joins nouns', explanation: 'と needs a second noun.' },
+    { meaning: 'The clock on the desk announced seven.', explanation: 'が marks the subject.' },
+  ];
+
+  beforeEach(() => {
+    card = document.createElement('div');
+    document.body.appendChild(card);
+    feedback = [];
+    answered = false;
+    R().init({
+      cardEl: card,
+      isAnswered: () => answered,
+      setAnswered: (v) => {
+        answered = v;
+      },
+      showFeedback: (ok, expl) => feedback.push({ ok, expl }),
+      submitAttempt: () => {},
+      nextExercise: () => {},
+    });
+  });
+
+  afterEach(() => {
+    card.remove();
+    window.authFetch = realFetch;
+  });
+
+  const pickText = (text) => {
+    const el = card.querySelector(`.exercise-option[data-value="${text}"]`);
+    el.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+  };
+  const noteFor = (text) =>
+    card.querySelector(`.exercise-option[data-value="${text}"] .ex-opt-expl`);
+
+  it("shows every particle option explained; a wrong one's meaning is a plain gloss", () => {
+    window.authFetch = () => {
+      throw new Error('must not fetch when explanations are attached');
+    };
+    R().dispatch(
+      'particle_selection',
+      { exercise_id: 'p-attached' },
+      { ...PARTICLE, option_explanations: ENTRIES },
+      ''
+    );
+    pickText('を');
+    expect(card.querySelectorAll('.ex-opt-expl').length).toBe(4);
+    const wrong = noteFor('を');
+    expect(wrong.querySelector('.ex-opt-expl__verdict').textContent).toBe('Wrong');
+    expect(wrong.querySelector('.ex-opt-expl__meaning').textContent).toBe(
+      'marks the direct object'
+    );
+    expect(wrong.querySelector('.ex-opt-expl__lit')).toBeNull();
+    const right = noteFor('が');
+    expect(right.querySelector('.ex-opt-expl__verdict').textContent).toBe('Correct');
+    expect(right.querySelector('.ex-opt-expl__meaning').textContent).toBe(
+      '“The clock on the desk announced seven.”'
+    );
+    expect(feedback).toEqual([{ ok: false, expl: '' }]); // the Japanese note is not repeated
+  });
+
+  it('fetches explanations for a word-form item served without them', async () => {
+    const asked = [];
+    window.authFetch = async (url) => {
+      asked.push(url);
+      return {
+        ok: true,
+        json: async () => ({
+          state: 'ready',
+          option_explanations: [
+            { meaning: 'past form', explanation: 'くれた needs the te-form.' },
+            { meaning: 'He treated it fairly for us.', explanation: 'て joins くれた.' },
+          ],
+        }),
+      };
+    };
+    R().dispatch(
+      'morphology_slot',
+      { exercise_id: 'm-fetch' },
+      {
+        base_form: '扱う',
+        correct_answer: '扱って',
+        options: ['扱った', '扱って'],
+        sentence_with_blank: '公平に___くれた。',
+        explanation: 'て形。',
+      },
+      ''
+    );
+    expect(asked).toEqual(['/api/practice/explanations/m-fetch']);
+    await new Promise((r) => setTimeout(r, 0));
+    await new Promise((r) => setTimeout(r, 0));
+    pickText('扱って');
+    expect(noteFor('扱った').textContent).toContain('past form');
+    expect(noteFor('扱って').textContent).toContain('“He treated it fairly for us.”');
+    expect(feedback).toEqual([{ ok: true, expl: '' }]);
+  });
+
+  it('gives every synonym / antonym option a plain gloss', () => {
+    R().dispatch(
+      'synonym_antonym_match',
+      { exercise_id: 'r-attached' },
+      {
+        word: '国内',
+        relation: 'antonym',
+        correct_answer: '海外',
+        options: ['海外', '城下'],
+        option_explanations: [
+          { meaning: 'かいがい — overseas', explanation: '海外 is outside the country.' },
+          { meaning: 'じょうか — castle town', explanation: 'Unrelated to 国内.' },
+        ],
+      },
+      ''
+    );
+    pickText('海外');
+    expect(noteFor('海外').querySelector('.ex-opt-expl__meaning').textContent).toBe(
+      'かいがい — overseas'
+    );
+    expect(noteFor('城下').querySelector('.ex-opt-expl__meaning').textContent).toBe(
+      'じょうか — castle town'
+    );
+  });
+
+  it("keeps the item's own note in the bar when explanations cannot be asked for", () => {
+    window.authFetch = undefined;
+    R().dispatch('particle_selection', { exercise_id: 'p-offline' }, { ...PARTICLE }, '');
+    pickText('が');
+    expect(feedback).toEqual([{ ok: true, expl: '正解。「時計が」で主語を示す。' }]);
+    expect(card.querySelector('.ex-opt-expl')).toBeNull();
+  });
+
+  it("shows the item's own note under the key when the fetch brings nothing", async () => {
+    window.authFetch = async () => ({ ok: false });
+    R().dispatch('particle_selection', { exercise_id: 'p-none' }, { ...PARTICLE }, '');
+    pickText('を');
+    expect(feedback).toEqual([{ ok: false, expl: '' }]);
+    await new Promise((r) => setTimeout(r, 0));
+    await new Promise((r) => setTimeout(r, 0));
+    expect(noteFor('が').textContent).toContain('正解。「時計が」で主語を示す。');
+    expect(card.querySelectorAll('.ex-opt-expl').length).toBe(1);
+  });
+
+  it('does not ask for an item with duplicate options', () => {
+    const asked = [];
+    window.authFetch = async (url) => {
+      asked.push(url);
+      return { ok: false };
+    };
+    R().dispatch(
+      'particle_selection',
+      { exercise_id: 'p-dupes' },
+      { ...PARTICLE, options: ['が', 'が', 'を'] },
+      ''
+    );
+    expect(asked).toEqual([]);
+  });
+});
+
 describe('explanation loading line', () => {
   it('is not shown when the fetch already came back empty before the answer', async () => {
     const card = document.createElement('div');
