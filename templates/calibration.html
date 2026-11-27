@@ -28,6 +28,8 @@
             </span>
             <button type="button" id="calFinishBtn" class="ld-btn ld-btn--sm ld-btn--ghost cal-finish" data-i18n="calibration.finish">Finish</button>
         </div>
+        {# Entry point to the placement (vocab-placement tech §15, TASK-1085). #}
+        <a class="ld-link ld-link--quiet cal-placement-link" href="{{ url_for('placement_page') }}" data-i18n="calibration.placement_instead">Short placement instead</a>
     </div>
 
     <div class="ld-stage cal-scroll">
