@@ -1993,7 +1993,13 @@ row per API call, written centrally by `_log_llm_call()` — no call site insert
 directly, so no pipeline can skip logging by omission. Truncated 2026-09-21
 (43,605 rows moved to `archive/db_backups/llm-calls-log-2026-09-21.zip` by
 `migrations/archive_unused_modules_2026_09_21.sql`); the table has carried only
-smoke-test volume since. `cost_usd`/`latency_ms`/`language_code` are already
+smoke-test volume since. **Storage archives** (bucket `llm-logs-archive`, `llm_calls/…jsonl.gz` +
+`.manifest.json`, gzip JSON Lines, one PostgREST row per line): 2026-11-15, 75,163 rows
+2026-09-21 → 11-14 (tool not in the repo); 2026-11-27, 51,489 rows 2026-11-15 → 11-26, by
+`scripts/archive_llm_calls.py` (export, upload never overwriting, download-back check of sha256,
+count and id set, then `--delete` of exactly those ids), followed by `VACUUM (FULL, ANALYZE)`:
+table 46 MB → 3.1 MB, database 496,462,995 → 451,472,531 B. Restore: gunzip and insert the
+lines (every column is present). `cost_usd`/`latency_ms`/`language_code` are already
 populated on every `call_llm()` invocation regardless of pipeline; the seven
 columns below (prompt_tokens .. generation_batch_id) are Phase 0 cost-instrumentation
 additions ([migrations/llm_calls_cost_instrumentation.sql](../../migrations/llm_calls_cost_instrumentation.sql),
