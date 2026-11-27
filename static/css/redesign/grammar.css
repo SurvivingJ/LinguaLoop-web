@@ -45,6 +45,15 @@
   display: ruby-text;
 }
 
+/* Long syllables (zhuāng) must not run into their neighbours. */
+.gd.is-py ruby {
+  margin-inline: 0.1em;
+}
+
+.gd .gd-nowrap {
+  white-space: nowrap;
+}
+
 .gd .gd-pybtn[aria-pressed='true'] {
   background: var(--ink);
   color: var(--bg);

@@ -4,7 +4,7 @@
 // Pinyin is always in the markup as <rt>; .gd.is-py shows it (grammar.css).
 
 import { T, escapeHtml } from '../session/dom.js';
-import { clozeSegments, displayOption, rubyPairs } from './text.js';
+import { clozeSegments, displayOption, isHanzi, rubyPairs } from './text.js';
 
 export const t = (key, params, fallback) => T('grammar_drill.' + key, params, fallback);
 
@@ -32,19 +32,38 @@ export const hasPinyin = (text, py) => !!rubyPairs(text, py);
 
 /**
  * A cloze question. Before the answer the blanks are empty; with
- * `filled` they hold the right answer, highlighted.
+ * `filled` they hold the right answer, highlighted. Punctuation right after a
+ * blank stays on the blank's line.
  */
 export function clozeHtml(item, filled) {
-  return clozeSegments(item)
-    .map((seg) => {
-      const body = seg.pairs ? rubyHtml(seg.pairs) : escapeHtml(seg.blank ? seg.fill : seg.text);
-      if (!seg.blank) return body;
-      if (!filled) return '<span class="gd-blank" aria-label="blank"></span>';
-      return seg.fill
-        ? '<mark class="gd-fill">' + body + '</mark>'
-        : '<mark class="gd-fill gd-fill--none">' + escapeHtml(nothingLabel()) + '</mark>';
-    })
-    .join('');
+  const segs = clozeSegments(item);
+  const out = [];
+  segs.forEach((seg, k) => {
+    if (!seg.blank) {
+      out.push(seg.pairs ? rubyHtml(seg.pairs) : escapeHtml(seg.text));
+      return;
+    }
+    let blank;
+    if (!filled) blank = '<span class="gd-blank" aria-label="blank"></span>';
+    else if (seg.fill) {
+      blank =
+        '<mark class="gd-fill">' +
+        (seg.pairs ? rubyHtml(seg.pairs) : escapeHtml(seg.fill)) +
+        '</mark>';
+    } else {
+      blank = '<mark class="gd-fill gd-fill--none">' + escapeHtml(nothingLabel()) + '</mark>';
+    }
+    const after = segs[k + 1];
+    const lead = after && !after.blank ? Array.from(after.text)[0] : '';
+    if (lead && !isHanzi(lead) && lead.trim()) {
+      // Take the punctuation mark out of the next piece and bind it to the blank.
+      const rest = Array.from(after.text).slice(1).join('');
+      segs[k + 1] = { text: rest, pairs: after.pairs ? after.pairs.slice(1) : null };
+      blank = '<span class="gd-nowrap">' + blank + escapeHtml(lead) + '</span>';
+    }
+    out.push(blank);
+  });
+  return out.join('');
 }
 
 /** Option text as shown on a button. */

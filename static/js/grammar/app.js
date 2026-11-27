@@ -875,7 +875,7 @@ export function mountGrammar(root, opts = {}) {
             '><span class="gd-key" aria-hidden="true">' +
             (k + 1) +
             '</span><span class="gd-opt__text' +
-            (opt === EMPTY ? ' gd-opt__text--none' : '') +
+            (opt.split('|').includes(EMPTY) ? ' gd-opt__text--none' : '') +
             '">' +
             escapeHtml(optionLabel(opt)) +
             '</span></button>'
