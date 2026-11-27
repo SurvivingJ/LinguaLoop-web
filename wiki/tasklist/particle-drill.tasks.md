@@ -3,8 +3,8 @@ title: "Particle Drill (Japanese) — Task Breakdown"
 feature: particle-drill
 prose_page: ../features/particle-drill.md
 tech_page: ../features/particle-drill.tech.md
-total_tasks: 8
-done: 3
+total_tasks: 9
+done: 4
 ---
 
 # Particle Drill (Japanese) — Task Breakdown
@@ -113,6 +113,42 @@ errors; the document does not scroll.
 
 **Verification:**
 Open `/particle-drill` with Japanese as the study language; drill は; the round ends with a score and a rung gained.
+
+---
+
+## TASK-1242: Conjugation drill as its own page, fed by the words the learner knows
+
+**Status:** [x] Done (2026-11-27)
+**Feature:** particle-drill
+**Type:** feature
+**Complexity:** M (3-8h)
+**Depends On:** TASK-1236
+
+**Description:**
+Owner, same day: "I want a dedicated page, process, maybe an area in the db or use the exercises
+table. Things like we know they know xyz verbs so we will serve them infinite practice
+conjugating them into different forms." The conjugation drill moved to `/conjugation-drill`,
+and its default word pool is the learner's own known verbs and adjectives, read from
+`user_vocabulary_knowledge` and classified on the server.
+
+**Acceptance Criteria:**
+- [x] `/conjugation-drill` exists, is linked from the nav, the Practice chips, the Me page and the particle hub
+- [x] `GET /api/particle-drill/conjugation/words` returns the caller's known, probably-known and learning verbs and adjectives with dictionary form, reading, class and gloss
+- [x] words the rule engine cannot conjugate safely are left out and counted
+- [x] the pool "Words I know" is the default when it holds eight words or more; level lists can be added
+- [x] no exercise rows are stored; forms are computed in the browser
+
+**Technical Notes:**
+Live data on 2026-11-27 (read-only): 1,131 Japanese verbs and 484 adjectives in `dim_vocabulary`,
+two learners with Japanese knowledge rows, at most 50 known verbs and adjectives each. The
+`exercises` table was considered and not used ([[features/particle-drill.tech]] decision 7).
+
+**Files to Create / Modify:**
+- `services/particle_drill/conjugation.py`, `routes/particle_drill.py`
+- `templates/conjugation_drill.html`, `web/pages.py`, nav templates, `static/js/pages/particle-drill.js`
+
+**Verification:**
+Open `/conjugation-drill` as a learner with Japanese test history: "Words I know · N" is selected and the drill asks those verbs.
 
 ---
 

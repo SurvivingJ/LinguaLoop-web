@@ -1,0 +1,20 @@
+[
+ {"id":"wa-contrast-1","lv":4,
+  "tpl":"<p1>{で|de-place}{は|wa-contrast}よく<act>{が/けど|ga-but}、<p2>{で|de-place}{は|wa-contrast}しません。",
+  "en":"I often <act> <p1>, but not <p2>.",
+  "f":1,"d":["が","を","に"],
+  "why":"は after で sets one place against another: the action happens in the first place but not in the second.",
+  "vars":{
+   "p1":[["家[いえ]","at home"],["図書館[としょかん]","in the library"],["喫茶店[きっさてん]","in cafés"],["部屋[へや]","in my room"],["学校[がっこう]","at school"],["電車[でんしゃ]","on the train"]],
+   "act":[["勉強[べんきょう]します","study"],["宿題[しゅくだい]{を|o-object}します","do my homework"],["仕事[しごと]{を|o-object}します","work"],["読書[どくしょ]{を|o-object}します","read"],["漢字[かんじ]{の|no-possessive}練習[れんしゅう]{を|o-object}します","practice kanji"],["メール{の|no-possessive}返事[へんじ]{を|o-object}します","reply to emails"]],
+   "p2":[["公園[こうえん]","in the park"],["駅[えき]","at the station"],["車[くるま]","in the car"],["台所[だいどころ]","in the kitchen"],["食堂[しょくどう]","in the cafeteria"],["外[そと]","outside"]]}},
+ {"id":"wa-contrast-2","lv":5,
+  "tpl":"<p1>{に|ni-recipient}{は|wa-contrast}<gift>{を|o-object}あげました{が/けど|ga-but}、<p2>{に|ni-recipient}{は|wa-contrast}何[なに]{も|mo-total-negation}あげませんでした。",
+  "en":"I gave <p1> <gift>, but I didn't give <p2> anything.",
+  "f":1,"d":["が","を","で"],
+  "why":"は after に contrasts the two people: one got a present, the other did not.",
+  "vars":{
+   "p1":[["母[はは]","my mother"],["兄[あに]","my older brother"],["妹[いもうと]","my younger sister"],["祖母[そぼ]","my grandmother"],["田中[たなか]さん","Mr. Tanaka"],["友[とも]だち","my friend"]],
+   "gift":[["花[はな]","flowers"],["本[ほん]","a book"],["お菓子[かし]","sweets"],["ケーキ","a cake"],["ハンカチ","a handkerchief"],["チョコレート","some chocolate"],["マフラー","a scarf"]],
+   "p2":[["父[ちち]","my father"],["姉[あね]","my older sister"],["弟[おとうと]","my younger brother"],["祖父[そふ]","my grandfather"],["鈴木[すずき]さん","Ms. Suzuki"],["山田[やまだ]さん","Mr. Yamada"]]}}
+]

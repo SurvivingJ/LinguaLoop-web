@@ -3,6 +3,7 @@
   GET /api/particle-drill/catalog?language_id=3        stages, groups, skills with counts
   GET /api/particle-drill/skill/<id>?language_id=3     guide + exercise bank + pattern packs
   GET /api/particle-drill/conjugation?language_id=3    conjugation guides + word lists
+  GET /api/particle-drill/conjugation/words?language_id=3   the learner's own verbs and adjectives
   GET /api/particle-drill/progress?language_id=3       the learner's stored ladder state
   PUT /api/particle-drill/progress                     body: {language_id, state}
 
@@ -15,7 +16,7 @@ from flask import Blueprint, g, make_response, request
 
 from middleware.auth import jwt_required as supabase_jwt_required
 from routes.common import get_db
-from services.particle_drill import progress
+from services.particle_drill import conjugation, progress
 from services.particle_drill.content import get_content
 from utils.responses import ApiResponse, api_errors, api_success, bad_request, not_found
 from utils.validation import json_body, require_language_id
@@ -73,6 +74,32 @@ def get_conjugation(language_id: int) -> ApiResponse:
     if content is None:
         return bad_request(WRONG_LANGUAGE)
     return _cached(content.conjugation_payload(), f'{content.version()}-conj')
+
+
+def _gloss_language_id(db, user_id: str) -> int:
+    """The language the learner reads glosses in (users.native_language_id), else English."""
+    try:
+        rows = db.table('users').select('native_language_id').eq('id', user_id).limit(1).execute().data
+        value = rows[0].get('native_language_id') if rows else None
+        return value if isinstance(value, int) and value != 3 else conjugation.ENGLISH_ID
+    except Exception:  # noqa: BLE001 - a gloss in English is better than no drill
+        logger.exception("could not read native_language_id")
+        return conjugation.ENGLISH_ID
+
+
+@particle_drill_bp.route('/conjugation/words', methods=['GET'])
+@supabase_jwt_required
+@api_errors("Failed to load your words for the conjugation drill")
+@require_language_id
+def get_conjugation_words(language_id: int) -> ApiResponse:
+    """The verbs and adjectives this learner knows, classified for the conjugation engine."""
+    content = get_content(language_id)
+    if content is None:
+        return bad_request(WRONG_LANGUAGE)
+    db = get_db()
+    return api_success(conjugation.known_words(
+        db, g.current_user_id, language_id, content.conjugation_payload(),
+        gloss_language_id=_gloss_language_id(db, g.current_user_id)))
 
 
 @particle_drill_bp.route('/progress', methods=['GET'])

@@ -1,0 +1,29 @@
+[
+ {"id":"wa-topic-1","lv":5,
+  "tpl":"<who>{は|wa-topic}<when><act>。",
+  "en":"<who> <act> <when>.",
+  "f":0,"d":["を","に","で"],
+  "why":"は sets up the person as the topic; the rest of the sentence says what they did.",
+  "vars":{
+   "who":[["母[はは]","My mother"],["父[ちち]","My father"],["田中[たなか]さん","Mr. Tanaka"],["鈴木[すずき]さん","Ms. Suzuki"],["兄[あに]","My older brother"],["妹[いもうと]","My younger sister"],["祖父[そふ]","My grandfather"],["山田[やまだ]さん","Mr. Yamada"]],
+   "when":[["今朝[けさ]","this morning"],["昨日[きのう]{の|no-possessive}朝[あさ]","yesterday morning"],["土曜日[どようび]{の|no-possessive}朝[あさ]","on Saturday morning"],["日曜日[にちようび]{の|no-possessive}朝[あさ]","on Sunday morning"],["今日[きょう]","today"],["昨日[きのう]","yesterday"]],
+   "act":[["コーヒー{を|o-object}飲[の]みました","drank coffee"],["パン{を|o-object}食[た]べました","ate bread"],["新聞[しんぶん]{を|o-object}読[よ]みました","read the newspaper"],["シャワー{を|o-object}浴[あ]びました","took a shower"],["公園[こうえん]{を|o-path}走[はし]りました","ran in the park"],["犬[いぬ]{と|to-with}散歩[さんぽ]しました","went for a walk with the dog"],["早[はや]く起[お]きました","got up early"],["メール{を|o-object}書[か]きました","wrote an email"]]}},
+ {"id":"wa-topic-2","lv":4,
+  "tpl":"<name>、<thing>{は|wa-topic}<q>。",
+  "en":"<name>, is <thing> <q>?",
+  "f":0,"d":["に","と","で"],
+  "why":"は makes the thing you point at the topic, and the question asks what it is like.",
+  "vars":{
+   "name":[["田中[たなか]さん","Mr. Tanaka"],["鈴木[すずき]さん","Ms. Suzuki"],["山田[やまだ]さん","Mr. Yamada"],["佐藤[さとう]さん","Ms. Sato"],["中村[なかむら]さん","Mr. Nakamura"],["小林[こばやし]さん","Ms. Kobayashi"]],
+   "thing":[["この傘[かさ]","this umbrella"],["そのかばん","that bag"],["この時計[とけい]","this watch"],["あの自転車[じてんしゃ]","that bicycle"],["そのカメラ","that camera"],["このペン","this pen"],["このパソコン","this computer"],["その辞書[じしょ]","that dictionary"]],
+   "q":[["重[おも]いです{か|ka-question}","heavy"],["軽[かる]いです{か|ka-question}","light"],["新[あたら]しいです{か|ka-question}","new"],["古[ふる]いです{か|ka-question}","old"],["高[たか]いです{か|ka-question}","expensive"],["使[つか]いやすいです{か|ka-question}","easy to use"]]}},
+ {"id":"wa-topic-3","lv":5,
+  "tpl":"<who>{の|no-possessive}<thing>{は|wa-topic}<desc>。",
+  "en":"<who> <thing> <desc>.",
+  "f":1,"d":["を","に","で"],
+  "why":"は marks the thing being described as the topic, and the adjective says what it is like.",
+  "vars":{
+   "who":[["母[はは]","My mother's"],["父[ちち]","My father's"],["兄[あに]","My older brother's"],["姉[あね]","My older sister's"],["田中[たなか]さん","Mr. Tanaka's"],["弟[おとうと]","My younger brother's"],["祖母[そぼ]","My grandmother's"],["友[とも]だち","My friend's"]],
+   "thing":[["部屋[へや]","room"],["家[いえ]","house"],["車[くるま]","car"],["机[つくえ]","desk"],["冷蔵庫[れいぞうこ]","fridge"],["テレビ","TV"],["ベッド","bed"],["台所[だいどころ]","kitchen"]],
+   "desc":[["新[あたら]しいです","is new"],["古[ふる]いです","is old"],["とても大[おお]きいです","is very big"],["少[すこ]し小[ちい]さいです","is a little small"],["いつもきれいです","is always clean"],["白[しろ]いです","is white"]]}}
+]

@@ -71,6 +71,7 @@ EXPECTED_PAGE_URLS = {
     'classifier_drill_page': '/classifier-drill',
     'counter_drill_page': '/counter-drill',
     'particle_drill_page': '/particle-drill',
+    'conjugation_drill_page': '/conjugation-drill',
     'dual_translation_page': '/dual-translation',
     'dual_translation_profile_page': '/dual-translation/profile',
     'knowledge_page': '/knowledge',

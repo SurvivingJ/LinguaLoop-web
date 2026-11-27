@@ -73,12 +73,16 @@ so a round can always be followed by another.
 **Daily mix.** One button starts a 20-question session over up to six skills: reviews that are
 due, then the skills in progress (weakest first, and asked more often), then one new skill.
 
-**Conjugation gym.** The learner picks forms (ます, て, た, ない, たい, たら, ば, volitional,
+**Conjugation drill (its own page, `/conjugation-drill`).** The drill starts from the words
+the learner already knows: every verb and adjective their vocabulary record marks as known,
+probably known or being learned is offered as the pool "Words I know", and it grows by itself
+as they learn more. Level lists (N5, N4, N3 and above) can be switched on beside it, and are on
+by default for a learner with fewer than eight such words. The learner picks forms (ます, て, た, ない, たい, たら, ば, volitional,
 potential, passive, causative, causative-passive, imperative and more for verbs; negative,
-past, て, adverb and conditionals for adjectives) and word levels. A word and a target form
+past, て, adverb and conditionals for adjectives). A word and a target form
 appear; the learner chooses, then types, then answers against the clock (three rungs per
-form). Words come at random from {{VERBS}} verbs and {{ADJECTIVES}} adjectives, the form is
-computed by rule, and the wrong options are the mistakes learners really make (treating
+form). Words come at random from the chosen pools (the level lists hold {{VERBS}} verbs and
+{{ADJECTIVES}} adjectives), every form is computed by rule so the practice never runs out, and the wrong options are the mistakes learners really make (treating
 帰る as a る-verb, the wrong て sound change). Each of the 21 conjugation guides opens from
 the setup page and from the feedback after a miss.
 
@@ -93,6 +97,9 @@ the setup page and from the feedback after a miss.
   are accepted by their sound (`wa`, `e`, `o`) as well as by their spelling.
 - **Compound particles** are shown in their normal kanji spelling with furigana (に対して) and
   accepted in kanji, kana or romaji when typed.
+- **Words the conjugation drill leaves out.** A known word is skipped when rule-based
+  conjugation would be wrong or doubtful for it: the honorific verbs (いらっしゃる, くださる …),
+  問う, single-kanji する verbs (愛する), ～ずる verbs and multi-word expressions.
 - **Short sentences.** A sentence with a single particle cannot be a Fill-all exercise; it is
   asked as Type instead.
 - **Progress is per device until the migration is applied.** It is kept in the browser; with
@@ -123,6 +130,7 @@ the setup page and from the feedback after a miss.
 ## Related Pages
 
 - [[features/particle-drill.tech]] — technical specification
+- [[features/knowledge-report]] — the vocabulary record the conjugation drill reads
 - [[decisions/ADR-064-particle-drill-static-content-client-engine]] — why the content is files and the engine runs in the browser
 - [[tasklist/particle-drill.tasks]] — tasks, done and open
 - [[features/measure-word-trainer]] — the Chinese measure-word drill and the Japanese counter drill (the sibling trainers)

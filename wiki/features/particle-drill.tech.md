@@ -6,8 +6,10 @@ prose_page: ./particle-drill.md
 last_updated: 2026-11-27
 dependencies:
   - "data/particle_drill/ja/ (catalog.json, guides/, items/, packs/, conjugation/, review/, manifest.json)"
-  - "services/particle_drill/ (markup.py, content.py, progress.py)"
+  - "services/particle_drill/ (markup.py, content.py, progress.py, conjugation.py)"
+  - "user_vocabulary_knowledge, dim_word_senses, dim_vocabulary (read only, conjugation pool); fugashi + unidic-lite"
   - "routes/particle_drill.py (blueprint particle_drill, /api/particle-drill)"
+  - "templates/conjugation_drill.html (/conjugation-drill)"
   - "templates/particle_drill.html, static/js/pages/particle-drill.js, static/js/particles/*.js, static/css/redesign/particles.css"
   - "scripts/particle_drill_catalog.py, particle_drill_validate.py, particle_drill_build.py, particle_drill_swarm.py, particle_drill_kanji.py"
   - "migrations/particle_drill_progress.sql (table user_drill_progress, NOT APPLIED)"
@@ -35,7 +37,10 @@ Serving (no database content, no model)
   GET /api/particle-drill/catalog        services/particle_drill/content.py: catalog + counts
   GET /api/particle-drill/skill/<id>     guide section + every item + packs of one skill
   GET /api/particle-drill/conjugation    conjugation guides + verb and adjective lists
+  GET /api/particle-drill/conjugation/words   services/particle_drill/conjugation.py: the learner's
+                                         known verbs and adjectives (user_vocabulary_knowledge), classified
   GET|PUT /api/particle-drill/progress   services/particle_drill/progress.py: user_drill_progress
+  GET /conjugation-drill                 templates/conjugation_drill.html (same script, data-home="conj")
 
 Browser (static/js/pages/particle-drill.js + static/js/particles/)
   markup.js     parse 漢字[かな]{answer|skill}<var>, render ruby
@@ -140,6 +145,21 @@ is 400 "The particle drill is Japanese-only".
 ### `GET /api/particle-drill/conjugation?language_id=3`
 - **Returns:** `{guide[], verbs[], adjectives[]}` (the `verbs*.json` / `adjectives*.json` parts merged, repeats dropped).
 
+### `GET /api/particle-drill/conjugation/words?language_id=3`
+- **Purpose:** the learner's own pool for the conjugation drill.
+- **Returns:** `{words[{d, k, c, en, lv, known: true}], verbs, adjectives, skipped}`, most confidently known first.
+- **Reads (service role, no write):** `user_vocabulary_knowledge` (the caller's rows, `language_id = 3`,
+  `status IN ('known','probably_known','learning')`, up to 6,000) → `dim_word_senses` (`vocab_id`) →
+  `dim_vocabulary` (`part_of_speech IN ('verb','adjective')`; `lemma`, `reading`, `part_of_speech_raw`,
+  `level_tag`) → `dim_word_senses` again for a gloss in `users.native_language_id` (English when unset or Japanese).
+- **Class of each word** (`conjugation.classify`): the reviewed word list when the word is in it;
+  otherwise the UniDic conjugation type of the dictionary form through `fugashi` (五段 → `godan`,
+  上一段 / 下一段 → `ichidan`, サ行変格 → `suru`, カ行変格 → `kuru`; `part_of_speech_raw` 形容詞 → `i`,
+  形状詞 → `na`). Skipped (counted in `skipped`): the honorific ～ます verbs, 問う / 請う, single-kanji
+  する verbs, ～ずる verbs, anything that is not one token (or noun + する), and any word whose
+  lemma and reading fail the ending rules of the word-list validator.
+- **Not cached:** the pool follows the learner's vocabulary on every load of the page.
+
 ### `GET /api/particle-drill/progress?language_id=3`
 - **Returns:** `{available: bool, state: object|null, updated_at}`.
 
@@ -164,7 +184,7 @@ URL hash, so the Back pill and the browser's back button step drill → guide �
 | `#/skill/<id>` | Guide of the skill; dock: exercise-type control (Auto, Choose, Type, Fill all, Fix, Speed) and Start |
 | `#/drill/<id>` | Rounds of 10 over one skill |
 | `#/mix` | Rounds of 20 over `planMix()` (up to 6 skills) |
-| `#/conj`, `#/conj/drill` | Conjugation setup; rounds of 20 |
+| `/conjugation-drill` `#/`, `#/drill` | Conjugation setup (word pools first: "Words I know" + N5 / N4 / N3+, then forms and guides); rounds of 20. On `/particle-drill`, `#/conj` redirects here |
 
 - **State:** `app.session` (decks, round counters, current question `q`), `app.store`
   (progress document), `app.bundles` (fetched skills, by id).
@@ -213,7 +233,18 @@ state per form id under `conj`.
 4. **Pattern packs for unbounded practice** rather than a model call at request time. A pack is authored and reviewed once; the browser expands it. The validator exercises every value.
 5. **Ladder rules mirror `update_classifier_mastery`** (5 answers at the level, EWMA 0.80) so the trainers behave alike, with two additions: a timed top rung and spaced reviews after mastery.
 6. **Authoring by headless Claude Code workers** (`claude -p`), author and reviewer in separate contexts, no hosted model API (owner instruction 2026-11-27). The Workflow tool was tried first and stopped: on this 4-CPU container it runs two agents at a time.
-7. **Progress is a client document with an optional server copy.** The page works before the migration is applied and offline; the merge rule is per skill, most answers wins.
+7. **The conjugation drill reads the learner's vocabulary and stores no exercise rows.**
+   - **Rationale:** the owner asked for "we know they know xyz verbs, so serve them infinite
+     practice conjugating them", with a dedicated page and possibly the `exercises` table. Every
+     form is a function of (dictionary form, reading, class), so a row per verb and form (about
+     20,000 for the 1,131 Japanese verbs in `dim_vocabulary`) would add database size at the
+     475 MB line and nothing the rule engine does not already produce; the engine is checked
+     against a hand-written table instead. What the database does supply is the part only it
+     knows: which verbs this learner knows.
+   - **Alternatives rejected:** rows in `exercises` / `word_assets` per verb and form; a
+     `dim_conjugation_class` table (the class is derived in milliseconds and cross-checked
+     against the reviewed lists by a test).
+8. **Progress is a client document with an optional server copy.** The page works before the migration is applied and offline; the merge rule is per skill, most answers wins.
 
 ## Security Considerations
 
@@ -234,6 +265,10 @@ state per form id under `conj`.
   expansion, the deck, and conjugation against a hand-written table of 303 forms
   (`tests/fixtures/particle_drill/conjugation_cases.json`: 14 verbs × 18 forms, exceptions,
   6 adjectives × 7 forms).
+- `tests/test_particle_drill.py` also covers the conjugation pool: 21 classification cases
+  (godan verbs in -iru / -eru, the left-out irregulars), a missing or katakana reading, the
+  known-words query over an in-memory database, the route, and **agreement between the UniDic
+  class and the reviewed word list for every listed verb**.
 - `tests/test_particle_drill.py` (pytest, offline): markup, validator accept / reject cases,
   pack and lexicon checks, catalog = source script and sums to 10,000, **shipped content
   validates with 0 errors**, **manifest is current**, **every skill meets its item target and

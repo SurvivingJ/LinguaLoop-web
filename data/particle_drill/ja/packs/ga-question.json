@@ -1,0 +1,20 @@
+[
+ {"id":"ga-question-1","lv":3,
+  "tpl":"<time>{の|no-possessive}<event>{で|de-place}誰[だれ]{が|ga-question}<act>{か|ka-question}。",
+  "en":"Who is going to <act> at <time> <event>?",
+  "f":2,"d":["は","を","も"],
+  "why":"誰 is the unknown person who will do it, and a question word as subject always takes が.",
+  "vars":{
+   "time":[["明日[あした]","tomorrow's"],["来週[らいしゅう]","next week's"],["土曜日[どようび]","Saturday's"],["日曜日[にちようび]","Sunday's"],["今晩[こんばん]","tonight's"],["来月[らいげつ]","next month's"]],
+   "event":[["パーティー","party"],["結婚式[けっこんしき]","wedding"],["誕生日[たんじょうび]パーティー","birthday party"],["クリスマス会[かい]","Christmas party"],["送別会[そうべつかい]","farewell party"],["発表会[はっぴょうかい]","recital"]],
+   "act":[["歌[うた]います","sing"],["踊[おど]ります","dance"],["ピアノ{を|o-object}弾[ひ]きます","play the piano"],["ギター{を|o-object}弾[ひ]きます","play the guitar"],["スピーチ{を|o-object}します","give a speech"],["写真[しゃしん]{を|o-object}撮[と]ります","take the photos"],["バイオリン{を|o-object}弾[ひ]きます","play the violin"]]}},
+ {"id":"ga-question-2","lv":4,
+  "tpl":"<time>、<place>{で|de-place}何[なに]{が|ga-question}<event>{か|ka-question}。",
+  "en":"What <event> <place> <time>?",
+  "f":1,"d":["は","を","も"],
+  "why":"何 asks for the unknown thing that the event happened to, so as the subject it takes が.",
+  "vars":{
+   "time":[["昨日[きのう]","yesterday"],["先週[せんしゅう]","last week"],["今朝[けさ]","this morning"],["昨夜[ゆうべ]","last night"],["今日[きょう]","today"],["週末[しゅうまつ]","at the weekend"],["さっき","just now"]],
+   "place":[["会社[かいしゃ]","at the office"],["学校[がっこう]","at school"],["店[みせ]","at the shop"],["ホテル","at the hotel"],["図書館[としょかん]","at the library"],["病院[びょういん]","at the hospital"]],
+   "event":[["ありました","happened"],["壊[こわ]れました","broke"],["なくなりました","went missing"],["見[み]つかりました","was found"],["起[お]きました","happened"],["動[うご]かなくなりました","stopped working"]]}}
+]

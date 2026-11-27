@@ -1,0 +1,20 @@
+[
+ {"id":"o-path-1","lv":5,
+  "tpl":"<who>{は|wa-topic}<when><thing>{を|o-path}渡[わた]りました。",
+  "en":"<who> crossed <thing> <when>.",
+  "f":1,"d":["で","に","が"],
+  "why":"渡る takes the thing you go across with を, the space your movement passes over.",
+  "vars":{
+   "who":[["田中[たなか]さん","Mr. Tanaka"],["母[はは]","My mother"],["兄[あに]","My older brother"],["山田[やまだ]さん","Ms. Yamada"],["子[こ]どもたち","The children"],["父[ちち]","My father"],["友達[ともだち]","My friend"],["先生[せんせい]","The teacher"]],
+   "when":[["昨日[きのう]","yesterday"],["さっき","a moment ago"],["今朝[けさ]","this morning"],["ゆうべ","last night"],["先週[せんしゅう]","last week"],["今日[きょう]","today"]],
+   "thing":[["橋[はし]","the bridge"],["道[みち]","the road"],["川[かわ]","the river"],["交差点[こうさてん]","the intersection"],["線路[せんろ]","the railway line"],["大通[おおどお]り","the main road"],["横断歩道[おうだんほどう]","the pedestrian crossing"]]}},
+ {"id":"o-path-2","lv":4,
+  "tpl":"<who>{は|wa-topic}いつも<route>{を|o-path}通[とお]っ{て|te-sequence}<dest>{に/へ|ni-destination}行[い]きます。",
+  "en":"<who> always goes to <dest> by way of <route>.",
+  "f":1,"d":["で","に","が"],
+  "why":"通る takes the route you pass through with を; で would mark a place where an action happens.",
+  "vars":{
+   "who":[["田中[たなか]さん","Mr. Tanaka"],["山田[やまだ]さん","Ms. Yamada"],["父[ちち]","My father"],["母[はは]","My mother"],["兄[あに]","My older brother"],["姉[あね]","My older sister"]],
+   "route":[["公園[こうえん]","the park"],["橋[はし]","the bridge"],["大通[おおどお]り","the main road"],["トンネル","the tunnel"],["駅前[えきまえ]","the station square"],["この道[みち]","this road"]],
+   "dest":[["会社[かいしゃ]","work"],["図書館[としょかん]","the library"],["スーパー","the supermarket"],["郵便局[ゆうびんきょく]","the post office"],["銀行[ぎんこう]","the bank"],["病院[びょういん]","the hospital"]]}}
+]

@@ -10,45 +10,109 @@
     "[first event / first place] を皮切りに、[similar events follow / spread]"
    ],
    "examples": [
-    {"jp": "東京[とうきょう]公演[こうえん]{を皮切[かわき]りに}、全国[ぜんこく]ツアーが始[はじ]まる。", "en": "Starting with a show in Tokyo, a nationwide tour will begin."},
-    {"jp": "この店[みせ]は大阪[おおさか]{を皮切[かわき]りに}、全国[ぜんこく]に店舗[てんぽ]を広[ひろ]げた。", "en": "Starting from Osaka, this shop spread its branches across the country."},
-    {"jp": "彼[かれ]の発言[はつげん]{を皮切[かわき]りに}、次々[つぎつぎ]と反対[はんたい]意見[いけん]が出[で]た。", "en": "His remark was the first of a string of objections."},
-    {"jp": "一号店[いちごうてん]の開店[かいてん]{を皮切[かわき]りに}、海外[かいがい]進出[しんしゅつ]を進[すす]めている。", "en": "Beginning with the opening of the first store, they are expanding overseas."},
-    {"jp": "来月[らいげつ]、札幌[さっぽろ]{を皮切[かわき]りにして}、全国[ぜんこく]十[じゅう]の都市[とし]で展示会[てんじかい]を開[ひら]く。", "en": "Next month the exhibition opens in Sapporo, the first of ten cities around the country."}
+    {
+     "jp": "東京[とうきょう]公演[こうえん]{を皮切[かわき]りに}、全国[ぜんこく]ツアーが始[はじ]まる。",
+     "en": "Starting with a show in Tokyo, a nationwide tour will begin."
+    },
+    {
+     "jp": "この店[みせ]は大阪[おおさか]{を皮切[かわき]りに}、全国[ぜんこく]に店舗[てんぽ]を広[ひろ]げた。",
+     "en": "Starting with Osaka, this chain has spread its branches across the country."
+    },
+    {
+     "jp": "彼[かれ]の発言[はつげん]{を皮切[かわき]りに}、次々[つぎつぎ]と反対[はんたい]意見[いけん]が出[で]た。",
+     "en": "His remark was the first of a string of objections."
+    },
+    {
+     "jp": "シンガポール店[てん]の開店[かいてん]{を皮切[かわき]りに}、アジア各地[かくち]に次々[つぎつぎ]と出店[しゅってん]した。",
+     "en": "Beginning with the opening of a store in Singapore, they opened stores all over Asia one after another."
+    },
+    {
+     "jp": "来月[らいげつ]、札幌[さっぽろ]{を皮切[かわき]りにして}、全国[ぜんこく]十[じゅう]の都市[とし]で展示会[てんじかい]を開[ひら]く。",
+     "en": "Next month the exhibition opens in Sapporo, the first of ten cities around the country."
+    }
    ],
    "contrast": [
-    {"vs": "を機に", "note": "を機に: one event is the chance for one new start (結婚を機に引っ越した). を皮切りに: the first of many similar events."},
-    {"vs": "をはじめ", "note": "をはじめ names the leading member of a group that exists side by side. を皮切りに names the first event in a sequence over time."},
-    {"vs": "を限りに", "note": "を限りに marks the last time; を皮切りに marks the first."}
+    {
+     "vs": "を機に",
+     "note": "を機に: one event is the chance for one new start (結婚を機に引っ越した). を皮切りに: the first of many similar events."
+    },
+    {
+     "vs": "をはじめ",
+     "note": "をはじめ names the leading member of a group that exists side by side. を皮切りに names the first event in a sequence over time."
+    },
+    {
+     "vs": "を限りに",
+     "note": "を限りに marks the last time; を皮切りに marks the first."
+    }
    ],
    "mistakes": [
-    {"bad": "東京[とうきょう]{を皮切[かわき]りに}、大阪[おおさか]や京都[きょうと]にも店[みせ]がある。", "good": "東京[とうきょう]{をはじめ}、大阪[おおさか]や京都[きょうと]にも店[みせ]がある。", "note": "Shops that simply exist form a list, not a sequence: をはじめ."},
-    {"bad": "結婚[けっこん]{を皮切[かわき]りに}、たばこをやめた。", "good": "結婚[けっこん]{を機[き]に}、たばこをやめた。", "note": "One event prompting one change is を機に; nothing is a series here."}
+    {
+     "bad": "東京[とうきょう]{を皮切[かわき]りに}、大阪[おおさか]や京都[きょうと]にも店[みせ]がある。",
+     "good": "東京[とうきょう]{をはじめ}、大阪[おおさか]や京都[きょうと]にも店[みせ]がある。",
+     "note": "Shops that simply exist form a list, not a sequence: をはじめ."
+    },
+    {
+     "bad": "結婚[けっこん]{を皮切[かわき]りに}、たばこをやめた。",
+     "good": "結婚[けっこん]{を機[き]に}、たばこをやめた。",
+     "note": "One event prompting one change is を機に; nothing is a series here."
+    }
    ],
    "tip": "Can you add \"and then one after another\"? Then を皮切りに."
   },
   {
    "id": "wokagirini",
    "rule": "[time] を限りに B: with this time as the last, B ends or stops.",
-   "explain": "を限りに follows a time word that marks a cut-off: 今日, 本日, 今月, 今年度, 今回, 今シーズン. B is something that stops after that point: quitting a habit, closing a shop, retiring, ending a service. It is common in announcements and personal resolutions: 今日を限りにたばこをやめる.\n\nIt marks an end, never a start, and it takes a period of time, not an event. A past event after which things changed is を境に: あの日を境に彼は変わった.\n\nをもって is the formal near-equivalent for an end (本日をもって閉店いたします), but unlike を限りに it can also mark a start: 四月一日をもって施行する.\n\nThe idiom 声を限りに means \"at the top of one's voice\" and is not a time use.",
+   "explain": "を限りに follows a time word that marks a cut-off: 今日, 本日, 今月, 今年度, 今回, 今シーズン. B is something that stops after that point: quitting a habit, closing a shop, retiring, ending a service. It is common in announcements and personal resolutions: 今日を限りにたばこをやめる.\n\nIt marks an end, never a start. The noun is the time or occasion chosen as the last one (今大会を限りに引退する), never a past turning point. A past event after which things changed is を境に: あの日を境に彼は変わった.\n\nをもって is the formal near-equivalent for an end (本日をもって閉店いたします), but unlike を限りに it can also mark a start: 四月一日をもって施行する.\n\nThe idiom 声を限りに means \"at the top of one's voice\" and is not a time use.",
    "patterns": [
     "[今日 / 本日 / 今月 / 今回] を限りに、[stop / close / retire]"
    ],
    "examples": [
-    {"jp": "今日[きょう]{を限[かぎ]りに}、たばこをやめます。", "en": "As of today, I am giving up smoking for good."},
-    {"jp": "この店[みせ]は今月[こんげつ]{を限[かぎ]りに}閉店[へいてん]します。", "en": "This shop will close at the end of this month."},
-    {"jp": "本日[ほんじつ]{を限[かぎ]りに}、受付[うけつけ]を終了[しゅうりょう]いたします。", "en": "Today is the last day we accept applications."},
-    {"jp": "山田[やまだ]選手[せんしゅ]は今[こん]シーズン{を限[かぎ]りに}引退[いんたい]する。", "en": "Yamada will retire at the end of this season."},
-    {"jp": "この大会[たいかい]は今回[こんかい]{を限[かぎ]りに}廃止[はいし]される。", "en": "This tournament will be discontinued after this one."}
+    {
+     "jp": "今日[きょう]{を限[かぎ]りに}、たばこをやめます。",
+     "en": "As of today, I am giving up smoking for good."
+    },
+    {
+     "jp": "この店[みせ]は今月[こんげつ]{を限[かぎ]りに}閉店[へいてん]します。",
+     "en": "This shop will close at the end of this month."
+    },
+    {
+     "jp": "本日[ほんじつ]{を限[かぎ]りに}、受付[うけつけ]を終了[しゅうりょう]いたします。",
+     "en": "Today is the last day we accept applications."
+    },
+    {
+     "jp": "山田[やまだ]選手[せんしゅ]は今[こん]シーズン{を限[かぎ]りに}引退[いんたい]する。",
+     "en": "Yamada will retire at the end of this season."
+    },
+    {
+     "jp": "この大会[たいかい]は今回[こんかい]{を限[かぎ]りに}廃止[はいし]される。",
+     "en": "This tournament will be discontinued after this one."
+    }
    ],
    "contrast": [
-    {"vs": "をもって", "note": "をもって also ends things (本日をもって閉店) and is more formal, but it can mark a start too. を限りに only ever marks the last time."},
-    {"vs": "を境に", "note": "を境に is a dividing line between before and after, usually an event, with a change of state: あの事故を境に彼は変わった. を限りに is a chosen end point."},
-    {"vs": "を皮切りに", "note": "を皮切りに is the first of a series; を限りに is the last."}
+    {
+     "vs": "をもって",
+     "note": "をもって also ends things (本日をもって閉店) and is more formal, but it can mark a start too. を限りに only ever marks the last time."
+    },
+    {
+     "vs": "を境に",
+     "note": "を境に is a dividing line between before and after, usually an event, with a change of state: あの事故を境に彼は変わった. を限りに is a chosen end point."
+    },
+    {
+     "vs": "を皮切りに",
+     "note": "を皮切りに is the first of a series; を限りに is the last."
+    }
    ],
    "mistakes": [
-    {"bad": "四月[しがつ]{を限[かぎ]りに}、新[あたら]しい制度[せいど]が始[はじ]まる。", "good": "四月[しがつ]{から}、新[あたら]しい制度[せいど]が始[はじ]まる。", "note": "を限りに marks an end, never a beginning."},
-    {"bad": "あの事故[じこ]{を限[かぎ]りに}、彼[かれ]は車[くるま]に乗[の]らなくなった。", "good": "あの事故[じこ]{を境[さかい]に}、彼[かれ]は車[くるま]に乗[の]らなくなった。", "note": "An event that splits life into before and after, with a change that just happened, is を境に; を限りに is a time chosen as the last occasion."}
+    {
+     "bad": "四月[しがつ]{を限[かぎ]りに}、新[あたら]しい制度[せいど]が始[はじ]まる。",
+     "good": "四月[しがつ]{から}、新[あたら]しい制度[せいど]が始[はじ]まる。",
+     "note": "を限りに marks an end, never a beginning."
+    },
+    {
+     "bad": "あの事故[じこ]{を限[かぎ]りに}、彼[かれ]は車[くるま]に乗[の]らなくなった。",
+     "good": "あの事故[じこ]{を境[さかい]に}、彼[かれ]は車[くるま]に乗[の]らなくなった。",
+     "note": "An event that splits life into before and after, with a change that just happened, is を境に; を限りに is a time chosen as the last occasion."
+    }
    ],
    "tip": "Does \"and never again after that\" fit, with a time word before the blank? Then を限りに."
   },
@@ -61,20 +125,52 @@
     "[clause] のを機に、[new step taken]"
    ],
    "examples": [
-    {"jp": "結婚[けっこん]{を機[き]に}、仕事[しごと]を辞[や]めた。", "en": "I left my job when I got married."},
-    {"jp": "就職[しゅうしょく]{を機[き]に}、一人暮[ひとりぐ]らしを始[はじ]めました。", "en": "I started living on my own when I got a job."},
-    {"jp": "入院[にゅういん]したの{を機[き]に}、父[ちち]は酒[さけ]をやめた。", "en": "My father took his hospital stay as the occasion to give up drinking."},
-    {"jp": "定年[ていねん]退職[たいしょく]{を機[き]に}、夫婦[ふうふ]で田舎[いなか]に引[ひ]っ越[こ]した。", "en": "On retiring, the couple moved to the countryside."},
-    {"jp": "創立[そうりつ]五十周年[ごじっしゅうねん]{を機[き]に}、社名[しゃめい]を変更[へんこう]いたしました。", "en": "To mark our fiftieth anniversary, we have changed the company name."}
+    {
+     "jp": "結婚[けっこん]{を機[き]に}、仕事[しごと]を辞[や]めた。",
+     "en": "I left my job when I got married."
+    },
+    {
+     "jp": "就職[しゅうしょく]{を機[き]に}、一人暮[ひとりぐ]らしを始[はじ]めました。",
+     "en": "I started living on my own when I got a job."
+    },
+    {
+     "jp": "入院[にゅういん]したの{を機[き]に}、父[ちち]は酒[さけ]をやめた。",
+     "en": "My father took his hospital stay as the occasion to give up drinking."
+    },
+    {
+     "jp": "定年[ていねん]退職[たいしょく]{を機[き]に}、夫婦[ふうふ]で田舎[いなか]に引[ひ]っ越[こ]した。",
+     "en": "On retiring, the couple moved to the countryside."
+    },
+    {
+     "jp": "創立[そうりつ]五十周年[ごじっしゅうねん]{を機[き]に}、社名[しゃめい]を変更[へんこう]いたしました。",
+     "en": "To mark our fiftieth anniversary, we have changed the company name."
+    }
    ],
    "contrast": [
-    {"vs": "を皮切りに", "note": "を皮切りに opens a series of similar events. を機に is a single chance taken for a single new step."},
-    {"vs": "を境に", "note": "を境に is a dividing line between two states and needs no one's decision: 十月を境に寒くなった. を機に needs someone choosing to act."},
-    {"vs": "を限りに", "note": "を限りに sets a time as the last occasion for something; を機に is the occasion for starting something new."}
+    {
+     "vs": "を皮切りに",
+     "note": "を皮切りに opens a series of similar events. を機に is a single chance taken for a single new step."
+    },
+    {
+     "vs": "を境に",
+     "note": "を境に is a dividing line between two states and needs no one's decision: 十月を境に寒くなった. を機に needs someone choosing to act."
+    },
+    {
+     "vs": "を限りに",
+     "note": "を限りに sets a time as the last occasion for something; を機に is the occasion for starting something new."
+    }
    ],
    "mistakes": [
-    {"bad": "十月[じゅうがつ]{を機[き]に}、急[きゅう]に寒[さむ]くなった。", "good": "十月[じゅうがつ]{を境[さかい]に}、急[きゅう]に寒[さむ]くなった。", "note": "Nobody seized a chance; weather changing at a dividing point is を境に."},
-    {"bad": "東京[とうきょう]公演[こうえん]{を機[き]に}、全国[ぜんこく]十[じゅっ]か所[しょ]を回[まわ]る。", "good": "東京[とうきょう]公演[こうえん]{を皮切[かわき]りに}、全国[ぜんこく]十[じゅっ]か所[しょ]を回[まわ]る。", "note": "A first show followed by many more is a series: を皮切りに."}
+    {
+     "bad": "十月[じゅうがつ]{を機[き]に}、急[きゅう]に寒[さむ]くなった。",
+     "good": "十月[じゅうがつ]{を境[さかい]に}、急[きゅう]に寒[さむ]くなった。",
+     "note": "Nobody seized a chance; weather changing at a dividing point is を境に."
+    },
+    {
+     "bad": "東京[とうきょう]公演[こうえん]{を機[き]に}、全国[ぜんこく]十[じゅっ]か所[しょ]を回[まわ]る。",
+     "good": "東京[とうきょう]公演[こうえん]{を皮切[かわき]りに}、全国[ぜんこく]十[じゅっ]か所[しょ]を回[まわ]る。",
+     "note": "A first show followed by many more is a series: を皮切りに."
+    }
    ],
    "tip": "Can you say \"took the opportunity of A to ...\"? Then を機に."
   }

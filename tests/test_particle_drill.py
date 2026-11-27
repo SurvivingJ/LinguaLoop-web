@@ -441,3 +441,164 @@ def test_progress_routes(client, auth_headers):
                           json={'language_id': 3, 'state': {'skills': []}})
     assert resp.status_code == 400
     save.assert_not_called()
+
+
+# ------------------------------------------------- the learner's own words (conjugation)
+from services.particle_drill import conjugation  # noqa: E402
+
+
+@pytest.mark.parametrize('lemma, reading, pos, raw, want', [
+    ('書く', 'かく', 'verb', '動詞', 'godan'),
+    ('帰る', 'かえる', 'verb', '動詞', 'godan'),          # -eru but godan
+    ('入る', 'はいる', 'verb', '動詞', 'godan'),
+    ('切る', 'きる', 'verb', '動詞', 'godan'),
+    ('着る', 'きる', 'verb', '動詞', 'ichidan'),
+    ('食べる', 'たべる', 'verb', '動詞', 'ichidan'),
+    ('信じる', 'しんじる', 'verb', '動詞', 'ichidan'),
+    ('来る', 'くる', 'verb', '動詞', 'kuru'),
+    ('する', 'する', 'verb', '動詞', 'suru'),
+    ('勉強する', 'べんきょうする', 'verb', '動詞', 'suru'),
+    ('高い', 'たかい', 'adjective', '形容詞', 'i'),
+    ('静か', 'しずか', 'adjective', '形状詞', 'na'),
+    ('きれい', 'きれい', 'adjective', '形状詞', 'na'),      # ends in い, still な
+    ('有名', 'ゆうめい', 'adjective', '形状詞', 'na'),
+    # Left out: the rule engine would produce wrong forms.
+    ('いらっしゃる', 'いらっしゃる', 'verb', '動詞', None),
+    ('くださる', 'くださる', 'verb', '動詞', None),
+    ('問う', 'とう', 'verb', '動詞', None),
+    ('愛する', 'あいする', 'verb', '動詞', None),
+    ('存ずる', 'ぞんずる', 'verb', '動詞', None),
+    ('持って来る', 'もってくる', 'verb', '動詞', None),
+    ('学校', 'がっこう', 'noun', '名詞', None),
+])
+def test_classify_known_words(lemma, reading, pos, raw, want):
+    pytest.importorskip('fugashi')
+    got = conjugation.classify(lemma, reading, pos, raw)
+    assert (got or {}).get('c') == want, got
+    if want:
+        assert got['d'] == lemma and got['k'] == reading
+
+
+def test_classify_fills_a_missing_reading_and_fixes_katakana():
+    pytest.importorskip('fugashi')
+    assert conjugation.classify('読む', None, 'verb', '動詞') == {'d': '読む', 'k': 'よむ', 'c': 'godan'}
+    assert conjugation.classify('飲む', 'ノム', 'verb', '動詞')['k'] == 'のむ'
+
+
+def test_tagger_classes_agree_with_the_reviewed_word_lists():
+    """Two independent sources for the class of every listed verb: the reviewed list and UniDic."""
+    pytest.importorskip('fugashi')
+    conj = content_mod.Content(validate.ROOT).conjugation_payload()
+    disagree, covered = [], 0
+    for w in conj['verbs']:
+        got = conjugation.classify(w['d'], w['k'], 'verb', '動詞')
+        if got is None:
+            continue                       # left out by the safety rules; the list's class stands
+        covered += 1
+        if got['c'] != w['c']:
+            disagree.append((w['d'], w['c'], got['c']))
+    assert not disagree, disagree
+    assert covered >= 0.85 * len(conj['verbs'])
+
+
+class _KnowledgeDb:
+    """Answers the four reads of conjugation.known_words from in-memory rows."""
+
+    def __init__(self, tables):
+        self.tables = tables
+
+    def table(self, name):
+        return _KnowledgeQuery(self.tables[name])
+
+
+class _KnowledgeQuery:
+    def __init__(self, rows):
+        self.rows = list(rows)
+
+    def select(self, *_a, **_k):
+        return self
+
+    def eq(self, col, value):
+        self.rows = [r for r in self.rows if r.get(col) == value]
+        return self
+
+    def in_(self, col, values):
+        self.rows = [r for r in self.rows if r.get(col) in values]
+        return self
+
+    def order(self, col, desc=False):
+        self.rows.sort(key=lambda r: r.get(col) or 0, reverse=desc)
+        return self
+
+    def range(self, start, end):
+        self.rows = self.rows[start:end + 1]
+        return self
+
+    def execute(self):
+        return type('R', (), {'data': self.rows})()
+
+
+def _knowledge_db():
+    uvk = [
+        {'user_id': 'u1', 'language_id': 3, 'sense_id': 1, 'p_known': 0.97, 'status': 'known'},
+        {'user_id': 'u1', 'language_id': 3, 'sense_id': 2, 'p_known': 0.70, 'status': 'learning'},
+        {'user_id': 'u1', 'language_id': 3, 'sense_id': 3, 'p_known': 0.90, 'status': 'probably_known'},
+        {'user_id': 'u1', 'language_id': 3, 'sense_id': 4, 'p_known': 0.10, 'status': 'unknown'},
+        {'user_id': 'u1', 'language_id': 3, 'sense_id': 5, 'p_known': 0.95, 'status': 'known'},
+        {'user_id': 'u1', 'language_id': 3, 'sense_id': 6, 'p_known': 0.99, 'status': 'known'},
+        {'user_id': 'u2', 'language_id': 3, 'sense_id': 7, 'p_known': 0.99, 'status': 'known'},
+    ]
+    senses = [
+        {'id': 1, 'vocab_id': 11, 'definition_language_id': 3, 'definition': '字を…', 'sense_rank': 1},
+        {'id': 2, 'vocab_id': 12, 'definition_language_id': 3, 'definition': '…', 'sense_rank': 1},
+        {'id': 3, 'vocab_id': 13, 'definition_language_id': 3, 'definition': '…', 'sense_rank': 1},
+        {'id': 4, 'vocab_id': 14, 'definition_language_id': 3, 'definition': '…', 'sense_rank': 1},
+        {'id': 5, 'vocab_id': 15, 'definition_language_id': 3, 'definition': '…', 'sense_rank': 1},
+        {'id': 6, 'vocab_id': 16, 'definition_language_id': 3, 'definition': '…', 'sense_rank': 1},
+        {'id': 7, 'vocab_id': 17, 'definition_language_id': 3, 'definition': '…', 'sense_rank': 1},
+        {'id': 21, 'vocab_id': 11, 'definition_language_id': 2, 'definition': 'to write', 'sense_rank': 1},
+        {'id': 22, 'vocab_id': 11, 'definition_language_id': 2, 'definition': 'to draw', 'sense_rank': 2},
+        {'id': 23, 'vocab_id': 13, 'definition_language_id': 2, 'definition': 'x' * 200, 'sense_rank': 1},
+    ]
+    vocab = [
+        {'id': 11, 'language_id': 3, 'lemma': '書く', 'reading': 'かく', 'part_of_speech': 'verb', 'part_of_speech_raw': '動詞', 'level_tag': 'N5'},
+        {'id': 12, 'language_id': 3, 'lemma': '帰る', 'reading': 'かえる', 'part_of_speech': 'verb', 'part_of_speech_raw': '動詞', 'level_tag': None},
+        {'id': 13, 'language_id': 3, 'lemma': '静か', 'reading': 'しずか', 'part_of_speech': 'adjective', 'part_of_speech_raw': '形状詞', 'level_tag': 'N4'},
+        {'id': 14, 'language_id': 3, 'lemma': '読む', 'reading': 'よむ', 'part_of_speech': 'verb', 'part_of_speech_raw': '動詞', 'level_tag': 'N5'},
+        {'id': 15, 'language_id': 3, 'lemma': '学校', 'reading': 'がっこう', 'part_of_speech': 'noun', 'part_of_speech_raw': '名詞', 'level_tag': 'N5'},
+        {'id': 16, 'language_id': 3, 'lemma': 'いらっしゃる', 'reading': 'いらっしゃる', 'part_of_speech': 'verb', 'part_of_speech_raw': '動詞', 'level_tag': 'N4'},
+        {'id': 17, 'language_id': 3, 'lemma': '飲む', 'reading': 'のむ', 'part_of_speech': 'verb', 'part_of_speech_raw': '動詞', 'level_tag': 'N5'},
+    ]
+    return _KnowledgeDb({'user_vocabulary_knowledge': uvk, 'dim_word_senses': senses, 'dim_vocabulary': vocab})
+
+
+def test_known_words_come_from_the_learners_vocabulary():
+    pytest.importorskip('fugashi')
+    lexicon = {'verbs': [{'d': '帰る', 'k': 'かえる', 'c': 'godan', 't': 'i', 'en': 'go home', 'lv': 5}],
+               'adjectives': []}
+    out = conjugation.known_words(_knowledge_db(), 'u1', 3, lexicon)
+    words = {w['d']: w for w in out['words']}
+    # Known, probably known and learning words; not the unknown one, the noun or another user's.
+    assert set(words) == {'書く', '帰る', '静か'}
+    assert [w['d'] for w in out['words']] == ['書く', '静か', '帰る']        # most confident first
+    assert words['書く'] == {'d': '書く', 'k': 'かく', 'c': 'godan', 'en': 'to write', 'known': True, 'lv': 5}
+    assert words['帰る']['c'] == 'godan' and words['帰る']['en'] == 'go home'   # class and gloss from the list
+    assert words['静か']['c'] == 'na' and len(words['静か']['en']) == conjugation.GLOSS_CHARS
+    assert (out['verbs'], out['adjectives'], out['skipped']) == (2, 1, 1)     # いらっしゃる left out
+
+
+def test_known_words_for_a_new_learner_is_empty():
+    assert conjugation.known_words(_knowledge_db(), 'nobody', 3, {'verbs': [], 'adjectives': []}) == \
+        {'words': [], 'verbs': 0, 'adjectives': 0, 'skipped': 0}
+
+
+def test_conjugation_words_route(client, auth_headers):
+    payload = {'words': [{'d': '書く', 'k': 'かく', 'c': 'godan', 'en': 'to write', 'known': True, 'lv': 5}],
+               'verbs': 1, 'adjectives': 0, 'skipped': 0}
+    with patch('routes.particle_drill.conjugation.known_words', return_value=payload) as known, \
+            patch('routes.particle_drill._gloss_language_id', return_value=2):
+        resp = client.get('/api/particle-drill/conjugation/words?language_id=3', headers=auth_headers)
+    assert resp.status_code == 200 and _json(resp)['words'] == payload['words']
+    assert known.call_args.args[2] == 3 and known.call_args.kwargs == {'gloss_language_id': 2}
+    assert client.get('/api/particle-drill/conjugation/words?language_id=1', headers=auth_headers).status_code == 400
+    assert client.get('/api/particle-drill/conjugation/words?language_id=3').status_code == 401

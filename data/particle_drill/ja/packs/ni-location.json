@@ -1,0 +1,317 @@
+[
+ {
+  "id": "ni-location-1",
+  "lv": 4,
+  "tpl": "<place>{に|ni-location}<thing>{が|ga-existence}<exist>。",
+  "en": "<exist> <thing> <place>.",
+  "f": 1,
+  "d": [
+   "で",
+   "を",
+   "へ"
+  ],
+  "why": "With ある, the place where a thing is takes に, not で.",
+  "vars": {
+   "place": [
+    [
+     "机[つくえ]{の|no-possessive}上[うえ]",
+     "on the desk"
+    ],
+    [
+     "かばん{の|no-possessive}中[なか]",
+     "in the bag"
+    ],
+    [
+     "箱[はこ]{の|no-possessive}中[なか]",
+     "in the box"
+    ],
+    [
+     "いす{の|no-possessive}下[した]",
+     "under the chair"
+    ],
+    [
+     "テレビ{の|no-possessive}横[よこ]",
+     "next to the TV"
+    ],
+    [
+     "ベッド{の|no-possessive}上[うえ]",
+     "on the bed"
+    ],
+    [
+     "引[ひ]き出[だ]し{の|no-possessive}中[なか]",
+     "in the drawer"
+    ],
+    [
+     "本棚[ほんだな]{の|no-possessive}上[うえ]",
+     "on top of the bookshelf"
+    ]
+   ],
+   "thing": [
+    [
+     "鍵[かぎ]",
+     "a key"
+    ],
+    [
+     "財布[さいふ]",
+     "a wallet"
+    ],
+    [
+     "手紙[てがみ]",
+     "a letter"
+    ],
+    [
+     "眼鏡[めがね]",
+     "a pair of glasses"
+    ],
+    [
+     "写真[しゃしん]",
+     "a photo"
+    ],
+    [
+     "ペン",
+     "a pen"
+    ],
+    [
+     "時計[とけい]",
+     "a watch"
+    ],
+    [
+     "辞書[じしょ]",
+     "a dictionary"
+    ]
+   ],
+   "exist": [
+    [
+     "あります",
+     "There is"
+    ],
+    [
+     "ありました",
+     "There was"
+    ],
+    [
+     "あるはずです",
+     "There should be"
+    ],
+    [
+     "ある{と|to-quote}思[おも]います",
+     "I think there is"
+    ],
+    [
+     "あるかもしれません",
+     "There might be"
+    ],
+    [
+     "あるでしょう",
+     "There is probably"
+    ]
+   ]
+  }
+ },
+ {
+  "id": "ni-location-2",
+  "lv": 5,
+  "tpl": "<when>、<who>{は|wa-topic}<place>{に|ni-location}いましたか。",
+  "en": "Was <who> <place> <when>?",
+  "f": 1,
+  "d": [
+   "で",
+   "を",
+   "へ"
+  ],
+  "why": "With いる, the place where a person is takes に, not で.",
+  "vars": {
+   "when": [
+    [
+     "昨日[きのう]",
+     "yesterday"
+    ],
+    [
+     "今朝[けさ]",
+     "this morning"
+    ],
+    [
+     "ゆうべ",
+     "last night"
+    ],
+    [
+     "さっき",
+     "a moment ago"
+    ],
+    [
+     "その時[とき]",
+     "at that time"
+    ],
+    [
+     "午前中[ごぜんちゅう]",
+     "during the morning"
+    ]
+   ],
+   "who": [
+    [
+     "田中[たなか]さん",
+     "Mr. Tanaka"
+    ],
+    [
+     "お母[かあ]さん",
+     "your mother"
+    ],
+    [
+     "先生[せんせい]",
+     "the teacher"
+    ],
+    [
+     "佐藤[さとう]さん",
+     "Ms. Sato"
+    ],
+    [
+     "鈴木[すずき]さん",
+     "Mr. Suzuki"
+    ],
+    [
+     "お父[とう]さん",
+     "your father"
+    ]
+   ],
+   "place": [
+    [
+     "家[いえ]",
+     "at home"
+    ],
+    [
+     "会社[かいしゃ]",
+     "at the office"
+    ],
+    [
+     "駅[えき]",
+     "at the station"
+    ],
+    [
+     "図書館[としょかん]",
+     "in the library"
+    ],
+    [
+     "二階[にかい]",
+     "upstairs"
+    ],
+    [
+     "台所[だいどころ]",
+     "in the kitchen"
+    ],
+    [
+     "病院[びょういん]",
+     "at the hospital"
+    ],
+    [
+     "教室[きょうしつ]",
+     "in the classroom"
+    ]
+   ]
+  }
+ },
+ {
+  "id": "ni-location-3",
+  "lv": 5,
+  "tpl": "<who>{は|wa-topic}<since><city>{に|ni-location}住[す]んでいます。",
+  "en": "<who> has been living in <city> <since>.",
+  "f": 2,
+  "d": [
+   "で",
+   "を",
+   "へ"
+  ],
+  "why": "住む marks the place where you live with に, not で.",
+  "vars": {
+   "who": [
+    [
+     "姉[あね]",
+     "My older sister"
+    ],
+    [
+     "田中[たなか]さん",
+     "Mr. Tanaka"
+    ],
+    [
+     "祖父[そふ]",
+     "My grandfather"
+    ],
+    [
+     "友達[ともだち]",
+     "My friend"
+    ],
+    [
+     "山田[やまだ]さん",
+     "Ms. Yamada"
+    ],
+    [
+     "おじ",
+     "My uncle"
+    ],
+    [
+     "鈴木[すずき]さん",
+     "Mr. Suzuki"
+    ]
+   ],
+   "since": [
+    [
+     "去年[きょねん]{から|kara-from}",
+     "since last year"
+    ],
+    [
+     "先月[せんげつ]{から|kara-from}",
+     "since last month"
+    ],
+    [
+     "二年前[にねんまえ]{から|kara-from}",
+     "for two years"
+    ],
+    [
+     "十年前[じゅうねんまえ]{から|kara-from}",
+     "for ten years"
+    ],
+    [
+     "春[はる]{から|kara-from}",
+     "since the spring"
+    ],
+    [
+     "先週[せんしゅう]{から|kara-from}",
+     "since last week"
+    ]
+   ],
+   "city": [
+    [
+     "東京[とうきょう]",
+     "Tokyo"
+    ],
+    [
+     "大阪[おおさか]",
+     "Osaka"
+    ],
+    [
+     "京都[きょうと]",
+     "Kyoto"
+    ],
+    [
+     "横浜[よこはま]",
+     "Yokohama"
+    ],
+    [
+     "神戸[こうべ]",
+     "Kobe"
+    ],
+    [
+     "札幌[さっぽろ]",
+     "Sapporo"
+    ],
+    [
+     "福岡[ふくおか]",
+     "Fukuoka"
+    ],
+    [
+     "名古屋[なごや]",
+     "Nagoya"
+    ]
+   ]
+  }
+ }
+]

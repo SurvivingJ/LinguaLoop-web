@@ -4,7 +4,10 @@
 //   #/                 hub: next step, daily mix, every stage / particle / skill
 //   #/skill/<id>       the skill's guide and its place on the ladder
 //   #/drill/<id>       endless drill of one skill   (#/mix: a mixed session)
-//   #/conj             conjugation gym (setup and drill)
+// /conjugation-drill mounts the same script with data-home="conj":
+//   #/                 conjugation setup: forms, word pools (the learner's own
+//                      known words and the level lists), guides
+//   #/drill            endless conjugation rounds
 //
 // Content comes from /api/particle-drill (static files, cached); exercises are
 // built and judged here (js/particles/*), so answering never waits on a
@@ -93,6 +96,7 @@ const app = {
   skills: new Map(), // id -> catalog skill
   bundles: new Map(), // id -> promise of the skill payload
   conj: null, // conjugation payload
+  myWords: null, // the learner's own verbs and adjectives
   session: null,
   timers: [],
 };
@@ -119,6 +123,31 @@ function loadSkill(id) {
 async function loadConj() {
   if (!app.conj) app.conj = await getJson('/conjugation');
   return app.conj;
+}
+
+/** The learner's own verbs and adjectives; an empty pool when the request fails. */
+async function loadMyWords() {
+  if (!app.myWords) {
+    try {
+      app.myWords = await getJson('/conjugation/words');
+    } catch (err) {
+      console.error('particle drill: own words unavailable', err);
+      return { words: [], verbs: 0, adjectives: 0, skipped: 0 };
+    }
+  }
+  return app.myWords;
+}
+
+const MIN_OWN_WORDS = 8; // below this the level lists are switched on as well
+const isConjHome = () => !!app.root && app.root.dataset.home === 'conj';
+const conjHome = () => (isConjHome() ? '#/' : '#/conj');
+const conjDrill = () => (isConjHome() ? '#/drill' : '#/conj/drill');
+
+/** Chosen word pools: 'mine' and / or JLPT levels 5, 4, 3. */
+function conjPools(mine) {
+  const stored = app.store.setting('conjLevels', null);
+  if (stored) return new Set(stored);
+  return new Set(mine.words.length >= MIN_OWN_WORDS ? ['mine'] : ['mine', 5, 4]);
 }
 
 const stateOf = (id) => app.store.skill(id) || M.newState();
@@ -150,6 +179,8 @@ const jlpt = (lv) => `<span class="ld-tag pd-lv">N${lv}</span>`;
 
 /** A particle or word in the markup (に対[たい]して) as HTML with furigana. */
 const rubyHtml = (marked) => toHtml(parse(marked), (slot) => esc(slot.a));
+/** Guide prose: plain text in which 漢字[かな] becomes furigana. */
+const proseHtml = (text) => rubyHtml(String(text || ''));
 /** The same for an answer of an exercise, looked up by its displayed text. */
 const rb = (ex, shown) => rubyHtml((ex && ex.ruby && ex.ruby[shown]) || shown || '');
 
@@ -250,7 +281,7 @@ function renderHub() {
       </div>
       <div class="pd-actions">
         <a class="ld-btn" href="#/mix">${esc(t('hub_mix', 'Daily mix'))}<small>${esc(t('hub_mix_sub', 'due reviews and what you are learning'))}</small></a>
-        <a class="ld-btn ld-btn--ghost" href="#/conj">${esc(t('hub_conj', 'Conjugation gym'))}<small>${esc(t('hub_conj_sub', 'て, ない, potential, passive …'))}</small></a>
+        <a class="ld-btn ld-btn--ghost" href="/conjugation-drill">${esc(t('hub_conj', 'Conjugation gym'))}<small>${esc(t('hub_conj_sub', 'て, ない, potential, passive …'))}</small></a>
       </div>
       <label class="pd-furi"><input type="checkbox" id="pdFuri"${furiganaOn() ? ' checked' : ''}> ${esc(t('furigana', 'Show furigana'))}</label>
       <h2 class="ld-sech">${esc(t('hub_path', 'The ladder'))}</h2>
@@ -272,19 +303,19 @@ function guideHtml(guide) {
     return `<p class="ld-note">${esc(t('guide_missing', 'The guide for this skill is not written yet. The drill explains each answer.'))}</p>`;
   const paras = String(guide.explain || '')
     .split(/\n\s*\n/)
-    .map((p) => `<p>${esc(p.trim())}</p>`)
+    .map((p) => `<p>${proseHtml(p.trim())}</p>`)
     .join('');
   const list = (items, fn) => (items && items.length ? items.map(fn).join('') : '');
   return `
-    <p class="pd-guide__rule">${esc(guide.rule || '')}</p>
+    <p class="pd-guide__rule">${proseHtml(guide.rule)}</p>
     ${paras}
     ${list(guide.patterns, (p) => `<div class="pd-pattern" lang="ja">${esc(p)}</div>`)}
     ${guide.table ? `<div class="pd-tablewrap"><table class="pd-table">${guide.table.map((row, i) => `<tr>${row.map((c) => (i ? `<td lang="ja">${sentenceHtml(c)}</td>` : `<th>${esc(c)}</th>`)).join('')}</tr>`).join('')}</table></div>` : ''}
     <h3 class="ld-sech">${esc(t('guide_examples', 'Examples'))}</h3>
     <ul class="pd-examples">${list(guide.examples, (e) => `<li><span class="pd-jp" lang="ja">${sentenceHtml(e.jp)}</span><span class="pd-en">${esc(e.en)}</span></li>`)}</ul>
-    ${guide.contrast && guide.contrast.length ? `<h3 class="ld-sech">${esc(t('guide_contrast', 'Not to be confused with'))}</h3>${list(guide.contrast, (c) => `<div class="pd-contrast"><b class="pd-p" lang="ja">${esc(c.vs)}</b><span>${esc(c.note)}</span></div>`)}` : ''}
-    ${guide.mistakes && guide.mistakes.length ? `<h3 class="ld-sech">${esc(t('guide_mistakes', 'Common mistakes'))}</h3>${list(guide.mistakes, (m) => `<div class="pd-mistake"><div class="pd-bad" lang="ja">✕ ${sentenceHtml(m.bad)}</div><div class="pd-good" lang="ja">✓ ${sentenceHtml(m.good)}</div><small>${esc(m.note)}</small></div>`)}` : ''}
-    ${guide.tip ? `<p class="ld-note ld-note--ok pd-tip"><b>${esc(t('guide_tip', 'Quick test'))}</b> ${esc(guide.tip)}</p>` : ''}
+    ${guide.contrast && guide.contrast.length ? `<h3 class="ld-sech">${esc(t('guide_contrast', 'Not to be confused with'))}</h3>${list(guide.contrast, (c) => `<div class="pd-contrast"><b class="pd-p" lang="ja">${esc(c.vs)}</b><span>${proseHtml(c.note)}</span></div>`)}` : ''}
+    ${guide.mistakes && guide.mistakes.length ? `<h3 class="ld-sech">${esc(t('guide_mistakes', 'Common mistakes'))}</h3>${list(guide.mistakes, (m) => `<div class="pd-mistake"><div class="pd-bad" lang="ja">✕ ${sentenceHtml(m.bad)}</div><div class="pd-good" lang="ja">✓ ${sentenceHtml(m.good)}</div><small>${proseHtml(m.note)}</small></div>`)}` : ''}
+    ${guide.tip ? `<p class="ld-note ld-note--ok pd-tip"><b>${esc(t('guide_tip', 'Quick test'))}</b> ${proseHtml(guide.tip)}</p>` : ''}
     ${guide.intro ? `<h3 class="ld-sech">${esc(t('guide_big_picture', 'The particle as a whole'))}</h3><p class="pd-guide__intro">${esc(guide.intro)}</p>` : ''}`;
 }
 
@@ -508,7 +539,7 @@ function optionsHtml(options, render = esc) {
   return `<div class="pd-options">${options
     .map(
       (o, i) =>
-        `<button type="button" class="ld-opt pd-opt" data-i="${i}" lang="ja"><span class="ld-opt__key" aria-hidden="true">${i + 1}</span><span class="pd-opt__t">${render(o)}</span></button>`
+        `<button type="button" class="ld-opt pd-opt" data-i="${i}" lang="ja"><span class="ld-opt__key" aria-hidden="true">${i + 1}</span><span class="pd-opt__t${String(o).length > 4 ? ' is-long' : ''}">${render(o)}</span></button>`
     )
     .join('')}</div>`;
 }
@@ -809,7 +840,7 @@ function finishRound() {
         `<li class="${e.event === 'demoted' ? 'is-down' : 'is-up'}"><span>${esc(label(e))}</span><b>${e.event === 'demoted' ? '↓' : '↑'} ${esc(ses.kind === 'conj' ? conjLevelName(e.level) : levelName(e.level))}</b>${pips(e.level, max)}</li>`
     )
     .join('');
-  const backHref = ses.kind === 'conj' ? '#/conj' : ses.mix ? '#/' : `#/skill/${ses.order[0]}`;
+  const backHref = ses.kind === 'conj' ? conjHome() : ses.mix ? '#/' : `#/skill/${ses.order[0]}`;
   setView(
     `<div class="pd-results">
       <div class="pd-results__pct">${pct}<small>%</small></div>
@@ -847,10 +878,20 @@ async function renderConj() {
   setView(`<p class="drill-msg">${esc(t('loading', 'Loading…'))}</p>`, {
     title: t('conj_title', 'Conjugation'),
   });
-  const data = await loadConj();
+  const [data, mine] = await Promise.all([loadConj(), loadMyWords()]);
   const chosen = new Set(app.store.setting('conjForms', ['masu', 'te', 'nai', 'ta']));
-  const levels = new Set(app.store.setting('conjLevels', [5, 4]));
+  const levels = conjPools(mine);
   const mode = app.store.setting('conjMode', 'auto');
+  const ownNote = mine.words.length
+    ? t(
+        'conj_mine_note',
+        'From your vocabulary: {v} verbs and {a} adjectives you know. New ones join as you learn them.',
+        { v: mine.verbs, a: mine.adjectives }
+      )
+    : t(
+        'conj_mine_empty',
+        'No verbs or adjectives in your vocabulary yet. Take tests or a placement check and they appear here; until then use the level lists.'
+      );
   const chip = (f) => {
     const s = conjState(f.id);
     return `<button type="button" class="ld-chip pd-form" data-form="${f.id}" aria-pressed="${chosen.has(f.id)}">
@@ -865,17 +906,20 @@ async function renderConj() {
   setView(
     `<div class="pd-conj">
       <p class="ld-hint">${esc(t('conj_intro', 'Pick the forms to drill. Words come at random and never run out; three rungs: Choose, Type, Speed.'))}</p>
+      <h2 class="ld-sech">${esc(t('conj_words', 'Words'))}</h2>
+      <p class="ld-hint pd-ownnote">${esc(ownNote)}</p>
+      <div class="ld-chips pd-levels">
+        <button type="button" class="ld-chip" data-lv="mine" aria-pressed="${levels.has('mine')}"${mine.words.length ? '' : ' disabled'}>${esc(t('conj_mine', 'Words I know'))} · ${mine.words.length}</button>
+        ${[5, 4, 3]
+          .map(
+            (lv) =>
+              `<button type="button" class="ld-chip" data-lv="${lv}" aria-pressed="${levels.has(lv)}">N${lv}${lv === 3 ? '+' : ''}</button>`
+          )
+          .join('')}</div>
       <h2 class="ld-sech">${esc(t('conj_verbs', 'Verb forms'))}</h2>
       <div class="pd-forms">${VERB_FORMS.map(chip).join('')}</div>
       <h2 class="ld-sech">${esc(t('conj_adjs', 'Adjective forms'))}</h2>
       <div class="pd-forms">${ADJ_FORMS.map(chip).join('')}</div>
-      <h2 class="ld-sech">${esc(t('conj_words', 'Word level'))}</h2>
-      <div class="ld-chips pd-levels">${[5, 4, 3]
-        .map(
-          (lv) =>
-            `<button type="button" class="ld-chip" data-lv="${lv}" aria-pressed="${levels.has(lv)}">N${lv}${lv === 3 ? '+' : ''}</button>`
-        )
-        .join('')}</div>
       ${guides ? `<h2 class="ld-sech">${esc(t('conj_guides', 'How each form is built'))}</h2><div class="ld-card pd-group">${guides}</div>` : ''}
     </div>`,
     {
@@ -900,7 +944,9 @@ async function renderConj() {
     btn.addEventListener('click', () => toggle(btn, chosen, btn.dataset.form, 'conjForms'))
   );
   $$('.pd-levels button').forEach((btn) =>
-    btn.addEventListener('click', () => toggle(btn, levels, Number(btn.dataset.lv), 'conjLevels'))
+    btn.addEventListener('click', () =>
+      toggle(btn, levels, btn.dataset.lv === 'mine' ? 'mine' : Number(btn.dataset.lv), 'conjLevels')
+    )
   );
   $$('.pd-modes button').forEach((btn) =>
     btn.addEventListener('click', () => {
@@ -918,18 +964,25 @@ async function renderConj() {
     })
   );
   $('#pdConjStart').disabled = !chosen.size || !levels.size;
-  $('#pdConjStart').addEventListener('click', () => go('#/conj/drill'));
+  $('#pdConjStart').addEventListener('click', () => go(conjDrill()));
 }
 
 async function startConj() {
-  const data = await loadConj();
+  const [data, mine] = await Promise.all([loadConj(), loadMyWords()]);
   const forms = app.store.setting('conjForms', ['masu', 'te', 'nai', 'ta']).filter((f) => FORMS[f]);
-  const levels = new Set(app.store.setting('conjLevels', [5, 4]));
+  const levels = conjPools(mine);
   const inLevel = (w) => levels.has(w.lv) || (levels.has(3) && w.lv < 3);
-  const verbs = (data.verbs || []).filter(inLevel);
-  const adjs = (data.adjectives || []).filter(inLevel);
+  // The learner's own words first, then the level lists; one entry per word.
+  const pool = new Map();
+  if (levels.has('mine')) mine.words.forEach((w) => pool.set(`${w.d}|${w.k}`, w));
+  [...(data.verbs || []), ...(data.adjectives || [])].filter(inLevel).forEach((w) => {
+    if (!pool.has(`${w.d}|${w.k}`)) pool.set(`${w.d}|${w.k}`, w);
+  });
+  const words = Array.from(pool.values());
+  const verbs = words.filter((w) => w.c !== 'i' && w.c !== 'na');
+  const adjs = words.filter((w) => w.c === 'i' || w.c === 'na');
   const usable = forms.filter((f) => (f.startsWith('adj_') ? adjs.length : verbs.length));
-  if (!usable.length) return go('#/conj');
+  if (!usable.length) return go(conjHome());
   app.session = {
     kind: 'conj',
     forms: usable,
@@ -1006,7 +1059,7 @@ function renderConjQuestion(q) {
   $('#pdSentence').innerHTML =
     `<span class="pd-word"><ruby>${esc(q.word.d)}<rt>${esc(q.word.d === q.word.k ? '' : q.word.k)}</rt></ruby></span>
     <span class="pd-arrow" aria-hidden="true">→</span><span class="pd-target">${esc(form.label)}<small>${esc(form.hint)}</small></span>`;
-  $('#pdEn').textContent = q.word.en;
+  $('#pdEn').textContent = q.word.en || '';
   $('#pdEn').classList.remove('is-hidden');
   ses.onKey = null;
   ses.onCheck = null;
@@ -1094,7 +1147,7 @@ function settleConj(q, correct, given, timedOut = false) {
     ? `<b>${esc(ses.streak >= 3 ? t('fb_streak', '{n} in a row', { n: ses.streak }) : t('fb_right', 'Right'))}</b> <span class="pd-feedback__ans" lang="ja"><b>${esc(answer)}</b>${reading}</span> ${group}`
     : `<b>${esc(timedOut ? t('fb_time', 'Too slow') : t('fb_wrong', 'Not quite'))}</b>
        <span class="pd-feedback__ans" lang="ja">${esc(given && !timedOut ? `${given} → ` : '')}<b>${esc(answer)}</b>${reading}</span> ${group}
-       ${guide ? `<span class="pd-feedback__why">${esc(guide.rule || '')}</span><button type="button" class="ld-link pd-feedback__guide" id="pdGuideLink">${esc(t('fb_guide', 'Open the guide for {p}', { p: guide.title }))}</button>` : ''}`;
+       ${guide ? `<span class="pd-feedback__why">${proseHtml(guide.rule)}</span><button type="button" class="ld-link pd-feedback__guide" id="pdGuideLink">${esc(t('fb_guide', 'Open the guide for {p}', { p: guide.title }))}</button>` : ''}`;
   const link = $('#pdGuideLink');
   if (link)
     link.addEventListener('click', () =>
@@ -1122,6 +1175,16 @@ async function route() {
   if (app.session) app.store.flush();
   app.session = null;
   try {
+    if (isConjHome()) {
+      // /conjugation-drill: the setup is the home view.
+      if (view === 'drill') await startConj();
+      else await renderConj();
+      return;
+    }
+    if (view === 'conj') {
+      window.location.replace('/conjugation-drill');
+      return;
+    }
     if (view === 'skill' && arg) await renderSkill(decodeURIComponent(arg));
     else if (view === 'drill' && arg) await startDrill([decodeURIComponent(arg)]);
     else if (view === 'mix') {
@@ -1130,13 +1193,11 @@ async function route() {
         picked.map((k) => k.id),
         { mix: true }
       );
-    } else if (view === 'conj' && arg === 'drill') await startConj();
-    else if (view === 'conj') await renderConj();
-    else renderHub();
+    } else renderHub();
   } catch (err) {
     console.error('particle drill:', err);
     setView(`<p class="ld-note ld-note--bad">${esc(t('error_load', 'Could not load the particle drill. Check your connection and try again.'))}</p>
-      <p><a class="ld-btn ld-btn--ghost" href="#/">${esc(t('back_hub', 'Back to the ladder'))}</a></p>`);
+      <p><a class="ld-btn ld-btn--ghost" href="#/">${esc(t('back_hub', 'Back'))}</a></p>`);
   }
 }
 
@@ -1163,9 +1224,13 @@ export async function mount(root) {
   app.store = createStore();
   root.innerHTML = `<p class="drill-msg">${esc(t('loading', 'Loading…'))}</p>`;
   try {
-    const [catalog] = await Promise.all([getJson('/catalog'), app.store.pull()]);
+    // The conjugation page needs no particle catalog.
+    const [catalog] = await Promise.all([
+      root.dataset.home === 'conj' ? null : getJson('/catalog'),
+      app.store.pull(),
+    ]);
     app.catalog = catalog;
-    catalog.skills.forEach((k) => app.skills.set(k.id, k));
+    if (catalog) catalog.skills.forEach((k) => app.skills.set(k.id, k));
   } catch (err) {
     console.error('particle drill:', err);
     root.innerHTML = `<p class="ld-note ld-note--bad">${esc(t('error_load', 'Could not load the particle drill. Check your connection and try again.'))}</p>`;

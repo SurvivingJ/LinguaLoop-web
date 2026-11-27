@@ -1,0 +1,20 @@
+[
+ {"id":"ga-sense-1","lv":4,
+  "tpl":"<place>{から|kara-from}<thing>{が|ga-sense}<end>",
+  "en":"<end> <thing> from <place>.",
+  "f":1,"d":["を","で","に"],
+  "why":"見える describes what comes into view by itself, so the thing seen is marked with が, not を.",
+  "vars":{
+   "place":[["ベランダ","the balcony"],["窓[まど]","the window"],["二階[にかい]","the second floor"],["教室[きょうしつ]","the classroom"],["台所[だいどころ]","the kitchen"],["この部屋[へや]","this room"],["会議室[かいぎしつ]","the meeting room"],["屋上[おくじょう]","the roof"]],
+   "thing":[["海[うみ]","the sea"],["富士山[ふじさん]","Mount Fuji"],["川[かわ]","the river"],["公園[こうえん]","the park"],["東京[とうきょう]タワー","Tokyo Tower"],["山[やま]","the mountains"],["町[まち]","the town"]],
+   "end":[["見[み]えます。","You can see"],["見[み]えました。","You could see"],["よく見[み]えます。","You get a good view of"],["少[すこ]し見[み]えます。","You can just make out"],["見[み]えるそうです。","Apparently you can see"],["見[み]えるでしょう。","You will probably be able to see"]]}},
+ {"id":"ga-sense-2","lv":4,
+  "tpl":"<source>{から|kara-from}<sound>{が|ga-sense}<hear>",
+  "en":"<hear> <sound> from <source>.",
+  "f":2,"d":["を","で","に"],
+  "why":"聞こえる means a sound reaches you without effort, so the sound is marked with が, not を.",
+  "vars":{
+   "source":[["隣[となり]{の|no-possessive}部屋[へや]","the next room"],["窓[まど]{の|no-possessive}外[そと]","outside the window"],["上[うえ]{の|no-possessive}階[かい]","the floor above"],["下[した]{の|no-possessive}階[かい]","the floor below"],["隣[となり]{の|no-possessive}家[いえ]","the house next door"],["向[む]かい{の|no-possessive}家[いえ]","the house opposite"]],
+   "sound":[["笑[わら]い声[ごえ]","laughter"],["話[はな]し声[ごえ]","voices"],["歌声[うたごえ]","singing"],["音楽[おんがく]","music"],["ピアノ","the piano"],["泣[な]き声[ごえ]","someone crying"],["物音[ものおと]","noises"]],
+   "hear":[["聞[き]こえます。","I can hear"],["聞[き]こえました。","I heard"],["よく聞[き]こえます。","I can clearly hear"],["時々[ときどき]聞[き]こえます。","I sometimes hear"],["聞[き]こえていました。","I could hear"],["少[すこ]し聞[き]こえます。","I can faintly hear"]]}}
+]

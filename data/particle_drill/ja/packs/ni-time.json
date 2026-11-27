@@ -1,0 +1,29 @@
+[
+{"id":"ni-time-1","lv":5,
+ "tpl":"<who>{は|wa-topic}<day>{に|ni-time}<act>か。",
+ "en":"Did <who> <act> on <day>?",
+ "f":1,"d":["で","を","が"],
+ "why":"A day of the week is a point in time you can name on a calendar, so it takes に.",
+ "vars":{
+  "who":[["田中[たなか]さん","Mr. Tanaka"],["お母[かあ]さん","your mother"],["お兄[にい]さん","your older brother"],["山田[やまだ]さん","Ms. Yamada"],["子供[こども]たち","the children"],["鈴木[すずき]さん","Mr. Suzuki"],["先生[せんせい]","the teacher"],["お姉[ねえ]さん","your older sister"]],
+  "day":[["月曜日[げつようび]","Monday"],["火曜日[かようび]","Tuesday"],["水曜日[すいようび]","Wednesday"],["木曜日[もくようび]","Thursday"],["金曜日[きんようび]","Friday"],["土曜日[どようび]","Saturday"],["日曜日[にちようび]","Sunday"]],
+  "act":[["映画[えいが]{を|o-object}見[み]ました","see a film"],["図書館[としょかん]{に/へ|ni-destination}行[い]きました","go to the library"],["部屋[へや]{を|o-object}掃除[そうじ]しました","clean the room"],["テニス{を|o-object}しました","play tennis"],["手紙[てがみ]{を|o-object}書[か]きました","write a letter"],["買[か]い物[もの]{を|o-object}しました","do the shopping"],["ケーキ{を|o-object}作[つく]りました","make a cake"],["車[くるま]{を|o-object}洗[あら]いました","wash the car"]]}},
+{"id":"ni-time-2","lv":5,
+ "tpl":"<day>{の|no-possessive}<time>{に|ni-time}<place>{に/へ|ni-destination}来[き]てください。",
+ "en":"Please come to <place> at <time> <day>.",
+ "f":1,"d":["で","を","が"],
+ "why":"A clock time is a point in time, so it takes に.",
+ "vars":{
+  "day":[["明日[あした]","tomorrow"],["あさって","the day after tomorrow"],["月曜日[げつようび]","on Monday"],["水曜日[すいようび]","on Wednesday"],["金曜日[きんようび]","on Friday"],["土曜日[どようび]","on Saturday"]],
+  "time":[["午前[ごぜん]八時[はちじ]","8 a.m."],["午前[ごぜん]九時[くじ]","9 a.m."],["午前[ごぜん]十時半[じゅうじはん]","10:30 a.m."],["午後[ごご]一時[いちじ]","1 p.m."],["午後[ごご]二時[にじ]","2 p.m."],["午後[ごご]三時半[さんじはん]","3:30 p.m."],["午後[ごご]五時[ごじ]","5 p.m."]],
+  "place":[["駅[えき]","the station"],["学校[がっこう]","the school"],["事務所[じむしょ]","the office"],["受付[うけつけ]","reception"],["会議室[かいぎしつ]","the meeting room"],["公園[こうえん]","the park"],["病院[びょういん]","the hospital"],["ロビー","the lobby"]]}},
+{"id":"ni-time-3","lv":4,
+ "tpl":"<who>{は|wa-topic}<month>{に|ni-time}<plan>予定[よてい]です。",
+ "en":"<who> will <plan> in <month>.",
+ "f":1,"d":["で","を","が"],
+ "why":"A month is a point on the calendar when something happens, so it takes に.",
+ "vars":{
+  "who":[["姉[あね]","My older sister"],["兄[あに]","My older brother"],["田中[たなか]さん","Mr. Tanaka"],["山田[やまだ]さん","Ms. Yamada"],["友達[ともだち]","My friend"],["私[わたし]たち","We"],["鈴木[すずき]さん","Mr. Suzuki"]],
+  "month":[["一月[いちがつ]","January"],["三月[さんがつ]","March"],["四月[しがつ]","April"],["六月[ろくがつ]","June"],["七月[しちがつ]","July"],["九月[くがつ]","September"],["十月[じゅうがつ]","October"],["十二月[じゅうにがつ]","December"]],
+  "plan":[["車[くるま]{を|o-object}買[か]う","buy a car"],["海外[かいがい]{に/へ|ni-destination}行[い]く","go abroad"],["大阪[おおさか]{に/へ|ni-destination}引[ひ]っ越[こ]す","move to Osaka"],["結婚[けっこん]する","get married"],["試験[しけん]{を|o-object}受[う]ける","take an exam"],["家[いえ]{を|o-object}建[た]てる","build a house"],["旅行[りょこう]{に|ni-purpose}行[い]く","go on a trip"],["パーティー{を|o-object}する","have a party"]]}}
+]
