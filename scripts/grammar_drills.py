@@ -121,6 +121,8 @@ def check_zh(text, label, errs):
         return
     if re.search(r'[A-Za-z0-9]', text):
         errs.append(f'{label}: Latin letters or digits are not allowed (write numbers in Hanzi)')
+    if re.search(r'[,?!;:]', text):
+        errs.append(f'{label}: use full-width Chinese punctuation (，。？！；：), not ASCII')
     conv = to_simplified(text)
     bad = [a for a, b in zip(text, conv) if a != b and a not in T2S_KEEP]
     if bad:
@@ -138,10 +140,15 @@ def check_py(zh, py, label, errs):
         errs.append(f'{label}: {len(syls)} syllables for {len(chars)} characters '
                     '(one syllable per character, separated by spaces)')
         return
-    for ch, syl in zip(chars, syls):
+    for i, (ch, syl) in enumerate(zip(chars, syls)):
         low = syl.lower()
-        if ch == '儿' and low in ('r', 'ér', 'er'):
-            continue
+        if ch == '儿':
+            # A full syllable in 儿子 / 女儿 / 儿童; the suffix r elsewhere.
+            full = (i + 1 < len(chars) and chars[i + 1] in '子童女科歌') or (i > 0 and chars[i - 1] in '女幼婴少')
+            if full and low == 'r':
+                errs.append(f'{label}: 儿 is a full syllable here (ér), not the suffix r')
+            if low in ('r', 'ér', 'er'):
+                continue
         known = readings(ch)
         if low in known:
             continue
