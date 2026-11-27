@@ -373,6 +373,15 @@ def log_judge_verdict(
     Never raises — verdict logging must never break the generation pipeline.
     """
     try:
+        # Under LLM_FORCE_PROVIDER the template's model was not the one that
+        # answered; label the row with the model call_llm actually used.
+        from services.llm_service import forced_provider, _resolve_model
+        forced = forced_provider()
+        if forced:
+            model = _resolve_model(model, None, forced)
+    except Exception:  # noqa: BLE001 -- a label must never break logging
+        pass
+    try:
         from services.supabase_factory import get_supabase_admin, get_supabase
         client = get_supabase_admin() or get_supabase()
         if client is None:

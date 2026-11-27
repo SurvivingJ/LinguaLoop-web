@@ -118,3 +118,29 @@ def test_prose_writer_client_follows_force(monkeypatch):
     monkeypatch.setattr(pw, 'get_client', lambda provider=None, **kw: seen.append((provider, kw)) or object())
     pw.ProseWriter(api_key='x')
     assert seen == [('claude_cli', {})]
+
+
+def test_judge_verdict_row_labels_served_model(monkeypatch):
+    from services.exercise_generation.judges import base
+    rows = []
+
+    class _T:
+        def insert(self, row):
+            rows.append(row)
+            return self
+
+        def execute(self):
+            return None
+
+    class _C:
+        def table(self, name):
+            return _T()
+
+    import services.supabase_factory as sf
+    monkeypatch.setattr(sf, 'get_supabase_admin', lambda: _C())
+    monkeypatch.setenv('LLM_FORCE_PROVIDER', 'claude_cli')
+    base.log_judge_verdict('judge_x', 'google/gemini-3.5-flash-lite', 'accept', 5.0)
+    monkeypatch.delenv('LLM_FORCE_PROVIDER')
+    base.log_judge_verdict('judge_x', 'google/gemini-3.5-flash-lite', 'accept', 5.0)
+    assert rows[0]['model'].startswith('claude-cli:')
+    assert rows[1]['model'] == 'google/gemini-3.5-flash-lite'
