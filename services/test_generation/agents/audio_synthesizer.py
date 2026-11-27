@@ -128,67 +128,121 @@ class AudioSynthesizer:
             # Generate audio using Azure Speech SDK
             logger.debug(f"Generating TTS for {file_id} with Azure voice '{selected_voice}'")
 
-            # 1. Configure Speech Service
-            speech_config = speechsdk.SpeechConfig(
-                subscription=self.speech_key,
-                region=self.service_region
-            )
-            speech_config.speech_synthesis_voice_name = selected_voice
-
-            # 2. Set Output Format to MP3 (crucial for web playback and file size)
-            speech_config.set_speech_synthesis_output_format(
-                speechsdk.SpeechSynthesisOutputFormat.Audio48Khz192KBitRateMonoMp3
-            )
-
-            # 3. Create Synthesizer (audio_config=None keeps data in memory)
-            synthesizer = speechsdk.SpeechSynthesizer(
-                speech_config=speech_config,
-                audio_config=None
-            )
-
-            # 4. Generate audio. Use SSML <prosody rate> when a non-default
-            #    speed is requested; otherwise plain text (preserves byte-exact
-            #    output for existing tests).
-            if speed is not None and abs(speed - 1.0) > 1e-6:
-                ssml = self._build_ssml(text, selected_voice, speed)
-                logger.debug(f"Using SSML rate for {file_id} (speed={speed})")
-                result = synthesizer.speak_ssml_async(ssml).get()
+            if self._tts_transport() == 'rest':
+                audio_data = self._synthesize_rest(text, selected_voice, speed, file_id)
             else:
-                result = synthesizer.speak_text_async(text).get()
+                audio_data = self._synthesize_sdk(text, selected_voice, speed, file_id)
 
             self.api_call_count += 1
 
-            # 5. Process Result
-            if result.reason == speechsdk.ResultReason.SynthesizingAudioCompleted:
-                audio_data = result.audio_data
+            if not audio_data:
+                raise Exception("Empty audio response from Azure TTS")
 
-                if not audio_data:
-                    raise Exception("Empty audio response from Azure TTS")
+            logger.debug(f"Generated {len(audio_data)} bytes of audio")
 
-                logger.debug(f"Generated {len(audio_data)} bytes of audio")
+            # Upload to R2
+            success = self._upload_to_r2(file_id, audio_data)
 
-                # Upload to R2
-                success = self._upload_to_r2(file_id, audio_data)
+            if success:
+                logger.info(f"Successfully generated and uploaded audio: {file_id}.mp3")
+                # Return R2 public URL using Config
+                return Config.get_audio_url(file_id)
 
-                if success:
-                    logger.info(f"Successfully generated and uploaded audio: {file_id}.mp3")
-                    # Return R2 public URL using Config
-                    return Config.get_audio_url(file_id)
-
-                raise Exception(f"Failed to upload audio for {file_id}")
-
-            elif result.reason == speechsdk.ResultReason.Canceled:
-                cancellation_details = result.cancellation_details
-                error_msg = f"Azure TTS Error: {cancellation_details.reason}"
-                if cancellation_details.error_details:
-                    error_msg += f" - {cancellation_details.error_details}"
-                raise Exception(error_msg)
-            else:
-                raise Exception(f"Unexpected result reason: {result.reason}")
+            raise Exception(f"Failed to upload audio for {file_id}")
 
         except Exception as e:
             logger.error(f"Audio generation/upload failed for {file_id}: {e}")
             raise
+
+    @staticmethod
+    def _tts_transport() -> str:
+        """``AZURE_TTS_TRANSPORT``: ``sdk`` (default) or ``rest``.
+
+        The Speech SDK streams over a WebSocket, which some egress proxies
+        (cloud agent sandboxes among them) do not carry. ``rest`` posts the
+        same SSML to the service's HTTPS endpoint instead and gets the same
+        MP3 format back.
+        """
+        import os
+        value = (os.getenv('AZURE_TTS_TRANSPORT') or 'sdk').strip().lower()
+        return value if value in ('sdk', 'rest') else 'sdk'
+
+    def _synthesize_sdk(self, text: str, voice: str, speed, file_id: str) -> bytes:
+        """Synthesize with the Azure Speech SDK; returns MP3 bytes."""
+        # 1. Configure Speech Service
+        speech_config = speechsdk.SpeechConfig(
+            subscription=self.speech_key,
+            region=self.service_region
+        )
+        speech_config.speech_synthesis_voice_name = voice
+
+        # 2. Set Output Format to MP3 (crucial for web playback and file size)
+        speech_config.set_speech_synthesis_output_format(
+            speechsdk.SpeechSynthesisOutputFormat.Audio48Khz192KBitRateMonoMp3
+        )
+
+        # 3. Create Synthesizer (audio_config=None keeps data in memory)
+        synthesizer = speechsdk.SpeechSynthesizer(
+            speech_config=speech_config,
+            audio_config=None
+        )
+
+        # 4. Generate audio. Use SSML <prosody rate> when a non-default
+        #    speed is requested; otherwise plain text (preserves byte-exact
+        #    output for existing tests).
+        if speed is not None and abs(speed - 1.0) > 1e-6:
+            ssml = self._build_ssml(text, voice, speed)
+            logger.debug(f"Using SSML rate for {file_id} (speed={speed})")
+            result = synthesizer.speak_ssml_async(ssml).get()
+        else:
+            result = synthesizer.speak_text_async(text).get()
+
+        # 5. Process Result
+        if result.reason == speechsdk.ResultReason.SynthesizingAudioCompleted:
+            return result.audio_data
+        if result.reason == speechsdk.ResultReason.Canceled:
+            cancellation_details = result.cancellation_details
+            error_msg = f"Azure TTS Error: {cancellation_details.reason}"
+            if cancellation_details.error_details:
+                error_msg += f" - {cancellation_details.error_details}"
+            raise Exception(error_msg)
+        raise Exception(f"Unexpected result reason: {result.reason}")
+
+    def _synthesize_rest(self, text: str, voice: str, speed, file_id: str) -> bytes:
+        """Synthesize through the Azure TTS REST endpoint; returns MP3 bytes.
+
+        Same voice, the same 48 kHz 192 kbit/s mono MP3 as the SDK path, and
+        the same <prosody rate> SSML for a non-default speed. REST takes SSML
+        only, so plain text is wrapped in <speak><voice> without prosody.
+        """
+        import httpx
+
+        if speed is not None and abs(speed - 1.0) > 1e-6:
+            ssml = self._build_ssml(text, voice, speed)
+        else:
+            lang = self._voice_to_lang(voice)
+            ssml = (
+                f'<speak version="1.0" xml:lang="{lang}">'
+                f'<voice name="{voice}">{xml.sax.saxutils.escape(text)}</voice>'
+                f'</speak>'
+            )
+        url = f"https://{self.service_region}.tts.speech.microsoft.com/cognitiveservices/v1"
+        response = httpx.post(
+            url,
+            content=ssml.encode('utf-8'),
+            headers={
+                'Ocp-Apim-Subscription-Key': self.speech_key or '',
+                'Content-Type': 'application/ssml+xml',
+                'X-Microsoft-OutputFormat': 'audio-48khz-192kbitrate-mono-mp3',
+                'User-Agent': 'lingualoop-test-generation',
+            },
+            timeout=60.0,
+        )
+        if response.status_code != 200:
+            raise Exception(
+                f"Azure TTS REST error for {file_id}: HTTP {response.status_code}"
+            )
+        return response.content
 
     def _upload_to_r2(self, slug: str, audio_data: bytes) -> bool:
         """
