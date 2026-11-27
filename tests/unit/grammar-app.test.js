@@ -397,7 +397,7 @@ describe('grammar drill app', () => {
     expect(root.querySelector('.gd-sheet')).toBeNull();
   });
 
-  describe('progress tracking (ADR-065)', () => {
+  describe('progress tracking (ADR-066)', () => {
     /** A sync stand-in: records what the page hands over, serves `progress`. */
     function fakeSync(progress = null) {
       const sent = [];

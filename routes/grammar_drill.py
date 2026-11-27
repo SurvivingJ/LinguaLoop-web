@@ -1,4 +1,4 @@
-"""Grammar-drill progress tracking routes (TASK-1239, ADR-065).
+"""Grammar-drill progress tracking routes (TASK-1259, ADR-066).
 
   POST /api/grammar-drill/round     body: {language_id, round_key (uuid),
         mode: 'round'|'mixed'|'endless'|'sync', played_at? (epoch seconds),

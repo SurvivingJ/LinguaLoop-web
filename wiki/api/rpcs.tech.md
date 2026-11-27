@@ -232,7 +232,7 @@ All `@jwt_required`.
 
 ### Grammar drill tracking — [routes/grammar_drill.py](../../routes/grammar_drill.py) (added 2026-11-27; migration PENDING)
 
-Blueprint `grammar_drill` at `/api/grammar-drill`; validation and storage in `services/grammar_drill_tracking.py`. Both `@jwt_required`, Chinese only (`language_id` 1), own data only. Until `migrations/grammar_drill_tracking.sql` is applied both answer `503` with `error_code: GRAMMAR_TRACKING_UNAVAILABLE` (logged; remembered 600 s per process) and the page ignores it. Full specification (arguments, bounds, errors): [[features/grammar-drills.tech]] "API / RPC Surface"; decision: [[decisions/ADR-065-grammar-drill-daily-tracking]].
+Blueprint `grammar_drill` at `/api/grammar-drill`; validation and storage in `services/grammar_drill_tracking.py`. Both `@jwt_required`, Chinese only (`language_id` 1), own data only. Until `migrations/grammar_drill_tracking.sql` is applied both answer `503` with `error_code: GRAMMAR_TRACKING_UNAVAILABLE` (logged; remembered 600 s per process) and the page ignores it. Full specification (arguments, bounds, errors): [[features/grammar-drills.tech]] "API / RPC Surface"; decision: [[decisions/ADR-066-grammar-drill-daily-tracking]].
 
 | Method | Path | Handler | Reaches | Client |
 |---|---|---|---|---|

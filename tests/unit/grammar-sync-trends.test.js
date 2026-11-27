@@ -1,5 +1,5 @@
 /**
- * Grammar-drill progress tracking (ADR-065):
+ * Grammar-drill progress tracking (ADR-066):
  *   store.js    syncState / mergeRemote (the state the server keeps)
  *   sync.js     the round tally, the unsent-round queue, pull and merge
  *   trends.js   shaping the daily summaries for the progress views

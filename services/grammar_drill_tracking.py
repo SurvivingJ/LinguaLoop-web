@@ -1,4 +1,4 @@
-"""Grammar-drill progress tracking (TASK-1239, ADR-065).
+"""Grammar-drill progress tracking (TASK-1259, ADR-066).
 
 Daily summaries per learner and topic plus one current-state row per topic, so
 that improvement over time can be read back and progress follows the learner

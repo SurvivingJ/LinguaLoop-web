@@ -122,4 +122,4 @@ None.
 - [[features/pitch-accent-trainer]] — sibling Japanese trainer
 - [[features/vocab-dojo]] — the closest infinite-trainer pattern (BKT-driven)
 - [[algorithms/elo-ranking]] — ELO formula shared by the trainer
-- [[features/grammar-drills]] — Chinese grammar drills (`/grammar-drill`, static content); its measure-words topic overlaps this trainer (open question GQ10, TASK-1248)
+- [[features/grammar-drills]] — Chinese grammar drills (`/grammar-drill`, static content); its measure-words topic overlaps this trainer (open question GQ10, TASK-1268)

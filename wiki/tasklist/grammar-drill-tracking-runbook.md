@@ -8,8 +8,8 @@ last_updated: 2026-11-27
 # Grammar Drill Tracking — Apply Runbook and Owner Queries
 
 For the owner. Covers the one pending migration that turns on progress tracking for the Chinese
-grammar drills ([[features/grammar-drills]], [[decisions/ADR-065-grammar-drill-daily-tracking]],
-TASK-1239) and the SQL to read the collected history. Nothing here has been applied.
+grammar drills ([[features/grammar-drills]], [[decisions/ADR-066-grammar-drill-daily-tracking]],
+TASK-1259) and the SQL to read the collected history. Nothing here has been applied.
 
 ## The space line
 
@@ -149,7 +149,7 @@ SELECT d.topic, m.key AS sub_point,
 ## Related Pages
 
 - [[features/grammar-drills]], [[features/grammar-drills.tech]]
-- [[decisions/ADR-065-grammar-drill-daily-tracking]]
-- [[tasklist/grammar-drills.tasks]] — TASK-1239
+- [[decisions/ADR-066-grammar-drill-daily-tracking]]
+- [[tasklist/grammar-drills.tasks]] — TASK-1259
 - [[tasklist/report-and-placement-apply-runbook]] — the earlier apply runbook and the database-size history
 - [[database/schema.tech]] — the two tables

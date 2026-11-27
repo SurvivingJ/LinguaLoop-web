@@ -2759,7 +2759,7 @@ words up on its next manual refresh). See [[decisions/ADR-047-basic-word-knowled
 
 ### Grammar drill tracking (PENDING, written 2026-11-27; not live)
 
-`migrations/grammar_drill_tracking.sql` (TASK-1239, [[decisions/ADR-065-grammar-drill-daily-tracking]]; rollback `migrations/grammar_drill_tracking_rollback.sql`; apply entry `migrations/PENDING-2026-11-27.md`). Two new tables and one new function; nothing existing changes. Not counted in the live totals on this page until applied (then 102 tables). Owner decision 2026-11-27: the database stop line is **480 MB** (was 475 MB). Feature specification: [[features/grammar-drills.tech]].
+`migrations/grammar_drill_tracking.sql` (TASK-1259, [[decisions/ADR-066-grammar-drill-daily-tracking]]; rollback `migrations/grammar_drill_tracking_rollback.sql`; apply entry `migrations/PENDING-2026-11-27.md`). Two new tables and one new function; nothing existing changes. Not counted in the live totals on this page until applied (then 102 tables). Owner decision 2026-11-27: the database stop line is **480 MB** (was 475 MB). Feature specification: [[features/grammar-drills.tech]].
 
 **`grammar_drill_daily`**: one row per learner, language, topic and practice day. Counts are over first answers. Written only by `record_grammar_drill_round`. Columns are ordered widest first.
 

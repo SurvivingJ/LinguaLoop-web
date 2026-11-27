@@ -26,9 +26,9 @@ breaking_change_risk: medium
 # Chinese Grammar Drills — Technical Specification
 
 Verified against the code on branch `claude/happy-gates-qp9ifs` on 2026-11-27. Not deployed.
-Progress tracking (ADR-065) was added the same day in the working tree; its migration is not applied.
+Progress tracking (ADR-066) was added the same day in the working tree; its migration is not applied.
 Prose page: [[features/grammar-drills]]. Decision record:
-[[decisions/ADR-064-grammar-drills-static-content-local-progress]].
+[[decisions/ADR-065-grammar-drills-static-content-local-progress]].
 
 ## Architecture Overview
 
@@ -52,7 +52,7 @@ static/data/grammar/zh/            served as static files
 ```
 
 Content and answer checking involve no server-side logic beyond serving the template and the
-static files. **Progress tracking (added 2026-11-27, ADR-065)** is the one server part: two API
+static files. **Progress tracking (added 2026-11-27, ADR-066)** is the one server part: two API
 routes, two tables and one function, described under "Progress tracking" below. The migration is
 pending; until it is applied the routes answer 503 and the page works from `localStorage` alone.
 
@@ -78,7 +78,7 @@ guide and generators and 0 items.
 
 ## Database Impact
 
-Content: none. Tracking (ADR-065): two new tables and one new function, defined in
+Content: none. Tracking (ADR-066): two new tables and one new function, defined in
 `migrations/grammar_drill_tracking.sql` (**pending, not applied**; rollback
 `migrations/grammar_drill_tracking_rollback.sql`; apply entry `migrations/PENDING-2026-11-27.md`).
 Full definitions: [[database/schema.tech]] "Grammar drill tracking". Nothing existing is changed.
@@ -93,7 +93,7 @@ No index beyond the two primary keys: every read is by `(user_id, language_id)` 
 `practice_day` range, which the daily primary key's leading columns serve for the user filter.
 Measured size: about 246 bytes per daily row with index, 665 to 1,250 per state row (see the
 migration header and [[tasklist/grammar-drill-tracking-runbook]]). The database stop line is
-480 MB (ADR-065).
+480 MB (ADR-066).
 
 The unrelated `dim_classifiers` tables used by [[features/measure-word-trainer.tech]] are not
 touched.
@@ -134,7 +134,7 @@ from 6 judge items); the correct cloze index may not sit at one position in over
 
 787 lines. Run from the repository root. Every command works on local files only; nothing reads
 or writes the database, so the `--apply` convention for writing scripts does not apply to it.
-`LANG = 'zh'` is a module constant (see TASK-1246).
+`LANG = 'zh'` is a module constant (see TASK-1266).
 
 | Command | Effect | Exit code |
 |---------|--------|-----------|
@@ -248,7 +248,7 @@ application has 119 URL rules (117 before). Logic and validation are in
   pass 50,000 answers); then set the state to the side whose `l` is later (the old state when
   the entry has no state), with `u = GREATEST(old u, new u, stage)`, and store `p_round_key`.
 - **Known limit:** one key per state row. A resend that arrives after another device has
-  written the same topic in between is counted twice (ADR-065).
+  written the same topic in between is counted twice (ADR-066).
 
 ## Component Specification
 
@@ -370,7 +370,7 @@ One JSON value under `localStorage['ld.grammar.zh.v1']`:
 Every storage call is guarded: a blocked or full `localStorage` means progress is not kept and
 nothing throws. `dump()` returns the whole value.
 
-### Progress tracking (ADR-065; client side)
+### Progress tracking (ADR-066; client side)
 
 **What is sent.** `app.js` `record()` adds every FIRST answer to `session.tally`
 (`sync.createTally`): per topic `answers`, `correct`, `timed` and `ms_sum` (right first answers
@@ -485,11 +485,11 @@ Claude subagents only; no OpenRouter and no Anthropic API key.
    - **Rationale:** the database was at 473.15 MB against the owner's 475 MB line (500 MB plan
      cap); the content is read-only and the same for every learner.
    - **Alternatives rejected:** tables for topics and items; exercise content files in Storage.
-     See [[decisions/ADR-064-grammar-drills-static-content-local-progress]].
+     See [[decisions/ADR-065-grammar-drills-static-content-local-progress]].
 2. **Decision:** progress in `localStorage` behind one module (`store.js`) as the working copy,
    copied to the server as daily summaries plus one state row per topic
-   ([[decisions/ADR-065-grammar-drill-daily-tracking]], which supersedes the
-   `localStorage`-only choice of ADR-064).
+   ([[decisions/ADR-066-grammar-drill-daily-tracking]], which supersedes the
+   `localStorage`-only choice of ADR-065).
    - **Rationale:** the owner wants improvement over time and chose daily rows with the stop
      line raised to 480 MB; one write per finished session keeps the drill free of server
      latency and working offline.
@@ -583,15 +583,15 @@ Claude subagents only; no OpenRouter and no Anthropic API key.
   vitest 1,088 passed in 53 files; `npm run check` 0 errors and 2 warnings (both in files this
   feature does not touch: `static/js/pages/login.js`, `static/js/utils.js`); 117 URL rules.
 - **Not tested:** correctness of the Chinese itself beyond the validator and the agent review
-  (TASK-1241); the page on a deployed host; the migration and the two routes against the live
+  (TASK-1261); the page on a deployed host; the migration and the two routes against the live
   Supabase project (PostgREST error codes for the missing-object path are taken from the other
   services' handling, not observed for these objects).
 
 ## Related Pages
 
 - [[features/grammar-drills]] — prose page
-- [[decisions/ADR-064-grammar-drills-static-content-local-progress]]
-- [[decisions/ADR-065-grammar-drill-daily-tracking]] — tracking; the 480 MB line
+- [[decisions/ADR-065-grammar-drills-static-content-local-progress]]
+- [[decisions/ADR-066-grammar-drill-daily-tracking]] — tracking; the 480 MB line
 - [[tasklist/grammar-drill-tracking-runbook]] — apply steps, owner queries
 - [[tasklist/grammar-drills.tasks]]
 - [[features/measure-word-trainer.tech]] — database-backed drill overlapping the `measure-words` topic

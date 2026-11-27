@@ -27,9 +27,9 @@ below.
 | Done | 226 | 370 |
 | **Total distinct task ids** | **389** | **555** |
 
-*2026-11-27 (grammar-drill tracking built, TASK-1239):* TASK-1239 Not Started → `[?]` Done (repo), awaiting live apply (owner decision "Do daily with the current space limit raised to 480mb", [[decisions/ADR-065-grammar-drill-daily-tracking]]; the database stop line is now 480 MB). Both columns moved by one: Not Started 76 → 75 (92 → 91), Blocked/awaiting 64 → 65 (63 → 64). No new task id. Counts adjusted by hand from the previous line, not re-run with the checker.
+*2026-11-27 (grammar-drill tracking built, TASK-1259):* TASK-1259 Not Started → `[?]` Done (repo), awaiting live apply (owner decision "Do daily with the current space limit raised to 480mb", [[decisions/ADR-066-grammar-drill-daily-tracking]]; the database stop line is now 480 MB). Both columns moved by one: Not Started 76 → 75 (92 → 91), Blocked/awaiting 64 → 65 (63 → 64). No new task id. Counts adjusted by hand from the previous line, not re-run with the checker.
 
-*2026-11-27 (NEW — Chinese Grammar Drills, TASK-1234–1248):* 15 new ids, each with a row here and a block in [[tasklist/grammar-drills.tasks]]: 5 Done (repo, not deployed), 5 Not Started, 5 `[?]` awaiting an owner decision. Both columns moved by the same amounts (Not Started +5, Blocked/awaiting +5, Done +5, total +15), added by hand to the counts above; the checker (`check_wiki.py`) is not in this repository and was not run. The TASK-1034–1043 collision is untouched.
+*2026-11-27 (NEW — Chinese Grammar Drills, TASK-1254–1268):* 15 new ids, each with a row here and a block in [[tasklist/grammar-drills.tasks]]: 5 Done (repo, not deployed), 5 Not Started, 5 `[?]` awaiting an owner decision. Both columns moved by the same amounts (Not Started +5, Blocked/awaiting +5, Done +5, total +15), added by hand to the counts above; the checker (`check_wiki.py`) is not in this repository and was not run. The TASK-1034–1043 collision is untouched.
 
 *2026-11-25 (after merging main, PR #44, into the JLPT seeding branch):* kept main's checker-based table and moved
 the one status this branch changed: TASK-1058 Not Started → Done (repo), awaiting deploy (counted under Blocked /
@@ -1559,25 +1559,25 @@ Full spec: [[tasklist/review-2026-11-22.tasks]]. Record: [[evaluations/codebase-
 | TASK-1233 | codebase-review-2026-11-22 | Deploy checklist for this review's code | [ ] | S | TASK-1200 |
 
 ### Chinese Grammar Drills — NEW 2026-11-27
-Full spec: [[tasklist/grammar-drills.tasks]]. Feature: [[features/grammar-drills]]. Decision: [[decisions/ADR-064-grammar-drills-static-content-local-progress]]. Built on `claude/happy-gates-qp9ifs`, not deployed. The five `[?]` rows each wait on an owner decision stated in the task.
+Full spec: [[tasklist/grammar-drills.tasks]]. Feature: [[features/grammar-drills]]. Decision: [[decisions/ADR-065-grammar-drills-static-content-local-progress]]. Built on `claude/happy-gates-qp9ifs`, not deployed. The five `[?]` rows each wait on an owner decision stated in the task.
 
 | ID | Feature | Title | Status | Complexity | Depends On |
 |----|---------|-------|--------|------------|------------|
-| TASK-1234 | grammar-drills | Content contract, topic plan and the `grammar_drills.py` script | Done | L | — |
-| TASK-1235 | grammar-drills | Topic guides (39) written, validated and reconciled with reviewer notes | Done | L | TASK-1234 |
-| TASK-1236 | grammar-drills | Drill content authored, blind-reviewed and built (105 batches, 10,209 items) | Done | XL | TASK-1234, TASK-1235 |
-| TASK-1237 | grammar-drills | `/grammar-drill` page: engine, four-stage ladder, local progress, i18n, profile link | Done | XL | TASK-1234 |
-| TASK-1238 | grammar-drills | Infinite-practice generators (22 generators, 13 topics) and Endless mode | Done | L | TASK-1237 |
-| TASK-1239 | grammar-drills | Track grammar-drill progress on the server (daily summaries + state row; ADR-065) — Done (repo) 2026-11-27, awaiting live apply of `migrations/grammar_drill_tracking.sql` | [?] | L | — |
-| TASK-1240 | grammar-drills | Decide whether grammar drills join the Study Plan / daily session and feed ELO | [?] | XL | TASK-1239 |
-| TASK-1241 | grammar-drills | Native-speaker audit of the drill content | [ ] | XL | — |
-| TASK-1242 | grammar-drills | Decide the languages for guide and explanation text | [?] | XL | — |
-| TASK-1243 | grammar-drills | Review the es / ja / zh interface strings for the grammar-drill page | [ ] | S | — |
-| TASK-1244 | grammar-drills | Decide how Recall time is measured | [?] | M | — |
-| TASK-1245 | grammar-drills | Improve the meaning of generated sentences | [ ] | M | — |
-| TASK-1246 | grammar-drills | Make the contract and script reusable for Japanese particles | [ ] | M | — |
-| TASK-1247 | grammar-drills | Decide whether grammar drills get audio | [?] | L | — |
-| TASK-1248 | grammar-drills | Decide the relation between the measure-words topic and the Measure Word Trainer | [?] | S | — |
+| TASK-1254 | grammar-drills | Content contract, topic plan and the `grammar_drills.py` script | Done | L | — |
+| TASK-1255 | grammar-drills | Topic guides (39) written, validated and reconciled with reviewer notes | Done | L | TASK-1254 |
+| TASK-1256 | grammar-drills | Drill content authored, blind-reviewed and built (105 batches, 10,209 items) | Done | XL | TASK-1254, TASK-1255 |
+| TASK-1257 | grammar-drills | `/grammar-drill` page: engine, four-stage ladder, local progress, i18n, profile link | Done | XL | TASK-1254 |
+| TASK-1258 | grammar-drills | Infinite-practice generators (22 generators, 13 topics) and Endless mode | Done | L | TASK-1257 |
+| TASK-1259 | grammar-drills | Track grammar-drill progress on the server (daily summaries + state row; ADR-066) — Done (repo) 2026-11-27, awaiting live apply of `migrations/grammar_drill_tracking.sql` | [?] | L | — |
+| TASK-1260 | grammar-drills | Decide whether grammar drills join the Study Plan / daily session and feed ELO | [?] | XL | TASK-1259 |
+| TASK-1261 | grammar-drills | Native-speaker audit of the drill content | [ ] | XL | — |
+| TASK-1262 | grammar-drills | Decide the languages for guide and explanation text | [?] | XL | — |
+| TASK-1263 | grammar-drills | Review the es / ja / zh interface strings for the grammar-drill page | [ ] | S | — |
+| TASK-1264 | grammar-drills | Decide how Recall time is measured | [?] | M | — |
+| TASK-1265 | grammar-drills | Improve the meaning of generated sentences | [ ] | M | — |
+| TASK-1266 | grammar-drills | Make the contract and script reusable for Japanese particles | [ ] | M | — |
+| TASK-1267 | grammar-drills | Decide whether grammar drills get audio | [?] | L | — |
+| TASK-1268 | grammar-drills | Decide the relation between the measure-words topic and the Measure Word Trainer | [?] | S | — |
 
 ### Language Packs (existing — unchanged)
 

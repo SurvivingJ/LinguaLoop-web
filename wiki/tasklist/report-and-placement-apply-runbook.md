@@ -195,7 +195,7 @@ Owner decision 2026-11-27 ("Do daily with the current space limit raised to 480m
 named on this page as 475 MB is **480 MB** from now on; earlier entries keep the figure that
 applied when they were written. The database was 473.15 MB on 2026-11-24, so the headroom is
 6.85 MB, and the first use of it is the grammar-drill tracking migration
-([[decisions/ADR-065-grammar-drill-daily-tracking]]). Its apply steps and the owner's SQL queries
+([[decisions/ADR-066-grammar-drill-daily-tracking]]). Its apply steps and the owner's SQL queries
 (table sizes first) are on [[tasklist/grammar-drill-tracking-runbook]].
 
 ## Related Pages

@@ -5,17 +5,17 @@ status: in-progress
 tech_page: ./grammar-drills.tech.md
 last_updated: 2026-11-27
 open_questions:
-  - "GQ2 (OPEN): Should grammar drills appear in the Study Plan / daily session, and should they feed ELO or any other learner model? Today they are a separate page with no link to either (TASK-1240)."
-  - "GQ3 (OPEN): No native speaker has audited the content. Reviewer agents left borderline items in place and listed them in `data/grammar_drills/zh/review_concerns.md` (TASK-1241)."
-  - "GQ4 (OPEN): Guides and per-item explanations are English only. Which other languages, and does that include the 10,209 `why` texts? (TASK-1242)"
-  - "GQ5 (OPEN): The es / ja / zh interface strings for this page are machine translations nobody has reviewed (TASK-1243)."
-  - "GQ6 (OPEN): The Recall time is self-reported: the clock stops when the learner taps \"Show choices\". Is that an acceptable basis for the \"instant\" badge? (TASK-1244)"
-  - "GQ7 (OPEN): Generated sentences are grammatical but sometimes semantically flat. How much curation of the generator word lists is wanted? (TASK-1245)"
-  - "GQ8 (OPEN): The Japanese particle counterpart is work in progress elsewhere and should reuse this contract; the script is hard-wired to `zh` today (TASK-1246)."
-  - "GQ9 (OPEN): There is no audio. Is audio wanted, and from what source? (TASK-1247)"
-  - "GQ11 (OPEN): A daily tracking row costs about 246 bytes with its index, not the 150 budgeted; the sub-point keys are the difference. Accept, or store sub-point misses more compactly? (ADR-065)"
+  - "GQ2 (OPEN): Should grammar drills appear in the Study Plan / daily session, and should they feed ELO or any other learner model? Today they are a separate page with no link to either (TASK-1260)."
+  - "GQ3 (OPEN): No native speaker has audited the content. Reviewer agents left borderline items in place and listed them in `data/grammar_drills/zh/review_concerns.md` (TASK-1261)."
+  - "GQ4 (OPEN): Guides and per-item explanations are English only. Which other languages, and does that include the 10,209 `why` texts? (TASK-1262)"
+  - "GQ5 (OPEN): The es / ja / zh interface strings for this page are machine translations nobody has reviewed (TASK-1263)."
+  - "GQ6 (OPEN): The Recall time is self-reported: the clock stops when the learner taps \"Show choices\". Is that an acceptable basis for the \"instant\" badge? (TASK-1264)"
+  - "GQ7 (OPEN): Generated sentences are grammatical but sometimes semantically flat. How much curation of the generator word lists is wanted? (TASK-1265)"
+  - "GQ8 (OPEN): The Japanese particle counterpart is work in progress elsewhere and should reuse this contract; the script is hard-wired to `zh` today (TASK-1266)."
+  - "GQ9 (OPEN): There is no audio. Is audio wanted, and from what source? (TASK-1267)"
+  - "GQ11 (OPEN): A daily tracking row costs about 246 bytes with its index, not the 150 budgeted; the sub-point keys are the difference. Accept, or store sub-point misses more compactly? (ADR-066)"
   - "GQ12 (OPEN): How long are daily tracking rows kept? The page reads the last 180 days; nothing deletes older rows."
-  - "GQ10 (OPEN): The measure-words topic overlaps the existing database-backed Measure Word Trainer (`/classifier-drill`). Keep both, link them, or merge? (TASK-1248)"
+  - "GQ10 (OPEN): The measure-words topic overlaps the existing database-backed Measure Word Trainer (`/classifier-drill`). Keep both, link them, or merge? (TASK-1268)"
 ---
 
 # Chinese Grammar Drills
@@ -30,7 +30,7 @@ request (2026-11-27) was for "a drill drill drill thing … drill them so it bec
 **State on 2026-11-27:** built on branch `claude/happy-gates-qp9ifs`; not deployed. Chinese only.
 Progress tracking (daily history on the server, stages across devices, progress views) was built
 the same day; its database migration is not applied yet
-([[decisions/ADR-065-grammar-drill-daily-tracking]]).
+([[decisions/ADR-066-grammar-drill-daily-tracking]]).
 
 ## User Story
 
@@ -120,7 +120,7 @@ and the page is as before.
 - **Chinese only.** Simplified characters, mainland standard usage. A Japanese particle
   counterpart is being built elsewhere (GQ8).
 - **Progress follows the account once tracking is applied** (built 2026-11-27, migration
-  pending: TASK-1239). Stages, recent results and totals are copied to the server after each
+  pending: TASK-1259). Stages, recent results and totals are copied to the server after each
   session and merged on load. Until the migration is applied, or when the learner is signed out
   or offline, progress is per browser as before, and nothing is shown about it. The per-item
   review schedule always stays in the browser: a new device knows the stage but treats every
@@ -146,7 +146,7 @@ and the page is as before.
 ## Business Rules
 
 - The content is static files shipped with the app. No drill item, guide or answer is stored in
-  the database ([[decisions/ADR-064-grammar-drills-static-content-local-progress]]).
+  the database ([[decisions/ADR-065-grammar-drills-static-content-local-progress]]).
 - A sentence is drilled once: the build leaves out any item whose sentence already appears in
   another item, whatever the item type (312 left out; 10,209 remain).
 - Every fill-the-blank item must have exactly one acceptable option; every build item lists every
@@ -158,7 +158,7 @@ and the page is as before.
 - Content was produced with Claude subagents only: no OpenRouter and no Anthropic API key
   (owner instruction).
 - Tracking keeps daily summaries and one state row per topic; never a row per answer or per item
-  ([[decisions/ADR-065-grammar-drill-daily-tracking]]). The database stop line is 480 MB.
+  ([[decisions/ADR-066-grammar-drill-daily-tracking]]). The database stop line is 480 MB.
 - A day is the app's review day (Sydney time), the same day the flashcards use.
 - A finished session is counted once, however often the browser has to resend it.
 - Local progress is never lost to the server copy: the unlocked stage and the totals only go up.
@@ -166,26 +166,26 @@ and the page is as before.
 
 ## Open Questions
 
-- **GQ1 — ANSWERED 2026-11-27.** Yes: daily summaries plus a state row per topic, owner decision "Do daily with the current space limit raised to 480mb" ([[decisions/ADR-065-grammar-drill-daily-tracking]]). Built; the migration is pending (TASK-1239).
-- **GQ2 — OPEN.** Study Plan / daily session integration and ELO (TASK-1240).
-- **GQ3 — OPEN.** Native-speaker audit of the content (TASK-1241).
-- **GQ4 — OPEN.** Guide and explanation text in languages other than English (TASK-1242).
-- **GQ5 — OPEN.** Review of the es / ja / zh interface strings (TASK-1243).
-- **GQ6 — OPEN.** Self-reported Recall time (TASK-1244).
-- **GQ7 — OPEN.** Semantic quality of generated sentences (TASK-1245).
-- **GQ8 — OPEN.** Reuse of the contract for Japanese particles (TASK-1246).
-- **GQ9 — OPEN.** Audio (TASK-1247).
-- **GQ10 — OPEN.** Overlap with the Measure Word Trainer (TASK-1248).
+- **GQ1 — ANSWERED 2026-11-27.** Yes: daily summaries plus a state row per topic, owner decision "Do daily with the current space limit raised to 480mb" ([[decisions/ADR-066-grammar-drill-daily-tracking]]). Built; the migration is pending (TASK-1259).
+- **GQ2 — OPEN.** Study Plan / daily session integration and ELO (TASK-1260).
+- **GQ3 — OPEN.** Native-speaker audit of the content (TASK-1261).
+- **GQ4 — OPEN.** Guide and explanation text in languages other than English (TASK-1262).
+- **GQ5 — OPEN.** Review of the es / ja / zh interface strings (TASK-1263).
+- **GQ6 — OPEN.** Self-reported Recall time (TASK-1264).
+- **GQ7 — OPEN.** Semantic quality of generated sentences (TASK-1265).
+- **GQ8 — OPEN.** Reuse of the contract for Japanese particles (TASK-1266).
+- **GQ9 — OPEN.** Audio (TASK-1267).
+- **GQ10 — OPEN.** Overlap with the Measure Word Trainer (TASK-1268).
 - **GQ11 — OPEN.** A daily row costs about 246 bytes, not the 150 budgeted. Accept, or store sub-point misses more compactly?
 - **GQ12 — OPEN.** Retention of daily rows (the page reads 180 days; nothing deletes older rows).
 
 ## Related Pages
 
 - [[features/grammar-drills.tech]] — technical specification
-- [[decisions/ADR-064-grammar-drills-static-content-local-progress]] — why static files, client-side generators and localStorage
-- [[decisions/ADR-065-grammar-drill-daily-tracking]] — server-side daily summaries and state; the 480 MB line
+- [[decisions/ADR-065-grammar-drills-static-content-local-progress]] — why static files, client-side generators and localStorage
+- [[decisions/ADR-066-grammar-drill-daily-tracking]] — server-side daily summaries and state; the 480 MB line
 - [[tasklist/grammar-drill-tracking-runbook]] — apply steps and the owner's SQL queries
-- [[tasklist/grammar-drills.tasks]] — TASK-1234 to TASK-1248
+- [[tasklist/grammar-drills.tasks]] — TASK-1254 to TASK-1268
 - [[features/measure-word-trainer]] — database-backed measure-word drill that overlaps the measure-words topic
 - [[features/new-word-drill]] — the other "drill to a criterion" feature (vocabulary, database-backed)
 - [[pages/pages-overview]] — route table (`/grammar-drill`)

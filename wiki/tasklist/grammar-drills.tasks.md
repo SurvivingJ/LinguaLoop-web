@@ -10,17 +10,17 @@ last_updated: 2026-11-27
 
 # Chinese Grammar Drills — Task Breakdown
 
-TASK-1234 to TASK-1248. TASK-1234 to 1238 record what was built on branch
-`claude/happy-gates-qp9ifs` (2026-11-27, not deployed). TASK-1239 to 1248 are the follow-ups;
+TASK-1254 to TASK-1268. TASK-1254 to 1258 record what was built on branch
+`claude/happy-gates-qp9ifs` (2026-11-27, not deployed). TASK-1259 to 1268 are the follow-ups;
 five of them are `[?]` because they wait on an owner decision, and each states the question.
-TASK-1239 (progress tracking) was built the same day and is `[?]` Done (repo), awaiting the live
-apply of its migration ([[decisions/ADR-065-grammar-drill-daily-tracking]]).
+TASK-1259 (progress tracking) was built the same day and is `[?]` Done (repo), awaiting the live
+apply of its migration ([[decisions/ADR-066-grammar-drill-daily-tracking]]).
 Specification: [[features/grammar-drills.tech]]. Decision record:
-[[decisions/ADR-064-grammar-drills-static-content-local-progress]].
+[[decisions/ADR-065-grammar-drills-static-content-local-progress]].
 
 ---
 
-## TASK-1234: Content contract, topic plan and the `grammar_drills.py` script
+## TASK-1254: Content contract, topic plan and the `grammar_drills.py` script
 
 **Status:** [x] Done (2026-11-27, repo)
 **Feature:** grammar-drills
@@ -59,13 +59,13 @@ the validator was tightened (ASCII punctuation rejected; suffix `r` rejected on 
 
 ---
 
-## TASK-1235: Topic guides (39) written, validated and reconciled with reviewer notes
+## TASK-1255: Topic guides (39) written, validated and reconciled with reviewer notes
 
 **Status:** [x] Done (2026-11-27, repo)
 **Feature:** grammar-drills
 **Type:** feature
 **Complexity:** L (1-2d)
-**Depends On:** TASK-1234
+**Depends On:** TASK-1254
 
 **Description:**
 Write one guide per topic: a summary, the sub-points that items reference, rules with patterns and
@@ -91,13 +91,13 @@ items; changing a key invalidates items that use it.
 
 ---
 
-## TASK-1236: Drill content authored, blind-reviewed and built (105 batches, 10,209 items)
+## TASK-1256: Drill content authored, blind-reviewed and built (105 batches, 10,209 items)
 
 **Status:** [x] Done (2026-11-27, repo)
 **Feature:** grammar-drills
 **Type:** feature
 **Complexity:** XL (>2d)
-**Depends On:** TASK-1234, TASK-1235
+**Depends On:** TASK-1254, TASK-1255
 
 **Description:**
 Author the drill items in batches of 100 and review each batch independently. Claude subagents
@@ -115,7 +115,7 @@ reviews every item, fixes and re-validates. A pilot on 了 and word order came f
 **Technical Notes:**
 Verdict files: `{ flagged, fixed, dropped, added, items }`; summed over all batches 145 flagged by
 the blind compare, 1,091 fixed, 3 dropped, 3 added. No native speaker has checked the result
-(TASK-1241).
+(TASK-1261).
 
 **Files to Create / Modify:**
 - `data/grammar_drills/zh/batches/*.jsonl` — authored batches
@@ -131,13 +131,13 @@ the blind compare, 1,091 fixed, 3 dropped, 3 added. No native speaker has checke
 
 ---
 
-## TASK-1237: `/grammar-drill` page: engine, four-stage ladder, local progress, i18n, profile link
+## TASK-1257: `/grammar-drill` page: engine, four-stage ladder, local progress, i18n, profile link
 
 **Status:** [x] Done (2026-11-27, repo)
 **Feature:** grammar-drills
 **Type:** feature
 **Complexity:** XL (>2d)
-**Depends On:** TASK-1234
+**Depends On:** TASK-1254
 
 **Description:**
 Build the page that serves the drills: hub, topic guide, drill round, results, Mixed review and
@@ -155,7 +155,7 @@ on demand as ruby text.
 
 **Technical Notes:**
 Module table, ladder, selection and store format: [[features/grammar-drills.tech]]. The es / ja /
-zh strings are unreviewed machine translations (TASK-1243).
+zh strings are unreviewed machine translations (TASK-1263).
 
 **Files to Create / Modify:**
 - `templates/grammar_drill.html`, `web/pages.py`, `templates/profile.html`
@@ -170,13 +170,13 @@ language, start 了 at stage 1, miss an item and see it return three items later
 
 ---
 
-## TASK-1238: Infinite-practice generators (22 generators, 13 topics) and Endless mode
+## TASK-1258: Infinite-practice generators (22 generators, 13 topics) and Endless mode
 
 **Status:** [x] Done (2026-11-27, repo)
 **Feature:** grammar-drills
 **Type:** feature
 **Complexity:** L (1-2d)
-**Depends On:** TASK-1237
+**Depends On:** TASK-1257
 
 **Description:**
 Add browser-side generators that build drill items from curated word lists, so topics with a
@@ -193,7 +193,7 @@ written items.
 
 **Technical Notes:**
 Interface and table: [[features/grammar-drills.tech]] "Generators". `tone-sandhi` is served by
-generators only. Sentence meaning is sometimes flat (TASK-1245).
+generators only. Sentence meaning is sometimes flat (TASK-1265).
 
 **Files to Create / Modify:**
 - `static/js/grammar/generators/{index,util,numbers-time,er-liang,tone-sandhi,measure-words,de-three,bu-mei,potential-complement,word-order,ba-bei,comparison,duration-frequency,separable-verbs}.js`
@@ -205,7 +205,7 @@ generators only. Sentence meaning is sometimes flat (TASK-1245).
 
 ---
 
-## TASK-1239: Track grammar-drill progress on the server (daily summaries + state)
+## TASK-1259: Track grammar-drill progress on the server (daily summaries + state)
 
 **Status:** [?] Done (repo, 2026-11-27), awaiting live apply of `migrations/grammar_drill_tracking.sql`
 **Feature:** grammar-drills
@@ -217,7 +217,7 @@ generators only. Sentence meaning is sometimes flat (TASK-1245).
 Progress lived in one browser's `localStorage`, so the server knew nothing about practice and a
 second device started again. The owner asked for tracking of improvement over time and chose
 daily rows with the stop line raised to 480 MB
-([[decisions/ADR-065-grammar-drill-daily-tracking]]). Built: one summary row per learner, topic
+([[decisions/ADR-066-grammar-drill-daily-tracking]]). Built: one summary row per learner, topic
 and practice day, one state row per learner and topic, one idempotent function that writes both,
 two API routes, a browser queue that resends unsent rounds, a merge on load, and progress views
 on the topic screen and the hub. This replaces the first sketch of this task (one JSON value per
@@ -262,13 +262,13 @@ progress" on the hub; sign in from a second browser and see the same stage.
 
 ---
 
-## TASK-1240: Decide whether grammar drills join the Study Plan / daily session and feed ELO
+## TASK-1260: Decide whether grammar drills join the Study Plan / daily session and feed ELO
 
 **Status:** [?] Awaiting owner decision
 **Feature:** grammar-drills
 **Type:** feature
 **Complexity:** XL (>2d)
-**Depends On:** TASK-1239
+**Depends On:** TASK-1259
 
 **Description:**
 Grammar drills are a separate page: not a daily-session block, not counted by the Study Plan, no
@@ -281,7 +281,7 @@ yes, which topic does the session pick, and how long is a block?
 - [ ] If yes: this task is replaced by concrete tasks for the session block, the plan accounting and the model input
 
 **Technical Notes:**
-Any integration needs server-side knowledge of progress, hence the dependency on TASK-1239. See
+Any integration needs server-side knowledge of progress, hence the dependency on TASK-1259. See
 [[features/study-plans.tech]] and [[pages/study-session.tech]] for the block model.
 
 **Files to Create / Modify:**
@@ -292,7 +292,7 @@ GQ2 is marked ANSWERED with the owner's words.
 
 ---
 
-## TASK-1241: Native-speaker audit of the drill content
+## TASK-1261: Native-speaker audit of the drill content
 
 **Status:** [ ] Not Started
 **Feature:** grammar-drills
@@ -329,7 +329,7 @@ evaluation page states items checked, defects found and the rate per type.
 
 ---
 
-## TASK-1242: Decide the languages for guide and explanation text
+## TASK-1262: Decide the languages for guide and explanation text
 
 **Status:** [?] Awaiting owner decision
 **Feature:** grammar-drills
@@ -360,7 +360,7 @@ GQ4 is marked ANSWERED with the owner's words.
 
 ---
 
-## TASK-1243: Review the es / ja / zh interface strings for the grammar-drill page
+## TASK-1263: Review the es / ja / zh interface strings for the grammar-drill page
 
 **Status:** [ ] Not Started
 **Feature:** grammar-drills
@@ -391,7 +391,7 @@ language and read the hub, a drill item and the results screen.
 
 ---
 
-## TASK-1244: Decide how Recall time is measured
+## TASK-1264: Decide how Recall time is measured
 
 **Status:** [?] Awaiting owner decision
 **Feature:** grammar-drills
@@ -424,7 +424,7 @@ GQ6 is marked ANSWERED; if changed, the unit tests state the new rule.
 
 ---
 
-## TASK-1245: Improve the meaning of generated sentences
+## TASK-1265: Improve the meaning of generated sentences
 
 **Status:** [ ] Not Started
 **Feature:** grammar-drills
@@ -446,7 +446,7 @@ samples read like sentences a person would say.
 
 **Technical Notes:**
 Builders: `cloze` and `order` in `static/js/grammar/generators/util.js`. A reviewer agent in a
-fresh context is acceptable for the reading; a native speaker is better (TASK-1241).
+fresh context is acceptable for the reading; a native speaker is better (TASK-1261).
 
 **Files to Create / Modify:**
 - `static/js/grammar/generators/*.js` — word lists and pairings
@@ -458,7 +458,7 @@ before/after variety per generator.
 
 ---
 
-## TASK-1246: Make the contract and script reusable for Japanese particles
+## TASK-1266: Make the contract and script reusable for Japanese particles
 
 **Status:** [ ] Not Started
 **Feature:** grammar-drills
@@ -496,7 +496,7 @@ output; the full test suites pass.
 
 ---
 
-## TASK-1247: Decide whether grammar drills get audio
+## TASK-1267: Decide whether grammar drills get audio
 
 **Status:** [?] Awaiting owner decision
 **Feature:** grammar-drills
@@ -525,7 +525,7 @@ GQ9 is marked ANSWERED with the owner's words.
 
 ---
 
-## TASK-1248: Decide the relation between the measure-words topic and the Measure Word Trainer
+## TASK-1268: Decide the relation between the measure-words topic and the Measure Word Trainer
 
 **Status:** [?] Awaiting owner decision
 **Feature:** grammar-drills

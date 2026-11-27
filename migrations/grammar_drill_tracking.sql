@@ -3,7 +3,7 @@
 -- drills (/grammar-drill): one summary row per learner, topic and practice
 -- day, one current-state row per learner and topic, and the one function that
 -- writes both.
--- Date: 2026-11-27   Task: TASK-1239   ADR-065. NOT APPLIED.
+-- Date: 2026-11-27   Task: TASK-1259   ADR-066. NOT APPLIED.
 --
 -- Owner decisions 2026-11-27: "do you think we could add tracking in? so we
 -- can know the user's improvement over time?" then "Do daily with the current
@@ -152,7 +152,7 @@ COMMENT ON TABLE public.grammar_drill_daily IS
   'Counts are over FIRST answers. timed = first answers that were right; '
   'ms_sum = their recall time in ms (each at most 30000). sub_misses = '
   'sub-point key -> first-try misses. Written only by '
-  'record_grammar_drill_round. ADR-065.';
+  'record_grammar_drill_round. ADR-066.';
 
 CREATE TABLE IF NOT EXISTS public.grammar_drill_state (
     user_id         uuid         NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
@@ -173,7 +173,7 @@ COMMENT ON TABLE public.grammar_drill_state IS
   'r: [4 strings of comma-separated signed ms, last 30 results per stage], '
   'q: answers, e: [endless answers, correct, best streak], l: epoch seconds '
   'of the last answer}. last_round_key = idempotency key of the last round '
-  'written. Written only by record_grammar_drill_round. ADR-065.';
+  'written. Written only by record_grammar_drill_round. ADR-066.';
 
 -- Own rows readable, nothing writable; no client privilege at all today.
 ALTER TABLE public.grammar_drill_daily ENABLE ROW LEVEL SECURITY;

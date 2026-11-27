@@ -1,14 +1,14 @@
 ---
-title: "ADR-064: Grammar drills as static files, client-side generators and localStorage progress"
+title: "ADR-065: Grammar drills as static files, client-side generators and localStorage progress"
 status: accepted
 date: 2026-11-27
 ---
 
-# ADR-064: Grammar drills as static files, client-side generators and localStorage progress
+# ADR-065: Grammar drills as static files, client-side generators and localStorage progress
 
 > **Partly superseded 2026-11-27:** Decision point 3 (progress kept in `localStorage` only) and
 > the first two points under "Harder or now constrained" are superseded by
-> [[decisions/ADR-065-grammar-drill-daily-tracking]]: progress is also written to the server as
+> [[decisions/ADR-066-grammar-drill-daily-tracking]]: progress is also written to the server as
 > daily summaries plus one state row per topic, and the database stop line is 480 MB (was
 > 475 MB). Points 1, 2 and 4 stand. The text below is unchanged.
 
@@ -62,16 +62,16 @@ Specification: [[features/grammar-drills.tech]].
 **Harder or now constrained**
 
 - **Progress is per browser.** It is not tied to the account, is lost when site data is cleared,
-  and does not follow the learner to another device (TASK-1239).
+  and does not follow the learner to another device (TASK-1259).
 - **The server knows nothing about grammar practice.** No Study Plan or daily-session
-  integration, no ELO, no Knowledge Report input, no usage analytics (TASK-1240).
+  integration, no ELO, no Knowledge Report input, no usage analytics (TASK-1260).
 - **Answers ship to the client.** Acceptable for self-study drills with no stakes; it would not
   be for anything scored or ranked.
 - **Content changes need a deploy.** A wrong item cannot be fixed with a database update.
 - **The repository grows**: 5.54 MB of built JSON plus the authoring files (batches, blind packs,
   reviewed copies, verdicts) are committed.
 - **Generated sentences are limited by the word lists**; they are grammatical but sometimes
-  semantically flat (TASK-1245).
+  semantically flat (TASK-1265).
 - The stored progress format (`v: 1`) becomes a compatibility surface: a later sync must read it
   or migrate it.
 
@@ -87,7 +87,7 @@ Specification: [[features/grammar-drills.tech]].
    nothing here is per-user or access-controlled.
 3. **A progress table now** (one row per user and language, or one row per answer). Rejected for
    the first build: needs a migration applied live and write traffic on every answer, at a time
-   when the database is at its line. Deferred, not ruled out (TASK-1239). A single JSON row per
+   when the database is at its line. Deferred, not ruled out (TASK-1259). A single JSON row per
    user would be small.
 4. **Generating items with a hosted model at request time.** Rejected: cost and latency per item,
    unreviewed output shown to learners, and the owner excluded OpenRouter and the Anthropic API
@@ -98,4 +98,4 @@ Specification: [[features/grammar-drills.tech]].
 
 - [[features/grammar-drills]], [[features/grammar-drills.tech]]
 - [[tasklist/grammar-drills.tasks]]
-- [[decisions/ADR-065-grammar-drill-daily-tracking]] — supersedes point 3
+- [[decisions/ADR-066-grammar-drill-daily-tracking]] — supersedes point 3

@@ -1,6 +1,6 @@
 -- ============================================================================
 -- grammar_drill_tracking_rollback.sql - undo migrations/grammar_drill_tracking.sql
--- Date: 2026-11-27   Task: TASK-1239   ADR-065. NOT APPLIED.
+-- Date: 2026-11-27   Task: TASK-1259   ADR-066. NOT APPLIED.
 --
 -- WHAT: drops public.record_grammar_drill_round(uuid, smallint, uuid, date,
 -- jsonb) and the tables public.grammar_drill_daily and

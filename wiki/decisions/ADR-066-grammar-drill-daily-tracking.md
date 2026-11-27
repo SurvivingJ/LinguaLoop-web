@@ -1,14 +1,14 @@
 ---
-title: "ADR-065: Grammar drill progress on the server as daily summaries plus one state row"
+title: "ADR-066: Grammar drill progress on the server as daily summaries plus one state row"
 status: accepted
 date: 2026-11-27
 ---
 
-# ADR-065: Grammar drill progress on the server as daily summaries plus one state row
+# ADR-066: Grammar drill progress on the server as daily summaries plus one state row
 
 ## Context
 
-[[decisions/ADR-064-grammar-drills-static-content-local-progress]] kept grammar-drill progress in
+[[decisions/ADR-065-grammar-drills-static-content-local-progress]] kept grammar-drill progress in
 one browser's `localStorage`, explicitly as a provisional choice, because the database was at
 473.15 MB against the owner's 475 MB stop line. Two things follow from that choice: the server
 knows nothing about a learner's practice, and progress does not follow the learner to another
@@ -37,8 +37,8 @@ improvement over time?" and, given the options (per answer, per round, per day),
 6. **The browser stays the working copy.** `localStorage` is still read and written on every
    answer; the server is written once per finished session and read once per page load. When the
    server is unreachable, the learner is signed out, or the migration is not applied, the page
-   behaves exactly as under ADR-064 and shows no error.
-7. Point 3 of ADR-064 ("learner progress is kept in `localStorage`", provisional) is superseded
+   behaves exactly as under ADR-065 and shows no error.
+7. Point 3 of ADR-065 ("learner progress is kept in `localStorage`", provisional) is superseded
    by this record. Its other points (static content, browser-side generators, answers checked in
    the browser) stand.
 
@@ -68,7 +68,7 @@ queries: [[tasklist/grammar-drill-tracking-runbook]].
   `migrations/PENDING-2026-11-27.md`).
 - **The counts are the browser's.** The server checks ranges and that topics and sub-points
   exist; it cannot check that the answers were given. Acceptable for self-study drills with no
-  stakes (same reasoning as ADR-064); it would not be for anything scored or ranked.
+  stakes (same reasoning as ADR-065); it would not be for anything scored or ranked.
 - **Idempotency remembers one key per state row.** A resend that arrives after another device
   wrote the same topic in between is counted twice. Accepted for a summary.
 - **History starts at apply time.** Progress made before is uploaded once as state only; no daily
@@ -82,7 +82,7 @@ queries: [[tasklist/grammar-drill-tracking-runbook]].
    rows of about 100 bytes plus index, against 1 here).
 2. **One row per round.** Keeps within-day order; rejected by the owner's choice of daily: several
    times the rows of the daily design for a learner who plays several rounds a day.
-3. **One JSON value per user and language holding everything** (the earlier TASK-1239 sketch).
+3. **One JSON value per user and language holding everything** (the earlier TASK-1259 sketch).
    Gives sync but no history over time, which is what the owner asked for.
 4. **Per-item boxes on the server too.** Up to 10,209 entries per learner; rejected on space.
 5. **Sub-point misses keyed by position instead of key.** Would save about 30 bytes a row but
@@ -93,8 +93,8 @@ queries: [[tasklist/grammar-drill-tracking-runbook]].
 
 ## Related
 
-- [[decisions/ADR-064-grammar-drills-static-content-local-progress]] — point 3 superseded here
+- [[decisions/ADR-065-grammar-drills-static-content-local-progress]] — point 3 superseded here
 - [[features/grammar-drills]], [[features/grammar-drills.tech]]
-- [[tasklist/grammar-drills.tasks]] — TASK-1239
+- [[tasklist/grammar-drills.tasks]] — TASK-1259
 - [[tasklist/grammar-drill-tracking-runbook]]
 - [[database/schema.tech]], [[api/rpcs.tech]]

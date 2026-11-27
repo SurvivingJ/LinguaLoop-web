@@ -1,4 +1,4 @@
-"""Routes /api/grammar-drill/round and /progress (TASK-1239, ADR-065) through
+"""Routes /api/grammar-drill/round and /progress (TASK-1259, ADR-066) through
 the Flask test client, over an in-memory stand-in for the two tables and
 ``record_grammar_drill_round`` (same rules as migrations/grammar_drill_tracking.sql)."""
 

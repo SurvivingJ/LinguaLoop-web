@@ -1,5 +1,5 @@
 // static/js/grammar/sync.js
-// Grammar drills: copies progress to the server and back (ADR-065). No DOM.
+// Grammar drills: copies progress to the server and back (ADR-066). No DOM.
 //
 // After each finished round the page hands over the round's first-answer
 // totals per topic. They wait in localStorage under QUEUE_KEY with a round key
