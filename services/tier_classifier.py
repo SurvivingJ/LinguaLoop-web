@@ -215,6 +215,9 @@ def classify_passage(text: str, language_code: str) -> TierAssessment:
     """Assign an age tier to a passage. Raises JevError; never guesses."""
     if not text or not text.strip():
         raise ValueError('cannot assign a tier to an empty passage')
+    from services.llm_service import forced_provider
+    if forced_provider() == 'claude_cli':
+        return _classify_passage_claude(text, language_code)
     state, questions = build_passage_request(language_code, text)
     return _assess(state, questions, task_name=PASSAGE_TASK,
                    language_code=language_code)
@@ -226,6 +229,63 @@ def classify_topic(concept: str, vocabulary: str = '') -> TierAssessment:
         raise ValueError('cannot assign a tier to an empty topic')
     state, questions = build_topic_request(concept, vocabulary)
     return _assess(state, questions, task_name=TOPIC_TASK, language_code='en')
+
+
+CLAUDE_PASSAGE_TASK = 'claude_tier_passage'
+CLAUDE_CALIBRATION = 'claude-uncalibrated'
+
+
+def _classify_passage_claude(text: str, language_code: str) -> TierAssessment:
+    """Tier a passage with headless Claude (``LLM_FORCE_PROVIDER=claude_cli``).
+
+    The same six tier descriptions jev is given, one integer back. Not fitted
+    to a gold set the way jev's thresholds are, so the result is stored with
+    calibration ``'claude-uncalibrated'`` and a one-hot probability vector;
+    ``score`` is ``tier - 1`` on jev's 0-5 scale so the columns stay
+    comparable. Any failure raises ``JevError``, as the jev path does: a tier
+    is never guessed.
+    """
+    from pydantic import BaseModel, Field
+    from services.llm_service import call_llm
+
+    class _TierRating(BaseModel):
+        tier: int = Field(ge=1, le=N_TIERS)
+
+    if language_code not in LANG_IDS:
+        raise ValueError(f'unsupported language for tier assignment: {language_code!r}')
+    language_id = LANG_IDS[language_code]
+    if len(text) > MAX_PASSAGE_CHARS:
+        text = text[:MAX_PASSAGE_CHARS]
+    scale = '\n'.join(
+        f'{i}. {_describe(t, language_id)}' for i, t in enumerate(VALID_TIERS, start=1)
+    )
+    prompt = (
+        f'{_PASSAGE_INSTRUCTIONS[language_code]}\n\n'
+        f'Scale (1 = simplest, {N_TIERS} = most advanced):\n{scale}\n\n'
+        f'Passage:\n"""\n{text}\n"""\n\n'
+        'Judge the language only (vocabulary, grammar, sentence length), not the '
+        'subject. Answer with JSON only: {"tier": <integer 1-6>}'
+    )
+    try:
+        rating = call_llm(
+            prompt, temperature=0.0, response_format='json', schema=_TierRating,
+            provider='claude_cli', pipeline=LOG_PIPELINE,
+            task_name=CLAUDE_PASSAGE_TASK, language_code=language_code,
+        )
+    except Exception as exc:  # noqa: BLE001 -- callers handle JevError only
+        raise JevError(f'claude tier rating failed: {exc}') from exc
+    from services.llm_service import _resolve_model
+    tier = int(rating.tier)
+    return TierAssessment(
+        tier=tier,
+        expected_tier=float(tier),
+        score=float(tier - 1),
+        confidence=None,
+        probabilities={i: (1.0 if i == tier else 0.0) for i in range(1, N_TIERS + 1)},
+        model=_resolve_model(None, None, 'claude_cli'),
+        cost_usd=0.0,
+        calibration=CLAUDE_CALIBRATION,
+    )
 
 
 # ── tier -> legacy difficulty ────────────────────────────────────────────────

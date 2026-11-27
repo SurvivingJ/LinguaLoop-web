@@ -123,6 +123,11 @@ def call_jev(
     ``summarize`` maps the answers to ``(verdict, confidence)`` for the
     llm_calls ``judge_verdict`` / ``judge_confidence`` columns.
     """
+    from services.llm_service import forced_provider
+    if forced_provider() == 'claude_cli':
+        # jev is only reachable through OpenRouter; a run forced onto
+        # claude_cli must make no OpenRouter call, so refuse instead.
+        raise JevError('jev is disabled while LLM_FORCE_PROVIDER=claude_cli')
     headers = {
         'Authorization': f'Bearer {_api_key()}',
         'Content-Type': 'application/json',

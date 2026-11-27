@@ -39,10 +39,18 @@ class ProseWriter:
         # Back-compat: VocabularyExtractionPipeline reads
         # `prose_writer.client` as its OpenAI client. Construct it via the
         # shared pool to avoid duplicating connection state.
-        self.client = get_client(
-            base_url=self.OPENROUTER_BASE_URL,
-            api_key=self.api_key,
-        )
+        # LLM_FORCE_PROVIDER wins here too: phrase detection calls this client
+        # directly (not through call_llm), so a fixed OpenRouter client would
+        # still reach OpenRouter in a run that must not.
+        from services.llm_service import forced_provider
+        forced = forced_provider()
+        if forced:
+            self.client = get_client(forced)
+        else:
+            self.client = get_client(
+                base_url=self.OPENROUTER_BASE_URL,
+                api_key=self.api_key,
+            )
 
         logger.info(f"ProseWriter initialized with model: {self.model}")
 

@@ -143,6 +143,19 @@ def _resolve_provider(provider: str | None) -> tuple[str, str]:
         )
 
 
+def forced_provider() -> str | None:
+    """``LLM_FORCE_PROVIDER``: one provider for every ``call_llm`` call.
+
+    Unlike ``LLM_DEFAULT_PROVIDER`` this also overrides a provider the caller
+    pins (the judges pin ``'openrouter'``), and the entailment judge and the
+    tier classifier read it to leave jev, which is only reachable through
+    OpenRouter. Set it to ``claude_cli`` for a run that must make no
+    OpenRouter calls at all. Unset (the default) changes nothing.
+    """
+    raw = (os.environ.get('LLM_FORCE_PROVIDER') or '').strip().lower().replace('-', '_')
+    return raw or None
+
+
 def set_default_provider(provider: str) -> None:
     """Switch the process-wide default LLM provider at runtime.
 
@@ -191,7 +204,7 @@ def get_client(
     if base_url and api_key:
         key = (base_url, api_key)
     else:
-        key = _resolve_provider(provider)
+        key = _resolve_provider(forced_provider() or provider)
 
     if max_retries is not None and key[0] != CLAUDE_CLI_BASE_URL:
         key = (*key, max_retries)
@@ -1033,6 +1046,9 @@ def call_llm(
     """
     # max_retries=0: tenacity (3 attempts, above) is the single retry layer; the
     # SDK's default 2 retries would stack to up to 9 HTTP tries per transient fault.
+    forced = forced_provider()
+    if forced:
+        provider = forced
     client = get_client(provider, max_retries=0)
     resolved_model = _resolve_model(model, language, provider)
 

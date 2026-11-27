@@ -129,6 +129,11 @@ def _backend() -> str:
     long-proven judge, not on the newer one.
     """
     raw = os.environ.get(_BACKEND_ENV, '').strip().lower() or DEFAULT_BACKEND
+    # jev is served through OpenRouter; a run forced onto claude_cli must not
+    # reach it, so the LLM backend (routed by call_llm) judges instead.
+    from services.llm_service import forced_provider
+    if forced_provider() == 'claude_cli' and raw in ('jev', 'shadow'):
+        return 'llm'
     if raw not in _BACKENDS:
         logger.warning(
             "answer_entailment: %s=%r is not one of %s; using 'llm'",
