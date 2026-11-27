@@ -1,0 +1,309 @@
+[
+ {
+  "id": "ni-target-1",
+  "lv": 4,
+  "tpl": "<who>{は|wa-topic}<when><ride>{に|ni-target}乗[の]りました。",
+  "en": "<who> <ride> <when>.",
+  "f": 1,
+  "d": [
+   "を",
+   "で",
+   "と"
+  ],
+  "why": "乗る marks the vehicle you get on with に, not を.",
+  "vars": {
+   "who": [
+    [
+     "私[わたし]",
+     "I"
+    ],
+    [
+     "兄[あに]",
+     "My older brother"
+    ],
+    [
+     "田中[たなか]さん",
+     "Mr. Tanaka"
+    ],
+    [
+     "祖母[そぼ]",
+     "My grandmother"
+    ],
+    [
+     "子供[こども]たち",
+     "The children"
+    ],
+    [
+     "山田[やまだ]さん",
+     "Ms. Yamada"
+    ]
+   ],
+   "when": [
+    [
+     "昨日[きのう]",
+     "yesterday"
+    ],
+    [
+     "今朝[けさ]",
+     "this morning"
+    ],
+    [
+     "先週[せんしゅう]",
+     "last week"
+    ],
+    [
+     "去年[きょねん]",
+     "last year"
+    ],
+    [
+     "先月[せんげつ]",
+     "last month"
+    ],
+    [
+     "初[はじ]めて",
+     "for the first time"
+    ]
+   ],
+   "ride": [
+    [
+     "バス",
+     "took the bus"
+    ],
+    [
+     "電車[でんしゃ]",
+     "took the train"
+    ],
+    [
+     "新幹線[しんかんせん]",
+     "took the bullet train"
+    ],
+    [
+     "飛行機[ひこうき]",
+     "took a plane"
+    ],
+    [
+     "タクシー",
+     "took a taxi"
+    ],
+    [
+     "船[ふね]",
+     "took a boat"
+    ],
+    [
+     "地下鉄[ちかてつ]",
+     "took the subway"
+    ],
+    [
+     "自転車[じてんしゃ]",
+     "rode a bike"
+    ],
+    [
+     "馬[うま]",
+     "rode a horse"
+    ]
+   ]
+  }
+ },
+ {
+  "id": "ni-target-2",
+  "lv": 4,
+  "tpl": "<when>、<place>{で|de-place}<who>{に/と|ni-target}会[あ]いましたか。",
+  "en": "Did you see <who> <place> <when>?",
+  "f": 1,
+  "d": [
+   "を",
+   "で",
+   "が"
+  ],
+  "why": "会う marks the person you meet with に (と when it is a mutual meeting), never を.",
+  "vars": {
+   "when": [
+    [
+     "昨日[きのう]",
+     "yesterday"
+    ],
+    [
+     "今朝[けさ]",
+     "this morning"
+    ],
+    [
+     "先週[せんしゅう]",
+     "last week"
+    ],
+    [
+     "この間[あいだ]",
+     "the other day"
+    ],
+    [
+     "週末[しゅうまつ]",
+     "at the weekend"
+    ],
+    [
+     "今日[きょう]",
+     "today"
+    ]
+   ],
+   "place": [
+    [
+     "駅[えき]",
+     "at the station"
+    ],
+    [
+     "本屋[ほんや]",
+     "at the bookshop"
+    ],
+    [
+     "スーパー",
+     "at the supermarket"
+    ],
+    [
+     "病院[びょういん]",
+     "at the hospital"
+    ],
+    [
+     "空港[くうこう]",
+     "at the airport"
+    ],
+    [
+     "映画館[えいがかん]",
+     "at the cinema"
+    ],
+    [
+     "公園[こうえん]",
+     "in the park"
+    ]
+   ],
+   "who": [
+    [
+     "田中[たなか]さん",
+     "Mr. Tanaka"
+    ],
+    [
+     "先生[せんせい]",
+     "your teacher"
+    ],
+    [
+     "山本[やまもと]さん",
+     "Ms. Yamamoto"
+    ],
+    [
+     "お隣[となり]さん",
+     "your neighbour"
+    ],
+    [
+     "部長[ぶちょう]",
+     "your manager"
+    ],
+    [
+     "社長[しゃちょう]",
+     "the company president"
+    ],
+    [
+     "佐藤[さとう]さん",
+     "Mr. Sato"
+    ]
+   ]
+  }
+ },
+ {
+  "id": "ni-target-3",
+  "lv": 4,
+  "tpl": "<who>{は|wa-topic}<when><club>{に|ni-target}入[はい]るつもりです。",
+  "en": "<who> is planning to join <club> <when>.",
+  "f": 1,
+  "d": [
+   "を",
+   "で",
+   "が"
+  ],
+  "why": "入る marks the group or place you enter with に.",
+  "vars": {
+   "who": [
+    [
+     "弟[おとうと]",
+     "My younger brother"
+    ],
+    [
+     "娘[むすめ]",
+     "My daughter"
+    ],
+    [
+     "田中[たなか]さん",
+     "Mr. Tanaka"
+    ],
+    [
+     "友達[ともだち]",
+     "My friend"
+    ],
+    [
+     "佐藤[さとう]さん",
+     "Ms. Sato"
+    ],
+    [
+     "息子[むすこ]",
+     "My son"
+    ]
+   ],
+   "when": [
+    [
+     "来年[らいねん]",
+     "next year"
+    ],
+    [
+     "来月[らいげつ]",
+     "next month"
+    ],
+    [
+     "来週[らいしゅう]",
+     "next week"
+    ],
+    [
+     "今年[ことし]",
+     "this year"
+    ],
+    [
+     "来学期[らいがっき]",
+     "next term"
+    ],
+    [
+     "すぐ",
+     "soon"
+    ]
+   ],
+   "club": [
+    [
+     "テニス部[ぶ]",
+     "the tennis club"
+    ],
+    [
+     "サッカー部[ぶ]",
+     "the football club"
+    ],
+    [
+     "野球部[やきゅうぶ]",
+     "the baseball club"
+    ],
+    [
+     "写真部[しゃしんぶ]",
+     "the photography club"
+    ],
+    [
+     "美術部[びじゅつぶ]",
+     "the art club"
+    ],
+    [
+     "料理部[りょうりぶ]",
+     "the cooking club"
+    ],
+    [
+     "茶道部[さどうぶ]",
+     "the tea ceremony club"
+    ],
+    [
+     "演劇部[えんげきぶ]",
+     "the drama club"
+    ]
+   ]
+  }
+ }
+]
