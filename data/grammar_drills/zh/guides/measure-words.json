@@ -1,0 +1,485 @@
+{
+  "topic": "measure-words",
+  "summary": "Chinese cannot put a number or 这/那/哪/每/几 straight onto a noun: a measure word goes in between, and the noun decides which one (三本书, 这件衣服, 哪家饭馆). Think of it as 'three volumes of book'. Learn each noun with its measure, use 个 only where no special one exists, and remember the two exceptions: 一些/一点儿 take no extra measure, and 天/年 are already measures themselves.",
+  "subs": [
+    {
+      "key": "need-measure",
+      "label": "A measure is required",
+      "focus": "Is a measure needed, and where? Number/这/那/哪/每/几 + measure + noun; with a number too: 这三本书. Errors: dropping it English-style (三书, 这书, 每学生) or misplacing it (三这本书). Use nouns whose measure is obvious so only presence and position are tested; ∅ options and judge items fit."
+    },
+    {
+      "key": "shape",
+      "label": "Objects by shape: 本 张 条 件 把 支 棵 朵 封 片 块",
+      "focus": "Choose by shape or type in a full sentence: 本 volumes, 张 flat, 条 long and bendy (also trousers, skirts, roads), 件 tops and matters, 把 handles, 支 pens, 棵 trees, 朵 flowers, 封 letters, 片 slices, 块 chunks. Error: 个 for everything (一个纸) or 张/本, 条/件, 棵/朵 swapped. Distractors must be plainly wrong."
+    },
+    {
+      "key": "animals-machines",
+      "label": "Animals, vehicles, machines: 只 头 匹 条 辆 台 部",
+      "focus": "只 small animals, birds, one of a pair; 头 cattle and pigs; 匹 horses; 条 fish and snakes; 辆 wheeled vehicles; 台 machines; 部 phones. Errors: 个 or the wrong class (一个马, 一只车, 一辆电脑). Never set 只 against 条 for 狗, or 部 against 台/个 for 手机: both are accepted."
+    },
+    {
+      "key": "people-places",
+      "label": "People and places: 个 位 口 家 间 座 层",
+      "focus": "个 for people; 位 polite for others (老师, 客人), never before bare 人; 口 for family members; 家 businesses; 间 rooms; 座 mountains, bridges, big buildings; 层 floors. Errors: 一位人, 五个口人, 一间公司, 一个山. For 位 against 个 make the politeness obvious (您, 客人, an introduction)."
+    },
+    {
+      "key": "containers-sets",
+      "label": "Containers, pairs, sets: 杯 瓶 碗 双 套 份 块",
+      "focus": "The container or group is the measure: 一杯茶, 两瓶水, 一碗饭, 一双鞋, 一套房子, 一份工作, 五块钱. Pick the fitting one and add no 个 or 的 (一个杯咖啡, 一杯的咖啡). 双 only for two separate items (鞋, 袜子, 筷子); 裤子 takes 条, one shoe is 一只鞋. Contrast 一个杯子 with 一杯水."
+    },
+    {
+      "key": "kinds-events",
+      "label": "Works, classes, kinds, events: 首 节 门 部 种 场 顿",
+      "focus": "首 songs and poems, 节 class periods, 门 courses, 部 films and novels, 种 kinds, 场 matches, shows, rain or snow, 顿 meals. Errors: 个 everywhere, 节/门 swapped, 个 where English says 'kind of'. For 节 against 门 the sentence must show timetable slot or subject. Do not set 部 against 场 for 电影."
+    },
+    {
+      "key": "verbal",
+      "label": "Counting actions: 次 遍 趟",
+      "focus": "Counting actions after the verb: 次 occurrences, 遍 start-to-finish passes (read, watch, listen, say, write), 趟 trips there and back. Errors: 遍 or 趟 where nothing is gone through or travelled (去过三遍北京), 个 for times. When 遍 is the answer make 'all the way through' explicit: 次 is often possible too."
+    },
+    {
+      "key": "xie-dian",
+      "label": "一些 and 一点儿 take no other measure",
+      "focus": "一些/这些/那些/哪些 and 一点儿 go straight onto the noun. The learner must leave out a second measure (一些本书, 这些个人, 一点儿杯水) and not use 些 with other numbers (三些书). Also 这些 for several things against 这 + measure for one. ∅ options and judge items fit."
+    },
+    {
+      "key": "time-units",
+      "label": "两天, 三年 but 两个月, 两个星期, 两个小时",
+      "focus": "Does the time word take 个? 天 and 年 never (两天, 三年, 每天, 几年); 月 always when counting months (两个月, 每个月). Errors: 两个天, 三个年, 每个天, 三月 for 'three months' (it means March). For 星期 and 小时 make 个 the answer and offer no ∅ distractor: 两星期 and 两小时 are also said."
+    }
+  ],
+  "rules": [
+    {
+      "sub": "need-measure",
+      "rule": "A number, 这, 那, 哪, 每 or 几 never touches a noun directly: the noun's measure word goes in between. If there is also a number, it goes between the pointing word and the measure.",
+      "pattern": "Number / 这 / 那 / 哪 / 每 / 几 + (Number) + Measure + Noun",
+      "examples": [
+        {
+          "zh": "我买了三本书。",
+          "py": "wǒ mǎi le sān běn shū",
+          "en": "I bought three books."
+        },
+        {
+          "zh": "这本书很有意思。",
+          "py": "zhè běn shū hěn yǒu yì si",
+          "en": "This book is very interesting."
+        },
+        {
+          "zh": "每个学生都有一本词典。",
+          "py": "měi gè xué shēng dōu yǒu yī běn cí diǎn",
+          "en": "Every student has a dictionary."
+        },
+        {
+          "zh": "那三件衣服都是我的。",
+          "py": "nà sān jiàn yī fu dōu shì wǒ de",
+          "en": "Those three pieces of clothing are all mine."
+        }
+      ],
+      "note": "In fast casual speech people do say 这书 or 那人, but in standard and written Chinese keep the measure: 这本书, 那个人."
+    },
+    {
+      "sub": "shape",
+      "rule": "Pick the measure from shape or type: 本 bound books, 张 flat things (paper, tickets, tables, beds), 条 long bendy things (trousers, skirts, roads, rivers), 件 tops and matters, 把 things you grip, 支 pens.",
+      "pattern": "Number + 本 / 张 / 条 / 件 / 把 / 支 + Noun",
+      "examples": [
+        {
+          "zh": "请给我一张纸。",
+          "py": "qǐng gěi wǒ yī zhāng zhǐ",
+          "en": "Please give me a sheet of paper."
+        },
+        {
+          "zh": "他穿了一条黑裤子。",
+          "py": "tā chuān le yī tiáo hēi kù zi",
+          "en": "He wore a pair of black trousers."
+        },
+        {
+          "zh": "我想买两件衬衫。",
+          "py": "wǒ xiǎng mǎi liǎng jiàn chèn shān",
+          "en": "I want to buy two shirts."
+        },
+        {
+          "zh": "外面下雨了，带一把伞吧。",
+          "py": "wài miàn xià yǔ le dài yī bǎ sǎn ba",
+          "en": "It's raining outside, take an umbrella."
+        }
+      ],
+      "note": "个 is the fallback only for nouns with no special measure (人, 问题, 苹果, 包). With a noun that has its own measure, 个 sounds wrong or childish."
+    },
+    {
+      "sub": "shape",
+      "rule": "棵 counts trees and plants, 朵 flowers, 封 letters and emails, 片 thin slices and tablets, 块 solid chunks or pieces.",
+      "pattern": "Number + 棵 / 朵 / 封 / 片 / 块 + Noun",
+      "examples": [
+        {
+          "zh": "门口有两棵树。",
+          "py": "mén kǒu yǒu liǎng kē shù",
+          "en": "There are two trees by the door."
+        },
+        {
+          "zh": "他送了我一朵花。",
+          "py": "tā sòng le wǒ yī duǒ huā",
+          "en": "He gave me a flower."
+        },
+        {
+          "zh": "我昨天收到了一封信。",
+          "py": "wǒ zuó tiān shōu dào le yī fēng xìn",
+          "en": "I received a letter yesterday."
+        },
+        {
+          "zh": "这块蛋糕真好吃。",
+          "py": "zhè kuài dàn gāo zhēn hǎo chī",
+          "en": "This piece of cake is really tasty."
+        }
+      ],
+      "note": "一块蛋糕 is one piece; 一个蛋糕 is a whole cake. Both are correct, with different meanings."
+    },
+    {
+      "sub": "animals-machines",
+      "rule": "只 for small animals and birds, 头 for cattle and pigs, 匹 for horses, 条 for fish; 辆 for anything on wheels, 台 for machines, 部 for phones.",
+      "pattern": "Number + 只 / 头 / 匹 / 条 / 辆 / 台 / 部 + Noun",
+      "examples": [
+        {
+          "zh": "我家有一只猫。",
+          "py": "wǒ jiā yǒu yī zhī māo",
+          "en": "We have a cat at home."
+        },
+        {
+          "zh": "那匹马跑得很快。",
+          "py": "nà pǐ mǎ pǎo de hěn kuài",
+          "en": "That horse runs very fast."
+        },
+        {
+          "zh": "他新买了一辆车。",
+          "py": "tā xīn mǎi le yī liàng chē",
+          "en": "He has just bought a car."
+        },
+        {
+          "zh": "办公室里有两台电脑。",
+          "py": "bàn gōng shì lǐ yǒu liǎng tái diàn nǎo",
+          "en": "There are two computers in the office."
+        }
+      ],
+      "note": "Usage varies for some nouns: a dog is 一只狗 or 一条狗, a phone is 一部手机, 一个手机 or 一台手机. 只 also counts one of a pair: 一只手, 一只鞋."
+    },
+    {
+      "sub": "people-places",
+      "rule": "People take 个. Use 位 to be polite about someone else, before a title or role, never before bare 人. Count the members of a family with 口.",
+      "pattern": "Number / 这 / 那 / 几 / 哪 + 个 / 位 / 口 + Person noun",
+      "examples": [
+        {
+          "zh": "我有两个姐姐。",
+          "py": "wǒ yǒu liǎng gè jiě jie",
+          "en": "I have two older sisters."
+        },
+        {
+          "zh": "这位是李老师。",
+          "py": "zhè wèi shì lǐ lǎo shī",
+          "en": "This is Teacher Li."
+        },
+        {
+          "zh": "今天晚上有三位客人。",
+          "py": "jīn tiān wǎn shàng yǒu sān wèi kè rén",
+          "en": "There are three guests this evening."
+        },
+        {
+          "zh": "我家有五口人。",
+          "py": "wǒ jiā yǒu wǔ kǒu rén",
+          "en": "There are five people in my family."
+        }
+      ],
+      "note": "位 honours the other person, so in careful speech you do not use it about yourself (我们三个人), although answering 三位 to a waiter's 几位 is common."
+    },
+    {
+      "sub": "people-places",
+      "rule": "家 counts businesses (shops, restaurants, companies, banks), 间 rooms, 座 big fixed things (mountains, bridges, tall buildings, cities), 层 floors.",
+      "pattern": "Number / 这 / 那 + 家 / 间 / 座 / 层 + Place noun",
+      "examples": [
+        {
+          "zh": "这家饭馆的菜很好吃。",
+          "py": "zhè jiā fàn guǎn de cài hěn hǎo chī",
+          "en": "The food at this restaurant is delicious."
+        },
+        {
+          "zh": "我们要两间房间。",
+          "py": "wǒ men yào liǎng jiān fáng jiān",
+          "en": "We want two rooms."
+        },
+        {
+          "zh": "那座山很高。",
+          "py": "nà zuò shān hěn gāo",
+          "en": "That mountain is very high."
+        },
+        {
+          "zh": "这座楼有二十层。",
+          "py": "zhè zuò lóu yǒu èr shí céng",
+          "en": "This building has twenty floors."
+        }
+      ],
+      "note": "Some place nouns accept more than one measure: 一家医院 or 一所医院, 一间教室 or 一个教室."
+    },
+    {
+      "sub": "containers-sets",
+      "rule": "A container or grouping word is itself the measure: no 个 before it and no 的 after it. 双 is for things that come as two separate items, 套 for sets and flats, 份 for portions, copies and jobs, 块 for money in speech.",
+      "pattern": "Number + 杯 / 瓶 / 碗 / 双 / 套 / 份 / 块 + Noun",
+      "examples": [
+        {
+          "zh": "我要一杯咖啡。",
+          "py": "wǒ yào yī bēi kā fēi",
+          "en": "I'd like a cup of coffee."
+        },
+        {
+          "zh": "他吃了两碗米饭。",
+          "py": "tā chī le liǎng wǎn mǐ fàn",
+          "en": "He ate two bowls of rice."
+        },
+        {
+          "zh": "我想买一双运动鞋。",
+          "py": "wǒ xiǎng mǎi yī shuāng yùn dòng xié",
+          "en": "I want to buy a pair of trainers."
+        },
+        {
+          "zh": "她找到了一份新工作。",
+          "py": "tā zhǎo dào le yī fèn xīn gōng zuò",
+          "en": "She found a new job."
+        }
+      ],
+      "note": "When the container is the thing being counted it is an ordinary noun with 个: 一个杯子, 两个瓶子, 一个碗. English 'a pair of trousers' is not 双: 一条裤子."
+    },
+    {
+      "sub": "kinds-events",
+      "rule": "首 counts songs and poems, 节 class periods, 门 courses or subjects, 部 films and novels, 种 kinds of thing.",
+      "pattern": "Number / 这 / 那 / 哪 + 首 / 节 / 门 / 部 / 种 + Noun",
+      "examples": [
+        {
+          "zh": "她唱了一首中文歌。",
+          "py": "tā chàng le yī shǒu zhōng wén gē",
+          "en": "She sang a Chinese song."
+        },
+        {
+          "zh": "我今天下午有两节课。",
+          "py": "wǒ jīn tiān xià wǔ yǒu liǎng jié kè",
+          "en": "I have two classes this afternoon."
+        },
+        {
+          "zh": "这个学期我选了四门课。",
+          "py": "zhè gè xué qī wǒ xuǎn le sì mén kè",
+          "en": "I chose four courses this term."
+        },
+        {
+          "zh": "这种水果我没吃过。",
+          "py": "zhè zhǒng shuǐ guǒ wǒ méi chī guò",
+          "en": "I have never eaten this kind of fruit."
+        }
+      ],
+      "note": "两节课 is two periods on the timetable; 两门课 is two different subjects."
+    },
+    {
+      "sub": "kinds-events",
+      "rule": "场 counts events that run their course (matches, shows, a fall of rain or snow); 顿 counts meals.",
+      "pattern": "Number / 这 / 那 + 场 / 顿 + Noun",
+      "examples": [
+        {
+          "zh": "昨天下了一场大雨。",
+          "py": "zuó tiān xià le yī cháng dà yǔ",
+          "en": "There was a heavy rain yesterday."
+        },
+        {
+          "zh": "那场比赛很精彩。",
+          "py": "nà chǎng bǐ sài hěn jīng cǎi",
+          "en": "That match was brilliant."
+        },
+        {
+          "zh": "我们一起吃了一顿饭。",
+          "py": "wǒ men yī qǐ chī le yī dùn fàn",
+          "en": "We had a meal together."
+        }
+      ],
+      "note": "一部电影 is the film as a work; 一场电影 is one showing of it. Dictionaries give the older reading cháng for 场 with rain and snow; most speakers now say chǎng there too."
+    },
+    {
+      "sub": "verbal",
+      "rule": "To count how often, put number + 次 after the verb. Use 遍 when the whole thing is gone through from start to finish, and 趟 for a trip there and back.",
+      "pattern": "Verb + 了 / 过 + Number + 次 / 遍 / 趟",
+      "examples": [
+        {
+          "zh": "我去过三次北京。",
+          "py": "wǒ qù guò sān cì běi jīng",
+          "en": "I have been to Beijing three times."
+        },
+        {
+          "zh": "这部电影我看了两遍。",
+          "py": "zhè bù diàn yǐng wǒ kàn le liǎng biàn",
+          "en": "I have watched this film twice."
+        },
+        {
+          "zh": "请你再说一遍。",
+          "py": "qǐng nǐ zài shuō yī biàn",
+          "en": "Please say it again."
+        },
+        {
+          "zh": "我昨天去了一趟医院。",
+          "py": "wǒ zuó tiān qù le yī tàng yī yuàn",
+          "en": "I made a trip to the hospital yesterday."
+        }
+      ],
+      "note": "次 is the general word and is often possible where 遍 is used (再说一次 is also said); 遍 adds 'all the way through'. 遍 and 趟 are wrong where there is no content to go through or no journey."
+    },
+    {
+      "sub": "xie-dian",
+      "rule": "一些, 这些, 那些, 哪些 and 一点儿 attach straight to the noun. Never add another measure, and never use 些 with a number other than 一.",
+      "pattern": "一些 / 这些 / 那些 / 哪些 / 一点儿 + Noun",
+      "examples": [
+        {
+          "zh": "我买了一些水果。",
+          "py": "wǒ mǎi le yī xiē shuǐ guǒ",
+          "en": "I bought some fruit."
+        },
+        {
+          "zh": "这些书都是我的。",
+          "py": "zhè xiē shū dōu shì wǒ de",
+          "en": "These books are all mine."
+        },
+        {
+          "zh": "我想喝一点儿水。",
+          "py": "wǒ xiǎng hē yī diǎn r shuǐ",
+          "en": "I'd like to drink a little water."
+        },
+        {
+          "zh": "那些人是谁？",
+          "py": "nà xiē rén shì shéi",
+          "en": "Who are those people?"
+        }
+      ],
+      "note": "After a verb the 一 is often dropped in speech: 买了些水果, 喝点儿水."
+    },
+    {
+      "sub": "time-units",
+      "rule": "天 and 年 are measures themselves, so the number goes straight on: 两天, 三年, 每天, 每年. 月, 星期 and 小时 are nouns and take 个.",
+      "pattern": "Number / 每 / 几 + 天 / 年   but   Number / 每 / 几 + 个 + 月 / 星期 / 小时",
+      "examples": [
+        {
+          "zh": "我在北京住了三年。",
+          "py": "wǒ zài běi jīng zhù le sān nián",
+          "en": "I lived in Beijing for three years."
+        },
+        {
+          "zh": "我们休息了两天。",
+          "py": "wǒ men xiū xi le liǎng tiān",
+          "en": "We rested for two days."
+        },
+        {
+          "zh": "他学了两个月汉语。",
+          "py": "tā xué le liǎng gè yuè hàn yǔ",
+          "en": "He studied Chinese for two months."
+        },
+        {
+          "zh": "我每天睡八个小时。",
+          "py": "wǒ měi tiān shuì bā gè xiǎo shí",
+          "en": "I sleep eight hours every day."
+        }
+      ],
+      "note": "个 can be dropped before 星期 and 小时 in speech (两星期, 两小时) but never before 月: 三月 means March, not three months. 分钟, 岁 and 周 take no 个 either."
+    }
+  ],
+  "contrasts": [
+    {
+      "wrong": "我买了三书。",
+      "right": {
+        "zh": "我买了三本书。",
+        "py": "wǒ mǎi le sān běn shū",
+        "en": "I bought three books."
+      },
+      "why": "A number cannot sit directly on a noun; 书 needs its measure 本 in between."
+    },
+    {
+      "wrong": "这书是我昨天买的。",
+      "right": {
+        "zh": "这本书是我昨天买的。",
+        "py": "zhè běn shū shì wǒ zuó tiān mǎi de",
+        "en": "I bought this book yesterday."
+      },
+      "why": "English 'this book' has no measure, but standard Chinese puts one after 这 and 那. 这书 is only heard in casual speech."
+    },
+    {
+      "wrong": "请给我一个纸。",
+      "right": {
+        "zh": "请给我一张纸。",
+        "py": "qǐng gěi wǒ yī zhāng zhǐ",
+        "en": "Please give me a sheet of paper."
+      },
+      "why": "个 is not a universal measure. Paper is flat, so it takes 张."
+    },
+    {
+      "wrong": "我想买两个衬衫。",
+      "right": {
+        "zh": "我想买两件衬衫。",
+        "py": "wǒ xiǎng mǎi liǎng jiàn chèn shān",
+        "en": "I want to buy two shirts."
+      },
+      "why": "Clothes for the upper body take 件 (trousers and skirts take 条), not 个."
+    },
+    {
+      "wrong": "我要一个杯咖啡。",
+      "right": {
+        "zh": "我要一杯咖啡。",
+        "py": "wǒ yào yī bēi kā fēi",
+        "en": "I'd like a cup of coffee."
+      },
+      "why": "杯 is already the measure here, so 个 has no place. 个 appears only when you count the cups themselves: 一个杯子."
+    },
+    {
+      "wrong": "外面有一位人找你。",
+      "right": {
+        "zh": "外面有一个人找你。",
+        "py": "wài miàn yǒu yī gè rén zhǎo nǐ",
+        "en": "There is someone outside looking for you."
+      },
+      "why": "位 is polite but does not go with bare 人. Say 一个人, or use 位 with a role word such as 客人 or 老师."
+    },
+    {
+      "wrong": "我买了一些本书。",
+      "right": {
+        "zh": "我买了一些书。",
+        "py": "wǒ mǎi le yī xiē shū",
+        "en": "I bought some books."
+      },
+      "why": "些 fills the measure slot itself, so 一些 goes straight onto the noun with no second measure."
+    },
+    {
+      "wrong": "我在中国住了两个年。",
+      "right": {
+        "zh": "我在中国住了两年。",
+        "py": "wǒ zài zhōng guó zhù le liǎng nián",
+        "en": "I lived in China for two years."
+      },
+      "why": "年 and 天 are measures themselves, so they never take 个."
+    },
+    {
+      "wrong": "我学了三月汉语。",
+      "right": {
+        "zh": "我学了三个月汉语。",
+        "py": "wǒ xué le sān gè yuè hàn yǔ",
+        "en": "I studied Chinese for three months."
+      },
+      "why": "月 is a noun and needs 个 when you count months. Without 个, 三月 is the month of March."
+    },
+    {
+      "wrong": "我去过三遍上海。",
+      "right": {
+        "zh": "我去过三次上海。",
+        "py": "wǒ qù guò sān cì shàng hǎi",
+        "en": "I have been to Shanghai three times."
+      },
+      "why": "遍 counts going through something from start to finish, such as a book or a film. Visits are simply occurrences, so 次."
+    }
+  ],
+  "cheat": [
+    "Number, 这, 那, 哪, 每 or 几 before a noun? A measure goes in between: 三本书, 这本书.",
+    "Look at the noun, not the English: flat 张, long 条, bound 本, tops 件, handle 把, wheels 辆, machine 台, business 家.",
+    "个 only when the noun has no measure of its own, and never together with another measure (一杯咖啡, not 一个杯咖啡).",
+    "一些, 这些, 那些, 一点儿: straight onto the noun, nothing added.",
+    "两天, 三年, 每天 with no 个; 两个月, 两个星期, 两个小时 with 个.",
+    "Polite about someone else: 位, with a role word and never with bare 人.",
+    "How many times: 次. All the way through: 遍. There and back: 趟."
+  ]
+}

@@ -251,7 +251,7 @@ function makeNumber(rng) {
   const frames = NUMBER_FRAMES.filter((f) => n >= f.lo && n <= f.hi && !(f.skip2 && n === 2));
   const f = pick(rng, frames);
   const right = readNumber(n);
-  const wrong = n === 0 ? ['无', '空', '〇零'] : numberMistakes(n);
+  const wrong = n === 0 ? ['无', '空', '没'] : numberMistakes(n);
   const digits = String(n);
   let why;
   if (n === 0)
@@ -453,7 +453,7 @@ function makeDate(rng) {
         '出生的|chū shēng de',
       ],
       en: `${p.en} was born on ${md}, ${year}.`,
-      why: `Year, then month, then day: ${DATE_WHY.split(': ')[1]}`,
+      why: DATE_WHY,
     });
   }
   if (kind === 'today') {
@@ -490,7 +490,7 @@ function makeDate(rng) {
       { zh: period.zh, py: period.py },
       numWord(`${hourZh(hour)}点${half ? '半' : ''}`),
     ],
-    en: `${ev[2]} is on ${wd ? `${wd[2]}, ` : ''}${md} at ${hour}${half ? ':30' : ''} ${period.en}`,
+    en: `${ev[2]} is on ${wd ? `${wd[2]}, ` : ''}${md} at ${hour}${half ? ':30' : ''} ${period.en.replace(/\.$/, '')}.`,
     why: DATE_WHY,
   });
 }

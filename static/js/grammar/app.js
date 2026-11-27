@@ -178,7 +178,9 @@ export function mountGrammar(root, opts = {}) {
   function statLine(topic, view) {
     const bits = [];
     if (topic.count) bits.push(t('items_n', { count: topic.count }, '{count} items'));
-    else bits.push(t('endless_only', null, 'Endless practice'));
+    else if (generatorsFor(topic.slug).length) {
+      bits.push(t('endless_only', null, 'Endless practice'));
+    } else bits.push(t('guide_only', null, 'Guide only for now'));
     if (view.seq) {
       const s = stageStats(view.results[view.stage]);
       if (s.n) {

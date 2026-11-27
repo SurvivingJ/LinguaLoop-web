@@ -1,0 +1,452 @@
+{
+  "topic": "final-particles",
+  "summary": "A particle at the very end of a sentence does not change what happened; it tells the listener how to take the sentence: a yes/no question (吗), 'and what about...?' or 'still going on' (呢), a suggestion or a guess (吧), warmth (啊), 'obviously' (嘛, 呗), 'I assure you' (的), 'things are different now' (了). Decide what the speaker is doing to the listener, then pick the particle.",
+  "subs": [
+    {
+      "key": "ma-question",
+      "label": "吗 yes/no question",
+      "focus": "Decide whether 吗 belongs at all. It makes a statement a neutral yes/no question and must be left out (∅) when the sentence has a question word asking for information, verb-不-verb, or 还是. Classic errors: 你去哪儿吗, 你喝不喝茶吗. Also 吗 vs 吧 when the English is a neutral question with no guess."
+    },
+    {
+      "key": "ne-question",
+      "label": "呢 in questions",
+      "focus": "(1) Noun + 呢 = 'and you? / what about X? / where is X?' (你呢? 我的手机呢?); the error is 你吗. (2) 呢, never 吗, softens a question that is already one (question word, A-not-A, 还是). 呢 cannot make a statement a yes/no question: 你是学生呢 is wrong."
+    },
+    {
+      "key": "ne-ongoing",
+      "label": "呢 for 'still the case'",
+      "focus": "Statement 呢 = this is how things stand right now, often against the listener's assumption: 在 + verb + 呢, verb + 着 + 呢, 还没...呢, 才...呢. Force 呢 against 了, 吗, 吧 with a clue word (在, 正在, 着, 还没, 才). Classic error: 我还没吃饭了."
+    },
+    {
+      "key": "ba-suggest",
+      "label": "吧 suggestion or soft command",
+      "focus": "吧 after an action = 'let's', 'why don't you', a softened instruction; 好吧 / 行吧 gives in. The English cue is a proposal or gentle request, not a question of fact. Force 吧 over 吗 (asks if it is true), 了 and 呢. Classic error: 我们走吗 for 'Let's go'."
+    },
+    {
+      "key": "ba-presume",
+      "label": "吧 'I suppose..., right?'",
+      "focus": "吧 on a statement = the speaker already believes it and wants agreement (你是老师吧?). English cues: 'right?', 'you must be', 'I suppose', 'probably'. Separate from neutral 吗 by the English; 大概, 应该, 一定 point to 吧. Never 吧吗, never 吧 on a question-word question."
+    },
+    {
+      "key": "a-warm",
+      "label": "啊 warmth and exclamation",
+      "focus": "啊 adds feeling without changing the sentence type: exclamation (真好啊, 多漂亮啊), warm agreement (是啊, 好啊), friendly urging (快来啊). English cue has an exclamation or clearly warm tone. Distractors: 吗 (makes a yes/no question), 吧 (a guess), 呢. 啊 never creates a yes/no question."
+    },
+    {
+      "key": "obvious-ma-bei",
+      "label": "嘛 and 呗 'obviously'",
+      "focus": "嘛 = 'obviously, after all, you should know' and never asks; the trap is writing 吗, which makes a question. 呗 = 'simple: just do it / so be it', usually ...就...呗, with a shrug. English cues: 'after all', 'of course', 'just ... then', 'so what'. Force 嘛 or 呗 against 吗, 吧, 呢."
+    },
+    {
+      "key": "de-assure",
+      "label": "的 assurance",
+      "focus": "Final 的 after 会 / 不会 / 一定会 = calm promise or reassurance about the future (会好的, 他会来的). Force 的 over 了 (announces a change) and 吧 (turns the promise into a guess). English cues: 'don't worry', 'I promise', 'is sure to'. Not the 是...的 past-detail pattern."
+    },
+    {
+      "key": "le-change",
+      "label": "了 change of state",
+      "focus": "Final 了 = the situation is new, not so before (下雨了, 我饿了, 我不去了, 他是大学生了). English cues: 'now', 'not any more', 'has become'. Force 了 against 呢 (still the same), 的 (assurance) and ∅ (plain description). Classic error: dropping 了 from 不...了 'not any more'."
+    }
+  ],
+  "rules": [
+    {
+      "sub": "ma-question",
+      "rule": "Put 吗 at the end of a statement to ask a neutral yes/no question. Nothing else in the sentence moves.",
+      "pattern": "Statement + 吗",
+      "examples": [
+        {
+          "zh": "你是学生吗？",
+          "py": "nǐ shì xué sheng ma",
+          "en": "Are you a student?"
+        },
+        {
+          "zh": "你明天有时间吗？",
+          "py": "nǐ míng tiān yǒu shí jiān ma",
+          "en": "Do you have time tomorrow?"
+        },
+        {
+          "zh": "他不喜欢吃辣的吗？",
+          "py": "tā bù xǐ huan chī là de ma",
+          "en": "Doesn't he like spicy food?"
+        }
+      ]
+    },
+    {
+      "sub": "ma-question",
+      "rule": "A sentence that is already a question takes no 吗: not with a question word (谁, 什么, 哪儿, 怎么, 几, 多少), not with verb-不-verb or 有没有, not with 还是.",
+      "pattern": "Question word / Verb + 不 + Verb / A + 还是 + B + (no 吗)",
+      "examples": [
+        {
+          "zh": "你想喝什么？",
+          "py": "nǐ xiǎng hē shén me",
+          "en": "What would you like to drink?"
+        },
+        {
+          "zh": "你明天来不来？",
+          "py": "nǐ míng tiān lái bù lái",
+          "en": "Are you coming tomorrow or not?"
+        },
+        {
+          "zh": "你坐火车还是坐飞机？",
+          "py": "nǐ zuò huǒ chē hái shi zuò fēi jī",
+          "en": "Are you taking the train or the plane?"
+        }
+      ],
+      "note": "One real exception: when 什么 or 谁 means 'something / anyone' rather than asking for information, the sentence is a yes/no question and 吗 is fine: 你想喝点什么吗? (Would you like something to drink?)."
+    },
+    {
+      "sub": "ne-question",
+      "rule": "Noun or pronoun + 呢 asks the question that is already in the air about someone or something else: 'and you?', 'what about...?'. With no earlier question it asks 'where is...?'.",
+      "pattern": "Noun / Pronoun + 呢",
+      "examples": [
+        {
+          "zh": "我很好，你呢？",
+          "py": "wǒ hěn hǎo nǐ ne",
+          "en": "I'm fine. And you?"
+        },
+        {
+          "zh": "我喝茶，你呢？",
+          "py": "wǒ hē chá nǐ ne",
+          "en": "I'll have tea. What about you?"
+        },
+        {
+          "zh": "今天没时间，明天呢？",
+          "py": "jīn tiān méi shí jiān míng tiān ne",
+          "en": "There's no time today. How about tomorrow?"
+        },
+        {
+          "zh": "我的手机呢？",
+          "py": "wǒ de shǒu jī ne",
+          "en": "Where's my phone?"
+        }
+      ]
+    },
+    {
+      "sub": "ne-question",
+      "rule": "呢 can be added to a question that is already a question (question word, verb-不-verb, 还是) to make it sound thoughtful or less blunt. It cannot turn a statement into a yes/no question; that is the job of 吗.",
+      "pattern": "Question-word question / A-not-A question / 还是 question + 呢",
+      "examples": [
+        {
+          "zh": "他为什么不来呢？",
+          "py": "tā wèi shén me bù lái ne",
+          "en": "Why isn't he coming, I wonder?"
+        },
+        {
+          "zh": "我们怎么去呢？",
+          "py": "wǒ men zěn me qù ne",
+          "en": "So how shall we get there?"
+        },
+        {
+          "zh": "你到底去不去呢？",
+          "py": "nǐ dào dǐ qù bù qù ne",
+          "en": "So are you going or not?"
+        }
+      ],
+      "note": "This 呢 is optional: the question is complete without it. In drills it is the right choice only because 吗 is impossible after these question forms."
+    },
+    {
+      "sub": "ne-ongoing",
+      "rule": "On a statement, 呢 says 'this is how things stand right now', often correcting what the listener assumes. It goes with 在 / 正在 + verb, verb + 着, 还没 (not yet), and 才 (only / certainly not).",
+      "pattern": "(正)在 + Verb + 呢 / Verb + 着 + 呢 / 还没 + Verb + 呢 / 才 + ... + 呢",
+      "examples": [
+        {
+          "zh": "别说话，孩子在睡觉呢。",
+          "py": "bié shuō huà hái zi zài shuì jiào ne",
+          "en": "Don't talk, the child is sleeping."
+        },
+        {
+          "zh": "外面下着雨呢。",
+          "py": "wài miàn xià zhe yǔ ne",
+          "en": "It's raining outside (you know)."
+        },
+        {
+          "zh": "我还没吃饭呢。",
+          "py": "wǒ hái méi chī fàn ne",
+          "en": "I haven't eaten yet."
+        },
+        {
+          "zh": "现在才八点呢。",
+          "py": "xiàn zài cái bā diǎn ne",
+          "en": "It's only eight o'clock."
+        }
+      ],
+      "note": "还没 never takes 了, because nothing has happened or changed yet. 才...呢 can also push back strongly: 我才不去呢 (I'm certainly not going)."
+    },
+    {
+      "sub": "ba-suggest",
+      "rule": "吧 after an action makes a suggestion ('let's', 'why don't you') or softens a command so it is not an order. 好吧 and 行吧 mean 'all right then', giving in.",
+      "pattern": "(Subject) + Verb phrase + 吧",
+      "examples": [
+        {
+          "zh": "我们走吧。",
+          "py": "wǒ men zǒu ba",
+          "en": "Let's go."
+        },
+        {
+          "zh": "你先休息一下吧。",
+          "py": "nǐ xiān xiū xi yī xià ba",
+          "en": "Why don't you rest for a bit first."
+        },
+        {
+          "zh": "太晚了，明天再说吧。",
+          "py": "tài wǎn le míng tiān zài shuō ba",
+          "en": "It's too late; let's talk about it tomorrow."
+        },
+        {
+          "zh": "好吧，我跟你一起去。",
+          "py": "hǎo ba wǒ gēn nǐ yī qǐ qù",
+          "en": "All right then, I'll go with you."
+        }
+      ]
+    },
+    {
+      "sub": "ba-presume",
+      "rule": "吧 on a statement shows you already believe it and want the listener to confirm: 'you are..., right?', 'I suppose...'. With 吗 you have no opinion; with 吧 you are guessing yes.",
+      "pattern": "Statement + 吧",
+      "examples": [
+        {
+          "zh": "你是老师吧？",
+          "py": "nǐ shì lǎo shī ba",
+          "en": "You're a teacher, right?"
+        },
+        {
+          "zh": "你们已经认识了吧？",
+          "py": "nǐ men yǐ jīng rèn shi le ba",
+          "en": "You two already know each other, I take it?"
+        },
+        {
+          "zh": "他今天大概不来了吧。",
+          "py": "tā jīn tiān dà gài bù lái le ba",
+          "en": "He's probably not coming today, I suppose."
+        }
+      ],
+      "note": "Never combine 吧 with 吗. A guess with 吧 may be written with a question mark or a full stop, depending on how much the speaker expects an answer."
+    },
+    {
+      "sub": "a-warm",
+      "rule": "啊 adds feeling and friendliness without changing the sentence type: it marks an exclamation (often with 真, 多, 好), warm agreement, or friendly urging. It does not make a yes/no question.",
+      "pattern": "真 / 多 / 好 + Adjective + 啊 ; Sentence + 啊",
+      "examples": [
+        {
+          "zh": "今天天气真好啊！",
+          "py": "jīn tiān tiān qì zhēn hǎo a",
+          "en": "The weather is so nice today!"
+        },
+        {
+          "zh": "这儿的风景多漂亮啊！",
+          "py": "zhè r de fēng jǐng duō piào liang a",
+          "en": "How beautiful the scenery here is!"
+        },
+        {
+          "zh": "是啊，我也这么想。",
+          "py": "shì a wǒ yě zhè me xiǎng",
+          "en": "Yes, exactly, I think so too."
+        },
+        {
+          "zh": "快来啊，电影要开始了！",
+          "py": "kuài lái a diàn yǐng yào kāi shǐ le",
+          "en": "Come on, hurry, the film is about to start!"
+        }
+      ],
+      "note": "In speech 啊 blends with the sound before it and is then often written 呀 (after a, e, i, o, ü: 是你呀, 快来呀), 哇 (after u, ao: 好哇) or 哪 (after n: 天哪). These are the same particle; writing 啊 is always acceptable. 啊 can also make a question-word question friendlier: 你去哪儿啊?"
+    },
+    {
+      "sub": "obvious-ma-bei",
+      "rule": "嘛 says the fact is obvious and the listener should already know it: 'after all', 'of course', 'come on'. It sounds like 吗 but is a different word and never asks a question.",
+      "pattern": "Statement + 嘛",
+      "examples": [
+        {
+          "zh": "他还是孩子嘛，别生气。",
+          "py": "tā hái shi hái zi ma bié shēng qì",
+          "en": "He's still a child, after all; don't be angry."
+        },
+        {
+          "zh": "这个问题很简单嘛。",
+          "py": "zhè ge wèn tí hěn jiǎn dān ma",
+          "en": "This question is easy, obviously."
+        },
+        {
+          "zh": "我早就告诉你了嘛。",
+          "py": "wǒ zǎo jiù gào su nǐ le ma",
+          "en": "I told you long ago, didn't I."
+        }
+      ],
+      "note": "After a request, 嘛 coaxes rather than states the obvious: 你就去嘛 (Oh, go on, just go)."
+    },
+    {
+      "sub": "obvious-ma-bei",
+      "rule": "呗 says the answer is simple and not worth worrying about: 'just ... then', 'so be it'. It is casual, comes with a shrug, and most often closes a ...就... sentence.",
+      "pattern": "(Condition) + 就 + Verb + 呗",
+      "examples": [
+        {
+          "zh": "不会就学呗。",
+          "py": "bù huì jiù xué bei",
+          "en": "If you can't do it, just learn, then."
+        },
+        {
+          "zh": "你想去就去呗。",
+          "py": "nǐ xiǎng qù jiù qù bei",
+          "en": "If you want to go, just go."
+        },
+        {
+          "zh": "他不来就不来呗。",
+          "py": "tā bù lái jiù bù lái bei",
+          "en": "If he's not coming, then he's not coming. So what."
+        }
+      ],
+      "note": "呗 is informal and can sound careless; it is for friends, not for polite requests. Where 吧 would propose something gently, 呗 treats it as the obvious thing to do."
+    },
+    {
+      "sub": "de-assure",
+      "rule": "会 ... 的 gives a calm assurance or promise about the future: 'it will, believe me'. Use 的, not 了, at the end.",
+      "pattern": "Subject + (一定) + (不) + 会 + Verb / Adjective + 的",
+      "examples": [
+        {
+          "zh": "别担心，会好的。",
+          "py": "bié dān xīn huì hǎo de",
+          "en": "Don't worry, it will be all right."
+        },
+        {
+          "zh": "他一定会来的。",
+          "py": "tā yī dìng huì lái de",
+          "en": "He will definitely come."
+        },
+        {
+          "zh": "我不会告诉别人的。",
+          "py": "wǒ bù huì gào su bié rén de",
+          "en": "I won't tell anyone, I promise."
+        }
+      ],
+      "note": "Without 的 the sentence is still correct (他会来) but is a plain prediction; 的 adds the speaker's certainty."
+    },
+    {
+      "sub": "le-change",
+      "rule": "了 at the end of a sentence says the situation is new: it is so now and was not before. With 不 it means 'not any more' or a changed plan.",
+      "pattern": "Sentence + 了 ; 不 + Verb + 了",
+      "examples": [
+        {
+          "zh": "下雨了，快进来吧。",
+          "py": "xià yǔ le kuài jìn lái ba",
+          "en": "It's started raining; come in quickly."
+        },
+        {
+          "zh": "我饿了，我们去吃饭吧。",
+          "py": "wǒ è le wǒ men qù chī fàn ba",
+          "en": "I'm hungry now; let's go and eat."
+        },
+        {
+          "zh": "我不想去了。",
+          "py": "wǒ bù xiǎng qù le",
+          "en": "I don't want to go any more."
+        },
+        {
+          "zh": "她现在是大学生了。",
+          "py": "tā xiàn zài shì dà xué shēng le",
+          "en": "She's a university student now."
+        }
+      ],
+      "note": "Compare with 呢: 他在睡觉呢 = he is (still) asleep; 他睡觉了 = he has gone to bed (new situation). Verb-了 for completed actions is covered in the 了 topic."
+    }
+  ],
+  "contrasts": [
+    {
+      "wrong": "你去哪儿吗？",
+      "right": {
+        "zh": "你去哪儿？",
+        "py": "nǐ qù nǎ r",
+        "en": "Where are you going?"
+      },
+      "why": "哪儿 already makes the sentence a question. 吗 is only for turning a statement into a yes/no question."
+    },
+    {
+      "wrong": "你喝不喝茶吗？",
+      "right": {
+        "zh": "你喝不喝茶？",
+        "py": "nǐ hē bù hē chá",
+        "en": "Do you drink tea?"
+      },
+      "why": "喝不喝 is the question. Use verb-不-verb or 吗, never both."
+    },
+    {
+      "wrong": "你喝茶还是喝咖啡吗？",
+      "right": {
+        "zh": "你喝茶还是喝咖啡？",
+        "py": "nǐ hē chá hái shi hē kā fēi",
+        "en": "Will you have tea or coffee?"
+      },
+      "why": "还是 asks the listener to choose, so the sentence is already a question and cannot take 吗."
+    },
+    {
+      "wrong": "我是上海人，你吗？",
+      "right": {
+        "zh": "我是上海人，你呢？",
+        "py": "wǒ shì shàng hǎi rén nǐ ne",
+        "en": "I'm from Shanghai. And you?"
+      },
+      "why": "'And you?' bounces the same question back, which is noun + 呢. 吗 needs a full statement in front of it."
+    },
+    {
+      "wrong": "你是学生呢？",
+      "right": {
+        "zh": "你是学生吗？",
+        "py": "nǐ shì xué sheng ma",
+        "en": "Are you a student?"
+      },
+      "why": "呢 cannot turn a statement into a yes/no question. It only follows a bare noun or a sentence that is already a question."
+    },
+    {
+      "wrong": "时间不早了，我们走吗。",
+      "right": {
+        "zh": "时间不早了，我们走吧。",
+        "py": "shí jiān bù zǎo le wǒ men zǒu ba",
+        "en": "It's getting late; let's go."
+      },
+      "why": "'Let's' is a suggestion, which is 吧. 我们走吗? would ask 'Are we leaving?' instead of proposing it."
+    },
+    {
+      "wrong": "我还没吃饭了。",
+      "right": {
+        "zh": "我还没吃饭呢。",
+        "py": "wǒ hái méi chī fàn ne",
+        "en": "I haven't eaten yet."
+      },
+      "why": "还没 means nothing has changed yet, so 了 is impossible. 呢 marks 'still the case'."
+    },
+    {
+      "wrong": "别着急，他一定会来了。",
+      "right": {
+        "zh": "别着急，他一定会来的。",
+        "py": "bié zháo jí tā yī dìng huì lái de",
+        "en": "Don't worry, he will definitely come."
+      },
+      "why": "Reassurance about the future is 会...的. 了 reports a change that has happened and does not fit 一定会."
+    },
+    {
+      "wrong": "他是孩子吗，别生气了。",
+      "right": {
+        "zh": "他是孩子嘛，别生气了。",
+        "py": "tā shì hái zi ma bié shēng qì le",
+        "en": "He's a child, after all; don't be angry any more."
+      },
+      "why": "The speaker is stating something obvious, not asking. That is 嘛; 吗 would turn it into 'Is he a child?'."
+    },
+    {
+      "wrong": "我已经不喝咖啡。",
+      "right": {
+        "zh": "我已经不喝咖啡了。",
+        "py": "wǒ yǐ jīng bù hē kā fēi le",
+        "en": "I don't drink coffee any more."
+      },
+      "why": "'Not any more' is a change from before, so the sentence needs 了 at the end: 不 + verb + 了. With 已经 the 了 cannot be dropped."
+    }
+  ],
+  "cheat": [
+    "Question word, verb-不-verb or 还是 in the sentence? No 吗. Only 呢 or 啊 can be added.",
+    "'And you? / What about X? / Where's X?' = noun + 呢.",
+    "Neutral yes/no = 吗. 'Right? / I suppose / must be' = 吧. Never both.",
+    "'Let's... / Why don't you... / All right then' = 吧.",
+    "在, 正在, 着, 还没 or 才 in the sentence and things are still that way = 呢. Different from before, 'now', 'not any more' = 了.",
+    "'Don't worry, it will' = 会...的. 'After all, obviously' = 嘛 (not 吗). 'Just do it then, so what' = 就...呗.",
+    "Exclamation with 真 / 多 / 好, or a warm 'yes!' or 'come on!' = 啊."
+  ]
+}

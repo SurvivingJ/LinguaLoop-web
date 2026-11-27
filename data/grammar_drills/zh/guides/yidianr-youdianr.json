@@ -1,0 +1,421 @@
+{
+  "topic": "yidianr-youdianr",
+  "summary": "Both mean 'a bit', but they sit in different places and say different things. 有点儿 goes BEFORE an adjective or verb and reports how things are, usually a complaint: 有点儿贵 'a bit (too) expensive'. 一点儿 goes AFTER an adjective to mean 'a bit more' (便宜一点儿 'a bit cheaper') or BEFORE a noun to mean 'a little of' (一点儿水). 儿 is optional in writing (一点, 有点).",
+  "subs": [
+    {
+      "key": "youdianr-before",
+      "label": "有点儿 + adjective / verb",
+      "focus": "Force 有点儿 before an adjective or feeling verb to state a mild, usually unwelcome present fact (有点儿贵, 有点儿不舒服, 有点儿担心). Errors: 一点儿 in that slot (一点儿贵), 有点儿 after the adjective, adding 很. No comparison or request in the sentence, so 一点儿 is impossible."
+    },
+    {
+      "key": "adj-yidianr",
+      "label": "adjective + 一点儿",
+      "focus": "Force 一点儿 after the adjective for 'a bit more': comparison (比 or implied) or a request (快一点儿, 便宜一点儿吧, 大一点儿的). Errors: 有点儿 or 很 in a 比 sentence or request, 一点儿 before the adjective. Include 比, 请, 吧, 的 or a clear wish for change so 有点儿 is ruled out."
+    },
+    {
+      "key": "before-or-after",
+      "label": "有点儿 before vs 一点儿 after",
+      "focus": "Same-adjective head-to-head: complaint about the present state (这双鞋有点儿小) vs the change wanted or a comparison (有没有大一点儿的). Learner decides state vs change, then which side of the adjective. Two-clause and order items are ideal. Error: one fixed word and position for 'a bit'."
+    },
+    {
+      "key": "yidianr-noun",
+      "label": "一点儿 + noun",
+      "focus": "Force 一点儿 before a noun for a small amount (喝一点儿水, 会说一点儿汉语, 还有一点儿时间). Errors: 有点儿 between verb and noun (喝有点儿水), 一点儿 after the noun. Use a clear main verb; if it is 有, make it plainly 'to have' (还有一点儿钱)."
+    },
+    {
+      "key": "yidianr-ye-bu",
+      "label": "一点儿也不 / 都不 / 也没",
+      "focus": "Force 'not at all' = 一点儿 (+ noun) + 也/都 + 不/没 + adjective/verb (一点儿也不贵, 一点儿钱也没有). Errors: 有点儿也不, 不一点儿贵, 不贵一点儿, and mixing 有点儿不 ('a bit un-') with 一点儿也不. English cue must say 'at all'. Never make 也 vs 都 the choice."
+    },
+    {
+      "key": "yixia-yidianr",
+      "label": "一下 vs 一点儿",
+      "focus": "Choose verb + 一下 (brief action: 等一下, 问一下, 休息一下) vs 一点儿 (degree after adjective, amount before noun). Errors: 等一点儿, 快一下. Use verbs with no amount (等, 问, 休息, 介绍) for 一下 and adjectives for 一点儿; avoid bare 吃___ / 喝___ frames, where both work."
+    },
+    {
+      "key": "yixie",
+      "label": "一些 'some'",
+      "focus": "Force 一些 + noun for 'some' countable things or people (一些朋友, 一些问题), where 一点儿 fails; recognise adjective + 一些 and 有些 + adjective. Errors: 一点儿朋友, 一些贵, 一些也不. Never force a choice between 好一些 and 好一点儿, or between 有些 and 有点儿; both are right."
+    }
+  ],
+  "rules": [
+    {
+      "sub": "youdianr-before",
+      "rule": "To say something is 'a bit' or 'a bit too' something right now, put 有点儿 before the adjective. No 很, no 是.",
+      "pattern": "Subject + 有点儿 + Adjective",
+      "examples": [
+        {
+          "zh": "今天有点儿冷。",
+          "py": "jīn tiān yǒu diǎn r lěng",
+          "en": "It's a bit cold today."
+        },
+        {
+          "zh": "这件衣服有点儿贵。",
+          "py": "zhè jiàn yī fu yǒu diǎn r guì",
+          "en": "This piece of clothing is a bit expensive."
+        },
+        {
+          "zh": "我有点儿累，想早点儿睡觉。",
+          "py": "wǒ yǒu diǎn r lèi xiǎng zǎo diǎn r shuì jiào",
+          "en": "I'm a bit tired and want to go to bed early."
+        }
+      ],
+      "note": "有点儿 usually carries a complaint, so it sounds odd with things you are pleased about (好吃, 漂亮, 高兴); for those use 挺 or 很. It is fine with neutral words when the result is not what you wanted. 有一点儿 is the full form and means the same."
+    },
+    {
+      "sub": "youdianr-before",
+      "rule": "有点儿 also goes before feeling verbs and before 不 + a positive word.",
+      "pattern": "Subject + 有点儿 + Verb of feeling / 不 + Adjective",
+      "examples": [
+        {
+          "zh": "我有点儿想家。",
+          "py": "wǒ yǒu diǎn r xiǎng jiā",
+          "en": "I'm a bit homesick."
+        },
+        {
+          "zh": "他今天有点儿不高兴。",
+          "py": "tā jīn tiān yǒu diǎn r bù gāo xìng",
+          "en": "He's a bit unhappy today."
+        },
+        {
+          "zh": "我有点儿担心明天的考试。",
+          "py": "wǒ yǒu diǎn r dān xīn míng tiān de kǎo shì",
+          "en": "I'm a bit worried about tomorrow's exam."
+        }
+      ]
+    },
+    {
+      "sub": "adj-yidianr",
+      "rule": "In a comparison, 'a bit more' is 一点儿 after the adjective. 有点儿 and 很 cannot go in a 比 sentence.",
+      "pattern": "A + 比 + B + Adjective + 一点儿",
+      "examples": [
+        {
+          "zh": "今天比昨天冷一点儿。",
+          "py": "jīn tiān bǐ zuó tiān lěng yī diǎn r",
+          "en": "Today is a bit colder than yesterday."
+        },
+        {
+          "zh": "弟弟比我高一点儿。",
+          "py": "dì di bǐ wǒ gāo yī diǎn r",
+          "en": "My younger brother is a bit taller than me."
+        },
+        {
+          "zh": "我今天好一点儿了。",
+          "py": "wǒ jīn tiān hǎo yī diǎn r le",
+          "en": "I'm a bit better today."
+        }
+      ],
+      "note": "The comparison can be unspoken: 好一点儿了 means 'a bit better than before'."
+    },
+    {
+      "sub": "adj-yidianr",
+      "rule": "To ask for a change ('a bit faster, a bit cheaper'), put 一点儿 after the adjective. After a verb the order is verb + adjective + 一点儿.",
+      "pattern": "(Verb) + Adjective + 一点儿 (+ 吧 / 的)",
+      "examples": [
+        {
+          "zh": "请说慢一点儿。",
+          "py": "qǐng shuō màn yī diǎn r",
+          "en": "Please speak a bit more slowly."
+        },
+        {
+          "zh": "便宜一点儿吧。",
+          "py": "pián yi yī diǎn r ba",
+          "en": "Make it a bit cheaper, will you?"
+        },
+        {
+          "zh": "你快一点儿，我们要迟到了。",
+          "py": "nǐ kuài yī diǎn r wǒ men yào chí dào le",
+          "en": "Hurry up a bit, we're going to be late."
+        }
+      ],
+      "note": "In speech 一 is often dropped here: 快点儿, 便宜点儿."
+    },
+    {
+      "sub": "before-or-after",
+      "rule": "Describing how it is now: 有点儿 before the adjective. Saying how you want it, or comparing: 一点儿 after the adjective. Never the other way round.",
+      "pattern": "有点儿 + Adjective (state)  /  Adjective + 一点儿 (change, comparison)",
+      "examples": [
+        {
+          "zh": "这双鞋有点儿小，有没有大一点儿的？",
+          "py": "zhè shuāng xié yǒu diǎn r xiǎo yǒu méi yǒu dà yī diǎn r de",
+          "en": "These shoes are a bit small; do you have slightly bigger ones?"
+        },
+        {
+          "zh": "这个房间有点儿小，那个大一点儿。",
+          "py": "zhè ge fáng jiān yǒu diǎn r xiǎo nà ge dà yī diǎn r",
+          "en": "This room is a bit small; that one is a bit bigger."
+        },
+        {
+          "zh": "你说得有点儿快，请说慢一点儿。",
+          "py": "nǐ shuō de yǒu diǎn r kuài qǐng shuō màn yī diǎn r",
+          "en": "You're speaking a bit fast; please speak a bit more slowly."
+        }
+      ]
+    },
+    {
+      "sub": "yidianr-noun",
+      "rule": "'A little (of something)' is 一点儿 before the noun, after the verb. 有点儿 cannot follow another verb.",
+      "pattern": "Verb + 一点儿 + Noun",
+      "examples": [
+        {
+          "zh": "我想喝一点儿水。",
+          "py": "wǒ xiǎng hē yī diǎn r shuǐ",
+          "en": "I'd like to drink a little water."
+        },
+        {
+          "zh": "他会说一点儿汉语。",
+          "py": "tā huì shuō yī diǎn r hàn yǔ",
+          "en": "He can speak a little Chinese."
+        },
+        {
+          "zh": "我只吃了一点儿米饭。",
+          "py": "wǒ zhǐ chī le yī diǎn r mǐ fàn",
+          "en": "I only ate a little rice."
+        },
+        {
+          "zh": "我们还有一点儿时间。",
+          "py": "wǒ men hái yǒu yī diǎn r shí jiān",
+          "en": "We still have a little time."
+        }
+      ],
+      "note": "In 还有一点儿时间 the 有 is the verb 'to have' followed by 一点儿 + noun; it is not the adverb 有点儿. After a verb 一 is often dropped in speech: 喝点儿水."
+    },
+    {
+      "sub": "yidianr-ye-bu",
+      "rule": "'Not at all' is 一点儿 + 也 or 都 + 不 + adjective or verb. 也 and 都 are interchangeable here.",
+      "pattern": "Subject + 一点儿 + 也/都 + 不 + Adjective / Verb",
+      "examples": [
+        {
+          "zh": "这个菜一点儿也不辣。",
+          "py": "zhè ge cài yī diǎn r yě bù là",
+          "en": "This dish isn't spicy at all."
+        },
+        {
+          "zh": "我一点儿都不累。",
+          "py": "wǒ yī diǎn r dōu bù lèi",
+          "en": "I'm not tired at all."
+        },
+        {
+          "zh": "他一点儿也不喜欢运动。",
+          "py": "tā yī diǎn r yě bù xǐ huan yùn dòng",
+          "en": "He doesn't like exercise at all."
+        }
+      ],
+      "note": "一 is not dropped in this pattern, and 有点儿 cannot replace 一点儿. Compare 有点儿不舒服 'a bit unwell' with 一点儿也不舒服 'not comfortable at all'."
+    },
+    {
+      "sub": "yidianr-ye-bu",
+      "rule": "For something that did not happen or does not exist at all, use 没 instead of 不. A noun goes between 一点儿 and 也/都.",
+      "pattern": "一点儿 (+ Noun) + 也/都 + 没(有) + Verb",
+      "examples": [
+        {
+          "zh": "我一点儿也没听懂。",
+          "py": "wǒ yī diǎn r yě méi tīng dǒng",
+          "en": "I didn't understand any of it."
+        },
+        {
+          "zh": "他一点儿东西都没吃。",
+          "py": "tā yī diǎn r dōng xi dōu méi chī",
+          "en": "He didn't eat anything at all."
+        },
+        {
+          "zh": "我一点儿钱也没有。",
+          "py": "wǒ yī diǎn r qián yě méi yǒu",
+          "en": "I have no money at all."
+        }
+      ]
+    },
+    {
+      "sub": "yixia-yidianr",
+      "rule": "Verb + 一下 means do the action briefly or 'just do it'; it softens a request. It counts the action, not an amount.",
+      "pattern": "Verb + 一下 (+ Object)",
+      "examples": [
+        {
+          "zh": "请等一下。",
+          "py": "qǐng děng yī xià",
+          "en": "Please wait a moment."
+        },
+        {
+          "zh": "我们休息一下吧。",
+          "py": "wǒ men xiū xi yī xià ba",
+          "en": "Let's take a short break."
+        },
+        {
+          "zh": "你问一下老师吧。",
+          "py": "nǐ wèn yī xià lǎo shī ba",
+          "en": "Go and ask the teacher."
+        }
+      ]
+    },
+    {
+      "sub": "yixia-yidianr",
+      "rule": "一下 follows an action verb; 一点儿 follows an adjective or stands before a noun. So: 等一下, but 快一点儿 and 喝一点儿水.",
+      "pattern": "Verb + 一下  /  Adjective + 一点儿  /  Verb + 一点儿 + Noun",
+      "examples": [
+        {
+          "zh": "你看一下这本书。",
+          "py": "nǐ kàn yī xià zhè běn shū",
+          "en": "Have a look at this book."
+        },
+        {
+          "zh": "你走快一点儿。",
+          "py": "nǐ zǒu kuài yī diǎn r",
+          "en": "Walk a bit faster."
+        },
+        {
+          "zh": "你先坐一下，喝一点儿茶。",
+          "py": "nǐ xiān zuò yī xià hē yī diǎn r chá",
+          "en": "Sit down for a moment first and have a little tea."
+        }
+      ],
+      "note": "With eating and drinking verbs both can appear with different meanings: 吃一点儿 'eat a little (of it)', 尝一下 'have a taste'."
+    },
+    {
+      "sub": "yixie",
+      "rule": "一些 + noun means 'some, a few'. Use it (or 几 + measure word) for people and things you count; 一点儿 is for a small amount of something you do not count.",
+      "pattern": "Verb + 一些 + Noun",
+      "examples": [
+        {
+          "zh": "我买了一些水果。",
+          "py": "wǒ mǎi le yī xiē shuǐ guǒ",
+          "en": "I bought some fruit."
+        },
+        {
+          "zh": "我有一些问题想问老师。",
+          "py": "wǒ yǒu yī xiē wèn tí xiǎng wèn lǎo shī",
+          "en": "I have some questions I'd like to ask the teacher."
+        },
+        {
+          "zh": "他在北京认识了一些中国朋友。",
+          "py": "tā zài běi jīng rèn shi le yī xiē zhōng guó péng you",
+          "en": "He got to know some Chinese friends in Beijing."
+        }
+      ],
+      "note": "With mass nouns both are possible and 一些 simply suggests more: 喝一点儿水 'a little water', 喝一些水 'some water'."
+    },
+    {
+      "sub": "yixie",
+      "rule": "After an adjective, 一些 works like 一点儿 ('a bit more'). Before an adjective, the partner of 有点儿 is 有些, never 一些. 'Not at all' only takes 一点儿.",
+      "pattern": "Adjective + 一些  /  有些 + Adjective",
+      "examples": [
+        {
+          "zh": "我今天觉得好一些了。",
+          "py": "wǒ jīn tiān jué de hǎo yī xiē le",
+          "en": "I feel somewhat better today."
+        },
+        {
+          "zh": "这件比那件长一些。",
+          "py": "zhè jiàn bǐ nà jiàn cháng yī xiē",
+          "en": "This one is a bit longer than that one."
+        },
+        {
+          "zh": "他最近有些不高兴。",
+          "py": "tā zuì jìn yǒu xiē bù gāo xìng",
+          "en": "He's been somewhat unhappy lately."
+        }
+      ],
+      "note": "有些 + adjective sounds a little more formal than 有点儿."
+    }
+  ],
+  "contrasts": [
+    {
+      "wrong": "这件衣服一点儿贵。",
+      "right": {
+        "zh": "这件衣服有点儿贵。",
+        "py": "zhè jiàn yī fu yǒu diǎn r guì",
+        "en": "This piece of clothing is a bit expensive."
+      },
+      "why": "Before an adjective, 'a bit' is 有点儿. 一点儿 never stands directly in front of an adjective (except in 一点儿也不)."
+    },
+    {
+      "wrong": "请说有点儿慢。",
+      "right": {
+        "zh": "请说慢一点儿。",
+        "py": "qǐng shuō màn yī diǎn r",
+        "en": "Please speak a bit more slowly."
+      },
+      "why": "A request for change means 'a bit MORE slowly', so 一点儿 goes after the adjective. 有点儿 only describes how things already are."
+    },
+    {
+      "wrong": "他比我有点儿高。",
+      "right": {
+        "zh": "他比我高一点儿。",
+        "py": "tā bǐ wǒ gāo yī diǎn r",
+        "en": "He's a bit taller than me."
+      },
+      "why": "In a 比 sentence nothing like 有点儿 or 很 may come before the adjective; the size of the difference goes after it."
+    },
+    {
+      "wrong": "我想喝有点儿水。",
+      "right": {
+        "zh": "我想喝一点儿水。",
+        "py": "wǒ xiǎng hē yī diǎn r shuǐ",
+        "en": "I'd like to drink a little water."
+      },
+      "why": "Before a noun, 'a little' is 一点儿. 有点儿 is an adverb and cannot come between a verb and its object."
+    },
+    {
+      "wrong": "我有点儿也不累。",
+      "right": {
+        "zh": "我一点儿也不累。",
+        "py": "wǒ yī diǎn r yě bù lèi",
+        "en": "I'm not tired at all."
+      },
+      "why": "'Not at all' is the fixed frame 一点儿 + 也/都 + 不. 有点儿 cannot enter it."
+    },
+    {
+      "wrong": "这个菜不辣一点儿。",
+      "right": {
+        "zh": "这个菜一点儿也不辣。",
+        "py": "zhè ge cài yī diǎn r yě bù là",
+        "en": "This dish isn't spicy at all."
+      },
+      "why": "English puts 'at all' at the end; Chinese puts 一点儿也 in front of 不."
+    },
+    {
+      "wrong": "请等一点儿。",
+      "right": {
+        "zh": "请等一下。",
+        "py": "qǐng děng yī xià",
+        "en": "Please wait a moment."
+      },
+      "why": "Doing an action for a moment is verb + 一下. 一点儿 measures an amount of something or a degree, and waiting has neither."
+    },
+    {
+      "wrong": "你快一下。",
+      "right": {
+        "zh": "你快一点儿。",
+        "py": "nǐ kuài yī diǎn r",
+        "en": "Be a bit quicker."
+      },
+      "why": "快 is an adjective; 'a bit more' of a quality is 一点儿. 一下 needs an action verb."
+    },
+    {
+      "wrong": "我有一点儿中国朋友。",
+      "right": {
+        "zh": "我有一些中国朋友。",
+        "py": "wǒ yǒu yī xiē zhōng guó péng you",
+        "en": "I have some Chinese friends."
+      },
+      "why": "一点儿 is a small amount of stuff, not a number of people. For things you count use 一些 or 几个."
+    },
+    {
+      "wrong": "这个菜有点儿好吃。",
+      "right": {
+        "zh": "这个菜挺好吃的。",
+        "py": "zhè ge cài tǐng hǎo chī de",
+        "en": "This dish is pretty tasty."
+      },
+      "why": "有点儿 sounds like a complaint, so it clashes with praise. For 'quite, pretty' with something good use 挺...的 or 很."
+    }
+  ],
+  "cheat": [
+    "Complaining about how it is now? 有点儿 BEFORE the adjective: 有点儿贵.",
+    "'A bit MORE', a request, or 比 in the sentence? 一点儿 AFTER the adjective: 便宜一点儿.",
+    "A noun follows? 一点儿 + noun: 喝一点儿水. Never 有点儿 after another verb.",
+    "'At all' in the English? 一点儿 + 也/都 + 不/没, all in front of the adjective or verb.",
+    "Action for a moment (等, 看, 问, 休息)? Verb + 一下, not 一点儿.",
+    "People or things you count? 一些 or 几个, not 一点儿.",
+    "Something good? Not 有点儿; use 挺 or 很."
+  ]
+}

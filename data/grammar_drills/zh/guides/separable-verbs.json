@@ -1,0 +1,228 @@
+{
+  "topic": "separable-verbs",
+  "summary": "Words like 见面, 睡觉, 结婚 and 帮忙 look like one verb but are really verb + object (见 'see' + 面 'face'). The object slot is already full, so no second object can follow, and everything that normally sits between a verb and its object (了, 过, a duration, a count, 完, 的-phrases) goes in the middle of the word. Treat 睡觉 like 吃饭 and the rules fall out.",
+  "subs": [
+    {
+      "key": "no-object",
+      "label": "No object after it: 跟他见面",
+      "focus": "The learner must decide where the other person or place goes: never after the word (见面他, 结婚她, 毕业大学, 出差上海) but before the verb (跟他见面, 向她道歉, 大学毕业, 去上海出差). Classic mistake: copying English 'meet him', 'marry her'. Never treat 担心 + object as wrong: 担心他 is correct."
+    },
+    {
+      "key": "object-inside",
+      "label": "Person inside with 的: 帮他的忙, 生我的气",
+      "focus": "With 帮忙 and 生气 the person affected goes inside as 'person + 的': 帮我的忙, 生他的气. The learner must reject 帮忙我 and 生气我. Accept the alternatives 帮我 (plain 帮 takes an object), 给他帮忙 and 跟他生气, so never offer two of these as competing options in one item."
+    },
+    {
+      "key": "aspect-inside",
+      "label": "了 / 过 / 着 inside: 见过面",
+      "focus": "过 and 着 attach to the verb half, not to the whole word: 见过面, 结过婚, 请过假, 说着话. Verb 了 also goes inside when the sentence continues or something is counted (吃了饭就走). Classic mistake: 见面过, 结婚过, 请假过. Sentence-final 了 after the whole word (他结婚了, 我们放假了) is correct and must never be marked wrong."
+    },
+    {
+      "key": "duration-inside",
+      "label": "Duration inside: 睡了八个小时觉",
+      "focus": "How long the action lasted goes between the two halves, after 了: 睡了八个小时(的)觉, 请了三天假, or the verb is repeated: 睡觉睡了八个小时. Classic mistake: 睡觉了八个小时, 游泳了一个小时. Also test the opposite case: point-like words (结婚, 毕业, 离婚) put the time since after the whole word: 结婚十年了, not 结了十年婚."
+    },
+    {
+      "key": "count-inside",
+      "label": "次 / 个 inside: 见过一次面, 洗个澡",
+      "focus": "Number of times and the casual 个 go inside: 见过两次面, 结过两次婚, 洗了一个澡, 开了三个会, 帮我一个忙. The learner must place 次/个 between the halves. Classic mistake: 见面过两次, 洗澡了一个, 结婚过两次."
+    },
+    {
+      "key": "reduplication",
+      "label": "Double only the verb: 散散步",
+      "focus": "For 'do a bit of' only the first half doubles: 散散步, 聊聊天, 帮帮忙, 见见面, 洗洗澡. Classic mistake: doubling the whole word like an ordinary two-syllable verb (散步散步, 聊天聊天), by analogy with 休息休息 and 学习学习. Items may contrast a separable verb with a normal one."
+    },
+    {
+      "key": "degree-complement",
+      "label": "得 needs the verb again: 唱歌唱得很好",
+      "focus": "得 must touch a verb, so the verb is repeated after the object (唱歌唱得很好, 游泳游得很快) or the object is said first and the verb once (歌唱得很好). Classic mistake: 唱歌得很好, 跳舞得很漂亮, 睡觉得很晚."
+    },
+    {
+      "key": "result-inside",
+      "label": "完 / 好 / 不着 / 什么 inside: 吃完饭",
+      "focus": "Result words, potential forms and 什么 also go between the halves: 吃完饭, 上完课, 洗完澡, 没睡好觉, 睡不着觉, 生什么气. Classic mistake: 吃饭完, 上课完, 洗澡完, 睡觉不着, 生气什么."
+    }
+  ],
+  "rules": [
+    {
+      "sub": "no-object",
+      "rule": "The word already contains its object, so the other person cannot follow it. Bring the person in before the verb with 跟 or 和.",
+      "pattern": "Subject + 跟 / 和 + person + verb-object",
+      "examples": [
+        {"zh": "我明天跟朋友见面。", "py": "wǒ míng tiān gēn péng you jiàn miàn", "en": "I'm meeting a friend tomorrow."},
+        {"zh": "他去年和女朋友结婚了。", "py": "tā qù nián hé nǚ péng you jié hūn le", "en": "He married his girlfriend last year."},
+        {"zh": "我喜欢跟同学聊天。", "py": "wǒ xǐ huan gēn tóng xué liáo tiān", "en": "I like chatting with my classmates."},
+        {"zh": "你为什么跟弟弟打架？", "py": "nǐ wèi shén me gēn dì di dǎ jià", "en": "Why did you fight with your little brother?"}
+      ],
+      "note": "跟 and 和 are interchangeable here. This covers 见面, 结婚, 离婚, 聊天, 握手, 打架, 说话, 跳舞, 吃饭, 散步."
+    },
+    {
+      "sub": "no-object",
+      "rule": "Some of these words pick a different word before the verb: 向 or 跟 for apologising, 给 for helping or applauding, 去 + place for a business trip, and the school simply goes in front of 毕业.",
+      "pattern": "Subject + 向 / 给 / 去 / 从 + person or place + verb-object",
+      "examples": [
+        {"zh": "你应该向她道歉。", "py": "nǐ yīng gāi xiàng tā dào qiàn", "en": "You should apologise to her."},
+        {"zh": "爸爸下个星期去上海出差。", "py": "bà ba xià gè xīng qī qù shàng hǎi chū chāi", "en": "Dad is going to Shanghai on business next week."},
+        {"zh": "我哥哥去年大学毕业了。", "py": "wǒ gē ge qù nián dà xué bì yè le", "en": "My older brother graduated from university last year."},
+        {"zh": "大家都给他鼓掌。", "py": "dà jiā dōu gěi tā gǔ zhǎng", "en": "Everyone applauded him."}
+      ],
+      "note": "担心 is the exception in this family: it freely takes an object (别担心我, 我很担心他的身体). Written Chinese also has 毕业于 + school, but 毕业大学 is wrong."
+    },
+    {
+      "sub": "object-inside",
+      "rule": "With 帮忙 and 生气 the person goes inside the word as 'person + 的'. Plain 帮 can take the person directly, but 帮忙 cannot.",
+      "pattern": "Subject + 帮 / 生 + person + 的 + 忙 / 气",
+      "examples": [
+        {"zh": "谢谢你帮了我的忙。", "py": "xiè xie nǐ bāng le wǒ de máng", "en": "Thank you for helping me out."},
+        {"zh": "妈妈还在生我的气。", "py": "mā ma hái zài shēng wǒ de qì", "en": "Mum is still angry with me."},
+        {"zh": "你别生他的气了。", "py": "nǐ bié shēng tā de qì le", "en": "Stop being angry with him."},
+        {"zh": "周末我去给朋友帮忙。", "py": "zhōu mò wǒ qù gěi péng you bāng máng", "en": "I'm going to help a friend out this weekend."}
+      ],
+      "note": "Also correct: 你能帮我吗 (帮 alone), 给他帮忙, 跟他生气. Only 帮忙我 and 生气我 are wrong."
+    },
+    {
+      "sub": "aspect-inside",
+      "rule": "过 and 着 go right after the verb half. Verb 了 goes there too when the sentence carries on or a number follows. Negative: 没 + verb + 过 + object.",
+      "pattern": "Subject + verb + 了 / 过 / 着 + object",
+      "examples": [
+        {"zh": "我们以前见过面。", "py": "wǒ men yǐ qián jiàn guo miàn", "en": "We have met before."},
+        {"zh": "他从来没请过假。", "py": "tā cóng lái méi qǐng guo jià", "en": "He has never taken leave."},
+        {"zh": "我吃了饭就去找你。", "py": "wǒ chī le fàn jiù qù zhǎo nǐ", "en": "I'll come and find you as soon as I've eaten."},
+        {"zh": "他们正说着话，老师进来了。", "py": "tā men zhèng shuō zhe huà lǎo shī jìn lái le", "en": "They were talking when the teacher came in."}
+      ],
+      "note": "了 at the very end of the sentence after the whole word is normal and correct: 他结婚了, 我们放假了, 她生气了. You may hear 见面过 in casual speech, but the standard form is 见过面."
+    },
+    {
+      "sub": "duration-inside",
+      "rule": "How long an activity lasted goes between the two halves, after 了; 的 before the object is optional. Or say the whole word, then repeat the verb with the duration.",
+      "pattern": "Subject + verb + 了 + duration + (的) + object",
+      "examples": [
+        {"zh": "我昨天睡了八个小时觉。", "py": "wǒ zuó tiān shuì le bā gè xiǎo shí jiào", "en": "I slept for eight hours yesterday."},
+        {"zh": "我们聊了一个下午的天。", "py": "wǒ men liáo le yī gè xià wǔ de tiān", "en": "We chatted for a whole afternoon."},
+        {"zh": "他上个月请了三天假。", "py": "tā shàng gè yuè qǐng le sān tiān jià", "en": "He took three days off last month."},
+        {"zh": "她游泳游了半个小时。", "py": "tā yóu yǒng yóu le bàn gè xiǎo shí", "en": "She swam for half an hour."}
+      ],
+      "note": "Never put the duration after the unsplit word with 了: 睡觉了八个小时 is wrong."
+    },
+    {
+      "sub": "duration-inside",
+      "rule": "结婚, 毕业 and 离婚 happen at a point and do not last. To say how long it has been since, put the time after the whole word and end with 了.",
+      "pattern": "Subject + verb-object + duration + 了",
+      "examples": [
+        {"zh": "他们结婚十年了。", "py": "tā men jié hūn shí nián le", "en": "They have been married for ten years."},
+        {"zh": "我大学毕业两年了。", "py": "wǒ dà xué bì yè liǎng nián le", "en": "It's been two years since I graduated from university."},
+        {"zh": "他们离婚已经三年了。", "py": "tā men lí hūn yǐ jīng sān nián le", "en": "They have been divorced for three years already."}
+      ],
+      "note": "放假 can go either way with a different meaning: 我们放了三天假 (the holiday lasted three days), 我们放假三天了 (we have been on holiday for three days now)."
+    },
+    {
+      "sub": "count-inside",
+      "rule": "The number of times (次) and the casual 个 go inside, after 了 or 过 if there is one.",
+      "pattern": "Subject + verb + (了 / 过) + number + 次 / 个 + object",
+      "examples": [
+        {"zh": "我们只见过两次面。", "py": "wǒ men zhǐ jiàn guo liǎng cì miàn", "en": "We have only met twice."},
+        {"zh": "他结过两次婚。", "py": "tā jié guo liǎng cì hūn", "en": "He has been married twice."},
+        {"zh": "我想先洗个澡。", "py": "wǒ xiǎng xiān xǐ gè zǎo", "en": "I'd like to take a shower first."},
+        {"zh": "你能帮我一个忙吗？", "py": "nǐ néng bāng wǒ yī gè máng ma", "en": "Can you do me a favour?"}
+      ],
+      "note": "个 here does not really count; it makes the action sound light and casual (洗个澡, 睡个觉, 理个发, 开个会)."
+    },
+    {
+      "sub": "reduplication",
+      "rule": "To say 'do a bit of it', double only the verb half. Ordinary two-syllable verbs double as a whole (休息休息), separable ones never do.",
+      "pattern": "Subject + verb + verb + object",
+      "examples": [
+        {"zh": "吃完饭我们出去散散步吧。", "py": "chī wán fàn wǒ men chū qù sàn sàn bù ba", "en": "Let's go out for a little walk after dinner."},
+        {"zh": "有空来我家聊聊天。", "py": "yǒu kòng lái wǒ jiā liáo liáo tiān", "en": "Come over for a chat when you're free."},
+        {"zh": "请你帮帮忙。", "py": "qǐng nǐ bāng bāng máng", "en": "Please lend a hand."},
+        {"zh": "周末我喜欢在家唱唱歌。", "py": "zhōu mò wǒ xǐ huan zài jiā chàng chàng gē", "en": "At weekends I like to sing a bit at home."}
+      ],
+      "note": "Only casual, deliberate activities double. 结婚, 毕业, 离婚, 生气 and 出差 are not doubled at all. For a finished action 了 goes between the two verbs: 我们昨天聊了聊天."
+    },
+    {
+      "sub": "degree-complement",
+      "rule": "得 must come straight after a verb, never after the object half. Say the whole word, then repeat the verb before 得; or put the object first and say the verb once.",
+      "pattern": "Subject + verb-object + verb + 得 + description",
+      "examples": [
+        {"zh": "她唱歌唱得很好。", "py": "tā chàng gē chàng de hěn hǎo", "en": "She sings very well."},
+        {"zh": "他游泳游得很快。", "py": "tā yóu yǒng yóu de hěn kuài", "en": "He swims very fast."},
+        {"zh": "我昨天睡觉睡得很晚。", "py": "wǒ zuó tiān shuì jiào shuì de hěn wǎn", "en": "I went to bed very late last night."},
+        {"zh": "她舞跳得非常好。", "py": "tā wǔ tiào de fēi cháng hǎo", "en": "She dances extremely well."}
+      ],
+      "note": "Negation goes in the description, not before the verb: 他唱歌唱得不好."
+    },
+    {
+      "sub": "result-inside",
+      "rule": "Result words (完, 好), potential forms (不着, 不了) and 什么 go right after the verb half, before the object half.",
+      "pattern": "Subject + verb + 完 / 好 / 不着 / 什么 + object",
+      "examples": [
+        {"zh": "我吃完饭就给你打电话。", "py": "wǒ chī wán fàn jiù gěi nǐ dǎ diàn huà", "en": "I'll call you as soon as I finish eating."},
+        {"zh": "上完课我们一起去吃饭吧。", "py": "shàng wán kè wǒ men yī qǐ qù chī fàn ba", "en": "Let's go and eat together after class."},
+        {"zh": "我昨天晚上没睡好觉。", "py": "wǒ zuó tiān wǎn shang méi shuì hǎo jiào", "en": "I didn't sleep well last night."},
+        {"zh": "你生什么气？", "py": "nǐ shēng shén me qì", "en": "What are you angry about?"}
+      ],
+      "note": "Same shape as an ordinary verb and object: 吃完饭 is built exactly like 看完书."
+    }
+  ],
+  "contrasts": [
+    {
+      "wrong": "我明天见面他。",
+      "right": {"zh": "我明天跟他见面。", "py": "wǒ míng tiān gēn tā jiàn miàn", "en": "I'm meeting him tomorrow."},
+      "why": "面 already fills the object slot of 见, so 他 cannot follow. The person comes before the verb with 跟."
+    },
+    {
+      "wrong": "他结婚了一个中国人。",
+      "right": {"zh": "他跟一个中国人结婚了。", "py": "tā gēn yī gè zhōng guó rén jié hūn le", "en": "He married a Chinese person."},
+      "why": "English 'marry someone' has an object; 结婚 does not take one. You get married 'with' someone: 跟 + person + 结婚."
+    },
+    {
+      "wrong": "你能帮忙我吗？",
+      "right": {"zh": "你能帮我一个忙吗？", "py": "nǐ néng bāng wǒ yī gè máng ma", "en": "Can you do me a favour?"},
+      "why": "帮忙 cannot take 我 after it. Split it (帮我一个忙, 帮我的忙) or use plain 帮: 你能帮我吗."
+    },
+    {
+      "wrong": "她生气我了。",
+      "right": {"zh": "她生我的气了。", "py": "tā shēng wǒ de qì le", "en": "She got angry with me."},
+      "why": "The person you are angry with goes inside 生气 as 我的: literally 'she produced my anger'."
+    },
+    {
+      "wrong": "我们见面过。",
+      "right": {"zh": "我们见过面。", "py": "wǒ men jiàn guo miàn", "en": "We have met."},
+      "why": "过 attaches to the verb 见, not to the noun 面, just as in 吃过饭."
+    },
+    {
+      "wrong": "我睡觉了八个小时。",
+      "right": {"zh": "我睡了八个小时觉。", "py": "wǒ shuì le bā gè xiǎo shí jiào", "en": "I slept for eight hours."},
+      "why": "了 and the duration follow the verb 睡 and come before the object 觉. 睡觉睡了八个小时 also works."
+    },
+    {
+      "wrong": "他结婚过两次。",
+      "right": {"zh": "他结过两次婚。", "py": "tā jié guo liǎng cì hūn", "en": "He has been married twice."},
+      "why": "过 and the count 两次 belong inside 结婚: 结 + 过 + 两次 + 婚."
+    },
+    {
+      "wrong": "我们出去散步散步吧。",
+      "right": {"zh": "我们出去散散步吧。", "py": "wǒ men chū qù sàn sàn bù ba", "en": "Let's go out for a little walk."},
+      "why": "Only the verb half doubles. 散步散步 treats 散步 like 休息, but 步 is its object."
+    },
+    {
+      "wrong": "他唱歌得很好。",
+      "right": {"zh": "他唱歌唱得很好。", "py": "tā chàng gē chàng de hěn hǎo", "en": "He sings very well."},
+      "why": "得 cannot follow the noun 歌. Repeat the verb so that 得 sits right after 唱."
+    },
+    {
+      "wrong": "我洗澡完就睡觉。",
+      "right": {"zh": "我洗完澡就睡觉。", "py": "wǒ xǐ wán zǎo jiù shuì jiào", "en": "I'll go to bed as soon as I've had my shower."},
+      "why": "The result word 完 attaches to the verb 洗, before the object 澡, like 吃完饭."
+    }
+  ],
+  "cheat": [
+    "A person after 见面, 结婚, 聊天, 道歉？ Move them in front with 跟 / 和 / 向.",
+    "帮忙 and 生气 + person: put 'person + 的' in the middle (帮我的忙, 生他的气).",
+    "过, 着, 完, 好, 什么: right after the first character (见过面, 吃完饭).",
+    "How long or how many times: verb + 了 + amount + object (睡了八个小时觉, 见过两次面).",
+    "结婚, 毕业, 离婚 + time since: whole word first, then the time, then 了 (结婚十年了).",
+    "'A bit of': double the first character only (散散步, 聊聊天).",
+    "得 must touch a verb: 唱歌唱得好, never 唱歌得好."
+  ]
+}

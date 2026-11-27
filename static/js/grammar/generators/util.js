@@ -215,3 +215,18 @@ export const was = (subj) => (subj.be === 'are' ? 'were' : 'was');
 
 /** Capitalise the first letter. */
 export const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+
+/**
+ * Fill an English template for a subject: {S} subject, {o} object form,
+ * {have} {is} {was} {dont} agreeing forms, [verb phrase] present tense.
+ */
+export function fillEn(tpl, subj) {
+  return tpl
+    .replace(/\{S\}/g, subj.en)
+    .replace(/\{o\}/g, subj.obj)
+    .replace(/\{have\}/g, have(subj))
+    .replace(/\{is\}/g, subj.be)
+    .replace(/\{was\}/g, was(subj))
+    .replace(/\{dont\}/g, dont(subj))
+    .replace(/\[([^\]]+)\]/g, (_m, phrase) => vb(subj, phrase));
+}

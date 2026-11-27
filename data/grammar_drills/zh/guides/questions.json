@@ -1,0 +1,470 @@
+{
+  "topic": "questions",
+  "summary": "Chinese never moves words to make a question. Keep statement order and mark the question exactly once: add 吗, or double the verb (去不去), or offer a choice with 还是, or put a question word in the slot where the answer will go. One sentence, one question marker; that single idea removes most errors.",
+  "subs": [
+    {
+      "key": "ma-anota",
+      "label": "吗 vs A-not-A (去不去, 有没有)",
+      "focus": "Choose 吗 or A-not-A, or build the A-not-A form. Errors: both together (你去不去吗), 有不有 for 有没有, doubling the main verb instead of the modal (你想去不去), A-not-A after 也 / 都 / 很 where only 吗 works (你也去不去). Include 喜不喜欢, 可不可以 and 是不是 before a predicate."
+    },
+    {
+      "key": "haishi-choice",
+      "label": "还是 choice questions",
+      "focus": "The learner must pick 还是 for an either/or question and 或者 for 'or' in a statement, and must leave 吗 off a 还是 question. Classic mistakes: 你喝茶或者咖啡? and 你喝茶还是咖啡吗? Items may also test placing 还是 between the two parallel parts."
+    },
+    {
+      "key": "qword-in-place",
+      "label": "Question words stay in place",
+      "focus": "Pick the right question word (谁, 什么, 哪 + measure, 哪儿, 什么时候) and put it in the answer's slot, not at the front, with no 吗. Errors: 什么你想吃?, 你去哪儿吗?, 什么时候 after the verb, 哪 without a measure word (哪书), 什么 where 哪 + measure is needed to choose among known items."
+    },
+    {
+      "key": "ji-duoshao",
+      "label": "几 vs 多少",
+      "focus": "The learner must choose 几 or 多少. 几 expects a small number and must be followed by a measure word; 多少 is for any amount and can go straight before the noun. Classic mistakes: 几钱, 几学生 (no measure word), and 几 for clearly large numbers. Include the fixed uses: 几点, 几号, 星期几, 几岁, 多少钱."
+    },
+    {
+      "key": "zenme-family",
+      "label": "怎么 vs 怎么样 vs 为什么",
+      "focus": "Choose 怎么 (how to, before a verb), 怎么样 (what it is like / how about it, as predicate) or 为什么 (why). Errors: 这个菜怎么?, 怎么样去 for method, 'how is…' with 怎么. Include 怎么 as surprised 'how come' before 不 / 没 / 还; the English cue must rule out 为什么 there."
+    },
+    {
+      "key": "duo-adj",
+      "label": "多 + adjective (多大, 多长, 多远)",
+      "focus": "The learner must build 'how + adjective' with 多 and the right adjective: 多大 for age or size, 多长时间 or 多久 for duration, 多远 for distance, 多高, 多重. Classic mistakes: 怎么 + adjective (怎么远), 多少 + adjective (多少长), 多老 for age, and 很 left in the question. Items may also test the optional 有 before 多."
+    },
+    {
+      "key": "tags-ne",
+      "label": "Tag questions and 呢",
+      "focus": "Tags: 好吗 / 好不好 / 行吗 seek agreement to a suggestion; 对吗 / 对不对 / 是不是 / 是吗 check a fact; match tag to purpose. 呢: fits question-word, A-not-A and 还是 questions and a bare noun (你呢?), never with 吗 or on a plain statement. Errors: 你去哪儿吗?, 你是学生呢?, 好吗 to check a fact."
+    },
+    {
+      "key": "indefinites",
+      "label": "Question words as 'any / every / nothing'",
+      "focus": "Use question word + 都 / 也 for 'everything, anyone, anywhere, nothing, nobody', with the question word before 都 / 也 even when it is the object. Errors: object left after the verb (我不想吃什么都), 都 / 也 dropped, reading it as a question. Include 没(有)什么 + noun and 也 / 都 + 不 / 没."
+    },
+    {
+      "key": "rhetorical",
+      "label": "Rhetorical 不是…吗",
+      "focus": "Recognise and build 不是 … 吗 as 'isn't it the case that…?', said when facts seem to contradict what the speaker believed. 不是 follows the subject, 吗 ends the sentence, and the middle keeps its own 不 or 了. Errors: dropping 吗, 不是 at the end, reading it as a real negative."
+    }
+  ],
+  "rules": [
+    {
+      "sub": "ma-anota",
+      "rule": "For a yes/no question, say the statement and add 吗. Nothing else changes.",
+      "pattern": "Statement + 吗",
+      "examples": [
+        {
+          "zh": "你是学生吗？",
+          "py": "nǐ shì xué sheng ma",
+          "en": "Are you a student?"
+        },
+        {
+          "zh": "你明天有空吗？",
+          "py": "nǐ míng tiān yǒu kòng ma",
+          "en": "Are you free tomorrow?"
+        },
+        {
+          "zh": "你们也去吗？",
+          "py": "nǐ men yě qù ma",
+          "en": "Are you going too?"
+        }
+      ],
+      "note": "After 也, 都 or a degree word like 很, only 吗 is possible; A-not-A cannot follow them."
+    },
+    {
+      "sub": "ma-anota",
+      "rule": "Or double the verb or adjective with 不 in between, and leave 吗 off. 有 doubles as 有没有. A two-syllable word usually doubles only its first syllable.",
+      "pattern": "Subject + Verb + 不 + Verb + Object",
+      "examples": [
+        {
+          "zh": "你明天去不去？",
+          "py": "nǐ míng tiān qù bù qù",
+          "en": "Are you going tomorrow or not?"
+        },
+        {
+          "zh": "你有没有时间？",
+          "py": "nǐ yǒu méi yǒu shí jiān",
+          "en": "Do you have time?"
+        },
+        {
+          "zh": "你喜不喜欢喝茶？",
+          "py": "nǐ xǐ bù xǐ huan hē chá",
+          "en": "Do you like drinking tea?"
+        },
+        {
+          "zh": "这个菜辣不辣？",
+          "py": "zhè ge cài là bù là",
+          "en": "Is this dish spicy?"
+        }
+      ],
+      "note": "The full form 喜欢不喜欢 is also correct, just less common. For a finished action ask with 没有: 你吃饭了没有? or 你吃没吃饭?"
+    },
+    {
+      "sub": "ma-anota",
+      "rule": "When there is a modal verb or 是, that is the word you double, not the verb after it.",
+      "pattern": "Subject + Modal + 不 + Modal + Verb",
+      "examples": [
+        {
+          "zh": "你想不想去北京？",
+          "py": "nǐ xiǎng bù xiǎng qù běi jīng",
+          "en": "Do you want to go to Beijing?"
+        },
+        {
+          "zh": "你会不会开车？",
+          "py": "nǐ huì bù huì kāi chē",
+          "en": "Can you drive?"
+        },
+        {
+          "zh": "他是不是你哥哥？",
+          "py": "tā shì bù shì nǐ gē ge",
+          "en": "Is he your older brother?"
+        },
+        {
+          "zh": "你是不是不舒服？",
+          "py": "nǐ shì bù shì bù shū fu",
+          "en": "Are you feeling unwell?"
+        }
+      ],
+      "note": "是不是 can be put before any predicate to check a guess, which is the easy way to ask A-not-A about a sentence that already contains 不, 也 or 很."
+    },
+    {
+      "sub": "haishi-choice",
+      "rule": "Put 还是 between the two options to ask 'A or B?'. No 吗. 或者 is the 'or' of statements, not of questions.",
+      "pattern": "Subject + Option A + 还是 + Option B",
+      "examples": [
+        {
+          "zh": "你喝茶还是喝咖啡？",
+          "py": "nǐ hē chá hái shi hē kā fēi",
+          "en": "Will you have tea or coffee?"
+        },
+        {
+          "zh": "我们今天去还是明天去？",
+          "py": "wǒ men jīn tiān qù hái shi míng tiān qù",
+          "en": "Shall we go today or tomorrow?"
+        },
+        {
+          "zh": "周末我常常看电影或者去爬山。",
+          "py": "zhōu mò wǒ cháng cháng kàn diàn yǐng huò zhě qù pá shān",
+          "en": "At weekends I often watch a film or go hiking."
+        }
+      ],
+      "note": "The second verb can be dropped when it is the same (你喝茶还是咖啡?). 还是 is also used when the choice is inside a statement of not knowing: 我不知道他今天来还是明天来。"
+    },
+    {
+      "sub": "qword-in-place",
+      "rule": "Write the answer sentence, then replace the unknown part with the question word. The word order does not change and there is no 吗.",
+      "pattern": "Subject + Verb + Question word",
+      "examples": [
+        {
+          "zh": "你在找什么？",
+          "py": "nǐ zài zhǎo shén me",
+          "en": "What are you looking for?"
+        },
+        {
+          "zh": "你什么时候回国？",
+          "py": "nǐ shén me shí hou huí guó",
+          "en": "When are you going back to your country?"
+        },
+        {
+          "zh": "谁教你们汉语？",
+          "py": "shéi jiāo nǐ men hàn yǔ",
+          "en": "Who teaches you Chinese?"
+        },
+        {
+          "zh": "你想买哪本书？",
+          "py": "nǐ xiǎng mǎi nǎ běn shū",
+          "en": "Which book do you want to buy?"
+        }
+      ],
+      "note": "什么时候 sits where a time word sits: before the verb. 哪 needs a measure word (哪个, 哪本, 哪天). 哪儿 and 哪里 mean the same. 吗 after a question word is possible only when the word means 'something / anywhere' (你想吃点儿什么吗? 'Would you like something to eat?'), which is a different sentence."
+    },
+    {
+      "sub": "ji-duoshao",
+      "rule": "几 asks for a small number (roughly under ten) and always takes a measure word. 多少 asks for any amount and can stand directly before the noun.",
+      "pattern": "几 + measure + Noun / 多少 + Noun",
+      "examples": [
+        {
+          "zh": "你家有几口人？",
+          "py": "nǐ jiā yǒu jǐ kǒu rén",
+          "en": "How many people are there in your family?"
+        },
+        {
+          "zh": "你们学校有多少学生？",
+          "py": "nǐ men xué xiào yǒu duō shao xué sheng",
+          "en": "How many students does your school have?"
+        },
+        {
+          "zh": "现在几点？",
+          "py": "xiàn zài jǐ diǎn",
+          "en": "What time is it now?"
+        },
+        {
+          "zh": "这件衣服多少钱？",
+          "py": "zhè jiàn yī fu duō shao qián",
+          "en": "How much is this piece of clothing?"
+        }
+      ],
+      "note": "Fixed uses: 几点, 几号, 几月, 星期几, 几岁 (for a child), 多少钱, and 多少 for phone and room numbers. When the number could be small or large, 多少 is the safe choice; with a small expected number both are often heard (几个人 / 多少人)."
+    },
+    {
+      "sub": "zenme-family",
+      "rule": "怎么 + verb asks the way to do something. 怎么样 is the predicate: what something is like, or 'how about it?'. 为什么 asks the reason.",
+      "pattern": "怎么 + Verb / Topic + 怎么样 / 为什么 + Predicate",
+      "examples": [
+        {
+          "zh": "这个字怎么写？",
+          "py": "zhè ge zì zěn me xiě",
+          "en": "How do you write this character?"
+        },
+        {
+          "zh": "那家饭馆怎么样？",
+          "py": "nà jiā fàn guǎn zěn me yàng",
+          "en": "What is that restaurant like?"
+        },
+        {
+          "zh": "你为什么不告诉我？",
+          "py": "nǐ wèi shén me bù gào su wǒ",
+          "en": "Why didn't you tell me?"
+        },
+        {
+          "zh": "你怎么还没睡？",
+          "py": "nǐ zěn me hái méi shuì",
+          "en": "How come you're still not asleep?"
+        }
+      ],
+      "note": "怎么 before 不, 没, 还, 这么 or 了 means 'how come' and carries surprise; 为什么 is the neutral 'why' and fits in the same place. 你怎么了? means 'What's wrong with you?'."
+    },
+    {
+      "sub": "duo-adj",
+      "rule": "For 'how old, how long, how far, how tall', put 多 before the adjective. An optional 有 may come before 多. No 很, no 怎么.",
+      "pattern": "Subject + (有) + 多 + Adjective",
+      "examples": [
+        {
+          "zh": "你儿子多大了？",
+          "py": "nǐ ér zi duō dà le",
+          "en": "How old is your son?"
+        },
+        {
+          "zh": "从这儿到机场有多远？",
+          "py": "cóng zhè r dào jī chǎng yǒu duō yuǎn",
+          "en": "How far is it from here to the airport?"
+        },
+        {
+          "zh": "你学了多长时间汉语？",
+          "py": "nǐ xué le duō cháng shí jiān hàn yǔ",
+          "en": "How long have you studied Chinese?"
+        },
+        {
+          "zh": "你弟弟多高？",
+          "py": "nǐ dì di duō gāo",
+          "en": "How tall is your younger brother?"
+        }
+      ],
+      "note": "Use the 'big' adjective of the pair: 多大, 多长, 多远, 多高, 多重, never 多小 or 多短 for a neutral question. 多久 means the same as 多长时间. To an older person say 您多大年纪? rather than 你多大?"
+    },
+    {
+      "sub": "tags-ne",
+      "rule": "To turn a statement into a tag question, finish the sentence and add a short question. 好吗 / 好不好 / 行吗 ask someone to agree to a suggestion; 对吗 / 对不对 / 是不是 / 是吗 check a fact.",
+      "pattern": "Statement + 好吗 / 对不对 / 是不是",
+      "examples": [
+        {
+          "zh": "我们一起去，好吗？",
+          "py": "wǒ men yī qǐ qù hǎo ma",
+          "en": "Let's go together, shall we?"
+        },
+        {
+          "zh": "你是上海人，对不对？",
+          "py": "nǐ shì shàng hǎi rén duì bù duì",
+          "en": "You're from Shanghai, right?"
+        },
+        {
+          "zh": "你明天不上班，是不是？",
+          "py": "nǐ míng tiān bù shàng bān shì bù shì",
+          "en": "You're not working tomorrow, are you?"
+        }
+      ],
+      "note": "The tag does not change with the sentence: a negative statement still takes 对不对 or 是不是, unlike English 'are you / aren't you'."
+    },
+    {
+      "sub": "tags-ne",
+      "rule": "呢 softens a question that already has a question word, an A-not-A form or 还是, and after a bare noun it asks 'and what about…?'. It never joins 吗 and cannot turn a plain statement into a yes/no question.",
+      "pattern": "Question-word question + 呢 / Noun + 呢",
+      "examples": [
+        {
+          "zh": "你在看什么呢？",
+          "py": "nǐ zài kàn shén me ne",
+          "en": "What are you looking at?"
+        },
+        {
+          "zh": "我很好，你呢？",
+          "py": "wǒ hěn hǎo nǐ ne",
+          "en": "I'm fine, and you?"
+        },
+        {
+          "zh": "他怎么还没来呢？",
+          "py": "tā zěn me hái méi lái ne",
+          "en": "Why hasn't he come yet?"
+        },
+        {
+          "zh": "我的手机呢？",
+          "py": "wǒ de shǒu jī ne",
+          "en": "Where's my phone?"
+        }
+      ],
+      "note": "呢 on these questions is optional; it adds a thoughtful or puzzled tone. With no earlier context, Noun + 呢 asks where the thing is."
+    },
+    {
+      "sub": "indefinites",
+      "rule": "Question word + 都 / 也 means 'every / any'; with 不 or 没 after it, 'no / none'. The question word must stand before 都 / 也, so an object moves in front of the verb.",
+      "pattern": "Subject + Question word + 都 / 也 + (不 / 没) + Verb",
+      "examples": [
+        {
+          "zh": "这件事谁都知道。",
+          "py": "zhè jiàn shì shéi dōu zhī dào",
+          "en": "Everyone knows about this."
+        },
+        {
+          "zh": "我今天什么都不想吃。",
+          "py": "wǒ jīn tiān shén me dōu bù xiǎng chī",
+          "en": "I don't feel like eating anything today."
+        },
+        {
+          "zh": "周末我哪儿也没去。",
+          "py": "zhōu mò wǒ nǎ r yě méi qù",
+          "en": "I didn't go anywhere at the weekend."
+        },
+        {
+          "zh": "我没什么问题。",
+          "py": "wǒ méi shén me wèn tí",
+          "en": "I don't really have any questions."
+        }
+      ],
+      "note": "In positive sentences use 都 (谁都知道); 也 is mostly for negatives, where 都 is equally fine. 没(有)什么 + noun stays after the verb and means 'not much, nothing in particular'."
+    },
+    {
+      "sub": "rhetorical",
+      "rule": "不是 … 吗 does not ask and does not negate: it reminds the listener of something the speaker believes is true, often with surprise. Put 不是 after the subject and 吗 at the end.",
+      "pattern": "Subject + 不是 + Predicate + 吗",
+      "examples": [
+        {
+          "zh": "你不是说今天来吗？",
+          "py": "nǐ bù shì shuō jīn tiān lái ma",
+          "en": "Didn't you say you were coming today?"
+        },
+        {
+          "zh": "他不是已经回国了吗？",
+          "py": "tā bù shì yǐ jīng huí guó le ma",
+          "en": "Hasn't he already gone back to his country?"
+        },
+        {
+          "zh": "你不是不喜欢吃辣的吗？",
+          "py": "nǐ bù shì bù xǐ huan chī là de ma",
+          "en": "I thought you didn't like spicy food?"
+        }
+      ],
+      "note": "The part between 不是 and 吗 is what the speaker thinks is true, so it keeps its own 不, 没 or 了."
+    }
+  ],
+  "contrasts": [
+    {
+      "wrong": "你明天去不去吗？",
+      "right": {
+        "zh": "你明天去不去？",
+        "py": "nǐ míng tiān qù bù qù",
+        "en": "Are you going tomorrow?"
+      },
+      "why": "去不去 is already the question. 吗 and A-not-A never appear together."
+    },
+    {
+      "wrong": "你有不有时间？",
+      "right": {
+        "zh": "你有没有时间？",
+        "py": "nǐ yǒu méi yǒu shí jiān",
+        "en": "Do you have time?"
+      },
+      "why": "有 is negated only with 没, so its A-not-A form is 有没有."
+    },
+    {
+      "wrong": "你们也去不去？",
+      "right": {
+        "zh": "你们也去吗？",
+        "py": "nǐ men yě qù ma",
+        "en": "Are you going too?"
+      },
+      "why": "A-not-A cannot follow 也, 都 or 很. With those adverbs ask with 吗."
+    },
+    {
+      "wrong": "什么你想吃？",
+      "right": {
+        "zh": "你想吃什么？",
+        "py": "nǐ xiǎng chī shén me",
+        "en": "What do you want to eat?"
+      },
+      "why": "The question word stays where the answer goes: after 吃, as its object. It does not move to the front as in English."
+    },
+    {
+      "wrong": "你去哪儿吗？",
+      "right": {
+        "zh": "你去哪儿？",
+        "py": "nǐ qù nǎ r",
+        "en": "Where are you going?"
+      },
+      "why": "哪儿 already makes it a question. To soften it use 呢, not 吗."
+    },
+    {
+      "wrong": "你想喝茶或者咖啡？",
+      "right": {
+        "zh": "你想喝茶还是咖啡？",
+        "py": "nǐ xiǎng hē chá hái shi kā fēi",
+        "en": "Would you like tea or coffee?"
+      },
+      "why": "'Or' that asks the listener to choose is 还是. 或者 only lists alternatives in a statement."
+    },
+    {
+      "wrong": "你有几钱？",
+      "right": {
+        "zh": "你有多少钱？",
+        "py": "nǐ yǒu duō shao qián",
+        "en": "How much money do you have?"
+      },
+      "why": "几 must be followed by a measure word and expects a small number. An open amount with no measure word takes 多少."
+    },
+    {
+      "wrong": "这个菜怎么？",
+      "right": {
+        "zh": "这个菜怎么样？",
+        "py": "zhè ge cài zěn me yàng",
+        "en": "How is this dish?"
+      },
+      "why": "'How is it?' asks what something is like, which is 怎么样. 怎么 needs a verb after it and asks the way of doing."
+    },
+    {
+      "wrong": "你女儿多老了？",
+      "right": {
+        "zh": "你女儿多大了？",
+        "py": "nǐ nǚ ér duō dà le",
+        "en": "How old is your daughter?"
+      },
+      "why": "Age is asked with 多大. 老 means elderly, so 多老 does not ask someone's age."
+    },
+    {
+      "wrong": "我不想吃什么都。",
+      "right": {
+        "zh": "我什么都不想吃。",
+        "py": "wǒ shén me dōu bù xiǎng chī",
+        "en": "I don't want to eat anything."
+      },
+      "why": "The question word must come before 都, so the object 什么 moves in front of the verb."
+    }
+  ],
+  "cheat": [
+    "One question marker per sentence: 吗, or A-not-A, or 还是, or a question word. Never two.",
+    "Question word goes where the answer goes. Don't move it to the front.",
+    "也 / 都 / 很 in the sentence? Use 吗, not A-not-A. With a modal, double the modal: 想不想去.",
+    "Asking someone to choose: 还是. 'Or' in a statement: 或者.",
+    "几 + measure word for small numbers; 多少 for anything else and for 钱.",
+    "怎么 + verb = how to; 怎么样 = how is it; 多 + adjective = how big / long / far.",
+    "什么 / 谁 / 哪儿 before 都 or 也 is not a question: it means every / any / none."
+  ]
+}
