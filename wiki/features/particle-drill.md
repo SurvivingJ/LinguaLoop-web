@@ -70,6 +70,17 @@ combination checked to keep the same answer. 278 packs give well over
 100,000 distinct sentences. When the written exercises run out they are reshuffled,
 so a round can always be followed by another.
 
+**Other particles are mixed in.** In the first version a drill of one skill asked only that
+skill, so the answer was the same particle every time and nothing had to be chosen (owner,
+2026-11-27: "the answer is clear every time"). From the Choose rung up, about half the questions
+of a one-skill drill now come from other particles: the ones the learner has already started,
+and the skill's listed confusers that come earlier in the course. Never three questions of the
+same kind in a row. The strip no longer names the particle or the skill until the answer is
+given (this also applied to the daily mix, which used to print the answer above the sentence).
+The Meet rung stays on its own particle, because that is where it is introduced. A mixed-in
+skill is asked at its own rung and its answers count for its own ladder; one the learner has
+not started is asked as a Choose question and does not move.
+
 **Daily mix.** One button starts a 20-question session over up to six skills: reviews that are
 due, then the skills in progress (weakest first, and asked more often), then one new skill.
 

@@ -376,10 +376,16 @@ function openGuideSheet(html) {
 // ---------------------------------------------------------------------------
 async function startDrill(skillIds, { mix = false } = {}) {
   setView(`<p class="drill-msg">${esc(t('loading', 'Loading…'))}</p>`);
+  // A one-skill drill interleaves other particles, so the answer has to be chosen.
+  const focus = !mix && skillIds.length === 1 ? skillIds[0] : null;
+  if (focus && app.catalog) {
+    const mates = M.pickCompanions(app.catalog.skills, app.store.doc.skills, focus);
+    skillIds = [focus, ...mates.map((k) => k.id)];
+  }
   const bundles = (await Promise.all(skillIds.map((id) => loadSkill(id).catch(() => null)))).filter(
     (b) => b && b.items.length + b.packs.length > 0
   );
-  if (!bundles.length) {
+  if (!bundles.length || (focus && bundles[0].skill.id !== focus)) {
     setView(
       `<p class="ld-note">${esc(t('empty', 'No particle exercises are available yet.'))}</p>`
     );
@@ -395,6 +401,8 @@ async function startDrill(skillIds, { mix = false } = {}) {
   app.session = {
     kind: 'particles',
     mix,
+    focus,
+    run: 0, // signed run length: + focus skill, - interleaved skills
     bundles: new Map(bundles.map((b) => [b.skill.id, b])),
     order: bundles.map((b) => b.skill.id),
     decks,
@@ -447,8 +455,28 @@ function renderDrillShell() {
   $('#pdNext').addEventListener('click', advance);
 }
 
+/** True when the questions of this session come from more than one particle. */
+function isInterleaved(ses) {
+  if (ses.mix) return true;
+  if (!ses.focus || ses.order.length < 2) return false;
+  // The Meet rung stays on its own particle: that is where it is introduced.
+  return ses.mode !== 'auto' || stateOf(ses.focus).l > 1;
+}
+
 function pickSkill(ses) {
   if (ses.order.length === 1) return ses.order[0];
+  if (ses.focus) {
+    if (!isInterleaved(ses)) return ses.focus;
+    // About half from the focus skill, never three of either kind running.
+    const own = ses.run <= -2 ? true : ses.run >= 2 ? false : Math.random() < 0.5;
+    ses.run = own ? Math.max(ses.run, 0) + 1 : Math.min(ses.run, 0) - 1;
+    if (own) return ses.focus;
+    const others = ses.order
+      .slice(1)
+      .filter((id) => id !== ses.lastOther || ses.order.length === 2);
+    ses.lastOther = others[Math.floor(Math.random() * others.length)];
+    return ses.lastOther;
+  }
   // Weakest skills come up more often; never the same skill three times running.
   const weights = ses.order.map((id) => {
     const s = stateOf(id);
@@ -493,6 +521,12 @@ function levelAndMode(ses, q) {
     const mode = M.modeFor(MODE_LEVEL[want], q.item);
     return { level: MODE_LEVEL[mode], mode, counts: false };
   }
+  if (ses.focus && q.skillId !== ses.focus) {
+    // An interleaved skill is asked at its own rung, but never as a Meet card;
+    // one the learner has not started does not move on the ladder.
+    const lv = Math.max(2, Math.min(s.l, M.MAX_LEVEL));
+    return { level: lv, mode: M.modeFor(lv, q.item), counts: s.l >= 2 };
+  }
   const level = Math.min(s.l, M.MAX_LEVEL);
   return { level, mode: M.modeFor(level, q.item), counts: true };
 }
@@ -504,7 +538,7 @@ function renderQuestion(q) {
   Object.assign(q, { level, mode, counts, ex, answered: false, started: performance.now() });
   const skill = ses.bundles.get(q.skillId).skill;
   $('#pdBadge').textContent = modeName(mode);
-  $('#pdSkillName').textContent = ses.mix ? `${skill.p} · ${skill.title}` : skill.title;
+  $('#pdSkillName').textContent = isInterleaved(ses) ? '' : skill.title;
   $('#pdCount').textContent = String(Math.min(ses.done, ses.roundSize));
   $('#pdFill').style.width = `${Math.min(100, (ses.done / ses.roundSize) * 100)}%`;
   $('#pdAsk').textContent = t(...INSTRUCTION[mode]);
@@ -783,6 +817,7 @@ function settle(q, correct, given, timedOut = false) {
   $('#pdEn').classList.remove('is-hidden');
 
   const skill = ses.bundles.get(q.skillId).skill;
+  if (isInterleaved(ses)) $('#pdSkillName').textContent = `${skill.p} · ${skill.title}`;
   const alts = q.ex.accepted.slice(1);
   const fb = $('#pdFeedback');
   fb.hidden = false;

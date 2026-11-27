@@ -46,7 +46,7 @@ Browser (static/js/pages/particle-drill.js + static/js/particles/)
   markup.js     parse 漢字[かな]{answer|skill}<var>, render ruby
   kana.js       romaji -> hiragana, typed-answer matching (は = wa)
   exercises.js  Deck (bank + packs), build(item, mode), grading
-  mastery.js    the ladder: record(), promotion / demotion / reviews, planMix(), mergeProgress()
+  mastery.js    the ladder: record(), promotion / demotion / reviews, planMix(), pickCompanions(), mergeProgress()
   conjugate.js  verb and adjective conjugation, accepted answers, wrong options
   store.js      localStorage copy + debounced PUT to the server
 ```
@@ -244,7 +244,20 @@ state per form id under `conj`.
    - **Alternatives rejected:** rows in `exercises` / `word_assets` per verb and form; a
      `dim_conjugation_class` table (the class is derived in milliseconds and cross-checked
      against the reviewed lists by a test).
-8. **Progress is a client document with an optional server copy.** The page works before the migration is applied and offline; the merge rule is per skill, most answers wins.
+8. **A one-skill drill is interleaved.** `mastery.pickCompanions(skills, states, focusId, {size: 5})`
+   returns skills of a different particle that are started, plus the focus skill's `conf`
+   particles that come earlier in the catalog; order: confuser, started, due, nearest in the
+   catalog; one skill per particle before a particle repeats. `startDrill` loads them with the
+   focus skill; `pickSkill` draws the focus skill with probability 0.5 and never three of either
+   kind running (`ses.run`); `isInterleaved` is false while the focus skill is on rung 1 in auto
+   mode. `levelAndMode` asks a companion at `max(2, its level)` and counts the answer only when
+   its own level is 2 or more. `#pdSkillName` is empty until `settle`.
+   - **Rationale:** blocked practice let the learner answer without reading the sentence;
+     discrimination between particles is the skill being drilled.
+   - **Alternatives rejected:** mixing only in the daily mix (the ladder would still promote on
+     blocked answers); mixing in other functions of the same particle (the answer stays the same).
+   - **Known limit:** the very first skill of a new learner (は) has nothing to mix with.
+9. **Progress is a client document with an optional server copy.** The page works before the migration is applied and offline; the merge rule is per skill, most answers wins.
 
 ## Security Considerations
 

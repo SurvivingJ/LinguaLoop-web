@@ -156,6 +156,56 @@ export function planMix(skills, states, { now = Date.now(), size = 6, fresh = 1 
   return picked;
 }
 
+/**
+ * Skills to interleave with a one-skill drill, so the answer is not the same
+ * particle every time. Candidates are skills of a different particle that the
+ * learner has started, plus (to have a contrast from the first rounds) the
+ * focus skill's listed confusers that come earlier in the catalog. Confusers
+ * first, then started skills, due ones, and the nearest in catalog order; one
+ * skill per particle before a particle repeats.
+ */
+export function pickCompanions(skills, states, focusId, { now = Date.now(), size = 5 } = {}) {
+  const at = skills.findIndex((k) => k.id === focusId);
+  if (at < 0) return [];
+  const focus = skills[at];
+  const conf = new Set(focus.conf || []);
+  const rows = skills
+    .map((k, i) => ({
+      k,
+      i,
+      started: isStarted(states[k.id]),
+      confuser: conf.has(k.p),
+      due: isDue(states[k.id], now),
+    }))
+    .filter(
+      (r) =>
+        r.k.id !== focusId &&
+        r.k.p !== focus.p &&
+        (r.k.items || 0) + (r.k.packs || 0) > 0 &&
+        (r.started || (r.confuser && r.i < at))
+    )
+    .sort(
+      (a, b) =>
+        b.confuser - a.confuser ||
+        b.started - a.started ||
+        b.due - a.due ||
+        Math.abs(a.i - at) - Math.abs(b.i - at)
+    );
+  const picked = [];
+  const seen = new Set();
+  for (const r of rows) {
+    if (picked.length >= size) break;
+    if (seen.has(r.k.p)) continue;
+    seen.add(r.k.p);
+    picked.push(r.k);
+  }
+  for (const r of rows) {
+    if (picked.length >= size) break;
+    if (!picked.includes(r.k)) picked.push(r.k);
+  }
+  return picked;
+}
+
 /** The first skill in catalog order that is not mastered (the hub's "next up"). */
 export function nextUp(skills, states) {
   return (

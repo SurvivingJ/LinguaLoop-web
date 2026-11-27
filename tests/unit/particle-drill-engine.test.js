@@ -262,6 +262,7 @@ describe('ladder', () => {
       c: { ...M.newState(), l: 2, n: 8, e: 0.4, last: 3 },
     };
     const plan = M.planMix(skills, states, { now: 100, size: 6, fresh: 1 }).map((k) => k.id);
+    // (pickCompanions is covered in its own block below)
     expect(plan).toEqual(['a', 'c', 'b', 'd']);
     expect(M.nextUp(skills, states).id).toBe('b');
   });
@@ -474,5 +475,44 @@ describe('conjugation', () => {
     expect(distractors({ d: '見る', k: 'みる', c: 'ichidan' }, 'te', 3, seeded(1))[0]).toBe(
       '見って'
     );
+  });
+});
+
+describe('interleaving: companions of a one-skill drill', () => {
+  const sk = (id, p, conf = [], items = 10) => ({ id, p, conf, items, packs: 0 });
+  const skills = [
+    sk('wa', 'は', ['が', 'を']),
+    sk('ga', 'が', ['は', 'を']),
+    sk('wo', 'を', ['が', 'に']),
+    sk('ni-time', 'に', ['で', 'を']),
+    sk('ni-place', 'に', ['で', 'へ']),
+    sk('de', 'で', ['に', 'を']),
+    sk('empty', 'へ', ['に'], 0),
+  ];
+  const started = { ...M.newState(), l: 3, n: 12, last: 50 };
+  const ids = (states, focus, opts) =>
+    M.pickCompanions(skills, states, focus, { now: 100, ...opts }).map((k) => k.id);
+
+  it('the first skill of a new learner has nothing to mix with', () => {
+    expect(ids({}, 'wa')).toEqual([]);
+  });
+  it('earlier confusers join even before they are started', () => {
+    expect(ids({}, 'wo')).toEqual(['ga']);
+    expect(ids({}, 'de')).toEqual(['ni-place', 'wo', 'ni-time']);
+  });
+  it('started skills join; confusers come first', () => {
+    expect(ids({ de: started, wa: started }, 'ga')).toEqual(['wa', 'de']);
+  });
+  it('never the same particle as the focus, never a skill without content', () => {
+    const all = Object.fromEntries(skills.map((k) => [k.id, started]));
+    const got = ids(all, 'ni-time');
+    expect(got).not.toContain('ni-place');
+    expect(got).not.toContain('empty');
+    expect(got).not.toContain('ni-time');
+  });
+  it('spreads over particles before repeating one, and respects the size', () => {
+    const all = Object.fromEntries(skills.map((k) => [k.id, started]));
+    expect(ids(all, 'wa', { size: 3 })).toEqual(['ga', 'wo', 'ni-time']);
+    expect(ids(all, 'nope')).toEqual([]);
   });
 });
