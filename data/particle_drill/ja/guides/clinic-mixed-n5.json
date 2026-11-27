@@ -1,0 +1,22 @@
+{"group":"clinic-mixed-n5",
+ "intro":"Here every blank can be any of the core particles: は, が, を, に, で, と, も, の. Do not guess from the noun alone. Read to the verb first: the verb decides which roles the sentence has, and each particle names one role. Then fill the blanks by asking a short, fixed series of questions about each noun.",
+ "skills":[
+  {"id":"x-mixed-n5",
+   "rule":"Read the verb first, then for each noun ask in this order: noun link, topic, addition, object, subject, point, setting, partner or list.",
+   "explain":"For each blank, stop at the first yes.\n\n1. Is the noun followed by another noun it describes (\"X's\")? の.\n2. Is it the topic, what the sentence is about? は. Question words never take は: 誰が, 何が.\n3. Is the same thing true of it as of something said before? も.\n4. Is it what the verb acts on (食べる, 見る, 買う), or the route you pass through or leave (公園を歩く, 家を出る)? を.\n5. Is it the subject inside the comment, the new information, or the thing with ある, いる, 好き, 上手, 分かる, できる, ほしい? が. In standard Japanese these words take が, not を.\n6. Is it a point: where something is, where you go, a clock time or date, the person who receives? に.\n7. Is it the setting of an action, or the tool or means? で.\n8. Is it a partner (\"with\") or a complete list (\"and\")? と.\n\nThe classic clash is に against で: いる and ある take に (部屋にいる), as do verbs of arriving, sitting, living or putting (駅に着く, 東京に住む); an action carried out at a place takes で (部屋で勉強する). Relative times like 今日, 明日, 毎朝 take no particle.",
+   "patterns":["[topic] は [time] に [place] で [object] を [verb]","[place] に [thing] が ある / いる","[person] は [thing] が 好き / 分かる / できる","[person] と [place] に 行く"],
+   "examples":[
+    {"jp":"私[わたし]{は}毎朝[まいあさ]パン{を}食[た]べます。","en":"I eat bread every morning."},
+    {"jp":"田中[たなか]さん{の}家[いえ]{に}猫[ねこ]{が}います。","en":"There is a cat at Mr Tanaka's house."},
+    {"jp":"姉[あね]{も}犬[いぬ]{が}好[す]きです。","en":"My older sister, too, likes dogs."},
+    {"jp":"バス{で}駅[えき]{に}行[い]きます。","en":"I go to the station by bus."},
+    {"jp":"日曜日[にちようび]{に}友達[ともだち]{と}公園[こうえん]{で}テニス{を}しました。","en":"On Sunday I played tennis in the park with a friend."}],
+   "contrast":[
+    {"vs":"に / で","note":"に marks where something exists or where you arrive; で marks where an action takes place. 図書館にいます, but 図書館で本を読みます."},
+    {"vs":"は / が","note":"は marks the topic, usually known and first; が marks the subject inside the comment, new information, and the answer to a question word. 私は日本語が分かります: topic 私, the thing understood 日本語."},
+    {"vs":"を / が","note":"を marks the object of an action verb. Likes, skills, wants and abilities (好き, 上手, ほしい, 分かる, できる) mark their object with が."}],
+   "mistakes":[
+    {"bad":"図書館[としょかん]{に}勉強[べんきょう]します。","good":"図書館[としょかん]{で}勉強[べんきょう]します。","note":"Studying is an action, so its place takes で. に is for where you are or where you go."},
+    {"bad":"私[わたし]は日本語[にほんご]{を}分[わ]かります。","good":"私[わたし]は日本語[にほんご]{が}分[わ]かります。","note":"分かる takes が for what is understood, never を."},
+    {"bad":"誰[だれ]{は}来[き]ましたか。","good":"誰[だれ]{が}来[き]ましたか。","note":"A question word is new information and cannot be a topic: it takes が, never は."}],
+   "tip":"Verb first. Exists or goes: に. Does something somewhere: で. Acts on it: を. Likes, can or there is: が."}]}

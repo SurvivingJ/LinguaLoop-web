@@ -1,0 +1,35 @@
+{
+ "group": "mae-ato",
+ "intro": "まえに and あとで put one action on a timeline relative to another. The verb form in front of them is fixed, whatever the tense of the whole sentence: まえに always takes the dictionary form, because that action has not happened yet; あとで always takes the た-form, because that action is already finished.",
+ "skills": [
+  {
+   "id": "maeni-atode",
+   "rule": "Dictionary form + まえに = before; た-form + あとで = after; a noun takes の: 食事のまえに, 食事のあとで.",
+   "explain": "まえに says the main action comes before X: 寝る前に歯を磨く. The verb before まえに is always in the dictionary form, even when the whole sentence is in the past: 日本に来る前に、少し日本語を勉強しました. Never 来た前に.\n\nあとで says the main action comes after X: 食べた後で薬を飲む. The verb before あとで is always the た-form, even for the future: 仕事が終わった後で、飲みに行きませんか. Never 終わる後で.\n\nNouns take の: 食事の前に, 授業の後で. Event nouns work best (食事, 会議, 授業, 試合).\n\nあと without で is also common, and it is the natural choice when a state or a stretch of time follows: 食べた後、しばらく休んだ. On its own, あとで also means \"later\": あとで電話します.",
+   "patterns": [
+    "[verb dictionary form] まえに [main action]",
+    "[verb た-form] あとで [main action]",
+    "[noun] の まえに / あとで"
+   ],
+   "examples": [
+    {"jp": "寝[ね]る{まえに}、歯[は]を磨[みが]きます。", "en": "I brush my teeth before I go to bed."},
+    {"jp": "食事[しょくじ]の{あとで}、コーヒーを飲[の]みましょう。", "en": "Let's have coffee after the meal."},
+    {"jp": "授業[じゅぎょう]の{まえに}、宿題[しゅくだい]を出[だ]してください。", "en": "Please hand in your homework before class."},
+    {"jp": "日本[にほん]に来[く]る{まえに}、少[すこ]し日本語[にほんご]を勉強[べんきょう]しました。", "en": "I studied a little Japanese before I came to Japan."},
+    {"jp": "仕事[しごと]が終[お]わった{あとで}、飲[の]みに行[い]きませんか。", "en": "Shall we go for a drink after work?"},
+    {"jp": "映画[えいが]を見[み]た{あとで}、みんなで感想[かんそう]を話[はな]しました。", "en": "After the film, we all talked about what we thought of it."}
+   ],
+   "contrast": [
+    {"vs": "てから", "note": "てから stresses order or a precondition: 手を洗ってから食べて (wash first, then eat). It can also mean \"since\": 日本に来てから三年になる. あとで never means \"since\"."},
+    {"vs": "まで", "note": "まで is \"until\": the main action continues up to that point. 寝るまで本を読んだ (read until I fell asleep) vs 寝る前に本を読んだ (read at some point before bed)."},
+    {"vs": "とき", "note": "とき just marks when something happens, and the order depends on tense: 行くとき (on the way) vs 行ったとき (once there). まえに and あとで state the order outright."}
+   ],
+   "mistakes": [
+    {"bad": "日本[にほん]に来[き]た{まえに}、日本語[にほんご]を勉強[べんきょう]しました。", "good": "日本[にほん]に来[く]る{まえに}、日本語[にほんご]を勉強[べんきょう]しました。", "note": "まえに always takes the dictionary form, even in a past sentence."},
+    {"bad": "仕事[しごと]が終[お]わる{あとで}、電話[でんわ]します。", "good": "仕事[しごと]が終[お]わった{あとで}、電話[でんわ]します。", "note": "あとで always takes the た-form, even about the future."},
+    {"bad": "食事[しょくじ]{まえに}手[て]を洗[あら]います。", "good": "食事[しょくじ]の{まえに}手[て]を洗[あら]います。", "note": "A noun needs の before まえに and あとで."}
+   ],
+   "tip": "Before = not yet = dictionary form. After = done = た-form."
+  }
+ ]
+}

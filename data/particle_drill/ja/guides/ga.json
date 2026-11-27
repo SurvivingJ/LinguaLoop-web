@@ -1,0 +1,373 @@
+{
+ "group": "ga",
+ "intro": "が points at the subject and presents it as the information: the one that does, is, exists or is sensed, picked out from all the possibilities. Where は says 'as for X, ...' about something already in play, が says 'X is the one'. That single image covers every use: fresh events, answers to question words, things that exist, the targets of liking and ability, things perceived, and subjects inside sub-clauses, where は cannot go.",
+ "skills": [
+  {
+   "id": "ga-subject",
+   "rule": "When the subject is news or the point of the sentence (an event you just noticed, or the answer to 'who / what?'), mark it with が.",
+   "explain": "が marks the subject of a verb or adjective and presents it as new: something happening right now, something introduced for the first time, or the one picked out of many. 雨が降っています reports an event as a whole; nothing was being talked about before.\n\nは does a different job: it takes something already on the table and comments on it. 田中さんは来ました answers 'what about Tanaka?'; 田中さんが来ました announces the arrival or answers 'who came?'. In X が Y です, が means 'X and nobody else is Y': 私が田中です is 'I'm the Tanaka (you're looking for)'.\n\nThe two often share a sentence: この店は魚がおいしい, 'at this restaurant (topic), the fish (subject) is good'. In negatives and contrasts, が usually gives way to は; see the は guide.",
+   "patterns": [
+    "[new subject] が [verb / adjective]",
+    "[X] が [Y] です (X, and nobody else, is Y)",
+    "[topic] は [subject] が [adjective]"
+   ],
+   "examples": [
+    {
+     "jp": "雨[あめ]{が}降[ふ]っています。",
+     "en": "It's raining."
+    },
+    {
+     "jp": "あ、バス{が}来[き]ました。",
+     "en": "Oh, here comes the bus."
+    },
+    {
+     "jp": "電話[でんわ]{が}鳴[な]っていますよ。",
+     "en": "The phone's ringing."
+    },
+    {
+     "jp": "子供[こども]{が}公園[こうえん]で遊[あそ]んでいます。",
+     "en": "Some children are playing in the park."
+    },
+    {
+     "jp": "この店[みせ]は魚[さかな]{が}おいしいです。",
+     "en": "The fish is good at this restaurant."
+    },
+    {
+     "jp": "私[わたし]{が}田中[たなか]です。",
+     "en": "I'm Tanaka (the one you're looking for)."
+    }
+   ],
+   "contrast": [
+    {
+     "vs": "は",
+     "note": "は presents something already known and comments on it. 田中さんは来ました = 'Tanaka? He came.' 田中さんが来ました = 'Tanaka came' as news, or 'It was Tanaka who came.'"
+    },
+    {
+     "vs": "の",
+     "note": "の links two nouns (私の本). It can stand in for が only inside a clause that modifies a noun (私の書いた本); the subject of a main clause is never の."
+    }
+   ],
+   "mistakes": [
+    {
+     "bad": "あ、雨[あめ]{は}降[ふ]っています。",
+     "good": "あ、雨[あめ]{が}降[ふ]っています。",
+     "note": "A fresh event you are reporting has no topic yet; は sounds like 'as for the rain, (unlike other things) it's falling'."
+    },
+    {
+     "bad": "「田中[たなか]さんはどなたですか。」「私[わたし]{は}田中[たなか]です。」",
+     "good": "「田中[たなか]さんはどなたですか。」「私[わたし]{が}田中[たなか]です。」",
+     "note": "The question asks which person is Tanaka, so the answer picks one out: 私が."
+    }
+   ],
+   "tip": "Is the noun news, or the answer to 'who / what?'? Then が. Is it already the subject of conversation? Then は."
+  },
+  {
+   "id": "ga-question",
+   "rule": "A question word that is the subject (誰, 何, どれ, どの + noun, どこ) takes が, never は, and the answer keeps が.",
+   "explain": "A question word is unknown by definition, so it can never be a topic. When 誰, 何, どれ or どの + noun is the subject, it takes が: 誰が来ましたか. The answer fills the same slot and keeps が: 山田さんが来ました. Answering with は (山田さんは来ました) sounds evasive: 'Yamada came, at least.'\n\nThis applies only when the question word is the subject. As an object it takes を (何を食べますか); as a place or time it takes に, で or nothing (どこに, いつ). When the question word is the predicate, the known part becomes the topic: 駅はどこですか. So どれがあなたの傘ですか and あなたの傘はどれですか both ask 'which is your umbrella?'; the question word gets が, the known noun gets は.\n\nWith adjectives the same holds: どこが痛いですか (where does it hurt?), 何が一番おいしいですか.",
+   "patterns": [
+    "[誰 / 何 / どれ / どの N] が [predicate] か",
+    "answer: [X] が [predicate]",
+    "[known thing] は [question word] ですか"
+   ],
+   "examples": [
+    {
+     "jp": "誰[だれ]{が}来[き]ましたか。",
+     "en": "Who came?"
+    },
+    {
+     "jp": "どれ{が}あなたの傘[かさ]ですか。",
+     "en": "Which one is your umbrella?"
+    },
+    {
+     "jp": "何[なに]{が}あったんですか。",
+     "en": "What happened?"
+    },
+    {
+     "jp": "「誰[だれ]{が}作[つく]りましたか。」「母[はは]{が}作[つく]りました。」",
+     "en": "\"Who made it?\" \"My mother did.\""
+    },
+    {
+     "jp": "どのバス{が}駅[えき]へ行[い]きますか。",
+     "en": "Which bus goes to the station?"
+    }
+   ],
+   "contrast": [
+    {
+     "vs": "は",
+     "note": "A question word never takes は: 誰は来ましたか is ungrammatical. は belongs to the known part of the question: 駅はどこですか."
+    },
+    {
+     "vs": "を",
+     "note": "Use を only when the question word is the object of an action: 何を買いましたか (what did you buy?) but 何が安いですか (what is cheap?)."
+    },
+    {
+     "vs": "も",
+     "note": "誰も / 何も with a negative verb means 'nobody / nothing' (誰も来ませんでした). That is not a question; for 'who came?' you need 誰が."
+    }
+   ],
+   "mistakes": [
+    {
+     "bad": "誰[だれ]{は}この絵[え]を描[か]きましたか。",
+     "good": "誰[だれ]{が}この絵[え]を描[か]きましたか。",
+     "note": "Question words are never topics; as the subject they take が."
+    },
+    {
+     "bad": "「誰[だれ]が来[き]ましたか。」「鈴木[すずき]さん{は}来[き]ました。」",
+     "good": "「誰[だれ]が来[き]ましたか。」「鈴木[すずき]さん{が}来[き]ました。」",
+     "note": "The answer replaces the question word, so it keeps が; は implies 'Suzuki came, but I can't speak for anyone else'."
+    }
+   ],
+   "tip": "Question word as subject: が, and the answer echoes が. Question word at the end before ですか: the other noun takes は."
+  },
+  {
+   "id": "ga-existence",
+   "rule": "In 'there is / there are', the thing that exists takes が and the place takes に: [place] に [thing] が ある / いる.",
+   "explain": "ある is for objects and plants, いる for people and animals. Whatever exists is the subject and takes が; the location takes に: 机の上に本があります. The place usually comes first because the thing is the new information.\n\nWhen the thing is already known and the point is where it is, it becomes the topic: 本は机の上にあります (the book is on the desk). Rule of thumb: 'there is a ...' takes が; 'the ... is in / on ...' takes は.\n\nある and いる also express having and events: 私には兄が二人います (I have two older brothers), 明日テストがあります (there's a test tomorrow). For an event, the place where it is held takes で, not に: 公園でお祭りがあります. In negatives は is common, because 'there isn't' often contrasts: お金はありません.",
+   "patterns": [
+    "[place] に [thing / person] が あります / います",
+    "[person] には [family / thing] が います / あります",
+    "[time] [event] が あります"
+   ],
+   "examples": [
+    {
+     "jp": "あそこに猫[ねこ]{が}います。",
+     "en": "There's a cat over there."
+    },
+    {
+     "jp": "机[つくえ]の上[うえ]に本[ほん]{が}あります。",
+     "en": "There's a book on the desk."
+    },
+    {
+     "jp": "駅[えき]の前[まえ]に銀行[ぎんこう]{が}あります。",
+     "en": "There's a bank in front of the station."
+    },
+    {
+     "jp": "冷蔵庫[れいぞうこ]に牛乳[ぎゅうにゅう]{が}ありますか。",
+     "en": "Is there any milk in the fridge?"
+    },
+    {
+     "jp": "明日[あした]テスト{が}あります。",
+     "en": "There's a test tomorrow."
+    },
+    {
+     "jp": "私[わたし]には兄[あに]{が}二人[ふたり]います。",
+     "en": "I have two older brothers."
+    }
+   ],
+   "contrast": [
+    {
+     "vs": "は",
+     "note": "本は机の上にあります = 'the book (we both know about) is on the desk'. Use は when the thing is known and the location is the answer."
+    },
+    {
+     "vs": "に",
+     "note": "に marks where the thing exists, not the thing itself. In 部屋に猫がいます, 部屋 is the place and 猫 is what exists."
+    },
+    {
+     "vs": "で",
+     "note": "With an object that exists, the place takes に (庭に犬がいます). With an event that takes place, the place takes で (ホールでコンサートがあります)."
+    }
+   ],
+   "mistakes": [
+    {
+     "bad": "公園[こうえん]に子供[こども]{を}います。",
+     "good": "公園[こうえん]に子供[こども]{が}います。",
+     "note": "ある and いる take no object; what exists is the subject."
+    },
+    {
+     "bad": "庭[にわ]{で}犬[いぬ]がいます。",
+     "good": "庭[にわ]{に}犬[いぬ]がいます。",
+     "note": "The place where something simply exists takes に; で is for actions and events."
+    }
+   ],
+   "tip": "If the English says 'there is / there are', or 'have' (family, possessions, events), the thing takes が."
+  },
+  {
+   "id": "ga-stative",
+   "rule": "With 好き, 嫌い, 上手, 下手, 欲しい, 分かる, できる and potential verbs, the thing liked, wanted, understood or able to be done takes が, not を.",
+   "explain": "English treats 'I like sushi' as subject, verb, object, so learners reach for を. In Japanese 好き, 嫌い, 上手, 下手 and 欲しい are adjectives, and 分かる, できる and potential verbs (話せる, 読める) describe a state, not an action done to something. The thing involved takes が: 寿司が好きです, 日本語が分かります, 車が欲しいです. The person who has the feeling or ability is usually the topic: 私は寿司が好きです.\n\nThe same goes for 得意 and 苦手 (good / bad at) and 要る (need): 数学が苦手です. With potential verbs, を is also heard (日本語を話せます), but が is the standard choice. With 好き, 嫌い, 欲しい and 分かる, を counts as a mistake.\n\nEdge: 〜たい (want to do) attaches to an action verb, so を is normal there: 水を飲みたい (水が飲みたい is also correct). 欲しい (want a thing) takes が only; 〜たい (want to do) takes を or が.",
+   "patterns": [
+    "[person] は [thing] が 好き / 嫌い / 上手 / 下手 です",
+    "[thing] が 欲しいです / 分かります / できます",
+    "[thing] が [potential verb]"
+   ],
+   "examples": [
+    {
+     "jp": "猫[ねこ]{が}好[す]きです。",
+     "en": "I like cats."
+    },
+    {
+     "jp": "新[あたら]しいパソコン{が}欲[ほ]しいです。",
+     "en": "I want a new computer."
+    },
+    {
+     "jp": "母[はは]は料理[りょうり]{が}上手[じょうず]です。",
+     "en": "My mother is a good cook."
+    },
+    {
+     "jp": "日本語[にほんご]{が}少[すこ]し分[わ]かります。",
+     "en": "I understand a little Japanese."
+    },
+    {
+     "jp": "田中[たなか]さんは運転[うんてん]{が}できますか。",
+     "en": "Can Mr. Tanaka drive?"
+    },
+    {
+     "jp": "弟[おとうと]はピアノ{が}弾[ひ]けます。",
+     "en": "My younger brother can play the piano."
+    }
+   ],
+   "contrast": [
+    {
+     "vs": "を",
+     "note": "を marks the object of an action verb. Swap the state for an action and を returns: 寿司が好きです but 寿司を食べます. 〜たい allows を: 寿司を食べたい."
+    },
+    {
+     "vs": "は",
+     "note": "は marks the person who likes or can (私は), or a contrast on the thing: 肉は好きですが、魚は嫌いです. Without a contrast, the thing liked takes が."
+    },
+    {
+     "vs": "に",
+     "note": "These words do not take に for their target: 音楽が好きです. に belongs to other expressions such as 興味がある (音楽に興味があります)."
+    }
+   ],
+   "mistakes": [
+    {
+     "bad": "私[わたし]はコーヒー{を}好[す]きです。",
+     "good": "私[わたし]はコーヒー{が}好[す]きです。",
+     "note": "好き is an adjective; it cannot take an object with を."
+    },
+    {
+     "bad": "英語[えいご]{を}分[わ]かりますか。",
+     "good": "英語[えいご]{が}分[わ]かりますか。",
+     "note": "分かる means 'be clear / be understood', so what is understood takes が."
+    },
+    {
+     "bad": "新[あたら]しい靴[くつ]{を}欲[ほ]しいです。",
+     "good": "新[あたら]しい靴[くつ]{が}欲[ほ]しいです。",
+     "note": "欲しい is an adjective; the thing wanted takes が."
+    }
+   ],
+   "tip": "If the English verb is like, hate, want (a thing), understand, can, or be good / bad at, the thing takes が."
+  },
+  {
+   "id": "ga-sub-clause",
+   "rule": "The subject inside a noun-modifying clause or a time or condition clause (時, 前, 後, たら, と, ば) takes が, because は cannot reach inside it.",
+   "explain": "は marks the topic of the whole sentence, so it stays outside subordinate clauses. The subject of a relative clause takes が: 母が作った料理 (the food my mother made). So does the subject of a 時, 前, 後, たら, と or ば clause: 友達が来た時 (when my friend came), 雨が降ったら (if it rains).\n\nThis keeps two subjects apart: 私は、田中さんが来た時、寝ていました. 私は is the topic of 寝ていました; 田中さんが belongs only to 来た. Change が to は and 田中さん becomes the topic of the whole sentence, which garbles it.\n\nIn a noun-modifying clause, の can replace が: 母の作った料理 means the same. が is always correct there. Looser clauses ending in から, けど or と思う can contain their own は: 兄は来たけど、姉は来なかった.",
+   "patterns": [
+    "[X] が [verb] [noun] (relative clause)",
+    "[X] が [verb] 時 / 前に / 後で, ...",
+    "[X] が [verb]たら / と / ば, ..."
+   ],
+   "examples": [
+    {
+     "jp": "これは父[ちち]{が}撮[と]った写真[しゃしん]です。",
+     "en": "This is a photo my father took."
+    },
+    {
+     "jp": "母[はは]{が}作[つく]ったケーキはおいしいです。",
+     "en": "The cake my mother made is delicious."
+    },
+    {
+     "jp": "雨[あめ]{が}降[ふ]ったら、行[い]きません。",
+     "en": "If it rains, I won't go."
+    },
+    {
+     "jp": "友達[ともだち]{が}来[き]た時[とき]、私[わたし]は寝[ね]ていました。",
+     "en": "When my friend came, I was asleep."
+    },
+    {
+     "jp": "先生[せんせい]{が}来[く]る前[まえ]に、教室[きょうしつ]を掃除[そうじ]しましょう。",
+     "en": "Let's clean the classroom before the teacher comes."
+    }
+   ],
+   "contrast": [
+    {
+     "vs": "は",
+     "note": "は inside a relative or time clause either sounds broken or jumps out to become the main topic: 友達は来た時 does not mean 'when my friend came'."
+    },
+    {
+     "vs": "の",
+     "note": "の can replace が only in a clause that modifies a noun (私の住んでいる町 = 私が住んでいる町; also before 時: 私の若い時). Never in たら, と or ば clauses. が is always safe."
+    }
+   ],
+   "mistakes": [
+    {
+     "bad": "私[わたし]{は}買[か]った本[ほん]はこれです。",
+     "good": "私[わたし]{が}買[か]った本[ほん]はこれです。",
+     "note": "私 is the subject of 買った inside the clause; は would make it the topic of the whole sentence."
+    },
+    {
+     "bad": "弟[おとうと]{は}生[う]まれた時[とき]、父[ちち]は三十歳[さんじゅっさい]でした。",
+     "good": "弟[おとうと]{が}生[う]まれた時[とき]、父[ちち]は三十歳[さんじゅっさい]でした。",
+     "note": "The subject of a 時 clause takes が; は belongs to the main clause (父は)."
+    }
+   ],
+   "tip": "Is the noun the subject of the small verb inside the clause, not of the main verb? Then が (or の right before a noun)."
+  },
+  {
+   "id": "ga-sense",
+   "rule": "With verbs of spontaneous perception (見える, 聞こえる) and sensation expressions (音がする, 匂いがする, 味がする, 気がする), what is perceived takes が.",
+   "explain": "見る and 聞く are deliberate actions with an object: テレビを見る. 見える and 聞こえる mean 'be visible' and 'be audible': the sight or sound reaches you by itself, so it is the subject: 富士山が見えます, 音楽が聞こえます. The perceiver, if stated, is the topic or takes に: 私には何も聞こえません.\n\nThe same logic covers する expressions where a sensation arises: 変な音がする (there's a strange noise), いい匂いがする, 甘い味がする, 頭痛がする, 寒気がする, and 気がする (have a feeling). Here する means 'be sensed', and the sensation takes が. 音をする or 匂いをする is wrong.\n\nIn negatives and contrasts は is natural: 今日は富士山は見えません.",
+   "patterns": [
+    "[sight / sound] が 見えます / 聞こえます",
+    "[sound / smell / taste] が します",
+    "[clause] 気がします"
+   ],
+   "examples": [
+    {
+     "jp": "窓[まど]から海[うみ]{が}見[み]えます。",
+     "en": "You can see the sea from the window."
+    },
+    {
+     "jp": "隣[となり]の部屋[へや]から声[こえ]{が}聞[き]こえます。",
+     "en": "I can hear voices from the next room."
+    },
+    {
+     "jp": "台所[だいどころ]からいい匂[にお]い{が}します。",
+     "en": "There's a nice smell coming from the kitchen."
+    },
+    {
+     "jp": "外[そと]で変[へん]な音[おと]{が}しました。",
+     "en": "There was a strange noise outside."
+    },
+    {
+     "jp": "このお茶[ちゃ]は少[すこ]し甘[あま]い味[あじ]{が}します。",
+     "en": "This tea tastes slightly sweet."
+    },
+    {
+     "jp": "明日[あした]は雨[あめ]になる気[き]{が}します。",
+     "en": "I have a feeling it will rain tomorrow."
+    }
+   ],
+   "contrast": [
+    {
+     "vs": "を",
+     "note": "を goes with the deliberate verbs: 星を見る (look at the stars) but 星が見える (the stars are visible); 音楽を聞く (listen to music) but 音楽が聞こえる (music can be heard)."
+    },
+    {
+     "vs": "は",
+     "note": "は on the perceived thing signals contrast: 山は見えますが、海は見えません."
+    },
+    {
+     "vs": "に",
+     "note": "With these verbs に marks the perceiver (私には見えない), never the thing seen or heard."
+    }
+   ],
+   "mistakes": [
+    {
+     "bad": "ここから富士山[ふじさん]{を}見[み]えます。",
+     "good": "ここから富士山[ふじさん]{が}見[み]えます。",
+     "note": "見える is intransitive ('be visible'); it takes no object."
+    },
+    {
+     "bad": "何[なに]か音[おと]{を}しますね。",
+     "good": "何[なに]か音[おと]{が}しますね。",
+     "note": "音がする means 'a sound occurs'; the sound is the subject."
+    }
+   ],
+   "tip": "Did you do it on purpose (見る, 聞く)? を. Did it just reach you (見える, 聞こえる, 〜がする)? が."
+  }
+ ]
+}

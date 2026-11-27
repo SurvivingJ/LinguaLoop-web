@@ -25,6 +25,7 @@ PAGES = (
     ('/placement', 'placement_page', 'placement.html'),
     ('/classifier-drill', 'classifier_drill_page', 'classifier_drill.html'),
     ('/counter-drill', 'counter_drill_page', 'counter_drill.html'),
+    ('/particle-drill', 'particle_drill_page', 'particle_drill.html'),
     ('/dual-translation', 'dual_translation_page', 'dual_translation.html'),
     ('/dual-translation/profile', 'dual_translation_profile_page', 'dual_translation_profile.html'),
     # Knowledge Report ("My vocabulary"); always on.

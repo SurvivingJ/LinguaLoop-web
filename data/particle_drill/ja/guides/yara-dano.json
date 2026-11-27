@@ -1,0 +1,59 @@
+{
+ "group": "yara-dano",
+ "intro": "やら and だの both list a few examples out of a bigger, messier set, and both are normally repeated after every item: AやらBやら, AだのBだの. What they add is feeling. やら says the speaker is swamped by a jumble of things or emotions; だの says the speaker is fed up with a string of things someone keeps saying or wanting.",
+ "skills": [
+  {
+   "id": "yara-list",
+   "rule": "AやらBやら lists a couple of examples from a chaotic pile of things, events or feelings that overwhelm the speaker.",
+   "explain": "やら picks two or three items out of a larger heap and makes it sound like a lot going on at once: 会議やら出張やらで忙しい (busy with meetings, business trips and whatnot). It is very often followed by で, giving the cause of a state: what with A and B.\n\nIt attaches to nouns, to plain-form verbs and to i-adjectives, so it can list actions and feelings, not only things: 泣くやら騒ぐやら (crying, making a racket), 嬉しいやら恥ずかしいやら (happy and embarrassed at once). That last use, mixed emotions the speaker cannot sort out, is a set phrase pattern.\n\nや and とか also give examples, but neutrally; や joins nouns only and is not repeated after the last item. やら carries confusion or bewilderment, so it fits descriptions of a situation, not requests or instructions. Unlike だの it is not about complaining at someone; the speaker is simply swamped.",
+   "patterns": [
+    "[noun] やら [noun] やら で [state]",
+    "[plain verb] やら [plain verb] やら で [state]",
+    "[i-adj] やら [i-adj] やら (mixed feelings)"
+   ],
+   "examples": [
+    {"jp": "部屋[へや]には本[ほん]{やら}服[ふく]{やら}が散[ち]らかっていた。", "en": "Books, clothes and whatnot were scattered round the room."},
+    {"jp": "今週[こんしゅう]は会議[かいぎ]{やら}出張[しゅっちょう]{やら}で忙[いそが]しい。", "en": "This week I'm busy with meetings, business trips and so on."},
+    {"jp": "引[ひ]っ越[こ]しの日[ひ]は、掃除[そうじ]{やら}荷造[にづく]り{やら}で一日[いちにち]が終[お]わった。", "en": "On moving day the whole day went on cleaning, packing and the like."},
+    {"jp": "子供[こども]たちが泣[な]く{やら}騒[さわ]ぐ{やら}で大変[たいへん]だった。", "en": "What with the children crying and making a racket, it was chaos."},
+    {"jp": "褒[ほ]められて、嬉[うれ]しい{やら}恥[は]ずかしい{やら}で顔[かお]が赤[あか]くなった。", "en": "When I was praised I went red, half pleased and half embarrassed."}
+   ],
+   "contrast": [
+    {"vs": "や", "note": "本や服 lists examples neutrally, nouns only, with nothing after the last item. 本やら服やら adds a sense of mess and is repeated."},
+    {"vs": "とか", "note": "とか is the casual neutral example marker and fits requests: 果物とか買ってきて. やら describes an overwhelming situation."},
+    {"vs": "だの", "note": "だの lists what someone keeps saying or demanding, with irritation. やら is the speaker's own jumble of things or feelings."}
+   ],
+   "mistakes": [
+    {"bad": "りんご{やら}バナナ{やら}を買[か]ってきてください。", "good": "りんご{とか}バナナ{とか}を買[か]ってきてください。", "note": "やら describes a chaotic situation; for neutral examples in a request use とか or や."},
+    {"bad": "嬉[うれ]しい{だの}恥[は]ずかしい{だの}で顔[かお]が赤[あか]くなった。", "good": "嬉[うれ]しい{やら}恥[は]ずかしい{やら}で顔[かお]が赤[あか]くなった。", "note": "Your own mixed feelings take やら; だの would mean someone is complaining."}
+   ],
+   "tip": "Could you add all at once, and it's too much? Then it is やら."
+  },
+  {
+   "id": "dano-list",
+   "rule": "AだのBだの lists the things someone keeps saying, demanding or fussing about, and shows that the speaker is annoyed by it.",
+   "explain": "だの strings together examples of what another person says or wants, and the speaker's tone is critical: 暑いだの疲れただのと文句ばかり言う (it's hot, I'm tired, nothing but complaints). It is very often followed by と plus a verb of saying or by うるさい: だのと言う, だのとうるさい.\n\nIt attaches to nouns, plain-form verbs and adjectives, and even to opposites: 行くだの行かないだの (going, not going, back and forth). The items are usually quoted words or wants; it can also list chores the speaker resents: 掃除だの洗濯だので忙しい.\n\nThe boundary with やら is whose problem it is. やら is the speaker caught in a jumble of tasks or feelings; だの is the speaker judging someone else's talk, or grumbling. とか can list the same quoted complaints, but neutrally; switch to だの only when you want the irritation to show. Because it is critical, だの is wrong in a neutral or positive list.",
+   "patterns": [
+    "[quote] だの [quote] だの と [say / fuss]",
+    "[noun] だの [noun] だの と [want / demand]",
+    "[verb] だの [negative verb] だの (indecision)"
+   ],
+   "examples": [
+    {"jp": "弟[おとうと]は暑[あつ]い{だの}疲[つか]れた{だの}と文句[もんく]ばかり言[い]う。", "en": "My brother does nothing but complain: it's hot, he's tired, and so on."},
+    {"jp": "娘[むすめ]はゲーム{だの}服[ふく]{だの}と、欲[ほ]しがってばかりいる。", "en": "My daughter is always wanting something: games, clothes, you name it."},
+    {"jp": "行[い]く{だの}行[い]かない{だの}と、彼[かれ]はなかなか決[き]めない。", "en": "He's going, he's not going; he just can't make up his mind."},
+    {"jp": "部長[ぶちょう]は字[じ]が小[ちい]さい{だの}色[いろ]が暗[くら]い{だの}とうるさい。", "en": "The manager keeps nagging: the writing is too small, the colours are too dark."},
+    {"jp": "高[たか]い{だの}遠[とお]い{だの}言[い]わないで、一度[いちど]行[い]ってみなさい。", "en": "Stop saying it's too expensive or too far, and just go once."}
+   ],
+   "contrast": [
+    {"vs": "やら", "note": "やら is the speaker swamped by things or feelings. だの is the speaker irritated, usually by what someone else keeps saying."},
+    {"vs": "とか", "note": "暑いとか疲れたとか言う reports the same words neutrally. だの adds criticism of the person saying them."},
+    {"vs": "や", "note": "や joins nouns in a neutral list and cannot follow verbs or quoted words. だの can follow anything someone says."}
+   ],
+   "mistakes": [
+    {"bad": "旅行[りょこう]で寺[てら]{だの}神社[じんじゃ]{だの}を見[み]て、楽[たの]しかった。", "good": "旅行[りょこう]で寺[てら]{や}神社[じんじゃ]を見[み]て、楽[たの]しかった。", "note": "だの is critical, so it clashes with a happy, neutral list. Use や or とか."}
+   ],
+   "tip": "Can you hear an eye-roll and and on and on he goes? Then it is だの."
+  }
+ ]
+}

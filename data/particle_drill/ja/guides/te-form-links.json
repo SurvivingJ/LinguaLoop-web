@@ -1,0 +1,63 @@
+{"group":"te-form-links",
+ "intro":"The て-form is a joint: it hooks one clause onto the next without saying much about how they relate. Bare て means \"and (then)\". Add も and the link becomes \"even if\": the result holds anyway. Add は and it becomes \"if you do that (it's bad)\", the source of てはいけない \"must not\". The stem is the same in all three: 飲んで, 飲んでも, 飲んでは.",
+ "skills":[
+  {"id":"te-sequence",
+   "rule":"The て-form joins clauses: \"A and (then) B\". The clauses come in the order things happen, and tense and politeness are carried only by the last verb.",
+   "explain":"Forming it: verbs in -う, -つ, -る become って; -む, -ぶ, -ぬ become んで; -く becomes いて and -ぐ becomes いで; -す becomes して. Ichidan verbs drop る and add て (食べて). する is して, 来る is きて, and 行く is the exception: 行って. i-adjectives use くて (安くて); nouns and na-adjectives use で (学生で, 静かで). So て and で are one particle.\n\nUses: sequence (起きて、顔を洗う), manner or means (歩いて行く \"go on foot\"), a mild cause (風邪をひいて、休みました), and plain linking of descriptions (安くておいしい). After a cause with て, the second clause cannot be a request, invitation or intention; use から for those.\n\nと also means \"and\", but only between nouns. It never joins verbs, adjectives or clauses. ながら means two actions at the same time; てから stresses \"only after\".",
+   "patterns":["[verb て] [verb]","[i-adj く て] [adj / clause]","[noun / na-adj] で、[clause]","[verb て] 行く / 来る (manner)"],
+   "examples":[
+    {"jp":"朝[あさ]起[お]き{て}、シャワーを浴[あ]びます。","en":"I get up in the morning and take a shower."},
+    {"jp":"この店[みせ]は安[やす]く{て}おいしい。","en":"This place is cheap and good."},
+    {"jp":"駅[えき]まで歩[ある]い{て}行[い]きました。","en":"I walked to the station."},
+    {"jp":"兄[あに]は医者[いしゃ]{で}、姉[あね]は教師[きょうし]です。","en":"My older brother is a doctor, and my older sister is a teacher."},
+    {"jp":"本[ほん]を読[よ]ん{で}、感想[かんそう]を書[か]いてください。","en":"Please read the book and write your thoughts on it."},
+    {"jp":"風邪[かぜ]をひい{て}、学校[がっこう]を休[やす]みました。","en":"I caught a cold and stayed home from school."}],
+   "contrast":[
+    {"vs":"と","note":"と joins nouns only (パンと牛乳). Between adjectives or verbs, \"and\" is always the て-form."},
+    {"vs":"ながら","note":"ながら is \"while\", two actions at once by the same person (歩きながら話す). て puts them one after the other."},
+    {"vs":"から","note":"て can show a mild cause, but not before a request or \"let's\": 雨だから、タクシーで行こう, not 雨で、タクシーで行こう."}],
+   "mistakes":[
+    {"bad":"この店[みせ]は安[やす]いとおいしいです。","good":"この店[みせ]は安[やす]く{て}おいしいです。","note":"と never joins adjectives. i-adjectives link with くて."},
+    {"bad":"友達[ともだち]の家[いえ]に行[い]いて、遊[あそ]びました。","good":"友達[ともだち]の家[いえ]に行[い]っ{て}、遊[あそ]びました。","note":"行く is the one -く verb whose て-form is 行って."},
+    {"bad":"この公園[こうえん]は静[しず]かくて、きれいです。","good":"この公園[こうえん]は静[しず]か{で}、きれいです。","note":"na-adjectives and nouns link with で, not くて."}],
+   "tip":"Read て as \"and\" and keep the events in order; put the tense on the last verb only."},
+  {"id":"te-mo",
+   "rule":"て-form + も means \"even if / even though\": the second clause holds no matter what the first says.",
+   "explain":"Forms: 飲んでも, 食べても, 高くても, 学生でも, 静かでも. Negative: 行かなくても \"even if I don't go\".\n\nThree common patterns. Concession: 雨が降っても、試合はあります \"even if it rains, the match is on\". Permission: てもいい(です) \"it's all right to\", てもいいですか \"may I?\", and なくてもいい \"you don't have to\". Question word + ても, \"no matter\": 何を食べても, いくら探しても, どんなに頑張っても.\n\nても covers both the hypothetical (\"even if it rains tomorrow\") and the factual (\"even though I took medicine, the fever didn't go down\"). のに also means \"even though\", but only for facts known to be true, with surprise or complaint; it cannot express a hypothetical \"even if\".\n\nThe edge is the conditionals. たら, ば and と say the result follows from the condition; ても says it does not depend on it. 雨が降ったら行きません \"if it rains, I won't go\" against 雨が降っても行きます \"even if it rains, I'll go\".",
+   "patterns":["[verb て] も、[clause]","[i-adj く て] も / [noun] で も","[verb て] も いい です (か)","[question word] ... [verb て] も、[clause]"],
+   "examples":[
+    {"jp":"雨[あめ]が降[ふ]っ{ても}、試合[しあい]はあります。","en":"Even if it rains, the match will go ahead."},
+    {"jp":"窓[まど]を開[あ]け{ても}いいですか。","en":"May I open the window?"},
+    {"jp":"明日[あした]は来[こ]なく{ても}いいですよ。","en":"You don't have to come tomorrow."},
+    {"jp":"高[たか]く{ても}、このかばんが欲[ほ]しいです。","en":"Even if it's expensive, I want this bag."},
+    {"jp":"薬[くすり]を飲[の]ん{でも}、熱[ねつ]が下[さ]がらない。","en":"Even though I took medicine, my fever won't go down."},
+    {"jp":"いくら考[かんが]え{ても}、答[こた]えが分[わ]かりません。","en":"No matter how much I think about it, I can't work out the answer."}],
+   "contrast":[
+    {"vs":"たら / ば / と","note":"These are \"if\": the result depends on the condition. ても is \"even if\": the result happens regardless. Swapping them reverses the meaning."},
+    {"vs":"のに","note":"のに is only for real facts and carries frustration (薬を飲んだのに…). For a hypothetical \"even if\" (もし…), only ても works."}],
+   "mistakes":[
+    {"bad":"高[たか]いでも、買[か]います。","good":"高[たか]く{ても}、買[か]います。","note":"i-adjectives form ても as くても. でも follows nouns and na-adjectives."},
+    {"bad":"いくら探[さが]したら、見[み]つかりません。","good":"いくら探[さが]し{ても}、見[み]つかりません。","note":"Question word + \"no matter how\" takes ても, not たら."},
+    {"bad":"もし明日[あした]雨[あめ]が降[ふ]るのに、行[い]きます。","good":"もし明日[あした]雨[あめ]が降[ふ]っ{ても}、行[い]きます。","note":"もし makes the condition hypothetical. のに only takes a known fact, so a hypothetical \"even if\" needs ても."}],
+   "tip":"Can you put \"even\" in front of the English \"if\" or \"though\"? Then it is ても."},
+  {"id":"te-wa",
+   "rule":"て-form + は sets up a condition that leads to a bad result; its everyday use is てはいけない / てはだめ, \"must not\".",
+   "explain":"Forms: 食べては, 撮っては, 飲んでは (ん-stems give では). In casual speech ては contracts to ちゃ and では to じゃ: 食べちゃだめ, 飲んじゃだめ.\n\nProhibition is the core use: ここで写真を撮ってはいけません \"you must not take photos here\". だめ is the conversational version and ならない the formal one used for rules and laws. It is the mirror of てもいい: てもいい permits, てはいけない forbids. Keep the pairs together; ても + いけない is not a prohibition, and ては + いい is simply wrong.\n\nOutside prohibition, A ては B means \"if A, then B (and that is bad)\": そんなに働いては、体を壊しますよ \"if you work that hard, you'll ruin your health\". B is always unwelcome: a warning, a complaint or an impossibility (こう暑くては、眠れない). For a neutral or good result, use たら or と instead.",
+   "patterns":["[verb て] は いけません / だめ です","[verb て] は ならない (rules)","[verb / adj て] は、[bad result]"],
+   "examples":[
+    {"jp":"ここで写真[しゃしん]を撮[と]っ{ては}いけません。","en":"You must not take photos here."},
+    {"jp":"授業中[じゅぎょうちゅう]に寝[ね]{ては}だめですよ。","en":"You mustn't sleep in class."},
+    {"jp":"図書館[としょかん]で大[おお]きい声[こえ]で話[はな]し{ては}いけません。","en":"You must not talk loudly in the library."},
+    {"jp":"この薬[くすり]は一度[いちど]にたくさん飲[の]ん{では}いけない。","en":"You must not take a lot of this medicine at once."},
+    {"jp":"そんなに働[はたら]い{ては}、体[からだ]を壊[こわ]しますよ。","en":"If you work that hard, you'll wreck your health."},
+    {"jp":"こんなに暑[あつ]く{ては}、眠[ねむ]れない。","en":"I can't sleep when it's this hot."}],
+   "contrast":[
+    {"vs":"ても","note":"てもいい gives permission; てはいけない forbids. The particle decides which, so do not mix them."},
+    {"vs":"たら / と","note":"たら and と are neutral \"if / when\". ては predicts or complains about a bad outcome."},
+    {"vs":"て","note":"Bare て cannot make a prohibition: 撮っていけません is wrong. The は is required."}],
+   "mistakes":[
+    {"bad":"ここで写真[しゃしん]を撮[と]ってもいけません。","good":"ここで写真[しゃしん]を撮[と]っ{ては}いけません。","note":"Prohibition is ては + いけない. ても pairs with いい."},
+    {"bad":"写真[しゃしん]を撮[と]ってはいいですか。","good":"写真[しゃしん]を撮[と]っ{ても}いいですか。","note":"Asking permission is てもいいですか. ては never goes with いい."},
+    {"bad":"お酒[さけ]を飲[の]んでいけません。","good":"お酒[さけ]を飲[の]ん{では}いけません。","note":"Without は there is no prohibition; after ん, ては becomes では."}],
+   "tip":"Forbidding or warning of trouble? ては. Allowing? ても. いい goes with も, いけない goes with は."}
+ ]}

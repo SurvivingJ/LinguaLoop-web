@@ -1,0 +1,22 @@
+{"group":"clinic-mo-wa",
+ "intro":"は and も sit in the same place in a sentence and both swallow が and を, so they compete for the same slot. The question is how the new item relates to what came before. も says \"this one is the same\": it adds an item to a statement already made. は says \"as for this one\": it picks out a topic and, when there is a comparison, sets it against the others.",
+ "skills":[
+  {"id":"x-mo-wa",
+   "rule":"If the same statement already holds for something else, use も (\"too, either\"); if you are introducing a topic or saying something different about it, use は.",
+   "explain":"Ask these questions in order.\n\n1. Has the same thing been said, or is it understood, about something else? If the new item shares it exactly, use も: 兄は医者です。弟も医者です. This works for negatives too, where English says \"either\": 肉は食べません。魚も食べません.\n\n2. Does the new item get a different or opposite comment? Use は, which contrasts it with the first: 兄は医者です。弟は先生です. 肉は食べませんが、魚は食べます.\n\n3. Nothing to compare with? Use は for the topic.\n\nThe position rules are the same for both: は and も replace が and を, and go after other particles (東京には, 東京にも), never before them. They never stack: no はも. In replies, \"me too\" and \"me neither\" are both 私もです; 私は is wrong there, because it says you are the odd one out.",
+   "patterns":["A は X。B も X。  \"B too / B either\"","A は X。B は Y。  \"but B is different\"","[noun] に / で / と + は / も"],
+   "examples":[
+    {"jp":"兄[あに]は医者[いしゃ]です。弟[おとうと]{も}医者[いしゃ]です。","en":"My older brother is a doctor. My younger brother is a doctor too."},
+    {"jp":"兄[あに]は医者[いしゃ]です。弟[おとうと]{は}先生[せんせい]です。","en":"My older brother is a doctor. My younger brother is a teacher."},
+    {"jp":"肉[にく]は食[た]べません。魚[さかな]{も}食[た]べません。","en":"I don't eat meat. I don't eat fish either."},
+    {"jp":"肉[にく]は食[た]べませんが、魚[さかな]{は}食[た]べます。","en":"I don't eat meat, but fish I do eat."},
+    {"jp":"平日[へいじつ]は忙[いそが]しいですが、週末[しゅうまつ]{は}暇[ひま]です。","en":"I'm busy on weekdays, but I'm free at the weekend."},
+    {"jp":"旅行[りょこう]で京都[きょうと]に行[い]きました。奈良[なら]に{も}行[い]きました。","en":"On the trip I went to Kyoto. I went to Nara as well."}],
+   "contrast":[
+    {"vs":"も","note":"Same comment, new item: \"too\" in positives, \"either\" in negatives. The predicate must match what was said before."},
+    {"vs":"は","note":"New topic or contrast: the comment differs from, or is set against, what was said about something else."}],
+   "mistakes":[
+    {"bad":"姉[あね]は背[せ]が高[たか]いです。妹[いもうと]{も}背[せ]が低[ひく]いです。","good":"姉[あね]は背[せ]が高[たか]いです。妹[いもうと]{は}背[せ]が低[ひく]いです。","note":"The sister is short, the opposite of tall: that is a contrast, so は."},
+    {"bad":"「田中[たなか]さんは行[い]きません。」「私[わたし]{は}行[い]きません。」","good":"「田中[たなか]さんは行[い]きません。」「私[わたし]{も}行[い]きません。」","note":"\"I'm not going either\" repeats the same statement: も. With は it sounds as if you are the exception."},
+    {"bad":"東京[とうきょう]{も}に行[い]きました。","good":"東京[とうきょう]に{も}行[い]きました。","note":"も and は come after に, で, と and から, never before them."}],
+   "tip":"Same comment as before? も. Different comment, or nothing before? は."}]}

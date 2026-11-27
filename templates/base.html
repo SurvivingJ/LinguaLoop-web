@@ -64,7 +64,7 @@
 {%- set _ep = request.endpoint or '' -%}
 {%- set _practice = request.args.get('mode') == 'practice' -%}
 {%- set _tab = 'today' if (_ep == 'study_session_page' and not _practice)
-      else 'practice' if (_ep == 'study_session_page' or _ep in ('flashcards', 'dual_translation_page', 'classifier_drill_page', 'counter_drill_page'))
+      else 'practice' if (_ep == 'study_session_page' or _ep in ('flashcards', 'dual_translation_page', 'classifier_drill_page', 'counter_drill_page', 'particle_drill_page'))
       else 'tests' if _ep in ('tests', 'test_preview', 'test_prestudy_page', 'test_page', 'pinyin_test_page', 'pitch_accent_test_page', 'dictation_test_page')
       else 'me' if _ep in ('profile', 'study_plan_page', 'word_list_page', 'calibration_page', 'language_selection', 'dual_translation_profile_page', 'knowledge_page')
       else '' -%}
@@ -93,6 +93,7 @@
                 <a href="{{ url_for('calibration_page') }}" class="nav-link ld-nav-extra {% if _ep == 'calibration_page' %}active{% endif %}" data-i18n="common.nav.calibration">Calibration</a>
                 <a href="{{ url_for('classifier_drill_page') }}" class="nav-link ld-nav-extra lang-gate d-none {% if _ep == 'classifier_drill_page' %}active{% endif %}" data-lang-gate="zh" data-i18n="common.nav.classifier_drill">Measure Words</a>
                 <a href="{{ url_for('counter_drill_page') }}" class="nav-link ld-nav-extra lang-gate d-none {% if _ep == 'counter_drill_page' %}active{% endif %}" data-lang-gate="ja" data-i18n="common.nav.counter_drill">Counters</a>
+                <a href="{{ url_for('particle_drill_page') }}" class="nav-link ld-nav-extra lang-gate d-none {% if _ep == 'particle_drill_page' %}active{% endif %}" data-lang-gate="ja" data-i18n="common.nav.particle_drill">Particles</a>
             </nav>
 
             <div class="ld-appbar__actions">

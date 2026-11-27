@@ -1,0 +1,13 @@
+{"batch":"guides-016",
+ "files":["guides/nado.json","guides/toka.json","guides/demo.json"],
+ "checked":6,
+ "fixed":6,
+ "deleted":0,
+ "issues":[
+  {"file":"guides/nado.json","problem":"nado-etc explain said the case particle is 'never' before など; に/で/から can precede it (東京になど), only を and が cannot.","action":"Reworded: particle normally follows など; を and が never come before it."},
+  {"file":"guides/nado.json","problem":"nanka-nante explain said なんか replaces が and を, but なんかが is common (私なんかが), and other particles precede it (東京になんか).","action":"Rewrote the sentence to give なんかが and に+なんか."},
+  {"file":"guides/nado.json","problem":"nanka-nante mistake note repeated the over-strong 'replaces を and が' claim.","action":"Note now says を never comes in front of なんか; drop it."},
+  {"file":"guides/toka.json","problem":"Example 田中さん、明日は休むとか言ってたよ reads as addressing Tanaka (vocative), which does not match the English 'Tanaka said...'.","action":"Changed to 田中さんは明日休むとか言ってたよ。"},
+  {"file":"guides/toka.json","problem":"Mistake 報告書には売上とか費用とかを書きました is a natural spoken sentence; register is not an error, so the 'bad' sentence was not really wrong.","action":"Replaced with a real error: とか in an exact counted list (家族は父とか母とか私の三人です → 父と母と私の三人です)."},
+  {"file":"guides/demo.json","problem":"demo-any explain gave 'question word + も = negative no...' with no exception; applying it mechanically breaks いつも 'always' and どちらも 'both'.","action":"Added the いつも / どちらも exception."}
+ ]}
