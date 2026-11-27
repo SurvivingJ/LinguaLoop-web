@@ -1942,7 +1942,6 @@ class TestGenerationOrchestrator:
 
         return schedule
 
-    @staticmethod
     def _log_enrichment_summary(self) -> None:
         """Report the batch's prefer_existing hit rate (T2.1).
 
@@ -1961,6 +1960,7 @@ class TestGenerationOrchestrator:
         for line in format_summary(summary).splitlines():
             logger.info(line)
 
+    @staticmethod
     def _log_batch_summary(
         language_name: str,
         test_type: str,
