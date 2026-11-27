@@ -207,11 +207,11 @@ const NUMBER_FRAMES = [
     en: (x) => `This country has ${x} people.`,
   },
   {
-    lo: 0,
+    lo: 3,
     hi: 999999999,
-    pre: ['这个数字是|zhè ge shù zì shì'],
-    post: ['。'],
-    en: (x) => `The number is ${x}.`,
+    pre: ['这里一共有|zhè lǐ yī gòng yǒu'],
+    post: ['个|gè', '。'],
+    en: (x) => `There are ${x} here altogether.`,
   },
 ];
 
@@ -442,7 +442,7 @@ function makeDate(rng) {
       rng,
       PEOPLE.filter((x) => x.be !== 'are')
     );
-    const year = int(rng, 1950, 2015);
+    const year = /妈妈|爸爸/.test(p.zh) ? int(rng, 1955, 1975) : int(rng, 1985, 2008);
     return order(rng, {
       key: 'date-order',
       tiles: [
