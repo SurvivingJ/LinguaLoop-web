@@ -22,6 +22,17 @@ the item's key and never re-judges it.
 
 Serving
 -------
+Lookup order for one item: this process's memory -> the item's own complete
+notes (``stored_entries``) -> the sense's pre-written Storage file
+(``services/explanation_files.py``, written ahead of time by a batch: the
+table is too close to the Free plan's database cap to hold them all) -> the
+table -> a model call. A file entry or table row is used only when it was
+written for the item's ``content_version`` and its sentences
+(``_aligned``); a used one is kept in memory.
+
+* ``prefetch`` (session assembly, beside content hydration): reads the
+  Storage files of the items' senses and the table rows concurrently, from
+  ids alone, and returns them as one ``Prefetched`` for ``prepare_items``.
 * ``prepare_items`` (session assembly, new-word drill): attaches what is
   already cached as ``content['option_explanations']`` (aligned with
   ``content['sentences']``) and starts background generation for up to
@@ -30,6 +41,9 @@ Serving
 * ``get_or_generate`` (``GET /api/practice/explanations/<exercise_id>``): what
   the renderer asks for when an item arrived without them; waits for a
   generation already in flight rather than starting a second.
+
+What is generated at serve time goes to memory and the table, never to a
+Storage file: files are immutable and belong to the batch.
 
 Before migrations/exercise_explanations.sql is applied the table read fails;
 that is remembered for a few minutes and explanations live only in this
@@ -43,9 +57,11 @@ import threading
 import time
 from collections import OrderedDict
 from concurrent.futures import Future, ThreadPoolExecutor, TimeoutError as FutureTimeout
-from typing import Any, Iterable, Optional
+from dataclasses import dataclass, field
+from typing import Any, Iterable, Optional, Union
 
 from config import Config
+from services import explanation_files
 
 logger = logging.getLogger(__name__)
 
@@ -63,6 +79,8 @@ TABLE = 'exercise_explanations'
 _MEMORY_MAX = 2000
 _TABLE_RETRY_S = 300          # after a failed table read, how long to stop asking
 _WORKERS = 4
+_READ_WORKERS = 4             # file reads run here while the table is read
+_FILE_DEADLINE_S = 2.0        # inside the content hydration's 3 s, which it runs beside
 _LLM_TIMEOUT_S = 30
 _MAX_TOKENS = 2000
 _CAP = {'meaning': 400, 'explanation': 600, 'correction': 300}
@@ -75,6 +93,7 @@ _memory: 'OrderedDict[tuple[str, int], tuple[int, dict]]' = OrderedDict()
 _inflight: dict[tuple[str, int], Future] = {}
 _table_down_until = 0.0
 _executor: Optional[ThreadPoolExecutor] = None
+_read_executor: Optional[ThreadPoolExecutor] = None
 
 
 def enabled() -> bool:
@@ -86,12 +105,13 @@ def supported(exercise_type: Optional[str]) -> bool:
 
 
 def reset_state() -> None:
-    """Forget cached explanations and the table state (tests)."""
+    """Forget cached explanations, cached Storage files and the table state (tests)."""
     global _table_down_until
     with _lock:
         _memory.clear()
         _inflight.clear()
         _table_down_until = 0.0
+    explanation_files.reset_cache()
 
 
 def _pool() -> ThreadPoolExecutor:
@@ -100,6 +120,18 @@ def _pool() -> ThreadPoolExecutor:
         if _executor is None:
             _executor = ThreadPoolExecutor(max_workers=_WORKERS, thread_name_prefix='explain')
         return _executor
+
+
+def _read_pool() -> ThreadPoolExecutor:
+    """Where a Storage file read waits while the caller reads the table. Not ``_pool``
+    (its workers can be busy for 30 s with model calls) and not ``services.concurrency``
+    (``prefetch`` already runs on one of its threads)."""
+    global _read_executor
+    with _lock:
+        if _read_executor is None:
+            _read_executor = ThreadPoolExecutor(max_workers=_READ_WORKERS,
+                                                thread_name_prefix='explain-read')
+        return _read_executor
 
 
 # ---------------------------------------------------------------------------
@@ -400,6 +432,71 @@ def _version(item: dict) -> int:
         return 0
 
 
+def _sense_of(item: dict) -> Optional[int]:
+    """The item's sense: ``sense_id`` in practice payloads, ``word_sense_id`` in
+    exercise rows (new-word drill, prestudy, ``get_or_generate``)."""
+    value = item.get('sense_id') or item.get('word_sense_id')
+    try:
+        sense = int(value)
+    except (TypeError, ValueError):
+        return None
+    return sense if sense > 0 else None
+
+
+def _read_files(language_id: int, nl_language_id: int,
+                sense_ids: list[int]) -> dict[str, dict]:
+    """Pre-written entries ``{exercise_id: {content_version, model, payload}}`` from the
+    senses' Storage files at the current prompt version. Never raises."""
+    if not sense_ids or language_id not in _LANG or nl_language_id not in _LANG:
+        return {}
+    return explanation_files.read_for_senses(language_id, sense_ids, nl_language_id,
+                                             PROMPT_VERSION, deadline_s=_FILE_DEADLINE_S)
+
+
+@dataclass
+class Prefetched:
+    """What ``prefetch`` read, for ``prepare_items(prefetched=...)``: Storage file entries
+    (``files``) and table rows (``rows``), each ``{exercise_id: {'content_version',
+    'payload', ...}}``. A file entry is preferred to a row for the same item."""
+    files: dict[str, dict] = field(default_factory=dict)
+    rows: dict[str, dict] = field(default_factory=dict)
+
+
+def _read_sources(db, language_id: int, nl_language_id: int, exercise_ids: list[str],
+                  sense_ids: list[int]) -> Prefetched:
+    """The Storage files of ``sense_ids`` and the table rows of ``exercise_ids``. When
+    both are wanted the file read waits on ``_read_pool`` while this thread reads the
+    table, so the two round trips overlap."""
+    want_rows = bool(exercise_ids) and db is not None and _table_usable()
+    if not (want_rows and sense_ids):
+        return Prefetched(files=_read_files(language_id, nl_language_id, sense_ids),
+                          rows=_read_rows(db, exercise_ids, nl_language_id))
+    try:
+        pending: Optional[Future] = _read_pool().submit(
+            _read_files, language_id, nl_language_id, sense_ids)
+    except RuntimeError:                  # pool shut down (interpreter exit)
+        pending = None
+    rows = _read_rows(db, exercise_ids, nl_language_id)
+    if pending is None:
+        return Prefetched(files=_read_files(language_id, nl_language_id, sense_ids), rows=rows)
+    try:
+        files = pending.result(timeout=_FILE_DEADLINE_S + 1.0)
+    except Exception as exc:              # read_for_senses keeps its own deadline
+        logger.warning('explanation files read did not finish: %s: %s',
+                       type(exc).__name__, exc)
+        files = {}
+    return Prefetched(files=files, rows=rows)
+
+
+def _usable(cached: Any, version: int, sents: list[dict]) -> Optional[tuple[list[dict], dict]]:
+    """(entries, payload) of a file entry or table row written for this content version
+    and these sentences with the current prompt; None otherwise."""
+    if not isinstance(cached, dict) or _version(cached) != version:
+        return None
+    entries = _aligned(cached.get('payload'), sents)
+    return None if entries is None else (entries, cached['payload'])
+
+
 def stored_correction(db, sense_id: Optional[int], content: dict) -> Optional[str]:
     """The reviewed corrected sentence for a spot item's wrong sentence.
 
@@ -479,27 +576,32 @@ def _wanted(language_id: Optional[int], nl_language_id: Optional[int]) -> bool:
 
 def prefetch(db, items: list[dict], *, language_id: Optional[int],
              nl_language_id: Optional[int], id_key: str = 'exercise_id',
-             type_key: str = 'exercise_type') -> Optional[dict[str, dict]]:
-    """The cached rows ``prepare_items`` will need, read from ids and types
-    alone so it can run while content is still being fetched. None when
-    nothing applies (``prepare_items`` then reads for itself)."""
+             type_key: str = 'exercise_type') -> Optional[Prefetched]:
+    """The Storage file entries and table rows ``prepare_items`` will need, read
+    from ids, types and senses alone so it can run while content is still being
+    fetched (the two reads overlap). None when nothing applies
+    (``prepare_items`` then reads for itself)."""
     if not items or not _wanted(language_id, nl_language_id):
         return None
-    ids = sorted({str(i.get(id_key)) for i in items
-                  if isinstance(i, dict) and supported(i.get(type_key)) and i.get(id_key)})
-    if not ids:
+    wanted = [i for i in items
+              if isinstance(i, dict) and supported(i.get(type_key)) and i.get(id_key)]
+    if not wanted:
         return None
-    return _read_rows(db, ids, int(nl_language_id))
+    ids = sorted({str(i.get(id_key)) for i in wanted})
+    senses = sorted({s for s in (_sense_of(i) for i in wanted) if s is not None})
+    return _read_sources(db, int(language_id), int(nl_language_id), ids, senses)
 
 
 def prepare_items(db, items: list[dict], *, language_id: Optional[int],
                   nl_language_id: Optional[int], id_key: str = 'exercise_id',
                   type_key: str = 'exercise_type', warm_limit: Optional[int] = None,
-                  prefetched: Optional[dict[str, dict]] = None) -> int:
+                  prefetched: Optional[Union[Prefetched, dict[str, dict]]] = None) -> int:
     """Attach cached explanations to ``items`` in place; warm the rest.
 
-    ``prefetched``: rows from ``prefetch`` (no table read here then).
-    Returns how many generations were started. Never raises.
+    ``prefetched``: what ``prefetch`` returned (no Storage or table read here
+    then). A plain dict, the pre-Storage shape, is taken as the table rows and
+    the files are still read here. Returns how many generations were started.
+    Never raises.
     """
     if not items or not _wanted(language_id, nl_language_id):
         return 0
@@ -529,16 +631,24 @@ def _prepare(db, items, language_id, nl_language_id, id_key, type_key, warm_limi
             todo.append((item, str(eid), sents))
     if not todo:
         return 0
-    rows = prefetched if prefetched is not None else \
-        _read_rows(db, [eid for _, eid, _ in todo], nl_language_id)
+    if isinstance(prefetched, Prefetched):
+        found = prefetched
+    else:
+        senses = sorted({s for s in (_sense_of(item) for item, _, _ in todo) if s is not None})
+        if isinstance(prefetched, dict):
+            found = Prefetched(files=_read_files(language_id, nl_language_id, senses),
+                               rows=prefetched)
+        else:
+            found = _read_sources(db, language_id, nl_language_id,
+                                  [eid for _, eid, _ in todo], senses)
     missing = []
     for item, eid, sents in todo:
-        row = rows.get(eid)
-        entries = None
-        if row is not None and int(row.get('content_version') or 0) == _version(item):
-            entries = _aligned(row.get('payload'), sents)
-        if entries is not None:
-            _remember((eid, nl_language_id), _version(item), row['payload'])
+        version = _version(item)
+        hit = _usable(found.files.get(eid), version, sents) or \
+            _usable(found.rows.get(eid), version, sents)
+        if hit is not None:
+            entries, payload = hit
+            _remember((eid, nl_language_id), version, payload)
             _attach(item['content'], entries, nl_language_id)
         else:
             missing.append((item, eid))
@@ -572,11 +682,17 @@ def get_or_generate(db, exercise_id: str, nl_language_id: int,
     entries = stored_entries(sents, int(nl_language_id)) or \
         _aligned(_from_memory(key, version), sents)
     if entries is None:
-        cached = _read_rows(db, [str(exercise_id)], int(nl_language_id)).get(str(exercise_id))
-        if cached is not None and int(cached.get('content_version') or 0) == version:
-            entries = _aligned(cached.get('payload'), sents)
-            if entries is not None:
-                _remember(key, version, cached['payload'])
+        # The sense's pre-written file first; the table only when it has nothing usable.
+        sense = _sense_of(row)
+        files = _read_files(int(row.get('language_id') or 0), int(nl_language_id),
+                            [sense] if sense is not None else [])
+        hit = _usable(files.get(str(exercise_id)), version, sents)
+        if hit is None:
+            hit = _usable(_read_rows(db, [str(exercise_id)], int(nl_language_id))
+                          .get(str(exercise_id)), version, sents)
+        if hit is not None:
+            entries, payload = hit
+            _remember(key, version, payload)
     if entries is None:
         fut = _start(db, str(exercise_id), content, version,
                      int(row.get('language_id') or 0), int(nl_language_id),
