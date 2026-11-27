@@ -138,9 +138,9 @@ def test_compare_flags_ambiguity_and_wrong_key(tmp_path, monkeypatch, capsys):
     assert 'le-01-005: AMBIGUOUS' in out and 'le-01-004: JUDGEMENT DIFFERS' in out
 
 
-def test_plan_is_100_batches_with_valid_mixes():
+def test_plan_batches_and_mixes():
     plan = gd.load_plan()
-    assert sum(t['batches'] for t in plan['topics']) == 100
+    assert sum(t['batches'] for t in plan['topics']) == 105
     cats = {c['key'] for c in plan['categories']}
     slugs = [t['slug'] for t in plan['topics']]
     assert len(set(slugs)) == len(slugs)

@@ -10,6 +10,7 @@ or writes the database: every command works on local files only.
   python scripts/grammar_drills.py strip FILE.jsonl         # -> blind/NAME.blind.jsonl
   python scripts/grammar_drills.py compare FILE.jsonl       # blind answers vs keys
   python scripts/grammar_drills.py build                    # -> static/data/grammar/zh/
+  python scripts/grammar_drills.py clean                    # mechanical fixes to reviewed/
   python scripts/grammar_drills.py stats
 """
 
@@ -559,6 +560,72 @@ def cmd_compare(path):
 
 
 # --------------------------------------------------------------------------
+# deterministic clean-up of reviewed batches
+
+FULL_ER_NEXT = '子童女科歌'
+FULL_ER_PREV = '女幼婴少'
+
+
+def _fix_py(zh, py):
+    """Mechanical pinyin corrections: erhua 儿 is r, 都 is dōu outside 首都 / 成都."""
+    chars = HANZI.findall(zh or '')
+    syls = (py or '').split()
+    if len(chars) != len(syls):
+        return py
+    for i, ch in enumerate(chars):
+        if ch == '儿':
+            full = (i + 1 < len(chars) and chars[i + 1] in FULL_ER_NEXT) or \
+                   (i > 0 and chars[i - 1] in FULL_ER_PREV) or i == 0
+            if not full and syls[i].lower() in ('ér', 'er'):
+                syls[i] = 'r'
+        elif ch == '都' and syls[i].lower() == 'dū' and not (i > 0 and chars[i - 1] in '首成'):
+            syls[i] = 'dōu'
+    return ' '.join(syls)
+
+
+def _fix_punct(text):
+    text = re.sub(r'[，、；：]+([。？！])', r'\1', text)
+    text = re.sub(r'([。？！，])[。，]+', r'\1', text)
+    return text
+
+
+def clean_item(it):
+    """Returns (item, changed)."""
+    before = json.dumps(it, ensure_ascii=False, sort_keys=True)
+    for key in ('zh', 'q', 's', 'src'):
+        if isinstance(it.get(key), str):
+            it[key] = _fix_punct(it[key])
+    for zh_key, py_key in (('zh', 'py'), ('s', 's_py'), ('src', 'src_py')):
+        if isinstance(it.get(zh_key), str) and isinstance(it.get(py_key), str):
+            it[py_key] = _fix_py(it[zh_key], it[py_key])
+    if it.get('type') in ('order', 'rewrite') and isinstance(it.get('zh'), str) \
+            and it['zh'] and it['zh'][-1] not in '。？！':
+        it['zh'] += '。'
+    return it, json.dumps(it, ensure_ascii=False, sort_keys=True) != before
+
+
+def cmd_clean():
+    """Apply the mechanical corrections to every reviewed batch, in place."""
+    plan = load_plan()
+    total = 0
+    for path in source_files(plan):
+        rows = read_jsonl(path)
+        out, changed = [], 0
+        for _, obj, err in rows:
+            if err:
+                continue
+            obj, ch = clean_item(obj)
+            changed += ch
+            out.append(json.dumps(obj, ensure_ascii=False))
+        if changed:
+            with open(path, 'w', encoding='utf-8') as fh:
+                fh.write('\n'.join(out) + '\n')
+        total += changed
+    print(f'{total} items corrected')
+    return 0
+
+
+# --------------------------------------------------------------------------
 # build
 
 def source_files(plan):
@@ -590,11 +657,14 @@ def cmd_build(check_only=False):
             if err or validate_item(obj, subs, slug):
                 invalid += 1
                 continue
-            key = dedup_key(obj)
-            if key in seen or obj['id'] in seen:
+            # One sentence is drilled once, whatever the item type.
+            key = ('zh', strip_punct(obj['zh']))
+            shown = ('zh', strip_punct(obj['s'])) if obj['type'] == 'judge' else key
+            if key in seen or shown in seen or obj['id'] in seen:
                 dropped_dup += 1
                 continue
             seen.add(key)
+            seen.add(shown)
             seen.add(obj['id'])
             by_topic[slug].append(compact(obj))
     manifest = {'language': LANG, 'categories': plan['categories'], 'topics': []}
@@ -686,6 +756,7 @@ def main(argv=None):
     p = sub.add_parser('build')
     p.add_argument('--check', action='store_true', help='report whether the static files are current')
     sub.add_parser('stats')
+    sub.add_parser('clean')
     args = ap.parse_args(argv)
     if args.cmd == 'validate':
         plan = load_plan()
@@ -705,6 +776,8 @@ def main(argv=None):
         return cmd_strip(args.file)
     if args.cmd == 'compare':
         return cmd_compare(args.file)
+    if args.cmd == 'clean':
+        return cmd_clean()
     if args.cmd == 'build':
         return cmd_build(check_only=args.check)
     return cmd_stats()
