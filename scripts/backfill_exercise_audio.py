@@ -66,13 +66,14 @@ except ImportError:  # run or imported as scripts.<name>
 bootstrap(log_format='%(asctime)s %(levelname)-7s %(message)s')
 
 
+from services import language_registry  # noqa: E402
 from services.exercise_content import store  # noqa: E402
 from services.exercise_generation.audio_voice import pick_voice  # noqa: E402
 from services.vocabulary_ladder import queue_drain  # noqa: E402
 
 logger = logging.getLogger('backfill_audio')
 
-LANGUAGE_CODES = {'zh': 1, 'en': 2, 'ja': 3}
+LANGUAGE_CODES = language_registry.code_to_id()
 
 #: Types whose items are unanswerable without audio.
 AUDIO_TYPES = ('phonetic_recognition', 'listening_flashcard')

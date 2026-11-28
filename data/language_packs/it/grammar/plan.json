@@ -1,0 +1,539 @@
+{
+ "language": "it",
+ "batch_size": 100,
+ "categories": [
+  {
+   "key": "verbs",
+   "title": "Verb forms and auxiliaries"
+  },
+  {
+   "key": "noun",
+   "title": "Noun phrase: articles, agreement and comparison"
+  },
+  {
+   "key": "tense",
+   "title": "Choosing the past tense and time frames"
+  },
+  {
+   "key": "pronouns",
+   "title": "Pronouns and address"
+  },
+  {
+   "key": "mood",
+   "title": "Congiuntivo and hypotheticals"
+  },
+  {
+   "key": "preps",
+   "title": "Prepositions"
+  },
+  {
+   "key": "syntax",
+   "title": "Sentence patterns and confusable choices"
+  }
+ ],
+ "themes": [
+  "food and restaurants",
+  "travel and transport",
+  "school and study",
+  "office work",
+  "family and home",
+  "shopping and money",
+  "health and the body",
+  "weather and seasons",
+  "sports and hobbies",
+  "city life and directions",
+  "friends and social plans",
+  "phones, internet and technology",
+  "housing and neighbours",
+  "holidays and festivals",
+  "pets and nature",
+  "music, films and books",
+  "daily routine",
+  "clothes and appearance",
+  "feelings and opinions",
+  "errands, post and bank"
+ ],
+ "topics": [
+  {
+   "slug": "present-tense-forms",
+   "title": "Present tense: person endings and the irregular verbs",
+   "cat": "verbs",
+   "batches": 3,
+   "mix": {
+    "cloze": 65,
+    "order": 10,
+    "rewrite": 5,
+    "judge": 20
+   },
+   "scope": "Choosing the right person form of the presente inside a sentence where the subject pronoun is dropped or the subject is a noun phrase (la gente è, tu e Marco andate, io e lei siamo): regular -are / -ere / -ire, the -isc- verbs (finisco / finiamo), spelling changes (paghi, cerchiamo, mangi), and the irregular high-frequency verbs (essere, avere, andare, fare, dire, venire, uscire, dare, stare, sapere, bere, potere, volere, dovere, tenere, rimanere, salire, scegliere). Only the presente indicativo. Isolated paradigm cells belong to the conjugation_form dictionary exercise; reflexives to reflexive-verbs; piacere to piacere-type-verbs; Lei forms to tu-lei."
+  },
+  {
+   "slug": "ce-or-e",
+   "title": "c'è and ci sono against è and sono; avere and fare where English has to be",
+   "cat": "syntax",
+   "batches": 1,
+   "mix": {
+    "cloze": 70,
+    "order": 5,
+    "rewrite": 5,
+    "judge": 20
+   },
+   "scope": "Existence against identification and location of a known thing: c'è / ci sono for there is / there are with agreement in number with what follows (c'è un problema, ci sono due problemi, c'è molta gente, ci sono molte persone), è / sono for it is / they are (è un problema, sono studenti), dov'è Maria against c'è Maria for is Maria in, c'era / c'erano, c'è stato / ci sono stati, ci sarà, non c'è nessuno, che cosa c'è, ecco; essere against stare for health and location (sto bene, come stai, sto a casa, but sono stanco); avere where English has to be (ho fame, ho sete, ho freddo, ho sonno, ho ragione, ho fretta, ho vent'anni, ho paura) and fare for weather (fa caldo, fa freddo, fa bel tempo against è nuvoloso, c'è il sole, piove); è + adjective + infinitive with no dummy subject (è difficile dirlo, sono le tre, è tardi). Left out: ci as a pronoun of place and ce n'è (ci-and-ne), the avere and fare noun pairs as vocabulary (collocations dictionary exercises), stare + gerundio (gerund-and-infinitive)."
+  },
+  {
+   "slug": "adjective-agreement",
+   "title": "Adjective agreement: gender and number endings",
+   "cat": "noun",
+   "batches": 3,
+   "mix": {
+    "cloze": 60,
+    "order": 10,
+    "rewrite": 5,
+    "judge": 25
+   },
+   "scope": "Copying gender and number onto adjectives after the noun and in the predicate (le case sono nuove): four-form adjectives in -o, two-form adjectives in -e, mixed-gender plurals (masculine), agreement with opaque nouns (il problema è serio, la mano destra, le uova fresche), spelling plurals (-co / -chi / -ci, -ga / -ghe, -io / -i), invariable adjectives (blu, rosa, viola), adjectives agreeing with a dropped or pronoun subject (sei stanca, siamo pronti). Left out: the special prenominal shapes of bello / quello / buono (bello-quello-buono), possessives (possessives), molto / tanto / tutto (quantifiers), participles (participle-agreement). Choosing the article itself is the article_match dictionary exercise."
+  },
+  {
+   "slug": "auxiliary-choice",
+   "title": "essere or avere in compound tenses",
+   "cat": "verbs",
+   "batches": 4,
+   "mix": {
+    "cloze": 65,
+    "order": 5,
+    "rewrite": 5,
+    "judge": 25
+   },
+   "scope": "Which auxiliary the passato prossimo (and, at level three, trapassato and futuro anteriore) takes in a full sentence: avere with transitive verbs and with camminare, viaggiare, dormire, ballare, nuotare; essere with movement and change-of-state verbs (andare, venire, arrivare, partire, uscire, tornare, nascere, morire, diventare, rimanere, restare, stare, essere), with all reflexives, with piacere, succedere, costare, bastare, sembrare; verbs that take both with a change of use (ho finito il libro / il film è finito, ho cominciato / è cominciato, ho cambiato / è cambiato, ho passato / è passato, ho sceso le scale / sono sceso); modals following the infinitive (sono dovuto andare / ho dovuto lavorare; with a reflexive mi sono dovuto alzare / ho dovuto alzarmi). The participle is always given in the correct form when the blank is the auxiliary; the ending of the participle is participle-agreement. Tense choice is passato-prossimo-imperfetto."
+  },
+  {
+   "slug": "passato-prossimo-imperfetto",
+   "title": "Passato prossimo or imperfetto",
+   "cat": "tense",
+   "batches": 6,
+   "mix": {
+    "cloze": 60,
+    "order": 0,
+    "rewrite": 15,
+    "judge": 25
+   },
+   "scope": "Choosing between the two pasts for action verbs: completed, counted or bounded event (ieri ho mangiato, ho vissuto a Roma per due anni, tre volte) against habit (da bambino andavo), ongoing background (mentre cucinavo, è arrivato), description of scene, weather, age, time and feelings (era tardi, pioveva, avevo dieci anni), two parallel ongoing actions (mentre io leggevo, lui dormiva), a series of completed events, the cue words (sempre, di solito, ogni estate, mentre against ieri, all'improvviso, una volta, per + duration). Both forms are given correctly conjugated as options; the item tests the choice, not the form. Left out: the meaning shifts of sapere, conoscere, volere, potere, dovere and essere / avere states (past-of-modals-and-states), da / per / fa (time-expressions), the auxiliary (auxiliary-choice), trapassato."
+  },
+  {
+   "slug": "articles-use",
+   "title": "Using or dropping the definite article",
+   "cat": "noun",
+   "batches": 2,
+   "mix": {
+    "cloze": 60,
+    "order": 5,
+    "rewrite": 5,
+    "judge": 30
+   },
+   "scope": "When Italian needs the definite article and English has none, and the reverse: generic and abstract nouns (amo il caffè, la vita è bella, i gatti dormono molto), countries and regions (l'Italia, la Toscana, but in Italia), languages, titles when talking about someone (il signor Rossi, la dottoressa Bianchi, but Buongiorno, signor Rossi), clock time and dates (sono le tre, il due giugno), days for habit (il lunedì against lunedì), body parts and clothes in place of the possessive (mi lavo le mani, ha gli occhi verdi), no article after essere + profession (sono medico), in fixed place phrases (a casa, a scuola, in ufficio, a letto) and after che in exclamations (che bella giornata). Left out: the shape of the article (il / lo / l', un / uno: article_match dictionary exercise), article with possessives (possessives), del / dei as some (partitive-and-quantity), preposition + article fused forms as forms."
+  },
+  {
+   "slug": "possessives",
+   "title": "Possessives: article, family nouns and agreement with the thing owned",
+   "cat": "noun",
+   "batches": 3,
+   "mix": {
+    "cloze": 55,
+    "order": 10,
+    "rewrite": 10,
+    "judge": 25
+   },
+   "scope": "The possessive agrees with the thing owned, not the owner (suo fratello = his or her brother, la sua macchina); article + possessive (il mio libro, le nostre amiche); no article with unmodified singular family nouns (mia madre, tuo fratello) but article with plurals, with loro, with modified or affectionate nouns (i miei fratelli, la loro madre, il mio fratello maggiore, la mia mamma); irregular plurals miei, tuoi, suoi; possessive after essere (è mio / è il mio), un mio amico, a casa mia, proprio, omission where the owner is obvious (ho perso le chiavi). Left out: the Lei possessive Suo (tu-lei), body parts with reflexives (articles-use, reflexive-verbs), di chi questions and cui (relative-pronouns)."
+  },
+  {
+   "slug": "places-in-a-da",
+   "title": "in, a, da with places, people and transport",
+   "cat": "preps",
+   "batches": 3,
+   "mix": {
+    "cloze": 70,
+    "order": 5,
+    "rewrite": 0,
+    "judge": 25
+   },
+   "scope": "The preposition fixed by the frame for going to and being in a place: a + city and small island (a Roma, a Capri), in + country, region, large island, continent (in Italia, in Sicilia; negli Stati Uniti), in + shops and rooms in -ia and set places (in farmacia, in banca, in ufficio, in cucina, in centro, in montagna, in vacanza), a + set places (a casa, a scuola, a letto, a teatro, al cinema, al mare, al ristorante, all'università), da + person or profession for their place (da Maria, dal medico, da me), means of transport (in macchina, in treno, in bicicletta, a piedi, con il treno delle otto), origin (vengo da Milano, sono di Milano), and the fused form with the article when the frame needs one (alla stazione, nel parco, dal dentista). Left out: time uses of da / per / tra / fa (time-expressions), other uses of di and da (di-da-per), the preposition a verb governs before a noun or an infinitive (preposition-before-infinitive and the government_match dictionary exercise)."
+  },
+  {
+   "slug": "questions",
+   "title": "Question words and their prepositions",
+   "cat": "syntax",
+   "batches": 1,
+   "mix": {
+    "cloze": 50,
+    "order": 25,
+    "rewrite": 10,
+    "judge": 15
+   },
+   "scope": "Choosing and placing the question word: che cosa / cosa / che, chi, quale / quali and qual è without apostrophe, quanto / quanta / quanti / quante agreeing with the noun, come, dove and dov'è, quando, perché, come mai; the preposition always in front of the question word, never stranded (di dove sei, con chi esci, a che ora, da quanto tempo, per chi è, di chi è questa borsa, a cosa pensi, in quale città); quale against che cosa for English what and which (qual è il tuo numero, che lavoro fai); subject after the verb in questions with a question word (dove abita Maria, quanto costa questo); yes or no questions by intonation with no do and no inversion needed; perché for both why and because; indirect questions with the same word order and se (non so dove abita, mi chiedo se viene); vero and no as tags. Left out: relative che / cui / chi (relative-pronouns), da / per quanto tempo and the tense (time-expressions), subjunctive in indirect questions."
+  },
+  {
+   "slug": "piacere-type-verbs",
+   "title": "piacere and the verbs built like it",
+   "cat": "pronouns",
+   "batches": 3,
+   "mix": {
+    "cloze": 45,
+    "order": 20,
+    "rewrite": 15,
+    "judge": 20
+   },
+   "scope": "Verbs whose English subject is an indirect object: piacere, mancare, servire, bastare, interessare, sembrare, dare fastidio, fare male, restare, succedere. Verb number follows the thing (mi piace il caffè, mi piacciono i libri, mi piace leggere e scrivere), a + noun or stressed pronoun (a Maria piace, a me piace, a lui non piacciono), gli / le for third persons (le piace, gli piacciono), no doubled pronoun in standard writing (a me mi piace is rejected), word order (il vino non mi piace / non mi piace il vino), mi manchi / ti manco read the right way round, mi serve / mi servono, mi fa male la testa / mi fanno male i piedi, and at levels two and three the compound tenses with essere and agreement with the thing (mi è piaciuta la pizza, ci sono piaciuti i film), anche a me / neanche a me. Left out: choosing gli against lo outside these verbs (direct-or-indirect), conditional mi piacerebbe as a form (future-and-conditional)."
+  },
+  {
+   "slug": "direct-object-pronouns",
+   "title": "Direct object pronouns: lo, la, li, le and mi, ti, ci, vi",
+   "cat": "pronouns",
+   "batches": 3,
+   "mix": {
+    "cloze": 60,
+    "order": 15,
+    "rewrite": 10,
+    "judge": 15
+   },
+   "scope": "Replacing a noun by the right direct pronoun before a finite verb: lo / la / li / le chosen by the gender and number of the noun, l' before a vowel or h in the singular only (l'ho visto, but li ho visti), lo for a whole idea (lo so, non lo capisco), mi / ti / ci / vi as objects, the pronoun with ecco (eccolo), with verbs that are direct in Italian and prepositional in English (lo aspetto, la ascolto, li cerco, lo guardo, lo pago), reprise after a fronted object (il pane lo compro io). Only one pronoun per clause, placed before a finite verb. Left out: gli / le and the direct against indirect decision (direct-or-indirect), position with infinitives, modals, gerund and imperative (pronoun-position), ne and ci (ci-and-ne), two pronouns together (combined-pronouns), participle agreement (participle-agreement), formal La (tu-lei)."
+  },
+  {
+   "slug": "tu-lei",
+   "title": "tu or Lei: keeping one register through the sentence",
+   "cat": "pronouns",
+   "batches": 3,
+   "mix": {
+    "cloze": 45,
+    "order": 0,
+    "rewrite": 30,
+    "judge": 25
+   },
+   "scope": "Choosing tu or Lei from the situation (friend, child, colleague of the same age against stranger, client, doctor, older person) and keeping every dependent form in that register: verb in second against third person singular (puoi / può, hai / ha, come stai / come sta), pronouns ti / La / Le (La ringrazio, Le telefono domani, arrivederLa), possessive tuo / Suo, the imperative (scusa / scusi, senti / senta, dimmi / mi dica, siediti / si accomodi, non ti preoccupare / non si preoccupi), greetings and titles that go with each (ciao against buongiorno, signora), participles and adjectives agreeing with the real person addressed (Lei è stato molto gentile, dottore), voi for more than one person in both registers. Rewrite items turn a tu sentence into Lei and back; judge items carry one mixed-register slip (Scusi, puoi ripetere). Left out: the tu, noi, voi imperative as a form (imperative), conditional of politeness (future-and-conditional)."
+  },
+  {
+   "slug": "direct-or-indirect",
+   "title": "lo / la or gli / le: direct or indirect object",
+   "cat": "pronouns",
+   "batches": 2,
+   "mix": {
+    "cloze": 70,
+    "order": 5,
+    "rewrite": 5,
+    "judge": 20
+   },
+   "scope": "Deciding whether the verb takes a direct or an indirect object and choosing the pronoun: gli (to him, to them), le (to her) against lo / la / li / le; verbs with a + person where English has a direct object (telefonare, rispondere, chiedere, domandare, dire, piacere, credere, somigliare, volere bene, insegnare, consigliare, permettere) and verbs that are direct where English has a preposition (aspettare, ascoltare, cercare, guardare, pagare, chiamare, ringraziare, aiutare, salutare); two-object verbs (gli do il libro, le scrivo una lettera); mi / ti / ci / vi do not show the difference and are not tested; stressed forms after a preposition or for contrast (a lui, per me, con te, secondo me, chiamo lui, non lei). Left out: the form of the direct pronoun itself (direct-object-pronouns), glielo and other pairs (combined-pronouns), piacere-type verbs, Le formal (tu-lei), the preposition before a noun as vocabulary (government_match dictionary exercise)."
+  },
+  {
+   "slug": "reflexive-verbs",
+   "title": "Reflexive and reciprocal verbs",
+   "cat": "verbs",
+   "batches": 2,
+   "mix": {
+    "cloze": 55,
+    "order": 20,
+    "rewrite": 10,
+    "judge": 15
+   },
+   "scope": "Reflexive pronoun matched to the subject (mi alzo, ti svegli, si chiama, ci vediamo, vi divertite, si lavano), verbs that are reflexive in Italian and not in English (alzarsi, svegliarsi, sedersi, sentirsi, divertirsi, arrabbiarsi, ricordarsi, dimenticarsi, sposarsi, laurearsi, accorgersi, trovarsi, fermarsi, addormentarsi, vergognarsi, lamentarsi), reciprocal use (ci sentiamo domani, si conoscono da anni), reflexive with body parts and clothes (mi lavo le mani, si mette la giacca), transitive against reflexive pairs (sveglio i bambini / mi sveglio, chiamo / mi chiamo), the infinitive with the pronoun matched to the subject (devo alzarmi, vogliamo riposarci), and essere in the passato prossimo with agreement (si è alzata, ci siamo divertiti). Left out: the modal auxiliary variants (auxiliary-choice), reflexive imperative (imperative), impersonal and passive si (passive-and-si), free position rules for other clitics (pronoun-position)."
+  },
+  {
+   "slug": "negation",
+   "title": "Negation: non with mai, niente, nessuno, più, ancora, neanche",
+   "cat": "syntax",
+   "batches": 1,
+   "mix": {
+    "cloze": 45,
+    "order": 25,
+    "rewrite": 10,
+    "judge": 20
+   },
+   "scope": "Double negation and its word order: non + verb + mai / niente / nulla / nessuno / più / ancora / neanche / mica / né … né (non ho mai visto, non c'è nessuno, non voglio niente, non lavora più, non è ancora arrivato), the negative word between auxiliary and participle for mai, più, ancora, mica but after the participle for niente and nessuno (non ho visto nessuno), no non when the negative word comes before the verb (nessuno è venuto, niente è cambiato, neanche io lo so), non before clitic pronouns (non lo so), non … che for only, short answers (per niente, mai più, neanch'io / anch'io after a negative or a positive statement), ancora against già and più (non ancora / non più). Left out: nessun + noun as a quantity word and missing partitive in negatives (partitive-and-quantity), negative imperative (imperative), non after a meno che and finché, subjunctive after non penso che (subjunctive-triggers)."
+  },
+  {
+   "slug": "partitive-and-quantity",
+   "title": "del, dei, qualche, alcuni, un po' di, and no article",
+   "cat": "noun",
+   "batches": 2,
+   "mix": {
+    "cloze": 65,
+    "order": 5,
+    "rewrite": 5,
+    "judge": 25
+   },
+   "scope": "Saying some and any: di + article as partitive (del pane, dell'acqua, dei libri, degli amici, delle idee), no partitive in negatives and usually in questions about existence (non ho amici, non c'è latte, hai fratelli), qualche + singular with plural meaning and singular verb (qualche volta, qualche amico viene), alcuni / alcune + plural, un po' di + mass or plural, nessun / nessuno / nessuna + singular (nessun problema, nessuno studente), quantity nouns with di (un chilo di mele, una bottiglia d'acqua, un sacco di gente), counting plural after un paio di, and the singular verb with la gente. Left out: ne replacing the partitive (ci-and-ne), molto / tanto / troppo / poco / tutto / ogni (quantifiers), double negation (negation), the fused forms of di + article as forms (article_match dictionary exercise)."
+  },
+  {
+   "slug": "pronoun-position",
+   "title": "Where the clitic goes: before the verb or attached",
+   "cat": "pronouns",
+   "batches": 2,
+   "mix": {
+    "cloze": 15,
+    "order": 50,
+    "rewrite": 15,
+    "judge": 20
+   },
+   "scope": "Position of one unstressed pronoun (direct, indirect, reflexive, ci, ne): before the finite verb and after non (non lo so, non mi ha visto), before the auxiliary in compound tenses (l'ho comprato), attached to the infinitive with the final e dropped (per vederlo, prima di alzarmi), either position with potere / volere / dovere / sapere and with cominciare a, andare a, stare per, stare + gerundio (lo voglio vedere / voglio vederlo, la sto leggendo / sto leggendola), never between the modal and the infinitive, attached to ecco and to the gerund, loro after the verb. Order items accept both positions where both are standard. Left out: which pronoun to choose (direct-object-pronouns, direct-or-indirect, ci-and-ne), imperative attachment and doubling (dammi, non farlo: imperative), pairs of pronouns (combined-pronouns)."
+  },
+  {
+   "slug": "time-expressions",
+   "title": "da, per, fa, tra, in and the tense that goes with each",
+   "cat": "tense",
+   "batches": 2,
+   "mix": {
+    "cloze": 65,
+    "order": 5,
+    "rewrite": 5,
+    "judge": 25
+   },
+   "scope": "Duration and time-point frames and the tense they force: da + duration or starting point with the presente for a state that still holds (vivo qui da tre anni, studio italiano da gennaio; with the imperfetto in a past story), per + duration with the passato prossimo for a closed period (ho vissuto a Roma per due anni), duration + fa for ago (due anni fa), tra / fra + duration for a future point (parto tra una settimana), in + duration for the time needed (l'ho letto in due giorni), da quanto tempo / per quanto tempo questions, da quando, fino a, entro, dal lunedì al venerdì, a for clock time and months and in for years and seasons (alle otto, a maggio, in estate, nel duemila), di mattina / di sera, the bare day (lunedì, il lunedì is in articles-use). Numbers are written as words. Left out: place uses of da / in / a (places-in-a-da), passato prossimo against imperfetto outside these frames (passato-prossimo-imperfetto), quando + futuro (future-and-conditional)."
+  },
+  {
+   "slug": "participle-agreement",
+   "title": "Past participle: irregular forms and agreement",
+   "cat": "verbs",
+   "batches": 3,
+   "mix": {
+    "cloze": 60,
+    "order": 5,
+    "rewrite": 10,
+    "judge": 25
+   },
+   "scope": "The ending of the participle in compound tenses: agreement with the subject with essere (Maria è andata, i ragazzi sono partiti, le ragazze si sono alzate, mixed group masculine), no agreement with avere and a following object (ha mangiato la pizza), obligatory agreement with a preceding lo / la / li / le and with ne (l'ho vista, li ho comprati, ne ho mangiate due), optional agreement with mi / ti / ci / vi and after che (only the unmarked form is the answer and the agreeing one is never used as a wrong option), no agreement with indirect gli / le (le ho telefonato), and the irregular participles that learners regularise (preso, messo, visto, scritto, letto, fatto, detto, chiuso, aperto, perso, chiesto, risposto, rimasto, venuto, stato, nato, morto, scelto, speso, vinto, bevuto, vissuto, successo, offerto, deciso, corso, sceso, rotto, spento, acceso). The auxiliary is always given; choosing it is auxiliary-choice. Agreement with piacere is in piacere-type-verbs; passive participles in passive-and-si."
+  },
+  {
+   "slug": "imperative",
+   "title": "Imperative: tu, noi, voi, the negative and attached pronouns",
+   "cat": "verbs",
+   "batches": 3,
+   "mix": {
+    "cloze": 50,
+    "order": 15,
+    "rewrite": 20,
+    "judge": 15
+   },
+   "scope": "Informal imperative forms: tu of -are verbs in -a against -ere / -ire in -i (parla, prendi, dormi, finisci), noi and voi equal to the presente (andiamo, venite), irregular tu forms (vai / va', fai / fa', dai / da', stai / sta', di', sii, abbi, vieni, esci, tieni), negative tu with non + infinitive (non parlare, non andare) against non + voi form (non parlate), pronouns attached to affirmative forms (prendilo, alzati, sedetevi, andiamoci, parlagli) with doubling after the short forms (dammi, dimmi, fallo, vacci, stammi, but digli), pronoun before or after in the negative (non lo fare / non farlo), two pronouns attached (dammelo, diglielo) only at level three. Left out: the Lei imperative and the choice of register (tu-lei), the infinitive used for written instructions, position of clitics outside the imperative (pronoun-position)."
+  },
+  {
+   "slug": "quantifiers",
+   "title": "molto, tanto, poco, troppo, tutto, ogni: agreeing or not",
+   "cat": "noun",
+   "batches": 2,
+   "mix": {
+    "cloze": 65,
+    "order": 5,
+    "rewrite": 5,
+    "judge": 25
+   },
+   "scope": "The same word as an adjective that agrees and as an adverb that does not: molti amici, molta gente, tante cose against molto bella, molto stanchi, mi piace molto, troppo cara / troppe persone, pochi soldi / poco interessante; tutto + article + noun in agreement (tutto il giorno, tutta la classe, tutti i giorni, tutte le sere), tutti e due / tutte e due, ogni + singular always (ogni giorno, ogni persona) against tutti i giorni, ciascuno, qualsiasi + singular, abbastanza and più / meno invariable, parecchio, altro with the article (un altro caffè, l'altra volta, gli altri), entrambi / entrambe, tanto … quanto is left to comparison. Left out: qualche, alcuni, nessun, del (partitive-and-quantity), ne with quantities (ci-and-ne), comparison with più / meno (comparison)."
+  },
+  {
+   "slug": "bello-quello-buono",
+   "title": "bel, bello, bei, begli; quel, quello, quegli; buon, buono",
+   "cat": "noun",
+   "batches": 2,
+   "mix": {
+    "cloze": 70,
+    "order": 5,
+    "rewrite": 0,
+    "judge": 25
+   },
+   "scope": "The special shapes these words take before a noun, which follow the definite or indefinite article of the next word: bel / bello / bell' / bella / bei / begli / belle (un bel libro, un bello spettacolo, un bell'albero, dei bei ricordi, dei begli occhi), quel / quello / quell' / quella / quei / quegli / quelle (quel ragazzo, quello zaino, quell'amico, quei libri, quegli studenti), buon / buono / buona / buon' (un buon caffè, un buono stipendio, buon appetito, buona fortuna), the full regular forms after the noun or after essere (il libro è bello, i ricordi sono belli), questo / quest' and questo against quello for near and far, quello / quelli as pronouns (quello rosso, quelli che), grande / gran, santo / san, nessun / nessuno and alcun following un / uno. Left out: ordinary adjective endings (adjective-agreement), the article itself (article_match dictionary exercise), quello che as a relative (relative-pronouns)."
+  },
+  {
+   "slug": "ci-and-ne",
+   "title": "ci and ne",
+   "cat": "pronouns",
+   "batches": 3,
+   "mix": {
+    "cloze": 60,
+    "order": 15,
+    "rewrite": 10,
+    "judge": 15
+   },
+   "scope": "ne for a quantity of something already named, with the number or quantity word kept (ne ho due, ne voglio un po', non ne ho, quanti ne vuoi, ne ho mangiate tre is scored in participle-agreement), ne for di + thing or topic (ne parliamo dopo, ne ho bisogno, che ne pensi, ne sono sicuro, me ne ricordo) and for da + place (ne esco); ci for a place (ci vado domani, ci sono stato, ci abito), ci for a + thing (ci penso, ci credo, ci provo, ci riesco, ci tengo) and con + thing (ci gioco), fixed uses (ci vuole / ci vogliono, ci metto un'ora, ci sono, c'entra, ce l'ho / ce li ho, non ci vedo, non ci capisco niente), ce n'è / ce ne sono, andarsene and farcela in the present only at level three, ne against lo / la / li / le (whole against part: li compro tutti / ne compro due), ci never doubled by lì or là in the same clause. Left out: ci as us (direct-object-pronouns), c'è against è (ce-or-e), position rules (pronoun-position), glielo and me ne as pairs beyond ce n'è (combined-pronouns)."
+  },
+  {
+   "slug": "comparison",
+   "title": "Comparatives and superlatives: più … di or che, migliore or meglio",
+   "cat": "noun",
+   "batches": 2,
+   "mix": {
+    "cloze": 55,
+    "order": 15,
+    "rewrite": 10,
+    "judge": 20
+   },
+   "scope": "più / meno … di before a noun, pronoun or number, with the fused article (più alto di me, più grande della mia, più di dieci), più / meno … che when two adjectives, verbs, adverbs, quantities or prepositional phrases are compared (più simpatico che bello, più a Roma che a Milano, meglio partire che restare), di quanto / di quello che + clause, equality with come and tanto … quanto, relative superlative with the article and di, never in (la città più bella del mondo, il più giovane della classe), absolute superlative in -issimo with agreement and spelling (bellissime, ricchissimo, lunghissima), irregular forms and the adjective against adverb decision: migliore / meglio, peggiore / peggio, maggiore, minore, ottimo, pessimo, bene against buono and male against cattivo (parla bene, è buono). Left out: molto / tanto / troppo as quantity words (quantifiers), subjunctive after a superlative (subjunctive-triggers)."
+  },
+  {
+   "slug": "future-and-conditional",
+   "title": "Futuro and condizionale: forms and when Italian uses them",
+   "cat": "verbs",
+   "batches": 2,
+   "mix": {
+    "cloze": 60,
+    "order": 5,
+    "rewrite": 10,
+    "judge": 25
+   },
+   "scope": "Forms: the shared stem of futuro and condizionale presente (parlerò / parlerei, not parlarò), contracted and irregular stems (andrò, avrò, sarò, farò, potrò, dovrò, saprò, vedrò, vivrò, verrò, vorrò, rimarrò, berrò, terrò, darò, starò), spelling (pagherò, comincerò, mangerei), -emmo against -emo (parleremmo / parleremo). Use: presente or futuro for plans, futuro in both clauses after quando, appena, se for the future (quando arriverò, ti chiamerò; no present as in English when I arrive), futuro of conjecture (sarà a casa, avrà trent'anni), futuro anteriore after dopo che / appena at level three, conditional for requests, wishes and advice (vorrei, potresti, mi piacerebbe, dovresti, al posto tuo andrei), for reported, unconfirmed news, and condizionale passato for the future seen from the past (ha detto che sarebbe venuto) and for an unrealised wish (sarei venuto, ma). Left out: conditional in se sentences (periodo-ipotetico), subjunctive after vorrei che (subjunctive-tenses), Lei requests as register (tu-lei)."
+  },
+  {
+   "slug": "past-of-modals-and-states",
+   "title": "sapevo or ho saputo: verbs that change meaning between the two pasts",
+   "cat": "tense",
+   "batches": 2,
+   "mix": {
+    "cloze": 65,
+    "order": 0,
+    "rewrite": 10,
+    "judge": 25
+   },
+   "scope": "The verbs where passato prossimo and imperfetto translate with different English verbs or imply different outcomes: sapere (sapevo: I knew; ho saputo: I found out), conoscere (conoscevo: I knew; ho conosciuto: I met), volere (volevo: wanted, outcome open; ho voluto: insisted and did; non ho voluto: refused), potere (potevo: was allowed or able in general; ho potuto / non ho potuto: managed or failed), dovere (dovevo: was supposed to; ho dovuto: had to and did), essere and avere for states against events (ero stanco / sono stato male tutta la notte, avevo paura / ho avuto paura, c'era / c'è stato un incidente), pensare, credere, sembrare, piacere (mi piaceva / mi è piaciuto), avere + age, stare per in the imperfetto, polite volevo for a request. Left out: the general event against background choice with action verbs (passato-prossimo-imperfetto), the auxiliary with modals (auxiliary-choice), sapere against conoscere against potere as vocabulary (confused-verbs)."
+  },
+  {
+   "slug": "combined-pronouns",
+   "title": "Two pronouns together: me lo, te la, glielo, ce ne, se lo",
+   "cat": "pronouns",
+   "batches": 3,
+   "mix": {
+    "cloze": 45,
+    "order": 25,
+    "rewrite": 20,
+    "judge": 10
+   },
+   "scope": "Pairs of clitics: indirect before direct with the vowel change mi / ti / ci / vi / si to me / te / ce / ve / se before lo, la, li, le, ne (me lo dai, te la porto, ce li manda, ve ne parlo, se lo ricorda), gli and le both becoming glie- written as one word (glielo, gliela, glieli, gliele, gliene) for to him, to her, to them and formal Lei, the pair before a finite verb, attached as one word to the infinitive and gerund (portarglielo, dandomelo) and either side of a modal (te lo voglio dire / voglio dirtelo), participle agreement with the direct member (gliel'ho data, me li ha portati), reflexive + direct (me lo metto, se le lava), ci + direct and ce n'è / ce ne sono, mi ci and ci si only at level three. Rewrite items replace two nouns by a pair. Left out: single pronouns (direct-object-pronouns, direct-or-indirect, ci-and-ne), imperative with pairs (imperative), which side of the verb one clitic goes (pronoun-position)."
+  },
+  {
+   "slug": "relative-pronouns",
+   "title": "Relative pronouns: che, cui, il quale, chi, quello che",
+   "cat": "pronouns",
+   "batches": 2,
+   "mix": {
+    "cloze": 55,
+    "order": 10,
+    "rewrite": 20,
+    "judge": 15
+   },
+   "scope": "che for subject and direct object, never omitted and never after a preposition (il libro che leggo, la ragazza che lavora qui), preposition + cui where English strands the preposition (la persona con cui parlo, la città in cui vivo, il motivo per cui, l'amico a cui scrivo, il film di cui parli), dove for place, il / la / i / le + cui for whose with agreement with the thing owned (la donna il cui marito), il quale / la quale / i quali / le quali with fused prepositions (al quale, della quale, nei quali) at level three, chi for whoever with a singular verb (chi dorme non piglia pesci, non so chi sia is left out), quello che / ciò che / tutto quello che for what, il che for a whole clause, il giorno in cui / la volta che. Rewrite items join two sentences. Left out: interrogative chi, che cosa, quale (questions), subjunctive in relative clauses (subjunctive-triggers), quello as a demonstrative (bello-quello-buono)."
+  },
+  {
+   "slug": "di-da-per",
+   "title": "di, da, per, con, su, tra outside place and time",
+   "cat": "preps",
+   "batches": 2,
+   "mix": {
+    "cloze": 70,
+    "order": 5,
+    "rewrite": 0,
+    "judge": 25
+   },
+   "scope": "The preposition chosen by the relation between two nouns or by a fixed frame: di for possession, content, material, topic, author and origin with essere (la macchina di Paolo, un bicchiere di vino, una maglia di lana, un libro di storia, sono di Napoli), da for purpose, value, agent, cause and description (occhiali da sole, una camera da letto, un biglietto da dieci euro, scritto da, morire dalla fame, la ragazza dai capelli rossi), da + infinitive for something to be done (qualcosa da mangiare, molto da fare, niente da dire), per for purpose, recipient, cause and destination (per te, per lavoro, il treno per Roma, per + infinitive in order to), con, su for topic and position, tra / fra for between and among, di after qualcosa / niente + adjective (qualcosa di bello), di after comparatives is in comparison, a for manner (a mano, alla griglia, a righe). Left out: place and transport (places-in-a-da), time (time-expressions), prepositions governed by a particular verb or adjective (government_match dictionary exercise, preposition-before-infinitive)."
+  },
+  {
+   "slug": "preposition-before-infinitive",
+   "title": "a, di or nothing before an infinitive",
+   "cat": "preps",
+   "batches": 2,
+   "mix": {
+    "cloze": 70,
+    "order": 5,
+    "rewrite": 5,
+    "judge": 20
+   },
+   "scope": "The link between a verb, adjective or noun and a following infinitive, in a full sentence: nothing after modals, piacere, preferire, desiderare, sapere, bisogna, basta, lasciare, fare, sentire, vedere and after è + adjective (voglio andare, mi piace cucinare, è facile capire); a after verbs of beginning, movement, learning and effort (cominciare, iniziare, continuare, andare, venire, imparare, insegnare, riuscire, provare, aiutare, abituarsi, divertirsi, mettersi, invitare, obbligare); di after verbs of ending, trying, deciding, saying, hoping, feeling (finire, smettere, cercare, decidere, sperare, pensare, credere, dire, chiedere, promettere, dimenticare, ricordarsi, accorgersi, avere bisogno / paura / voglia / tempo / intenzione, essere contento / stanco / sicuro); da after avere and essere for obligation is in di-da-per; English -ing after a preposition as an infinitive (prima di uscire, senza parlare, invece di studiare, dopo aver mangiato, oltre a lavorare). Left out: same-subject di + infinitive against che + congiuntivo (subjunctive-triggers), prepositions before nouns (government_match dictionary exercise), gerund uses (gerund-and-infinitive)."
+  },
+  {
+   "slug": "gerund-and-infinitive",
+   "title": "stare + gerundio, stare per, and Italian for English -ing",
+   "cat": "verbs",
+   "batches": 2,
+   "mix": {
+    "cloze": 55,
+    "order": 10,
+    "rewrite": 15,
+    "judge": 20
+   },
+   "scope": "stare + gerundio for an action in progress in the presente and imperfetto only (sto mangiando, stavo dormendo; never for future plans or states: domani parto, not sto partendo domani; so / voglio, not sto sapendo), gerund forms (-ando / -endo, facendo, dicendo, bevendo), stare per + infinitive for about to, the infinitive where English has -ing as subject or object (nuotare fa bene, mi piace leggere, ho smesso di fumare), the bare gerund for manner, cause or simultaneous action with the same subject only (sbagliando si impara, tornando a casa ho visto Luca), mentre + finite verb when the subjects differ, the infinitive after vedere / sentire (l'ho visto uscire), il + infinitive as a noun at level three, adjectives in -ante / -ente and relative clauses for English -ing modifiers (la ragazza che parla, not parlando). Left out: a / di before the infinitive (preposition-before-infinitive), pronouns attached to gerund and infinitive (pronoun-position), prima di / dopo aver as prepositions (preposition-before-infinitive)."
+  },
+  {
+   "slug": "subjunctive-triggers",
+   "title": "Congiuntivo or indicativo after a main verb",
+   "cat": "mood",
+   "batches": 4,
+   "mix": {
+    "cloze": 60,
+    "order": 0,
+    "rewrite": 15,
+    "judge": 25
+   },
+   "scope": "Whether the che clause takes the congiuntivo presente (or passato for a completed action) or the indicativo, with a main verb in the present: opinion and belief (penso, credo, mi sembra, immagino, suppongo che sia), wish and command (voglio, preferisco, spero, desidero, chiedo, lascio che tu venga), emotion (sono contento, mi dispiace, ho paura, temo che), doubt and denial (dubito, non so se, non sono sicuro, non è vero che), impersonal expressions (è importante, bisogna, è meglio, è possibile, può darsi, peccato che, basta che), against the indicativo after certainty and saying (so che, sono sicuro che, è vero che, è chiaro che, dico che, vedo che, secondo me, forse, probabilmente, anche se), same subject taking di + infinitive (penso di venire, not penso che io venga; voglio venire), the forms of the congiuntivo presente and passato including the irregulars (sia, abbia, vada, faccia, dica, venga, possa, voglia, debba, sappia, stia, dia, esca, tenga, piaccia), the identical singular forms that make the subject pronoun necessary (che io / tu / lui sia), subjunctive after a relative superlative, il primo / l'unico che, and after qualcuno che + wish at level three. Left out: conjunctions (subjunctive-conjunctions), main verb in the past or conditional (subjunctive-tenses), se clauses (periodo-ipotetico)."
+  },
+  {
+   "slug": "periodo-ipotetico",
+   "title": "If sentences: se with indicativo, congiuntivo imperfetto and trapassato",
+   "cat": "mood",
+   "batches": 3,
+   "mix": {
+    "cloze": 55,
+    "order": 0,
+    "rewrite": 20,
+    "judge": 25
+   },
+   "scope": "The three patterns and which form goes in which half: real condition with se + presente or futuro in both halves (se piove, resto a casa; se verrai, ti divertirai) or with the imperative, possible or unreal present with se + congiuntivo imperfetto and condizionale presente (se avessi tempo, verrei; se fossi in te, non lo farei), unreal past with se + congiuntivo trapassato and condizionale passato (se avessi studiato, avrei superato l'esame; se fossi partita prima, saresti arrivata in tempo), the mixed type (se avessi dormito, ora non sarei stanco), never the condizionale after se (se avrei is the target error), never the congiuntivo presente after se, forms of the congiuntivo imperfetto (fossi, avessi, andassi, facessi, dicessi, dessi, stessi, potessi, volessi), the spoken double imperfetto (se lo sapevo, venivo) recognised as colloquial and never used as the right or the wrong answer, magari + congiuntivo imperfetto, come se + congiuntivo imperfetto, se meaning whether with the indicativo or condizionale (non so se verrebbe). Left out: the forms and other uses of the condizionale (future-and-conditional), congiuntivo imperfetto after past main verbs (subjunctive-tenses), a meno che, purché, nel caso (subjunctive-conjunctions)."
+  },
+  {
+   "slug": "subjunctive-conjunctions",
+   "title": "Conjunctions that take the congiuntivo, and their indicative twins",
+   "cat": "mood",
+   "batches": 2,
+   "mix": {
+    "cloze": 65,
+    "order": 0,
+    "rewrite": 10,
+    "judge": 25
+   },
+   "scope": "Choosing the mood after a conjunction, and choosing between near-synonymous conjunctions by the mood that follows: congiuntivo after benché, sebbene, nonostante, affinché, perché meaning so that, prima che, senza che, a meno che (non), purché, a patto che, a condizione che, nel caso (che), qualora, in modo che, finché non with future reference optional and not tested; indicativo after anche se, dopo che, perché meaning because, siccome, dato che, visto che, mentre, quando, appena, finché meaning as long as; same-subject reduction to the infinitive (prima di partire against prima che tu parta, senza salutare against senza che lui lo sappia, per + infinitive against perché + congiuntivo); indefinites with the congiuntivo at level three (chiunque, qualunque cosa, dovunque, comunque). The tense of the congiuntivo follows a present main clause except in a marked subset with a past main clause (benché fosse stanco, è uscito). Left out: verb triggers (subjunctive-triggers), systematic tense agreement (subjunctive-tenses), se and come se (periodo-ipotetico)."
+  },
+  {
+   "slug": "subjunctive-tenses",
+   "title": "Which congiuntivo: presente, passato, imperfetto or trapassato",
+   "cat": "mood",
+   "batches": 2,
+   "mix": {
+    "cloze": 60,
+    "order": 0,
+    "rewrite": 15,
+    "judge": 25
+   },
+   "scope": "Tense agreement once the congiuntivo is required: main verb in the present or future with congiuntivo presente for the same time or later and passato for earlier (penso che arrivi domani / che sia già arrivato); main verb in any past tense with congiuntivo imperfetto for the same time or later and trapassato for earlier (pensavo che fosse malato, credevo che fossero già partiti, non sapevo che tu avessi un fratello); main verb in the condizionale of wish with the imperfetto, never the presente (vorrei che tu venissi, mi piacerebbe che restassero, preferirei che non lo dicessi, sarebbe meglio che andassimo); present main verb with imperfetto for a past habit or state (credo che da giovane fosse timido); forms of the congiuntivo imperfetto and trapassato for regular and irregular verbs (essere, avere, fare, dire, dare, stare, bere). Only triggers already covered in subjunctive-triggers and subjunctive-conjunctions are used, so the item tests the tense and not the mood. Left out: se sentences, come se, magari (periodo-ipotetico), future in the past with the condizionale passato (future-and-conditional)."
+  },
+  {
+   "slug": "passive-and-si",
+   "title": "Passive, impersonal si and si passivante",
+   "cat": "syntax",
+   "batches": 2,
+   "mix": {
+    "cloze": 40,
+    "order": 10,
+    "rewrite": 30,
+    "judge": 20
+   },
+   "scope": "essere + participle with agreement and da + agent (la lettera è stata scritta da Maria), venire for an action in simple tenses only (viene chiuso alle otto, never è venuto chiuso), andare + participle for obligation (va fatto subito) at level three, only direct objects can become passive subjects (mi hanno dato un libro, not sono stato dato un libro); si + third person with the verb agreeing with the noun (si mangia la pasta, si mangiano gli spaghetti, si vendono case, qui si parla italiano), impersonal si with intransitive verbs and plural adjectives (si va, si parte, quando si è giovani, si è contenti), ci si with reflexive verbs (ci si alza presto), essere and agreement in compound tenses (si è mangiato bene, si sono viste molte cose), pronoun before si (lo si vede, se ne parla) at level three, the alternatives uno, la gente, loro and tu generic. Rewrite items turn active into passive or si and back. Left out: reflexive si (reflexive-verbs), participle agreement in active compound tenses (participle-agreement), auxiliary of active verbs (auxiliary-choice)."
+  },
+  {
+   "slug": "confused-verbs",
+   "title": "sapere or conoscere, andare or venire: verb pairs English merges",
+   "cat": "syntax",
+   "batches": 1,
+   "mix": {
+    "cloze": 75,
+    "order": 0,
+    "rewrite": 0,
+    "judge": 25
+   },
+   "scope": "Pairs and triples that share one English verb, chosen by what follows or by the point of view: sapere (a fact, a clause, how to do something: so nuotare) against conoscere (a person, a place, a work) against potere (possibility, permission) against riuscire a (manage); andare against venire by the listener's place (vengo da te, vieni con noi) and portare against prendere; dire (+ che, + words) against parlare (di, con, a language) against raccontare (a story); sentire against ascoltare and vedere against guardare; chiedere (ask for, ask someone) against domandare against fare una domanda; giocare a against suonare against recitare for play; tornare against restituire against riportare; trovare against incontrare against conoscere for meet; passare, spendere and trascorrere for spend; perdere against mancare for miss (ho perso il treno, mi manchi); prestare against prendere in prestito; volerci against metterci for take time (ci vuole un'ora, ci metto un'ora). All options are correctly conjugated; only the lexical choice is tested. Left out: meaning shift of sapere and conoscere between the two pasts (past-of-modals-and-states), mancare and servire syntax (piacere-type-verbs), false friends (dictionary exercises), fare / prendere / dare + noun pairs (collocations dictionary exercises)."
+  }
+ ]
+}

@@ -85,6 +85,12 @@ from collections import defaultdict
 from dataclasses import dataclass, field, replace
 from typing import Any, Iterable
 
+# The registry imports nothing from the application, so this stays standalone.
+_REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if _REPO_ROOT not in sys.path:
+    sys.path.insert(0, _REPO_ROOT)
+from services import language_registry  # noqa: E402
+
 # --------------------------------------------------------------------------
 # Errors
 # --------------------------------------------------------------------------
@@ -92,9 +98,9 @@ from typing import Any, Iterable
 
 # run_exercise_gen_eval.py's real per-sense JSON carries `language_id` (an
 # int FK into dim_languages), not a `language` string -- see LANG_CODE_TO_ID
-# in that script. Mirrored here (rather than imported) to keep this scorer
-# importable/runnable standalone with no DB/pipeline dependency.
-_LANG_ID_TO_CODE: dict[int, str] = {1: "zh", 2: "en", 3: "ja"}
+# in that script. Read from the language registry, which has no DB/pipeline
+# dependency, so this scorer stays importable/runnable standalone.
+_LANG_ID_TO_CODE: dict[int, str] = language_registry.id_to_code()
 
 # Exercise types produced by services/vocabulary_ladder/deterministic/*.py --
 # pure string/dictionary manipulation, no LLM call. Mirrored here (rather than
@@ -1105,7 +1111,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         required=True,
         help="Reference: the frozen reference JSON, or a baseline run directory (zh/en)",
     )
-    p.add_argument("--lang", required=True, choices=["en", "zh", "ja"])
+    p.add_argument("--lang", required=True, choices=language_registry.codes())
     p.add_argument("--llm-calls-export", default=None, help="JSON export of llm_calls rows (optional)")
     p.add_argument(
         "--pairwise-results",

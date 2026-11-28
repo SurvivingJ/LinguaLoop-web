@@ -24,6 +24,8 @@ import logging
 import re
 from dataclasses import dataclass, field
 
+from services import language_registry
+
 logger = logging.getLogger(__name__)
 
 # ── langdetect setup ─────────────────────────────────────────────────────────
@@ -36,13 +38,7 @@ except ImportError:
     _LANGDETECT_AVAILABLE = False
 
 # Map langdetect ISO codes → app language codes (zh / en / ja)
-_LANGDETECT_TO_APP: dict[str, str] = {
-    'zh-cn': 'zh',
-    'zh-tw': 'zh',
-    'zh':    'zh',
-    'ja':    'ja',
-    'en':    'en',
-}
+_LANGDETECT_TO_APP: dict[str, str] = language_registry.langdetect_to_code()
 
 # ── compiled regexes (module-level for performance) ──────────────────────────
 _RE_ZERO_WIDTH   = re.compile(r'[\ufeff\u200b\u200c\u200d]')

@@ -35,12 +35,13 @@ except ImportError:  # run or imported as scripts.<name>
 bootstrap(log_level=None)
 
 
+from services import language_registry  # noqa: E402
 from services.categorical_maps import (  # noqa: E402
     TIER_CONSTRAINTS, TIER_DISPLAY_NAMES, VALID_TIERS,
 )
 
 OUT = os.path.join(REPO, 'data', 'eval', 'jev_recalibration_2026-09-27')
-LANG_IDS = {'zh': 1, 'en': 2, 'ja': 3}
+LANG_IDS = language_registry.code_to_id()
 HEADINGS = {
     'zh': ('# 中文段落难度层级判定（盲评）', '## 评分标准', '## 段落', '：'),
     'en': ('# English passage difficulty tiers (blind)', '## Rubric', '## Passages', ': '),

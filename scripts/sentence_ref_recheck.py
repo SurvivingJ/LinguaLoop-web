@@ -32,6 +32,7 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 
+from services import language_registry  # noqa: E402
 from services.dual_translation import sentence_refs as sr  # noqa: E402
 
 logging.basicConfig(level=logging.INFO, format='%(levelname)s %(message)s')
@@ -39,7 +40,7 @@ log = logging.getLogger('sentence_ref_recheck')
 logging.getLogger('httpx').setLevel(logging.WARNING)
 
 SUBDIR = 'sentence_refs'
-NAMES = {'zh': 'Chinese', 'en': 'English', 'ja': 'Japanese'}
+NAMES = language_registry.code_to_display()
 
 WHY_FLOOR = """references that scored low on tightness: a first
 reviewer's blind back-translation landed far from the gold. Decide whether the

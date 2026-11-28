@@ -1,8 +1,7 @@
 (function () {
   'use strict';
 
-  const FLAGS = { cn: '🇨🇳', zh: '🇨🇳', en: '🇺🇸', jp: '🇯🇵', ja: '🇯🇵' };
-  const flagFor = (code) => FLAGS[code?.toLowerCase()] || '🌐';
+  const flagFor = (code) => window.LinguaLanguages.flagOf(code);
 
   // i18n helpers — fall through to the data-i18n default text if the i18n
   // bundle isn't loaded yet (e.g., during early init or in tests).
@@ -98,13 +97,13 @@
       code,
       name: info.native_name || info.language_name || code,
     }));
-    // Fallback: if the user has no test history at all, surface the three canonical languages.
+    // Fallback: if the user has no test history at all, surface every study language.
     if (state.languages.length === 0) {
-      state.languages = [
-        { id: 1, code: 'zh', name: 'Chinese' },
-        { id: 2, code: 'en', name: 'English' },
-        { id: 3, code: 'ja', name: 'Japanese' },
-      ];
+      state.languages = window.LinguaLanguages.list().map((lang) => ({
+        id: lang.id,
+        code: lang.code,
+        name: lang.name,
+      }));
     }
   }
 

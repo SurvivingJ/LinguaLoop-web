@@ -1,5 +1,7 @@
 # services/exercise_generation/config.py
 
+from services import language_registry
+
 # --- Sentence generation ------------------------------------------------------
 LLM_BATCH_SIZE: int = 25
 
@@ -36,6 +38,4 @@ LANG_JAPANESE: int = 3
 # constant rather than DimensionService: a DB-cached lookup needs an
 # app-startup init that judges and batch scripts cannot rely on, and the id
 # space is small and stable.
-LANG_ID_TO_CODE: dict[int, str] = {
-    LANG_CHINESE: 'zh', LANG_ENGLISH: 'en', LANG_JAPANESE: 'ja',
-}
+LANG_ID_TO_CODE: dict[int, str] = language_registry.id_to_code()

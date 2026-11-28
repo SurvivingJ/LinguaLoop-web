@@ -7,6 +7,7 @@ from urllib.parse import urljoin, urlsplit
 import httpx
 from datetime import datetime, timezone
 from bs4 import BeautifulSoup
+from services import language_registry
 from services.corpus.tokenizers import get_tokenizer
 from services.corpus.analyzer import CorpusAnalyzer
 from services.corpus.classifier import CollocationClassifier
@@ -19,7 +20,7 @@ from services.vocabulary.language_detection import check_text_language
 logger = logging.getLogger(__name__)
 
 # Language ID → language code used by check_text_language
-_LANG_ID_TO_CODE = {1: 'zh', 2: 'en', 3: 'ja'}
+_LANG_ID_TO_CODE = language_registry.id_to_code()
 
 
 class UnsafeURLError(ValueError):

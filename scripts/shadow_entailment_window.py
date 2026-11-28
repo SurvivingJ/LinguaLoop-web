@@ -42,6 +42,8 @@ except ImportError:  # run or imported as scripts.<name>
     from scripts._common import bootstrap
 
 bootstrap(log_level=None)
+
+from services import language_registry  # noqa: E402
 for _s in (sys.stdout, sys.stderr):
     try:
         _s.reconfigure(encoding="utf-8", errors="replace")
@@ -49,7 +51,7 @@ for _s in (sys.stdout, sys.stderr):
         pass
 
 
-LANGS = {"zh": (1, "Chinese"), "en": (2, "English"), "ja": (3, "Japanese")}
+LANGS = {lang.code: (lang.id, lang.display) for lang in language_registry.all_languages()}
 DEFAULT_TYPES = "literal_detail,vocabulary_context,main_idea,inference,supporting_detail"
 
 _tl = threading.local()

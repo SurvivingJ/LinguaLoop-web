@@ -380,28 +380,31 @@ window.showToast = function (message, type = 'error') {
   }
 })();
 
+// Flags of languages the registry (js/language-registry.js) does not carry.
 const _FLAGS = {
-  en: '🇺🇸',
-  zh: '🇨🇳',
-  cn: '🇨🇳',
-  ja: '🇯🇵',
-  jp: '🇯🇵',
   ko: '🇰🇷',
   fr: '🇫🇷',
   es: '🇪🇸',
-  English: '🇺🇸',
-  Chinese: '🇨🇳',
-  Japanese: '🇯🇵',
   Korean: '🇰🇷',
   French: '🇫🇷',
 };
+
+// A study language's flag by code (current or legacy) or English name.
+function _flagFor(lang) {
+  const known =
+    LinguaLanguages.find(lang.code) ||
+    LinguaLanguages.list().find(function (l) {
+      return l.name === lang.name;
+    });
+  return known ? known.flag : _FLAGS[lang.code] || _FLAGS[lang.name] || '🌐';
+}
 
 function _showLanguageIndicator(lang) {
   const indicator = document.getElementById('navLanguageIndicator');
   const flag = document.getElementById('navLanguageFlag');
   const name = document.getElementById('navLanguageName');
   if (!lang || !lang.name || !indicator || !flag || !name) return;
-  flag.textContent = _FLAGS[lang.code] || _FLAGS[lang.name] || '🌐';
+  flag.textContent = _flagFor(lang);
   name.textContent = lang.name;
   indicator.style.display = 'flex';
   document.body.classList.add('ld-has-lang');

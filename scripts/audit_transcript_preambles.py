@@ -56,6 +56,7 @@ except ImportError:  # run or imported as scripts.<name>
 bootstrap()
 
 
+from services import language_registry  # noqa: E402
 from services.transcript_preamble import detect_preamble, transcript_hash
 
 logger = logging.getLogger('audit_transcript_preambles')
@@ -249,7 +250,7 @@ def main() -> int:
     ap = base_parser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter,
                      apply_help='strip preambles and write (LIVE-DB)',
                      dry_run_help='report only (read-only)')
-    ap.add_argument('--language', choices=['zh', 'en', 'ja'], help='restrict to one L2')
+    ap.add_argument('--language', choices=language_registry.codes(), help='restrict to one L2')
     args = ap.parse_args()
     if not (args.apply or args.dry_run_flag):  # one of the two is required
         ap.error('one of the arguments --dry-run --apply is required')

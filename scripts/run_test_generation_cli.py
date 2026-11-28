@@ -32,6 +32,8 @@ except ImportError:  # run or imported as scripts.<name>
 
 bootstrap(log_level=None)
 
+from services import language_registry  # noqa: E402
+
 
 def setup_logging():
     """Configure logging for the script."""
@@ -57,8 +59,8 @@ def main():
         description='Batch test generation balanced across complexity tiers',
     )
     parser.add_argument(
-        '--language', required=True, choices=['zh', 'en', 'ja'],
-        help='Language code: zh=Chinese, en=English, ja=Japanese',
+        '--language', required=True, choices=language_registry.codes(),
+        help='Language code: ' + ', '.join(f'{c}={n}' for c, n in language_registry.code_to_display().items()),
     )
     parser.add_argument(
         '--count', type=int, default=20,
@@ -97,7 +99,7 @@ def main():
     # __init__, so a later switch would leave them pointed at the old provider.
     apply_provider(args.provider)
 
-    language_names = {'zh': 'Chinese', 'en': 'English', 'ja': 'Japanese'}
+    language_names = language_registry.code_to_display()
 
     logger.info('=' * 60)
     logger.info('Batch Test Generation')

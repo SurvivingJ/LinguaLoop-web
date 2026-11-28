@@ -14,6 +14,7 @@ import logging
 import random
 from uuid import uuid4
 
+from services import language_registry
 from services.exercise_content import store
 from services.supabase_factory import get_supabase_admin
 from services.vocabulary_ladder.exercise_caps import apply_caps, log_dropped
@@ -1167,7 +1168,7 @@ class LadderExerciseRenderer:
         by the converter, so deep-converting the whole content dict is safe and
         covers stem, options, and reasoning text. Failures never abort a render.
         """
-        if language_id != 1 or not isinstance(content, dict):
+        if language_id not in language_registry.ids_with('traditional_variants') or not isinstance(content, dict):
             return
         try:
             content['hant'] = self._hant_converter().convert_content(content)

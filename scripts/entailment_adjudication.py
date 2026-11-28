@@ -38,6 +38,7 @@ for _s in (sys.stdout, sys.stderr):
     except Exception:
         pass
 
+from services import language_registry  # noqa: E402
 from services.exercise_generation.judges.answer_entailment_jev import (  # noqa: E402
     CUTOFFS, probability_to_verdict,
 )
@@ -45,7 +46,7 @@ from services.exercise_generation.judges.answer_entailment_jev import (  # noqa:
 CAL = os.path.join(ROOT, "data/eval/jev_entailment_calibration_2026-09-26/jev_vs_live.json")
 WIN_DIR = os.path.join(ROOT, "data/eval/entailment_shadow_window_2026-09-27")
 OUT = os.path.join(ROOT, "data/eval/entailment_adjudication_2026-09-27")
-LANG = {1: "zh", 2: "en", 3: "ja"}
+LANG = language_registry.id_to_code()
 LANG_ID = {v: k for k, v in LANG.items()}
 PER_LANG = 100
 MAX_D = 60          # cap on the disagreement stratum per language

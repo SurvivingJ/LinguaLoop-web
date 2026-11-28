@@ -11,8 +11,8 @@
 (function () {
   'use strict';
 
-  // users.native_language_id values (dim_languages): zh 1, en 2, ja 3.
-  const SUPPORTED = { zh: 1, en: 2, ja: 3 };
+  // users.native_language_id values (dim_languages), by language code.
+  const SUPPORTED = window.LinguaLanguages.codeToId();
   const DONE_KEY = 'nativeLanguagePromptDone';
 
   function browserLanguageId(languages) {

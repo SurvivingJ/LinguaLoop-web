@@ -45,8 +45,6 @@ import {
 import { prefetchJson, takePrefetch, warmAudio, adoptAudio } from '../prefetch.js';
 import { formatPinyin, displayPronunciation } from '../pinyin-format.js';
 
-const LANGUAGE_LOCALE_MAP = { cn: 'zh', jp: 'ja', en: 'en', es: 'es' };
-
 // Header seal per study language (the session runner's GLYPHS, for the page).
 const SEALS = {
   zh: { reading: '读', listening: '听' },
@@ -368,7 +366,7 @@ export function mount(container, ctx) {
   // ====================================================================
   function langCode() {
     const code = String((state.testData && state.testData.language) || '').toLowerCase();
-    return LANGUAGE_LOCALE_MAP[code] || code;
+    return window.LinguaLanguages.codeOf(code, code); // legacy 'cn' / 'jp' -> 'zh' / 'ja'
   }
 
   function modeLabel() {
@@ -1210,7 +1208,8 @@ export function mount(container, ctx) {
       const pronEl = q('quizPronunciation');
       // Chinese: tone-marked pinyin only, never "biàn dé (bian4 de2)".
       const pron =
-        this.languageId === 1 || langCode() === 'zh'
+        window.LinguaLanguages.hasFeature(this.languageId, 'pinyin') ||
+        window.LinguaLanguages.hasFeature(langCode(), 'pinyin')
           ? formatPinyin(item.pronunciation)
           : item.pronunciation;
       if (pron) {

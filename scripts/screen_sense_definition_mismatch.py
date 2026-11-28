@@ -56,8 +56,10 @@ except ImportError:  # run or imported as scripts.<name>
 
 bootstrap(log_level=None)
 
+from services import language_registry  # noqa: E402
 
-LANG_NAME = {1: 'Chinese', 2: 'English', 3: 'Japanese'}
+
+LANG_NAME = language_registry.id_to_display()
 
 #: gemini-flash-lite rather than a qwen slug: the qwen model ids in this project
 #: have been delisted from OpenRouter more than once, and a 404 here would fail
@@ -269,7 +271,7 @@ def screen_batch(call_llm, batch, language_id: int) -> dict:
         max_tokens=4000,
         pipeline='calibration',
         task_name='screen_sense_definition_mismatch',
-        language_code={1: 'zh', 2: 'en', 3: 'ja'}.get(language_id),
+        language_code=language_registry.id_to_code().get(language_id),
     )
     return result if isinstance(result, dict) else {}
 
@@ -341,7 +343,7 @@ def main() -> None:
 
     # data/calibration/, not the repo root: these are the input to an upstream
     # dictionary repair, not scratch output.
-    code = {1: 'zh', 2: 'en', 3: 'ja'}[args.language]
+    code = language_registry.id_to_code()[args.language]
     default_dir = os.path.join(
         os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
         'data', 'calibration')

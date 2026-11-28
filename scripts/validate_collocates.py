@@ -49,6 +49,7 @@ except ImportError:  # run or imported as scripts.<name>
 bootstrap(log_format='%(asctime)s %(levelname)-7s %(message)s')
 
 
+from services import language_registry  # noqa: E402
 from services.vocabulary_ladder.collocation_grounding import (  # noqa: E402
     GROUNDING_ASSERTED, GROUNDING_CORPUS, GROUNDING_NO_SOURCE,
     CollocationGrounder,
@@ -57,7 +58,7 @@ from services.vocabulary_ladder.config import get_sentence_target  # noqa: E402
 
 logger = logging.getLogger('validate_collocates')
 
-LANGUAGE_CODES = {'zh': 1, 'en': 2, 'ja': 3}
+LANGUAGE_CODES = language_registry.code_to_id()
 
 # How many flagged mismatches to print in full, for the spot-check the task
 # asks for. Beyond this the report stays a summary.

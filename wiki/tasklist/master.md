@@ -1,6 +1,6 @@
 ---
 title: Master Task List
-last_updated: 2026-11-27
+last_updated: 2026-11-28
 ---
 
 # Master Task List
@@ -19,7 +19,7 @@ below.
 
 | Status | Rows in this file | All task files (union, file status wins) |
 |--------|-------------------|------------------------------------------|
-| Not Started | 83 | 99 |
+| Not Started | 88 | 104 |
 | In Progress (`[~]`) | 18 | 25 |
 | Blocked / Deferred / Awaiting decision (`[?]`; includes "Done (repo), awaiting live apply") | 73 | 72 |
 | Won't Do (obsolete) | 3 | 3 |
@@ -1619,6 +1619,11 @@ Full spec: [[tasklist/grammar-drills.tasks]]. Feature: [[features/grammar-drills
 | TASK-1266 | grammar-drills | Make the contract and script reusable for Japanese particles | [ ] | M | — |
 | TASK-1267 | grammar-drills | Decide whether grammar drills get audio | [?] | L | — |
 | TASK-1268 | grammar-drills | Decide the relation between the measure-words topic and the Measure Word Trainer | [?] | S | — |
+| TASK-1271 | new-language-content-packs | Second Italian pilot with the amended briefs | [ ] | M | — |
+| TASK-1272 | new-language-content-packs | Scale the Italian pack to the profile's targets | [ ] | XL | TASK-1271 |
+| TASK-1273 | new-language-content-packs | Drill page reads a pack's built files | [ ] | M | — |
+| TASK-1274 | new-language-content-packs | Cross-field checks for pack dictionaries | [ ] | S | — |
+| TASK-1275 | language-registry | Language registry follow-ups (glyph tables, dim_languages check, feature gates) | [ ] | M | — |
 
 ### Language Packs (existing — unchanged)
 

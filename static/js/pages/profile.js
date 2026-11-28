@@ -426,11 +426,11 @@
   // native language, persisted on users.native_language_id via the new
   // /api/users/native-language endpoints. NULL ("not set") is legitimate.
   // -----------------------------------------------------------------------
-  const NATIVE_LANGUAGES = [
-    { id: 1, flag: '🇨🇳', name: '中文' },
-    { id: 2, flag: '🇺🇸', name: 'English' },
-    { id: 3, flag: '🇯🇵', name: '日本語' },
-  ];
+  const NATIVE_LANGUAGES = window.LinguaLanguages.list().map((lang) => ({
+    id: lang.id,
+    flag: lang.flag,
+    name: lang.nativeName,
+  }));
   let currentNativeLanguageId = null;
 
   function nativeLanguageName(id) {
@@ -569,20 +569,18 @@
 
   function getFlag(langCode) {
     // Support both short codes (cn, jp, en) and full names (chinese, japanese, english)
+    // The study languages come from the registry; these are flags of languages it does not carry.
     const flags = {
-      zh: '🇨🇳',
-      chinese: '🇨🇳',
-      en: '🇺🇸',
-      english: '🇺🇸',
-      ja: '🇯🇵',
-      japanese: '🇯🇵',
       ko: '🇰🇷',
       korean: '🇰🇷',
       fr: '🇫🇷',
       french: '🇫🇷',
     };
-    const flag = flags[langCode?.toLowerCase()] || '🌐';
-    return flag;
+    const key = langCode?.toLowerCase();
+    const known = window.LinguaLanguages.list().find(
+      (l) => l.code === key || l.name.toLowerCase() === key
+    );
+    return known ? known.flag : flags[key] || '🌐';
   }
 
   function escapeHtml(value) {

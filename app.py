@@ -15,6 +15,7 @@ import os
 
 # Internal imports
 from config import Config
+from services import language_registry
 from services.service_factory import ServiceFactory
 from services.r2_service import R2Service
 from services.auth_service import AuthService
@@ -269,9 +270,14 @@ def _register_core_routes(app):
         """
         langs = DimensionService.get_all_languages()
         types = DimensionService._test_types_metadata
+        # Language cards and pickers are rendered from the registry, not typed into templates.
+        registry = {
+            'study_languages': language_registry.all_languages(),
+            'native_language_choices': language_registry.native_language_choices(Config.DEFAULT_NATIVE_LANGUAGE),
+        }
         if isinstance(langs, list) and langs and isinstance(types, list) and types:
-            return {'lingua_metadata': {'languages': langs, 'test_types': types, 'status': 'success'}}
-        return {'lingua_metadata': None}
+            return {'lingua_metadata': {'languages': langs, 'test_types': types, 'status': 'success'}, **registry}
+        return {'lingua_metadata': None, **registry}
 
     @app.route('/api/metadata', methods=['GET'])
     def get_metadata():

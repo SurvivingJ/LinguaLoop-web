@@ -36,16 +36,14 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from supabase import create_client
+from services import language_registry  # noqa: E402
 from services.corpus.ingestion import CorpusIngestionService
 from services.corpus.pack_service import CollocationPackService
 
-LANGUAGE_MAP = {
-    'english': 2, 'en': 2,
-    'chinese': 1, 'zh': 1,
-    'japanese': 3, 'ja': 3,
-}
+# English name or code -> dim_languages.id, e.g. 'chinese' / 'zh' -> 1.
+LANGUAGE_MAP = {key: lang.id for lang in language_registry.all_languages() for key in (lang.name, lang.code)}
 
-LANGUAGE_NAMES = {1: 'Chinese', 2: 'English', 3: 'Japanese'}
+LANGUAGE_NAMES = language_registry.id_to_display()
 
 CORPUSES_DIR = os.path.dirname(os.path.abspath(__file__))
 

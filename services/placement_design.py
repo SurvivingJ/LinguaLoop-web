@@ -15,6 +15,7 @@ import math
 import random
 from typing import Callable, Iterable, Optional, Sequence
 
+from services import language_registry
 from services.vocabulary import knowledge_estimate as ke
 
 LANG_ZH, LANG_EN, LANG_JA = 1, 2, 3
@@ -44,11 +45,11 @@ COMPLETE_REASONS = ('precision', 'cap', 'time', 'exhausted')
 
 
 def family(language_id: int) -> str:
-    return 'en' if int(language_id) == LANG_EN else 'cjk'
+    return 'en' if language_registry.script_family(int(language_id)) == language_registry.LATIN else 'cjk'
 
 
 def has_reading(language_id: int) -> bool:
-    return int(language_id) in (LANG_ZH, LANG_JA)
+    return language_registry.has_feature(int(language_id), 'pronunciation_calibration')
 
 
 def is_zh(language_id: int) -> bool:

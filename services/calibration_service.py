@@ -27,6 +27,7 @@ import logging
 import math
 from typing import Optional
 
+from services import language_registry
 from services.supabase_factory import get_supabase_admin
 
 logger = logging.getLogger(__name__)
@@ -114,7 +115,7 @@ MODES = (MODE_DEFINITION, MODE_PRONUNCIATION)
 #: 21 senses with a pronunciation out of 6,555 (0.3%), so an English
 #: pronunciation run would fail to build almost every item; it is refused at the
 #: route rather than silently degrading. zh has 3,890 words and ja 2,385.
-PRONUNCIATION_LANGUAGE_IDS = (1, 3)
+PRONUNCIATION_LANGUAGE_IDS = tuple(language_registry.ids_with('pronunciation_calibration'))
 
 
 def start_session(user_id: str, word_language_id: int,

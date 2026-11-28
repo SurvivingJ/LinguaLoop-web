@@ -69,6 +69,7 @@ except ImportError:  # run or imported as scripts.<name>
 bootstrap()
 
 
+from services import language_registry  # noqa: E402
 from config import Config
 from services.supabase_factory import SupabaseFactory, get_supabase_admin
 from services.vocabulary.sense_generator import POS_LEGENDS, SenseGenerator
@@ -459,7 +460,7 @@ def main() -> int:
     parser.add_argument('--decisions-file')
     parser.add_argument('--from-token-map', action='store_true')
     parser.add_argument('--test-id', help='tests.id (uuid) or tests.slug')
-    parser.add_argument('--language', choices=['zh', 'en', 'ja'])
+    parser.add_argument('--language', choices=language_registry.codes())
     parser.add_argument('--force', action='store_true')
     parser.add_argument('--skip-invalid', action='store_true')
     parser.add_argument('--source-model', default=DEFAULT_SOURCE_MODEL)

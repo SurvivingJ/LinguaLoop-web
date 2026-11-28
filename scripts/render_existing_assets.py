@@ -21,6 +21,7 @@ except ImportError:  # run or imported as scripts.<name>
 bootstrap()
 
 
+from services import language_registry  # noqa: E402
 from services.supabase_factory import SupabaseFactory, get_supabase_admin
 
 if not SupabaseFactory.is_initialized():
@@ -30,12 +31,12 @@ from services.vocabulary_ladder.exercise_renderer import LadderExerciseRenderer
 
 logger = logging.getLogger(__name__)
 
-_LANG_ID = {'zh': 1, 'en': 2, 'ja': 3}
+_LANG_ID = language_registry.code_to_id()
 
 
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument('--language', required=True, choices=['zh', 'en', 'ja'])
+    parser.add_argument('--language', required=True, choices=language_registry.codes())
     parser.add_argument('--sense-ids', required=True, help='comma-separated sense ids')
     args = parser.parse_args()
 

@@ -44,6 +44,7 @@ except ImportError:  # run or imported as scripts.<name>
 bootstrap()
 
 
+from services import language_registry  # noqa: E402
 from services.llm_service import call_llm
 
 logger = logging.getLogger(__name__)
@@ -51,8 +52,8 @@ logger = logging.getLogger(__name__)
 for _noisy in ('httpx', 'httpcore', 'hpack', 'openai'):
     logging.getLogger(_noisy).setLevel(logging.WARNING)
 
-LANGUAGE_CODE_TO_ID = {'zh': 1, 'cn': 1, 'en': 2, 'ja': 3, 'jp': 3}
-ID_TO_NAME = {1: 'zh', 2: 'en', 3: 'ja'}
+LANGUAGE_CODE_TO_ID = language_registry.code_to_id(legacy=True)
+ID_TO_NAME = language_registry.id_to_code()
 
 # The model returns a NUMERIC class index (1-6) — never an English word — so the
 # prompt can present a target-language legend and keep English out of the model's

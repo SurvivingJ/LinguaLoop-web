@@ -21,7 +21,7 @@ import logging
 from flask import Blueprint, request, g
 
 from middleware.auth import jwt_required as supabase_jwt_required
-from services import calibration_service
+from services import calibration_service, language_registry
 from services.calibration_service import CalibrationError
 from utils.responses import (api_errors, ApiResponse, api_success, bad_request, not_found)
 from utils.validation import json_body
@@ -31,7 +31,7 @@ calibration_bp = Blueprint("calibration", __name__)
 
 #: dim_languages ids that can be studied. `es` is a UI locale only — there is no
 #: dim_languages row for it and therefore no senses to calibrate against.
-_SUPPORTED_LANGUAGE_IDS = {1, 2, 3}
+_SUPPORTED_LANGUAGE_IDS = set(language_registry.ids())
 
 
 def _load_session(session_id: str):

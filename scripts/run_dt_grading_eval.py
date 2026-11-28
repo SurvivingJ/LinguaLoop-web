@@ -76,6 +76,7 @@ except Exception:  # pragma: no cover - httpx present in this project, guard is 
     _httpx = None
     _TRANSIENT_EXC = ()
 
+from services import language_registry  # noqa: E402
 from services.supabase_factory import SupabaseFactory, get_supabase_admin
 from services.dimension_service import DimensionService
 from services.dual_translation import eval_metrics as em
@@ -98,7 +99,7 @@ _EXEMPLAR_DROP_LOGGER = "services.dual_translation.prompts"
 _NO_TEMPLATE_LOGGER = "services.dual_translation.grader_cascade"
 
 # Fallback age tier per L2 if a passage row can't be read (README: en/ja tier 3, zh tier 6).
-_DEFAULT_AGE_TIER = {"en": 3, "zh": 6, "ja": 3}
+_DEFAULT_AGE_TIER = dict(en=3, zh=6, ja=3)
 # Default L1 (explanation language only — does not affect the measured metrics). Kept != L2.
 _DEFAULT_L1 = {"en": "zh", "zh": "en", "ja": "en"}
 
@@ -484,7 +485,7 @@ def _taxonomy_summary(taxonomy: dict) -> str:
     """One-line plan summary: per-L2 baseline subtype counts."""
     pairs = taxonomy.get("pairs") or {}
     counts = [f"{k}={len((v or {}).get('subtypes') or [])}" for k, v in sorted(pairs.items())
-              if k in ("en", "zh", "ja") and isinstance(v, dict)]
+              if k in language_registry.codes() and isinstance(v, dict)]
     return f"{len(pairs)} pair keys; baseline subtypes {' '.join(counts) or '—'}"
 
 
@@ -660,7 +661,7 @@ def _render_report(l2: str, metrics: dict, meta: dict) -> str:
 
 def main() -> int:
     ap = argparse.ArgumentParser(description="DT grading eval harness (TASK-622)")
-    ap.add_argument("--l2", required=True, choices=["en", "zh", "ja"], help="L2 gold set to grade")
+    ap.add_argument("--l2", required=True, choices=language_registry.codes(), help="L2 gold set to grade")
     ap.add_argument("--l1", default=None, help="L1 (explanation language; default != L2). Metrics-neutral.")
     ap.add_argument("--out", required=True, help="Output markdown report path")
     ap.add_argument("--live", action="store_true", help="Make real (paid) OpenRouter calls. Required to grade.")

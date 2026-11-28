@@ -1,0 +1,161 @@
+{
+ "drills": {
+  "present-tense-forms-01.jsonl": {
+   "fixed": [
+    "present-tense-forms-01-007"
+   ],
+   "relabelled": [
+    "present-tense-forms-01-009"
+   ]
+  },
+  "ce-or-e-01.jsonl": {
+   "fixed": [
+    "ce-or-e-01-002",
+    "ce-or-e-01-009",
+    "ce-or-e-01-030",
+    "ce-or-e-01-046",
+    "ce-or-e-01-049"
+   ],
+   "relabelled": [
+    "ce-or-e-01-012",
+    "ce-or-e-01-033",
+    "ce-or-e-01-038",
+    "ce-or-e-01-039",
+    "ce-or-e-01-045"
+   ]
+  },
+  "adjective-agreement-01.jsonl": {
+   "fixed": [],
+   "relabelled": [
+    "adjective-agreement-01-009"
+   ]
+  }
+ },
+ "guides": {
+  "present-tense-forms": 5,
+  "ce-or-e": 3,
+  "adjective-agreement": 0
+ },
+ "dictionaries": {
+  "collocations": {
+   "rows_before": 49,
+   "rows_after": 48,
+   "rows_deleted": [
+    "avere fretta"
+   ],
+   "rows_changed": [
+    "chiedere scusa",
+    "accendere la luce",
+    "spegnere la luce",
+    "pressione alta"
+   ]
+  },
+  "verb_government": {
+   "rows_before": 57,
+   "rows_after": 53,
+   "rows_deleted": [
+    "entrare + noun (in)",
+    "pagare + noun (∅)",
+    "bravo + noun (in)",
+    "pronto + infinitive (a)"
+   ],
+   "rows_changed": [
+    "invitare + infinitive (a)",
+    "credere + noun (in)"
+   ]
+  },
+  "false_friends": {
+   "rows_before": 56,
+   "rows_after": 56,
+   "rows_deleted": [],
+   "rows_changed": [
+    "libreria ~ library",
+    "lettura ~ lecture",
+    "simpatico ~ sympathetic",
+    "gentile ~ gentle",
+    "palazzo ~ palace",
+    "comprensivo ~ comprehensive",
+    "romanzo ~ romance",
+    "attendere ~ attend"
+   ]
+  },
+  "verb_conjugation": {
+   "rows_before": 60,
+   "rows_after": 60,
+   "rows_deleted": [],
+   "rows_changed": [
+    "vivere"
+   ]
+  },
+  "noun_gender": {
+   "rows_before": 60,
+   "rows_after": 60,
+   "rows_deleted": [],
+   "rows_changed": []
+  }
+ },
+ "exercise_docs": {
+  "rejected": [
+   "solo.adjective.json"
+  ],
+  "fixed_units": 1
+ },
+ "left_unchanged_uncertain": [
+  "drill adjective-agreement-01-050: level label kept at 3 (certain: false; relabelling both 009 and 050 leaves 4 level-3 items of 50 and validate-batch then fails the 10% level-3 minimum)",
+  "collocations: fare colazione (wrong_collocates: prendere)",
+  "collocations: avere sete (wrong_collocates: fare)",
+  "collocations: avere bisogno (wrong_collocates: essere)",
+  "collocations: avere freddo (wrong_collocates: essere)",
+  "collocations: fare attenzione (wrong_collocates: portare)",
+  "collocations: risolvere un problema (wrong_collocates: sciogliere)",
+  "collocations: caffè forte (calque)",
+  "collocations: febbre alta (calque)",
+  "collocations: alta stagione (calque)",
+  "collocations: luna piena (calque)",
+  "verb_government: parlare + noun (di) (english_calque su)",
+  "verb_government: contento + noun (di) (preposition)",
+  "false_friends: attendere ~ attend (it_for_lookalike frequentare; only kind was changed)",
+  "fat_seed essere.verb.json: A.level_6.wrong_sentences[2]",
+  "fat_seed il.determiner.json: B.level_3.options[3] (qualche)"
+ ],
+ "left_unchanged_no_correction": [
+  "fat_seed il.determiner.json: A.level_3.options[1] (troppo)",
+  "fat_seed il.determiner.json: A.level_3.options[2] (quanto)",
+  "fat_seed il.determiner.json: A.level_3.options[3] (nessun)",
+  "fat_seed il.determiner.json: B.level_3.options[2] (alcun)"
+ ],
+ "near_duplicate_pairs": [
+  [
+   "adjective-agreement-01-017",
+   "adjective-agreement-01-032"
+  ],
+  [
+   "adjective-agreement-01-028",
+   "adjective-agreement-01-033"
+  ],
+  [
+   "adjective-agreement-01-013",
+   "adjective-agreement-01-048"
+  ],
+  [
+   "adjective-agreement-01-023",
+   "adjective-agreement-01-048"
+  ],
+  [
+   "adjective-agreement-01-012",
+   "adjective-agreement-01-049"
+  ],
+  [
+   "adjective-agreement-01-007",
+   "adjective-agreement-01-040"
+  ],
+  [
+   "adjective-agreement-01-018",
+   "adjective-agreement-01-050"
+  ],
+  [
+   "adjective-agreement-01-019",
+   "adjective-agreement-01-045"
+  ]
+ ]
+}

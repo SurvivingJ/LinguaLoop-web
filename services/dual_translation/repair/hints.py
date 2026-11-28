@@ -15,6 +15,7 @@ import os
 import re
 from typing import Optional
 
+from services import language_registry
 from services.dual_translation.tier0 import _normalize_l2
 
 logger = logging.getLogger(__name__)
@@ -25,7 +26,7 @@ LADDERS = ("full", "short", "none")
 RUNG_WHERE, RUNG_KIND, RUNG_CLUE, RUNG_ANSWER = 1, 2, 3, 4
 HINT_TYPES = {RUNG_WHERE: "where", RUNG_KIND: "kind", RUNG_CLUE: "clue"}
 TEMPLATE_L1S = ("en", "zh", "ja")
-CJK_L1S = ("zh", "ja")
+CJK_L1S = tuple(language_registry.cjk_codes())
 _PLACEHOLDER_STANDIN = "xxxxxx"  # 6 characters, tech 5.2
 _PLACEHOLDER_RE = re.compile(r"\{(\w*)\}")
 _GLOSS_SEPARATORS = (" — ", "——", "—")

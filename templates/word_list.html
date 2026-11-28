@@ -39,18 +39,12 @@
         <div class="wl-form-group">
             <span class="wl-label" id="wlLangLabel" data-i18n="word_list.language_label">Language</span>
             <div class="wl-lang-options" id="wlLangOptions" role="group" aria-labelledby="wlLangLabel">
-                <button type="button" class="ld-chip wl-lang-chip" data-lang="zh" aria-pressed="false">
-                    <span class="flag" aria-hidden="true">🇨🇳</span>
-                    <span class="native" lang="zh">中文</span>
+                {% for l in study_languages %}
+                <button type="button" class="ld-chip wl-lang-chip" data-lang="{{ l.code }}" aria-pressed="false">
+                    <span class="flag" aria-hidden="true">{{ l.flag }}</span>
+                    <span class="native" lang="{{ l.code }}">{{ l.native_name }}</span>
                 </button>
-                <button type="button" class="ld-chip wl-lang-chip" data-lang="en" aria-pressed="false">
-                    <span class="flag" aria-hidden="true">🇺🇸</span>
-                    <span class="native" lang="en">English</span>
-                </button>
-                <button type="button" class="ld-chip wl-lang-chip" data-lang="ja" aria-pressed="false">
-                    <span class="flag" aria-hidden="true">🇯🇵</span>
-                    <span class="native" lang="ja">日本語</span>
-                </button>
+                {% endfor %}
             </div>
         </div>
 

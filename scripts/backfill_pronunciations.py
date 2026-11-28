@@ -37,6 +37,8 @@ except ImportError:  # run or imported as scripts.<name>
 
 bootstrap()
 
+from services import language_registry  # noqa: E402
+
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +46,7 @@ logger = logging.getLogger(__name__)
 for _noisy in ('httpx', 'httpcore', 'hpack', 'jieba'):
     logging.getLogger(_noisy).setLevel(logging.WARNING)
 
-LANGUAGE_CODE_TO_ID = {'zh': 1, 'cn': 1, 'en': 2, 'ja': 3, 'jp': 3}
+LANGUAGE_CODE_TO_ID = language_registry.code_to_id(legacy=True)
 
 PAGE_SIZE = 1000
 

@@ -24,6 +24,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from services import language_registry
+
 # ---------------------------------------------------------------------------
 # Ladder level definitions — each level has a cognitive family and ring
 # ---------------------------------------------------------------------------
@@ -263,7 +265,9 @@ LEMMA_ZIPF_TO_TIER: list[tuple[float, str]] = [
 ]
 
 # language_id → wordfreq / ISO 639-1 code. Mirrors difficulty.py's map.
-TIER_GATE_LANG_CODES: dict[int, str] = {1: 'zh', 2: 'en', 3: 'ja'}
+TIER_GATE_LANG_CODES: dict[int, str] = {
+    lang.id: lang.wordfreq for lang in language_registry.all_languages() if lang.wordfreq
+}
 
 
 # ---------------------------------------------------------------------------
