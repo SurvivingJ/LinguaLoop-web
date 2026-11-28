@@ -325,13 +325,135 @@ STAGES = [
  ]),
 ]
 
+# Added 2026-11-28 (owner: "build all for Chinese and Japanese"). Built on their
+# own target so the first twelve stages keep the counts they were authored to.
+MORE_TARGET = 2000
+MORE_STAGES = [
+ ('colloc', 'Collocations', 'Which verb goes with which noun: the pairs English gets wrong.', [
+  ('cl-daily', '日常の組み合わせ', 'Everyday pairs', [
+   ('cl-wear', '着る・履く・かぶる', 'Wearing: 着る, 履く, かぶる, かける, する, つける (服, 靴, 帽子, 眼鏡, ネクタイ, 指輪)', 5, 50, '着る 履く かぶる かける', 0),
+   ('cl-take', '飲む・浴びる・撮る', 'Not "take": 薬を飲む, シャワーを浴びる, 写真を撮る, 電話をかける, 風邪を引く, 試験を受ける', 5, 55, '取る 飲む 浴びる 撮る', 0),
+   ('cl-play', '弾く・吹く・する', 'Not "play": ピアノを弾く, 笛を吹く, 太鼓をたたく, サッカーをする, ゲームをする', 5, 45, '弾く 吹く する 遊ぶ', 0),
+   ('cl-weather', '降る・吹く・鳴る', 'Weather and nature: 雨が降る, 風が吹く, 雷が鳴る, 日が暮れる, 霧が出る, 花が咲く', 4, 45, '降る 吹く 鳴る 出る', 0),
+   ('cl-life', '入る・出る・取る', 'Life events: お風呂に入る, 大学を出る, 年を取る, 休みを取る, 約束を守る, 予約を入れる', 4, 50, '入る 出る 取る 守る', 0),
+  ]),
+  ('cl-verbs', '多義の動詞', 'One verb, many partners', [
+   ('cl-kakeru', 'かける', 'かける: 電話, 眼鏡, 鍵, 時間, 迷惑, 声, 音楽, 塩', 4, 55, 'つける する 取る 出す', 0),
+   ('cl-tsukeru', 'つける', 'つける: 電気, 名前, 気, 味, 日記, 薬, 力', 4, 50, 'かける する 入れる 出す', 0),
+   ('cl-dasu', '出す', '出す: 手紙, 宿題, 声, 元気, 結論, ごみ, お金', 4, 50, '送る 上げる かける つける', 0),
+   ('cl-toru', '取る', '取る: 年, 休み, 連絡, 責任, 点, メモ, 予約, 食事', 3, 50, 'する 持つ かける 出す', 0),
+   ('cl-hiku', '引く', '引く: 風邪, 辞書, 線, 興味, 手, くじ', 3, 40, '取る かける 見る する', 0),
+  ]),
+  ('cl-sense', '〜がする・形容詞', 'Senses and adjectives', [
+   ('cl-gasuru', '〜がする', '〜がする: 音, 声, 味, 匂い, 香り, 気, 感じ, 頭痛, 寒気', 4, 50, 'がある がいる をする になる', 0),
+   ('cl-adj', '濃い・薄い・強い', 'Adjective partners: 濃い / 薄い (味, 色, お茶), 強い / 弱い (風, 酒), 重い / 軽い (病気, 責任), 高い / 低い (声, 熱), 激しい (雨, 運動)', 3, 55, '濃い 強い 重い 高い', 0),
+  ]),
+  ('x-colloc', '連語', 'Collocations mixed', [
+   ('x-colloc', '連語', 'Choose the verb this noun takes', 4, 90, 'する 取る かける 出す', 0),
+  ]),
+ ]),
+ ('idiom', 'Idioms', '気 and body-part expressions, and four-character idioms.', [
+  ('id-ki', '気', '気 expressions', [
+   ('id-ki1', '気がする・気になる', '気がする, 気になる, 気にする, 気をつける, 気がつく, 気に入る, 気が合う', 3, 70, '気がする 気になる 気にする 気をつける', 0),
+   ('id-ki2', '気が重い・気を遣う', '気が重い, 気が短い, 気が利く, 気が散る, 気が済む, 気を遣う, 気が向く, 気が楽', 2, 60, '気が重い 気が利く 気が散る 気を遣う', 0),
+  ]),
+  ('id-body', '体の慣用句', 'Body-part idioms', [
+   ('id-head', '頭・顔・目・耳・口・鼻', 'Head: 頭に来る, 頭が固い, 顔が広い, 顔を出す, 目がない, 目を通す, 耳が痛い, 口が堅い, 口に合う, 鼻が高い', 2, 65, '頭に来る 顔が広い 目がない 口が堅い', 0),
+   ('id-hand', '手・足・腹・腕・首・胸', 'Body: 手を貸す, 手が空く, 手に入れる, 足を引っ張る, 足が出る, 腹が立つ, 腕がいい, 首になる, 胸がいっぱい, 肩を持つ', 2, 65, '手を貸す 腹が立つ 首になる 足を引っ張る', 0),
+  ]),
+  ('id-yoji', '四字熟語', 'Four-character idioms', [
+   ('id-yoji1', '四字熟語', 'Common ones: 一生懸命, 一石二鳥, 十人十色, 一期一会, 自業自得, 四苦八苦, 以心伝心, 三日坊主, 半信半疑, 試行錯誤', 2, 65, '一石二鳥 十人十色 自業自得 三日坊主', 0),
+  ]),
+  ('x-idiom', '慣用句', 'Idioms mixed', [
+   ('x-idiom', '慣用句', 'Which expression fits the situation?', 2, 80, '気になる 腹が立つ 一石二鳥 手を貸す', 0),
+  ]),
+ ]),
+ ('casual', 'Casual contractions', 'What spoken Japanese does to the textbook forms.', [
+  ('cs-verb', '縮約形 I', 'Verb endings', [
+   ('cs-teru', '〜てる・〜とく', '〜ている → 〜てる, 〜ておく → 〜とく, 〜でいる → 〜でる, 〜でおく → 〜どく', 4, 55, 'てる とく でる どく', 0),
+   ('cs-chau', '〜ちゃう・〜じゃう', '〜てしまう → 〜ちゃう, 〜でしまう → 〜じゃう, 〜ちゃった, 〜じゃった', 4, 55, 'ちゃう じゃう ちゃった とく', 0),
+   ('cs-nakya', '〜なきゃ・〜なくちゃ', '〜なければ → 〜なきゃ, 〜なくては → 〜なくちゃ, 〜ては → 〜ちゃ, 〜では → 〜じゃ', 4, 50, 'なきゃ なくちゃ ちゃ じゃ', 0),
+  ]),
+  ('cs-end', '縮約形 II', 'Sentence endings and quoting', [
+   ('cs-nda', '〜んだ・〜の', '〜のだ → 〜んだ, 〜のです → 〜んです, questions with 〜の？, 〜もの → 〜もん', 4, 50, 'んだ の もん んです', 0),
+   ('cs-tte', '〜って・〜っけ', '〜と / 〜という / 〜は → 〜って, 〜っけ, 〜じゃん, 〜かな', 3, 55, 'って っけ じゃん かな', 0),
+   ('cs-sound', '音の変化', 'Sound changes: すみません → すいません, 〜ところ → 〜とこ, やはり → やっぱり, あまり → あんまり, 〜らない → 〜んない', 3, 45, 'とこ やっぱり あんまり すいません', 0),
+  ]),
+  ('x-casual', '話し言葉', 'Contractions mixed', [
+   ('x-casual', '話し言葉', 'Full form and spoken form: match them', 3, 80, 'てる ちゃう なきゃ って', 0),
+  ]),
+ ]),
+ ('compound', 'Compound verbs', 'A second verb on the stem changes direction, degree or completion.', [
+  ('cv-dir', '複合動詞 I', 'Direction', [
+   ('cv-komu', '〜込む', '〜込む: into, deeply (飛び込む, 申し込む, 思い込む, 持ち込む, 落ち込む)', 3, 55, '出す 上げる 切る 合う', 0),
+   ('cv-dasu', '〜出す', '〜出す: out, and suddenly starting (取り出す, 思い出す, 飛び出す, 泣き出す, 走り出す)', 3, 55, '込む 上げる 切る 始める', 0),
+   ('cv-ageru', '〜上げる・〜上がる', '〜上げる / 〜上がる: up, completely (持ち上げる, 立ち上がる, 仕上げる, 出来上がる, 取り上げる)', 3, 50, '込む 出す 下げる 切る', 0),
+  ]),
+  ('cv-deg', '複合動詞 II', 'Completion and repetition', [
+   ('cv-kiru', '〜切る・〜切れる', '〜切る / 〜切れる: to the end, cannot finish (使い切る, 食べ切れない, 疲れ切る, 言い切る)', 2, 50, '込む 出す 終わる 過ぎる', 0),
+   ('cv-au', '〜合う', '〜合う: each other (話し合う, 助け合う, 知り合う, 付き合う, 間に合う)', 3, 50, '込む 出す 切る 直す', 0),
+   ('cv-naosu', '〜直す・〜返す', '〜直す / 〜返す: again, back (やり直す, 書き直す, 考え直す, 繰り返す, 言い返す, 取り返す)', 3, 50, '切る 合う 出す 込む', 0),
+   ('cv-kakeru', '〜かける・〜かかる', '〜かける / 〜かかる: towards, about to (話しかける, 出かける, 通りかかる, 取りかかる, 言いかける)', 2, 45, '込む 出す 合う 切る', 0),
+  ]),
+  ('x-compound', '複合動詞', 'Compound verbs mixed', [
+   ('x-compound', '複合動詞', 'Which second verb completes it?', 3, 80, '込む 出す 切る 合う', 0),
+  ]),
+ ]),
+ ('gairaigo', 'Loanword traps', 'Katakana words that do not mean what the English word means.', [
+  ('gr-traps', '外来語', 'False friends and made-in-Japan English', [
+   ('gr-false', '意味のずれ', 'False friends: マンション, バイキング, サービス, クレーム, スマート, テンション, ナイーブ, カンニング, トランプ, ジュース', 3, 65, 'マンション サービス クレーム スマート', 0),
+   ('gr-wasei', '和製英語', 'Made-in-Japan English: サラリーマン, コンセント, ノートパソコン, ガソリンスタンド, フロント, レンジ, ホッチキス, ペーパードライバー', 3, 60, 'コンセント フロント レンジ サラリーマン', 0),
+   ('gr-short', '略語', 'Shortened words: コンビニ, パソコン, スマホ, リモコン, エアコン, アプリ, バイト, デパート, アニメ', 4, 55, 'コンビニ パソコン リモコン エアコン', 0),
+  ]),
+  ('x-gairaigo', 'カタカナ語', 'Loanwords mixed', [
+   ('x-gairaigo', 'カタカナ語', 'Which katakana word is meant?', 3, 60, 'マンション コンセント コンビニ サービス', 0),
+  ]),
+ ]),
+]
+
+# Skills that get endless pattern packs (2 each) beyond the 18 of the first run.
+MORE_PACKS = 2
+MORE_PACK_SKILLS = '''
+ gv-teageru gv-tekureru gv-temorau gv-sashiageru gv-kudasaru gv-itadaku gv-yaru
+ tr-kowareru tr-kimaru tr-narabu tr-okiru tr-teiru-tearu
+ kg-o-ninaru kg-o-suru kg-o-kudasai kg-sasete kg-teitadaku
+ ko-kore ko-kono ko-koko ko-ka ko-mo ko-demo
+ cd-to cd-ba cd-tara cd-nara cd-temo cd-regret
+ pt-nakutemoii pt-hoshii pt-youtoomou pt-kotonisuru pt-teshimau pt-teoku pt-temiru pt-tekuru
+ pt-tokoro pt-hajimeru pt-youninaru pt-yasui pt-sugiru pt-kata pt-tarado pt-nasai pt-beki
+ pt-toki pt-aida
+ pt-sou-look pt-sou-hear pt-youda pt-rashii pt-deshou pt-hazu pt-nichigainai
+ pt-nda pt-tame pt-youni pt-okagede pt-no-koto pt-kadouka pt-quote pt-hikaku
+ pt-passive pt-causative pt-sasete pt-zuni pt-bayokatta
+ av-zenzen av-mou-mada av-kitto av-moshi
+ cl-wear cl-take cl-play cl-weather cl-gasuru
+ cs-teru cs-chau cs-nakya
+'''.split()
+
+
+def build_catalog():
+    """The whole grammar catalog: the first twelve stages on their own target,
+    then the stages added later on theirs."""
+    cat, total = base.build(STAGES, TARGET_TOTAL)
+    more, more_total = base.build(MORE_STAGES, MORE_TARGET)
+    cat['stages'] += more['stages']
+    cat['skills'] += more['skills']
+    ids = [s['id'] for s in cat['skills']]
+    assert len(ids) == len(set(ids)), [i for i in ids if ids.count(i) > 1]
+    by_id = {s['id']: s for s in cat['skills']}
+    for sid in MORE_PACK_SKILLS:
+        assert sid in by_id, sid
+        if not by_id[sid]['packs']:
+            by_id[sid]['packs'] = MORE_PACKS
+    cat['course'] = 'grammar'
+    return cat, total + more_total
+
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--apply', action='store_true', help='write catalog.json')
     args = ap.parse_args()
-    cat, total = base.build(STAGES, TARGET_TOTAL)
-    cat['course'] = 'grammar'
+    cat, total = build_catalog()
     print(f"stages {len(cat['stages'])}  groups {sum(len(s['groups']) for s in cat['stages'])}  "
           f"skills {len(cat['skills'])}  items {total}  packs {sum(s['packs'] for s in cat['skills'])}")
     if args.apply:

@@ -77,7 +77,7 @@ def _item_counts():
     return counts
 
 
-def build_plan(topup=False, tag=''):
+def build_plan(topup=False, tag='', minimum=0):
     """{job_id: assignment}. With ``topup`` only item tasks for skills under target."""
     catalog = validate.load_catalog()
     skills = catalog['skills']
@@ -86,7 +86,7 @@ def build_plan(topup=False, tag=''):
         have = _item_counts()
         tasks = []
         for s in skills:
-            short = s['n'] - have.get(s['id'], 0)
+            short = max(s['n'], minimum) - have.get(s['id'], 0)
             if short > 0:
                 tasks.append({**_row(s), 'n': short + 2,
                               'file': f"items/{s['id']}__{tag or 't'}.jsonl",
@@ -144,13 +144,18 @@ def build_plan(topup=False, tag=''):
     for s in skills:
         if not s['packs']:
             continue
+        # Packs added to a course later: plan only the files that are not there yet,
+        # in jobs named after their first skill (earlier job numbers stay as they were).
+        if GRAMMAR and os.path.exists(os.path.join(ROOT, 'packs', f"{s['id']}.json")):
+            continue
         if cur is None or cur['st'] != s['stage'] or cur['w'] + s['packs'] > 7:
             cur = {'st': s['stage'], 'w': 0, 'tasks': []}
             pb.append(cur)
         cur['tasks'].append({**_row(s), 'packs': s['packs'], 'file': f"packs/{s['id']}.json"})
         cur['w'] += s['packs']
     for i, b in enumerate(pb):
-        jobs[f'packs-{i:03d}'] = {'kind': 'packs', 'tasks': b['tasks']}
+        jid = f"packs-{b['tasks'][0]['id']}" if GRAMMAR else f'packs-{i:03d}'
+        jobs[jid] = {'kind': 'packs', 'tasks': b['tasks']}
 
     if GRAMMAR:
         jobs['kata-list'] = {'kind': 'kata', 'file': 'reading/katakana.json'}
@@ -376,6 +381,8 @@ def main():
     sub = ap.add_subparsers(dest='cmd', required=True)
     p = sub.add_parser('plan')
     p.add_argument('--topup', action='store_true', help='only item jobs for skills under their target')
+    p.add_argument('--min', type=int, default=0, dest='minimum',
+                   help='with --topup: bring every skill to at least this many items')
     p.add_argument('--tag', default='', help='suffix for top-up part files and job ids (one per top-up round)')
     p.add_argument('--apply', action='store_true', help='write the assignment files')
     r = sub.add_parser('run')
@@ -391,7 +398,7 @@ def main():
     log_dir = os.path.join(args.run_dir, 'logs')
 
     if args.cmd == 'plan':
-        jobs = build_plan(topup=args.topup, tag=args.tag)
+        jobs = build_plan(topup=args.topup, tag=args.tag, minimum=args.minimum)
         kinds = {}
         for job in jobs.values():
             kinds[job['kind']] = kinds.get(job['kind'], 0) + 1

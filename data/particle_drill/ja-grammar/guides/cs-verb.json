@@ -1,0 +1,93 @@
+{
+ "group": "cs-verb",
+ "intro": "Spoken Japanese squeezes the helper verbs that follow the te-form. The start of the helper drops out or fuses with the て or で before it: て + い(る) becomes てる, て + お(く) becomes とく, て + しま(う) becomes ちゃう, and ては / なくては / なければ shrink to ちゃ / なくちゃ / なきゃ. The meaning never changes, only the sound. One rule runs through the whole group: if the te-form ends in で, the contraction is voiced (でる, どく, じゃう, じゃ).",
+ "skills": [
+  {
+   "id": "cs-teru",
+   "rule": "ている → てる, ておく → とく; with a で te-form, でいる → でる and でおく → どく.",
+   "explain": "〜てる is simply 〜ている with the い dropped: 何してる？ 'what are you doing?', 知ってる 'I know'. 〜とく is 〜ておく with て + お fused into と: 買っとく 'I'll buy it in advance'. When the te-form ends in で (読んで, 飲んで, 泳いで), the result is voiced: 読んでる, 飲んどく.\n\nThe two contractions conjugate differently, which is how you recognise them. てる behaves like an ichidan verb: てた, てない, てて, てます. とく behaves like a godan verb ending in く: といた, とかない, といて, とこう, ときます.\n\nThe meanings are those of the full forms: てる is an action in progress or a resulting state; とく is doing something now so it is ready for later. Do not mix them up: 買ってる 'I'm buying / I buy (regularly)', 買っとく 'I'll buy it ahead of time'.",
+   "patterns": [
+    "[verb て] る / た / ない  (= ている)",
+    "[verb で] る / た / ない  (= でいる)",
+    "[verb て→と] く / いた / いて  (= ておく)",
+    "[verb で→ど] く / いた / いて  (= でおく)"
+   ],
+   "examples": [
+    {"jp": "今[いま]、何[なに]し{てる}の？", "en": "What are you doing right now?"},
+    {"jp": "その話[はなし]、もう知[し]っ{てる}よ。", "en": "I already know that story."},
+    {"jp": "弟[おとうと]は部屋[へや]で漫画[まんが]を読[よ]ん{でる}。", "en": "My little brother is reading manga in his room."},
+    {"jp": "飲[の]み物[もの]は私[わたし]が買[か]っ{とく}ね。", "en": "I'll get the drinks in, OK?"},
+    {"jp": "この資料[しりょう]、会議[かいぎ]の前[まえ]に読[よ]ん{どいて}。", "en": "Read this document before the meeting."},
+    {"jp": "昨日[きのう]は一日中[いちにちじゅう]家[いえ]で寝[ね]{てた}。", "en": "I was sleeping at home all day yesterday."}
+   ],
+   "contrast": [
+    {"vs": "とく", "note": "てる (= ている) describes what is going on or a state; とく (= ておく) is preparation for later. 予約してる 'I have a booking', 予約しとく 'I'll book ahead'."},
+    {"vs": "でる / どく", "note": "Use the voiced forms only when the te-form ends in で: 飲んでる, 飲んどく, but 書いてる, 書いとく."},
+    {"vs": "ちゃう", "note": "ちゃう is てしまう (done completely, or oops), not ている: 食べてる 'is eating', 食べちゃう 'will eat it all up'."}
+   ],
+   "mistakes": [
+    {"bad": "今[いま]、本[ほん]を読[よ]ん{てる}。", "good": "今[いま]、本[ほん]を読[よ]ん{でる}。", "note": "読む has the te-form 読んで, so ている contracts to でる."},
+    {"bad": "明日[あした]までに部屋[へや]を掃除[そうじ]し{てといて}。", "good": "明日[あした]までに部屋[へや]を掃除[そうじ]し{といて}。", "note": "とく already contains the て; しておいて contracts to しといて, with no extra て."},
+    {"bad": "パーティーのケーキ、私[わたし]が買[か]っ{てる}ね。", "good": "パーティーのケーキ、私[わたし]が買[か]っ{とく}ね。", "note": "Offering to buy it ahead of the party is ておく → とく; 買ってる means 'I am buying'."}
+   ],
+   "tip": "Look at the full form: い → drop it (てる); お → と (とく). Te-form in で? Voice it: でる, どく."
+  },
+  {
+   "id": "cs-chau",
+   "rule": "てしまう → ちゃう, でしまう → じゃう; past ちゃった / じゃった.",
+   "explain": "〜ちゃう is 〜てしまう in speech: て + しま fuse into ちゃ. When the te-form ends in で (飲んで, 死んで, 遊んで, 泳いで), it becomes じゃう. The meaning is the same as てしまう: the action is completely done (全部食べちゃった 'I ate it all up') or it happened and was not wanted (忘れちゃった 'I forgot, oops').\n\nThe past ちゃった / じゃった is by far the most common form. ちゃう conjugates like a godan verb in う: ちゃった, ちゃって, ちゃいます, ちゃおう 'let's just do it'. Non-past ちゃう often warns of an outcome: 遅れちゃうよ 'you'll end up late'.\n\nKeep the small っ of the te-form: 行って → 行っちゃう, 買って → 買っちゃう. Do not confuse じゃう (= でしまう) with じゃ (= では): 飲んじゃった 'drank it all', 飲んじゃだめ 'you mustn't drink'.",
+   "patterns": [
+    "[verb て→ちゃ] う / った / って  (= てしまう)",
+    "[verb で→じゃ] う / った / って  (= でしまう)"
+   ],
+   "examples": [
+    {"jp": "あ、傘[かさ]を忘[わす]れ{ちゃった}。", "en": "Oh no, I've left my umbrella behind."},
+    {"jp": "ケーキ、全部[ぜんぶ]食[た]べ{ちゃった}の？", "en": "Did you eat the whole cake?"},
+    {"jp": "早[はや]く行[い]かないと、電車[でんしゃ]が行[い]っ{ちゃう}よ。", "en": "If we don't hurry, the train will leave without us."},
+    {"jp": "昨日[きのう]は飲[の]みすぎて、電車[でんしゃ]で寝[ね]{ちゃった}。", "en": "I drank too much yesterday and fell asleep on the train."},
+    {"jp": "金魚[きんぎょ]が死[し]ん{じゃった}。", "en": "My goldfish died."},
+    {"jp": "子供[こども]たちは疲[つか]れて、すぐ寝[ね]{ちゃいました}。", "en": "The children were tired and fell asleep straight away."}
+   ],
+   "contrast": [
+    {"vs": "じゃう", "note": "The te-form decides: 書いて → 書いちゃう, but 読んで → 読んじゃう and 泳いで → 泳いじゃう."},
+    {"vs": "とく", "note": "とく (= ておく) is done on purpose for later; ちゃう is done completely or by mistake. 言っとく 'I'm telling you now', 言っちゃった 'I let it slip'."},
+    {"vs": "ちゃ", "note": "ちゃ (= ては) is followed by だめ / いけない: 食べちゃだめ 'you mustn't eat it'. ちゃう / ちゃった is a finished or unwanted action."}
+   ],
+   "mistakes": [
+    {"bad": "ビールを全部[ぜんぶ]飲[の]ん{ちゃった}。", "good": "ビールを全部[ぜんぶ]飲[の]ん{じゃった}。", "note": "The te-form 飲んで ends in で, so でしまった becomes じゃった."},
+    {"bad": "友達[ともだち]は先[さき]に行[い]{ちゃった}。", "good": "友達[ともだち]は先[さき]に行[い]っ{ちゃった}。", "note": "The te-form is 行って; keep its small っ: 行っちゃった."}
+   ],
+   "tip": "Can you say 'oops' or 'all of it'? ちゃう. Te-form in で? じゃう."
+  },
+  {
+   "id": "cs-nakya",
+   "rule": "なければ → なきゃ, なくては → なくちゃ ('must'); ては → ちゃ, では → じゃ ('must not' with だめ / いけない).",
+   "explain": "'Must' in Japanese is literally 'if you don't, it won't do': 行かなければならない / 行かなくてはいけない. Speech shortens the 'if you don't' part: なければ → なきゃ, なくては → なくちゃ. Both mean the same, and the rest is usually dropped: もう帰らなきゃ 'I have to go home now', 勉強しなくちゃ 'I've got to study'.\n\n'Must not' is 'if you do, it's no good': 食べてはいけない. Here ては → ちゃ and では → じゃ: 食べちゃだめ, 飲んじゃいけない, 遊んじゃだめ. Unlike なきゃ, ちゃ / じゃ is not left hanging: it is followed by だめ, いけない or a similar word.\n\nAgain, a te-form in で gives じゃ (読んじゃだめ), while て gives ちゃ (書いちゃだめ). The same では → じゃ change gives じゃない from ではない.",
+   "patterns": [
+    "[verb ない-stem] なきゃ (いけない / ならない)  (must)",
+    "[verb ない-stem] なくちゃ (いけない / ならない)  (must)",
+    "[verb て→ちゃ] だめ / いけない  (must not)",
+    "[verb で→じゃ] だめ / いけない  (must not)"
+   ],
+   "examples": [
+    {"jp": "もう十時[じゅうじ]だ。帰[かえ]ら{なきゃ}。", "en": "It's already ten. I have to go home."},
+    {"jp": "明日[あした]はテストだから、勉強[べんきょう]し{なくちゃ}。", "en": "There's a test tomorrow, so I've got to study."},
+    {"jp": "ここで写真[しゃしん]を撮[と]っ{ちゃ}だめだよ。", "en": "You mustn't take photos here."},
+    {"jp": "この水[みず]は飲[の]ん{じゃ}いけません。", "en": "You must not drink this water."},
+    {"jp": "早[はや]く起[お]き{なきゃ}いけないのに、また寝坊[ねぼう]した。", "en": "I had to get up early, but I overslept again."},
+    {"jp": "道路[どうろ]で遊[あそ]ん{じゃ}だめ！", "en": "Don't play in the road!"}
+   ],
+   "contrast": [
+    {"vs": "なきゃ vs ちゃ", "note": "なきゃ / なくちゃ attach to the negative stem and mean 'must do'; ちゃ / じゃ attach to the te-form and, with だめ, mean 'must not do'. 食べなきゃ 'I have to eat', 食べちゃだめ 'don't eat'."},
+    {"vs": "ちゃう", "note": "ちゃう / ちゃった (= てしまう) report a finished or unwanted action; ちゃ (= ては) only appears before だめ / いけない."},
+    {"vs": "なきゃ vs なくちゃ", "note": "Interchangeable in meaning. なきゃ is a little more common; both can stand alone at the end of a sentence."}
+   ],
+   "mistakes": [
+    {"bad": "教室[きょうしつ]で食[た]べ{ちゃう}だめだよ。", "good": "教室[きょうしつ]で食[た]べ{ちゃ}だめだよ。", "note": "Before だめ the form is ちゃ (= ては); ちゃう is てしまう."},
+    {"bad": "ここで泳[およ]い{ちゃ}だめです。", "good": "ここで泳[およ]い{じゃ}だめです。", "note": "泳ぐ has the te-form 泳いで, so では becomes じゃ."},
+    {"bad": "明日[あした]は休[やす]みだから、学校[がっこう]に行[い]か{なきゃ}。", "good": "明日[あした]は休[やす]みだから、学校[がっこう]に行[い]か{なくていい}。", "note": "Meaning 'I don't have to go': なきゃ looks negative but means 'must'; 'need not' is なくていい."}
+   ],
+   "tip": "Negative stem + なきゃ = must; te-form + ちゃ + だめ = must not."
+  }
+ ]
+}

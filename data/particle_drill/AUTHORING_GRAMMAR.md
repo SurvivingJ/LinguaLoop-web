@@ -132,6 +132,37 @@ same reading as the answer** so that only the writing differs:
 meaning decides (`{暑[あつ]い|nt-homophone}`, `"d":["熱[あつ]い","厚[あつ]い"]`
 plus one more).
 
+**Collocations (`cl-`, `x-colloc`).** The noun and its particle stay in the
+text; the verb (or adjective) is in the slot, conjugated, with furigana.
+Distractors are the verbs an English speaker would reach for (取る for 飲む
+with medicine, 遊ぶ for 弾く with an instrument), in the same form. Rotate the
+nouns of the skill's set.
+
+**Idioms (`id-`, `x-idiom`).** The situation in the sentence (or the English)
+must point to one expression. Put the whole expression in the slot, or only
+the part that varies (`気{になって|id-ki1}`) when every option shares the rest.
+Distractors are the neighbouring expressions of the set.
+
+**Casual contractions (`cs-`, `x-casual`).** Each item is a spoken sentence
+whose slot holds the contracted form; the English is natural, and the `why`
+states the full form it comes from (`食べちゃった ← 食べてしまった`).
+Distractors are other contractions, or the same contraction with the wrong
+sound (ちゃう where じゃう is needed). In about a third of the items reverse
+it: the sentence is in careful style and the slot holds the full form, with
+contracted forms of other patterns as distractors. Hiragana only in the slot
+unless the verb stem is inside it.
+
+**Compound verbs (`cv-`, `x-compound`).** The whole compound verb is in the
+slot, conjugated, with furigana (`{飛[と]び込[こ]んだ|cv-komu}`). Distractors
+are the same first verb with another second verb (飛び出した, 飛び上がった),
+all real words where possible.
+
+**Loanword traps (`gr-`, `x-gairaigo`).** The slot holds the katakana word
+the Japanese sentence needs; the English uses the real English word for the
+thing (apartment building for マンション). Distractors are other katakana
+words, including the one an English speaker would wrongly expect (アパート
+is acceptable for some flats: avoid sentences where both fit).
+
 ## 6. Guides
 
 Format as `AUTHORING.md` section 4, one file per group, the taught expression

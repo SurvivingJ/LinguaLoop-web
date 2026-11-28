@@ -32,10 +32,13 @@ def _item(**over):
 
 # ------------------------------------------------------------------ catalog
 def test_catalog_file_is_what_the_source_script_builds():
-    built, total = catalog_src.base.build(catalog_src.STAGES, catalog_src.TARGET_TOTAL)
-    built['course'] = 'grammar'
+    built, total = catalog_src.build_catalog()
     assert built == CATALOG
-    assert total == 8000 == sum(s['n'] for s in CATALOG['skills'])
+    assert total == 10000 == sum(s['n'] for s in CATALOG['skills'])
+    # the stages added later did not move the targets of the first twelve
+    first, first_total = catalog_src.base.build(catalog_src.STAGES, catalog_src.TARGET_TOTAL)
+    assert first_total == 8000
+    assert {s['id']: s['n'] for s in first['skills']}.items() <= {s['id']: s['n'] for s in CATALOG['skills']}.items()
 
 
 def test_skill_ids_are_unique_across_both_courses():
@@ -44,10 +47,11 @@ def test_skill_ids_are_unique_across_both_courses():
     assert not particles & set(SKILLS)
 
 
-def test_the_twelve_areas_are_there():
+def test_the_areas_are_there():
     assert [st['id'] for st in CATALOG['stages']] == [
         'give', 'trans', 'keigo', 'kosoado', 'connect', 'adverb', 'ono', 'cond',
-        'pattern1', 'pattern2', 'yomi', 'nita']
+        'pattern1', 'pattern2', 'yomi', 'nita',
+        'colloc', 'idiom', 'casual', 'compound', 'gairaigo']
     asks = {s['stage']: s.get('ask') for s in CATALOG['skills']}
     assert asks['yomi'] == 'reading' and asks['nita'] == 'kanji' and asks['give'] is None
 
@@ -168,7 +172,9 @@ def test_every_skill_has_exercises_and_a_guide():
     short = {sid: len(content.items(sid)) for sid, s in content.skills.items()
              if len(content.items(sid)) < s['n']}
     assert not short, f'skills under their target: {short}'
-    assert sum(len(content.items(sid)) for sid in content.skills) >= 8000
+    assert sum(len(content.items(sid)) for sid in content.skills) >= 10000
+    thin = {sid: len(content.items(sid)) for sid in content.skills if len(content.items(sid)) < 50}
+    assert not thin, f'skills under 50 sentences: {thin}'
     missing = [sid for sid in content.skills if not content.skill_guide(sid)]
     assert not missing, missing
 
