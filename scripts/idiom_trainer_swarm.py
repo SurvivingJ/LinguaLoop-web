@@ -12,6 +12,8 @@ Code login of the machine.
 
 Jobs:
   list-<lang>-<set>        lists/<set>.json: the ranked core list of a set
+  list2-<lang>-<set>       the same file extended to the full tier: the core entries stay
+                           as they are and new ones are appended (after the core is reviewed)
   cards-<lang>-<set>-NN    cards/<set>-NN.json: full cards for ten idioms of the reviewed list
 A job is skipped when its file validates and its review record exists, so a
 run can be restarted. Card jobs exist only for sets whose list has been reviewed.
@@ -57,7 +59,16 @@ def jobs():
                         'core': core, 'file': it.list_path(lang, key)}
             if not os.path.exists(review_path(jid, lang)):
                 continue                      # cards wait for the reviewed list
-            n = math.ceil(len(it.load_list(lang, key)) / it.CHUNK)
+            full = it.FULL[(lang, key)]
+            if full > core:
+                xid = f'list2-{lang}-{key}'
+                out[xid] = {'kind': 'list2', 'lang': lang, 'set': key, 'code': code, 'title': title,
+                            'en': en, 'core': core, 'full': full, 'file': it.list_path(lang, key)}
+            # cards beyond the core wait for the extended list's review
+            entries = it.load_list(lang, key)
+            done_full = full <= core or os.path.exists(review_path(f'list2-{lang}-{key}', lang))
+            limit = len(entries) if done_full else min(len(entries), carded_count(lang, key) or core)
+            n = math.ceil(limit / it.CHUNK)
             for i in range(1, n + 1):
                 cid = f'cards-{lang}-{key}-{i:02d}'
                 out[cid] = {'kind': 'cards', 'lang': lang, 'set': key, 'title': title, 'en': en, 'n': i,
@@ -66,11 +77,31 @@ def jobs():
     return out
 
 
+def carded_count(lang, key):
+    return sum(len(it.load_json(p)) for p in it.card_files(lang, key))
+
+
 def authored_ok(job):
     if not os.path.exists(job['file']):
         return False, 'file missing'
-    floor = int(job['core'] * LIST_FLOOR) if job['kind'] == 'list' else None
+    floor = None
+    if job['kind'] == 'list':
+        floor = int(job['core'] * LIST_FLOOR)
+    elif job['kind'] == 'list2':
+        floor = int(job['full'] * LIST_FLOOR)
     problems = it.validate_file(job['file'], floor)
+    if not problems and job['kind'] == 'list2':
+        # the entries that already have cards must still be where they were
+        # (a last, part-filled card file is completed later: it must be the start of its chunk)
+        entries = {e['id']: e for e in it.load_list(job['lang'], job['set'])}
+        for path in it.card_files(job['lang'], job['set']):
+            cards = it.load_json(path)
+            chunk = it.chunk_ids(job['lang'], job['set'], it.where_of(path)[3])
+            same = [c['id'] for c in cards] == chunk[:len(cards)] and all(
+                all(c[k] == entries[c['id']][k] for k in it.LIST_KEYS) for c in cards)
+            if not same:
+                problems = [f'an entry that has a card was moved or changed ({rel(path)} no longer matches the list)']
+                break
     return (not problems), (problems[0] if problems else '')
 
 
@@ -87,7 +118,23 @@ First read {REPO}/data/idioms/AUTHORING.md in full: it defines the file formats 
 Check (read-only, from the repo root): cd {REPO} && python scripts/idiom_trainer.py validate <file> . It must print "0 problems" for your file."""
 
 
+def carded(job):
+    """How many leading entries of the list already have cards (and must not move)."""
+    return sum(len(it.load_json(p)) for p in it.card_files(job['lang'], job['set']))
+
+
 def author_prompt(jid, job):
+    if job['kind'] == 'list2':
+        keep = carded(job)
+        return f"""{common(job)}
+
+YOUR ASSIGNMENT: extend {rel(job['file'])} (section 2 of AUTHORING.md), the list of the set "{job['set']}" ({job['title']}, {job['en']}), from its core to the FULL tier: {job['full']} entries in all.
+- The file already holds the reviewed core. Its first {keep} entries have finished cards: do NOT change, remove or reorder any of them. Append the new entries after them, continuing the ids ({job['code']}NNN, the next free number upward; four digits are not used, the set stays under 1000).
+- The new entries are the next tier down in usefulness: still in real present-day use (conversation, drama, news, ordinary writing, exams at upper-intermediate to advanced level), ranked most useful first. This is where the idioms with classical origins and stories belong as well as the everyday ones. Still leave out the dated, the obscure, the regional and the vulgar: if you cannot reach {job['full']} without padding, stop short (at least {int(job['full'] * LIST_FLOOR)} is required) rather than add weak entries.
+- No entry may repeat an expression already in the file, and no two entries of the whole file may share a meaning line: read the existing entries first and write each new "mean" so that it identifies its expression.
+- Verify each reading character by character.
+Use Read and Edit (or rewrite the file keeping the existing entries byte for byte). Run the validator on the file until it prints "0 problems", then re-read your new entries once as a native-speaking teacher and replace anything that does not belong.
+Finish with one line: the file and the entry count."""
     if job['kind'] == 'list':
         return f"""{common(job)}
 
@@ -100,7 +147,7 @@ Run the validator on the file until it prints "0 problems", then re-read the lis
 Finish with one line: the file and the entry count."""
     return f"""{common(job)}
 
-YOUR ASSIGNMENT: write {rel(job['file'])} (section 3 of AUTHORING.md): the full cards for these ten entries of {rel(it.list_path(job['lang'], job['set']))}, in this order: {', '.join(job['ids'])}. Read those entries from the list file and copy id, t, r, mean, lvl and tag unchanged.
+YOUR ASSIGNMENT: write {rel(job['file'])} (section 3 of AUTHORING.md): the full cards for these entries of {rel(it.list_path(job['lang'], job['set']))}, in this order: {', '.join(job['ids'])}. Read those entries from the list file and copy id, t, r, mean, lvl and tag unchanged. If the file already exists with cards for the first of these entries, keep those cards exactly as they are and add the missing ones after them.
 For each idiom, think first, then write:
 - What exactly does it mean, who says it, about what, in which register and tone? Where is its edge: the situation where a learner would use it and be wrong?
 - THE STORY. Does it have a real origin: a classical text, a fable, a historical episode, a religious or theatrical term, a known first use? If you are sure of it, tell it plainly as it is traditionally told and name the source. If there is none, or you are not sure of the details or the source, set "story" to null and make "lit" (the literal image) carry the memory. Never invent, embellish or guess a source.
@@ -113,6 +160,18 @@ Finish with one line: the file and how many of the ten cards have a story."""
 
 def review_prompt(jid, job):
     record = rel(review_path(jid, job['lang']))
+    if job['kind'] == 'list2':
+        keep = carded(job)
+        return f"""{common(job)}
+
+YOU ARE THE INDEPENDENT REVIEWER of the entries added to {rel(job['file'])}, the list of the set "{job['set']}" ({job['title']}), when it was extended to the full tier. You did not write them. The first {keep} entries are the reviewed core and have finished cards: do NOT change, remove or reorder them. Review every entry after them as a native-speaking teacher:
+1. Is it in real present-day use and worth a learner's time at upper-intermediate to advanced level? Remove the dated, the obscure, the regional and the vulgar; replace a removed entry with a better missing one (same id) only if a clearly useful one is missing.
+2. Is it already in the list under another form, or a near-duplicate of an earlier entry? Remove it.
+3. Is the text the standard form and the reading right, character by character?
+4. Is the meaning line accurate, and different from every other entry's?
+5. Level and theme plausible; order roughly most useful first within the new entries.
+Fix in place with Edit. Run the validator until it prints "0 problems" (the extended list may hold as few as {int(job['full'] * LIST_FLOOR)} entries: run it with --min-entries {int(job['full'] * LIST_FLOOR)}).
+Then write {record}: {{"job":"{jid}","file":"{rel(job['file'])}","checked":N,"fixed":N,"removed":N,"added":N,"issues":[{{"entry":"...","problem":"...","action":"..."}}]}}. Writing this record is required: it marks the review as done."""
     if job['kind'] == 'list':
         return f"""{common(job)}
 
@@ -133,7 +192,7 @@ YOU ARE THE INDEPENDENT REVIEWER of {rel(job['file'])} (ten idiom cards of the s
 5. The cue: does it call for this idiom and no other? "near": is the stated difference true? "parts": a natural place to cut?
 6. Japanese: furigana on every kanji, correct readings in context.
 Fix problems in place with Edit; keep id, t, r, mean, lvl and tag as in the list (if one of those is wrong, fix the list file entry too and say so in the record). Run the validator until it prints "0 problems".
-Then write {record}: {{"job":"{jid}","file":"{rel(job['file'])}","checked":10,"fixed":N,"stories_kept":N,"stories_removed":N,"stories_added":N,"issues":[{{"idiom":"...","problem":"...","action":"..."}}]}}. Writing this record is required: it marks the review as done."""
+Then write {record}: {{"job":"{jid}","file":"{rel(job['file'])}","checked":<cards>,"fixed":N,"stories_kept":N,"stories_removed":N,"stories_added":N,"issues":[{{"idiom":"...","problem":"...","action":"..."}}]}}. Writing this record is required: it marks the review as done."""
 
 
 # --------------------------------------------------------------------------- running
@@ -198,7 +257,7 @@ def main():
     r = sub.add_parser('run')
     r.add_argument('--apply', action='store_true', help='start the workers')
     r.add_argument('--jobs', type=int, default=8)
-    r.add_argument('--kind', action='append', help='list or cards (repeatable)')
+    r.add_argument('--kind', action='append', help='list, list2 or cards (repeatable)')
     r.add_argument('--lang', action='append', help='zh or ja (repeatable)')
     r.add_argument('--only', action='append', help='job id (repeatable)')
     args = ap.parse_args()

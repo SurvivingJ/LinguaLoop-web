@@ -85,7 +85,13 @@ export function planRound(
   const learning = pool
     .filter((i) => isStarted(st(i)) && !isMastered(st(i)))
     .sort((a, b) => (st(a).last || 0) - (st(b).last || 0));
-  const fresh = pool.filter((i) => !isStarted(st(i)));
+  // New idioms by their place in their own set's list, so every chosen set
+  // contributes its most useful ones first.
+  const fresh = pool
+    .filter((i) => !isStarted(st(i)))
+    .map((i, at) => ({ i, at }))
+    .sort((a, b) => (a.i.rank ?? a.at) - (b.i.rank ?? b.at) || a.at - b.at)
+    .map((x) => x.i);
   const reviews = due.slice(0, Math.floor(size / 2)).map((i) => i.id);
   const slots = Math.max(1, Math.floor((size - reviews.length) / 2));
   const inPlay = learning.slice(0, Math.min(active, slots));

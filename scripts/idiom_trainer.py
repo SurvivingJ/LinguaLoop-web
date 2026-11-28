@@ -33,6 +33,10 @@ SETS = {
            ('yoji', 'yj', '四字熟語', 'Four-character idioms', 80),
            ('kotowaza', 'kw', 'ことわざ', 'Proverbs', 50)],
 }
+# The full tier (owner, 2026-11-28: "Write the full tier"): each list is extended
+# after its core entries, which keep their place, ids and cards.
+FULL = {('zh', 'chengyu'): 600, ('zh', 'guanyong'): 150, ('zh', 'suyu'): 100,
+        ('ja', 'kanyo'): 450, ('ja', 'yoji'): 200, ('ja', 'kotowaza'): 120}
 LANGUAGE_IDS = {'zh': 1, 'ja': 3}
 TAGS = frozenset('effort success failure caution haste joy anger fear sadness relationship speech '
                  'knowledge foolishness change time quantity appearance behaviour luck difficulty '
@@ -282,8 +286,9 @@ def validate_file(path, min_entries=None):
         floor = core if min_entries is None else min_entries
         if len(rows) < floor:
             problems.append(f'{len(rows)} entries; at least {floor} wanted')
-        if len(rows) > core + 20:
-            problems.append(f'{len(rows)} entries; at most {core + 20}')
+        most = FULL[(lang, key)] + 20
+        if len(rows) > most:
+            problems.append(f'{len(rows)} entries; at most {most}')
         return problems
     entries = {r['id']: r for r in load_list(lang, key) if isinstance(r, dict) and 'id' in r}
     want = chunk_ids(lang, key, chunk)
@@ -323,9 +328,10 @@ def built_files(lang):
         out[f'{key}.json'] = body
         sets.append({'key': key, 'title': title, 'en': en, 'count': len(rows),
                      'v': hashlib.sha1(body.encode('utf-8')).hexdigest()[:10]})
+        # rank: place in the set's list (most useful first); the page starts new idioms by rank
         idioms += [{'id': c['id'], 't': c['t'], 'r': c['r'], 'mean': c['mean'], 'lvl': c['lvl'],
-                    'tag': c['tag'], 'set': key, 'parts': c['parts'], 'story': bool(c['story'])}
-                   for c in rows]
+                    'tag': c['tag'], 'set': key, 'rank': n, 'parts': c['parts'], 'story': bool(c['story'])}
+                   for n, c in enumerate(rows)]
     manifest = {'language': lang, 'language_id': LANGUAGE_IDS[lang], 'sets': sets,
                 'total': len(idioms), 'idioms': idioms}
     out['manifest.json'] = json.dumps(manifest, ensure_ascii=False, separators=(',', ':'))
@@ -365,7 +371,8 @@ def cmd_stats():
                     rows = load_json(path)
                     cards += len(rows)
                     stories += sum(1 for c in rows if c['story'])
-            print(f'{lang} {key:9s} {title}  list {len(entries):3d} / {core}  cards {cards:3d}  with a story {stories}')
+            print(f'{lang} {key:9s} {title}  list {len(entries):3d} / core {core} / full {FULL[(lang, key)]}'
+                  f'  cards {cards:3d}  with a story {stories}')
     return 0
 
 
