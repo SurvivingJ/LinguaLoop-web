@@ -1,5 +1,12 @@
 # Wiring checklist: making a new study language live
 
+**Since 2026-11-28 the language set is declared once in `services/language_registry.py`.**
+Run `python scripts/check_language.py <code>` first: it lists the plug-in points still
+missing for a language. The id-to-code maps named below now read the registry and need no
+edit; what remains per language is the NLP processors, the capability matrix, the
+validation profile, prompt rows, and the per-language branches listed under "Not migrated"
+in `wiki/features/language-registry.tech.md`.
+
 The content team does not do this; the wiring agent turns it into
 `wiring/tasks.md` and pending SQL for the language. Line numbers are from
 2026-11-28 and drift: grep before editing.

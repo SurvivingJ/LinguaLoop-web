@@ -11,7 +11,7 @@ Owner: "Analyse our resources and content for Japanese and Chinese and create a 
 
 One run of `.claude/skills/new-language-swarm/workflow.js` at pilot scale: 35 agents, 48 minutes, 3.93 M subagent tokens on the session login. No paid API, no database write (451 MB before and after), no application code changed. Files: `data/language_packs/it/` (1.3 MB), `static/data/grammar/it/` (0.12 MB, not served), `.claude/skills/fat-seed-authoring/cheatsheets/it.md`. Method and tool: [[features/new-language-content-packs.tech]]. The survey of Japanese and Chinese it starts from is `.claude/skills/new-language-swarm/reference/ja-zh-inventory.md`.
 
-**No native speaker has checked any of this.** Every reviewer was an AI agent. The orchestrator's own sample (18 drill items, 15 dictionary rows, 6 senses) found no error, which is not a measure of quality.
+**No human native speaker has checked any of this.** Every reviewer was an AI agent; an Opus check was added afterwards (section below). The orchestrator's own sample (18 drill items, 15 dictionary rows, 6 senses) found no error, which is not a measure of quality.
 
 ## What was produced
 
@@ -55,7 +55,32 @@ Reading: the two form tables (gender, conjugation) are reliable from a Sonnet au
 
 Exercise documents: the worklist picked the most frequent words, which are function words (il, di, non). Those are taught by dictionaries and drills, and made the weakest documents. The picker now takes content words first.
 
+## Opus language check (same day, owner's choice of checker)
+
+Three Opus reviewers marked every built drill item, the three guides, all 282 reviewed dictionary rows and the six exercise documents, without seeing the earlier reviewers' notes. Reports: `data/language_packs/it/reports/native_check/`.
+
+| content | checked | wrong | unnatural / mislabelled | after applying |
+|---|---|---|---|---|
+| drills: present-tense-forms | 50 | 0 | 1 | 1 fixed, 1 relabelled |
+| drills: ce-or-e | 51 | 3 (false `why`) | 3 | 5 fixed, 5 relabelled |
+| drills: adjective-agreement | 50 | 0 | 2 (level labels) | 1 relabelled |
+| guides | 3 | 6 false rules (2 guides) | 2 | 8 changes |
+| noun_gender | 60 | 0 | 0 | unchanged |
+| verb_conjugation | 60 | 1 (vivere auxiliary note) | 0 | 1 fixed |
+| verb_government | 57 | 7 | 1 | 4 rows deleted, 2 fixed → 53 |
+| false_friends | 56 | 8 (7 `full` that are `partial`) | 0 | 8 fixed |
+| collocations | 49 | 15 | 0 | 1 deleted, 4 fixed, 10 uncertain marks left → 48 |
+| exercise documents | 6 (460 units) | 7 units | 4 | 2 documents rejected (solo, il), 4 kept |
+
+- Every keyed drill answer was correct and no distractor was acceptable; the faults were rules stated as absolutes ("after dove only è / sono", "fare only with caldo, freddo and tempo", "loro follows the vowel of io") in the guides, copied into `why` texts.
+- The form tables are clean. The judgement tables were still about one row in five wrong **after** the first review, mostly a "wrong" partner that is everyday Italian with a small change of construction (essere di fretta, pagare per, pronto per) or a calque no English speaker would produce.
+- One exercise document in six had "wrong" sentences that are correct Italian in another sense.
+- Sixteen marks the checker was not certain of were left unchanged and are listed in `reports/native_check/applied.json`, as are eight near-duplicate sentence pairs in the agreement batch.
+- The briefs for guides, drills, dictionaries and exercise documents carry these findings; they have not been re-tested (TASK-1271).
+
 ## Decisions for the owner
+
+Answered 2026-11-28: the owner accepted the profile as proposed (items 1 to 5), chose Opus as the language checker, and keeps the pack in the repository.
 
 1. The six new exercise types and five dictionaries (NQ1). Each is engineering work listed in `data/language_packs/it/wiring/tasks.md`.
 2. `preposition_selection`: a new type, or the Japanese particle renderer under another name (NQ4).

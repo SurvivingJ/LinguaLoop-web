@@ -4,11 +4,7 @@ type: feature
 status: in-progress
 tech_page: new-language-content-packs.tech.md
 last_updated: 2026-11-28
-open_questions:
-  - "NQ1: Which Italian profile decisions does the owner accept (six new exercise types, five lookup dictionaries, strict accents in typed answers)?"
-  - "NQ2: Who checks the Italian content as a native speaker before any of it is shown to learners?"
-  - "NQ3: Where does a new language's content live when it goes live, given the database has about 28 MB of room and a language is roughly 30 KB per word sense?"
-  - "NQ4: Is preposition choice in Italian built as its own exercise type or as the Japanese particle exercise under another name?"
+open_questions: []
 ---
 
 # New-Language Content Packs
@@ -33,7 +29,7 @@ As the owner, I want to add a language without months of one-off pipelines: I na
 
 ## Constraints & Edge Cases
 - Nothing is uploaded. The pack is files in the repository until the owner decides.
-- No native speaker has checked any of it. Reviewers are AI agents.
+- No human native speaker checks the content. By the owner's decision the final language check is an Opus reviewer; that is a stronger reader than the authors, not a guarantee.
 - The exercise documents are checked for shape only: the real exercise pipeline cannot run for a language that has no prompt and capability rows yet.
 - The drill page reads Chinese field names today, so built Italian drills are not served.
 - A pilot comes before any larger run; the pilot's reviewer fix rates decide whether the author instructions need changing first.
@@ -45,15 +41,16 @@ As the owner, I want to add a language without months of one-off pipelines: I na
 - Paid model APIs are used only when the owner says so for that run.
 
 ## Open Questions
-- NQ1 OPEN — profile decisions (see [[evaluations/italian-pack-pilot-2026-11-28]] "Decisions for the owner").
-- NQ2 OPEN — native-speaker check.
-- NQ3 OPEN — storage for a new language's content.
-- NQ4 OPEN — preposition exercise: new type or the particle type renamed.
+- NQ1 ANSWERED 2026-11-28 — owner: "Accept". The six new exercise types, five dictionaries and the profile's teaching rules stand as proposed.
+- NQ2 ANSWERED 2026-11-28 — owner: "Opus". The language check is done by Opus reviewers that mark every item; no human native speaker is planned. First check run the same day ([[evaluations/italian-pack-pilot-2026-11-28]]).
+- NQ3 ANSWERED 2026-11-28 — owner: "We will just store it in the repo for now". Packs stay in `data/language_packs/<lang>/`; nothing is uploaded.
+- NQ4 ANSWERED 2026-11-28 — covered by NQ1: preposition choice is its own type.
 
 ## Related Pages
 - [[features/new-language-content-packs.tech]]
 - [[decisions/ADR-067-new-language-content-as-file-packs]]
 - [[evaluations/italian-pack-pilot-2026-11-28]]
 - [[tasklist/new-language-content-packs.tasks]]
+- [[features/language-registry]] — where a language is declared and what it still needs
 - [[features/grammar-drills]] — the Chinese drills the grammar contract is taken from
 - [[features/exercise-generation-v2]] — the exercise ladder and capability matrix the profile maps onto

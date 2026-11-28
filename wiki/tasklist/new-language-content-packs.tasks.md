@@ -3,8 +3,8 @@ title: "New-Language Content Packs — Task Breakdown"
 feature: new-language-content-packs
 prose_page: ../features/new-language-content-packs.md
 tech_page: ../features/new-language-content-packs.tech.md
-total_tasks: 6
-done: 0
+total_tasks: 7
+done: 2
 last_updated: 2026-11-28
 ---
 
@@ -16,7 +16,7 @@ The skill, the tool and the Italian pilot were built on 2026-11-28 ([[evaluation
 
 ## TASK-1269: Owner decisions on the Italian profile
 
-**Status:** [?] Awaiting the owner (NQ1, NQ4)
+**Status:** [x] Done 2026-11-28 — owner: "Accept"; profile unchanged, `validate-profile it` OK
 **Feature:** new-language-content-packs
 **Type:** docs
 **Complexity:** S (1-3h)
@@ -42,9 +42,9 @@ A changed dictionary field spec means every file of that dictionary is re-valida
 
 ---
 
-## TASK-1270: Native-speaker check of the Italian pilot
+## TASK-1270: Language check of the Italian pilot (Opus)
 
-**Status:** [?] Awaiting the owner (NQ2: who)
+**Status:** [x] Done 2026-11-28 — owner chose Opus as the checker; three Opus reviewers marked everything, findings applied (`reports/native_check/`), rates in the evaluation page, briefs amended
 **Feature:** new-language-content-packs
 **Type:** test
 **Complexity:** M (3-8h)
@@ -101,11 +101,11 @@ Pass `dictionaries` and `topics` in the workflow arguments when the profile and 
 
 ## TASK-1272: Scale the Italian pack to the profile's targets
 
-**Status:** [?] Blocked on TASK-1270 and TASK-1271, and on NQ3 (where the content is stored)
+**Status:** [ ] Not Started (NQ3 answered: the pack stays in the repository)
 **Feature:** new-language-content-packs
 **Type:** feature
 **Complexity:** XL (>2d)
-**Depends On:** TASK-1270, TASK-1271
+**Depends On:** TASK-1271
 
 **Description:**
 Build the full pack: about 5,000 lemmas and senses, the five dictionaries at target size, 37 guides and 90 drill batches. Run in workflows of a few dozen batches so each result is sampled before the next.
@@ -180,3 +180,33 @@ Keep the rule forms declarative (JSON); no expression evaluation.
 
 **Verification:**
 `python scripts/language_pack.py validate-dict it noun_gender --reviewed` passes and fails on a row with `lo` before a plain consonant.
+
+---
+
+## TASK-1275: Language registry follow-ups
+
+**Status:** [ ] Not Started
+**Feature:** language-registry
+**Type:** refactor
+**Complexity:** M (3-8h)
+**Depends On:** none
+
+**Description:**
+The registry migration left the places where one language is named for real per-language behaviour. Close the ones that are bookkeeping: the seal glyph tables in six page scripts (the registry now carries `glyph`), a startup check that `dim_languages` ids and codes equal the registry's, and `data-lang-gate` attributes driven by features. RQ1 and RQ2 in [[features/language-registry]] decide the rest.
+
+**Acceptance Criteria:**
+- [ ] `knowledge.js`, `placement.js`, `calibration.js`, `session/controller.js`, `reading_listening.js` and `test-preview.js` take the seal glyph from `LinguaLanguages`
+- [ ] The app logs an error at startup when `dim_languages` and the registry disagree on an id or code
+- [ ] `data-lang-gate` values are written from `codes_with(<feature>)`; `tests/test_redesign_shell.py` updated to match
+- [ ] Full pytest, vitest and `npm run check` pass
+
+**Technical Notes:**
+See "Not migrated" in [[features/language-registry.tech]]. Do not change behaviour for ids 1 to 3.
+
+**Files to Create / Modify:**
+- `static/js/pages/*.js`, `static/js/session/**` — glyph lookups
+- `services/dimension_service.py` — the startup comparison
+- `templates/{profile,study_session,base}.html` — gates
+
+**Verification:**
+`python -m pytest tests -q`, `npx vitest run`, `npm run check`; `python scripts/check_language.py` unchanged.

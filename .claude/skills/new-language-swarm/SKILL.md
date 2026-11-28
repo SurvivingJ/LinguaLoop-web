@@ -47,7 +47,10 @@ languages.
 3. Agree the scale with the owner if they did not state it: **pilot** (the
    defaults below, about 30 agents) or a named larger scale. Never go from
    nothing to full scale: the pilot's defects decide the briefs.
-4. Pick `languageId`: the next id not in `dim_languages` (read-only query).
+4. Register the language as `PLANNED` in `services/language_registry.py` (next free id, checked
+   against `dim_languages` with a read-only query), run `python scripts/build_language_registry_js.py`,
+   and use that id as `languageId`. `python scripts/check_language.py <code>` lists what the
+   app still needs for it; the wiring planner starts from that list.
 
 ## Run
 
@@ -106,12 +109,18 @@ Do these yourself, in order:
    dictionary rows and 2 exercise documents, and the verdict files' totals.
    Report the reviewers' fix rates per stage: a stage where reviewers changed
    more than about 15% needs its author brief fixed before scaling.
-4. `python scripts/language_pack.py build <lang>` then `build --check`.
-5. Wiki, as CLAUDE.md requires: the evaluation page with the run's numbers,
+4. **Language check by Opus** (owner's decision, 2026-11-28: the final checker is Opus, not a
+   person). Spawn Opus reviewers that mark every built drill item, every guide, every reviewed
+   dictionary row and every exercise document as ok / wrong / unnatural, without the earlier
+   verdict files, into `reports/native_check/`; then one agent applies the certain marks
+   (fix, delete the row, or move the document to `fat_seed/rejected/`) and lists the rest in
+   `applied.json`. Report the rates per content type.
+5. `python scripts/language_pack.py build <lang>` then `build --check`.
+6. Wiki, as CLAUDE.md requires: the evaluation page with the run's numbers,
    the feature pages if the pack format changed, tasks from `wiring/tasks.md`
    (the wiki owner assigns TASK ids), index and log.
-6. Tell the owner what exists, what was not checked by a native speaker
-   (everything, unless they arranged one), and what uploading would need.
+7. Tell the owner what exists, the Opus check's rates and what it left uncertain, and that
+   no human native speaker has read it.
 
 ## Hard rules
 
@@ -132,7 +141,9 @@ Do these yourself, in order:
   documents are a pilot of the cheat sheet, not upload packages. Once wired,
   the path is the `fat-seed-authoring` skill, starting with its 100-sense
   gold set.
-- **Nothing here replaces a native-speaker check.** Say so in every report.
+- **The Opus check is the last reader, not a guarantee.** In the Italian pilot it still found
+  one judgement-table row in five wrong after the first review. Say in every report that no
+  human native speaker has read the content.
 
 ## Known limits
 
