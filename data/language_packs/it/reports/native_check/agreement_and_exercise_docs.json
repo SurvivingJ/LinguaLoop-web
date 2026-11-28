@@ -1,0 +1,146 @@
+{
+ "checker": "opus",
+ "drills": {
+  "adjective-agreement-01.jsonl": {
+   "items": 50,
+   "ok": 48,
+   "wrong": 0,
+   "unnatural": 2,
+   "marks": {
+    "adjective-agreement-01-009": {
+     "mark": "unnatural",
+     "note": "Mio padre e mia madre sono molto preoccupati per la mia salute. Labelled lvl 3, but level 3 is B2 words, 10 to 22 words and two clauses (congiuntivo, ipotetico, relatives with cui); this is one clause of A2 words. The Italian is fine; relabel as lvl 2 (or 1).",
+     "certain": false
+    },
+    "adjective-agreement-01-050": {
+     "mark": "unnatural",
+     "note": "Per la colazione di Pasqua ho comprato le uova freschi e il pane caldo. Labelled lvl 3, but level 3 is B2 words, 10 to 22 words and two clauses (congiuntivo, ipotetico, relatives with cui); this is one clause of A2 words. The Italian is fine; relabel as lvl 2 (or 1). (16 words, but only two coordinated objects, no second clause.)",
+     "certain": false
+    }
+   }
+  }
+ },
+ "guide": [],
+ "exercise_docs": {
+  "cosa.noun.json": {
+   "units_checked": 94,
+   "wrong": 0,
+   "unnatural": 0,
+   "usable": true,
+   "marks": []
+  },
+  "di.preposition.json": {
+   "units_checked": 64,
+   "wrong": 1,
+   "unnatural": 0,
+   "usable": true,
+   "marks": [
+    {
+     "where": "B.level_1.options[1].explanation",
+     "mark": "wrong",
+     "note": "States that dai /dai/ 'has an extra /i/ glide'. Against di /di/, the sound dai adds is the vowel /a/ (d-a-i); the /i/ is in both words. Should read: 'dai has an extra /a/ before the /i/'. The listening item still works.",
+     "certain": true
+    }
+   ]
+  },
+  "essere.verb.json": {
+   "units_checked": 76,
+   "wrong": 1,
+   "unnatural": 0,
+   "usable": true,
+   "marks": [
+    {
+     "where": "A.level_6.wrong_sentences[2]",
+     "mark": "wrong",
+     "note": "'In questa città è un museo molto famoso.' Bare essere meaning 'there is' is literary but it is still current in written descriptive and guidebook prose ('Nella cappella è un affresco di Giotto'), so an educated reader may accept the sentence; in speech it is c'è. Replace it with a clear misuse, for example 'Sono freddo, chiudi la finestra' (avere freddo).",
+     "certain": false
+    }
+   ]
+  },
+  "il.determiner.json": {
+   "units_checked": 60,
+   "wrong": 1,
+   "unnatural": 4,
+   "usable": true,
+   "marks": [
+    {
+     "where": "B.level_3.options[3]",
+     "mark": "wrong",
+     "note": "qualche: 'Ho perso qualche treno delle otto e sono arrivato tardi' can be read as grammatical and meaningful (on a few days I missed the 8 o'clock train and was late). The passato prossimo does not force a single event, so a native may accept a second option. Replace it with a distractor that the meaning clearly excludes, or add 'stamattina' to the frame.",
+     "certain": false
+    },
+    {
+     "where": "A.level_3.options[1]",
+     "mark": "unnatural",
+     "note": "troppo: 'troppo capo' (troppo with a singular count noun) is ruled out by grammar alone. The profile's level_3 rule says the wrong options must fail on meaning only.",
+     "certain": true
+    },
+    {
+     "where": "A.level_3.options[2]",
+     "mark": "unnatural",
+     "note": "quanto: 'Quando arriva quanto capo' is ungrammatical, so it fails on grammar, not meaning (profile level_3 rule). The explanation's reasoning about a question 'about quantity' is strained.",
+     "certain": true
+    },
+    {
+     "where": "A.level_3.options[3]",
+     "mark": "unnatural",
+     "note": "nessun: a postverbal nessun without non is ungrammatical, which is grammar, not meaning (the explanation itself calls it valency). For a determiner every real meaning distractor (un, quel, questo) also fits, so level_3 on il cannot satisfy the profile rule. Consider declining level_3 for articles.",
+     "certain": true
+    },
+    {
+     "where": "B.level_3.options[2]",
+     "mark": "unnatural",
+     "note": "alcun: it is excluded only because the sentence is affirmative, so it fails on grammar, not meaning (profile level_3 rule).",
+     "certain": true
+    }
+   ]
+  },
+  "non.adverb.json": {
+   "units_checked": 64,
+   "wrong": 0,
+   "unnatural": 0,
+   "usable": true,
+   "marks": []
+  },
+  "solo.adjective.json": {
+   "units_checked": 102,
+   "wrong": 4,
+   "unnatural": 0,
+   "usable": false,
+   "marks": [
+    {
+     "where": "A.level_6.wrong_sentences[0]",
+     "mark": "wrong",
+     "note": "'Ho solo cinque euro, quindi non posso comprare il libro.' This is a perfectly correct, natural sentence. Solo is the adverb 'only', a different word, and it is not misused. Every native accepts it, so the item has two correct sentences. Replace it with a sentence that a native rejects and in which the adjective solo is misused for meaning.",
+     "certain": true
+    },
+    {
+     "where": "A.level_6.wrong_sentences[1]",
+     "mark": "wrong",
+     "note": "'Oggi c'è il sole, quindi andiamo al mare.' It is correct Italian and does not contain the target word at all: sole here is the noun 'sun'. It cannot be a misuse of solo, and a learner who picks it is right.",
+     "certain": true
+    },
+    {
+     "where": "B.level_6.wrong_sentences[2]",
+     "mark": "wrong",
+     "note": "'Ho visto quel film una sola volta, ma lo ricordo bene.' This is correct and natural: una sola volta = only once is a standard use of the adjective solo. The explanation even says so ('a different sense'). It is not wrong, so the item has two correct answers.",
+     "certain": true
+    },
+    {
+     "where": "B.preposition_selection.options[2].explanation",
+     "mark": "wrong",
+     "note": "It says 'per volta means each time'. That is false: per volta means 'at a time' (uno per volta, due alla volta). 'Each time' is ogni volta. The option itself is correctly wrong.",
+     "certain": true
+    }
+   ]
+  }
+ },
+ "patterns": [
+  "level_6 'wrong' sentences that are correct Italian: the word in another sense or another part of speech (solo 'only', una sola volta) or a homograph that is not the target at all (sole 'sun'). This makes the semantic-discrimination item have several right answers. It is the most serious class, and it accounts for 3 of the 4 wrong units in solo.",
+  "level_3 cloze distractors for function words (il) that are ruled out by grammar alone (troppo, quanto, nessun, alcun), against the profile rule. Where a distractor was meant to fail on meaning it may in fact fit (qualche treno delle otto). For articles every meaning-level alternative (un, quel, questo) is grammatical, so level_3 for determiners is structurally weak and should probably be declined.",
+  "English explanations with a false linguistic claim while the option itself is right: di 'dai has an extra /i/ glide' (it is /a/), solo 'per volta means each time' (it means at a time).",
+  "level_6 wrong sentences that are only literary or marked rather than wrong (bare existential essere 'In questa città è un museo'). Also, for cosa, sound-alike malapropisms (casa, a causa di, costa) are used in place of real sense misuses. They are clearly wrong and so acceptable, but they test form recognition more than meaning.",
+  "level_1 explanations saying 'the rest is the same' ignore the open/closed vowel (polo, molo, sodo /ɔ/ against solo /o/; coda /o/ against cosa /ɔ/) and s/z voicing (rosa, posa). This follows the profile's policy of not drilling these contrasts, so it is not marked, but strictly speaking the statements are approximate.",
+  "Grammar drill: level labels that are too high (lvl 3 items with one clause of A2 words: 009, 050). Several items reuse the same frame as another item in the batch (017/032 fireworks, 028/033 post offices, 013/048 and 023/048 Lei + sicuro, 012/049 pronte/pronta per la visita, 007/040 il problema serio, 018/050 uova fresche, 019/045 blu). The sentences are not identical, but the batch rule asks for no shared sentences and the near-duplicates reduce variety. These were not marked individually."
+ ]
+}
