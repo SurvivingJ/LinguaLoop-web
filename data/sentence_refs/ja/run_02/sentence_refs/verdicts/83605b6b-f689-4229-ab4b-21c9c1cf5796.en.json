@@ -1,0 +1,34 @@
+{
+  "test_id": "83605b6b-f689-4229-ab4b-21c9c1cf5796",
+  "l1": "en",
+  "reviewer_model": "claude-sonnet-5-5",
+  "sentences": [
+    {
+      "idx": 0,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.9351,
+      "back_translation": "会社は、コンピューターにどんなデータを使ったかをお客さんに伝えなければなりません。"
+    },
+    {
+      "idx": 1,
+      "verdict": "rewritten",
+      "entailment_ok": true,
+      "changed": true,
+      "notes": "subject 'It' was ambiguous; the gold subject is the company",
+      "tightness": 0.7692,
+      "back_translation": "コンピューターがどのように答えを出すかも説明します。"
+    },
+    {
+      "idx": 2,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.75,
+      "back_translation": "そうすれば、お客さんは安心してそのサービスを使えます。"
+    }
+  ]
+}

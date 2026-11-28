@@ -1,0 +1,34 @@
+{
+  "test_id": "68e30b68-5ac1-4b03-9aab-7d0a873680d8",
+  "l1": "en",
+  "reviewer_model": "claude-opus-5-5",
+  "sentences": [
+    {
+      "idx": 0,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.9643,
+      "back_translation": "クラシック音楽の作曲には、ソナタ形式という決まりがあります。"
+    },
+    {
+      "idx": 1,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.68,
+      "back_translation": "今の作曲家は、わざとその決まりを破って曲を作ります。"
+    },
+    {
+      "idx": 2,
+      "verdict": "rewritten",
+      "entailment_ok": true,
+      "changed": true,
+      "notes": "くふうしています is 'devise ways / take pains', not 'work hard' (がんばる); rewritten.",
+      "tightness": 0.8077,
+      "back_translation": "でも、物語のようにつながって聞こえるように工夫します。"
+    }
+  ]
+}
