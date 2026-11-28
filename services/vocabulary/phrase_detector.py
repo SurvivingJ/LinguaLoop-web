@@ -94,7 +94,7 @@ class PhraseDetector:
                 logger.error("Phrase detection returned empty content")
                 return []
 
-            data = json.loads(self._clean_json(raw))
+            data = self._parse_first_object(raw)
             phrases = data.get("phrases", [])
 
             if not isinstance(phrases, list):
@@ -120,6 +120,25 @@ class PhraseDetector:
         except Exception as e:
             logger.error(f"Phrase detection failed: {e}")
             return []
+
+    @classmethod
+    def _parse_first_object(cls, raw: str):
+        """Parse the reply's JSON object.
+
+        A reply can carry the object followed by more text containing braces
+        (seen from the claude-cli transport, which has no JSON mode); the
+        shared cleaner then spans both and json.loads fails with "Extra data".
+        Fall back to decoding only the first object.
+        """
+        cleaned = cls._clean_json(raw)
+        try:
+            return json.loads(cleaned)
+        except json.JSONDecodeError:
+            start = cleaned.find('{')
+            if start == -1:
+                raise
+            data, _end = json.JSONDecoder().raw_decode(cleaned[start:])
+            return data
 
     @staticmethod
     def _clean_json(content: str) -> str:
