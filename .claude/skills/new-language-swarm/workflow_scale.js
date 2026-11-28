@@ -24,6 +24,7 @@ export const meta = {
 //   drills:    [{slug, first, last, items}]               batch numbers first..last
 //   testPlans: [{tier, tests, perBatch, firstBatch}]      planner per tier -> tests/plan/t<tier>.json
 //   tests:     [{tier, first, last}]                      batches t<tier>-NN of the tier's plan
+//   testFixes: [batch id, ...]                            cold solver + fixer on an already reviewed batch
 //   fatseed:   {groups: [[doc, ...], ...]}                docs from fat_seed/worklist.json
 const A = args || {}
 if (!A.lang || !A.name || !A.repo || !A.work) throw new Error('args need lang, name, repo and work')
@@ -158,6 +159,12 @@ for (const t of W.tests || []) {
       .then(r => (r && r.validator_ok) ? run('tests-fix', 'Tests', 'fix ' + f, 'test-fixer',
         `Repair the questions of ${PACK}/tests/reviewed/${f}.jsonl that the cold solver answered without the passage.`, M.reviewer) : null))
   }
+}
+
+for (const f of W.testFixes || []) {
+  jobs.push(() => run('tests-cold', 'Tests', 'cold ' + f, 'test-cold-solver', `Cold-solve the reviewed batch ${f}.`, M.reviewer)
+    .then(r => (r && r.validator_ok) ? run('tests-fix', 'Tests', 'fix ' + f, 'test-fixer',
+      `Repair the questions of ${PACK}/tests/reviewed/${f}.jsonl that the cold solver answered without the passage.`, M.reviewer) : null))
 }
 
 for (const g of (W.fatseed && W.fatseed.groups) || []) {
