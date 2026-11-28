@@ -31,3 +31,13 @@ or `{"lemma": "…", "skip": true, "reason": "…"}` only if it is not a word.
 - `confidence` is honest; lower it when unsure.
 
 Run `validate-senses` on your file until OK.
+
+Notes from the Italian pilot:
+
+- `pronunciation` follows the profile's `pronunciation` key when it has one
+  (format, stress mark, syllable dots); exercises are generated from it.
+- `lexical` uses the field names of the profile's dictionaries (the noun
+  dictionary's names for a noun, the verb dictionary's for a verb), not names
+  of your own.
+- When the hint lists several meanings, define the first and say so in your
+  report. Function words are where two senses get joined most: one use only.

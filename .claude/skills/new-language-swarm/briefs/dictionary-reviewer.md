@@ -15,3 +15,6 @@ Write the corrected file to `PACK/dictionaries/reviewed/<key>_<NN>.jsonl` and
 
 Run `validate-dict <lang> <key> --reviewed` until OK, and report any field
 spec in the profile that is too loose or too strict.
+
+Key the verdict items by the dictionary's `unique` fields (a headword can occur
+in several rows).

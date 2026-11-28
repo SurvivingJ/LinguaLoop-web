@@ -26,3 +26,8 @@ Write:
 
 Return the number of tasks and anything in the profile that cannot be built
 as specified.
+
+Notes from the Italian pilot: a ladder row whose note says it stays off until
+something exists (a dictionary, a list) is inserted disabled whatever its
+status. There is no validator for these files: report `validator_ok` true
+when the three files exist and the SQL is idempotent, and say what you checked.

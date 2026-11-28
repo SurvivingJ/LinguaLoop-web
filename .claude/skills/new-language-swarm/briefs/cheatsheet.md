@@ -17,3 +17,6 @@ including the wrong version ("never …"). The examples are the sheet: choose
 the confusions English-speaking learners of this language really make.
 
 No generic template phrases for explanations: authors copy them.
+
+There is no validator for the sheet: report `validator_ok` true when the file
+is written, and give its size. Over 6 KB, say which section you would cut first.

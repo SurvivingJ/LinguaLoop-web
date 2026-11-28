@@ -17,3 +17,17 @@ where learners most need them right. Include the irregular high-frequency
 members of the class; they are the point of the drill.
 
 Run `validate-dict <lang> <key>` until OK.
+
+Notes from the Italian pilot:
+
+- `source_pos` may name several parts of speech; take words from all of them.
+  Where the lexicon is too thin for the table (collocations, false friends),
+  common words of the profile's level range are the right source.
+- A field that lists **wrong** alternatives (wrong collocates, a calque, a
+  wrong preposition) is the riskiest in the table: each one must be
+  unacceptable in every reading and register. If it forms an established
+  phrase with another meaning, or is merely rarer, it is not wrong. Six in ten
+  collocation rows failed on this in the pilot.
+- Apply the profile's criteria for flags (irregular, spelling change, cue) the
+  same way to every row; where the criterion does not decide a case, say so in
+  your report instead of deciding silently.

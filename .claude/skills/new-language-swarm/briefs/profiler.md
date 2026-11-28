@@ -51,3 +51,19 @@ Then run `validate-profile` until OK. Also write `PACK/reports/profile.md`
 and why you made them.
 
 Return the dictionary keys and the list of ladder rows marked `new`.
+
+Notes from the Italian pilot:
+
+- The validator checks one field at a time. Write every rule that ties two
+  fields together (article against first sound and gender; a form required
+  unless a flag says none) in `author_notes` as a numbered list, so authors,
+  reviewers and the later build check apply the same rules.
+- Define each flag by a test anyone applies the same way ("irregular in the
+  imperative = the tu form differs from the tu present"), with the edge cases
+  named. Vague flags were the main source of author / reviewer disagreement.
+- A type that applies but cannot run until something exists (a collocation
+  list) is `adapt` with a note that starts "Disabled until …".
+- If exercises are generated from the pronunciation, add a top-level
+  `pronunciation` key giving its exact format; sense authors follow it.
+- Regexes for forms: allow only the accented letters those forms really use,
+  and give variant forms a field of their own instead of loosening the main one.

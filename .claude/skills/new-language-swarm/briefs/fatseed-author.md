@@ -30,3 +30,10 @@ Decline with the Block reference's tokens, never by leaving a block out.
 
 B is written independently of A: different anchor sentences, different
 distractors. Run `validate-fatseed <lang> <doc>` on each document until OK.
+
+Notes from the Italian pilot: every index is 0-based. level_7
+`correct_sentence_indices` are the indices of the core sentences shown beside
+the wrong one. Reviewers found a defect that would break an item in four of
+six documents, most often a "wrong" level_6 sentence that is acceptable and a
+level_3 distractor that also fits: test each one in the sentence before you
+keep it.

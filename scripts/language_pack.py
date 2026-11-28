@@ -926,7 +926,11 @@ def cmd_sense_batches(a):
 
 
 def cmd_fatseed_worklist(a):
-    """Pick n reviewed senses, spread over parts of speech, for the fat-seed slice."""
+    """Pick n reviewed senses for the fat-seed slice: content words, spread over parts of speech.
+
+    Function words (articles, prepositions) are taught by dictionaries and grammar drills, and their
+    exercise documents were the weakest in the Italian pilot; --function-words adds them after the rest.
+    """
     final = load_json(P(a.lang, 'senses', 'final.json'))
     d = P(a.lang, 'fat_seed')
     done = {n[:-5] for n in os.listdir(os.path.join(d, 'words'))} if os.path.isdir(os.path.join(d, 'words')) else set()
@@ -934,13 +938,14 @@ def cmd_fatseed_worklist(a):
     for s in final:
         if slug(s['lemma'], s['pos']) not in done:
             by_pos.setdefault(s['pos'], []).append(s)
-    order = [p for p in ('verb', 'noun', 'adjective', 'adverb') if p in by_pos] + \
-            [p for p in by_pos if p not in ('verb', 'noun', 'adjective', 'adverb')]
+    content = [p for p in ('verb', 'noun', 'adjective', 'adverb') if p in by_pos]
+    rest = [p for p in by_pos if p not in content]
     picked = []
-    while len(picked) < a.n and any(by_pos.values()):
-        for pos in order:
-            if by_pos[pos] and len(picked) < a.n:
-                picked.append(by_pos[pos].pop(0))
+    for order in (content, rest if a.function_words or not content else []):
+        while len(picked) < a.n and any(by_pos[p] for p in order):
+            for pos in order:
+                if by_pos[pos] and len(picked) < a.n:
+                    picked.append(by_pos[pos].pop(0))
     for s in picked:
         s['doc'] = slug(s['lemma'], s['pos']) + '.json'
     with open(os.path.join(d, 'worklist.json'), 'w', encoding='utf-8') as fh:
@@ -1245,7 +1250,8 @@ def main(argv=None):
     add('merge-senses', cmd_merge_senses)
     add('sense-batches', cmd_sense_batches, (('--size',), {'type': int, 'default': 25}),
         (('--limit',), {'type': int, 'default': 0}))
-    add('fatseed-worklist', cmd_fatseed_worklist, (('--n',), {'type': int, 'default': 12}))
+    add('fatseed-worklist', cmd_fatseed_worklist, (('--n',), {'type': int, 'default': 12}),
+        (('--function-words',), {'action': 'store_true'}))
     add('validate-dict', cmd_validate_dict, (('key',), {}), (('--reviewed',), {'action': 'store_true'}))
     add('validate-plan', cmd_validate_plan)
     add('validate-guide', cmd_validate_guide, path)

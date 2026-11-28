@@ -16,3 +16,9 @@ number of items and the themes to stay on.
 
 Write the file in parts if it is long. Run `validate-batch <lang> <file>
 --min-items <n>` until OK.
+
+Notes from the Italian pilot: reviewers changed about one item in five. The
+recurring faults were a `why` that states a rule more strongly than the
+language does, an English cue that does not match the verb, a distractor that
+is also a normal sentence (a first-person plural, a polite request), and too
+few `alts` when an adverb can move. Check those four on every item.

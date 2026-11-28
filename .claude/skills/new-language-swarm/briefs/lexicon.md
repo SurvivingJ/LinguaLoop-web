@@ -21,3 +21,8 @@ For each row decide whether it is a word worth teaching:
 - Function words are kept (they are taught), with their real part of speech.
 
 Run `validate-lexicon` until OK. Return how many you kept and dropped.
+
+Notes from the Italian pilot: the hint names ONE sense; a second common
+sense is a second line. Contracted or fused forms the profile says are not
+vocabulary (preposition + article) are dropped with that reason. Vulgar words
+are dropped with the reason "vulgar" so the owner can reverse it.

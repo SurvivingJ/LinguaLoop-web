@@ -19,3 +19,5 @@ Fix an entry (rewrite only the fields that need it) when:
 
 Be strict on meaning and facts, light on style. Run `validate-senses` on the
 reviewed file until OK.
+
+When a lemma occurs twice in a batch, key the verdict items `<lemma> (<pos>)`.
