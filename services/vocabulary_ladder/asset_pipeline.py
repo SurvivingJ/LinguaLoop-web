@@ -20,6 +20,7 @@ from uuid import uuid4
 from services.exercise_generation.judges.base import (
     BatchModeThreadPoolExecutor, JudgeUnavailable,
 )
+from services import language_registry
 from services.llm_service import generation_context
 from services.supabase_factory import get_supabase_admin
 from services.timing import stage, log_stage_seconds
@@ -49,7 +50,7 @@ logger = logging.getLogger(__name__)
 
 # language_id → llm_calls/generation_stage_timings.language_code. Same
 # hardcoded map used by the asset_generators — see prompt1_core.py.
-_LANG_ID_TO_CODE: dict[int, str] = {1: 'zh', 2: 'en', 3: 'ja'}
+_LANG_ID_TO_CODE: dict[int, str] = language_registry.id_to_code()
 
 # TASK-811: sentinel for "this prompt was never submitted because none of its
 # levels were in the caller's `levels` scope" — distinct from `None`, which

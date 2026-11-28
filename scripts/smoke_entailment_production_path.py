@@ -50,6 +50,8 @@ except ImportError:  # run or imported as scripts.<name>
 
 bootstrap(log_level=None)
 
+from services import language_registry  # noqa: E402
+
 # The reasons come back in zh/ja; a Windows cp1252 console raises
 # UnicodeEncodeError on the first CJK character and kills the run *after* the
 # LLM has already been paid for.
@@ -70,7 +72,7 @@ from services.exercise_generation.judges.answer_entailment import (  # noqa: E40
     judge_answer_entailment,
 )
 
-LANG_ID = {"zh": 1, "en": 2, "ja": 3}
+LANG_ID = language_registry.code_to_id()
 
 # Each fixture: (passage, question, answer, expected_verdict).
 # The "supported" case must accept; the "unrelated" case must reject. Both are

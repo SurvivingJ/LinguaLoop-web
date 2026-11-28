@@ -21,6 +21,7 @@ import logging
 import random
 import re
 
+from services import language_registry
 from services.vocabulary_ladder.config import get_sentence_target
 from services.vocabulary_ladder.deterministic import SenseContext, Skip, register
 
@@ -77,7 +78,7 @@ def build(ctx: SenseContext, skips: list[Skip]) -> list[dict]:
         # isn't usable at this chunk count. A Latin-script merge has no such
         # risk (the target stays a space-separated word inside the bigger
         # chunk), so it is left unrestricted there.
-        protect_target = target if ctx.language_id in (1, 3) else None
+        protect_target = target if language_registry.is_cjk(ctx.language_id) else None
         merged = _merge_to(chunks, _MAX_CHUNKS, protect_target)
         if merged is None:
             skips.append(Skip(
@@ -94,7 +95,7 @@ def build(ctx: SenseContext, skips: list[Skip]) -> list[dict]:
     # word) previously reached the corpus undetected because nothing checked
     # this; the fix here is to check it and skip rather than to repair the
     # chunker's internals.
-    joiner = '' if ctx.language_id in (1, 3) else ' '
+    joiner = language_registry.token_joiner(ctx.language_id)
     if _normalize_for_check(joiner.join(chunks)) != _normalize_for_check(text):
         skips.append(Skip(
             _TYPE,
@@ -112,7 +113,7 @@ def build(ctx: SenseContext, skips: list[Skip]) -> list[dict]:
     # point of a multi-word phrase chunk, not a fusion bug. Without
     # whitespace, CJK has no such separator, so a target merged into a chunk
     # there really does become unreadable as its own word.
-    if target and ctx.language_id in (1, 3) and not _target_is_isolated(chunks, target, ctx.language_id):
+    if target and language_registry.is_cjk(ctx.language_id) and not _target_is_isolated(chunks, target, ctx.language_id):
         skips.append(Skip(
             _TYPE,
             f'target word {target!r} is fused into a neighbouring chunk — '

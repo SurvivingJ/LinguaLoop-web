@@ -21,10 +21,11 @@
   'use strict';
 
   // ---------- constants ----------
-  const ZH = 1,
-    EN = 2,
-    JA = 3;
-  const LANGCODE = { 1: 'zh', 2: 'en', 3: 'ja' };
+  const LANGS = window.LinguaLanguages;
+  const LANGCODE = LANGS.idToCode();
+  // What a test's language needs, from the registry: pinyin (Chinese), kana readings (Japanese).
+  const hasPinyin = (id) => LANGS.hasFeature(id, 'pinyin');
+  const hasFurigana = (id) => LANGS.hasFeature(id, 'furigana');
   const SENT_END = /[。！？!?]$/;
   const SLIP = 0.05,
     GUESS = 0.25,
@@ -316,7 +317,7 @@
       n = (t.transcript || '').length,
       out = new Array(n).fill(null);
     if (
-      t.language_id === JA &&
+      hasFurigana(t.language_id) &&
       t.furigana_payload &&
       Array.isArray(t.furigana_payload.transcript)
     ) {
@@ -356,7 +357,7 @@
         }
         pos += text.length;
       }
-    } else if (t.language_id === ZH && Array.isArray(t.pinyin_payload)) {
+    } else if (hasPinyin(t.language_id) && Array.isArray(t.pinyin_payload)) {
       t.pinyin_payload.forEach((c, i) => {
         if (i < n && c && !c.is_punctuation && c.pinyin_text)
           out[i] = {
@@ -397,7 +398,7 @@
     return (m ? m[1] : String(text || '')).trim();
   }
   function isZhTest() {
-    return !!(S.test && S.test.language_id === ZH);
+    return !!(S.test && hasPinyin(S.test.language_id));
   }
   function readingParts(s) {
     if (!s || !s.reading) return null;
@@ -686,7 +687,7 @@
     return { segOk, toneOk, ok: segOk && toneOk, ref };
   }
   function gradeReading(input, rp) {
-    if (S.test.language_id === ZH) {
+    if (hasPinyin(S.test.language_id)) {
       const pi = parsePinyinInput(input);
       return gradeZh(pi.segs, pi.tones, rp.numbered, rp.hanzi).ok;
     }
@@ -697,7 +698,7 @@
   // (`languageId` defaults to this page's test; the session page passes none.)
   function typeAs(rp, languageId) {
     const lid = languageId != null ? Number(languageId) : S.test && S.test.language_id;
-    if (lid !== ZH || !rp || !rp.numbered) return null;
+    if (!hasPinyin(lid) || !rp || !rp.numbered) return null;
     const raw = String(rp.numbered).trim().replace(/\s+/g, ' ');
     const typed = raw.replace(/u:/g, 'v').replace(/U:/g, 'V');
     // the same check gradeReading runs for a Chinese test
@@ -719,8 +720,8 @@
   function hasTypedReading(sid) {
     const rp = readingParts(D.senses[sid]);
     if (!rp) return false;
-    if (S.test.language_id === ZH) return !!rp.numbered;
-    return S.test.language_id === JA;
+    if (hasPinyin(S.test.language_id)) return !!rp.numbered;
+    return hasFurigana(S.test.language_id);
   }
 
   // ---------- preview ----------
@@ -1272,7 +1273,7 @@
         chunks = c.chunks,
         idx = shuffle(chunks.map((_, i) => i)),
         picked = [];
-      const joiner = S.test.language_id === EN ? ' ' : '';
+      const joiner = (LANGS.find(S.test.language_id) || {}).spaced ? ' ' : '';
       const check = () => {
         if (picked.length !== chunks.length) return;
         answer(
@@ -1712,7 +1713,7 @@
   }
   function drawTyped(it, head) {
     const B = $('psQBody'),
-      zh = S.test.language_id === ZH,
+      zh = hasPinyin(S.test.language_id),
       lang = LANGCODE[S.test.language_id] || '';
     B.innerHTML = `${head}<div class="ps-qword ld-prompt ld-prompt--big" lang="${lang}">${esc(it.prompt)}</div><p class="ps-qread ld-hint">${esc(T(zh ? 'prestudy.hint_zh' : 'prestudy.hint_ja'))}</p>
       <form id="psTypedForm" class="ps-form"><input id="psTyped" class="form-control ps-input" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" lang="${zh ? 'zh-Latn' : 'ja'}" placeholder="${esc(T(zh ? 'prestudy.placeholder_pinyin' : 'prestudy.placeholder_kana'))}" aria-label="${esc(T(zh ? 'prestudy.placeholder_pinyin' : 'prestudy.placeholder_kana'))}"></form><div id="psTones"></div><div id="psReveal" class="ps-revealwrap"></div>`;
@@ -1870,7 +1871,7 @@
     const readingTxt = rp
       ? ' · ' +
         esc(rp.shown) +
-        (S.test.language_id === JA ? ' · ' + esc(kanaToRomaji(rp.shown)) : '')
+        (hasFurigana(S.test.language_id) ? ' · ' + esc(kanaToRomaji(rp.shown)) : '')
       : '';
     const lines = [];
     if (idk && isRead && g.def) lines.push(esc(T('prestudy.meaning_label', { def: g.def })));
@@ -1925,7 +1926,7 @@
   function drawReadiness() {
     const R = S.ready,
       B = $('psQBody'),
-      zh = S.test.language_id === ZH,
+      zh = hasPinyin(S.test.language_id),
       lang = LANGCODE[S.test.language_id] || '';
     // the mockup's head: "Readiness check · round N"; the item row carries "No feedback yet"
     s2Head(T('prestudy.readiness_title', { n: R.round }), '');
@@ -2639,7 +2640,7 @@
         drawPreview();
       });
     setAids(S.aids);
-    $('psAidsWrap').hidden = !(S.test.language_id === ZH || S.test.language_id === JA);
+    $('psAidsWrap').hidden = !(hasPinyin(S.test.language_id) || hasFurigana(S.test.language_id));
     $('psHl').onchange = (e) => {
       S.hl = e.target.checked;
       $('psPassage').classList.toggle('hl', S.hl);

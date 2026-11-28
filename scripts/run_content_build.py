@@ -73,12 +73,14 @@ except ImportError:  # run or imported as scripts.<name>
 
 bootstrap(log_level=None)
 
+from services import language_registry  # noqa: E402
+
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 STATE_DIR = os.path.join(ROOT, 'data', 'content_builds')
 
-LANG_ID = {'zh': 1, 'en': 2, 'ja': 3}
-LANG_NAME = {'zh': 'Chinese', 'en': 'English', 'ja': 'Japanese'}
+LANG_ID = language_registry.code_to_id()
+LANG_NAME = language_registry.code_to_display()
 
 # The three prompts every ladder sense needs, whatever the language.
 CORE_LADDER_TASKS = (

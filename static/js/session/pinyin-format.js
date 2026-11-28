@@ -132,7 +132,7 @@ export function formatPinyin(text) {
  */
 export function displayPronunciation(text, lang) {
   if (text == null) return '';
-  const zh = lang === 'zh' || lang === 1 || lang === '1';
+  const zh = window.LinguaLanguages.hasFeature(lang, 'pinyin');
   return zh ? formatPinyin(text) : String(text);
 }
 

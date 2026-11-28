@@ -44,6 +44,7 @@ except ImportError:  # run or imported as scripts.<name>
 bootstrap()
 
 
+from services import language_registry  # noqa: E402
 from config import Config
 from services.supabase_factory import SupabaseFactory, get_supabase_admin
 from services.vocabulary.sense_generator import POS_LEGENDS
@@ -136,7 +137,7 @@ def load_simple_register(db, language_code: str, language_id: int) -> str:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument('--language', required=True, choices=['zh', 'en', 'ja'])
+    parser.add_argument('--language', required=True, choices=language_registry.codes())
     parser.add_argument('--batch-size', type=int, default=50)
     parser.add_argument('--limit', type=int, default=0)
     parser.add_argument('--out-dir')

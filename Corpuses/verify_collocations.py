@@ -17,13 +17,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from supabase import create_client
+from services import language_registry  # noqa: E402
 from services.corpus.verifier import substitution_entropy, is_worth_keeping
 
-LANGUAGE_MAP = {
-    'english': 2, 'en': 2,
-    'chinese': 1, 'zh': 1,
-    'japanese': 3, 'ja': 3,
-}
+# English name or code -> dim_languages.id, e.g. 'chinese' / 'zh' -> 1.
+LANGUAGE_MAP = {key: lang.id for lang in language_registry.all_languages() for key in (lang.name, lang.code)}
 
 
 def main():

@@ -39,6 +39,8 @@ from __future__ import annotations
 import re
 import unicodedata
 
+from services import language_registry
+
 # Sentence-final punctuation a learner may or may not type. Stripped from both
 # sides of the comparison; punctuation *inside* the answer is preserved.
 _TRAILING_PUNCT = '。．.!！?？,，、;；:：'
@@ -99,7 +101,7 @@ def normalize(
     out = _WHITESPACE.sub(' ', out).strip()
     out = out.strip(_TRAILING_PUNCT).strip()
 
-    if language_id == 1:
+    if language_id in _T2S_LANGUAGE_IDS:
         out = _t2s(out)
     if fold_case:
         out = out.casefold()
@@ -158,5 +160,5 @@ def normalization_spec(language_id: int | None) -> dict:
         'case': 'fold',
         'trailing_punctuation': 'strip',
         'quotes': 'straighten',
-        'script': 't2s' if language_id == 1 else None,
+        'script': 't2s' if language_id in _T2S_LANGUAGE_IDS else None,
     }

@@ -98,6 +98,7 @@ bootstrap(log_level=None)
 # load_dotenv() (previously only called deep inside main(), line ~1543)
 # arrives too late and every call sends a blank bearer token (401).
 
+from services import language_registry  # noqa: E402
 from services.llm_service import (  # noqa: E402
     ladder_qwen_reasoning_budget_tokens,
     ladder_qwen_reasoning_mode,
@@ -108,7 +109,7 @@ from services.exercise_generation.judges.base import (  # noqa: E402
 
 logger = logging.getLogger('exercise_gen_eval')
 
-LANG_CODE_TO_ID: dict[str, int] = {'zh': 1, 'en': 2, 'ja': 3}
+LANG_CODE_TO_ID: dict[str, int] = language_registry.code_to_id()
 
 # Every table this harness has confirmed (by reading asset_pipeline.py and
 # exercise_renderer.py end to end) is written by generate_for_sense /

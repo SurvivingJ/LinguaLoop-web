@@ -36,6 +36,7 @@ bootstrap(log_level=None)
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 
+from services import language_registry  # noqa: E402
 from services.supabase_factory import SupabaseFactory, get_supabase_admin
 
 if not SupabaseFactory.is_initialized():
@@ -44,7 +45,7 @@ if not SupabaseFactory.is_initialized():
 from services.vocabulary_ladder import asset_pipeline as new_module
 
 logging.basicConfig(level=logging.WARNING)
-LANG_ID = {'zh': 1, 'en': 2, 'ja': 3}
+LANG_ID = language_registry.code_to_id()
 
 
 def load_old_module(ref: str):

@@ -42,6 +42,7 @@ import math
 import random
 from typing import Iterable, Optional
 
+from services import language_registry
 from services.calibration_service import MODE_DEFINITION
 from services.concurrency import run_parallel
 from services.exercise_content import store
@@ -170,7 +171,7 @@ def _with_zh_numbered(reading: Optional[str], language_id) -> Optional[str]:
     the shape the prestudy page and the intro drill read: without it their typed-reading formats are
     dropped for most zh words (vocab-placement tech E17). Other languages and readings that already
     carry a numbered part, or are not pinyin, are returned unchanged."""
-    if not reading or language_id != 1 or '(' in reading:
+    if not reading or language_id not in language_registry.ids_with('pinyin') or '(' in reading:
         return reading
     from services.intro_drill import _zh_numbered
     numbered = _zh_numbered(reading.strip())

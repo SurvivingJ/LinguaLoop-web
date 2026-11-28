@@ -33,8 +33,10 @@ except ImportError:  # run or imported as scripts.<name>
 
 bootstrap(log_level=None)
 
+from services import language_registry  # noqa: E402
 
-LANG = {1: 'zh', 2: 'en', 3: 'ja'}
+
+LANG = language_registry.id_to_code()
 
 # (word language, definition language). These are the combinations a learner can
 # actually be shown; ja/en first because an English speaker studying Japanese is

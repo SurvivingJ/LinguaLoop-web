@@ -12,7 +12,7 @@
 (function () {
   'use strict';
 
-  const LANG_CODES = { 1: 'zh', 2: 'en', 3: 'ja' };
+  const LANG_CODES = window.LinguaLanguages.idToCode();
   const GLYPHS = { 1: '词', 2: 'Aa', 3: '語' };
   const WINDOW_KEY = 'kn.growthWindow';
   const GROUP_ORDER = ['most_common', 'common', 'mid', 'rare', 'none'];

@@ -38,6 +38,7 @@ import logging
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 
+from services import language_registry  # noqa: E402
 from services.dual_translation import sentence_refs as sr  # noqa: E402
 
 logging.basicConfig(level=logging.INFO, format='%(levelname)s %(message)s')
@@ -183,7 +184,7 @@ Document shape (one file per test, `docs/<test_id>.{l1}.json`):
 ```
 """
 
-LANG_NAME = {'zh': 'Chinese', 'en': 'English', 'ja': 'Japanese'}
+LANG_NAME = language_registry.code_to_display()
 
 
 def cmd_brief(a) -> int:
@@ -208,7 +209,7 @@ def cmd_brief(a) -> int:
         for t in chunk:
             lines += [f'## {t["test_id"]} — {t.get("title") or ""}', '',
                       'Passage (for context, do not translate as a block unless the arm says so):', '']
-            lines.append(''.join(s['l2_text'] for s in t['sentences']) if l2 in ('zh', 'ja') else ' '.join(s['l2_text'] for s in t['sentences']))
+            lines.append(language_registry.token_joiner(l2).join(s['l2_text'] for s in t['sentences']))
             lines += ['', 'Sentences:', '']
             for s in t['sentences']:
                 lines.append(f'- idx {s["idx"]}: {s["l2_text"]}')
@@ -435,7 +436,7 @@ def cmd_status(a) -> int:
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest='cmd', required=True)
-    p = sub.add_parser('export'); p.add_argument('--language', required=True, choices=['zh', 'en', 'ja']); p.add_argument('--l1', required=True, choices=['zh', 'en', 'ja'])
+    p = sub.add_parser('export'); p.add_argument('--language', required=True, choices=language_registry.codes()); p.add_argument('--l1', required=True, choices=language_registry.codes())
     p.add_argument('--limit', type=int, default=30); p.add_argument('--arm', default='aligned', choices=list(sr.ARMS)); p.add_argument('--out-dir', required=True)
     p.add_argument('--fixture'); p.add_argument('--tests'); p.set_defaults(fn=cmd_export)
     for name, fn in (('brief', cmd_brief), ('review-pack', cmd_review_pack)):

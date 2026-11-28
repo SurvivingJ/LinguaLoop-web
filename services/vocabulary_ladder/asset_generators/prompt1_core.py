@@ -13,6 +13,7 @@ import json
 import logging
 
 from config import Config
+from services import language_registry
 from services.llm_service import call_llm, ladder_qwen_reasoning_mode
 from services.prompt_service import get_template_config
 from services.vocabulary_ladder.config import (
@@ -91,7 +92,7 @@ def _max_tokens_sentence_repair() -> int:
 # services/exercise_generation/judges/answer_entailment.py — see there for
 # why this isn't DimensionService (needs an app-startup init this offline
 # pipeline doesn't do).
-_LANG_ID_TO_CODE: dict[int, str] = {1: 'zh', 2: 'en', 3: 'ja'}
+_LANG_ID_TO_CODE: dict[int, str] = language_registry.id_to_code()
 
 
 class CoreAssetGenerator:

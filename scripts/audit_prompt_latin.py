@@ -48,8 +48,10 @@ except ImportError:  # run or imported as scripts.<name>
 
 bootstrap(log_level=None)
 
+from services import language_registry  # noqa: E402
 
-LANG_ID = {'zh': 1, 'en': 2, 'ja': 3}
+
+LANG_ID = language_registry.code_to_id()
 ID_LANG = {v: k for k, v in LANG_ID.items()}
 
 # Underscores bind: `question_text` is ONE run. Splitting on them manufactures
@@ -127,7 +129,7 @@ def classify(text: str, leaked: list[str]) -> str:
 def main() -> int:
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument('--lang', choices=['zh', 'ja'],
+    parser.add_argument('--lang', choices=language_registry.cjk_codes(),
                         help='restrict to one language (default: both)')
     parser.add_argument('--task', help='restrict to one task_name')
     parser.add_argument('--verbose', action='store_true',
@@ -139,7 +141,7 @@ def main() -> int:
 
     db = admin_db()
 
-    lang_ids = [LANG_ID[args.lang]] if args.lang else [1, 3]
+    lang_ids = [LANG_ID[args.lang]] if args.lang else language_registry.cjk_ids()
     query = (db.table('prompt_templates')
                .select('task_name, language_id, version, is_active, model, template_text')
                .in_('language_id', lang_ids))

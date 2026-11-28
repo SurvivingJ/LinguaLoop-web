@@ -65,13 +65,14 @@ except ImportError:  # run or imported as scripts.<name>
 
 bootstrap(log_level=None)
 
+from services import language_registry  # noqa: E402
 from services.exercise_content import store  # noqa: E402
 
 
 logger = logging.getLogger('build_exercise_gen_reference_set')
 
 BENCHMARK_MODEL = 'claude-code:batch-exercise-generation'
-LANGUAGES = {'zh': 1, 'en': 2, 'ja': 3}
+LANGUAGES = language_registry.code_to_id()
 TARGET_PER_LANGUAGE = 50
 BLOCKLIST_TABLE = 'calibration_anchor_blocklist'
 _PAGE = 1000

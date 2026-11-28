@@ -16,12 +16,20 @@
     ja: { listening: '聴', reading: '読', dictation: '書', pinyin: '音', pitch_accent: '音' },
   };
 
+  // A registry feature of the test's language, named by its code or its id.
+  function languageHas(test, feature) {
+    return (
+      LinguaLanguages.hasFeature(test.language, feature) ||
+      LinguaLanguages.hasFeature(test.language_id, feature)
+    );
+  }
+
   function studyCode(test) {
     const code = String(test.language || '').toLowerCase();
-    if (code === 'zh' || code === 'ja') return code;
-    if (test.language_id === 1) return 'zh';
-    if (test.language_id === 3) return 'ja';
-    return code;
+    if (SEALS[code]) return code;
+    const byId =
+      typeof test.language_id === 'number' ? LinguaLanguages.codeOf(test.language_id) : '';
+    return SEALS[byId] ? byId : code;
   }
 
   /**
@@ -168,12 +176,12 @@
     document.getElementById('testTopic').textContent = test.topic || 'General';
 
     // Show pinyin option for Chinese tests only
-    if (test.language === 'zh' || test.language_id === 1) {
+    if (languageHas(test, 'pinyin')) {
       document.getElementById('pinyinOptionWrapper').style.display = '';
     }
 
     // Show pitch accent option for Japanese tests only
-    if (test.language === 'ja' || test.language_id === 3) {
+    if (languageHas(test, 'pitch_accent')) {
       document.getElementById('pitchAccentOptionWrapper').style.display = '';
     }
 

@@ -30,6 +30,7 @@ instead of paying for a speculative recovery call.
 import json
 import logging
 
+from services import language_registry
 from services.llm_service import call_llm, ladder_qwen_reasoning_mode
 from services.prompt_service import get_template_config
 from services.vocabulary_ladder.config import (
@@ -73,7 +74,7 @@ def _max_tokens() -> int:
 
 
 # language_id → llm_calls.language_code — see prompt1_core.py.
-_LANG_ID_TO_CODE: dict[int, str] = {1: 'zh', 2: 'en', 3: 'ja'}
+_LANG_ID_TO_CODE: dict[int, str] = language_registry.id_to_code()
 
 
 def _coerce_index_list(values, default: list[int]) -> list[int]:

@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const gateHint = document.getElementById('langGateHint');
   const placementBtn = document.getElementById('placement-btn');
   const gateOptions = gate ? gate.querySelectorAll('[data-studied]') : [];
-  const LANG_CODES = { 1: 'zh', 2: 'en', 3: 'ja' };
+  const LANG_CODES = window.LinguaLanguages.idToCode();
   let studied = null;
   let onboarding = false;
   try {
@@ -126,10 +126,12 @@ document.addEventListener('DOMContentLoaded', function () {
       btn.setAttribute('aria-checked', String(btn.dataset.studied === studied));
     });
     const offer = studied === 'yes';
+    // A language with a reading part takes longer (as placement.js).
+    const readings = window.LinguaLanguages.hasFeature(code, 'pronunciation_calibration');
     const time = gateText(
-      code === 'en' ? 'placement.intro_time_en' : 'placement.intro_time_cjk',
+      readings ? 'placement.intro_time_cjk' : 'placement.intro_time_en',
       null,
-      code === 'en' ? 'About 5 minutes' : 'About 7 minutes'
+      readings ? 'About 7 minutes' : 'About 5 minutes'
     );
     gateHint.textContent = gateText(
       'onboarding.placement_hint',

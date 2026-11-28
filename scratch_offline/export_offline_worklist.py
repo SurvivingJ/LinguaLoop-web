@@ -25,6 +25,7 @@ from _common import admin_db, bootstrap  # noqa: E402
 bootstrap()
 import export_exercise_worklist as ex  # noqa: E402
 from collections import Counter  # noqa: E402
+from services import language_registry  # noqa: E402
 
 BASE = 900_000_000
 
@@ -37,7 +38,7 @@ def main():
     ap.add_argument('--ids-out', required=True)
     ap.add_argument('--language', default='ja')
     args = ap.parse_args()
-    language_id = {'zh': 1, 'en': 2, 'ja': 3}[args.language]
+    language_id = language_registry.code_to_id(include_planned=True)[args.language]
 
     final = json.load(open(args.final))
     zipf = {w['lemma']: w.get('zipf') for w in json.load(open(args.worklist))}

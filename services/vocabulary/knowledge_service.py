@@ -14,6 +14,7 @@ SQL functions called:
 
 import logging
 
+from services import language_registry
 from services.pinyin_format import format_pinyin
 from services.supabase_factory import get_supabase_admin
 from services.vocabulary.lexicon import mask_headword
@@ -27,7 +28,7 @@ def _just_became_known(r: dict) -> bool:
     return p_after >= 0.90 and p_before < 0.90
 
 
-_ZH_LANGUAGE_ID = 1
+_PINYIN_LANGUAGE_IDS = frozenset(language_registry.ids_with('pinyin'))
 
 
 def _display_pronunciation(pronunciation, language_id: int) -> str:
@@ -36,7 +37,7 @@ def _display_pronunciation(pronunciation, language_id: int) -> str:
     Stored Chinese pronunciations are often "biàn dé (bian4 de2)"; other
     languages' readings are passed through as stored.
     """
-    if language_id == _ZH_LANGUAGE_ID:
+    if language_id in _PINYIN_LANGUAGE_IDS:
         return format_pinyin(pronunciation)
     return pronunciation or ''
 
