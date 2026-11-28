@@ -1,6 +1,6 @@
 """Reads the built particle-drill content from ``data/particle_drill/<lang>/``.
 
-The content is static and ships with the code (ADR-064): ``catalog.json``,
+The content is static and ships with the code (ADR-067): ``catalog.json``,
 ``guides/<group>.json``, ``items/<skill>.jsonl`` (plus the authoring part
 files ``items/<skill>__<part>.jsonl``), ``packs/<skill>.json`` and
 ``conjugation/*.json``. ``scripts/particle_drill_build.py`` checks all of it

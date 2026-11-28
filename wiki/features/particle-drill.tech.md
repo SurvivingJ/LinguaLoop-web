@@ -223,7 +223,7 @@ state per form id under `conj`.
 
 ## Key Architectural Decisions
 
-1. **Content is files in the repository, not database rows** ([[decisions/ADR-064-particle-drill-static-content-client-engine]]).
+1. **Content is files in the repository, not database rows** ([[decisions/ADR-067-particle-drill-static-content-client-engine]]).
    - **Rationale:** the database is at its size line (473 MB of a 475 MB working limit, [[tasklist/report-and-placement-apply-runbook]]); 10,000 items with guides are about 5 MB of JSON, read-only and versioned with the code.
    - **Alternatives rejected:** `dim_particle_*` tables with a session RPC like the measure-word drill (needs space and a live apply before anything works); static files under `static/` (no login check).
 2. **Exercises are built and judged in the browser.**
@@ -289,12 +289,12 @@ state per form id under `conj`.
   (including the missing-table path), all routes.
 - Manual / browser: `tests/e2e/redesign/serve.py` serves the real app with a fake login; the
   page was walked in Chromium at 393×759 through every exercise type and a full round
-  (see [[tasklist/particle-drill.tasks]] TASK-1236).
+  (see [[tasklist/particle-drill.tasks]] TASK-1271).
 
 ## Related Pages
 
 - [[features/particle-drill]] — prose description
-- [[decisions/ADR-064-particle-drill-static-content-client-engine]]
+- [[decisions/ADR-067-particle-drill-static-content-client-engine]]
 - [[tasklist/particle-drill.tasks]]
 - [[features/measure-word-trainer.tech]] — sibling trainers and the mastery rule this ladder mirrors
 - [[api/rpcs.tech]] — route table

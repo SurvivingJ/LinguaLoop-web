@@ -5,7 +5,7 @@
 -- PUT /api/particle-drill/progress (services/particle_drill/progress.py).
 --
 -- Size: one row per learner, a few KB each (the route rejects a state over
--- 256 KB). No content table: the exercises ship as files (ADR-064).
+-- 256 KB). No content table: the exercises ship as files (ADR-067).
 --
 -- VERIFY BEFORE:  SELECT to_regclass('public.user_drill_progress');   -- NULL
 -- VERIFY AFTER:   SELECT relrowsecurity FROM pg_class WHERE oid = 'public.user_drill_progress'::regclass;  -- t

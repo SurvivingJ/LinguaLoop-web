@@ -84,7 +84,7 @@ Pages are client-side rendered: each route only renders its template (no data, n
 | `/placement` | `placement_page` | `templates/placement.html` (the page says "not available" while its API answers 404) |
 | `/classifier-drill` | `classifier_drill_page` | `templates/classifier_drill.html` |
 | `/counter-drill` | `counter_drill_page` | `templates/counter_drill.html` |
-| `/grammar-drill` | `grammar_drill_page` | `templates/grammar_drill.html` (the grammar course; the particle page script with `data-course="grammar"`; [[features/grammar-drill.tech]]) |
+| `/grammar-drill` | `grammar_drill_page` | `templates/grammar_drill.html` (the grammar course; the particle page script with `data-course="grammar"`; [[features/japanese-grammar-drill.tech]]) |
 | `/reading-drill` | `reading_drill_page` | `templates/reading_drill.html` (numbers, times, dates, katakana; same script, `data-home="read"`) |
 | `/conjugation-drill` | `conjugation_drill_page` | `templates/conjugation_drill.html` (the conjugation drill; same script as `/particle-drill`) |
 | `/particle-drill` | `particle_drill_page` | `templates/particle_drill.html` (hash-routed: ladder, guide, drill, conjugation; [[features/particle-drill.tech]]) |
@@ -197,6 +197,7 @@ All `@jwt_required`; the engine is `PracticeSessionService` (`services/practice_
 | GET | `/api/practice/session` | `practice.get_practice_session` | `language_id` (required), `mode` ∈ acquisition/maintenance/auto, `minutes` 1–180 (15), `debug`, `tail`; RPC `get_practice_session` (content always `p_include_content=false`; the exercise content is hydrated from Storage files, ADR-049) | `practice.js` |
 | GET | `/api/practice/extra` | `practice.get_practice_extra` | one open-ended round past the budget (ADR-036): `reviews=0\|1`, `new_words 0..EXTRA_NEW_WORDS_MAX`, `exclude`; RPC `get_review_ahead_items`, new-word admission | yes |
 | POST | `/api/practice/attempt` | `practice.submit_practice_attempt` | see below | yes |
+| GET | `/api/practice/explanations/<exercise_id>` | `practice.get_exercise_explanations` | per-option feedback in the learner's language for a spot-the-error item (ADR-064): `exercise_explanations.get_or_generate` → `{state: ready\|pending\|unsupported\|unavailable, option_explanations?, explanation_language?}`; first request may wait on one model call; 30/min + 600/day per user | `exercise-renderers.js` |
 | GET | `/api/practice/speed-round` | `practice.get_speed_round` | `SpeedRoundComposer.compose` over `user_word_ladder` and `exercises`; an empty battery is `200` with `no_content_reason` | `speed_round.js` |
 | POST | `/api/practice/intro/complete` | `practice.complete_intro_words` | new-word drill (ADR-040): `intro_drill.complete_word` per word (1–40) → RPC `intro_commit_word`; the server recounts, the client's "passed" is never read | yes |
 
@@ -240,6 +241,15 @@ All `@jwt_required`.
 | GET | `/api/particle-drill/conjugation/words?language_id=3` | `particle_drill.get_conjugation_words` | `services/particle_drill/conjugation.known_words`: the caller's known verbs and adjectives from `user_vocabulary_knowledge`, classified (`{d, k, c, en, lv, known}`); read only | yes |
 | GET | `/api/particle-drill/progress?language_id=3` | `particle_drill.get_progress` | `services/particle_drill/progress.load`: `{available, state, updated_at}` from `user_drill_progress` (`available: false` until `migrations/particle_drill_progress.sql` is applied) | `particles/store.js` |
 | PUT | `/api/particle-drill/progress` | `particle_drill.put_progress` | `{language_id: 3, state}`; 400 over 256 KB or malformed; upserts the caller's row | yes |
+
+### Grammar drill tracking — [routes/grammar_drill.py](../../routes/grammar_drill.py) (added 2026-11-27; migration PENDING)
+
+Blueprint `grammar_drill` at `/api/grammar-drill`; validation and storage in `services/grammar_drill_tracking.py`. Both `@jwt_required`, Chinese only (`language_id` 1), own data only. Until `migrations/grammar_drill_tracking.sql` is applied both answer `503` with `error_code: GRAMMAR_TRACKING_UNAVAILABLE` (logged; remembered 600 s per process) and the page ignores it. Full specification (arguments, bounds, errors): [[features/grammar-drills.tech]] "API / RPC Surface"; decision: [[decisions/ADR-066-grammar-drill-daily-tracking]].
+
+| Method | Path | Handler | Reaches | Client |
+|---|---|---|---|---|
+| POST | `/api/grammar-drill/round` | `grammar_drill.record_round` | `{language_id, round_key (uuid), mode: round\|mixed\|endless\|sync, played_at?, topics: [{topic, answers, correct, timed, ms_sum, stage, instant, sub_misses, state}]}` (1 to 10 topics, ≤ 500 answers each, topics and sub-point keys checked against `static/data/grammar/zh/manifest.json`); practice day from `day_boundary.review_today`; RPC `record_grammar_drill_round` (idempotent on `round_key`); returns `{recorded, replayed, practice_day}`; limit 30/min and 600/h per user | `static/js/grammar/sync.js` |
+| GET | `/api/grammar-drill/progress?language_id=1&days=180` | `grammar_drill.get_progress` | `days` ≤ 365; reads `grammar_drill_state` and `grammar_drill_daily` for the token's user (`pagination.fetch_all`); returns `{today, days, states: {topic: state}, daily: [{topic, day, answers, correct, timed, ms_sum, stage, instant, sub_misses}]}`; limit 30/min per user | `static/js/grammar/sync.js` |
 
 ## Dual translation — [routes/dual_translation.py](../../routes/dual_translation.py) and [routes/dt_repair.py](../../routes/dt_repair.py)
 
@@ -320,6 +330,7 @@ Every RPC name that Python (outside `scripts/`, `tests/` and archives) calls, wi
 |---|---|
 | `process_test_submission`, `process_dictation_submission`, `process_pinyin_submission`, `process_pitch_accent_submission` | `routes/tests/submit.py: _submit_rpc` (name passed per route) |
 | `process_classifier_drill_submission` | `services/drill_service.py: DrillService.submit_session` (both drills) |
+| `record_grammar_drill_round` (**not live yet**: `migrations/grammar_drill_tracking.sql` pending, 2026-11-27) | `services/grammar_drill_tracking.py: record_round` |
 | `get_classifier_drill_session_v2` / `get_classifier_drill_session`, `get_counter_drill_session`, `update_classifier_mastery` | `services/drill_service.py` (names held on the two `DrillService` instances) |
 | `apply_attempt_timing_and_progress` | `services/attempts.py: apply_timing_and_progress` |
 | `record_exercise_attempt` | `services/practice/attempt_recording.py: record_attempt_with_updates` |

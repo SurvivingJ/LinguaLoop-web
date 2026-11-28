@@ -1,0 +1,447 @@
+{
+  "topic": "word-order",
+  "summary": "Chinese sets the scene before the action: who, then when, where, with whom and how, and only then the verb and its object. Almost everything English puts after the verb (tomorrow, at home, with friends, by subway, also, already) goes before it in Chinese, and question words simply sit where the answer would sit.",
+  "subs": [
+    {
+      "key": "time-place",
+      "label": "Time, then place, before the verb",
+      "focus": "Force time-when (明天, 每天早上) and 在 + place before the verb, time ahead of place. Classic mistake: English order with them at the end (我吃饭在家, 我去北京明天). Time may also precede the subject, so order items need that alt. Avoid durations (两个小时) and 住在 / 放在 / 坐在, which follow the verb."
+    },
+    {
+      "key": "with-together",
+      "label": "跟…一起 and 一起",
+      "focus": "The learner must put 跟 / 和 + person + 一起 before the verb, and 一起 directly before the verb phrase after a plural subject. Classic mistakes: 我吃饭跟朋友一起, 我们去一起. Keep 跟…一起 as one tile, or avoid a 在 + place phrase in the same sentence, because the order of the companion and the place is free."
+    },
+    {
+      "key": "manner-means",
+      "label": "How you do it comes first",
+      "focus": "The learner must put the means or manner (坐地铁, 骑自行车, 用筷子, 用中文, 慢慢地) before the main verb. Classic mistake: English order with the means at the end (我去上班坐地铁, 他吃饭用筷子). Do not mix in 得 complements (跑得很快), which follow the verb and belong to another topic."
+    },
+    {
+      "key": "adverb-position",
+      "label": "Adverbs sit after the subject",
+      "focus": "The learner must place 也 都 还 就 才 常常 已经 一直 after the subject (and after a time word) and before the verb, adjective or modal verb. Classic mistakes: adverb before the subject (也我喜欢, 都我们去) or at the end (我喜欢茶也). With 在 + place both orders are natural (常常在公司 / 在公司常常): give both alts."
+    },
+    {
+      "key": "adverb-stacking",
+      "label": "也 before 都 before 不",
+      "focus": "The learner must order stacked adverbs: 也 first, then 都, then 不 / 没, then the verb. Classic mistakes: 都也, 不也, and 不都 used where the meaning is 'none of us' (都不). Items contrasting 都不 and 不都 must have an English cue that forces one meaning (none vs not all)."
+    },
+    {
+      "key": "modifier-noun",
+      "label": "Everything describing a noun goes before it",
+      "focus": "Force every modifier, even a whole clause, before the noun with 的 (我昨天买的书, 穿红衣服的人). Classic mistake: English relative-clause order, clause after the noun (书我昨天买的). Fix 这 / 那 + measure inside a tile: 那个穿红衣服的人 and 穿红衣服的那个人 are both correct."
+    },
+    {
+      "key": "question-in-place",
+      "label": "Question words stay in place",
+      "focus": "The learner must leave 什么 谁 哪儿 什么时候 怎么 几 多少 in the slot where the answer would go, with no fronting and no 吗. Classic mistakes: 什么你想吃, 哪儿你住, 你吃什么吗. 什么时候 and 怎么 go in the time or manner slot before the verb; 为什么 may go before or after the subject, so avoid it in order items or give the alt."
+    },
+    {
+      "key": "topic-fronting",
+      "label": "Topic first, then the comment",
+      "focus": "Build and accept sentences with a known, definite object fronted as topic (这本书我看过), adverbs still after the subject (这本书我也看过). Classic mistakes: rejecting a correct topic sentence, or 这本书也我看过. Order items need the plain Subject-Verb-Object order as an alt unless tiles or task exclude it."
+    },
+    {
+      "key": "xian-zai",
+      "label": "先…再",
+      "focus": "The learner must put 先 and 再 after the subject and directly before each verb phrase: Subject + 先 + first action, 再 + second action. Classic mistakes: 先 or 再 after its verb (我吃饭先), actions in the wrong order. 先我吃饭 is colloquial: never judge-wrong. 然后 may be added before 再."
+    }
+  ],
+  "rules": [
+    {
+      "sub": "time-place",
+      "rule": "A word saying when something happens goes right after the subject (or right before it), never after the verb.",
+      "pattern": "Subject + time + Verb + Object",
+      "examples": [
+        {
+          "zh": "我明天去北京。",
+          "py": "wǒ míng tiān qù běi jīng",
+          "en": "I'm going to Beijing tomorrow."
+        },
+        {
+          "zh": "明天我去北京。",
+          "py": "míng tiān wǒ qù běi jīng",
+          "en": "Tomorrow I'm going to Beijing."
+        },
+        {
+          "zh": "他每天早上六点起床。",
+          "py": "tā měi tiān zǎo shang liù diǎn qǐ chuáng",
+          "en": "He gets up at six every morning."
+        }
+      ],
+      "note": "This is about when, not how long. A duration (两个小时, 三年) follows the verb: 我学了三年。 Larger time units come before smaller ones: 每天早上六点."
+    },
+    {
+      "sub": "time-place",
+      "rule": "Where the action happens is said with 在 + place before the verb, and it comes after the time word.",
+      "pattern": "Subject + time + 在 + place + Verb + Object",
+      "examples": [
+        {
+          "zh": "我在家吃饭。",
+          "py": "wǒ zài jiā chī fàn",
+          "en": "I eat at home."
+        },
+        {
+          "zh": "她在上海工作。",
+          "py": "tā zài shàng hǎi gōng zuò",
+          "en": "She works in Shanghai."
+        },
+        {
+          "zh": "我们晚上在家看电视。",
+          "py": "wǒ men wǎn shang zài jiā kàn diàn shì",
+          "en": "We watch television at home in the evening."
+        }
+      ],
+      "note": "A few verbs of position take 在 + place after them, because the place is where the person or thing ends up: 他住在北京, 请坐在这儿, 书放在桌子上. A destination is the object of 去 / 来 / 到 and follows it: 我去学校."
+    },
+    {
+      "sub": "with-together",
+      "rule": "The person you do something with comes before the verb, in the frame 跟 … 一起. After a plural subject, 一起 goes directly before the verb phrase.",
+      "pattern": "Subject + 跟 + person + 一起 + Verb + Object",
+      "examples": [
+        {
+          "zh": "我跟朋友一起吃饭。",
+          "py": "wǒ gēn péng you yī qǐ chī fàn",
+          "en": "I eat with friends."
+        },
+        {
+          "zh": "我想跟你一起去。",
+          "py": "wǒ xiǎng gēn nǐ yī qǐ qù",
+          "en": "I want to go with you."
+        },
+        {
+          "zh": "我们一起去吧。",
+          "py": "wǒ men yī qǐ qù ba",
+          "en": "Let's go together."
+        },
+        {
+          "zh": "昨天我和同学一起看了电影。",
+          "py": "zuó tiān wǒ hé tóng xué yī qǐ kàn le diàn yǐng",
+          "en": "Yesterday I watched a film with my classmates."
+        }
+      ],
+      "note": "和 works the same as 跟 here. Modal verbs (想, 要, 能) and 不 go before 跟, not before the main verb: 我不想跟他一起去. When there is also a 在 + place phrase, either order is fine: 我跟朋友在饭馆吃饭 or 我在饭馆跟朋友吃饭."
+    },
+    {
+      "sub": "manner-means",
+      "rule": "How you do something (the transport, the tool, the language, the manner) is said before the main verb.",
+      "pattern": "Subject + 坐 / 骑 / 用 + means + Verb + Object",
+      "examples": [
+        {
+          "zh": "我坐地铁去上班。",
+          "py": "wǒ zuò dì tiě qù shàng bān",
+          "en": "I go to work by subway."
+        },
+        {
+          "zh": "他用筷子吃饭。",
+          "py": "tā yòng kuài zi chī fàn",
+          "en": "He eats with chopsticks."
+        },
+        {
+          "zh": "她每天骑自行车去学校。",
+          "py": "tā měi tiān qí zì xíng chē qù xué xiào",
+          "en": "She cycles to school every day."
+        },
+        {
+          "zh": "请你慢慢地说。",
+          "py": "qǐng nǐ màn màn de shuō",
+          "en": "Please speak slowly."
+        }
+      ],
+      "note": "Think of it as the order things happen: you get on the subway first, then you arrive at work. A description of how well or how fast an action is done can also follow the verb with 得 (他说得很慢); that is a separate pattern."
+    },
+    {
+      "sub": "adverb-position",
+      "rule": "也 都 还 就 才 常常 已经 一直 go after the subject and before the verb or adjective. They never start the sentence and never end it.",
+      "pattern": "Subject + (time) + adverb + Verb + Object",
+      "examples": [
+        {
+          "zh": "我也喜欢喝茶。",
+          "py": "wǒ yě xǐ huan hē chá",
+          "en": "I like drinking tea too."
+        },
+        {
+          "zh": "他已经回家了。",
+          "py": "tā yǐ jīng huí jiā le",
+          "en": "He has already gone home."
+        },
+        {
+          "zh": "我们常常在那儿吃饭。",
+          "py": "wǒ men cháng cháng zài nà r chī fàn",
+          "en": "We often eat there."
+        },
+        {
+          "zh": "我明天也想去。",
+          "py": "wǒ míng tiān yě xiǎng qù",
+          "en": "I want to go tomorrow too."
+        }
+      ],
+      "note": "The adverb normally goes before the whole verb phrase: before a modal verb (也想去), 在 + place (常常在那儿吃饭) and 跟 … 一起 (也跟他一起去). With a place phrase the other order is natural too (我在公司常常加班), so both are correct; adverb first is the default. It normally follows a time word."
+    },
+    {
+      "sub": "adverb-position",
+      "rule": "就 (earlier than expected) and 才 (later than expected) go after the time word and before the verb.",
+      "pattern": "Subject + time + 就 / 才 + Verb",
+      "examples": [
+        {
+          "zh": "他八点就来了。",
+          "py": "tā bā diǎn jiù lái le",
+          "en": "He was here as early as eight."
+        },
+        {
+          "zh": "他十点才来。",
+          "py": "tā shí diǎn cái lái",
+          "en": "He didn't come until ten."
+        },
+        {
+          "zh": "我昨天晚上十二点才睡觉。",
+          "py": "wǒ zuó tiān wǎn shang shí èr diǎn cái shuì jiào",
+          "en": "I didn't go to bed until twelve last night."
+        }
+      ],
+      "note": "A sentence with this 才 normally has no 了 after the verb, while 就 usually has it."
+    },
+    {
+      "sub": "adverb-stacking",
+      "rule": "When several of these come together the order is fixed: 也, then 都, then 不 or 没, then the verb.",
+      "pattern": "Subject + 也 + 都 + 不 / 没 + Verb + Object",
+      "examples": [
+        {
+          "zh": "我们也都不喝酒。",
+          "py": "wǒ men yě dōu bù hē jiǔ",
+          "en": "None of us drink either."
+        },
+        {
+          "zh": "他们也都是学生。",
+          "py": "tā men yě dōu shì xué sheng",
+          "en": "They are all students too."
+        },
+        {
+          "zh": "我也不知道。",
+          "py": "wǒ yě bù zhī dào",
+          "en": "I don't know either."
+        },
+        {
+          "zh": "我们都没去过上海。",
+          "py": "wǒ men dōu méi qù guo shàng hǎi",
+          "en": "None of us have been to Shanghai."
+        }
+      ],
+      "note": "也 is always first. 都不 and 不都 are both possible but mean different things: 我们都不是学生 is 'none of us are students', 我们不都是学生 is 'not all of us are students'."
+    },
+    {
+      "sub": "modifier-noun",
+      "rule": "Whatever describes a noun, even a whole clause, goes before the noun and is linked to it with 的. Nothing describing the noun comes after it.",
+      "pattern": "modifier + 的 + Noun",
+      "examples": [
+        {
+          "zh": "我昨天买的书很贵。",
+          "py": "wǒ zuó tiān mǎi de shū hěn guì",
+          "en": "The book I bought yesterday was expensive."
+        },
+        {
+          "zh": "这是妈妈做的菜。",
+          "py": "zhè shì mā ma zuò de cài",
+          "en": "This is the food Mum made."
+        },
+        {
+          "zh": "那个穿红衣服的人是我姐姐。",
+          "py": "nà ge chuān hóng yī fu de rén shì wǒ jiě jie",
+          "en": "The person in red is my older sister."
+        },
+        {
+          "zh": "我买了一本很有意思的书。",
+          "py": "wǒ mǎi le yī běn hěn yǒu yì si de shū",
+          "en": "I bought a very interesting book."
+        }
+      ],
+      "note": "Number + measure word comes before the description: 一本很有意思的书. With 这 / 那 and a clause both orders are used: 那个穿红衣服的人 or 穿红衣服的那个人."
+    },
+    {
+      "sub": "question-in-place",
+      "rule": "Do not move the question word. Make the statement, then replace the unknown part with the question word, and do not add 吗.",
+      "pattern": "Subject + Verb + 什么 / 谁 / 哪儿    Subject + 什么时候 / 怎么 + Verb",
+      "examples": [
+        {
+          "zh": "你想吃什么？",
+          "py": "nǐ xiǎng chī shén me",
+          "en": "What do you want to eat?"
+        },
+        {
+          "zh": "你在哪儿工作？",
+          "py": "nǐ zài nǎ r gōng zuò",
+          "en": "Where do you work?"
+        },
+        {
+          "zh": "你什么时候去北京？",
+          "py": "nǐ shén me shí hou qù běi jīng",
+          "en": "When are you going to Beijing?"
+        },
+        {
+          "zh": "你跟谁一起去？",
+          "py": "nǐ gēn shéi yī qǐ qù",
+          "en": "Who are you going with?"
+        }
+      ],
+      "note": "The question word is first only when it is the subject: 谁知道？ 什么时候 can also come before the subject, like any time word, and 为什么 goes either before or after the subject."
+    },
+    {
+      "sub": "topic-fronting",
+      "rule": "A thing both speakers already know about can be put first as the topic; the rest of the sentence then keeps its normal order, with adverbs still after the subject.",
+      "pattern": "Topic (known object) + Subject + adverb + Verb",
+      "examples": [
+        {
+          "zh": "这本书我看过。",
+          "py": "zhè běn shū wǒ kàn guo",
+          "en": "This book, I've read."
+        },
+        {
+          "zh": "那个电影我还没看。",
+          "py": "nà ge diàn yǐng wǒ hái méi kàn",
+          "en": "I haven't seen that film yet."
+        },
+        {
+          "zh": "作业我已经做完了。",
+          "py": "zuò yè wǒ yǐ jīng zuò wán le",
+          "en": "I've already finished the homework."
+        },
+        {
+          "zh": "中国菜我也很喜欢。",
+          "py": "zhōng guó cài wǒ yě hěn xǐ huan",
+          "en": "I like Chinese food a lot too."
+        }
+      ],
+      "note": "The topic must be definite or general (this book, the homework, Chinese food), not something new like 一本书. The ordinary order (我看过这本书) is also correct; fronting is a choice, common when the object is what the conversation is about or is being contrasted."
+    },
+    {
+      "sub": "xian-zai",
+      "rule": "For 'first A, then B', 先 and 再 are adverbs: each goes after the subject and directly before its verb phrase.",
+      "pattern": "Subject + 先 + Verb 1, (然后) + 再 + Verb 2",
+      "examples": [
+        {
+          "zh": "我先吃饭，再做作业。",
+          "py": "wǒ xiān chī fàn zài zuò zuò yè",
+          "en": "I'll eat first and then do my homework."
+        },
+        {
+          "zh": "我们先去银行，再去超市。",
+          "py": "wǒ men xiān qù yín háng zài qù chāo shì",
+          "en": "We'll go to the bank first, then to the supermarket."
+        },
+        {
+          "zh": "你先洗手，再吃东西。",
+          "py": "nǐ xiān xǐ shǒu zài chī dōng xi",
+          "en": "Wash your hands first, then eat."
+        },
+        {
+          "zh": "你先休息一下，然后我们再走。",
+          "py": "nǐ xiān xiū xi yī xià rán hòu wǒ men zài zǒu",
+          "en": "Rest for a bit first, and then we'll leave."
+        }
+      ],
+      "note": "If the second clause has its own subject, 再 still follows that subject (我们再走). 然后 is a linking word and may come before the subject. In casual speech 先 is also heard before the subject (先我们吃饭); after the subject is the standard position."
+    }
+  ],
+  "contrasts": [
+    {
+      "wrong": "我吃饭在家。",
+      "right": {
+        "zh": "我在家吃饭。",
+        "py": "wǒ zài jiā chī fàn",
+        "en": "I eat at home."
+      },
+      "why": "The place where the action happens goes before the verb, not at the end as in English."
+    },
+    {
+      "wrong": "我去北京明天。",
+      "right": {
+        "zh": "我明天去北京。",
+        "py": "wǒ míng tiān qù běi jīng",
+        "en": "I'm going to Beijing tomorrow."
+      },
+      "why": "A time-when word goes next to the subject, before the verb. It does not close the sentence."
+    },
+    {
+      "wrong": "我吃饭跟朋友一起。",
+      "right": {
+        "zh": "我跟朋友一起吃饭。",
+        "py": "wǒ gēn péng you yī qǐ chī fàn",
+        "en": "I eat with friends."
+      },
+      "why": "English says 'eat with friends'; Chinese says who you are with first, then what you do: 跟朋友一起 + verb."
+    },
+    {
+      "wrong": "我去上班坐地铁。",
+      "right": {
+        "zh": "我坐地铁去上班。",
+        "py": "wǒ zuò dì tiě qù shàng bān",
+        "en": "I go to work by subway."
+      },
+      "why": "The means of getting there comes before 去. 'By subway' is a verb phrase (坐地铁) placed ahead of the main verb."
+    },
+    {
+      "wrong": "也我喜欢喝茶。",
+      "right": {
+        "zh": "我也喜欢喝茶。",
+        "py": "wǒ yě xǐ huan hē chá",
+        "en": "I like drinking tea too."
+      },
+      "why": "也 is an adverb: it follows the subject and comes before the verb. It cannot start the sentence or go at the end like 'too'."
+    },
+    {
+      "wrong": "我们都也不去。",
+      "right": {
+        "zh": "我们也都不去。",
+        "py": "wǒ men yě dōu bù qù",
+        "en": "None of us are going either."
+      },
+      "why": "Stacked adverbs have a fixed order: 也, then 都, then 不."
+    },
+    {
+      "wrong": "我喜欢书你买的。",
+      "right": {
+        "zh": "我喜欢你买的书。",
+        "py": "wǒ xǐ huan nǐ mǎi de shū",
+        "en": "I like the book you bought."
+      },
+      "why": "A clause describing a noun goes before the noun with 的. Chinese has no 'the book that you bought' order."
+    },
+    {
+      "wrong": "什么你想吃？",
+      "right": {
+        "zh": "你想吃什么？",
+        "py": "nǐ xiǎng chī shén me",
+        "en": "What do you want to eat?"
+      },
+      "why": "The question word stays where the answer would be: 你想吃饺子 becomes 你想吃什么."
+    },
+    {
+      "wrong": "这本书也我看过。",
+      "right": {
+        "zh": "这本书我也看过。",
+        "py": "zhè běn shū wǒ yě kàn guo",
+        "en": "I've read this book too."
+      },
+      "why": "Fronting the object as a topic does not move the adverb: 也 still goes after the subject 我."
+    },
+    {
+      "wrong": "我吃饭先，再做作业。",
+      "right": {
+        "zh": "我先吃饭，再做作业。",
+        "py": "wǒ xiān chī fàn zài zuò zuò yè",
+        "en": "I'll eat first and then do my homework."
+      },
+      "why": "先 is an adverb and goes before its verb, not at the end of the clause as in 'I'll eat first'. Standard position: after the subject (先我吃饭 is heard in casual speech, but 我先吃饭 is the form to use)."
+    }
+  ],
+  "cheat": [
+    "Who, when, where, with whom, how, then the verb. If it sets the scene, it goes before the verb.",
+    "Time-when and 在 + place never end the sentence; time comes before place.",
+    "也 都 还 就 才 常常 已经 一直: after the subject, before the verb, never first, never last. 先 / 再 go right before their verb.",
+    "Stacking order: 也, 都, 不. 都不 means none, 不都 means not all.",
+    "跟 + person + 一起 + verb; by subway or with chopsticks goes before the main verb too.",
+    "Describing a noun? Put it all in front and add 的: 我昨天买的书.",
+    "Question word: write the answer sentence, swap in the question word, no moving, no 吗."
+  ]
+}

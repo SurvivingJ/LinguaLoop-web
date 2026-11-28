@@ -27,8 +27,15 @@ PAGES = (
     ('/counter-drill', 'counter_drill_page', 'counter_drill.html'),
     ('/particle-drill', 'particle_drill_page', 'particle_drill.html'),
     ('/conjugation-drill', 'conjugation_drill_page', 'conjugation_drill.html'),
-    ('/grammar-drill', 'grammar_drill_page', 'grammar_drill.html'),
     ('/reading-drill', 'reading_drill_page', 'reading_drill.html'),
+    # Grammar drills, one page per study language. Both keep progress through
+    # routes/grammar_drill.py (/api/grammar-drill: shared daily + state tables).
+    #   zh: static/data/grammar/zh, static/js/grammar/
+    #   ja: the grammar course of the particle drill (data/particle_drill/ja-grammar)
+    ('/grammar-drill/zh', 'grammar_drill_zh_page', 'grammar_drill_zh.html'),
+    ('/grammar-drill/ja', 'grammar_drill_ja_page', 'grammar_drill_ja.html'),
+    # The address without a language sends the browser to its study language's page.
+    ('/grammar-drill', 'grammar_drill_page', 'grammar_drill.html'),
     ('/dual-translation', 'dual_translation_page', 'dual_translation.html'),
     ('/dual-translation/profile', 'dual_translation_profile_page', 'dual_translation_profile.html'),
     # Knowledge Report ("My vocabulary"); always on.

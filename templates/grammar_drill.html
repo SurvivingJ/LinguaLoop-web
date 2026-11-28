@@ -1,35 +1,16 @@
-{% extends "base.html" %}
-{% set defer_base_scripts = true %}
-{% set page_js = module_assets('js/pages', 'particle-drill.js') %}
-{# The grammar drill: the second sentence-drill course (giving and receiving,
-   transitive pairs, keigo, こそあど, connectors, adverbs, sound words,
-   conditionals, sentence patterns, kanji readings, look-alike kanji). Same
-   client script and ladder as the particle drill; data-course="grammar"
-   selects the content (data/particle_drill/ja-grammar). #}
-{% set task_mode = true %}
-{% set task_back = 'history' %}
-
-{% block title %}Grammar | LinguaDojo{% endblock %}
-
-{% block body_class %}bg-slate-50 trainer-page{% endblock %}
-
-{% block task_back_href %}{{ url_for('study_session_page', mode='practice') }}{% endblock %}
-{% block task_title %}<span data-pd-title>Grammar</span>{% endblock %}
-{% block task_glyph %}文{% endblock %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/redesign/particles.css') }}">
-<script type="importmap">{{ module_assets('js/particles').import_map|tojson }}</script>
-{% for href in page_js.preload %}<link rel="modulepreload" href="{{ href }}">
-{% endfor %}
-{% endblock %}
-
-{% block content %}
-<div id="particleDrillRoot" class="trainer-host pd-host" lang="en" data-course="grammar">
-    <div class="drill-msg" data-i18n="particle_drill.loading">Loading…</div>
-</div>
-{% endblock %}
-
-{% block extra_js %}
-<script type="module" src="{{ page_js.entry }}"></script>
-{% endblock %}
+{# /grammar-drill without a language: each study language has its own page
+   (/grammar-drill/zh, /grammar-drill/ja). The script sends the browser to the
+   page of its study language; without a script, the two links below. #}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grammar Drills | LinguaDojo</title>
+    <script src="{{ url_for('static', filename='js/pages/grammar-drill-redirect.js') }}"></script>
+</head>
+<body>
+    <p><a href="{{ url_for('grammar_drill_zh_page') }}" lang="zh">中文 Grammar drills</a></p>
+    <p><a href="{{ url_for('grammar_drill_ja_page') }}" lang="ja">日本語 Grammar drills</a></p>
+</body>
+</html>

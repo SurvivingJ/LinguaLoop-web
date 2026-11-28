@@ -326,7 +326,7 @@ function renderHub() {
         ${
           app.course === 'grammar'
             ? `<a class="ld-btn ld-btn--ghost" href="/particle-drill">${esc(t('hub_particles', 'Particles'))}<small>${esc(t('hub_particles_sub', 'は, が, を, に … the other ladder'))}</small></a>`
-            : `<a class="ld-btn ld-btn--ghost" href="/grammar-drill">${esc(t('hub_grammar', 'Grammar'))}<small>${esc(t('hub_grammar_sub', 'patterns, keigo, あげる・くれる, kanji readings …'))}</small></a>`
+            : `<a class="ld-btn ld-btn--ghost" href="/grammar-drill/ja">${esc(t('hub_grammar', 'Grammar'))}<small>${esc(t('hub_grammar_sub', 'patterns, keigo, あげる・くれる, kanji readings …'))}</small></a>`
         }
       </div>
       <div class="pd-actions">

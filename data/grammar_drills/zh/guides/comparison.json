@@ -1,0 +1,425 @@
+{
+  "topic": "comparison",
+  "summary": "Chinese compares with word order, not with endings like '-er'. The frame is A 比 B + adjective, and the adjective stays bare: how much more goes AFTER it (高一点儿, 高得多, 高三厘米), never 很 before it. 'Less than' is A 没有 B + adjective, 'the same' is A 跟 B 一样, and 更, 最, 比较 and 越来越 are adverbs that sit right before the adjective.",
+  "subs": [
+    {
+      "key": "bi-no-hen",
+      "label": "A 比 B + adjective (no 很)",
+      "focus": "The learner must build A 比 B + bare adjective and decide what may stand before the adjective: nothing, 更 or 还, but not 很, 非常, 太, 真 or 比较 (有点儿 is colloquial there: never judge-wrong). Also the order: 比 B comes before the adjective, not after it as in English. Classic mistakes: 他比我很高; 他高比我."
+    },
+    {
+      "key": "bi-amount",
+      "label": "How much more: 一点儿, 得多, 多了, numbers",
+      "focus": "The learner must put the size of the difference after the adjective: 一点儿 / 一些 for a little, 得多 / 多了 for a lot, or number + measure (大两岁, 高三厘米, 贵五十块). Classic mistakes: 比他一点儿高, 比他很高 for 'much taller', and the amount before the adjective (比我两岁大)."
+    },
+    {
+      "key": "meiyou-neg",
+      "label": "A 没有 B (那么) + adjective",
+      "focus": "The learner must say 'not as ... as' with A 没有 B (这么/那么) + adjective, not by negating the adjective inside a 比 sentence, and must keep the adjective free of amounts and degree words. Classic mistakes: 我比他不高; 我没有他高得多; 我没有他很高."
+    },
+    {
+      "key": "bubi-buru",
+      "label": "不比 and 不如",
+      "focus": "The learner must tell 不比 (not more than: maybe equal, usually contradicting someone) from 没有 and 不如 (clearly less), and build A 不如 B (+ positive adjective). Classic mistakes: 不比 used for 'less than'; 很 after 不如 (不如他很高; 不如他差 is odd, not impossible); 不如 combined with 比."
+    },
+    {
+      "key": "yiyang",
+      "label": "A 跟/和 B 一样 (+ adjective), 不一样",
+      "focus": "The learner must express equality with A 跟/和 B 一样 (+ adjective) and difference with 不一样, choosing 跟/和 and not 比, and keeping 很 out of 一样 + adjective. Classic mistakes: 我比他一样高; 我一样高跟他. 一样很高 is said loosely: never judge-wrong."
+    },
+    {
+      "key": "zui-geng-bijiao",
+      "label": "最, 更 and 比较 as adverbs",
+      "focus": "The learner must choose 最 (top of a group), 更 (even more) or 比较 (fairly; no B named) and place it right before the adjective or 喜欢. Classic mistakes: 比较 as 'than' (这个比较那个贵); 比较 inside a 比 sentence (他比我比较高); English order with 最 (他是最高在我们班)."
+    },
+    {
+      "key": "bi-verb",
+      "label": "比 with verb + 得 + adjective",
+      "focus": "The learner must compare how an action is done: 他比我跑得快 or 他跑得比我快, keeping 得 and, when there is an object, repeating the verb or fronting the object (他说汉语说得比我好). Classic mistakes: dropping 得 (他比我跑快); 比我 after the adjective (他跑得快比我); object between verb and 得 (他说汉语得比我好)."
+    },
+    {
+      "key": "yuelaiyue",
+      "label": "越来越 + adjective",
+      "focus": "The learner must put 越来越 after the subject and directly before an adjective or a verb of feeling, with no other degree word, and with an action verb must attach it to the complement (跑得越来越快). Classic mistakes: 越来越很冷; 越来越更好; 越来越天气冷; 他越来越跑得快 or 他越来越跑快."
+    }
+  ],
+  "rules": [
+    {
+      "sub": "bi-no-hen",
+      "rule": "To say A is more ... than B, put 比 B between A and the adjective. The adjective is bare: no 很, 非常, 太 or 真 in front of it.",
+      "pattern": "A + 比 + B + Adjective",
+      "examples": [
+        {
+          "zh": "今天比昨天冷。",
+          "py": "jīn tiān bǐ zuó tiān lěng",
+          "en": "Today is colder than yesterday."
+        },
+        {
+          "zh": "我哥哥比我高。",
+          "py": "wǒ gē ge bǐ wǒ gāo",
+          "en": "My older brother is taller than me."
+        },
+        {
+          "zh": "这件衣服比那件贵。",
+          "py": "zhè jiàn yī fu bǐ nà jiàn guì",
+          "en": "This piece of clothing is more expensive than that one."
+        }
+      ],
+      "note": "The repeated noun in B is usually dropped: 那件, 你的, 昨天的."
+    },
+    {
+      "sub": "bi-no-hen",
+      "rule": "The only degree adverbs allowed before the adjective in a 比 sentence are 更 and 还. Both mean 'even more' and imply that B is already quite tall, cold, expensive and so on.",
+      "pattern": "A + 比 + B + 更 / 还 + Adjective",
+      "examples": [
+        {
+          "zh": "他很高，他弟弟比他更高。",
+          "py": "tā hěn gāo tā dì di bǐ tā gèng gāo",
+          "en": "He is tall, and his younger brother is even taller than him."
+        },
+        {
+          "zh": "今天比昨天还冷。",
+          "py": "jīn tiān bǐ zuó tiān hái lěng",
+          "en": "Today is even colder than yesterday."
+        },
+        {
+          "zh": "上海的夏天比北京更热。",
+          "py": "shàng hǎi de xià tiān bǐ běi jīng gèng rè",
+          "en": "Summer in Shanghai is even hotter than in Beijing."
+        }
+      ]
+    },
+    {
+      "sub": "bi-amount",
+      "rule": "A little more or a lot more is said after the adjective: 一点儿 or 一些 for a small difference, 得多 or 多了 for a big one.",
+      "pattern": "A + 比 + B + Adjective + 一点儿 / 一些 / 得多 / 多了",
+      "examples": [
+        {
+          "zh": "这个比那个便宜一点儿。",
+          "py": "zhè ge bǐ nà ge pián yi yī diǎn r",
+          "en": "This one is a bit cheaper than that one."
+        },
+        {
+          "zh": "坐地铁比坐公共汽车快得多。",
+          "py": "zuò dì tiě bǐ zuò gōng gòng qì chē kuài de duō",
+          "en": "Taking the subway is much faster than taking the bus."
+        },
+        {
+          "zh": "他的汉语比我好多了。",
+          "py": "tā de hàn yǔ bǐ wǒ hǎo duō le",
+          "en": "His Chinese is much better than mine."
+        }
+      ],
+      "note": "有点儿 before the adjective is not standard in a 比 sentence (比昨天有点儿冷 is heard in speech); use 一点儿 after the adjective. 得多 and 多了 are interchangeable here. In speech 很多 after the adjective (贵很多) is also heard; 很 before the adjective is never possible."
+    },
+    {
+      "sub": "bi-amount",
+      "rule": "An exact difference is number + measure word, and it also goes after the adjective. For ages use 大 and 小.",
+      "pattern": "A + 比 + B + Adjective + number + measure",
+      "examples": [
+        {
+          "zh": "我姐姐比我大两岁。",
+          "py": "wǒ jiě jie bǐ wǒ dà liǎng suì",
+          "en": "My older sister is two years older than me."
+        },
+        {
+          "zh": "他比我高三厘米。",
+          "py": "tā bǐ wǒ gāo sān lí mǐ",
+          "en": "He is three centimetres taller than me."
+        },
+        {
+          "zh": "这件比那件贵五十块。",
+          "py": "zhè jiàn bǐ nà jiàn guì wǔ shí kuài",
+          "en": "This one is fifty yuan more expensive than that one."
+        }
+      ]
+    },
+    {
+      "sub": "meiyou-neg",
+      "rule": "'A is not as ... as B' is A 没有 B + adjective, often with 这么 or 那么 before the adjective. Do not negate the adjective in a 比 sentence, and do not add amounts or 得多 after the adjective.",
+      "pattern": "A + 没有 + B + (这么 / 那么) + Adjective",
+      "examples": [
+        {
+          "zh": "我没有他高。",
+          "py": "wǒ méi yǒu tā gāo",
+          "en": "I'm not as tall as he is."
+        },
+        {
+          "zh": "今天没有昨天那么冷。",
+          "py": "jīn tiān méi yǒu zuó tiān nà me lěng",
+          "en": "Today is not as cold as yesterday."
+        },
+        {
+          "zh": "坐火车没有坐飞机快。",
+          "py": "zuò huǒ chē méi yǒu zuò fēi jī kuài",
+          "en": "Taking the train is not as fast as flying."
+        }
+      ],
+      "note": "The adjective is normally the 'big' end of the scale (高, 大, 快, 贵, 好). 没 alone (我没他高) is common in speech."
+    },
+    {
+      "sub": "bubi-buru",
+      "rule": "A 不比 B + adjective means 'A is not more ... than B': they may be about the same. It is mostly used to disagree with what someone said or expects. For a plain 'less than', use 没有.",
+      "pattern": "A + 不比 + B + Adjective",
+      "examples": [
+        {
+          "zh": "他不比我高，我们差不多。",
+          "py": "tā bù bǐ wǒ gāo wǒ men chà bu duō",
+          "en": "He's no taller than me; we're about the same."
+        },
+        {
+          "zh": "这家店的东西不比那家便宜。",
+          "py": "zhè jiā diàn de dōng xi bù bǐ nà jiā pián yi",
+          "en": "Things in this shop are no cheaper than in that one."
+        }
+      ],
+      "note": "不 goes before 比, never before the adjective: 比我不高 is wrong."
+    },
+    {
+      "sub": "bubi-buru",
+      "rule": "A 不如 B means 'A is not as good as B'. An adjective can be added to say in what way, and it normally names a good or 'big' quality. 不如 replaces 比; the two are not combined.",
+      "pattern": "A + 不如 + B + (Adjective)",
+      "examples": [
+        {
+          "zh": "我的汉语不如他。",
+          "py": "wǒ de hàn yǔ bù rú tā",
+          "en": "My Chinese is not as good as his."
+        },
+        {
+          "zh": "这个手机不如那个好用。",
+          "py": "zhè ge shǒu jī bù rú nà ge hǎo yòng",
+          "en": "This phone is not as easy to use as that one."
+        },
+        {
+          "zh": "走路不如骑自行车快。",
+          "py": "zǒu lù bù rú qí zì xíng chē kuài",
+          "en": "Walking is not as fast as riding a bike."
+        }
+      ],
+      "note": "不如 is a little more formal than 没有. Without an adjective, 没有 cannot replace it: 我的汉语没有他 is incomplete."
+    },
+    {
+      "sub": "yiyang",
+      "rule": "'The same as' is A 跟 B 一样 or A 和 B 一样, and an adjective can follow 一样 with no 很. 'Different' is 不一样. 比 is never used with 一样.",
+      "pattern": "A + 跟 / 和 + B + 一样 / 不一样 + (Adjective)",
+      "examples": [
+        {
+          "zh": "我跟他一样高。",
+          "py": "wǒ gēn tā yī yàng gāo",
+          "en": "I'm as tall as he is."
+        },
+        {
+          "zh": "我的手机和你的一样。",
+          "py": "wǒ de shǒu jī hé nǐ de yī yàng",
+          "en": "My phone is the same as yours."
+        },
+        {
+          "zh": "这两个字的意思不一样。",
+          "py": "zhè liǎng ge zì de yì si bù yī yàng",
+          "en": "The meanings of these two characters are different."
+        },
+        {
+          "zh": "这里的冬天跟北京一样冷。",
+          "py": "zhè lǐ de dōng tiān gēn běi jīng yī yàng lěng",
+          "en": "Winter here is as cold as in Beijing."
+        }
+      ],
+      "note": "不一样 usually stands alone, without an adjective. 一样很贵 is heard in loose speech; the standard form has no 很. To say 'not as tall as', use 没有 (我没有他高) rather than 跟他不一样高."
+    },
+    {
+      "sub": "zui-geng-bijiao",
+      "rule": "最 marks the top of a group of three or more; 更 means 'even more' than something just mentioned. Both go directly before the adjective or a verb such as 喜欢. The group goes before 最, not after it.",
+      "pattern": "(Group) + 最 / 更 + Adjective / 喜欢 ...",
+      "examples": [
+        {
+          "zh": "他是我们班最高的。",
+          "py": "tā shì wǒ men bān zuì gāo de",
+          "en": "He is the tallest in our class."
+        },
+        {
+          "zh": "我最喜欢春天。",
+          "py": "wǒ zuì xǐ huan chūn tiān",
+          "en": "I like spring best."
+        },
+        {
+          "zh": "这个不错，那个更好。",
+          "py": "zhè ge bù cuò nà ge gèng hǎo",
+          "en": "This one is good; that one is even better."
+        }
+      ]
+    },
+    {
+      "sub": "zui-geng-bijiao",
+      "rule": "比较 before an adjective is an adverb meaning 'fairly, rather'. No B is named. It is not the 比 of comparison and cannot be put into a 比 sentence.",
+      "pattern": "Subject + 比较 + Adjective / 喜欢 ...",
+      "examples": [
+        {
+          "zh": "今天比较冷。",
+          "py": "jīn tiān bǐ jiào lěng",
+          "en": "It's fairly cold today."
+        },
+        {
+          "zh": "这个问题比较难。",
+          "py": "zhè ge wèn tí bǐ jiào nán",
+          "en": "This question is rather difficult."
+        },
+        {
+          "zh": "我比较喜欢喝茶。",
+          "py": "wǒ bǐ jiào xǐ huan hē chá",
+          "en": "I prefer drinking tea."
+        }
+      ]
+    },
+    {
+      "sub": "bi-verb",
+      "rule": "To compare how an action is done, keep verb + 得 + adjective and put 比 B either before the verb or right after 得. With an object, repeat the verb or put the object first.",
+      "pattern": "A + 比 + B + Verb + 得 + Adjective  /  A + Verb + 得 + 比 + B + Adjective",
+      "examples": [
+        {
+          "zh": "他比我跑得快。",
+          "py": "tā bǐ wǒ pǎo de kuài",
+          "en": "He runs faster than me."
+        },
+        {
+          "zh": "他跑得比我快。",
+          "py": "tā pǎo de bǐ wǒ kuài",
+          "en": "He runs faster than me."
+        },
+        {
+          "zh": "妹妹唱歌唱得比我好。",
+          "py": "mèi mei chàng gē chàng de bǐ wǒ hǎo",
+          "en": "My younger sister sings better than I do."
+        },
+        {
+          "zh": "我今天比昨天起得早。",
+          "py": "wǒ jīn tiān bǐ zuó tiān qǐ de zǎo",
+          "en": "I got up earlier today than yesterday."
+        }
+      ],
+      "note": "Both positions of 比 B are correct and mean the same. Amounts still go at the very end: 他跑得比我快得多. The negative uses 没有 in the same slots: 我跑得没有他快."
+    },
+    {
+      "sub": "yuelaiyue",
+      "rule": "'More and more' is 越来越 right before an adjective or a verb of feeling, after the subject, usually with 了 at the end. No 很 or 更 with it. With an action verb, 越来越 goes after 得.",
+      "pattern": "Subject + 越来越 + Adjective + (了)  /  Subject + Verb + 得 + 越来越 + Adjective",
+      "examples": [
+        {
+          "zh": "天气越来越冷了。",
+          "py": "tiān qì yuè lái yuè lěng le",
+          "en": "The weather is getting colder and colder."
+        },
+        {
+          "zh": "我越来越喜欢这个城市了。",
+          "py": "wǒ yuè lái yuè xǐ huan zhè ge chéng shì le",
+          "en": "I like this city more and more."
+        },
+        {
+          "zh": "他汉语说得越来越好了。",
+          "py": "tā hàn yǔ shuō de yuè lái yuè hǎo le",
+          "en": "He speaks Chinese better and better."
+        }
+      ]
+    }
+  ],
+  "contrasts": [
+    {
+      "wrong": "他比我很高。",
+      "right": {
+        "zh": "他比我高得多。",
+        "py": "tā bǐ wǒ gāo de duō",
+        "en": "He is much taller than me."
+      },
+      "why": "很 cannot stand before the adjective in a 比 sentence. 'Much' is said after the adjective with 得多 or 多了."
+    },
+    {
+      "wrong": "今天比昨天一点儿冷。",
+      "right": {
+        "zh": "今天比昨天冷一点儿。",
+        "py": "jīn tiān bǐ zuó tiān lěng yī diǎn r",
+        "en": "Today is a bit colder than yesterday."
+      },
+      "why": "The amount of difference goes after the adjective: 冷一点儿. (比昨天有点儿冷 is heard in casual speech, but adjective + 一点儿 is the standard form.)"
+    },
+    {
+      "wrong": "我比姐姐两岁小。",
+      "right": {
+        "zh": "我比姐姐小两岁。",
+        "py": "wǒ bǐ jiě jie xiǎo liǎng suì",
+        "en": "I'm two years younger than my older sister."
+      },
+      "why": "English says 'two years younger'; Chinese puts the number after the adjective."
+    },
+    {
+      "wrong": "我比他不高。",
+      "right": {
+        "zh": "我没有他高。",
+        "py": "wǒ méi yǒu tā gāo",
+        "en": "I'm not as tall as he is."
+      },
+      "why": "A 比 sentence is not negated at the adjective. 'Not as tall as' is A 没有 B 高."
+    },
+    {
+      "wrong": "我没有他高得多。",
+      "right": {
+        "zh": "我没有他那么高。",
+        "py": "wǒ méi yǒu tā nà me gāo",
+        "en": "I'm not as tall as he is."
+      },
+      "why": "After 没有 the adjective takes no amount or degree complement; only 这么 or 那么 may come before it."
+    },
+    {
+      "wrong": "我比他一样高。",
+      "right": {
+        "zh": "我跟他一样高。",
+        "py": "wǒ gēn tā yī yàng gāo",
+        "en": "I'm as tall as he is."
+      },
+      "why": "比 always means a difference. Sameness uses 跟 or 和 with 一样."
+    },
+    {
+      "wrong": "他比我跑快。",
+      "right": {
+        "zh": "他比我跑得快。",
+        "py": "tā bǐ wǒ pǎo de kuài",
+        "en": "He runs faster than me."
+      },
+      "why": "Describing how an action is done needs 得 between the verb and the adjective, in a comparison too."
+    },
+    {
+      "wrong": "这个比较那个贵。",
+      "right": {
+        "zh": "这个比那个贵。",
+        "py": "zhè ge bǐ nà ge guì",
+        "en": "This one is more expensive than that one."
+      },
+      "why": "比较 before an adjective means 'fairly' and takes no B. 'Than' is 比 alone."
+    },
+    {
+      "wrong": "他是最高在我们班。",
+      "right": {
+        "zh": "他是我们班最高的。",
+        "py": "tā shì wǒ men bān zuì gāo de",
+        "en": "He is the tallest in our class."
+      },
+      "why": "The group goes before 最, not after it as in English 'tallest in our class'."
+    },
+    {
+      "wrong": "天气越来越很冷。",
+      "right": {
+        "zh": "天气越来越冷了。",
+        "py": "tiān qì yuè lái yuè lěng le",
+        "en": "The weather is getting colder and colder."
+      },
+      "why": "越来越 already gives the degree, so 很, 更 and 非常 cannot be added. 了 at the end marks the change."
+    }
+  ],
+  "cheat": [
+    "比 in the sentence? Adjective bare: no 很, 非常, 太, 有点儿. Only 更 or 还 may stand before it.",
+    "How much more goes AFTER the adjective: 高一点儿, 高得多, 高多了, 高三厘米, 大两岁.",
+    "'Not as ... as' = A 没有 B (那么) + adjective. Never 比 ... 不 + adjective.",
+    "不比 = 'no more than' (maybe equal); 不如 = 'not as good as', normally with a positive adjective.",
+    "Same = 跟 / 和 ... 一样 (+ adjective), different = 不一样. No 比, no 很.",
+    "Action compared? Keep 得: 比我跑得快 or 跑得比我快.",
+    "越来越 and 比较 sit right before the adjective, alone: no 很, no 更, no B."
+  ]
+}

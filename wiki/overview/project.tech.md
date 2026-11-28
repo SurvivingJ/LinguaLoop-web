@@ -133,8 +133,9 @@ A script under `scripts/` that can write to the live database or Storage writes 
 | `slug_health_nightly` | daily 04:10 | `services.model_health:run_slug_health_check` | Probes the model slugs in use; logs an ERROR naming dead ones; advisory lock. |
 | `generation_queue_drain_nightly` | daily 04:15 | `services.vocabulary_ladder.queue_drain:run_nightly_drain` | Enqueues fresh coverage gaps, then drains the generation queue; advisory lock. |
 | `word_upload_watchlist_sweep_nightly` | daily 04:20 | `services.word_list_import.sweep_cron:run_watchlist_sweep` | Scans tests created since a watermark and matches them to active `user_word_watchlist` rows. **Currently fails every night:** its state table `word_upload_sweep_state` and its two lock functions do not exist live (checked 2026-11-23); `_read_cursor` raises on the missing table and the runner logs "Word-upload watchlist sweep crashed". Nothing is written. Fix: apply `migrations/word_upload_sweep_advisory_lock_hardened.sql` (pending, needs a watermark-seed decision; `migrations/PENDING-2026-11-23.md` item 9). |
-| `knowledge_snapshots_nightly` | daily 04:25 | `services.knowledge_snapshots:run_nightly` | One `user_knowledge_snapshots` row per active (user, language) pair for the UTC day, then prune; idempotent upsert; not gated by `KNOWLEDGE_REPORT_ENABLED` (history must accrue before the page ships, ADR-053). |
-| `placement_close_stale_nightly` | daily 04:30 | `services.calibration_placement:run_nightly_close` | Closes placements idle for 24 h as `abandoned`, with a frozen result and the evidence write; skipped while `PLACEMENT_ENABLED_LANGS` is empty. |
+| `knowledge_snapshots_nightly` | daily 04:25 | `services.knowledge_snapshots:run_nightly` | One `user_knowledge_snapshots` row per active (user, language) pair for the UTC day, then prune; idempotent upsert; always runs (ADR-053). |
+| `placement_close_stale_nightly` | daily 04:30 | `services.calibration_placement:run_nightly_close` | Closes placements idle for 24 h as `abandoned`, with a frozen result and the evidence write; always runs. |
+| `llm_calls_archive_weekly` | Sundays 03:40 | `services.llm_calls_archive:run_weekly` | Moves `llm_calls` rows older than `LLM_CALLS_ARCHIVE_KEEP_DAYS` (3) whole UTC days to Storage (`llm-logs-archive`, gzip JSON Lines + manifest), verifies the upload, then deletes exactly those rows. One worker claims the week's cutoff by creating `llm_calls/locks/cutoff_<cutoff>.json` (no advisory-lock RPC needed); the other skips. |
 | `study_plan_weekly_recompute` | Sundays 23:00 | `services.study_plan_service:_run_weekly_plan_recompute` | `compute_weekly_plan` for every `user_study_plans` row; advisory lock `pg_try_advisory_lock_for_study_plan`. |
 
 The order inside the 04:xx chain is deliberate (comments in `web/scheduler.py`): slug health after IRT, queue drain after the slug probe, the sweep after regeneration, snapshots after the sweep.
@@ -159,8 +160,6 @@ Read from the environment through `config.py` unless noted. Defaults as in code.
 |---|---|---|
 | `STUDY_PLAN_ENABLED` | on | Study-plan orchestration, plan progress counters, `POST /api/study-plan/recompute`. |
 | `NEW_WORD_DRILL_ENABLED` | on | New-word drill ([[features/new-word-drill.tech]]). |
-| `KNOWLEDGE_REPORT_ENABLED` | **off** | `/api/knowledge/*` answer 404; the `/knowledge` page shows "not available yet". |
-| `PLACEMENT_ENABLED_LANGS` | empty (off) | Comma-separated `dim_languages` ids for which the vocabulary placement is on; otherwise `/api/calibration/placement/*` answer 404. |
 | `ENTITLEMENTS_ENFORCED` | off | Billing gates log `entitlement_shadow_deny` and serve. |
 | `RATELIMIT_ENABLED`, `RATELIMIT_STORAGE_URI`, `RATELIMIT_API_DEFAULT` | on, `memory://`, `300 per minute` | Rate limits ([[features/web-package.tech]]). |
 | `DT_GUIDED_REPAIR` | on | Guided self-repair routes; off answers `503 REPAIR_DISABLED`. (`services/dual_translation/repair/settings.py`.) |
@@ -172,7 +171,7 @@ Read from the environment through `config.py` unless noted. Defaults as in code.
 | `LINGUADOJO_SKIP_DOTENV` | unset | `config.py` does not load `.env` (tests, offline tools). |
 | `USE_OPENROUTER` | false | LLM transport selection. |
 
-**Removed and ignored if set:** `PRACTICE_ATTEMPT_RPC_ENABLED` (practice attempts are always recorded by the one RPC `record_exercise_attempt`), `QUIZ_DISTRACTORS_BATCH` (the post-test quiz always uses `get_quiz_distractors`, falling back to `get_distractors`), `VOCAB_LADDER_BUNDLE_MODE` (the bundle package was deleted), and the four `EXERCISE_CONTENT_SOURCE/_WRITE/_DB_FALLBACK/_SHADOW_SAMPLE` settings (ADR-049, TASK-1031). A grep of the non-test code finds `QUIZ_DISTRACTORS_BATCH` and `VOCAB_LADDER_BUNDLE_MODE` only in comments.
+**Removed and ignored if set:** `KNOWLEDGE_REPORT_ENABLED` and `PLACEMENT_ENABLED_LANGS` (removed 2026-11-23, commit `a0aa0b2`: the Knowledge Report is always on and the placement is always on for zh, en and ja, `PLACEMENT_LANGUAGES` in `services/calibration_placement.py`), `PRACTICE_ATTEMPT_RPC_ENABLED` (practice attempts are always recorded by the one RPC `record_exercise_attempt`), `QUIZ_DISTRACTORS_BATCH` (the post-test quiz always uses `get_quiz_distractors`, falling back to `get_distractors`), `VOCAB_LADDER_BUNDLE_MODE` (the bundle package was deleted), and the four `EXERCISE_CONTENT_SOURCE/_WRITE/_DB_FALLBACK/_SHADOW_SAMPLE` settings (ADR-049, TASK-1031). A grep of the non-test code finds `QUIZ_DISTRACTORS_BATCH` and `VOCAB_LADDER_BUNDLE_MODE` only in comments.
 
 ## Key Architectural Decisions
 

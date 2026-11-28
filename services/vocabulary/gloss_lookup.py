@@ -44,15 +44,33 @@ def get_user_definition_language_id(db, user_id: str) -> int | None:
     client also asks once for the native language (base.html), falling back to
     the browser language, then English.
     """
-    native = None
-    try:
-        resp = db.table('users').select('native_language_id').eq('id', user_id).single().execute()
-        native = (resp.data or {}).get('native_language_id')
-    except Exception as e:
-        logger.warning("Could not resolve definition language for user %s: %s", user_id, e)
+    from services.request_cache import memo
+    native = memo(_request_key(user_id), lambda: _read_native_language_id(db, user_id),
+                  cache_none=False)
     if native:
         return native
     return _default_definition_language_id()
+
+
+def _request_key(user_id) -> tuple:
+    return ('native_language_id', str(user_id))
+
+
+def _read_native_language_id(db, user_id: str) -> int | None:
+    try:
+        resp = db.table('users').select('native_language_id').eq('id', user_id).single().execute()
+        return (resp.data or {}).get('native_language_id')
+    except Exception as e:
+        logger.warning("Could not resolve definition language for user %s: %s", user_id, e)
+        return None
+
+
+def remember_user_definition_language_id(user_id: str, native_language_id: int | None) -> None:
+    """Seed the per-request memo with a value read on a pool thread (where the
+    request cache is out of reach), so later reads in this GET reuse it."""
+    if native_language_id:
+        from services.request_cache import put
+        put(_request_key(user_id), native_language_id)
 
 
 def _default_definition_language_id() -> int | None:

@@ -11,11 +11,11 @@ done: 4
 
 Built on 2026-11-27 in one session (owner request: guides and 10,000 exercises for every
 Japanese particle, conjugation rules, endless practice, written by Claude headless subagents).
-TASK-1234 to 1236 are done; TASK-1237 to 1241 are follow-ups, four of them owner decisions.
+TASK-1269 to 1236 are done; TASK-1272 to 1241 are follow-ups, four of them owner decisions.
 
 ---
 
-## TASK-1234: Content format, catalog, validator and authoring pipeline
+## TASK-1269: Content format, catalog, validator and authoring pipeline
 
 **Status:** [x] Done (2026-11-27)
 **Feature:** particle-drill
@@ -49,13 +49,13 @@ Slots were kana-only at first; kanji with furigana was added mid-run and
 
 ---
 
-## TASK-1235: Author and review the content
+## TASK-1270: Author and review the content
 
 **Status:** [x] Done (2026-11-27)
 **Feature:** particle-drill
 **Type:** feature
 **Complexity:** XL (>2d)
-**Depends On:** TASK-1234
+**Depends On:** TASK-1269
 
 **Description:**
 Run the pipeline: guides for all 138 particle groups, 10,549 exercise items over
@@ -70,7 +70,7 @@ a separate context.
 - [x] the whole content validates with 0 errors and `manifest.json` matches the files (tests)
 
 **Technical Notes:**
-Run record: 272 jobs (174 item batches, 47 guide batches, 46 pack batches, 4 word lists, the conjugation guide), each written by one headless Claude Code worker and reviewed by a second in a separate context, signed in with the session login (no model API key, no OpenRouter). Result: 10,549 items against the 10,000 target, no skill under target, 0 validation errors. Reviewers checked 11,818 entries, corrected 2,374 and deleted 112. Three guide batches were rerun after the mid-run change that allowed kanji in answers; no job failed at the end. No human has checked a sample (TASK-1237).
+Run record: 272 jobs (174 item batches, 47 guide batches, 46 pack batches, 4 word lists, the conjugation guide), each written by one headless Claude Code worker and reviewed by a second in a separate context, signed in with the session login (no model API key, no OpenRouter). Result: 10,549 items against the 10,000 target, no skill under target, 0 validation errors. Reviewers checked 11,818 entries, corrected 2,374 and deleted 112. Three guide batches were rerun after the mid-run change that allowed kanji in answers; no job failed at the end. No human has checked a sample (TASK-1272).
 
 **Files to Create / Modify:**
 - `data/particle_drill/ja/{items,guides,packs,conjugation,review}/`, `manifest.json`
@@ -80,13 +80,13 @@ Run record: 272 jobs (174 item batches, 47 guide batches, 46 pack batches, 4 wor
 
 ---
 
-## TASK-1236: Drill page, engine, routes and tests
+## TASK-1271: Drill page, engine, routes and tests
 
 **Status:** [x] Done (2026-11-27)
 **Feature:** particle-drill
 **Type:** feature
 **Complexity:** L (1-2d)
-**Depends On:** TASK-1234
+**Depends On:** TASK-1269
 
 **Description:**
 The `/particle-drill` page (hub, guide, drill, daily mix, conjugation gym), the browser engine
@@ -116,13 +116,13 @@ Open `/particle-drill` with Japanese as the study language; drill は; the round
 
 ---
 
-## TASK-1242: Conjugation drill as its own page, fed by the words the learner knows
+## TASK-1277: Conjugation drill as its own page, fed by the words the learner knows
 
 **Status:** [x] Done (2026-11-27)
 **Feature:** particle-drill
 **Type:** feature
 **Complexity:** M (3-8h)
-**Depends On:** TASK-1236
+**Depends On:** TASK-1271
 
 **Description:**
 Owner, same day: "I want a dedicated page, process, maybe an area in the db or use the exercises
@@ -152,13 +152,13 @@ Open `/conjugation-drill` as a learner with Japanese test history: "Words I know
 
 ---
 
-## TASK-1237: Native-speaker spot check of the answer keys
+## TASK-1272: Native-speaker spot check of the answer keys
 
 **Status:** [?] Awaiting owner
 **Feature:** particle-drill
 **Type:** test
 **Complexity:** M (3-8h)
-**Depends On:** TASK-1235
+**Depends On:** TASK-1270
 
 **Description:**
 Every item was written and reviewed by Claude workers; no human has checked a sample. Draw a
@@ -182,13 +182,13 @@ The evaluation page exists and its fixes are merged.
 
 ---
 
-## TASK-1238: Apply the progress table
+## TASK-1273: Apply the progress table
 
 **Status:** [?] Awaiting owner (live apply)
 **Feature:** particle-drill
 **Type:** infra
 **Complexity:** XS (<1h)
-**Depends On:** TASK-1236
+**Depends On:** TASK-1271
 
 **Description:**
 Apply `migrations/particle_drill_progress.sql` (one small table, RLS on, service role only) so
@@ -209,20 +209,20 @@ Drill on one device, open the page on another: the levels match.
 
 ---
 
-## TASK-1239: Count particle drilling in study time, the daily session and (optionally) ELO
+## TASK-1274: Count particle drilling in study time, the daily session and (optionally) ELO
 
 **Status:** [?] Awaiting owner decision
 **Feature:** particle-drill
 **Type:** feature
 **Complexity:** M (3-8h)
-**Depends On:** TASK-1238
+**Depends On:** TASK-1273
 
 **Description:**
 The drill writes no `test_attempts` row, so it is missing from "Studied this week"
 ([[features/weekly-minutes]]), from the daily session queue, and from ELO. Decide which of the
 three it should join. Study time and a daily-session item are low risk; ELO needs a
 server-judged path because the answer key is in the browser
-([[decisions/ADR-064-particle-drill-static-content-client-engine]]).
+([[decisions/ADR-067-particle-drill-static-content-client-engine]]).
 
 **Acceptance Criteria:**
 - [ ] owner decision recorded on the feature page
@@ -240,13 +240,13 @@ A finished round shows in the weekly minutes.
 
 ---
 
-## TASK-1240: Guides and reasons in the learner's interface language
+## TASK-1275: Guides and reasons in the learner's interface language
 
 **Status:** [?] Awaiting owner decision
 **Feature:** particle-drill
 **Type:** feature
 **Complexity:** L (1-2d)
-**Depends On:** TASK-1235
+**Depends On:** TASK-1270
 
 **Description:**
 The interface strings are translated (en, es, zh, ja) but the guides, the English translation
@@ -267,13 +267,13 @@ With the interface in Chinese, a guide and a feedback line show in Chinese.
 
 ---
 
-## TASK-1241: "Report this sentence" from the drill
+## TASK-1276: "Report this sentence" from the drill
 
 **Status:** [ ] Not Started
 **Feature:** particle-drill
 **Type:** feature
 **Complexity:** S (1-3h)
-**Depends On:** TASK-1236
+**Depends On:** TASK-1271
 
 **Description:**
 A learner who thinks an answer key is wrong has only the general Report dialog. Add a
