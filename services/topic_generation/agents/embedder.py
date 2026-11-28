@@ -31,14 +31,27 @@ class EmbeddingService:
             api_key: OpenAI API key (defaults to config)
             model: Embedding model (defaults to config)
         """
-        self.api_key = api_key or topic_gen_config.openai_api_key
+        import os
         self.model = model or topic_gen_config.embedding_model
         self.dimensions = topic_gen_config.embedding_dimensions
+        # EMBEDDINGS_PROVIDER=openrouter: the same OpenAI model through
+        # OpenRouter's OpenAI-compatible /embeddings endpoint and key. Vectors
+        # match OpenAI's for the same model, so they mix with stored ones.
+        self.provider = (os.getenv('EMBEDDINGS_PROVIDER') or 'openai').strip().lower()
+        if self.provider == 'openrouter':
+            self.api_key = api_key or os.getenv('OPENROUTER_API_KEY')
+            if not self.api_key:
+                raise ValueError("OPENROUTER_API_KEY is required for EMBEDDINGS_PROVIDER=openrouter")
+            if '/' not in self.model:
+                self.model = f'openai/{self.model}'
+            base_url = 'https://openrouter.ai/api/v1'
+        else:
+            self.api_key = api_key or topic_gen_config.openai_api_key
+            if not self.api_key:
+                raise ValueError("OpenAI API key is required for embeddings")
+            base_url = 'https://api.openai.com/v1'
 
-        if not self.api_key:
-            raise ValueError("OpenAI API key is required for embeddings")
-
-        self.client = get_client(base_url='https://api.openai.com/v1', api_key=self.api_key)
+        self.client = get_client(base_url=base_url, api_key=self.api_key)
         self.api_call_count = 0
 
         logger.debug(f"EmbeddingService initialized: model={self.model}")
