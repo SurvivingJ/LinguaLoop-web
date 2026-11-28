@@ -13,6 +13,12 @@ open_questions:
 
 # Particle Drill (Japanese)
 
+> **2026-11-28, depth:** every skill was topped up to at least 50 sentences (owner: "are there
+> enough drills"). The particle course now has **14,568** sentences (was 10,549; the smallest skill
+> had 20). 66 more batches, each written by one worker and reviewed by another; reviewers checked
+> 4,046 new entries, corrected 944 and deleted 19. Counts elsewhere on this page are from the
+> first run.
+
 ## Purpose
 
 Particles decide who did what to whom in every Japanese sentence, and a learner only owns them

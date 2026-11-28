@@ -11,6 +11,15 @@ open_questions:
 
 # Grammar Drill and Reading Drill (Japanese)
 
+> **2026-11-28, more areas and depth** (owner: "build all for Chinese and Japanese"). Five stages
+> were added after the first twelve: **collocations** (着る / 履く / かぶる, 薬を飲む, かける, つける,
+> 〜がする), **idioms** (気 expressions, body-part idioms, four-character idioms), **casual
+> contractions** (〜てる, 〜ちゃう, 〜なきゃ, 〜って), **compound verbs** (〜込む, 〜出す, 〜切る, 〜合う)
+> and **loanword traps** (マンション, コンセント, コンビニ). Every skill has at least 50 sentences,
+> and 98 skills (was 18) have pattern packs that generate new sentences without end. The course
+> now has **220 skills, 12,199 sentences, 64 guides, 178 packs**. The counts in the text below
+> are from the first run.
+
 ## Purpose
 After the particle ladder the owner asked which other parts of Japanese could be drilled the
 same way, and then: "build all of them, the same way." This is the result: a second course on

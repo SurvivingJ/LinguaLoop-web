@@ -15,6 +15,15 @@ breaking_change_risk: low
 
 # Grammar Drill and Reading Drill (Japanese) — Technical Specification
 
+> **2026-11-28:** `scripts/grammar_drill_catalog.py` builds the catalog in two parts
+> (`build_catalog()`): the first twelve stages on their own target (8,000, unchanged) and
+> `MORE_STAGES` (`colloc`, `idiom`, `casual`, `compound`, `gairaigo`; 38 skills) on theirs (2,000),
+> so adding stages does not move earlier targets. `MORE_PACK_SKILLS` gives 80 more skills two
+> packs each. `particle_drill_swarm.py plan --topup --min 50` tops every skill up to a minimum
+> whatever its target; pack jobs added later are named after their first skill and plan only
+> files that do not exist yet. Totals: 220 skills, 64 groups, 17 stages, 12,199 items, 178 packs,
+> 298 review records. `tests/test_grammar_drill.py` now requires every skill to have 50 items.
+
 ## Architecture Overview
 A second *course* beside the particle course. Nothing was forked: the same markup, validator,
 worker runner, content service, routes, page script, ladder and progress document serve both.

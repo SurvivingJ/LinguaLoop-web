@@ -3,8 +3,8 @@ title: "Particle Drill (Japanese) — Task Breakdown"
 feature: particle-drill
 prose_page: ../features/particle-drill.md
 tech_page: ../features/particle-drill.tech.md
-total_tasks: 11
-done: 5
+total_tasks: 13
+done: 6
 ---
 
 # Particle Drill (Japanese) — Task Breakdown
@@ -360,3 +360,69 @@ through the existing reports route, so content errors surface with the sentence 
 
 **Verification:**
 Report a sentence; the row appears with the item id.
+
+---
+
+## TASK-1284: Depth and five more areas for the Japanese drills
+
+**Status:** [x] Done (2026-11-28)
+**Feature:** particle-drill
+**Type:** feature
+**Complexity:** XL (>2d)
+**Depends On:** TASK-1270, TASK-1279
+
+**Description:**
+Owner: "Are there enough drills available?" then "Run agent swarms to build all for Chinese and
+Japanese". Many skills had 20 to 40 sentences, fewer than the ladder needs before repeating, and
+only 18 grammar skills could generate sentences. Top every skill of both courses up to 50, add
+pattern packs to the grammar skills that suit them, and add collocations, idioms, casual
+contractions, compound verbs and loanword traps as new stages of the grammar course.
+
+**Acceptance Criteria:**
+- [x] no skill in either course has fewer than 50 sentences (test for the grammar course; manifest for both)
+- [x] 98 grammar skills have packs (was 18)
+- [x] five new stages, 38 skills, each with a guide; every new file named by a review record
+- [x] 0 validation errors; both manifests current; full tests green
+
+**Technical Notes:**
+Run record: 177 jobs in three pools on the session login (no model API, no OpenRouter), none
+failed: 66 particle top-up batches; 79 grammar jobs (40 item batches and 9 guide batches for the
+new stages, 30 pack batches); 32 grammar top-up batches. Particles 10,549 → 14,568 sentences;
+grammar 8,340 → 12,199 sentences and 18 → 178 packs. Notional cost from the worker logs: about
+$270. No worker edited a file outside its course this time (checked with `git status` after each
+pool).
+
+**Files to Create / Modify:**
+- `scripts/grammar_drill_catalog.py`, `scripts/particle_drill_swarm.py`, `data/particle_drill/AUTHORING_GRAMMAR.md`
+- `data/particle_drill/ja/`, `data/particle_drill/ja-grammar/`
+
+**Verification:**
+`python scripts/particle_drill_validate.py --summary` and `python scripts/grammar_drill_validate.py --summary`.
+
+---
+
+## TASK-1286: Listening drills (Japanese sound length; Chinese tones and initials)
+
+**Status:** [?] Awaiting owner decision
+**Feature:** particle-drill
+**Type:** feature
+**Complexity:** L (1-2d)
+**Depends On:** none
+
+**Description:**
+The one family from the 2026-11-28 list that was not built: telling おばさん from おばあさん, きて
+from きって, and for Chinese tone pairs, zh / ch / sh against j / q / x, -n against -ng. It needs
+recorded or synthesised audio and a "hear it, choose it" exercise type; neither exists in these
+drills. Decide how the audio is produced before anything is built.
+
+**Acceptance Criteria:**
+- [ ] owner decision on the audio source recorded here
+
+**Technical Notes:**
+The app's test audio pipeline is the obvious candidate; minimal pairs need consistent voices.
+
+**Files to Create / Modify:**
+- to be specified after the decision
+
+**Verification:**
+A minimal pair plays and the choice is judged.

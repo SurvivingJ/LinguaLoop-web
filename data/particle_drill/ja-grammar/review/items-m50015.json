@@ -1,0 +1,6 @@
+{"batch":"items-m50015","files":["items/pt-mashou__m50.jsonl","items/pt-tai__m50.jsonl","items/pt-hoshii__m50.jsonl","items/pt-tsumori__m50.jsonl"],"checked":67,"fixed":4,"deleted":0,"replaced":0,"issues":[
+{"file":"items/pt-mashou__m50.jsonl","jp_before":"新[あたら]しい地下鉄[ちかてつ]に{乗[の]ってみませんか|pt-mashou}。","problem":"Distractor 乗ってみています is not a well-formed, natural word form.","action":"Replaced the distractor with 乗っています."},
+{"file":"items/pt-tai__m50.jsonl","jp_before":"メニューを見[み]て、私[わたし]はカレーを{頼[たの]みたい|pt-tai}。","problem":"Unnatural sentence: a て-clause followed by a bare plain-form 〜たい statement with 私は does not sound like a native sentence.","action":"Rewrote it as メニューを見て、カツカレーを{頼みたくなりました}, with matching distractors (頼みたがりました, 頼みましょう, 頼んでほしくなりました), a new English line and a new why."},
+{"file":"items/pt-tsumori__m50.jsonl","jp_before":"自分[じぶん]では上手[じょうず]に説明[せつめい]した{つもりです|pt-tsumori}が、相手[あいて]には伝[つた]わりませんでした。","problem":"Distractor はずです (説明したはずですが、伝わりませんでした = 'I'm sure I explained it, but...') is natural and close to the English, so it is not plainly wrong.","action":"Replaced はずです with ばかりです."},
+{"file":"items/pt-tsumori__m50.jsonl","jp_before":"今日[きょう]は誰[だれ]にも会[あ]わない{つもりです|pt-tsumori}。","problem":"lv 5 is too low: つもり is N4 grammar.","action":"Set lv to 4."}
+]}

@@ -21,11 +21,13 @@ below.
 |--------|-------------------|------------------------------------------|
 | Not Started | 85 | 101 |
 | In Progress (`[~]`) | 18 | 25 |
-| Blocked / Deferred / Awaiting decision (`[?]`; includes "Done (repo), awaiting live apply") | 77 | 76 |
+| Blocked / Deferred / Awaiting decision (`[?]`; includes "Done (repo), awaiting live apply") | 78 | 77 |
 | Won't Do (obsolete) | 3 | 3 |
 | Superseded | 3 | 3 |
-| Done | 238 | 382 |
-| **Total distinct task ids** | **424** | **590** |
+| Done | 240 | 384 |
+| **Total distinct task ids** | **427** | **593** |
+
+*2026-11-28 (more drills for Japanese and Chinese):* new TASK-1284 Done, TASK-1285 Done, TASK-1286 Awaiting (Done +2, Awaiting +1, 3 ids).
 
 *2026-11-28 (shared grammar-drill tracking):* TASK-1273 Awaiting → Superseded (its table was withdrawn); new TASK-1282 Done and TASK-1283 Not Started (Awaiting −1, Superseded +1, Done +1, Not Started +1, 2 ids).
 
@@ -1643,6 +1645,9 @@ Full spec: [[tasklist/particle-drill.tasks]]. Feature: [[features/particle-drill
 | TASK-1277 | particle-drill | Conjugation drill as its own page, fed by the words the learner knows | [x] | M | TASK-1271 |
 | TASK-1282 | particle-drill | Shared tracking structure; a grammar-drill page per language | [x] | L | TASK-1271, TASK-1259 |
 | TASK-1283 | particle-drill | Progress charts for the Japanese drills | [ ] | M | TASK-1282, TASK-1259 |
+| TASK-1284 | particle-drill | Depth and five more areas for the Japanese drills | [x] | XL | TASK-1270, TASK-1279 |
+| TASK-1285 | grammar-drills | Five more Chinese topics and a worker runner | [x] | L | TASK-1254 |
+| TASK-1286 | particle-drill | Listening drills (Japanese sound length; Chinese tones and initials) | [?] | L | — |
 
 ### Grammar Drill and Reading Drill (Japanese)
 
