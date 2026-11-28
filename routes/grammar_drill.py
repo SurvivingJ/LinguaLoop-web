@@ -1,4 +1,7 @@
-"""Grammar-drill progress tracking routes (TASK-1259, ADR-066).
+"""Grammar-drill progress tracking routes (TASK-1259, ADR-066), shared by the
+drills of every language that has a profile in services/grammar_drill_tracking
+(Chinese grammar drills; Japanese particle, grammar, conjugation and reading
+drills; ADR-068).
 
   POST /api/grammar-drill/round     body: {language_id, round_key (uuid),
         mode: 'round'|'mixed'|'endless'|'sync', played_at? (epoch seconds),
@@ -60,13 +63,14 @@ def record_round() -> ApiResponse:
 def get_progress(language_id: int) -> ApiResponse:
     """The caller's own state per topic and daily summaries (``days`` back,
     default 180, capped at 365)."""
-    if language_id != tracking.LANGUAGE_ID:
-        return bad_request("Grammar drills are Chinese-only")
+    if tracking.profile_for(language_id) is None:
+        return bad_request(tracking.UNSUPPORTED)
     days = request.args.get('days', tracking.DEFAULT_DAYS, type=int)
     if not days or days < 1:
         return bad_request("days must be a positive integer")
     try:
-        progress = tracking.load_progress(get_db(), g.current_user_id, days)
+        progress = tracking.load_progress(get_db(), g.current_user_id, days,
+                                          language_id=language_id)
     except tracking.TrackingUnavailable:
         return _unavailable()
     return api_success(progress)

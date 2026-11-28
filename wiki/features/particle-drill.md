@@ -5,7 +5,7 @@ status: in-progress
 tech_page: ./particle-drill.tech.md
 last_updated: 2026-11-27
 open_questions:
-  - "OPEN (owner): apply migrations/particle_drill_progress.sql so ladder progress follows the learner across devices. Until then it stays in the browser."
+  - "OPEN (owner): apply migrations/grammar_drill_tracking.sql (shared with the Chinese drills, ADR-068) so ladder progress follows the learner across devices. Until then it stays in the browser."
   - "OPEN (owner): should particle drilling count towards Studied-this-week minutes, the daily session and ELO like the counter drill does? Today it counts towards none (TASK-1273, TASK-1274)."
   - "OPEN (owner): guides and the 'why' line of every exercise are English only. Translate for zh / es interface users? (TASK-1275)"
   - "OPEN (owner): the answer keys were written and reviewed by Claude subagents only. A native-speaker spot check of a sample is recommended before promoting the drill (TASK-1272)."

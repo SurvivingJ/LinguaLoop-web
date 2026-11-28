@@ -11,7 +11,8 @@
 //
 // Content comes from /api/particle-drill (static files, cached); exercises are
 // built and judged here (js/particles/*), so answering never waits on a
-// request. Progress lives in localStorage and is mirrored to the server.
+// request. Progress lives in localStorage; each finished round is sent to the
+// shared grammar-drill tracking (static/js/particles/store.js).
 import {
   ADJ_FORMS,
   FORMS,
@@ -862,6 +863,7 @@ function settle(q, correct, given, timedOut = false) {
       counts: q.counts,
     });
     app.store.setSkill(q.skillId, state);
+    app.store.note('skills', q.skillId, { correct, ms });
     app.store.save();
     if (event) ses.events.push({ skillId: q.skillId, event, level: state.l });
     q.event = event;
@@ -929,7 +931,8 @@ function finishRound() {
   const pct = ses.done ? Math.round((ses.right / ses.done) * 100) : 0;
   const sorted = ses.times.slice().sort((a, b) => a - b);
   const median = sorted.length ? sorted[Math.floor(sorted.length / 2)] / 1000 : 0;
-  app.store.flush();
+  // The round's first-answer totals go to the account (shared grammar-drill tracking).
+  app.store.flush(ses.mix ? 'mixed' : 'round');
   const label = (e) =>
     ses.kind === 'conj'
       ? e.skillId.startsWith('read:')
@@ -1337,6 +1340,7 @@ function settleConj(q, correct, given, timedOut = false) {
       CONJ_MAX_LEVEL
     );
     app.store.setConj(q.skillId, state);
+    app.store.note('conj', q.skillId, { correct, ms });
     app.store.save();
     if (event) ses.events.push({ skillId: q.skillId, event, level: state.l });
     q.event = event;

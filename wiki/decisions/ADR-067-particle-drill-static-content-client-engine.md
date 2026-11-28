@@ -44,7 +44,10 @@ Three facts shaped the design:
    rule-based conjugation engine; never from a model call at request time.
 6. **Progress is a JSON document kept in the browser**, mirrored to one row per learner in a
    new table `user_drill_progress` once `migrations/particle_drill_progress.sql` is applied.
-   The page works without the table.
+   The page works without the table. **Superseded on 2026-11-28 by
+   [[decisions/ADR-068-one-tracking-structure-for-every-language]]:** the mirror is the shared
+   grammar-drill tracking (one state row per skill, daily summaries); `user_drill_progress` was
+   withdrawn before it was applied.
 7. **Authoring is done by `claude -p` workers**, each file written by one worker and reviewed
    by another in a separate context, then checked by a deterministic validator
    (`scripts/particle_drill_swarm.py`, `particle_drill_validate.py`).

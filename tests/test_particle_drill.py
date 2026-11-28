@@ -1,4 +1,4 @@
-"""Particle drill: markup, validator, catalog, content service, progress store
+"""Particle drill: markup, validator, catalog, content service
 and routes. Offline: the content is files under data/particle_drill and the
 progress store is given a fake client.
 """
@@ -16,7 +16,7 @@ import particle_drill_build as build  # noqa: E402
 import particle_drill_catalog as catalog_src  # noqa: E402
 import particle_drill_validate as validate  # noqa: E402
 from services.particle_drill import content as content_mod  # noqa: E402
-from services.particle_drill import markup, progress  # noqa: E402
+from services.particle_drill import markup  # noqa: E402
 
 FIXTURES = os.path.join(ROOT, 'tests', 'fixtures', 'particle_drill')
 CATALOG = validate.load_catalog()
@@ -303,90 +303,14 @@ def test_only_japanese_has_content():
     assert content_mod.get_content(1) is None and content_mod.get_content(2) is None
 
 
-# ------------------------------------------------------------------- progress store
-class _Query:
-    def __init__(self, db):
-        self.db = db
-
-    def select(self, *_a, **_k):
-        return self
-
-    def eq(self, *_a, **_k):
-        return self
-
-    def limit(self, *_a, **_k):
-        return self
-
-    def upsert(self, row, **kwargs):
-        self.db.upserts.append((row, kwargs))
-        return self
-
-    def execute(self):
-        if self.db.error:
-            raise self.db.error
-        return type('R', (), {'data': self.db.rows})()
-
-
-class _Db:
-    def __init__(self, rows=None, error=None):
-        self.rows, self.error, self.upserts = rows or [], error, []
-
-    def table(self, name):
-        assert name == progress.TABLE
-        return _Query(self)
-
-
-@pytest.fixture(autouse=True)
-def _progress_available(monkeypatch):
-    monkeypatch.setattr(progress, '_missing_until', 0.0)
-
-
-def test_progress_load_and_save():
-    state = {'v': 1, 'skills': {'ni-time': {'l': 2, 'n': 7}}, 'conj': {}, 'settings': {}}
-    db = _Db(rows=[{'state': state, 'updated_at': '2026-11-27T00:00:00+00:00'}])
-    assert progress.load(db, 'u1') == {'available': True, 'state': state,
-                                       'updated_at': '2026-11-27T00:00:00+00:00'}
-    assert progress.load(_Db(), 'u1') == {'available': True, 'state': None, 'updated_at': None}
-    assert progress.save(db, 'u1', state) == {'available': True, 'saved': True}
-    row, kwargs = db.upserts[0]
-    assert row['user_id'] == 'u1' and row['drill'] == progress.DRILL and row['state'] == state
-    assert kwargs == {'on_conflict': 'user_id,drill'}
-
-
-def test_progress_without_the_table_is_reported_not_raised():
-    missing = Exception("{'code': 'PGRST205', 'message': \"Could not find the table 'public.user_drill_progress'\"}")
-    db = _Db(error=missing)
-    assert progress.load(db, 'u1')['available'] is False
-    # Remembered: the next call does not ask the database again.
-    assert progress.save(_Db(error=AssertionError('must not be called')), 'u1', {}) == \
-        {'available': False, 'saved': False}
-
-
-def test_progress_other_errors_propagate():
-    with pytest.raises(RuntimeError):
-        progress.load(_Db(error=RuntimeError('connection reset')), 'u1')
-
-
-@pytest.mark.parametrize('state, ok', [
-    ({'skills': {}, 'conj': {}}, True),
-    ({'v': 1}, True),
-    ([], False),
-    ({'skills': []}, False),
-    ({'skills': {}, 'conj': {}, 'blob': 'x' * (progress.MAX_STATE_BYTES + 1)}, False),
-])
-def test_progress_state_validation(state, ok):
-    assert (progress.validate_state(state) is None) is ok
-
-
 # --------------------------------------------------------------------------- routes
 def _json(resp):
     return json.loads(resp.data)
 
 
 def test_routes_need_a_login(client):
-    for path in ('/catalog', '/skill/ni-time', '/conjugation', '/progress'):
+    for path in ('/catalog', '/skill/ni-time', '/conjugation'):
         assert client.get(f'/api/particle-drill{path}?language_id=3').status_code == 401
-    assert client.put('/api/particle-drill/progress', json={}).status_code == 401
 
 
 def test_catalog_route(client, auth_headers):
@@ -401,13 +325,10 @@ def test_catalog_route(client, auth_headers):
 
 
 def test_content_routes_are_japanese_only(client, auth_headers):
-    for path in ('/catalog', '/skill/ni-time', '/conjugation', '/progress'):
+    for path in ('/catalog', '/skill/ni-time', '/conjugation'):
         resp = client.get(f'/api/particle-drill{path}?language_id=1', headers=auth_headers)
         assert resp.status_code == 400, path
         assert client.get(f'/api/particle-drill{path}', headers=auth_headers).status_code == 400
-    resp = client.put('/api/particle-drill/progress', headers=auth_headers,
-                      json={'language_id': 1, 'state': {'skills': {}, 'conj': {}}})
-    assert resp.status_code == 400
 
 
 def test_skill_route(client, auth_headers):
@@ -422,26 +343,6 @@ def test_skill_route(client, auth_headers):
 def test_conjugation_route(client, auth_headers):
     body = _json(client.get('/api/particle-drill/conjugation?language_id=3', headers=auth_headers))
     assert {'guide', 'verbs', 'adjectives'} <= set(body)
-
-
-def test_progress_routes(client, auth_headers):
-    state = {'v': 1, 'skills': {'ni-time': {'l': 3, 'n': 12}}, 'conj': {}, 'settings': {}}
-    with patch('routes.particle_drill.progress.load',
-               return_value={'available': True, 'state': state, 'updated_at': 'now'}) as load:
-        body = _json(client.get('/api/particle-drill/progress?language_id=3', headers=auth_headers))
-    assert body['state'] == state and body['available'] is True
-    assert load.call_args.args[1]                       # the signed-in user's id
-    with patch('routes.particle_drill.progress.save',
-               return_value={'available': True, 'saved': True}) as save:
-        resp = client.put('/api/particle-drill/progress', headers=auth_headers,
-                          json={'language_id': 3, 'state': state})
-    assert resp.status_code == 200 and _json(resp)['saved'] is True
-    assert save.call_args.args[2] == state
-    with patch('routes.particle_drill.progress.save') as save:
-        resp = client.put('/api/particle-drill/progress', headers=auth_headers,
-                          json={'language_id': 3, 'state': {'skills': []}})
-    assert resp.status_code == 400
-    save.assert_not_called()
 
 
 # ------------------------------------------------- the learner's own words (conjugation)

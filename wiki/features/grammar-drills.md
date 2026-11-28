@@ -20,6 +20,8 @@ open_questions:
 
 # Chinese Grammar Drills
 
+> **2026-11-28:** this drill's page is now `/grammar-drill/zh` (each language has its own; `/grammar-drill` sends the browser to its study language's page), and its tracking tables are shared with the Japanese drills ([[decisions/ADR-068-one-tracking-structure-for-every-language]]). Where this page says `/grammar-drill`, read `/grammar-drill/zh`.
+
 ## Purpose
 
 Grammar drills let a learner of Chinese practise one grammar point at a time (了, 把, 的/得/地,

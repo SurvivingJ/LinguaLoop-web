@@ -4,11 +4,11 @@
   GET /api/particle-drill/skill/<id>?language_id=3     guide + exercise bank + pattern packs
   GET /api/particle-drill/conjugation?language_id=3    conjugation guides + word lists
   GET /api/particle-drill/conjugation/words?language_id=3   the learner's own verbs and adjectives
-  GET /api/particle-drill/progress?language_id=3       the learner's stored ladder state
-  PUT /api/particle-drill/progress                     body: {language_id, state}
 
 The content is static (services/particle_drill/content.py); exercises are
-built and judged in the browser, so a drill round makes no request at all.
+built and judged in the browser. Progress is kept by the shared grammar-drill
+tracking (routes/grammar_drill.py, /api/grammar-drill, language 3): one request
+when a round ends.
 """
 import logging
 
@@ -16,10 +16,10 @@ from flask import Blueprint, g, make_response, request
 
 from middleware.auth import jwt_required as supabase_jwt_required
 from routes.common import get_db
-from services.particle_drill import conjugation, progress
+from services.particle_drill import conjugation
 from services.particle_drill.content import get_content
 from utils.responses import ApiResponse, api_errors, api_success, bad_request, not_found
-from utils.validation import json_body, require_language_id
+from utils.validation import require_language_id
 
 logger = logging.getLogger(__name__)
 
@@ -116,28 +116,3 @@ def get_conjugation_words(language_id: int) -> ApiResponse:
     return api_success(conjugation.known_words(
         db, g.current_user_id, language_id, content.conjugation_payload(),
         gloss_language_id=_gloss_language_id(db, g.current_user_id)))
-
-
-@particle_drill_bp.route('/progress', methods=['GET'])
-@supabase_jwt_required
-@api_errors("Failed to load particle drill progress")
-@require_language_id
-def get_progress(language_id: int) -> ApiResponse:
-    if get_content(language_id) is None:
-        return bad_request(WRONG_LANGUAGE)
-    return api_success(progress.load(get_db(), g.current_user_id))
-
-
-@particle_drill_bp.route('/progress', methods=['PUT'])
-@supabase_jwt_required
-@api_errors("Failed to save particle drill progress")
-def put_progress() -> ApiResponse:
-    data = json_body()
-    language_id = data.get('language_id')
-    if not isinstance(language_id, int) or get_content(language_id) is None:
-        return bad_request(WRONG_LANGUAGE)
-    state = data.get('state')
-    error = progress.validate_state(state)
-    if error:
-        return bad_request(error)
-    return api_success(progress.save(get_db(), g.current_user_id, state))

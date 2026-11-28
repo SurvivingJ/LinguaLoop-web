@@ -23,7 +23,7 @@ mean "open", and that 4月 is not よんがつ; but I still hesitate every time.
 exactly those choices until the right one comes out without thinking.
 
 ## How It Works
-**Grammar (`/grammar-drill`).** The page looks and behaves like the particle drill: a hub with
+**Grammar (`/grammar-drill/ja`).** The page looks and behaves like the particle drill: a hub with
 stages, a guide for every skill, six rungs to Instant, a daily mix, and other skills mixed into
 each drill so the answer is never obvious. It has 182 skills in twelve stages:
 
@@ -62,8 +62,8 @@ their meaning, from a reviewed list of 609 words.
   はたち / にじゅっさい and similar are all accepted when typed; only non-standard forms are used
   as wrong options.
 - **Japanese only**, English explanations, like the particle drill.
-- **Progress** is shared with the particle drill: one record per learner, kept in the browser and
-  (once the progress table is applied, TASK-1273) on the account.
+- **Progress** is kept in the browser and, once the shared tracking migration is applied
+  (TASK-1259), on the account, in the same tables as the Chinese grammar drills.
 
 ## Business Rules
 - Every sentence, guide and word list was written by one headless Claude Code worker and checked

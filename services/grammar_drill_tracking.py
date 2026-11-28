@@ -1,8 +1,18 @@
-"""Grammar-drill progress tracking (TASK-1259, ADR-066).
+"""Grammar-drill progress tracking (TASK-1259, ADR-066; shared by every language, ADR-068).
 
 Daily summaries per learner and topic plus one current-state row per topic, so
 that improvement over time can be read back and progress follows the learner
-across devices. No per-answer and no per-item rows: database space is the
+across devices.
+
+One structure serves the drills of every language; a ``Profile`` per language
+says which topics exist, how many stages a topic has and what its state row
+may hold:
+
+* Chinese (1): the topics of static/data/grammar/zh, four stages, sub-points.
+* Japanese (3): every skill of the particle course and the grammar course
+  (data/particle_drill/ja, ja-grammar; seven stages: six rungs and Instant),
+  the conjugation forms (``conj-<form>``) and the reading categories
+  (``read-<category>``), four stages each. No per-answer and no per-item rows: database space is the
 constraint (owner stop line 480 MB).
 
 The tables and the function live in migrations/grammar_drill_tracking.sql.
@@ -27,7 +37,8 @@ from services.pagination import fetch_all
 
 logger = logging.getLogger(__name__)
 
-LANGUAGE_ID = ZH_LANGUAGE_ID
+LANGUAGE_ID = ZH_LANGUAGE_ID           # the Chinese profile (kept for callers and tests)
+JA_LANGUAGE_ID = 3
 MANIFEST_PATH = (Path(__file__).resolve().parent.parent
                  / 'static' / 'data' / 'grammar' / 'zh' / 'manifest.json')
 
@@ -39,7 +50,9 @@ MODES = ('round', 'mixed', 'endless', 'sync')
 MAX_TOPICS = 10
 MAX_ANSWERS = 500            # per topic per call
 MAX_MS = 30000               # cap on one recall time
-MAX_STAGE = 4
+MAX_STAGE = 4                # Chinese topics; conjugation and reading topics of Japanese
+JA_SKILL_STAGES = 7          # Japanese particle / grammar skills: six rungs and Instant
+DB_MAX_STAGE = 7             # what the table's CHECK and the function allow
 MAX_STATE_BYTES = 1500       # JSON text; the table's CHECK allows 4096 stored bytes
 MAX_SEQ = 10_000_000
 DEFAULT_DAYS = 180
@@ -51,6 +64,11 @@ CLOCK_SKEW = timedelta(minutes=5)
 
 _RESULTS_RE = re.compile(r'^(-?[1-9]\d{0,5}(,-?[1-9]\d{0,5}){0,29})?$')
 _STATE_KEYS = frozenset({'u', 'r', 'q', 'e', 'l'})
+_JA_STATE_KEYS = frozenset({'u', 'l', 's'})
+#: The ladder state of one Japanese skill (static/js/particles/mastery.js newState()).
+_JA_LADDER_KEYS = frozenset({'l', 'la', 'e', 'n', 'c', 'rt', 'due', 'iv', 'last', 'miss'})
+_JA_FAMILY_RE = re.compile(r'^(conj-[a-z0-9]+(-[a-z0-9]+){0,3}|read-[a-z0-9]{1,20})$')
+_MISS_ID_RE = re.compile(r'^[0-9a-f]{10}$')
 _TOPIC_KEYS = frozenset({'topic', 'answers', 'correct', 'timed', 'ms_sum', 'stage',
                          'instant', 'sub_misses', 'state'})
 
@@ -93,6 +111,114 @@ def _int(value: Any, name: str, low: int, high: int) -> int:
     return value
 
 
+def _number(value: Any, name: str, low: float, high: float, *, nullable: bool = True):
+    if value is None and nullable:
+        return None
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise ValidationError(f"{name} must be a number")
+    if value != value or value < low or value > high:      # NaN, or out of range
+        raise ValidationError(f"{name} is out of range")
+    return value
+
+
+def _ja_state(value: Any, now: datetime, max_stage: int) -> Optional[dict]:
+    """State of a Japanese topic: {u: highest stage reached, l: epoch seconds of
+    the last answer, s: the ladder state the browser keeps for the skill}."""
+    if value is None:
+        return None
+    if not isinstance(value, dict) or set(value) != _JA_STATE_KEYS:
+        raise ValidationError("state must have u, l and s")
+    ladder = value['s']
+    if not isinstance(ladder, dict) or set(ladder) - _JA_LADDER_KEYS:
+        raise ValidationError("state.s has unknown fields")
+    horizon_ms = int((now + timedelta(days=400)).timestamp() * 1000)
+    miss = ladder.get('miss') or []
+    if (not isinstance(miss, list) or len(miss) > 12
+            or not all(isinstance(m, str) and _MISS_ID_RE.match(m) for m in miss)):
+        raise ValidationError("state.s.miss must list at most 12 item ids")
+    clean = {
+        'u': _int(value['u'], 'state.u', 1, max_stage),
+        'l': _int(value['l'], 'state.l', 0, int((now + timedelta(days=1)).timestamp())),
+        's': {
+            'l': _int(ladder.get('l', 1), 'state.s.l', 1, max_stage),
+            'la': _int(ladder.get('la', 0), 'state.s.la', 0, MAX_SEQ),
+            'e': _number(ladder.get('e'), 'state.s.e', 0, 1),
+            'n': _int(ladder.get('n', 0), 'state.s.n', 0, MAX_SEQ),
+            'c': _int(ladder.get('c', 0), 'state.s.c', 0, MAX_SEQ),
+            'rt': _number(ladder.get('rt'), 'state.s.rt', 0, 600000),
+            'due': _number(ladder.get('due'), 'state.s.due', 0, horizon_ms),
+            'iv': _int(ladder.get('iv', 0), 'state.s.iv', 0, 400),
+            'last': _number(ladder.get('last'), 'state.s.last', 0, horizon_ms),
+            'miss': list(miss),
+        },
+    }
+    if len(json.dumps(clean, separators=(',', ':'))) > MAX_STATE_BYTES:
+        raise ValidationError("state is too large")
+    return clean
+
+
+class Profile:
+    """What one language's drills may record."""
+
+    def __init__(self, language_id: int, name: str):
+        self.language_id = language_id
+        self.name = name
+
+    def topic(self, slug: str) -> Optional[tuple[frozenset[str], int]]:
+        """(sub-point keys, number of stages) of a topic, or None when unknown."""
+        raise NotImplementedError
+
+    def state(self, value: Any, now: datetime, max_stage: int) -> Optional[dict]:
+        raise NotImplementedError
+
+
+class _ChineseProfile(Profile):
+    def topic(self, slug):
+        subs = topic_subs().get(slug)
+        return None if subs is None else (subs, MAX_STAGE)
+
+    def state(self, value, now, max_stage):
+        return _state(value, now)
+
+
+class _JapaneseProfile(Profile):
+    _skills: Optional[frozenset[str]] = None
+
+    def skills(self) -> frozenset[str]:
+        if self._skills is None:
+            from services.particle_drill.content import get_content
+            ids: set[str] = set()
+            for course in (None, 'grammar'):
+                content = get_content(JA_LANGUAGE_ID, course)
+                if content is not None:
+                    ids.update(content.skills)
+            type(self)._skills = frozenset(ids)
+        return self._skills
+
+    def topic(self, slug):
+        if slug in self.skills():
+            return frozenset(), JA_SKILL_STAGES
+        if _JA_FAMILY_RE.match(slug) and len(slug) <= 40:
+            return frozenset(), MAX_STAGE
+        return None
+
+    def state(self, value, now, max_stage):
+        return _ja_state(value, now, max_stage)
+
+
+PROFILES: dict[int, Profile] = {
+    ZH_LANGUAGE_ID: _ChineseProfile(ZH_LANGUAGE_ID, 'Chinese'),
+    JA_LANGUAGE_ID: _JapaneseProfile(JA_LANGUAGE_ID, 'Japanese'),
+}
+UNSUPPORTED = "Grammar drill tracking covers Chinese and Japanese"
+
+
+def profile_for(language_id: Any) -> Optional[Profile]:
+    if isinstance(language_id, bool) or not isinstance(language_id, int):
+        return None
+    return PROFILES.get(language_id)
+
+
 def _state(value: Any, now: datetime) -> Optional[dict]:
     if value is None:
         return None
@@ -121,30 +247,30 @@ def _state(value: Any, now: datetime) -> Optional[dict]:
     return clean
 
 
-def _topic(entry: Any, mode: str, subs_by_topic: dict[str, frozenset[str]],
-           now: datetime) -> dict:
+def _topic(entry: Any, mode: str, profile: Profile, now: datetime) -> dict:
     if not isinstance(entry, dict) or set(entry) - _TOPIC_KEYS:
         raise ValidationError("topic entry has unknown fields")
     slug = entry.get('topic')
-    if not isinstance(slug, str) or slug not in subs_by_topic:
+    spec = profile.topic(slug) if isinstance(slug, str) else None
+    if spec is None:
         raise ValidationError("unknown topic")
+    known, max_stage = spec
     low = 0 if mode == 'sync' else 1
     high = 0 if mode == 'sync' else MAX_ANSWERS
     answers = _int(entry.get('answers', 0), 'answers', low, high)
     correct = _int(entry.get('correct', 0), 'correct', 0, answers)
     timed = _int(entry.get('timed', 0), 'timed', 0, answers)
     ms_sum = _int(entry.get('ms_sum', 0), 'ms_sum', 0, timed * MAX_MS)
-    stage = _int(entry.get('stage', 1), 'stage', 1, MAX_STAGE)
+    stage = _int(entry.get('stage', 1), 'stage', 1, max_stage)
     instant = entry.get('instant', False)
     if not isinstance(instant, bool):
         raise ValidationError("instant must be true or false")
-    if instant and stage < MAX_STAGE:
+    if instant and stage < max_stage:
         raise ValidationError("instant needs the last stage")
 
     misses = entry.get('sub_misses') or {}
     if not isinstance(misses, dict):
         raise ValidationError("sub_misses must be an object")
-    known = subs_by_topic[slug]
     clean_misses = {}
     for key, count in misses.items():
         if key not in known:
@@ -153,7 +279,7 @@ def _topic(entry: Any, mode: str, subs_by_topic: dict[str, frozenset[str]],
     if sum(clean_misses.values()) > answers - correct:
         raise ValidationError("sub_misses exceed the missed answers")
 
-    state = _state(entry.get('state'), now)
+    state = profile.state(entry.get('state'), now, max_stage)
     if mode == 'sync' and state is None:
         raise ValidationError("a sync entry needs a state")
     return {
@@ -169,8 +295,9 @@ def validate_round(body: dict, now: Optional[datetime] = None) -> dict:
     Raises ``ValidationError``. Nothing from the body is passed on unchecked.
     """
     now = now or datetime.now(timezone.utc)
-    if body.get('language_id') != LANGUAGE_ID or isinstance(body.get('language_id'), bool):
-        raise ValidationError("Grammar drills are Chinese-only")
+    profile = profile_for(body.get('language_id'))
+    if profile is None:
+        raise ValidationError(UNSUPPORTED)
     raw_key = body.get('round_key')
     try:
         round_key = str(uuid.UUID(raw_key)) if isinstance(raw_key, str) else ''
@@ -185,13 +312,12 @@ def validate_round(body: dict, now: Optional[datetime] = None) -> dict:
     topics = body.get('topics')
     if not isinstance(topics, list) or not 1 <= len(topics) <= MAX_TOPICS:
         raise ValidationError(f"topics must list 1 to {MAX_TOPICS} topics")
-    subs_by_topic = topic_subs()
-    clean = [_topic(entry, mode, subs_by_topic, now) for entry in topics]
+    clean = [_topic(entry, mode, profile, now) for entry in topics]
     if len({t['topic'] for t in clean}) != len(clean):
         raise ValidationError("a topic may appear once")
 
     return {
-        'language_id': LANGUAGE_ID,
+        'language_id': profile.language_id,
         'round_key': round_key,
         'mode': mode,
         'practice_day': practice_day(body.get('played_at'), now),
@@ -244,6 +370,7 @@ def reset() -> None:
     global _missing_until, _manifest_cache
     _missing_until = 0.0
     _manifest_cache = None
+    _JapaneseProfile._skills = None
 
 
 def record_round(db, user_id: str, round_: dict) -> dict:
@@ -271,22 +398,23 @@ def record_round(db, user_id: str, round_: dict) -> dict:
 
 
 def load_progress(db, user_id: str, days: int = DEFAULT_DAYS,
-                  now: Optional[datetime] = None) -> dict:
-    """{today, states: {topic: state}, daily: [...]} for one learner."""
+                  now: Optional[datetime] = None, language_id: int = LANGUAGE_ID) -> dict:
+    """{today, states: {topic: state}, daily: [...]} for one learner and language."""
     _check_available()
     days = max(1, min(int(days or DEFAULT_DAYS), MAX_DAYS))
     today = review_today(now)
     since = (today - timedelta(days=days - 1)).isoformat()
     try:
-        state_rows = (
+        # a Japanese learner can have several hundred state rows: page through them
+        state_rows = fetch_all(lambda: (
             db.table(STATE_TABLE).select('topic,state')
-            .eq('user_id', user_id).eq('language_id', LANGUAGE_ID)
-            .execute().data or []
-        )
+            .eq('user_id', user_id).eq('language_id', language_id)
+            .order('topic')
+        ))
         daily_rows = fetch_all(lambda: (
             db.table(DAILY_TABLE)
             .select('topic,practice_day,answers,correct,timed,ms_sum,stage,instant,sub_misses')
-            .eq('user_id', user_id).eq('language_id', LANGUAGE_ID)
+            .eq('user_id', user_id).eq('language_id', language_id)
             .gte('practice_day', since)
             .order('practice_day').order('topic')
         ))

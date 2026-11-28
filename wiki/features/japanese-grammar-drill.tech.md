@@ -28,14 +28,15 @@ PD_COURSE=ja-grammar              environment variable read by scripts/particle_
                                   particle_drill_swarm.py and particle_drill_build.py follow it
 scripts/grammar_drill_catalog.py  source of the catalog (same row format, optional 8th field `ask`)
 scripts/grammar_drill_validate.py the validator with PD_COURSE preset (what the workers run)
-/grammar-drill                    templates/grammar_drill.html: the particle page script with data-course="grammar"
+/grammar-drill/ja                 templates/grammar_drill_ja.html: the particle page script with data-course="grammar"
+                                  (/grammar-drill/zh is the Chinese drill; /grammar-drill picks by study language)
 /reading-drill                    templates/reading_drill.html: the same script with data-home="read"
 static/js/particles/numbers.js    rule engine: readNumber, numberReadings, counterReadings, hour/minute/month/day
                                   readings, CATS, generate(cat, rng, lists)
 ```
 
 ## Database Impact
-None. No table is read or written beyond `user_drill_progress` (pending, [[features/particle-drill.tech]]).
+None of its own. Progress goes to the shared grammar-drill tracking ([[decisions/ADR-068-one-tracking-structure-for-every-language]], pending): a grammar skill is a topic with seven stages; a reading category is `read-<category>` with four.
 Reading-drill progress is stored in the same document under `conj["read:<category>"]`.
 
 ## API / RPC Surface

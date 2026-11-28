@@ -19,13 +19,15 @@ below.
 
 | Status | Rows in this file | All task files (union, file status wins) |
 |--------|-------------------|------------------------------------------|
-| Not Started | 84 | 100 |
+| Not Started | 85 | 101 |
 | In Progress (`[~]`) | 18 | 25 |
-| Blocked / Deferred / Awaiting decision (`[?]`; includes "Done (repo), awaiting live apply") | 78 | 77 |
+| Blocked / Deferred / Awaiting decision (`[?]`; includes "Done (repo), awaiting live apply") | 77 | 76 |
 | Won't Do (obsolete) | 3 | 3 |
-| Superseded | 2 | 2 |
-| Done | 237 | 381 |
-| **Total distinct task ids** | **422** | **588** |
+| Superseded | 3 | 3 |
+| Done | 238 | 382 |
+| **Total distinct task ids** | **424** | **590** |
+
+*2026-11-28 (shared grammar-drill tracking):* TASK-1273 Awaiting → Superseded (its table was withdrawn); new TASK-1282 Done and TASK-1283 Not Started (Awaiting −1, Superseded +1, Done +1, Not Started +1, 2 ids).
 
 *2026-11-28 (merge of main into the particle-drill branch):* both sides' rows kept; the summary is main's (83/99, 18/25, 73/72, 230/374, 409/575) plus this branch's changes (Not Started +1, Awaiting +5, Done +7, 13 ids). This branch's ids were renumbered TASK-1269–1246 → TASK-1269–1281 and its ADR-067 → ADR-067, because main took those numbers.
 
@@ -1634,11 +1636,13 @@ Full spec: [[tasklist/particle-drill.tasks]]. Feature: [[features/particle-drill
 | TASK-1270 | particle-drill | Author and review the content (guides, items, packs, conjugation) | [x] | XL | TASK-1269 |
 | TASK-1271 | particle-drill | Drill page, engine, routes and tests | [x] | L | TASK-1269 |
 | TASK-1272 | particle-drill | Native-speaker spot check of the answer keys | [?] | M | TASK-1270 |
-| TASK-1273 | particle-drill | Apply the progress table (`migrations/particle_drill_progress.sql`) | [?] | XS | TASK-1271 |
+| TASK-1273 | particle-drill | Apply the progress table (`migrations/particle_drill_progress.sql`) | Superseded by TASK-1259 / TASK-1282 | XS | TASK-1271 |
 | TASK-1274 | particle-drill | Count particle drilling in study time, the daily session and (optionally) ELO | [?] | M | TASK-1273 |
 | TASK-1275 | particle-drill | Guides and reasons in the learner's interface language | [?] | L | TASK-1270 |
 | TASK-1276 | particle-drill | "Report this sentence" from the drill | [ ] | S | TASK-1271 |
 | TASK-1277 | particle-drill | Conjugation drill as its own page, fed by the words the learner knows | [x] | M | TASK-1271 |
+| TASK-1282 | particle-drill | Shared tracking structure; a grammar-drill page per language | [x] | L | TASK-1271, TASK-1259 |
+| TASK-1283 | particle-drill | Progress charts for the Japanese drills | [ ] | M | TASK-1282, TASK-1259 |
 
 ### Grammar Drill and Reading Drill (Japanese)
 

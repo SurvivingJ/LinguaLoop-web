@@ -2,7 +2,7 @@
 // language (selectedLanguageId: 1 Chinese, 3 Japanese). Chinese is the default,
 // as it was the only grammar drill at this address.
 (function () {
-  var id = null;
+  let id = null;
   try {
     id = parseInt(window.localStorage.getItem('selectedLanguageId'), 10);
   } catch (_e) {

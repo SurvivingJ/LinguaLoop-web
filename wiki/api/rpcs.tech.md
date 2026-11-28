@@ -84,7 +84,9 @@ Pages are client-side rendered: each route only renders its template (no data, n
 | `/placement` | `placement_page` | `templates/placement.html` (the page says "not available" while its API answers 404) |
 | `/classifier-drill` | `classifier_drill_page` | `templates/classifier_drill.html` |
 | `/counter-drill` | `counter_drill_page` | `templates/counter_drill.html` |
-| `/grammar-drill` | `grammar_drill_page` | `templates/grammar_drill.html` (the grammar course; the particle page script with `data-course="grammar"`; [[features/japanese-grammar-drill.tech]]) |
+| `/grammar-drill/ja` | `grammar_drill_ja_page` | `templates/grammar_drill_ja.html` (the Japanese grammar course; the particle page script with `data-course="grammar"`; [[features/japanese-grammar-drill.tech]]) |
+| `/grammar-drill/zh` | `grammar_drill_zh_page` | `templates/grammar_drill_zh.html` (the Chinese grammar drills; [[features/grammar-drills.tech]]) |
+| `/grammar-drill` | `grammar_drill_page` | `templates/grammar_drill.html`: sends the browser to its study language's page (`static/js/pages/grammar-drill-redirect.js`) |
 | `/reading-drill` | `reading_drill_page` | `templates/reading_drill.html` (numbers, times, dates, katakana; same script, `data-home="read"`) |
 | `/conjugation-drill` | `conjugation_drill_page` | `templates/conjugation_drill.html` (the conjugation drill; same script as `/particle-drill`) |
 | `/particle-drill` | `particle_drill_page` | `templates/particle_drill.html` (hash-routed: ladder, guide, drill, conjugation; [[features/particle-drill.tech]]) |
@@ -239,12 +241,10 @@ All `@jwt_required`.
 | GET | `/api/particle-drill/reading?language_id=3` | `particle_drill.get_reading` | `{katakana[{k, en, lv}]}` for the reading drill, from `data/particle_drill/ja-grammar/reading/katakana.json` | yes |
 | GET | `/api/particle-drill/conjugation?language_id=3` | `particle_drill.get_conjugation` | conjugation guides, verb and adjective lists | yes |
 | GET | `/api/particle-drill/conjugation/words?language_id=3` | `particle_drill.get_conjugation_words` | `services/particle_drill/conjugation.known_words`: the caller's known verbs and adjectives from `user_vocabulary_knowledge`, classified (`{d, k, c, en, lv, known}`); read only | yes |
-| GET | `/api/particle-drill/progress?language_id=3` | `particle_drill.get_progress` | `services/particle_drill/progress.load`: `{available, state, updated_at}` from `user_drill_progress` (`available: false` until `migrations/particle_drill_progress.sql` is applied) | `particles/store.js` |
-| PUT | `/api/particle-drill/progress` | `particle_drill.put_progress` | `{language_id: 3, state}`; 400 over 256 KB or malformed; upserts the caller's row | yes |
 
 ### Grammar drill tracking — [routes/grammar_drill.py](../../routes/grammar_drill.py) (added 2026-11-27; migration PENDING)
 
-Blueprint `grammar_drill` at `/api/grammar-drill`; validation and storage in `services/grammar_drill_tracking.py`. Both `@jwt_required`, Chinese only (`language_id` 1), own data only. Until `migrations/grammar_drill_tracking.sql` is applied both answer `503` with `error_code: GRAMMAR_TRACKING_UNAVAILABLE` (logged; remembered 600 s per process) and the page ignores it. Full specification (arguments, bounds, errors): [[features/grammar-drills.tech]] "API / RPC Surface"; decision: [[decisions/ADR-066-grammar-drill-daily-tracking]].
+Blueprint `grammar_drill` at `/api/grammar-drill`; validation and storage in `services/grammar_drill_tracking.py`. Both `@jwt_required`, own data only, for the languages that have a profile: Chinese (`language_id` 1) and, since 2026-11-28, Japanese (3: particle, grammar, conjugation and reading drills; [[decisions/ADR-068-one-tracking-structure-for-every-language]]). Until `migrations/grammar_drill_tracking.sql` is applied both answer `503` with `error_code: GRAMMAR_TRACKING_UNAVAILABLE` (logged; remembered 600 s per process) and the page ignores it. Full specification (arguments, bounds, errors): [[features/grammar-drills.tech]] "API / RPC Surface"; decision: [[decisions/ADR-066-grammar-drill-daily-tracking]].
 
 | Method | Path | Handler | Reaches | Client |
 |---|---|---|---|---|

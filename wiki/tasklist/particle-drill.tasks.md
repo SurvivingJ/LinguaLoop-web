@@ -3,8 +3,8 @@ title: "Particle Drill (Japanese) — Task Breakdown"
 feature: particle-drill
 prose_page: ../features/particle-drill.md
 tech_page: ../features/particle-drill.tech.md
-total_tasks: 9
-done: 4
+total_tasks: 11
+done: 5
 ---
 
 # Particle Drill (Japanese) — Task Breakdown
@@ -184,28 +184,95 @@ The evaluation page exists and its fixes are merged.
 
 ## TASK-1273: Apply the progress table
 
-**Status:** [?] Awaiting owner (live apply)
+**Status:** Superseded (2026-11-28) by TASK-1259 and TASK-1282
 **Feature:** particle-drill
 **Type:** infra
 **Complexity:** XS (<1h)
 **Depends On:** TASK-1271
 
 **Description:**
-Apply `migrations/particle_drill_progress.sql` (one small table, RLS on, service role only) so
-ladder progress is saved to the account. Until then progress lives in each browser.
+Was: apply `migrations/particle_drill_progress.sql` (`user_drill_progress`). That table was
+withdrawn before it was applied: the Japanese drills now record into the shared grammar-drill
+tracking ([[decisions/ADR-068-one-tracking-structure-for-every-language]], TASK-1282). The
+migration to apply is `migrations/grammar_drill_tracking.sql` (TASK-1259 in
+[[tasklist/grammar-drills.tasks]]).
 
 **Acceptance Criteria:**
-- [ ] the VERIFY AFTER queries in the file's header return the stated values
-- [ ] `GET /api/particle-drill/progress?language_id=3` returns `available: true`
+- [x] nothing left to do under this id
 
 **Technical Notes:**
-The service caches "table missing" for 5 minutes per process; restart or wait after applying.
+See TASK-1282.
 
 **Files to Create / Modify:**
-- none (apply only); move the row in [[database/schema.tech]] from pending to live
+- none
 
 **Verification:**
-Drill on one device, open the page on another: the levels match.
+`migrations/particle_drill_progress.sql` no longer exists.
+
+---
+
+## TASK-1282: Shared tracking structure; a grammar-drill page per language
+
+**Status:** [x] Done (2026-11-28; repo, the migration itself is TASK-1259)
+**Feature:** particle-drill
+**Type:** refactor
+**Complexity:** L (1-2d)
+**Depends On:** TASK-1271, TASK-1259
+
+**Description:**
+Owner, 2026-11-28: "each language should have their own grammar drill routes" and "resolve a
+shared db structure for tracking grammar drill progress and implement it". Merge `main` (the
+Chinese grammar drills and their tracking), give each language its own page, and move the
+Japanese drills onto the Chinese drills' tracking tables, widened to fit.
+
+**Acceptance Criteria:**
+- [x] `/grammar-drill/zh` and `/grammar-drill/ja`; `/grammar-drill` goes to the study language's page
+- [x] `services/grammar_drill_tracking.py` has a profile per language; Japanese topics are the skill ids of both courses plus `conj-*` / `read-*`; seven stages for skills, four for the generated drills (tests)
+- [x] `migrations/grammar_drill_tracking.sql` allows stage 1 to 7; run on a scratch PostgreSQL 16 with Japanese and Chinese rounds, replay, demotion, sync, privileges and rollback
+- [x] the Japanese page sends one request per finished round and queues while the tables are missing (vitest); a round posted by the real page is accepted by the server's validator
+- [x] `user_drill_progress`, its service, routes and tests are gone
+
+**Technical Notes:**
+[[decisions/ADR-068-one-tracking-structure-for-every-language]]. This branch's ADR-064 became
+ADR-067 and its TASK-1234–1246 became TASK-1269–1281 in the merge.
+
+**Files to Create / Modify:**
+- `services/grammar_drill_tracking.py`, `routes/grammar_drill.py`, `migrations/grammar_drill_tracking.sql`, `migrations/PENDING-2026-11-27.md`
+- `static/js/particles/store.js`, `static/js/pages/particle-drill.js`
+- `web/pages.py`, `templates/grammar_drill{,_zh,_ja}.html`, `static/js/pages/grammar-drill-redirect.js`, nav templates
+- removed: `migrations/particle_drill_progress.sql`, `services/particle_drill/progress.py`
+
+**Verification:**
+`pytest tests/test_grammar_drill_tracking_shared.py tests/test_grammar_drill_tracking_routes.py -q`.
+
+---
+
+## TASK-1283: Progress charts for the Japanese drills
+
+**Status:** [ ] Not Started
+**Feature:** particle-drill
+**Type:** feature
+**Complexity:** M (3-8h)
+**Depends On:** TASK-1282, TASK-1259
+
+**Description:**
+The shared tracking now records a daily summary per Japanese skill (answers, right first time,
+recall time, stage). The Chinese page draws charts from the same rows
+(`static/js/grammar/trends.js`, `trendview.js`); the Japanese page shows none yet. Show accuracy
+and recall time over time on the skill page and the hub.
+
+**Acceptance Criteria:**
+- [ ] the skill page shows accuracy and recall time by day from `GET /api/grammar-drill/progress?language_id=3`
+- [ ] nothing is shown, and nothing fails, while the tables are missing
+
+**Technical Notes:**
+The trend maths in `static/js/grammar/trends.js` is language-neutral; reuse it.
+
+**Files to Create / Modify:**
+- `static/js/pages/particle-drill.js`, `static/js/particles/store.js`
+
+**Verification:**
+Drill a skill on two days; its page shows two points.
 
 ---
 
@@ -215,7 +282,7 @@ Drill on one device, open the page on another: the levels match.
 **Feature:** particle-drill
 **Type:** feature
 **Complexity:** M (3-8h)
-**Depends On:** TASK-1273
+**Depends On:** TASK-1259
 
 **Description:**
 The drill writes no `test_attempts` row, so it is missing from "Studied this week"

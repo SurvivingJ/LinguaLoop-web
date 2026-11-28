@@ -10,6 +10,7 @@ import { expand, parse, plain, toHtml } from '../../static/js/particles/markup.j
 import { answerMatches, normalizeAnswer, romajiToKana } from '../../static/js/particles/kana.js';
 import * as M from '../../static/js/particles/mastery.js';
 import * as N from '../../static/js/particles/numbers.js';
+import { createStore, entryOf, toServerState, topicOf } from '../../static/js/particles/store.js';
 import {
   Deck,
   build,
@@ -811,5 +812,224 @@ describe('number readings', () => {
     expect(q.wrong).not.toContain(q.readings[0]);
     expect(N.generate('kata', seeded(2), { katakana: words.slice(0, 2) })).toBeNull();
     expect(N.CATS.kata.choiceOnly).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Progress store: local document + the shared grammar-drill tracking
+// ---------------------------------------------------------------------------
+describe('progress store and the shared tracking', () => {
+  const memory = (seed = {}) => {
+    const data = { ...seed };
+    return {
+      getItem: (k) => (k in data ? data[k] : null),
+      setItem: (k, v) => {
+        data[k] = String(v);
+      },
+      data,
+    };
+  };
+  /** A fake /api/grammar-drill: records requests, answers from `server`. */
+  const api = (server = { status: 200, states: {} }) => {
+    const calls = [];
+    const fetcher = async (url, opts) => {
+      calls.push({ url, body: opts && opts.body ? JSON.parse(opts.body) : null });
+      if (server.offline) throw new Error('offline');
+      const ok = server.status >= 200 && server.status < 300;
+      return { ok, status: server.status, json: async () => ({ states: server.states }) };
+    };
+    return { calls, fetcher, server };
+  };
+  const state = (over = {}) => ({
+    ...M.newState(),
+    l: 3,
+    la: 4,
+    e: 0.9,
+    n: 12,
+    c: 10,
+    rt: 2500,
+    last: 1700000000000,
+    ...over,
+  });
+
+  it('maps ladder entries to tracking topics and back', () => {
+    expect(topicOf('skills', 'wa-topic')).toBe('wa-topic');
+    expect(topicOf('conj', 'causative_passive')).toBe('conj-causative-passive');
+    expect(topicOf('conj', 'read:num100')).toBe('read-num100');
+    for (const [part, id] of [
+      ['skills', 'pt-wake'],
+      ['conj', 'adj_past_neg'],
+      ['conj', 'read:kata'],
+      ['conj', 'te'],
+    ])
+      expect(entryOf(topicOf(part, id))).toEqual([part, id]);
+  });
+
+  it('a state row carries the highest stage, the last answer and the ladder state', () => {
+    const row = toServerState('skills', state({ l: 2, hi: 5, miss: ['0123456789', 'not-an-id'] }));
+    expect(row.u).toBe(5);
+    expect(row.l).toBe(1700000000);
+    expect(row.s.l).toBe(2);
+    expect(row.s.miss).toEqual(['0123456789']);
+    expect(Object.keys(row.s).sort()).toEqual([
+      'c',
+      'due',
+      'e',
+      'iv',
+      'l',
+      'la',
+      'last',
+      'miss',
+      'n',
+      'rt',
+    ]);
+    // conjugation and reading topics have four stages
+    expect(toServerState('conj', state({ l: 9 })).s.l).toBe(4);
+  });
+
+  it('sends one request when a round ends: first-answer totals and state per topic', async () => {
+    const { calls, fetcher } = api();
+    const store = createStore({ storage: memory(), fetcher, now: () => 1700000100000 });
+    store.setSkill('wa-topic', state());
+    store.setSkill('ga-subject', state({ l: 7 }));
+    store.note('skills', 'wa-topic', { correct: true, ms: 2000 });
+    store.note('skills', 'wa-topic', { correct: false, ms: 9000 });
+    store.note('skills', 'wa-topic', { correct: true, ms: 99999 });
+    store.note('skills', 'ga-subject', { correct: true, ms: 1500 });
+    expect(calls).toHaveLength(0); // nothing during the round
+    await store.flush('mixed');
+    expect(calls).toHaveLength(1);
+    const body = calls[0].body;
+    expect(calls[0].url).toBe('/api/grammar-drill/round');
+    expect(body.language_id).toBe(3);
+    expect(body.mode).toBe('mixed');
+    expect(body.played_at).toBe(1700000100);
+    expect(body.round_key).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
+    );
+    const wa = body.topics.find((t) => t.topic === 'wa-topic');
+    expect(wa).toMatchObject({
+      answers: 3,
+      correct: 2,
+      timed: 2,
+      ms_sum: 32000,
+      stage: 3,
+      instant: false,
+      sub_misses: {},
+    });
+    expect(wa.state.s.n).toBe(12);
+    expect(body.topics.find((t) => t.topic === 'ga-subject')).toMatchObject({
+      stage: 7,
+      instant: true,
+    });
+    expect(store.queued).toBe(0);
+    await store.flush(); // nothing new: no second request
+    expect(calls).toHaveLength(1);
+  });
+
+  it('keeps rounds in the browser while the tables are missing, and sends them later', async () => {
+    const storage = memory();
+    const down = api({ status: 503, states: {} });
+    const store = createStore({ storage, fetcher: down.fetcher });
+    store.setSkill('wa-topic', state());
+    store.note('skills', 'wa-topic', { correct: true, ms: 1000 });
+    await store.flush();
+    store.note('skills', 'wa-topic', { correct: true, ms: 1000 });
+    await store.flush();
+    expect(store.queued).toBe(2);
+    expect(JSON.parse(storage.data.ld_particle_drill_queue_v1)).toHaveLength(2);
+    // a later visit, the tables now exist
+    const up = api();
+    const later = createStore({ storage, fetcher: up.fetcher });
+    expect(later.queued).toBe(2);
+    await later.endRound();
+    expect(up.calls.map((c) => c.url)).toEqual([
+      '/api/grammar-drill/round',
+      '/api/grammar-drill/round',
+    ]);
+    expect(later.queued).toBe(0);
+  });
+
+  it('drops a round the server rejects, keeps one it could not reach', async () => {
+    const bad = api({ status: 400, states: {} });
+    const a = createStore({ storage: memory(), fetcher: bad.fetcher });
+    a.setSkill('wa-topic', state());
+    a.note('skills', 'wa-topic', { correct: true, ms: 1 });
+    await a.flush();
+    expect(a.queued).toBe(0);
+    const off = api({ offline: true });
+    const b = createStore({ storage: memory(), fetcher: off.fetcher });
+    b.setSkill('wa-topic', state());
+    b.note('skills', 'wa-topic', { correct: true, ms: 1 });
+    await b.flush();
+    expect(b.queued).toBe(1);
+  });
+
+  it('a round over more than ten topics is split', async () => {
+    const { calls, fetcher } = api();
+    const store = createStore({ storage: memory(), fetcher });
+    const forms = [
+      'masu',
+      'masen',
+      'mashita',
+      'te',
+      'ta',
+      'nai',
+      'nakatta',
+      'tai',
+      'tari',
+      'tara',
+      'ba',
+      'adj_te',
+    ];
+    forms.forEach((f) => {
+      store.setConj(f, state({ l: 2 }));
+      store.note('conj', f, { correct: true, ms: 500 });
+    });
+    await store.flush();
+    expect(calls.map((c) => c.body.topics.length)).toEqual([10, 2]);
+    expect(calls[1].body.topics.map((t) => t.topic)).toEqual(['conj-ba', 'conj-adj-te']);
+    expect(new Set(calls.map((c) => c.body.round_key)).size).toBe(2);
+  });
+
+  it('pull merges the account states and uploads what only this browser has', async () => {
+    const remote = toServerState('skills', state({ l: 5, n: 40, last: 1700000900000 }));
+    const { calls, fetcher } = api({
+      status: 200,
+      states: { 'wa-topic': remote, 'conj-te': toServerState('conj', state({ l: 2, n: 30 })) },
+    });
+    const store = createStore({ storage: memory(), fetcher });
+    store.setSkill('wa-topic', state({ l: 3, n: 12 })); // the account has more answers: it wins
+    store.setSkill('ga-subject', state({ l: 2, n: 6 })); // only here: uploaded
+    store.setSkill('o-object', M.newState()); // never answered: not uploaded
+    await store.pull();
+    await store.endRound();
+    expect(calls[0].url).toBe('/api/grammar-drill/progress?language_id=3&days=1');
+    expect(store.skill('wa-topic').l).toBe(5);
+    expect(store.skill('wa-topic').hi).toBe(5);
+    expect(store.conj('te').n).toBe(30);
+    const sync = calls.filter((c) => c.body && c.body.mode === 'sync');
+    expect(sync).toHaveLength(1);
+    expect(sync[0].body.topics.map((t) => t.topic)).toEqual(['ga-subject']);
+    expect(sync[0].body.topics[0]).toMatchObject({ answers: 0, correct: 0, timed: 0, ms_sum: 0 });
+    expect(sync[0].body.played_at).toBeUndefined();
+  });
+
+  it('pull changes nothing while tracking is unavailable', async () => {
+    const { calls, fetcher } = api({ status: 503, states: {} });
+    const store = createStore({ storage: memory(), fetcher });
+    store.setSkill('wa-topic', state());
+    await store.pull();
+    expect(calls).toHaveLength(1);
+    expect(store.queued).toBe(0);
+    expect(store.skill('wa-topic').n).toBe(12);
+  });
+
+  it('the highest stage reached survives a demotion', () => {
+    const store = createStore({ storage: memory(), fetcher: null });
+    store.setSkill('wa-topic', state({ l: 5 }));
+    store.setSkill('wa-topic', state({ l: 4 }));
+    expect(store.skill('wa-topic').hi).toBe(5);
+    expect(toServerState('skills', store.skill('wa-topic'))).toMatchObject({ u: 5, s: { l: 4 } });
   });
 });

@@ -1,8 +1,22 @@
 -- ============================================================================
--- grammar_drill_tracking.sql - server-side progress for the Chinese grammar
--- drills (/grammar-drill): one summary row per learner, topic and practice
--- day, one current-state row per learner and topic, and the one function that
--- writes both.
+-- grammar_drill_tracking.sql - server-side progress for the grammar drills of
+-- every language: one summary row per learner, language, topic and practice
+-- day, one current-state row per learner, language and topic, and the one
+-- function that writes both.
+--
+-- SHARED STRUCTURE (2026-11-28, ADR-068; owner: "resolve a shared db structure
+-- for tracking grammar drill progress"). The same two tables and function
+-- serve the Chinese grammar drills (/grammar-drill/zh, language 1, four
+-- stages) and the Japanese drills (language 3): particle and grammar skills
+-- (/particle-drill, /grammar-drill/ja; seven stages = six rungs and Instant),
+-- conjugation forms (topic conj-<form>) and reading categories (topic
+-- read-<category>), four stages each. A topic is a skill id; which topics
+-- exist, how many stages each has and the shape of `state` are checked per
+-- language in services/grammar_drill_tracking.py (Profile). The database only
+-- knows: stage 1 to 7, `state` is an object with `u` (highest stage reached,
+-- never lowered) and `l` (epoch seconds of the last answer; the later side
+-- wins). This file replaces the separate user_drill_progress table that the
+-- particle drill had pending (migrations/particle_drill_progress.sql, removed).
 -- Date: 2026-11-27   Task: TASK-1259   ADR-066. NOT APPLIED.
 --
 -- Owner decisions 2026-11-27: "do you think we could add tracking in? so we
@@ -17,7 +31,7 @@
 --      that is averaged), ms_sum (sum of those recall times in ms, each capped
 --      at 30000 by the client; the route and a CHECK enforce
 --      ms_sum <= timed * 30000), stage (highest stage unlocked by the end of
---      the day, 1-4), instant, sub_misses (jsonb: sub-point key -> first-try
+--      the day, 1-7; Chinese topics use 1-4), instant, sub_misses (jsonb: sub-point key -> first-try
 --      misses, non-zero entries only), updated_at.
 --      NO per-answer and NO per-item rows.
 --   2. TABLE public.grammar_drill_state, PK (user_id, language_id, topic).
@@ -68,7 +82,10 @@
 --   grammar_drill_state   about 665 bytes per row with index for a topic with
 --                         two stages of results (state 472 B); about 1,250 at
 --                         the most (all four windows full of 5-digit times,
---                         state 980 B). At most 39 rows per learner.
+--                         state 980 B). At most 39 rows per Chinese learner;
+--                         a Japanese learner has one row per skill started
+--                         (427 skills, about 35 conjugation and reading
+--                         topics), about 330 bytes each with the index.
 --   Both tables empty: 32 kB.
 --   A learner who practises 3 topics a day for a year: 3 x 365 x 246 B =
 --   0.27 MB, plus up to 39 state rows (26 to 49 kB).
@@ -141,13 +158,14 @@ CREATE TABLE IF NOT EXISTS public.grammar_drill_daily (
     CONSTRAINT grammar_drill_daily_correct_chk CHECK (correct BETWEEN 0 AND answers),
     CONSTRAINT grammar_drill_daily_timed_chk CHECK (timed BETWEEN 0 AND answers),
     CONSTRAINT grammar_drill_daily_ms_chk CHECK (ms_sum BETWEEN 0 AND timed::bigint * 30000),
-    CONSTRAINT grammar_drill_daily_stage_chk CHECK (stage BETWEEN 1 AND 4),
+    CONSTRAINT grammar_drill_daily_stage_chk CHECK (stage BETWEEN 1 AND 7),
     CONSTRAINT grammar_drill_daily_subs_chk CHECK (
         jsonb_typeof(sub_misses) = 'object' AND pg_column_size(sub_misses) < 1024)
 );
 
 COMMENT ON TABLE public.grammar_drill_daily IS
-  'Grammar drills (/grammar-drill): one row per learner, language, topic and '
+  'Grammar drills of every language (zh grammar; ja particles, grammar, '
+  'conjugation, reading): one row per learner, language, topic and '
   'practice day (the app review day, Australia/Sydney, computed in Python). '
   'Counts are over FIRST answers. timed = first answers that were right; '
   'ms_sum = their recall time in ms (each at most 30000). sub_misses = '
@@ -168,8 +186,10 @@ CREATE TABLE IF NOT EXISTS public.grammar_drill_state (
 );
 
 COMMENT ON TABLE public.grammar_drill_state IS
-  'Grammar drills: the current state of one learner on one topic, so progress '
-  'follows the learner across devices. state = {u: highest unlocked stage, '
+  'Grammar drills of every language: the current state of one learner on one '
+  'topic, so progress follows the learner across devices. Always {u: highest '
+  'stage reached, l: epoch seconds of the last answer}; the rest is per '
+  'language (services/grammar_drill_tracking.py). Chinese: {u: highest unlocked stage, '
   'r: [4 strings of comma-separated signed ms, last 30 results per stage], '
   'q: answers, e: [endless answers, correct, best streak], l: epoch seconds '
   'of the last answer}. last_round_key = idempotency key of the last round '
@@ -240,7 +260,7 @@ BEGIN
         v_correct := COALESCE((t->>'correct')::integer, 0);
         v_timed   := COALESCE((t->>'timed')::integer, 0);
         v_ms      := COALESCE((t->>'ms_sum')::bigint, 0);
-        v_stage   := LEAST(4, GREATEST(1, COALESCE((t->>'stage')::integer, 1)));
+        v_stage   := LEAST(7, GREATEST(1, COALESCE((t->>'stage')::integer, 1)));
         v_instant := COALESCE((t->>'instant')::boolean, false);
         v_subs    := CASE WHEN jsonb_typeof(t->'sub_misses') = 'object'
                           THEN t->'sub_misses' ELSE '{}'::jsonb END;
@@ -306,7 +326,7 @@ BEGIN
         ELSE
             v_merged := v_new;
         END IF;
-        v_u := LEAST(4, GREATEST(COALESCE((v_old->>'u')::integer, 1),
+        v_u := LEAST(7, GREATEST(COALESCE((v_old->>'u')::integer, 1),
                                  COALESCE((v_new->>'u')::integer, 1),
                                  v_stage));
         v_merged := jsonb_set(v_merged, '{u}', to_jsonb(v_u), true);

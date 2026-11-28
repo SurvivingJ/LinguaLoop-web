@@ -6,13 +6,14 @@ prose_page: ./particle-drill.md
 last_updated: 2026-11-27
 dependencies:
   - "data/particle_drill/ja/ (catalog.json, guides/, items/, packs/, conjugation/, review/, manifest.json)"
-  - "services/particle_drill/ (markup.py, content.py, progress.py, conjugation.py)"
+  - "services/particle_drill/ (markup.py, content.py, conjugation.py)"
+  - "services/grammar_drill_tracking.py, routes/grammar_drill.py (shared tracking, Japanese profile)"
   - "user_vocabulary_knowledge, dim_word_senses, dim_vocabulary (read only, conjugation pool); fugashi + unidic-lite"
   - "routes/particle_drill.py (blueprint particle_drill, /api/particle-drill)"
   - "templates/conjugation_drill.html (/conjugation-drill)"
   - "templates/particle_drill.html, static/js/pages/particle-drill.js, static/js/particles/*.js, static/css/redesign/particles.css"
   - "scripts/particle_drill_catalog.py, particle_drill_validate.py, particle_drill_build.py, particle_drill_swarm.py, particle_drill_kanji.py"
-  - "migrations/particle_drill_progress.sql (table user_drill_progress, NOT APPLIED)"
+  - "migrations/grammar_drill_tracking.sql (shared with the Chinese drills, NOT APPLIED)"
   - "Claude Code CLI (`claude -p`) for authoring only; nothing at request time"
 breaking_change_risk: low
 ---
@@ -39,7 +40,7 @@ Serving (no database content, no model)
   GET /api/particle-drill/conjugation    conjugation guides + verb and adjective lists
   GET /api/particle-drill/conjugation/words   services/particle_drill/conjugation.py: the learner's
                                          known verbs and adjectives (user_vocabulary_knowledge), classified
-  GET|PUT /api/particle-drill/progress   services/particle_drill/progress.py: user_drill_progress
+  POST /api/grammar-drill/round, GET /api/grammar-drill/progress   the shared tracking (language 3)
   GET /conjugation-drill                 templates/conjugation_drill.html (same script, data-home="conj")
 
 Browser (static/js/pages/particle-drill.js + static/js/particles/)
@@ -110,22 +111,14 @@ content file is named by no review record.
 
 ## Database Impact
 
-No content table. One optional table, **not applied**:
-
-```sql
--- migrations/particle_drill_progress.sql
-user_drill_progress (
-  user_id uuid NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
-  drill text NOT NULL CHECK (drill ~ '^[a-z0-9_]{1,40}$'),     -- 'particles_ja'
-  state jsonb NOT NULL DEFAULT '{}',                             -- CHECK pg_column_size(state) <= 300000
-  updated_at timestamptz NOT NULL DEFAULT now(),
-  PRIMARY KEY (user_id, drill))
--- RLS enabled, no policy; REVOKE ALL from PUBLIC, anon, authenticated; service_role only.
-```
-
-One row per learner, a few KB. `services/particle_drill/progress.py` treats a missing table
-(PostgREST `PGRST205` / `42P01`) as "not available": it answers `available: false`, remembers
-that for 5 minutes, and the browser keeps using `localStorage` only. See [[database/schema.tech]].
+No content table. Progress is recorded in the **shared grammar-drill tracking**
+([[decisions/ADR-068-one-tracking-structure-for-every-language]]): `grammar_drill_daily` and
+`grammar_drill_state` through `record_grammar_drill_round`, language 3, **pending**
+(`migrations/grammar_drill_tracking.sql`, [[database/schema.tech]]). One state row per skill
+started (`topic` = the skill id; `conj-<form>` and `read-<category>` for the two generated
+drills) and one daily row per skill practised that day. The table `user_drill_progress`,
+`services/particle_drill/progress.py` and the two `/api/particle-drill/progress` routes that
+this page described until 2026-11-28 are removed; they were never applied.
 
 ## API / RPC Surface
 
@@ -160,13 +153,21 @@ is 400 "The particle drill is Japanese-only".
   lemma and reading fail the ending rules of the word-list validator.
 - **Not cached:** the pool follows the learner's vocabulary on every load of the page.
 
-### `GET /api/particle-drill/progress?language_id=3`
-- **Returns:** `{available: bool, state: object|null, updated_at}`.
-
-### `PUT /api/particle-drill/progress`
-- **Body:** `{language_id: 3, state: {v, skills{}, conj{}, settings{}}}`.
-- **Errors:** 400 when `state` is not an object, `skills` / `conj` are not objects, or the JSON is over 256 KB.
-- **Returns:** `{available: bool, saved: bool}`. **Side effects:** upsert of the caller's row.
+### Progress: `POST /api/grammar-drill/round`, `GET /api/grammar-drill/progress?language_id=3`
+The shared tracking routes ([[features/grammar-drills.tech]], [[api/rpcs.tech]]). What the
+Japanese page sends (`static/js/particles/store.js`):
+- **During a round:** nothing. `store.note(part, id, {correct, ms})` counts first answers.
+- **When a round ends, or the learner leaves it** (`store.flush(mode)`): one `POST /round` with
+  `mode` `round` or `mixed`, `played_at`, and per topic `answers`, `correct`, `timed` (= correct),
+  `ms_sum` (recall times of right first answers, each capped at 30,000), `stage` (the current
+  rung), `instant`, and `state = {u, l, s}`. More than ten topics are split over requests.
+- **On load** (`store.pull()`): `GET /progress?language_id=3&days=1`; the account's states are
+  merged into the local document (per skill, more answers wins; a tie goes to the later one), and
+  skills only this browser has are uploaded once as `mode: sync` (state only, no answers).
+- **While the tables are missing** both answer 503: rounds wait in `localStorage`
+  (`ld_particle_drill_queue_v1`, at most 60) and are sent later. A request the server rejects
+  (4xx other than 429) is dropped.
+- `u` is the highest rung reached (the local `hi`), because this ladder can demote.
 
 ### Page
 `/particle-drill` → `particle_drill_page` → `templates/particle_drill.html` (task mode, Back
@@ -257,7 +258,7 @@ state per form id under `conj`.
    - **Alternatives rejected:** mixing only in the daily mix (the ladder would still promote on
      blocked answers); mixing in other functions of the same particle (the answer stays the same).
    - **Known limit:** the very first skill of a new learner (は) has nothing to mix with.
-9. **Progress is a client document with an optional server copy.** The page works before the migration is applied and offline; the merge rule is per skill, most answers wins.
+9. **Progress is a client document mirrored to the shared grammar-drill tracking** ([[decisions/ADR-068-one-tracking-structure-for-every-language]]). The page works before the migration is applied and offline; the merge rule is per skill, most answers wins. Until 2026-11-28 the mirror was a JSON document in its own table; that table was withdrawn.
 
 ## Security Considerations
 
@@ -298,4 +299,5 @@ state per form id under `conj`.
 - [[tasklist/particle-drill.tasks]]
 - [[features/measure-word-trainer.tech]] — sibling trainers and the mastery rule this ladder mirrors
 - [[api/rpcs.tech]] — route table
-- [[database/schema.tech]] — `user_drill_progress` (pending)
+- [[database/schema.tech]] — grammar drill tracking (pending, shared)
+- [[decisions/ADR-068-one-tracking-structure-for-every-language]]
