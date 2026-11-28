@@ -21,11 +21,13 @@ below.
 |--------|-------------------|------------------------------------------|
 | Not Started | 85 | 101 |
 | In Progress (`[~]`) | 18 | 25 |
-| Blocked / Deferred / Awaiting decision (`[?]`; includes "Done (repo), awaiting live apply") | 80 | 79 |
+| Blocked / Deferred / Awaiting decision (`[?]`; includes "Done (repo), awaiting live apply") | 79 | 78 |
 | Won't Do (obsolete) | 3 | 3 |
 | Superseded | 3 | 3 |
-| Done | 242 | 386 |
+| Done | 243 | 387 |
 | **Total distinct task ids** | **431** | **597** |
+
+*2026-11-28 (tracking migration applied):* TASK-1259 `[?]` awaiting live apply → Done (Awaiting −1, Done +1).
 
 *2026-11-28 (idiom trainer):* new TASK-1287 and TASK-1288 Done, TASK-1289 and TASK-1290 Awaiting (Done +2, Awaiting +2, 4 ids).
 
@@ -1621,7 +1623,7 @@ Full spec: [[tasklist/grammar-drills.tasks]]. Feature: [[features/grammar-drills
 | TASK-1256 | grammar-drills | Drill content authored, blind-reviewed and built (105 batches, 10,209 items) | Done | XL | TASK-1254, TASK-1255 |
 | TASK-1257 | grammar-drills | `/grammar-drill` page: engine, four-stage ladder, local progress, i18n, profile link | Done | XL | TASK-1254 |
 | TASK-1258 | grammar-drills | Infinite-practice generators (22 generators, 13 topics) and Endless mode | Done | L | TASK-1257 |
-| TASK-1259 | grammar-drills | Track grammar-drill progress on the server (daily summaries + state row; ADR-066) — Done (repo) 2026-11-27, awaiting live apply of `migrations/grammar_drill_tracking.sql` | [?] | L | — |
+| TASK-1259 | grammar-drills | Track grammar-drill progress on the server (daily summaries + state row; ADR-066) — migration applied live 2026-11-28 | [x] | L | — |
 | TASK-1260 | grammar-drills | Decide whether grammar drills join the Study Plan / daily session and feed ELO | [?] | XL | TASK-1259 |
 | TASK-1261 | grammar-drills | Native-speaker audit of the drill content | [ ] | XL | — |
 | TASK-1262 | grammar-drills | Decide the languages for guide and explanation text | [?] | XL | — |

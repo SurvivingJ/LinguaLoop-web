@@ -4,7 +4,7 @@ feature: grammar-drills
 prose_page: ../features/grammar-drills.md
 tech_page: ../features/grammar-drills.tech.md
 total_tasks: 16
-done: 6
+done: 7
 last_updated: 2026-11-27
 ---
 
@@ -207,7 +207,7 @@ generators only. Sentence meaning is sometimes flat (TASK-1265).
 
 ## TASK-1259: Track grammar-drill progress on the server (daily summaries + state)
 
-**Status:** [?] Done (repo, 2026-11-27), awaiting live apply of `migrations/grammar_drill_tracking.sql`
+**Status:** [x] Done (repo 2026-11-27; migration applied to the live project 2026-11-28, verified)
 **Feature:** grammar-drills
 **Type:** feature
 **Complexity:** L (1-2d)

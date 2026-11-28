@@ -17,7 +17,8 @@
 -- never lowered) and `l` (epoch seconds of the last answer; the later side
 -- wins). This file replaces the separate user_drill_progress table that the
 -- particle drill had pending (migrations/particle_drill_progress.sql, removed).
--- Date: 2026-11-27   Task: TASK-1259   ADR-066. NOT APPLIED.
+-- Date: 2026-11-27   Task: TASK-1259   ADR-066. APPLIED to the live project 2026-11-28
+-- (seven-stage version below; VERIFY AFTER values confirmed).
 --
 -- Owner decisions 2026-11-27: "do you think we could add tracking in? so we
 -- can know the user's improvement over time?" then "Do daily with the current
