@@ -5,7 +5,7 @@ status: complete
 tech_page: offline-test-bundles.tech.md
 last_updated: 2026-11-27
 open_questions:
-  - "When to upload the 2026-11-27 bundles (ja 506 + ja 503 + zh 500 = 1,509 tests; the whole set ~68 MB with vocabulary linking at ~45 KB a test): the database was 451 MB of the 500 MB Free cap after the build (llm_calls had been pruned to today's rows outside this session); each uploaded test costs roughly 45 KB with its vocabulary linking, so the whole bundle ~23 MB (OPEN)"
+  - "When to upload the 2026-11-27 bundles (ja 506 + ja 503 + zh 500 + zh HSK 7–9 250 = 1,759 tests; the whole set ~79 MB with vocabulary linking at ~45 KB a test): the database was 451 MB of the 500 MB Free cap after the build (llm_calls had been pruned to today's rows outside this session); each uploaded test costs roughly 45 KB with its vocabulary linking, so the whole bundle ~23 MB (OPEN)"
   - "Whether to keep Claude's uncalibrated tier ratings or re-tier the bundle with jev before upload (OPEN)"
 ---
 
