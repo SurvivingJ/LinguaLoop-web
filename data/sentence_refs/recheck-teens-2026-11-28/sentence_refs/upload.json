@@ -1,0 +1,55 @@
+{
+  "language": "mixed",
+  "l1": "mixed",
+  "arm": "recheck",
+  "rows": [
+    {
+      "test_id": "5d23154f-b358-4d7f-90d3-4c2088e2eeff",
+      "idx": 0,
+      "sentence_id": 2227,
+      "l1": "en",
+      "l1_language_id": 2,
+      "l1_text": "The path he chose, as a teenager who had just graduated from high school, was to work at an organic farm in a rural area.",
+      "author_model": "claude-sonnet-5-5",
+      "prompt_version": "sr-1.0",
+      "arm": "sentencewise",
+      "reviewer_model": "claude-sonnet-5-5",
+      "review_verdict": "rewritten",
+      "tightness": 0.8649,
+      "entailment_ok": true,
+      "run_id": "recheck-teens-2026-11-28"
+    },
+    {
+      "test_id": "d71cadf7-6639-4386-8fde-51ac5ea4ee5d",
+      "idx": 0,
+      "sentence_id": 6354,
+      "l1": "en",
+      "l1_language_id": 2,
+      "l1_text": "Yesterday, Yuuki, a teenager, read a poem in front of everyone for the first time.",
+      "author_model": "claude-sonnet-5-5",
+      "prompt_version": "sr-1.0",
+      "arm": "sentencewise",
+      "reviewer_model": "claude-sonnet-5-5",
+      "review_verdict": "rewritten",
+      "tightness": 0.7018,
+      "entailment_ok": true,
+      "run_id": "recheck-teens-2026-11-28"
+    },
+    {
+      "test_id": "e0400cd5-9d80-489a-9ab3-27ac9e038dd7",
+      "idx": 0,
+      "sentence_id": 6363,
+      "l1": "en",
+      "l1_language_id": 2,
+      "l1_text": "A teenage boy performed a guitar solo in front of a large audience for the first time.",
+      "author_model": "claude-sonnet-5-5",
+      "prompt_version": "sr-1.0",
+      "arm": "sentencewise",
+      "reviewer_model": "claude-sonnet-5-5",
+      "review_verdict": "rewritten",
+      "tightness": 0.7302,
+      "entailment_ok": true,
+      "run_id": "recheck-teens-2026-11-28"
+    }
+  ]
+}
