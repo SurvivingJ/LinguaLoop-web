@@ -5,8 +5,9 @@ status: complete
 tech_page: offline-test-bundles.tech.md
 last_updated: 2026-11-27
 open_questions:
-  - "When to upload the 2026-11-27 bundles (ja 506 + ja 503 + zh 500 + zh HSK 7–9 250 = 1,759 tests; the whole set ~79 MB with vocabulary linking at ~45 KB a test): the database was 451 MB of the 500 MB Free cap after the build (llm_calls had been pruned to today's rows outside this session); each uploaded test costs roughly 45 KB with its vocabulary linking, so the whole bundle ~23 MB (OPEN)"
+  - "When to upload the 2026-11-27 bundles (ja 506 + 503 + N2–N1 251, zh 500 + HSK 7–9 250 + 250, it 250 = 2,510 tests; the whole set ~113 MB with vocabulary linking at ~45 KB a test): the database was 451 MB of the 500 MB Free cap after the build (llm_calls had been pruned to today's rows outside this session); each uploaded test costs roughly 45 KB with its vocabulary linking, so the whole bundle ~23 MB (OPEN)"
   - "Whether to keep Claude's uncalibrated tier ratings or re-tier the bundle with jev before upload (OPEN)"
+  - "Adding Italian to the app (dim_languages, prompt templates seeded from data/offline_tests/it-2026-11-28/prompts, language maps, vocabulary processor, UI) before its bundle can be uploaded (OPEN)"
 ---
 
 # Offline test bundles
@@ -50,6 +51,9 @@ later is one command and nothing they need has to be generated again.
 - **Tiers are Claude's ratings, not jev's.** They are not fitted to a gold set. They are marked
   `claude-uncalibrated` and lean high (a tier-3 target was once rated T5), so the seeded ELOs
   are a starting point that real attempts correct.
+- **A bundle can be for a language the app does not have yet.** The Italian bundle was written with
+  Italian prompt files and English's judges and topics. It cannot be uploaded until Italian is added to
+  the app (language row, prompts, vocabulary support); the upload refuses it until then.
 - **Duplicates at upload.** The upload skips any test whose id is already in the database, whose
   topic was deleted, or whose passage text matches a live test on the same topic.
 

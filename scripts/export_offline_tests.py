@@ -338,7 +338,9 @@ def assemble(args) -> int:
     manifest = {
         'format': 'lingualoop-offline-tests',
         'record_version': unique[0]['record_version'] if unique else None,
-        'language': args.language,
+        # From the records: an overlay bundle (--content-language) is not --language.
+        'language': ','.join(sorted({r.get('language_code') for r in unique} - {None})) or args.language,
+        'base_language': ','.join(sorted({r['base_language_code'] for r in unique if r.get('base_language_code')})) or None,
         'built_at': datetime.now(timezone.utc).isoformat(),
         'tests': len(unique),
         'questions': sum(len(r['questions']) for r in unique),

@@ -67,6 +67,27 @@ unchanged.
 - Slug: the generated slug plus `-<first 8 hex of test_id>`. Without it, two slots of one topic
   at the same difficulty in the same second produce the same slug (seen in the pilot).
 
+## Content-language overlay (a language the app does not have yet)
+`--content-language it --content-language-name Italian --native-name Italiano --tts-voices it-IT-ElsaNeural,it-IT-DiegoNeural --template-dir <bundle>/prompts --language en`
+runs on English's `LanguageConfig` (id 2, question mix, the language-neutral judge templates
+`test_answer_entailment` / `test_distractor_plausibility`, English queue topics) with the content
+language's code, name and voices (`dataclasses.replace`). `--template-dir` loads `<task_name>.txt`
+files into `TestGenDatabaseClient.template_overrides`, which `get_prompt_template` returns ahead
+of `prompt_templates` rows. For Italian: `prose_generation` (tiers mapped to CEFR A1–C2 with
+Italian grammar per tier) and the six `question_*` templates (English text plus an Italian-output
+header; Italian idiom few-shots for `vocabulary_context`). `title_generation` and topic
+translation are already language-parametrised. The Claude tier rating uses the English tier
+descriptions for a language with none and says which language the passage is in;
+`difficulty_scorer` maps `it` to wordfreq Italian.
+
+Records carry `language_code='it'`, `language_id: null`, `base_language_code: 'en'`;
+`persist_exported_test` takes the id from `dim_languages` and raises until the language exists.
+**Before uploading an Italian bundle:** add the `dim_languages` row (with `tts_voice_ids`), the
+Italian `prompt_templates` rows (seed them from `prompts/`), an `it` entry in the language maps
+(`tier_classifier.LANG_IDS`, `categorical_maps` tier names, `LANG_CODE` maps, the vocabulary
+processor for `services/vocabulary`), and the front-end language list. Vocabulary linking at
+upload needs an Italian vocabulary processor; without one it is the step that fails.
+
 ## Record format (`EXPORT_RECORD_VERSION = 1`)
 One JSON object per line, keys sorted, UTF-8, xz preset 9:
 
@@ -127,3 +148,6 @@ covers `LLM_FORCE_PROVIDER`.
 | `data/offline_tests/zh-2026-11-27/` | 2026-11-27 | 500 (2,488 questions, 324 topics) | zh listening; target tiers 1–6; assigned T1 22 / T2 132 / T3 63 / T4 127 / T5 95 / T6 61; seeded ELO 1051–1804, median 1430 (by target tier 1248 / 1287 / 1383 / 1472 / 1544 / 1641); mean passage 70–436 chars by tier; 0.87 MB xz; headless Claude only, no DB rows; not uploaded |
 | `data/offline_tests/ja-2026-11-27b/` | 2026-11-27 | 503 (2,397 questions, 165 topics) | ja listening; target tiers 1–6 over the (topic, tier) pairs the first ja bundle did not use (`--exclude-bundle`, `--angle-offset 3`), plus 19 `:v2` variant slots (`--variant 2 --angle-offset 5`); so it leans hard: assigned T5 207 / T6 113; seeded ELO 1122–1755, median 1460; no passage, hash, slot or id shared with the first bundle; 1.5 MB xz; not uploaded |
 | `data/offline_tests/zh-2026-11-28-hsk79/` | 2026-11-28 | 250 (1,247 questions, 224 topics) | zh listening aimed at HSK 7–9: target tiers 5–6 (125 each) with `--prose-note` asking for formal written Chinese, vocabulary beyond HSK 6, 成语 and complex clauses; assigned T5 75 / T6 175; seeded ELO 1514–1797, median 1657; passages 265–592 chars (median 390); no passage, hash or slot shared with `zh-2026-11-27`; 0.74 MB xz; not uploaded |
+| `data/offline_tests/zh-2026-11-28-hsk79b/` | 2026-11-28 | 250 (1,245 questions, 250 topics) | second zh HSK 7–9 set: tiers 5–6, same `--prose-note`, `:v2` variant slots (`--variant 2 --angle-offset 4`), excluding both earlier zh bundles; assigned T5 71 / T6 179; seeded ELO 1512–1827, median 1660; no passage, hash or id shared with earlier zh bundles; 0.73 MB xz; not uploaded |
+| `data/offline_tests/ja-2026-11-28-n2n1/` | 2026-11-28 | 251 (1,193 questions, 165 topics) | ja aimed at JLPT N2–N1: tiers 4–6, `--prose-note` asking for newspaper/essay register, kanji beyond N3 and N2/N1 grammar (～にもかかわらず, ～に伴い, ～をめぐって …), `:v3` variant slots (`--variant 3 --angle-offset 6`) excluding both earlier ja bundles; assigned T4 14 / T5 132 / T6 105; seeded ELO 1358–1727, median 1525; 214/251 passages use at least one of ten listed N2/N1 patterns; 0.91 MB xz; not uploaded |
+| `data/offline_tests/it-2026-11-28/` | 2026-11-28 | 250 (1,225 questions, 166 topics) | **Italian, a language the app does not have yet** (see “Content-language overlay”): tiers 1–6; assigned T1 27 / T2 64 / T3 25 / T4 44 / T5 52 / T6 38; seeded ELO 1028–1681, median 1357 (by target tier 1120 → 1573); passages 56–339 words median by tier; `language_id` null; voices it-IT-ElsaNeural / it-IT-DiegoNeural; prompts in `prompts/`; 0.26 MB xz; **not uploadable until Italian is added to the app** |
