@@ -103,7 +103,9 @@ function setView(html, { dock = '', title = '' } = {}) {
 async function loadSet(key) {
   if (!app.sets.has(key)) {
     const info = app.manifest.sets.find((s) => s.key === key);
-    const url = `${app.root.dataset.base}${key}.json?v=${info ? info.v : ''}`;
+    // the set files sit beside the manifest
+    const base = app.root.dataset.manifest.split('?')[0].replace(/[^/]*$/, '');
+    const url = `${base}${key}.json?v=${info ? info.v : ''}`;
     const p = fetch(url)
       .then((r) => {
         if (!r.ok) throw new Error(`idiom set ${key}: ${r.status}`);

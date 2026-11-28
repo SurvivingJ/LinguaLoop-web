@@ -21,11 +21,13 @@ below.
 |--------|-------------------|------------------------------------------|
 | Not Started | 85 | 101 |
 | In Progress (`[~]`) | 18 | 25 |
-| Blocked / Deferred / Awaiting decision (`[?]`; includes "Done (repo), awaiting live apply") | 78 | 77 |
+| Blocked / Deferred / Awaiting decision (`[?]`; includes "Done (repo), awaiting live apply") | 80 | 79 |
 | Won't Do (obsolete) | 3 | 3 |
 | Superseded | 3 | 3 |
-| Done | 240 | 384 |
-| **Total distinct task ids** | **427** | **593** |
+| Done | 242 | 386 |
+| **Total distinct task ids** | **431** | **597** |
+
+*2026-11-28 (idiom trainer):* new TASK-1287 and TASK-1288 Done, TASK-1289 and TASK-1290 Awaiting (Done +2, Awaiting +2, 4 ids).
 
 *2026-11-28 (more drills for Japanese and Chinese):* new TASK-1284 Done, TASK-1285 Done, TASK-1286 Awaiting (Done +2, Awaiting +1, 3 ids).
 
@@ -1648,6 +1650,17 @@ Full spec: [[tasklist/particle-drill.tasks]]. Feature: [[features/particle-drill
 | TASK-1284 | particle-drill | Depth and five more areas for the Japanese drills | [x] | XL | TASK-1270, TASK-1279 |
 | TASK-1285 | grammar-drills | Five more Chinese topics and a worker runner | [x] | L | TASK-1254 |
 | TASK-1286 | particle-drill | Listening drills (Japanese sound length; Chinese tones and initials) | [?] | L | — |
+
+### Idiom Trainer (Chinese and Japanese)
+
+Full spec: [[tasklist/idiom-trainer.tasks]]. Feature: [[features/idiom-trainer]]. A card per idiom with its story where one exists, six contexts each, a five-step ladder with spaced reviews; core tier 652 idioms.
+
+| ID | Feature | Title | Status | Complexity | Depends On |
+|----|---------|-------|--------|------------|------------|
+| TASK-1287 | idiom-trainer | Idiom trainer: contract, engine, pages, tracking | [x] | L | TASK-1282 |
+| TASK-1288 | idiom-trainer | Author and review the core tier | [x] | XL | TASK-1287 |
+| TASK-1289 | idiom-trainer | Native-speaker check of the lists, cards and stories | [?] | M | TASK-1288 |
+| TASK-1290 | idiom-trainer | The full tier | [?] | XL | TASK-1288 |
 
 ### Grammar Drill and Reading Drill (Japanese)
 

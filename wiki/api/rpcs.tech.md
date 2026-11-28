@@ -86,6 +86,8 @@ Pages are client-side rendered: each route only renders its template (no data, n
 | `/counter-drill` | `counter_drill_page` | `templates/counter_drill.html` |
 | `/grammar-drill/ja` | `grammar_drill_ja_page` | `templates/grammar_drill_ja.html` (the Japanese grammar course; the particle page script with `data-course="grammar"`; [[features/japanese-grammar-drill.tech]]) |
 | `/grammar-drill/zh` | `grammar_drill_zh_page` | `templates/grammar_drill_zh.html` (the Chinese grammar drills; [[features/grammar-drills.tech]]) |
+| `/idiom-trainer/zh`, `/idiom-trainer/ja` | `idiom_trainer_zh_page`, `idiom_trainer_ja_page` | `templates/idiom_trainer_<lang>.html` (idiom trainer; static content, [[features/idiom-trainer.tech]]) |
+| `/idiom-trainer` | `idiom_trainer_page` | `templates/idiom_trainer.html`: sends the browser to its study language's page |
 | `/grammar-drill` | `grammar_drill_page` | `templates/grammar_drill.html`: sends the browser to its study language's page (`static/js/pages/grammar-drill-redirect.js`) |
 | `/reading-drill` | `reading_drill_page` | `templates/reading_drill.html` (numbers, times, dates, katakana; same script, `data-home="read"`) |
 | `/conjugation-drill` | `conjugation_drill_page` | `templates/conjugation_drill.html` (the conjugation drill; same script as `/particle-drill`) |
