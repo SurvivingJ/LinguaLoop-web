@@ -1,0 +1,20 @@
+[
+ {"id":"pt-quote-1","lv":4,
+  "tpl":"<when><who>に<act>{ように|pt-quote}言[い]われました。",
+  "en":"<when>, <who> told me to <act>.",
+  "f":0,"d":["と","ことを","ために"],
+  "why":"Reporting an instruction or advice ('told me to do X') uses the dictionary form plus ように言う; と言う would report a statement.",
+  "vars":{
+   "when":[["昨日[きのう]","Yesterday"],["先週[せんしゅう]","Last week"],["この前[まえ]","The other day"],["今朝[けさ]","This morning"],["先月[せんげつ]","Last month"],["去年[きょねん]","Last year"]],
+   "who":[["医者[いしゃ]","the doctor"],["母[はは]","my mother"],["父[ちち]","my father"],["妻[つま]","my wife"],["姉[あね]","my older sister"],["祖母[そぼ]","my grandmother"],["夫[おっと]","my husband"]],
+   "act":[["早[はや]く寝[ね]る","go to bed early"],["野菜[やさい]をもっと食[た]べる","eat more vegetables"],["毎日[まいにち]運動[うんどう]する","exercise every day"],["たばこをやめる","give up smoking"],["水[みず]をたくさん飲[の]む","drink plenty of water"],["少[すこ]し休[やす]む","take a little rest"],["甘[あま]い物[もの]を減[へ]らす","cut down on sweets"],["毎朝[まいあさ]散歩[さんぽ]する","take a walk every morning"]]}},
+ {"id":"pt-quote-2","lv":4,
+  "tpl":"<who>は<content>{と|pt-quote}<verb>。",
+  "en":"<who> <verb> that <content>.",
+  "f":0,"d":["ように","かどうか","ために"],
+  "why":"The content of what someone says, writes or thinks is closed with と before 言う / 思う / 書く; ように would turn it into an instruction.",
+  "vars":{
+   "who":[["田中[たなか]さん","Mr. Tanaka"],["山田[やまだ]さん","Ms. Yamada"],["兄[あに]","My older brother"],["姉[あね]","My older sister"],["友達[ともだち]","My friend"],["佐藤[さとう]さん","Mr. Sato"]],
+   "content":[["駅前[えきまえ]の新[あたら]しい店[みせ]はおいしい","the new place by the station is good"],["今[いま]やっている映画[えいが]はおもしろい","the film that is on now is good"],["日本語[にほんご]の試験[しけん]は難[むずか]しい","the Japanese exam is difficult"],["この辺[へん]は夜[よる]も安全[あんぜん]だ","this area is safe at night too"],["京都[きょうと]は秋[あき]が一番[いちばん]きれいだ","Kyoto is most beautiful in autumn"],["一人[ひとり]で旅行[りょこう]するのは楽[たの]しい","travelling alone is fun"],["朝[あさ]の電車[でんしゃ]はいつも混[こ]んでいる","the morning trains are always crowded"]],
+   "verb":[["言[い]っています","says"],["言[い]っていました","said"],["思[おも]っています","thinks"],["書[か]いていました","wrote"],["話[はな]していました","was saying"],["メールで言[い]っていました","said in an email"]]}}
+]

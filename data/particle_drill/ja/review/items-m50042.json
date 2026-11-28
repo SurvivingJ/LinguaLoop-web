@@ -1,0 +1,247 @@
+{
+ "batch": "items-m50042",
+ "files": [
+  "items/dokoroka__m50.jsonl",
+  "items/wamochiron__m50.jsonl"
+ ],
+ "checked": 60,
+ "fixed": 38,
+ "deleted": 0,
+ "replaced": 0,
+ "issues": [
+  {
+   "file": "items/dokoroka__m50.jsonl",
+   "jp_before": "息子[むすこ]{は|wa-topic}泳[およ]げる{どころか|dokoroka}、顔[かお]{を|o-object}水[みず]{に|ni-destination}つけること{も|mo-emphasis}できない。",
+   "problem": "こともできない \"not even\" is not an amount; mo-emphasis is for amounts (一つも, 三キロも).",
+   "action": "Changed skill id of that も slot to mo-also, matching the rest of the file."
+  },
+  {
+   "file": "items/dokoroka__m50.jsonl",
+   "jp_before": "昨日[きのう]{の|no-possessive}釣[つ]り{は|wa-topic}大[おお]きい魚[さかな]{が|potential-ga}釣[つ]れる{どころか|dokoroka}、一匹[いっぴき]{も|mo-emphasis}釣[つ]れなかった。",
+   "problem": "魚を釣れる is also natural for the potential; alternative not listed.",
+   "action": "Added を as an alternative in the non-focus slot."
+  },
+  {
+   "file": "items/dokoroka__m50.jsonl",
+   "jp_before": "あのキャンプ場[じょう]{は|wa-topic}空[す]いている{どころか|dokoroka}、予約[よやく]{が|potential-ga}取[と]れない{ほど|hodo-extent}混[こ]んでいた。",
+   "problem": "予約を取れない is equally natural; alternative not listed.",
+   "action": "Added を as an alternative in the non-focus slot."
+  },
+  {
+   "file": "items/dokoroka__m50.jsonl",
+   "jp_before": "うち{の|no-possessive}バスケ部[ぶ]{は|wa-topic}強[つよ]い{どころか|dokoroka}、部員[ぶいん]{が|ga-existence}五人[ごにん]{しか|shika-nai}いない。",
+   "problem": "why was false: five members is exactly enough to field a basketball team.",
+   "action": "Rewrote why."
+  },
+  {
+   "file": "items/dokoroka__m50.jsonl",
+   "jp_before": "海[うみ]{は|wa-topic}穏[おだ]やか{どころか|dokoroka}、波[なみ]{が|ga-subject}高[たか]くて船[ふね]{も|mo-also}出[で]なかった。",
+   "problem": "lv 1 implausible; 穏やか is N2-level vocabulary.",
+   "action": "Set lv to 2."
+  },
+  {
+   "file": "items/dokoroka__m50.jsonl",
+   "jp_before": "初[はじ]めて{の|no-possessive}スキー{は|wa-topic}滑[すべ]る{どころか|dokoroka}、立[た]つこと{も|mo-emphasis}できなかった。",
+   "problem": "こともできない \"not even\" is not an amount; mo-emphasis is for amounts.",
+   "action": "Changed skill id of that も slot to mo-also."
+  },
+  {
+   "file": "items/dokoroka__m50.jsonl",
+   "jp_before": "一日中[いちにちじゅう]待[ま]った{が|ga-but}、珍[めずら]しい鳥[とり]{は|wa-topic}見[み]られる{どころか|dokoroka}、声[こえ]{も|mo-also}聞[き]こえなかった。",
+   "problem": "珍しい鳥が見られるどころか is equally natural; alternative not listed.",
+   "action": "Added が as an alternative."
+  },
+  {
+   "file": "items/wamochiron__m50.jsonl",
+   "jp_before": "日曜日[にちようび]{は|wa-topic}友[とも]だち{はもちろん|wamochiron}家族[かぞく]{も|mo-also}遊[あそ]び{に|ni-purpose}来[き]ます。",
+   "problem": "Distractor どころか is acceptable here: XどころかYも (\"not just X, even Y\") gives nearly the same meaning as XはもちろんYも.",
+   "action": "Replaced どころか with として, which is plainly wrong."
+  },
+  {
+   "file": "items/wamochiron__m50.jsonl",
+   "jp_before": "親友[しんゆう]{は|wa-topic}私[わたし]{の|no-possessive}良[よ]い所[ところ]{はもちろん|wamochiron}悪[わる]い所[ところ]{も|mo-also}知[し]っている。",
+   "problem": "Distractor どころか is acceptable here: XどころかYも (\"not just X, even Y\") gives nearly the same meaning as XはもちろんYも.",
+   "action": "Replaced どころか with として, which is plainly wrong."
+  },
+  {
+   "file": "items/wamochiron__m50.jsonl",
+   "jp_before": "来週[らいしゅう]{の|no-possessive}パーティー{は|wa-topic}、田中[たなか]さん{はもちろん|wamochiron}社長[しゃちょう]{も|mo-also}来[き]ます。",
+   "problem": "Distractor どころか is acceptable here: XどころかYも (\"not just X, even Y\") gives nearly the same meaning as XはもちろんYも.",
+   "action": "Replaced どころか with にとって, which is plainly wrong."
+  },
+  {
+   "file": "items/wamochiron__m50.jsonl",
+   "jp_before": "本当[ほんとう]{の|no-possessive}友[とも]だち{は|wa-topic}楽[たの]しい時[とき]{はもちろん|wamochiron}辛[つら]い時[とき]{も|mo-also}そばにいてくれる。",
+   "problem": "Distractor どころか is acceptable here: XどころかYも (\"not just X, even Y\") gives nearly the same meaning as XはもちろんYも.",
+   "action": "Replaced どころか with として, which is plainly wrong."
+  },
+  {
+   "file": "items/wamochiron__m50.jsonl",
+   "jp_before": "来月[らいげつ]{の|no-possessive}旅行[りょこう]{は|wa-topic}、費用[ひよう]{はもちろん|wamochiron}天気[てんき]{も|mo-also}心配[しんぱい]です。",
+   "problem": "Distractor どころか is acceptable here: XどころかYも (\"not just X, even Y\") gives nearly the same meaning as XはもちろんYも.",
+   "action": "Replaced どころか with として, which is plainly wrong."
+  },
+  {
+   "file": "items/wamochiron__m50.jsonl",
+   "jp_before": "先生[せんせい]{は|wa-topic}成績[せいせき]{はもちろん|wamochiron}生活態度[せいかつたいど]{も|mo-also}よく見[み]ています。",
+   "problem": "Distractor どころか is acceptable here: XどころかYも (\"not just X, even Y\") gives nearly the same meaning as XはもちろんYも.",
+   "action": "Replaced どころか with として, which is plainly wrong."
+  },
+  {
+   "file": "items/wamochiron__m50.jsonl",
+   "jp_before": "この案[あん]{は|wa-topic}社長[しゃちょう]{はもちろん|wamochiron}社員[しゃいん]{も|mo-also}賛成[さんせい]しています。",
+   "problem": "Distractor どころか is acceptable here: XどころかYも (\"not just X, even Y\") gives nearly the same meaning as XはもちろんYも.",
+   "action": "Replaced どころか with にとって, which is plainly wrong."
+  },
+  {
+   "file": "items/wamochiron__m50.jsonl",
+   "jp_before": "その知[し]らせ{を|o-object}聞[き]い{て|te-sequence}、母[はは]{はもちろん|wamochiron}父[ちち]{も|mo-also}喜[よろこ]んだ。",
+   "problem": "Distractor どころか is acceptable here: XどころかYも (\"not just X, even Y\") gives nearly the same meaning as XはもちろんYも.",
+   "action": "Replaced どころか with として, which is plainly wrong."
+  },
+  {
+   "file": "items/wamochiron__m50.jsonl",
+   "jp_before": "発表会[はっぴょうかい]{で|de-place}、子[こ]ども{はもちろん|wamochiron}親[おや]{も|mo-also}緊張[きんちょう]していた。",
+   "problem": "Distractor どころか is acceptable here: XどころかYも (\"not just X, even Y\") gives nearly the same meaning as XはもちろんYも.",
+   "action": "Replaced どころか with として, which is plainly wrong."
+  },
+  {
+   "file": "items/wamochiron__m50.jsonl",
+   "jp_before": "私[わたし]{は|wa-topic}あなた{の|no-possessive}意見[いけん]{はもちろん|wamochiron}反対[はんたい]{の|no-possessive}意見[いけん]{も|mo-also}聞[き]きたい。",
+   "problem": "Distractor どころか is acceptable here: XどころかYも (\"not just X, even Y\") gives nearly the same meaning as XはもちろんYも.",
+   "action": "Replaced どころか with として, which is plainly wrong."
+  },
+  {
+   "file": "items/wamochiron__m50.jsonl",
+   "jp_before": "先輩[せんぱい]{は|wa-topic}仕事[しごと]{の|no-possessive}悩[なや]み{はもちろん|wamochiron}恋愛[れんあい]{の|no-possessive}悩[なや]み{も|mo-also}聞[き]いてくれる。",
+   "problem": "Distractor どころか is acceptable here: XどころかYも (\"not just X, even Y\") gives nearly the same meaning as XはもちろんYも.",
+   "action": "Replaced どころか with にとって, which is plainly wrong."
+  },
+  {
+   "file": "items/wamochiron__m50.jsonl",
+   "jp_before": "この小説[しょうせつ]{は|wa-topic}若者[わかもの]{はもちろん|wamochiron}お年寄[としよ]り{も|mo-also}楽[たの]しめる{と|to-quote}思[おも]います。",
+   "problem": "Distractor どころか is acceptable here: XどころかYも (\"not just X, even Y\") gives nearly the same meaning as XはもちろんYも.",
+   "action": "Replaced どころか with として, which is plainly wrong."
+  },
+  {
+   "file": "items/wamochiron__m50.jsonl",
+   "jp_before": "彼[かれ]{は|wa-topic}自分[じぶん]{の|no-possessive}気持[きも]ち{はもちろん|wamochiron}相手[あいて]{の|no-possessive}気持[きも]ち{も|mo-also}よく考[かんが]える人[ひと]だ。",
+   "problem": "Distractor どころか is acceptable here: XどころかYも (\"not just X, even Y\") gives nearly the same meaning as XはもちろんYも.",
+   "action": "Replaced どころか with として, which is plainly wrong."
+  },
+  {
+   "file": "items/wamochiron__m50.jsonl",
+   "jp_before": "冬休[ふゆやす]み{に|ni-time}、スキー{はもちろん|wamochiron}温泉[おんせん]{も|mo-also}楽[たの]しむ予定[よてい]です。",
+   "problem": "Distractor どころか is acceptable here: XどころかYも (\"not just X, even Y\") gives nearly the same meaning as XはもちろんYも.",
+   "action": "Replaced どころか with として, which is plainly wrong."
+  },
+  {
+   "file": "items/wamochiron__m50.jsonl",
+   "jp_before": "来年[らいねん]{は|wa-topic}日本語[にほんご]{はもちろん|wamochiron}日本[にほん]{の|no-possessive}文化[ぶんか]{も|mo-also}勉強[べんきょう]したい。",
+   "problem": "Distractor どころか is acceptable here: XどころかYも (\"not just X, even Y\") gives nearly the same meaning as XはもちろんYも.",
+   "action": "Replaced どころか with にとって, which is plainly wrong."
+  },
+  {
+   "file": "items/wamochiron__m50.jsonl",
+   "jp_before": "彼[かれ]{は|wa-topic}誕生日[たんじょうび]{はもちろん|wamochiron}普段[ふだん]{の|no-possessive}日[ひ]{も|mo-also}私[わたし]{に|ni-recipient}花[はな]{を|o-object}くれる。",
+   "problem": "Distractor どころか is acceptable here: XどころかYも (\"not just X, even Y\") gives nearly the same meaning as XはもちろんYも.",
+   "action": "Replaced どころか with として, which is plainly wrong."
+  },
+  {
+   "file": "items/wamochiron__m50.jsonl",
+   "jp_before": "卒業式[そつぎょうしき]{で|de-place}、生徒[せいと]{はもちろん|wamochiron}先生[せんせい]{も|mo-also}涙[なみだ]{を|o-object}流[なが]した。",
+   "problem": "Distractor どころか is acceptable here: XどころかYも (\"not just X, even Y\") gives nearly the same meaning as XはもちろんYも.",
+   "action": "Replaced どころか with にとって, which is plainly wrong."
+  },
+  {
+   "file": "items/wamochiron__m50.jsonl",
+   "jp_before": "日本[にほん]{の|no-possessive}夏[なつ]{は|wa-topic}気温[きおん]{はもちろん|wamochiron}湿度[しつど]{も|mo-also}高[たか]い。",
+   "problem": "Distractor どころか is acceptable here: XどころかYも (\"not just X, even Y\") gives nearly the same meaning as XはもちろんYも.",
+   "action": "Replaced どころか with として, which is plainly wrong."
+  },
+  {
+   "file": "items/wamochiron__m50.jsonl",
+   "jp_before": "あの映画[えいが]{は|wa-topic}主人公[しゅじんこう]{はもちろん|wamochiron}悪役[あくやく]{も|mo-also}魅力的[みりょくてき]だ。",
+   "problem": "Distractor どころか is acceptable here: XどころかYも (\"not just X, even Y\") gives nearly the same meaning as XはもちろんYも.",
+   "action": "Replaced どころか with として, which is plainly wrong."
+  },
+  {
+   "file": "items/wamochiron__m50.jsonl",
+   "jp_before": "キャンプ{の|no-possessive}準備[じゅんび]{は|wa-topic}食[た]べ物[もの]{はもちろん|wamochiron}飲[の]み物[もの]{も|mo-also}大切[たいせつ]です。",
+   "problem": "Distractor どころか is acceptable here: XどころかYも (\"not just X, even Y\") gives nearly the same meaning as XはもちろんYも.",
+   "action": "Replaced どころか with にとって, which is plainly wrong."
+  },
+  {
+   "file": "items/wamochiron__m50.jsonl",
+   "jp_before": "試験前[しけんまえ]{は|wa-topic}数学[すうがく]{はもちろん|wamochiron}英語[えいご]{も|mo-also}復習[ふくしゅう]しておいてください。",
+   "problem": "Distractor どころか is acceptable here: XどころかYも (\"not just X, even Y\") gives nearly the same meaning as XはもちろんYも.",
+   "action": "Replaced どころか with として, which is plainly wrong."
+  },
+  {
+   "file": "items/wamochiron__m50.jsonl",
+   "jp_before": "結婚式[けっこんしき]{の|no-possessive}日[ひ]{は|wa-topic}家族[かぞく]{はもちろん|wamochiron}会社[かいしゃ]{の|no-possessive}人[ひと]{も|mo-also}呼[よ]ぶ予定[よてい]です。",
+   "problem": "Distractor どころか is acceptable here: XどころかYも (\"not just X, even Y\") gives nearly the same meaning as XはもちろんYも.",
+   "action": "Replaced どころか with として, which is plainly wrong."
+  },
+  {
+   "file": "items/wamochiron__m50.jsonl",
+   "jp_before": "祖母[そぼ]{の|no-possessive}病気[びょうき]{は|wa-topic}本人[ほんにん]{はもちろん|wamochiron}家族[かぞく]{も|mo-also}辛[つら]い。",
+   "problem": "Distractor どころか is acceptable here: XどころかYも (\"not just X, even Y\") gives nearly the same meaning as XはもちろんYも.",
+   "action": "Replaced どころか with にとって, which is plainly wrong."
+  },
+  {
+   "file": "items/wamochiron__m50.jsonl",
+   "jp_before": "私[わたし]{の|no-possessive}夢[ゆめ]{を|o-object}親[おや]{はもちろん|wamochiron}友[とも]だち{も|mo-also}応援[おうえん]してくれる。",
+   "problem": "Distractor どころか is acceptable here: XどころかYも (\"not just X, even Y\") gives nearly the same meaning as XはもちろんYも.",
+   "action": "Replaced どころか with として, which is plainly wrong."
+  },
+  {
+   "file": "items/wamochiron__m50.jsonl",
+   "jp_before": "一人暮[ひとりぐ]らし{は|wa-topic}、料理[りょうり]{はもちろん|wamochiron}掃除[そうじ]{も|mo-also}しなければなりません。",
+   "problem": "Distractor どころか is acceptable here: XどころかYも (\"not just X, even Y\") gives nearly the same meaning as XはもちろんYも.",
+   "action": "Replaced どころか with にとって, which is plainly wrong."
+  },
+  {
+   "file": "items/wamochiron__m50.jsonl",
+   "jp_before": "あの先生[せんせい]{は|wa-topic}授業[じゅぎょう]{の|no-possessive}時間[じかん]{はもちろん|wamochiron}休[やす]み時間[じかん]{も|mo-also}私[わたし]たち{と|to-with}話[はな]してくれる。",
+   "problem": "Distractor どころか is acceptable here: XどころかYも (\"not just X, even Y\") gives nearly the same meaning as XはもちろんYも.",
+   "action": "Replaced どころか with として, which is plainly wrong."
+  },
+  {
+   "file": "items/wamochiron__m50.jsonl",
+   "jp_before": "週末[しゅうまつ]{は|wa-topic}友[とも]だち{と|to-with}食事[しょくじ]{はもちろん|wamochiron}買[か]い物[もの]{も|mo-also}楽[たの]しみます。",
+   "problem": "Distractor どころか is acceptable here: XどころかYも (\"not just X, even Y\") gives nearly the same meaning as XはもちろんYも.",
+   "action": "Replaced どころか with として, which is plainly wrong."
+  },
+  {
+   "file": "items/wamochiron__m50.jsonl",
+   "jp_before": "彼[かれ]{の|no-possessive}話[はなし]{は|wa-topic}内容[ないよう]{はもちろん|wamochiron}話[はな]し方[かた]{も|mo-also}面白[おもしろ]い。",
+   "problem": "Distractor どころか is acceptable here: XどころかYも (\"not just X, even Y\") gives nearly the same meaning as XはもちろんYも.",
+   "action": "Replaced どころか with にとって, which is plainly wrong."
+  },
+  {
+   "file": "items/wamochiron__m50.jsonl",
+   "jp_before": "母[はは]{は|wa-topic}家族[かぞく]{の|no-possessive}誕生日[たんじょうび]{はもちろん|wamochiron}友[とも]だち{の|no-possessive}誕生日[たんじょうび]{も|mo-also}忘[わす]れません。",
+   "problem": "Distractor どころか is acceptable here: XどころかYも (\"not just X, even Y\") gives nearly the same meaning as XはもちろんYも.",
+   "action": "Replaced どころか with として, which is plainly wrong."
+  },
+  {
+   "file": "items/wamochiron__m50.jsonl",
+   "jp_before": "日曜日[にちようび]{は|wa-topic}友[とも]だち{はもちろん|wamochiron}家族[かぞく]{も|mo-also}遊[あそ]び{に|ni-purpose}来[き]ます。",
+   "problem": "English awkward (\"friends of course come ... and family come too\").",
+   "action": "Rewrote en."
+  },
+  {
+   "file": "items/wamochiron__m50.jsonl",
+   "jp_before": "友[とも]だち{は|wa-topic}連絡[れんらく]{はもちろん|wamochiron}挨拶[あいさつ]{も|mo-also}なく引[ひ]っ越[こ]して行[い]った。",
+   "problem": "English unnatural (\"without any contact, of course, and without even a greeting\").",
+   "action": "Rewrote en."
+  },
+  {
+   "file": "items/wamochiron__m50.jsonl",
+   "jp_before": "忙[いそが]しくて、平日[へいじつ]{はもちろん|wamochiron}休[やす]み{の|no-possessive}日[ひ]{も|mo-also}友[とも]だち{と|to-with}遊[あそ]べない。",
+   "problem": "\"play with friends\" is childish English for 友だちと遊ぶ in an adult context.",
+   "action": "Rewrote en."
+  }
+ ]
+}

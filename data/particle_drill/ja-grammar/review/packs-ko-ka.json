@@ -1,0 +1,11 @@
+{"batch":"packs-ko-ka",
+ "files":["packs/ko-ka.json","packs/ko-mo.json","packs/ko-demo.json"],
+ "checked":6,
+ "fixed":2,
+ "deleted":0,
+ "issues":[
+  {"file":"packs/ko-mo.json","pack":"ko-mo-1","problem":"act value 何も買いに行けませんでした ('couldn't go and buy anything') is awkward Japanese; a native speaker would say 買い物にも行けませんでした.","action":"Replaced with {何[なに]も|ko-mo}することがありませんでした / 'there was nothing to do', which fits every weather reason and keeps 7 values."},
+  {"file":"packs/ko-demo.json","pack":"ko-demo-2","problem":"English 'you'll find out anything about X' for 分かります reads unnaturally in every combination.","action":"Changed the know values' English to 'you can find out' / 'I think you can find out'."},
+  {"file":"packs/ko-ka.json","pack":"ko-ka-1","problem":"Checked: the answer alternates between どこか and 何か, and the fixed distractors 何も/何でも/どこも are wrong for both. The other member is not a distractor, because one d list cannot serve both answers.","action":"No change; every combination is natural and the focus index resolves correctly."},
+  {"file":"packs/ko-demo.json","pack":"ko-demo-1","problem":"Checked: いつか ('some day') is grammatical in some combinations but changes the meaning; the English 'any time' and the 'if you're ever in trouble' condition rule it out.","action":"No change."}
+ ]}

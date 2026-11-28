@@ -1,0 +1,33 @@
+{
+ "flagged": 0,
+ "fixed": 6,
+ "dropped": 0,
+ "added": 0,
+ "summary": "The blind compare flagged nothing: every cloze key matched my own solve and no judge item was disputed. The full read found six one-off defects: a redundant 千方百计地想了很多办法 (024), a doubtful 太自相矛盾了 (059), two clumsy sentences (078, 080), an inaccurate why (086) and a cloze (090) whose blank made its distractors meaningless. Judgement calls left: 马马虎虎 keeps the spoken mǎ mǎ hǔ hǔ in 002/009/011/087 because the validator rejects the dictionary reading hū for 虎 (the guide says mǎ ma hū hū; the reading table should get hū); 很兴高采烈 (039) and 很一模一样 (097) stay as the wrong sentences, as the guide prescribes.",
+ "items": {
+  "chengyu-01-024": {
+   "v": "fixed",
+   "note": "千方百计地想了很多办法 was redundant (the idiom already means every possible way); changed the verb phrase to 找了好几家店."
+  },
+  "chengyu-01-059": {
+   "v": "fixed",
+   "note": "说话太自相矛盾了 put a degree word before the idiom, which the guide treats as doubtful; rephrased as the rhetorical 这不是自相矛盾吗."
+  },
+  "chengyu-01-078": {
+   "v": "fixed",
+   "note": "他没想就脱口而出，答案是三 was clumsy; rewritten so the answer is the subject of 脱口而出, as natives say it."
+  },
+  "chengyu-01-080": {
+   "v": "fixed",
+   "note": "穿在一起 is unnatural for two people wearing matching clothes; changed to 穿上以后像一对双胞胎."
+  },
+  "chengyu-01-086": {
+   "v": "fixed",
+   "note": "Why claimed 脱口而出 needs the blurted words stated; it can stand alone. Rewrote the reason as the real meaning difference."
+  },
+  "chengyu-01-090": {
+   "v": "fixed",
+   "note": "The blank sat after 对那只小狗, so the distractors 把/给/让 were meaningless filler and the why was inaccurate; moved the blank to the preposition slot so the item tests 对."
+  }
+ }
+}

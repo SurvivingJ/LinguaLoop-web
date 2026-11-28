@@ -1,0 +1,187 @@
+{
+  "topic": "polyphones",
+  "summary": "A 多音字 is one character with two or more readings, and the reading follows the meaning, not the character. Usually one reading is the everyday one (行 xíng, 长 cháng, 还 hái) and the other carries a separate meaning found in a small set of words (银行 yínháng, 长大 zhǎngdà, 还书 huánshū). Ask what the character means in this word, then pick the reading tied to that meaning.",
+  "subs": [
+    {
+      "key": "particles",
+      "label": "了 得 着 地 的: light particle or full word",
+      "focus": "了 le / liǎo (了解, 吃不了), 得 de / dé / děi (得到, 我得走了), 着 zhe / zháo / zhuó (睡着, 着急, 着手), 地 de / dì (地方, 地铁), 的 de / dí / dì (的确, 目的). Error: reading the particle in fixed words (le jiě, de dào) or a full tone on the particle."
+    },
+    {
+      "key": "small-words",
+      "label": "还 都 只 和 没: everyday words, rare second reading",
+      "focus": "还 hái / huán (还书, 还钱), 都 dōu / dū (首都, 成都), 只 zhǐ / zhī (一只猫), 和 hé / huo (暖和), 没 méi / mò (没收). Error: hái for give back, dōu in 首都, zhǐ after a number, hé in 暖和."
+    },
+    {
+      "key": "adj-verb",
+      "label": "长 好 干 少 空: adjective or other meaning",
+      "focus": "长 cháng long / zhǎng grow, head (长大, 校长, 长得), 好 hǎo / hào like (爱好, 好奇), 干 gān dry (干净, 干杯) / gàn do (干活), 少 shǎo few / shào young (少年), 空 kōng empty (空气) / kòng free time (有空). Error: the adjective reading everywhere."
+    },
+    {
+      "key": "noun-verb",
+      "label": "数 种 处 发 背: thing or action",
+      "focus": "数 shù number / shǔ count, 种 zhǒng kind / zhòng plant, 处 chù place (好处) / chǔ handle, get along (处理, 相处), 发 fā send / fà hair (理发), 背 bèi back, memorize / bēi carry on the back (背包). Error: one reading for both."
+    },
+    {
+      "key": "separate-words",
+      "label": "乐 觉 便 重 行: two unrelated words",
+      "focus": "乐 lè happy / yuè music (音乐), 觉 jué feel / jiào sleep (睡觉), 便 biàn convenient / pián only in 便宜, 重 zhòng heavy / chóng again (重新), 行 xíng go, OK / háng row, trade (银行). Classic errors: yín xíng, biàn yi, shuì jué, yīn lè."
+    },
+    {
+      "key": "verb-pairs",
+      "label": "教 看 要 调 转: which verb is it",
+      "focus": "教 jiāo teach + person or subject / jiào in set words (教室, 教育), 看 kàn look / kān look after (看孩子), 要 yào / yāo (要求), 调 tiáo adjust (空调, 调整) / diào tone, investigate (声调, 调查), 转 zhuǎn turn, pass on / zhuàn spin (转圈). Error: kàn, yào, diào everywhere."
+    },
+    {
+      "key": "tone-pairs",
+      "label": "为 当 应 中 相: everyday tone or set words",
+      "focus": "为 wèi for (因为, 为了) / wéi as, take to be (认为, 以为, 成为), 当 dāng / dàng (上当, 适当, 当作), 应 yīng should / yìng respond (反应, 适应), 中 zhōng / zhòng hit (中奖), 相 xiāng / xiàng (照相, 相机). Error: wèi in 以为, zhōng in 中奖."
+    },
+    {
+      "key": "set-words",
+      "label": "难 倒 差 假 间: learn the set words",
+      "focus": "难 nán hard / nàn disaster (灾难), 倒 dǎo fall (摔倒) / dào pour, upside down (倒水), 差 chà poor, short / chā difference (差别, 时差) / chāi errand (出差), 假 jiǎ fake / jià time off (放假, 请假), 间 jiān (房间) / jiàn (间接). Error: jiǎ in 放假, chà in 出差."
+    }
+  ],
+  "rules": [
+    {
+      "sub": "particles",
+      "rule": "As particles after a verb, 了 得 着 are light le, de, zhe. With their own meaning: liǎo = manage (了解, 吃不了); dé = get (得到, 获得); děi = have to; zháo = reach the result (睡着, 找着), 着急.",
+      "pattern": "Verb + 不了 / 得了 (can or can't manage) → liǎo; 得 + verb = must → děi; get, obtain → dé",
+      "examples": [
+        {"zh": "这么多菜，我吃不了。", "py": "zhè me duō cài wǒ chī bu liǎo", "en": "I can't finish this many dishes."},
+        {"zh": "太晚了，我得走了。", "py": "tài wǎn le wǒ děi zǒu le", "en": "It's too late, I have to go."},
+        {"zh": "她得了第一名。", "py": "tā dé le dì yī míng", "en": "She came first."},
+        {"zh": "孩子睡着了。", "py": "hái zi shuì zháo le", "en": "The child has fallen asleep."}
+      ],
+      "note": "着 is zhuó only in formal words such as 着手 (set about) and 着装 (dress). 了解 is liǎo jiě, never le jiě."
+    },
+    {
+      "sub": "particles",
+      "rule": "地 means ground or place (地方, 地铁, 地图) and is dì; as the marker before a verb it is light de. 的 is de, except dí in 的确 and dì in 目的.",
+      "pattern": "Adverb + 地 + verb → de; 地 in a word for ground or place (地方, 地铁, 本地) → dì",
+      "examples": [
+        {"zh": "我们坐地铁去吧。", "py": "wǒ men zuò dì tiě qù ba", "en": "Let's take the subway."},
+        {"zh": "他慢慢地走过来。", "py": "tā màn màn de zǒu guò lai", "en": "He walked over slowly."},
+        {"zh": "这个办法的确不错。", "py": "zhè ge bàn fǎ dí què bú cuò", "en": "This method really is good."},
+        {"zh": "你来北京的目的是什么？", "py": "nǐ lái běi jīng de mù dì shì shén me", "en": "What is your purpose in coming to Beijing?"}
+      ]
+    },
+    {
+      "sub": "small-words",
+      "rule": "Keep the everyday reading unless the meaning changes: 还 huán = give back, 都 dū = capital or big city (首都, 成都), 只 zhī = measure word after a number or 这 / 那, 和 huo in 暖和, 没 mò = sink or confiscate.",
+      "pattern": "还 + person/thing given back → huán; number + 只 → zhī",
+      "examples": [
+        {"zh": "我明天还你钱。", "py": "wǒ míng tiān huán nǐ qián", "en": "I'll pay you back tomorrow."},
+        {"zh": "北京是中国的首都。", "py": "běi jīng shì zhōng guó de shǒu dū", "en": "Beijing is the capital of China."},
+        {"zh": "我家有一只小狗。", "py": "wǒ jiā yǒu yì zhī xiǎo gǒu", "en": "We have a little dog at home."},
+        {"zh": "今天很暖和。", "py": "jīn tiān hěn nuǎn huo", "en": "It's nice and warm today."}
+      ],
+      "note": "还 before a verb or adjective (还没, 还要, 还好) is hái. 没 is mò only in a few words like 没收 (confiscate); 没有 is always méi yǒu."
+    },
+    {
+      "sub": "adj-verb",
+      "rule": "The adjective reading is the everyday one: 长 cháng long, 好 hǎo good, 干 gān dry, 少 shǎo few, 空 kōng empty. The other reading has its own meaning: zhǎng grow / head of, hào like to, gàn do, shào young, kòng free time.",
+      "pattern": "长大, 校长, 长得 → zhǎng; 爱好 → hào; 干活 → gàn; 有空 → kòng",
+      "examples": [
+        {"zh": "孩子长大了。", "py": "hái zi zhǎng dà le", "en": "The child has grown up."},
+        {"zh": "你的爱好是什么？", "py": "nǐ de ài hào shì shén me", "en": "What are your hobbies?"},
+        {"zh": "你在干什么？", "py": "nǐ zài gàn shén me", "en": "What are you doing?"},
+        {"zh": "你明天有空吗？", "py": "nǐ míng tiān yǒu kòng ma", "en": "Are you free tomorrow?"}
+      ],
+      "note": "干净 and 干杯 are gān (dry, empty); 空气, 天空 and 空调 are kōng. 少 is shào only in words about youth such as 少年 and 少女; 多少 is duō shao."
+    },
+    {
+      "sub": "noun-verb",
+      "rule": "Thing vs action: 数 shù number / shǔ count; 种 zhǒng kind / zhòng plant; 处 chù place / chǔ handle, get along; 发 fā send, start / fà hair. 背 is bèi (back, memorize) except bēi = carry on the back.",
+      "pattern": "Verb meaning: 数钱 shǔ, 种树 zhòng, 处理 chǔ; 理发 fà; 背包 bēi",
+      "examples": [
+        {"zh": "请数一数有几个人。", "py": "qǐng shǔ yi shǔ yǒu jǐ ge rén", "en": "Please count how many people there are."},
+        {"zh": "爷爷在院子里种花。", "py": "yé ye zài yuàn zi lǐ zhòng huā", "en": "Grandpa is planting flowers in the yard."},
+        {"zh": "我们相处得很好。", "py": "wǒ men xiāng chǔ de hěn hǎo", "en": "We get along very well."},
+        {"zh": "他每天背单词。", "py": "tā měi tiān bèi dān cí", "en": "He memorizes vocabulary every day."}
+      ],
+      "note": "Memorizing (背书, 背单词) is bèi, though it is a verb. 好处, 到处, 用处 are chù. 头发 is usually said tóu fa with a light second syllable; 理发 and 发型 keep fà."
+    },
+    {
+      "sub": "separate-words",
+      "rule": "乐: happy lè, music yuè. 觉: feel jué, sleep jiào. 便: convenient biàn, but 便宜 (cheap) is pián yi.",
+      "pattern": "快乐 lè / 音乐 yuè; 觉得 jué / 睡觉 jiào; 方便 biàn / 便宜 pián",
+      "examples": [
+        {"zh": "听音乐让我很快乐。", "py": "tīng yīn yuè ràng wǒ hěn kuài lè", "en": "Listening to music makes me happy."},
+        {"zh": "我觉得他想睡觉。", "py": "wǒ jué de tā xiǎng shuì jiào", "en": "I think he wants to sleep."},
+        {"zh": "这里买东西很方便，也很便宜。", "py": "zhè lǐ mǎi dōng xi hěn fāng biàn yě hěn pián yi", "en": "Shopping here is convenient and cheap."}
+      ],
+      "note": "午觉 (nap) is also jiào. 随便 and 顺便 are biàn."
+    },
+    {
+      "sub": "separate-words",
+      "rule": "重: heavy or important zhòng, again chóng. 行: go, OK, travel xíng; row or line of business háng, as in 银行.",
+      "pattern": "重要 zhòng / 重新, 重复 chóng; 自行车 xíng / 银行 háng",
+      "examples": [
+        {"zh": "这个箱子很重。", "py": "zhè ge xiāng zi hěn zhòng", "en": "This box is heavy."},
+        {"zh": "请你重新写一遍。", "py": "qǐng nǐ chóng xīn xiě yí biàn", "en": "Please write it again."},
+        {"zh": "我去银行取钱。", "py": "wǒ qù yín háng qǔ qián", "en": "I'm going to the bank to get money."},
+        {"zh": "我们骑自行车去吧。", "py": "wǒ men qí zì xíng chē qù ba", "en": "Let's go by bike."}
+      ],
+      "note": "行 alone meaning 'OK' is always xíng. 一行字 (a line of text) and 行业 (industry) are háng."
+    },
+    {
+      "sub": "verb-pairs",
+      "rule": "教 is jiāo when it is the verb 'teach' with a person or subject after it (教我们, 教汉语, 教书); in set words such as 教室, 教育, 教练, 请教 it is jiào. 看 is kān for looking after (看孩子, 看门). 要求 is yāo qiú.",
+      "pattern": "教 + person + subject → jiāo; 教室 → jiào; 看孩子 → kān",
+      "examples": [
+        {"zh": "李老师教我们汉语。", "py": "lǐ lǎo shī jiāo wǒ men hàn yǔ", "en": "Teacher Li teaches us Chinese."},
+        {"zh": "我们在教室上课。", "py": "wǒ men zài jiào shì shàng kè", "en": "We have class in the classroom."},
+        {"zh": "奶奶在家看孩子。", "py": "nǎi nai zài jiā kān hái zi", "en": "Grandma looks after the kids at home."},
+        {"zh": "妈妈要求我早点儿回家。", "py": "mā ma yāo qiú wǒ zǎo diǎn r huí jiā", "en": "Mom asks me to come home early."}
+      ],
+      "note": "调: tiáo = adjust or mix (空调, 调整), diào = tone, move, investigate (声调, 调查). 转: zhuǎn = turn toward, pass on (左转, 转告), zhuàn = spin round (转圈)."
+    },
+    {
+      "sub": "tone-pairs",
+      "rule": "The everyday tone covers most words; the other tone lives in a short list. 为 wéi in 认为, 以为, 成为. 当 dàng in 上当, 适当. 应 yìng in 反应, 适应, 应用. 中 zhòng = hit, win. 相 xiàng = photo, looks.",
+      "pattern": "认为, 以为 wéi; 上当 dàng; 适应 yìng; 中奖 zhòng; 照相 xiàng",
+      "examples": [
+        {"zh": "我以为你不来了。", "py": "wǒ yǐ wéi nǐ bù lái le", "en": "I thought you weren't coming."},
+        {"zh": "他中了大奖。", "py": "tā zhòng le dà jiǎng", "en": "He won the big prize."},
+        {"zh": "你要慢慢适应这里的生活。", "py": "nǐ yào màn màn shì yìng zhè lǐ de shēng huó", "en": "You'll need to get used to life here bit by bit."},
+        {"zh": "我们照张相吧。", "py": "wǒ men zhào zhāng xiàng ba", "en": "Let's take a photo."}
+      ],
+      "note": "Everyday side: 为什么, 因为, 为了 wèi; 当然, 当时 dāng; 应该 yīng; 中国, 中间 zhōng; 相信, 互相 xiāng."
+    },
+    {
+      "sub": "set-words",
+      "rule": "Learn these as words: 假 jià = time off (放假, 请假, 暑假), jiǎ = fake. 差 chāi in 出差; chā = difference (差别, 差距, 时差); chà elsewhere. 倒 dǎo = fall (摔倒); dào = pour, upside down, and 'actually' (倒是).",
+      "pattern": "请假 jià; 出差 chāi; 时差 chā; 倒水 dào; 摔倒 dǎo",
+      "examples": [
+        {"zh": "我想请两天假。", "py": "wǒ xiǎng qǐng liǎng tiān jià", "en": "I'd like to take two days off."},
+        {"zh": "爸爸下星期去上海出差。", "py": "bà ba xià xīng qī qù shàng hǎi chū chāi", "en": "Dad is going to Shanghai on business next week."},
+        {"zh": "我给你倒杯水。", "py": "wǒ gěi nǐ dào bēi shuǐ", "en": "I'll pour you a glass of water."},
+        {"zh": "他在路上摔倒了。", "py": "tā zài lù shang shuāi dǎo le", "en": "He fell over on the road."}
+      ],
+      "note": "难 is nán (hard) except nàn = disaster (灾难, 难民). 间 is jiān (房间, 时间, 中间) except jiàn = gap, indirect (间接). 差不多 and 差一点 are chà."
+    }
+  ],
+  "contrasts": [
+    {"wrong": "我去银行。", "right": {"zh": "我去银行。", "py": "wǒ qù yín háng", "en": "I'm going to the bank."}, "why": "The mistake is in the sound: yín xíng. 行 is háng when it means a business or a row, so 银行 is yín háng."},
+    {"wrong": "这件衣服很便宜。", "right": {"zh": "这件衣服很便宜。", "py": "zhè jiàn yī fu hěn pián yi", "en": "This piece of clothing is cheap."}, "why": "Said biàn yi by analogy with 方便. 便 is pián only in 便宜, and that word must be learned as pián yi."},
+    {"wrong": "我想睡觉了。", "right": {"zh": "我想睡觉了。", "py": "wǒ xiǎng shuì jiào le", "en": "I want to go to sleep."}, "why": "Said shuì jué by analogy with 觉得. Sleep is jiào; jué is only the 'feel, sense' meaning (觉得, 感觉)."},
+    {"wrong": "我喜欢音乐。", "right": {"zh": "我喜欢音乐。", "py": "wǒ xǐ huan yīn yuè", "en": "I like music."}, "why": "Said yīn lè because 快乐 is kuài lè. 乐 is yuè when it means music: 音乐, 乐器."},
+    {"wrong": "孩子长得很快。", "right": {"zh": "孩子长得很快。", "py": "hái zi zhǎng de hěn kuài", "en": "Children grow fast."}, "why": "Said cháng de. Growing is zhǎng; cháng is only the adjective 'long'. 长得 (grow, look like) is always zhǎng."},
+    {"wrong": "我明天还你书。", "right": {"zh": "我明天还你书。", "py": "wǒ míng tiān huán nǐ shū", "en": "I'll give you your book back tomorrow."}, "why": "Said hái, which would mean 'still'. Here 还 is the verb 'give back', followed by the person and thing: huán."},
+    {"wrong": "你明天有空吗？", "right": {"zh": "你明天有空吗？", "py": "nǐ míng tiān yǒu kòng ma", "en": "Are you free tomorrow?"}, "why": "Said yǒu kōng. Free time is kòng; kōng is 'empty, sky, air' as in 空气 and 空调."},
+    {"wrong": "李老师教我们画画。", "right": {"zh": "李老师教我们画画。", "py": "lǐ lǎo shī jiāo wǒ men huà huà", "en": "Teacher Li teaches us to draw."}, "why": "Said jiào by analogy with 教室. 教 as the verb 'teach' with a person or subject after it is jiāo; jiào is for set words like 教室, 教育, 请教."},
+    {"wrong": "你的爱好是什么？", "right": {"zh": "你的爱好是什么？", "py": "nǐ de ài hào shì shén me", "en": "What's your hobby?"}, "why": "Said ài hǎo. 好 meaning 'like, be fond of' is hào: 爱好, 好奇. hǎo is 'good'."},
+    {"wrong": "我们下个月放假。", "right": {"zh": "我们下个月放假。", "py": "wǒ men xià ge yuè fàng jià", "en": "We have a holiday next month."}, "why": "Said fàng jiǎ. 假 meaning time off is jià (放假, 请假, 暑假); jiǎ means fake."}
+  ],
+  "cheat": [
+    "Particle after a verb → light le / de / zhe. Full readings only in set words: 了解 liǎo, 得到 / 获得 dé, 得 = must děi, 睡着 zháo.",
+    "地方, 地铁 dì; 的确 dí; 目的 dì. Give back 还 huán; capital 都 dū; number or 这 + 只 zhī; 暖和 huo.",
+    "Grow / head 长 zhǎng, like 好 hào, do 干 gàn, young 少 shào, free time 空 kòng.",
+    "Count 数 shǔ, plant 种 zhòng, handle 处 chǔ, hair 发 fà, carry on the back 背 bēi.",
+    "Music 乐 yuè, sleep 觉 jiào, 便宜 pián, again 重 chóng, bank or trade 行 háng.",
+    "Teach (verb) 教 jiāo, look after 看 kān, 要求 yāo, 空调 tiáo, spin 转 zhuàn.",
+    "以为 / 认为 wéi, 上当 dàng, 适应 yìng, win 中 zhòng, photo 相 xiàng, time off 假 jià, 出差 chāi, pour 倒 dào."
+  ]
+}

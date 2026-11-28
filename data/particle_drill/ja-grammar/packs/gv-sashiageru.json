@@ -1,0 +1,20 @@
+[
+ {"id":"gv-sashiageru-1","lv":3,
+  "tpl":"<giver>から<superior>に<thing>を{さしあげました|gv-sashiageru}。",
+  "en":"<giver> gave <superior> <thing>.",
+  "f":0,"d":["くださいました","いただきました","くれました"],
+  "why":"The gift goes from me or my family (から) to someone we respect (に), so the humble giving verb さしあげる is used; くださる and くれる need it to come to us.",
+  "vars":{
+   "giver":[["私[わたし]","I"],["私[わたし]たち","We"],["父[ちち]","My father"],["母[はは]","My mother"],["兄[あに]","My older brother"],["姉[あね]","My older sister"]],
+   "superior":[["先生[せんせい]","our teacher"],["社長[しゃちょう]","the company president"],["部長[ぶちょう]","the department manager"],["課長[かちょう]","the section chief"],["校長先生[こうちょうせんせい]","the principal"],["お客様[きゃくさま]","the customer"]],
+   "thing":[["お花[はな]","some flowers"],["お菓子[かし]","some sweets"],["お土産[みやげ]","a souvenir"],["本[ほん]","a book"],["お礼[れい]の手紙[てがみ]","a thank-you letter"],["カレンダー","a calendar"],["果物[くだもの]","some fruit"]]}},
+ {"id":"gv-sashiageru-2","lv":3,
+  "tpl":"<when>、<superior>は私[わたし]が{さしあげた|gv-sashiageru}<thing>をとても喜[よろこ]んでくださいました。",
+  "en":"<when>, <superior> was very pleased with the <thing> I gave them.",
+  "f":0,"d":["くださった","くれた","いただいた"],
+  "why":"私が is the giver and the receiver is a respected person, so the gift goes up from me: さしあげた. くださる and くれる cannot have 私 as the giver.",
+  "vars":{
+   "when":[["昨日[きのう]","Yesterday"],["先週[せんしゅう]","Last week"],["先月[せんげつ]","Last month"],["この間[あいだ]","The other day"],["去年[きょねん]","Last year"],["年末[ねんまつ]に","At the end of the year"]],
+   "superior":[["先生[せんせい]","the teacher"],["社長[しゃちょう]","the company president"],["部長[ぶちょう]","the department manager"],["課長[かちょう]","the section chief"],["校長先生[こうちょうせんせい]","the principal"],["お客様[きゃくさま]","the customer"],["先生[せんせい]の奥様[おくさま]","my teacher's wife"]],
+   "thing":[["お花[はな]","flowers"],["お菓子[かし]","sweets"],["お土産[みやげ]","souvenir"],["本[ほん]","book"],["お礼[れい]の手紙[てがみ]","thank-you letter"],["カレンダー","calendar"],["果物[くだもの]","fruit"],["ハンカチ","handkerchief"],["アルバム","photo album"]]}}
+]

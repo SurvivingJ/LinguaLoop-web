@@ -1,0 +1,8 @@
+{"batch":"items-m50065","files":["items/katawara__m50.jsonl"],"checked":33,"fixed":28,"deleted":0,"replaced":0,"issues":[
+ {"file":"items/katawara__m50.jsonl","jp_before":"彼女はホテルで受付をするかたわら、旅行者に道を教える活動も続けている。","problem":"道を教える活動 is an awkward, unnatural phrase (English 'keeps up an activity of giving directions' likewise).","action":"Rewrote to 観光案内のボランティアも続けている with matching English; lv 3 to 1."},
+ {"file":"items/katawara__m50.jsonl","jp_before":"バスの運転手をするかたわら、どうやって大学に通っているんですか。","problem":"Register clash: written-style かたわら inside a chatty どうやって…んですか question.","action":"Rewrote to 夜間の大学に通うのは大変ではありませんか。 with new English; lv 3 to 1."},
+ {"file":"items/katawara__m50.jsonl","jp_before":"駅員のかたわら、駅の歴史を研究してきた人が本を出した。","problem":"English 'A man' adds a gender that 人 does not specify.","action":"Changed English to 'Someone who...'; lv 2 to 1."},
+ {"file":"items/katawara__m50.jsonl","jp_before":"いとこは客室乗務員のかたわら、世界の料理を紹介する動画を作っている。","problem":"'why' assigns a gender (her) to いとこ.","action":"Changed 'her main career' to 'the main career'; lv 3 to 1."},
+ {"file":"items/katawara__m50.jsonl","jp_before":"叔父は路面電車の運転士のかたわら、鉄道の雑誌で連載を持っている。","problem":"雑誌で連載を持つ is off-collocation (連載を持つ normally takes に).","action":"Rewrote to 雑誌でコラムを連載している; English 'writes a regular column'; lv 2 to 1."},
+ {"file":"items/katawara__m50.jsonl","jp_before":"(23 further lines: items 1-10, 14, 15, 17, 18, 21-26, 30, 32, 33)","problem":"lv set to 2-4, but かたわら itself is N1 grammar, so the hardest grammar in every sentence is N1 (the main katawara.jsonl uses lv 1 throughout).","action":"Set lv to 1; no other change to those lines."}
+]}

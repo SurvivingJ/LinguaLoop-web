@@ -1,0 +1,7 @@
+{"batch":"items-m50028","files":["items/nikurabete__m50.jsonl","items/toisshoni__m50.jsonl","items/nokoto__m50.jsonl"],"checked":68,"fixed":5,"deleted":0,"replaced":0,"issues":[
+{"file":"items/nikurabete__m50.jsonl","jp_before":"収入[しゅうにゅう]{に比[くら]べて/と比[くら]べて|nikurabete}、家賃[やちん]{が|ga-subject}高[たか]すぎます。","problem":"Non-focus slot: は is equally natural for 家賃 in the main clause but was not listed.","action":"Added alternative: {が/は|ga-subject}."},
+{"file":"items/nikurabete__m50.jsonl","jp_before":"去年[きょねん]{に比[くら]べて/と比[くら]べて|nikurabete}、お米[こめ]{の|no-possessive}値段[ねだん]{が|ga-subject}少[すこ]し下[さ]がりました。","problem":"Non-focus slot: は is equally natural for 値段 but was not listed.","action":"Added alternative: {が/は|ga-subject}."},
+{"file":"items/nokoto__m50.jsonl","jp_before":"私[わたし]{は|wa-topic}自分[じぶん]{のこと|nokoto}{が|ga-stative}あまり好[す]き{に|ni-change}なれません。","problem":"Non-focus slot: 自分のことを好きになれない is at least as natural as が but was not listed.","action":"Added alternative: {が/を|ga-stative}."},
+{"file":"items/toisshoni__m50.jsonl","jp_before":"桜[さくら]{を|o-object}見[み]{に|ni-purpose}、友達[ともだち]{と一緒[いっしょ]に/と|toisshoni}公園[こうえん]{に/へ|ni-destination}行[い]きました。","problem":"Verb variety: 行く was used in 7 of 26 items (limit is 3 per batch).","action":"Rewrote it as 友達と一緒に公園でお花見をしました (f=0)."},
+{"file":"items/toisshoni__m50.jsonl","jp_before":"週[しゅう]{に|ni-frequency}二回[にかい]、友達[ともだち]{と一緒[いっしょ]に/と|toisshoni}ジム{に/へ|ni-destination}行[い]きます。","problem":"Verb variety: 行く overused across the batch.","action":"Rewrote it as 週に二回、友達と一緒にジムで運動しています (f=1)."}
+]}

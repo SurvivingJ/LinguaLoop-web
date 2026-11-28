@@ -1,0 +1,17 @@
+{"batch":"items-152","files":["items/cl-gasuru.jsonl"],"checked":48,"fixed":14,"deleted":0,"replaced":1,"issues":[
+{"file":"items/cl-gasuru.jsonl","jp_before":"このお茶[ちゃ]は、ほとんど味[あじ]{がしません|cl-gasuru}。","problem":"Distractor にならません is malformed (correct negative is なりません).","action":"Changed distractor to になりません."},
+{"file":"items/cl-gasuru.jsonl","jp_before":"この洗剤[せんざい]は、ほとんど匂[にお]い{がしません|cl-gasuru}。","problem":"Distractor にならません is malformed.","action":"Changed distractor to になりません."},
+{"file":"items/cl-gasuru.jsonl","jp_before":"明日[あした]は雨[あめ]が降[ふ]りそうな気[き]{がします|cl-gasuru}。","problem":"Distractor になります: 〜ような気になる ('come to feel as if') is a real expression close to the meaning; risky for 気 items.","action":"Replaced with があります (気がある = be interested), which the why already contrasts."},
+{"file":"items/cl-gasuru.jsonl","jp_before":"このテストは、うまくいく気[き]{がしない|cl-gasuru}。","problem":"Distractor にならない overlaps with 気にならない / 〜気になる.","action":"Replaced with がない."},
+{"file":"items/cl-gasuru.jsonl","jp_before":"前[まえ]にもここに来[き]たことがある気[き]{がします|cl-gasuru}。","problem":"Distractor になります: 〜気になる is close in meaning.","action":"Replaced with があります."},
+{"file":"items/cl-gasuru.jsonl","jp_before":"だれかに見[み]られているような気[き]{がして|cl-gasuru}、後[うし]ろを振[ふ]り返[かえ]った。","problem":"Distractor になって: 見られているような気になって is natural with nearly the same meaning.","action":"Replaced with があって."},
+{"file":"items/cl-gasuru.jsonl","jp_before":"今日[きょう]は、なんだかいいことがありそうな気[き]{がします|cl-gasuru}。","problem":"Distractor になります: 〜気になる is close in meaning.","action":"Replaced with があります."},
+{"file":"items/cl-gasuru.jsonl","jp_before":"あの人[ひと]とは、どこかで会[あ]ったような気[き]{がしました|cl-gasuru}。","problem":"Distractor になりました: 会ったような気になった is acceptable.","action":"Replaced with がありました."},
+{"file":"items/cl-gasuru.jsonl","jp_before":"ここは、外国[がいこく]にいるような感[かん]じ{がします|cl-gasuru}。","problem":"Distractor になります: 外国にいるような感じになります ('you end up feeling like you are abroad') nearly fits the English.","action":"Replaced with にします."},
+{"file":"items/cl-gasuru.jsonl","jp_before":"昨日[きのう]から頭痛[ずつう]{がして|cl-gasuru}、仕事[しごと]に集中[しゅうちゅう]できません。","problem":"Distractor になって: 頭痛になる is widely used colloquially.","action":"Replaced with をひいて (learner error modelled on 風邪をひく)."},
+{"file":"items/cl-gasuru.jsonl","jp_before":"朝[あさ]起[お]きたら、頭痛[ずつう]{がしました|cl-gasuru}。","problem":"Distractor になりました: 頭痛になる is colloquially acceptable.","action":"Replaced with をひきました."},
+{"file":"items/cl-gasuru.jsonl","jp_before":"天気[てんき]が悪[わる]い日[ひ]は、いつも頭痛[ずつう]{がします|cl-gasuru}。","problem":"Distractor になります: いつも頭痛になります is natural and means the same.","action":"Replaced with をひきます."},
+{"file":"items/cl-gasuru.jsonl","jp_before":"頭痛[ずつう]{がする|cl-gasuru}ときは、この薬[くすり]を飲[の]んでください。","problem":"Distractor になる: 頭痛になるときは is acceptable.","action":"Replaced with をひく."},
+{"file":"items/cl-gasuru.jsonl","jp_before":"昨日[きのう]の夜[よる]から寒気[さむけ]{がして|cl-gasuru}、早[はや]く寝[ね]ました。","problem":"から (ongoing since) clashes with the single past event 早く寝ました; English was awkward too.","action":"Changed to 昨日の夜は…; English 'Last night I had the chills, so I went to bed early.'"},
+{"file":"items/cl-gasuru.jsonl","jp_before":"この料理[りょうり]は、ほとんど味[あじ]{がしませんでした|cl-gasuru}。","problem":"Near-duplicate of このお茶は、ほとんど味がしません.","action":"Replaced with 母[はは]の作[つく]るカレーは、懐[なつ]かしい味[あじ]{がする|cl-gasuru}。 (lv 3)."}
+]}

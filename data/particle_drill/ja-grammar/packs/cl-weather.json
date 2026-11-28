@@ -1,0 +1,20 @@
+[
+ {"id":"cl-weather-1","lv":4,
+  "tpl":"<when>、<place>で<fall>が{降[ふ]りました|cl-weather}。",
+  "en":"<when>, <fall> fell <place>.",
+  "f":0,"d":["吹[ふ]きました","鳴[な]りました","出[で]ました"],
+  "why":"Rain, snow, hail and sleet all come down from the sky, and anything that falls from the sky takes 降る.",
+  "vars":{
+   "when":[["昨日[きのう]","Yesterday"],["昨夜[ゆうべ]","Last night"],["今朝[けさ]","This morning"],["おととい","The day before yesterday"],["先週[せんしゅう]の金曜日[きんようび]","Last Friday"],["夜中[よなか]に","In the middle of the night"],["今日[きょう]の午後[ごご]","This afternoon"]],
+   "place":[["東京[とうきょう]","in Tokyo"],["北海道[ほっかいどう]","in Hokkaido"],["京都[きょうと]","in Kyoto"],["山[やま]の上[うえ]","on the mountaintop"],["この町[まち]","in this town"],["大阪[おおさか]","in Osaka"],["長野[ながの]","in Nagano"],["仙台[せんだい]","in Sendai"]],
+   "fall":[["雨[あめ]","rain"],["大雨[おおあめ]","heavy rain"],["小雨[こさめ]","light rain"],["雪[ゆき]","snow"],["大雪[おおゆき]","heavy snow"],["初雪[はつゆき]","the first snow of the season"],["ひょう","hail"],["みぞれ","sleet"]]}},
+ {"id":"cl-weather-2","lv":4,
+  "tpl":"<since>から<wind>が{吹[ふ]いて|cl-weather}いて、<result>。",
+  "en":"There has been <wind> since <since>, so <result>.",
+  "f":0,"d":["降[ふ]って","鳴[な]って","咲[さ]いて"],
+  "why":"Wind does not fall or ring: in Japanese a wind blows, 風が吹く.",
+  "vars":{
+   "since":[["朝[あさ]","this morning"],["昨日[きのう]の夜[よる]","last night"],["昼過[ひるす]ぎ","early afternoon"],["夕方[ゆうがた]","this evening"],["三時[さんじ]ごろ","about three o'clock"],["昨日[きのう]","yesterday"],["朝早[あさはや]く","early this morning"]],
+   "wind":[["強[つよ]い風[かぜ]","a strong wind"],["激[はげ]しい風[かぜ]","a fierce wind"],["強[つよ]い北風[きたかぜ]","a strong north wind"],["冷[つめ]たくて強[つよ]い風[かぜ]","a cold, strong wind"],["強[つよ]い海風[うみかぜ]","a strong wind off the sea"],["強風[きょうふう]","a gale"]],
+   "result":[["電車[でんしゃ]が遅[おく]れています","the trains are running late"],["自転車[じてんしゃ]に乗[の]れません","I can't ride my bike"],["外[そと]に出[で]たくありません","I don't want to go outside"],["木[き]が大[おお]きく揺[ゆ]れています","the trees are swaying hard"],["洗濯物[せんたくもの]が飛[と]ばされました","my washing got blown away"],["とても歩[ある]きにくいです","it is very hard to walk"]]}}
+]

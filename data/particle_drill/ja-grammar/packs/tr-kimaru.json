@@ -1,0 +1,20 @@
+[
+ {"id":"tr-kimaru-1","lv":3,
+  "tpl":"<span>、<place>が<deg>{変[か]わりました|tr-kimaru}。",
+  "en":"<place> has changed <deg> <span>.",
+  "f":0,"d":["変[か]えました","変[か]えませんでした","変[か]わりませんでした"],
+  "why":"The place itself is the subject (が) and nobody is named as changing it, so the intransitive 変わる is needed, not 変える.",
+  "vars":{
+   "span":[["この十年[じゅうねん]で","over the last ten years"],["この二十年[にじゅうねん]で","over the last twenty years"],["ここ数年[すうねん]で","in the last few years"],["最近[さいきん]","recently"],["昔[むかし]と比[くら]べて","compared with the old days"],["私[わたし]が子供[こども]の頃[ころ]と比[くら]べて","compared with when I was a child"],["新[あたら]しい道路[どうろ]ができてから","since the new road was built"]],
+   "place":[["この町[まち]","This town"],["駅[えき]の周[まわ]り","The area around the station"],["駅前[えきまえ]","The area in front of the station"],["実家[じっか]の近[ちか]く","The area near my parents' house"],["商店街[しょうてんがい]","The shopping street"],["この辺[へん]","This neighbourhood"],["大学[だいがく]の周[まわ]り","The area around the university"]],
+   "deg":[["ずいぶん","a lot"],["すっかり","completely"],["大[おお]きく","greatly"],["かなり","quite a bit"],["だいぶ","considerably"],["少[すこ]し","a little"]]}},
+ {"id":"tr-kimaru-2","lv":3,
+  "tpl":"<who>は<when>、<item>を{集[あつ]めていました|tr-kimaru}。",
+  "en":"<when>, <who> collected <item>.",
+  "f":0,"d":["集[あつ]まっていました","集[あつ]まりませんでした","集[あつ]めさせていました"],
+  "why":"A person gathers the things (を), so the transitive 集める is needed; 集まる is what the things or people do by themselves.",
+  "vars":{
+   "who":[["父[ちち]","my father"],["兄[あに]","my older brother"],["祖父[そふ]","my grandfather"],["姉[あね]","my older sister"],["田中[たなか]さん","Mr. Tanaka"],["佐藤[さとう]さん","Ms. Sato"],["弟[おとうと]","my younger brother"],["友達[ともだち]の山田[やまだ]さん","my friend Mr. Yamada"]],
+   "when":[["子供[こども]の頃[ころ]","As a child"],["小学生[しょうがくせい]の時[とき]","At primary school"],["中学生[ちゅうがくせい]の時[とき]","At junior high school"],["学生[がくせい]時代[じだい]","As a student"],["昔[むかし]","Years ago"],["長[なが]い間[あいだ]","For a long time"]],
+   "item":[["切手[きって]","stamps"],["古[ふる]いコイン","old coins"],["外国[がいこく]のお金[かね]","foreign money"],["ミニカー","toy cars"],["漫画[まんが]","comics"],["きれいな石[いし]","pretty stones"],["古[ふる]い絵[え]はがき","old picture postcards"],["電車[でんしゃ]の写真[しゃしん]","photos of trains"]]}}
+]

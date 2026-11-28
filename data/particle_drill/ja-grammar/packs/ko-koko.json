@@ -1,0 +1,22 @@
+[
+ {"id": "ko-koko-1", "lv": 5,
+  "tpl": "<op>今[いま]、<place>にいるよ。{ここ|ko-koko}は<state>",
+  "en": "<op> I'm <place> now. <state>",
+  "f": 0, "d": ["そこ", "あそこ", "どこ"],
+  "why": "The place where the speaker is standing is ここ; そこ would be the listener's place and あそこ a place away from both.",
+  "vars": {
+   "op": [["もしもし、", "Hello?"], ["お母[かあ]さん、", "Mum,"], ["お父[とう]さん、", "Dad,"], ["おばあちゃん、", "Grandma,"], ["お兄[にい]ちゃん、", "Hey, big brother,"], ["ねえ、", "Hey,"]],
+   "place": [["駅[えき]の前[まえ]", "in front of the station"], ["公園[こうえん]", "in the park"], ["海[うみ]の近[ちか]く", "near the sea"], ["山[やま]の上[うえ]", "at the top of the mountain"], ["橋[はし]の上[うえ]", "on the bridge"], ["バス停[てい]", "at the bus stop"], ["川[かわ]のそば", "by the river"], ["学校[がっこう]の前[まえ]", "in front of the school"]],
+   "state": [["すごく寒[さむ]いよ。", "It's really cold here."], ["風[かぜ]が強[つよ]いよ。", "It's very windy here."], ["人[ひと]が多[おお]いよ。", "There are lots of people here."], ["雨[あめ]が降[ふ]っているよ。", "It's raining here."], ["静[しず]かだよ。", "It's quiet here."], ["とても暑[あつ]いよ。", "It's very hot here."], ["雪[ゆき]が降[ふ]っているよ。", "It's snowing here."]]
+  }},
+ {"id": "ko-koko-2", "lv": 5,
+  "tpl": "ほら、{あそこ|ko-koko}に<bld>が見[み]えるでしょう。あれが<dest>です。<tail>",
+  "en": "Look, you can see <bld> over there, can't you? That's <dest>. <tail>",
+  "f": 0, "d": ["ここ", "そこ", "どこ"],
+  "why": "A place in the distance, away from both speaker and listener, is あそこ; the あれ that follows confirms it is far from both.",
+  "vars": {
+   "bld": [["高[たか]いビル", "a tall building"], ["白[しろ]い建物[たてもの]", "a white building"], ["赤[あか]い屋根[やね]", "a red roof"], ["大[おお]きい窓[まど]の建物[たてもの]", "a building with big windows"], ["茶色[ちゃいろ]の建物[たてもの]", "a brown building"], ["丸[まる]い屋根[やね]", "a round roof"]],
+   "dest": [["私[わたし]の学校[がっこう]", "my school"], ["市[し]の図書館[としょかん]", "the city library"], ["大[おお]きい病院[びょういん]", "the big hospital"], ["父[ちち]の会社[かいしゃ]", "my father's office"], ["姉[あね]の大学[だいがく]", "my older sister's university"], ["有名[ゆうめい]なホテル", "a famous hotel"], ["新[あたら]しい映画館[えいがかん]", "the new cinema"]],
+   "tail": [["歩[ある]いて十分[じっぷん]ぐらいです。", "It's about ten minutes on foot."], ["バスで行[い]けますよ。", "You can get there by bus."], ["ここからあまり遠[とお]くないですよ。", "It's not very far from here."], ["明日[あした]行[い]ってみましょう。", "Let's go there tomorrow."], ["毎日[まいにち]前[まえ]を通[とお]ります。", "I pass in front of it every day."], ["駅[えき]からも見[み]えます。", "You can see it from the station too."]]
+  }}
+]

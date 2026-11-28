@@ -1,0 +1,11 @@
+{"batch":"items-170","files":["items/x-casual__2.jsonl"],"checked":44,"fixed":9,"deleted":0,"replaced":0,"issues":[
+{"file":"items/x-casual__2.jsonl","jp_before":"明日[あした]の朝[あさ]、早[はや]く来[き]て窓[まど]を{開[あ]けとく|cs-teru}ね。","problem":"Distractor 開けてる is borderline acceptable ('I'll have the windows open').","action":"Replaced 開けてる with 開けなきゃ."},
+{"file":"items/x-casual__2.jsonl","jp_before":"この図書館[としょかん]の本[ほん]は、読[よ]ん{じゃ|cs-nakya}いけないの？","problem":"Slot held only じゃ while distractors were whole words (would render 読ん読まなきゃ); 'not allowed to read books in a library' is an odd scenario.","action":"Rewrote as この雑誌は、図書館の外に{持ち出しちゃ}いけないの？ with whole-word distractors 持ち出さなきゃ / 持ち出しちゃう / 持ち出しとく."},
+{"file":"items/x-casual__2.jsonl","jp_before":"田中[たなか]さん{って|cs-tte}、いつも一番[いちばん]に会社[かいしゃ]に来[く]るよね。","problem":"English assumed the person's gender ('doesn't he').","action":"English changed to '..., right?'."},
+{"file":"items/x-casual__2.jsonl","jp_before":"{すいません|cs-sound}、ちょっと質問[しつもん]してもいいですか。","problem":"Distractor やっぱり makes a natural sentence ('Actually, may I ask...').","action":"Replaced やっぱり with わかんない."},
+{"file":"items/x-casual__2.jsonl","jp_before":"この問題[もんだい]、全然[ぜんぜん]{わかんない|cs-sound}。先生[せんせい]に聞[き]こう。","problem":"Distractor わかんなかった is natural and only shifts tense; わかんなく is a dangling ending.","action":"Distractors changed to とこ / あんまり / やっぱり."},
+{"file":"items/x-casual__2.jsonl","jp_before":"{やはり|cs-sound}、基本[きほん]が一番[いちばん]大切[たいせつ]だと思[おも]います。","problem":"Awkward English 'As I expected, I think...'.","action":"English changed to 'After all, I think the basics are what matter most.'"},
+{"file":"items/x-casual__2.jsonl","jp_before":"あの人[ひと]は{あまり|cs-sound}勉強[べんきょう]しませんが、成績[せいせき]はいいです。","problem":"English assumed gender ('He ... his').","action":"English changed to 'That student ... their grades'."},
+{"file":"items/x-casual__2.jsonl","jp_before":"大事[だいじ]な書類[しょるい]を電車[でんしゃ]の中[なか]に{忘[わす]れてしまいました|cs-chau}。","problem":"Distractor 忘れてた ('I'd left it on the train') fits the English.","action":"Removed it; d is now 忘れとく / 忘れなきゃ (x- file allows 1-3)."},
+{"file":"items/x-casual__2.jsonl","jp_before":"来週[らいしゅう]のテストに向[む]けて、単語[たんご]を{覚[おぼ]えておきます|cs-teru}。","problem":"Distractor 覚えちゃいます ('I'll get them memorized') is close to the English.","action":"Replaced with 覚えてました."}
+]}

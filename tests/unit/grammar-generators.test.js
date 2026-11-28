@@ -53,6 +53,7 @@ const EXPECTED = {
   comparison: { 'comparison-order': 250, 'comparison-cloze': 250 },
   'duration-frequency': { 'duration-order': 320 },
   'separable-verbs': { 'separable-cloze': 280, 'separable-order': 280 },
+  polyphones: { polyphone: 150 },
 };
 
 const ALL = GENERATOR_TOPICS.flatMap((slug) =>

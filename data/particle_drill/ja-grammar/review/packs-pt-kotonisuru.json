@@ -1,0 +1,8 @@
+{"batch":"packs-pt-kotonisuru",
+ "files":["packs/pt-kotonisuru.json","packs/pt-teshimau.json","packs/pt-teoku.json"],
+ "checked":6,"fixed":3,"deleted":0,
+ "issues":[
+  {"file":"packs/pt-teshimau.json","pack":"pt-teshimau-1","problem":"ちゃいました is equally correct with the same English for every mishap stem (all take ちゃ, none じゃ) but was not listed.","action":"Added ちゃいました as an alternative in the focus slot (てしまいました/ちゃいました)."},
+  {"file":"packs/pt-teshimau.json","pack":"pt-teshimau-2","problem":"The full form てしまう is equally correct with the same English but was not listed as an alternative.","action":"Added てしまう as an alternative in the focus slot (ちゃう/てしまう)."},
+  {"file":"packs/pt-teoku.json","pack":"pt-teoku-2","problem":"Distractor てあげてください forms natural sentences close to the English (子供がすぐ帰ってくるので、玄関の鍵を開けてあげてください); variable 'reason' also had only 5 values (minimum 6).","action":"Replaced the distractor with てもらってください (have someone else do it, plainly wrong for 'please leave ...'); added reason value 夕方に父が帰ってくる / my father is coming home this evening (252 combinations)."}
+ ]}

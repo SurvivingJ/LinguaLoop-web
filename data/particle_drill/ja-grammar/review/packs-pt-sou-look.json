@@ -1,0 +1,9 @@
+{"batch":"packs-pt-sou-look",
+ "files":["packs/pt-sou-look.json","packs/pt-sou-hear.json","packs/pt-youda.json"],
+ "checked":6,"fixed":3,"deleted":0,
+ "issues":[
+  {"file":"packs/pt-sou-hear.json","pack":"pt-sou-hear-1","problem":"Distractor 降っているそうです is not plainly wrong with a future time word (明日は雨が降っているそうです can mean 'it will be raining'), so it is too close to the answer's meaning.","action":"Replaced it with 降っていたそうです, which the past tense rules out against 明日 / 今夜 / 来週."},
+  {"file":"packs/pt-sou-hear.json","pack":"pt-sou-hear-1","problem":"Source value テレビによると is unnatural as a source for a weather report.","action":"Replaced it with 朝のニュース / 'the morning news'."},
+  {"file":"packs/pt-youda.json","pack":"pt-youda-1","problem":"The value おじいちゃんたち / 'Grandpa and Grandma' broke the English agreement with the frame's 'seems' ('Grandpa and Grandma seems to be out').","action":"Replaced it with おじいちゃん / 'Grandpa'."},
+  {"file":"packs/pt-youda.json","pack":"pt-youda-2","problem":"The English 'The sea from the window was ...' read awkwardly for 窓から見えた海.","action":"Changed the English to 'The sea I saw from the window'."}
+ ]}

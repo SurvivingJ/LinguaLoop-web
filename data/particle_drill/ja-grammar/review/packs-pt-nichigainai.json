@@ -1,0 +1,8 @@
+{"batch":"packs-pt-nichigainai",
+ "files":["packs/pt-nichigainai.json","packs/pt-nda.json","packs/pt-tame.json"],
+ "checked":6,"fixed":3,"deleted":0,
+ "issues":[
+  {"file":"packs/pt-nichigainai.json","pack":"pt-nichigainai-2","problem":"out value 夜はいつも満席 is a bare noun: 満席はずがありません / 満席わけがありません are ill-formed (need の/な), so two distractors failed on form, not meaning.","action":"Replaced with 夜は予約が取りにくい / 'be hard to book in the evening'."},
+  {"file":"packs/pt-nichigainai.json","pack":"pt-nichigainai-1","problem":"English for 毎晩遅くまで練習した read 'late into the night every day' (毎晩 = every night).","action":"Changed English to 'After practising until late every night'."},
+  {"file":"packs/pt-tame.json","pack":"pt-tame-2","problem":"の was outside the slot, so distractors のに / には produced malformed strings (大雪ののに, 大雪のには) that a learner could reject on form alone.","action":"Moved の into the slot (のために); distractors now のように / なのに / の前に, all well-formed and wrong for 'because of'; why updated."}
+ ]}

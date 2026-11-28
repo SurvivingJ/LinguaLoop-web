@@ -1,0 +1,5 @@
+{"batch":"packs-pt-sugiru","files":["packs/pt-sugiru.json","packs/pt-kata.json","packs/pt-tarado.json"],"checked":6,"fixed":2,"deleted":0,
+ "issues":[
+  {"file":"packs/pt-sugiru.json","pack":"pt-sugiru-2","problem":"Distractor そうで gives 高そうで、買いませんでした ('looked expensive, so I didn't buy it'), a natural sentence close to the intended meaning; not plainly wrong.","action":"Replaced そうで with くなって (高くなって = 'went up in price'), which contradicts the English for every adjective value."},
+  {"file":"packs/pt-tarado.json","pack":"pt-tarado-2","problem":"ill value 熱 gives 熱が早く良くなる, which is unnatural (a fever 下がる; it does not 良くなる).","action":"Removed the 熱 value; 6 ill values remain (6x8x6 = 288 combinations)."}
+ ]}

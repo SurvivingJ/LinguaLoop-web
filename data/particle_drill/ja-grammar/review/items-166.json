@@ -1,0 +1,22 @@
+{"batch":"items-166","files":["items/cs-nda.jsonl"],"checked":52,"fixed":30,"deleted":0,"replaced":1,"issues":[
+{"file":"items/cs-nda.jsonl","jp_before":"実[じつ]は、来月[らいげつ]引[ひ]っ越[こ]す{んだ|cs-nda}。","problem":"No casual cue: the polite distractor んです fits equally well.","action":"Added ねえ、聞いて。 to set casual register; English updated."},
+{"file":"items/cs-nda.jsonl","jp_before":"実[じつ]は、来週[らいしゅう]から大阪[おおさか]で働[はたら]く{んです|cs-nda}。","problem":"No polite cue: distractor んだ fits equally well.","action":"Addressed to 先生 to force polite んです."},
+{"file":"items/cs-nda.jsonl","jp_before":"申[もう]し訳[わけ]ございません、お客様[きゃくさま]。今日[きょう]は定休日[ていきゅうび]{なんです|cs-nda}。","problem":"why described んです/んだ, not the noun form なんです.","action":"Rewrote why."},
+{"file":"items/cs-nda.jsonl","jp_before":"日本語[にほんご]を勉強[べんきょう]して三年[さんねん]になる{んです|cs-nda}が、まだ話[はな]すのは苦手[にがて]です。","problem":"Slot in a subordinate が-clause: plain んだが is acceptable there even with a polite main clause.","action":"Rewrote as two sentences addressed to 先生 with んです sentence-final."},
+{"file":"items/cs-nda.jsonl","jp_before":"おばさん、母[はは]に頼[たの]まれて、お米[こめ]を借[か]りに来[き]た{んです|cs-nda}。","problem":"A child talking to a familiar おばさん could naturally use casual の/んだ.","action":"Changed address to すみません."},
+{"file":"items/cs-nda.jsonl","jp_before":"どうして泣[な]いている{の|cs-nda}？","problem":"No casual cue: polite んです？ is natural with the same English.","action":"Added address ゆうくん to force casual."},
+{"file":"items/cs-nda.jsonl","jp_before":"明日[あした]、何時[なんじ]に起[お]きる{の|cs-nda}？","problem":"No casual cue: んです？ acceptable.","action":"Added お兄ちゃん."},
+{"file":"items/cs-nda.jsonl","jp_before":"あれ、傘[かさ]を持[も]っていない{の|cs-nda}？","problem":"Weak casual cue; んです？ acceptable.","action":"Added 雨だよ。"},
+{"file":"items/cs-nda.jsonl","jp_before":"この荷物[にもつ]、誰[だれ]が持[も]っていく{の|cs-nda}？","problem":"No casual cue.","action":"Added ねえ."},
+{"file":"items/cs-nda.jsonl","jp_before":"今日[きょう]の夕[ゆう]ご飯[はん]は何[なに]を食[た]べる{の|cs-nda}？","problem":"No casual cue; 何を食べるの is an odd way to ask what is for dinner.","action":"Rewrote: お母さん、…何を作るの？"},
+{"file":"items/cs-nda.jsonl","jp_before":"来週[らいしゅう]、本当[ほんとう]に旅行[りょこう]に行[い]く{の|cs-nda}？","problem":"No casual cue.","action":"Added いいなあ。"},
+{"file":"items/cs-nda.jsonl","jp_before":"これ、誰[だれ]の傘[かさ]{なの|cs-nda}？","problem":"No casual cue (なんです？ acceptable); why said plain form + の.","action":"Added ねえ and 知らない傘だよ。; rewrote why for なの."},
+{"file":"items/cs-nda.jsonl","jp_before":"どうしてそんなに急[いそ]いでいる{の|cs-nda}？","problem":"No casual cue; near-duplicate of the どうして泣いているの item.","action":"Rewrote: ねえ、そんなに急いで、どこに行くの？"},
+{"file":"items/cs-nda.jsonl","jp_before":"昨日[きのう]、どこに行[い]っていた{の|cs-nda}？","problem":"No casual cue.","action":"Added 心配したよ。"},
+{"file":"items/cs-nda.jsonl","jp_before":"熱[ねつ]があるのに、学校[がっこう]に行[い]く{の|cs-nda}？","problem":"No casual cue.","action":"Added 今日は休みなよ。"},
+{"file":"items/cs-nda.jsonl","jp_before":"だって、まだ眠[ねむ]い{もん/もの|cs-nda}。 (and the other 10 もん items with けど)","problem":"Distractor けど: sentence-final けど (…眠いけど) is grammatical and close in meaning.","action":"Replaced けど with わけだ ('no wonder / so that is why') in all 11 items."},
+{"file":"items/cs-nda.jsonl","jp_before":"どうして宿題[しゅくだい]をしなかったの？だって、わからなかった{もん/もの|cs-nda}。","problem":"Distractor んです wrong only by register.","action":"Replaced with わけだ."},
+{"file":"items/cs-nda.jsonl","jp_before":"この町[まち]では、毎年[まいとし]十月[じゅうがつ]に大[おお]きな祭[まつ]りが開[ひら]かれる{のだ|cs-nda}。","problem":"No written-style cue: spoken んだ is natural; のだ is unmotivated here.","action":"Replaced with a written third-person narrative item (…決めていたのだ)."},
+{"file":"items/cs-nda.jsonl","jp_before":"皆[みな]さん、この町[まち]の歴史[れきし]を知[し]ることは大切[たいせつ]{なのです|cs-nda}。","problem":"why claimed formal speech keeps full なのです (なんです is common in speeches).","action":"Rewrote why: polite register required, distractors are casual."},
+{"file":"items/cs-nda.jsonl","jp_before":"そのとき、私[わたし]は初[はじ]めて、本当[ほんとう]の自由[じゆう]とは何[なに]かを知[し]った{のです|cs-nda}。","problem":"No polite cue: casual んだ fits the sentence as a spoken account.","action":"Added 二十歳の夏でした。 to fix polite register; why updated."}
+]}

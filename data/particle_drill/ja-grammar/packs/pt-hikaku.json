@@ -1,0 +1,20 @@
+[
+ {"id":"pt-hikaku-1","lv":4,
+  "tpl":"<who>は<a>{より|pt-hikaku}<b>のほうが好[す]きです。",
+  "en":"<who> likes <b> more than <a>.",
+  "f":0,"d":["ほど","から","と"],
+  "why":"In 'A より B のほうが', より marks the thing that loses the comparison: 'more than A'.",
+  "vars":{
+   "who":[["父[ちち]","My father"],["母[はは]","My mother"],["兄[あに]","My older brother"],["姉[あね]","My older sister"],["田中[たなか]さん","Mr. Tanaka"],["祖父[そふ]","My grandfather"],["山田[やまだ]さん","Ms. Yamada"],["友達[ともだち]","My friend"]],
+   "a":[["コーヒー","coffee"],["ジュース","juice"],["牛乳[ぎゅうにゅう]","milk"],["コーラ","cola"],["ビール","beer"],["ワイン","wine"]],
+   "b":[["紅茶[こうちゃ]","black tea"],["緑茶[りょくちゃ]","green tea"],["水[みず]","water"],["ココア","cocoa"],["日本酒[にほんしゅ]","sake"],["ミルクティー","milk tea"]]}},
+ {"id":"pt-hikaku-2","lv":4,
+  "tpl":"今日[きょう]の<place>は<ref>{ほど|pt-hikaku}<pred>。",
+  "en":"<place> wasn't as <pred> today as <ref>.",
+  "f":0,"d":["一番[いちばん]","しか","まで"],
+  "why":"'Not as ... as A' is A ほど with a negative predicate; ほど sets A as the standard that is not reached.",
+  "vars":{
+   "place":[["電車[でんしゃ]","The train"],["駅[えき]","The station"],["図書館[としょかん]","The library"],["公園[こうえん]","The park"],["スーパー","The supermarket"],["映画館[えいがかん]","The cinema"],["海[うみ]","The beach"]],
+   "ref":[["昨日[きのう]","yesterday"],["先週[せんしゅう]","last week"],["いつも","usual"],["土曜日[どようび]","on Saturday"],["週末[しゅうまつ]","at the weekend"],["先月[せんげつ]","last month"]],
+   "pred":[["混[こ]んでいませんでした","crowded"],["うるさくなかったです","noisy"],["暑[あつ]くなかったです","hot"],["寒[さむ]くなかったです","cold"],["静[しず]かではありませんでした","quiet"],["人[ひと]が多[おお]くなかったです","busy"]]}}
+]

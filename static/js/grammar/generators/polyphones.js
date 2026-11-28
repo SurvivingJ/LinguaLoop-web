@@ -36,4 +36,6 @@ export function makePolyphone(rng) {
   };
 }
 
-export const generators = [{ key: 'polyphone', label: '多音字: which reading?', make: makePolyphone }];
+export const generators = [
+  { key: 'polyphone', label: '多音字: which reading?', make: makePolyphone },
+];

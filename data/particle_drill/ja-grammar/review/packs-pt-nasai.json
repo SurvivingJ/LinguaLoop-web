@@ -1,0 +1,5 @@
+{"batch":"packs-pt-nasai","files":["packs/pt-nasai.json","packs/pt-beki.json","packs/pt-toki.json"],"checked":6,"fixed":3,"deleted":0,"issues":[
+ {"file":"packs/pt-nasai.json","pack":"pt-nasai-1","problem":"child value いとこ 'my cousin' can be an adult, so a parent-to-child なさい instruction (and the why) does not fit every combination","action":"replaced with 幼[おさな]いいとこ 'my young cousin'"},
+ {"file":"packs/pt-beki.json","pack":"pt-beki-1","problem":"thing value 物 'possessions': 物を大切にする means look after things / not waste them, so 'value possessions more' mistranslates it and sounds materialistic","action":"removed the value (7 left, 294 combinations)"},
+ {"file":"packs/pt-beki.json","pack":"pt-beki-2","problem":"act value 周りの人を押す 'push the people around you' is odd with library, art museum, temple and funeral, and does not fit several reasons","action":"removed the value (7 left, 336 combinations)"}
+]}

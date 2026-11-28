@@ -1,0 +1,7 @@
+{"batch":"packs-pt-temiru",
+ "files":["packs/pt-temiru.json","packs/pt-tekuru.json","packs/pt-tokoro.json"],
+ "checked":6,"fixed":2,"deleted":0,
+ "issues":[
+  {"file":"packs/pt-temiru.json","pack":"pt-temiru-2","problem":"close value 私も大好きなんです / 'I love it too' presupposes the listener already loves an item they have not tried yet (hat, chair, pen), which reads oddly in many combinations","action":"replaced with とても人気があるんですよ。 / It's very popular."},
+  {"file":"packs/pt-tokoro.json","pack":"pt-tokoro-2","problem":"period values 今月 and この前 are vague recent-time words that do not clearly rule out the distractor たところ, so たところ was not plainly wrong in every combination","action":"replaced with 去年 / last year and 半年前に / six months ago, which allow only たばかり"}
+ ]}

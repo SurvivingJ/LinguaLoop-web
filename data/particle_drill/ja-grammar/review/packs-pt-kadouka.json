@@ -1,0 +1,8 @@
+{"batch":"packs-pt-kadouka",
+ "files":["packs/pt-kadouka.json","packs/pt-quote.json","packs/pt-hikaku.json"],
+ "checked":6,
+ "fixed":1,
+ "deleted":0,
+ "issues":[
+  {"file":"packs/pt-kadouka.json","pack":"pt-kadouka-2","problem":"An embedded wh-question closed with のか (駅がどこにあるのか聞いてみます) is just as natural as plain か with the same English, but the slot did not list it as an alternative.","action":"Changed the slot to {か/のか|pt-kadouka} and updated 'why' to mention のか."}
+ ]}

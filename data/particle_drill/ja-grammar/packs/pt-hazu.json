@@ -1,0 +1,20 @@
+[
+ {"id":"pt-hazu-1","lv":4,
+  "tpl":"<thing>は<day><dest>に送[おく]ったから、もう届[とど]いている{はずです|pt-hazu}。",
+  "en":"I sent the <thing> to <dest> <day>, so I expect it has arrived by now.",
+  "f":0,"d":["はずがありません","べきです","つもりです"],
+  "why":"The speaker reasons from a known fact (it was sent long enough ago) to an expectation, which is はずです; べきです is obligation and はずがありません the opposite.",
+  "vars":{
+   "thing":[["荷物[にもつ]","parcel"],["手紙[てがみ]","letter"],["はがき","postcard"],["プレゼント","present"],["本[ほん]","book"],["写真[しゃしん]","photo"],["お土産[みやげ]","souvenir"]],
+   "day":[["月曜日[げつようび]に","on Monday"],["先週[せんしゅう]","last week"],["三日前[みっかまえ]に","three days ago"],["一週間前[いっしゅうかんまえ]に","a week ago"],["昨日[きのう]の朝[あさ]","yesterday morning"],["おととい","the day before yesterday"],["先月[せんげつ]","last month"]],
+   "dest":[["大阪[おおさか]の会社[かいしゃ]","the office in Osaka"],["祖母[そぼ]の家[いえ]","my grandmother's house"],["田中[たなか]さんのところ","Mr. Tanaka"],["姉[あね]の家[いえ]","my sister's house"],["友達[ともだち]の家[いえ]","my friend's house"],["先生[せんせい]のところ","my teacher"]]}},
+ {"id":"pt-hazu-2","lv":3,
+  "tpl":"<who>はとても<trait>人[ひと]ですから、<deed>{はずがありません/はずはありません/わけがありません|pt-hazu}。",
+  "en":"<who> is a very <trait> person; there is no way such a person would <deed>.",
+  "f":0,"d":["はずです","わけです","ことがあります"],
+  "why":"The speaker rules something out because of what they know about the person, which is はずがありません; the other endings would say it does happen.",
+  "vars":{
+   "who":[["田中[たなか]さん","Mr. Tanaka"],["山田[やまだ]さん","Ms. Yamada"],["兄[あに]","My older brother"],["姉[あね]","My older sister"],["父[ちち]","My father"],["母[はは]","My mother"],["鈴木[すずき]先生[せんせい]","Mr. Suzuki, our teacher,"],["佐藤[さとう]さん","Ms. Sato"]],
+   "trait":[["正直[しょうじき]な","honest"],["真面目[まじめ]な","earnest"],["誠実[せいじつ]な","sincere"],["優[やさ]しい","kind"],["責任感[せきにんかん]のある","responsible"],["信頼[しんらい]できる","trustworthy"]],
+   "deed":[["うそをつく","tell a lie"],["人[ひと]のお金[かね]を盗[ぬす]む","steal someone's money"],["約束[やくそく]を破[やぶ]る","break a promise"],["友達[ともだち]をだます","deceive a friend"],["人[ひと]の悪口[わるぐち]を言[い]う","speak ill of others"],["人[ひと]の物[もの]を黙[だま]って使[つか]う","use other people's things without asking"]]}}
+]

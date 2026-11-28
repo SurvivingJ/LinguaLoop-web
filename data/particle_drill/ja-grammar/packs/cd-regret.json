@@ -1,0 +1,200 @@
+[
+ {
+  "id": "cd-regret-1",
+  "lv": 3,
+  "tpl": "<when><rain>。傘[かさ]を{持[も]ってくればよかった/持[も]ってきたらよかった|cd-regret}。<cons>。",
+  "en": "<when>, <rain>. I should have brought an umbrella. <cons>.",
+  "f": 0,
+  "d": [
+   "持[も]ってきてよかった",
+   "持[も]ってこなくてよかった",
+   "持[も]ってこなくてもよかった"
+  ],
+  "why": "Regret about something you did not do is 〜ばよかった (or 〜たらよかった); 〜てよかった would mean you are glad you did it.",
+  "vars": {
+   "when": [
+    [
+     "帰[かえ]り道[みち]で",
+     "On the way home"
+    ],
+    [
+     "買[か]い物[もの]の途中[とちゅう]で",
+     "While I was out shopping"
+    ],
+    [
+     "散歩[さんぽ]の途中[とちゅう]で",
+     "In the middle of my walk"
+    ],
+    [
+     "会社[かいしゃ]を出[で]た後[あと]で",
+     "After I left the office"
+    ],
+    [
+     "学校[がっこう]の帰[かえ]りに",
+     "On the way back from school"
+    ],
+    [
+     "駅[えき]に向[む]かう途中[とちゅう]で",
+     "On my way to the station"
+    ],
+    [
+     "友達[ともだち]と別[わか]れた後[あと]で",
+     "After I said goodbye to my friend"
+    ]
+   ],
+   "rain": [
+    [
+     "、急[きゅう]に雨[あめ]が降[ふ]ってきた",
+     "it suddenly started to rain"
+    ],
+    [
+     "、雨[あめ]が降[ふ]り始[はじ]めた",
+     "it began to rain"
+    ],
+    [
+     "、夕立[ゆうだち]が来[き]た",
+     "a summer downpour hit"
+    ],
+    [
+     "、大雨[おおあめ]になった",
+     "it began to pour"
+    ],
+    [
+     "、雨[あめ]が強[つよ]くなった",
+     "the rain got heavier"
+    ],
+    [
+     "、にわか雨[あめ]が降[ふ]ってきた",
+     "a sudden shower came down"
+    ]
+   ],
+   "cons": [
+    [
+     "服[ふく]がびしょぬれだ",
+     "My clothes are soaked"
+    ],
+    [
+     "靴[くつ]までぬれてしまった",
+     "Even my shoes got wet"
+    ],
+    [
+     "近[ちか]くの店[みせ]で雨宿[あまやど]りするしかない",
+     "I'll have to shelter in a nearby shop"
+    ],
+    [
+     "コンビニで買[か]うしかない",
+     "I'll have to buy one at a convenience store"
+    ],
+    [
+     "かばんの中[なか]までぬれてしまった",
+     "Even the inside of my bag got wet"
+    ],
+    [
+     "髪[かみ]がぬれてしまった",
+     "My hair got wet"
+    ]
+   ]
+  }
+ },
+ {
+  "id": "cd-regret-2",
+  "lv": 3,
+  "tpl": "<lament>。<place>に<thing>が{あったらいいのに/あればいいのに/あるといいのに|cd-regret}。",
+  "en": "<lament> I wish there were <thing> <place>.",
+  "f": 0,
+  "d": [
+   "あってよかった",
+   "あるのに",
+   "なければいいのに"
+  ],
+  "why": "A wish for something that is not there is 〜たらいいのに (or 〜ばいいのに); 〜てよかった would mean you are glad it is there.",
+  "vars": {
+   "lament": [
+    [
+     "ああ、不便[ふべん]だなあ",
+     "Oh, this is so inconvenient."
+    ],
+    [
+     "一番[いちばん]近[ちか]いのでもバスで二十分[にじゅっぷん]かかる",
+     "Even the nearest one is twenty minutes away by bus."
+    ],
+    [
+     "毎回[まいかい]遠[とお]くまで行[い]くのは大変[たいへん]だ",
+     "Going all that way every time is a pain."
+    ],
+    [
+     "引[ひ]っ越[こ]してから困[こま]っている",
+     "I've been having trouble since I moved."
+    ],
+    [
+     "前[まえ]はあったけど、なくなってしまった",
+     "There used to be one, but it's gone now."
+    ],
+    [
+     "歩[ある]いて行[い]ける所[ところ]には一[ひと]つもない",
+     "There isn't a single one within walking distance."
+    ]
+   ],
+   "place": [
+    [
+     "この近[ちか]く",
+     "near here"
+    ],
+    [
+     "家[いえ]の近[ちか]く",
+     "near my house"
+    ],
+    [
+     "駅前[えきまえ]",
+     "in front of the station"
+    ],
+    [
+     "会社[かいしゃ]の近[ちか]く",
+     "near my office"
+    ],
+    [
+     "学校[がっこう]の近[ちか]く",
+     "near the school"
+    ],
+    [
+     "この町[まち]",
+     "in this town"
+    ]
+   ],
+   "thing": [
+    [
+     "コンビニ",
+     "a convenience store"
+    ],
+    [
+     "図書館[としょかん]",
+     "a library"
+    ],
+    [
+     "公園[こうえん]",
+     "a park"
+    ],
+    [
+     "スーパー",
+     "a supermarket"
+    ],
+    [
+     "本屋[ほんや]",
+     "a bookshop"
+    ],
+    [
+     "カフェ",
+     "a café"
+    ],
+    [
+     "病院[びょういん]",
+     "a hospital"
+    ],
+    [
+     "郵便局[ゆうびんきょく]",
+     "a post office"
+    ]
+   ]
+  }
+ }
+]

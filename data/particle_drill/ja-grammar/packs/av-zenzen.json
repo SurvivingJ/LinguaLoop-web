@@ -1,0 +1,20 @@
+[
+ {"id":"av-zenzen-1","lv":5,
+  "tpl":"<when>の<event>は{全然[ぜんぜん]/ちっとも|av-zenzen}<adj>。",
+  "en":"The <event> <when> wasn't <adj> at all.",
+  "f":0,"d":["あまり","よく","きっと"],
+  "why":"'Not at all' is 全然 (or ちっとも) with a negative ending; あまり would only mean 'not very', よく cannot modify a negative adjective, and きっと changes the meaning.",
+  "vars":{
+   "when":[["昨日[きのう]","yesterday"],["先週[せんしゅう]","last week"],["先月[せんげつ]","last month"],["週末[しゅうまつ]","at the weekend"],["去年[きょねん]","last year"],["この前[まえ]","the other day"]],
+   "event":[["映画[えいが]","film"],["授業[じゅぎょう]","class"],["試合[しあい]","match"],["コンサート","concert"],["パーティー","party"],["会議[かいぎ]","meeting"],["ドラマ","TV drama"],["イベント","event"]],
+   "adj":[["面白[おもしろ]くありませんでした","interesting"],["楽[たの]しくなかった","fun"],["長[なが]くなかったです","long"],["退屈[たいくつ]ではありませんでした","boring"],["つまらなくなかった","dull"],["悪[わる]くなかったよ","bad"]]}},
+ {"id":"av-zenzen-2","lv":4,
+  "tpl":"<place>は<from><adv>遠[とお]{くありません/くないです|av-zenzen}。",
+  "en":"<place> is <adv> far from <from>.",
+  "f":0,"d":["いです","かったです","いでしょう"],
+  "why":"あまり, ちっとも, 決して and the other adverbs here only work with a negative ending, so the adjective must be negative: 遠くありません.",
+  "vars":{
+   "place":[["私[わたし]の家[いえ]","My house"],["うちのアパート","Our flat"],["新[あたら]しい会社[かいしゃ]","The new office"],["そのホテル","That hotel"],["市[し]の図書館[としょかん]","The city library"],["田中[たなか]さんの家[いえ]","Mr. Tanaka's house"],["姉[あね]の店[みせ]","My older sister's shop"],["この美術館[びじゅつかん]","This art museum"]],
+   "from":[["駅[えき]から","the station"],["空港[くうこう]から","the airport"],["ここから","here"],["バス停[てい]から","the bus stop"],["町[まち]の中心[ちゅうしん]から","the town centre"],["海[うみ]から","the sea"],["大学[だいがく]から","the university"]],
+   "adv":[["あまり","not very"],["ちっとも","not at all"],["決[けっ]して","by no means"],["それほど","not that"],["少[すこ]しも","not in the least"],["大[たい]して","not particularly"]]}}
+]

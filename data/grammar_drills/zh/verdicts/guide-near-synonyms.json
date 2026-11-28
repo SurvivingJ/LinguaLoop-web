@@ -1,0 +1,12 @@
+{
+  "file": "guides/near-synonyms.json",
+  "checked": 10,
+  "fixed": 4,
+  "issues": [
+    {"problem": "rules[0] note: '我知道他 only means I have heard of him' overstates it; it means 'I know who he is', and the point to drill is that it does not mean you have met.", "action": "Reworded to 'means I know who he is (heard of him), not that you have met'."},
+    {"problem": "rules[1]: '清楚 = clear to the eye or ear' applied mechanically would reject the common 'know full well' use (这件事我很清楚, 你比我清楚).", "action": "Added that sense to the note so items do not mark it wrong."},
+    {"problem": "rules[2]: '又 = already happened' has a standard exception, a certain repeat in the future (明天又是星期一了); a learner or item writer following the rule would call it wrong.", "action": "Added the exception to the note (又是…了 looking ahead)."},
+    {"problem": "rules[10]: 通过 also means 'pass through' physically (火车通过大桥), so 'go past a place = 经过 only' would make some cloze items with 通过 ambiguous.", "action": "Added the sense to the note and narrowed 经过 contrasts to going past a shop or a door."},
+    {"problem": "Validator could not run: opencc and pypinyin were not installed, and pip install needed approval.", "action": "Extracted the repo's pypinyin wheel into the scratchpad, used an identity opencc stub through a runpy wrapper (repo untouched), and checked by hand that every character is simplified. validate-guide reports OK."}
+  ]
+}
