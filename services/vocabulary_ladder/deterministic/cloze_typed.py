@@ -31,6 +31,7 @@ from __future__ import annotations
 
 import re
 
+from services import language_registry
 from services.vocabulary_ladder.config import blank_target, get_sentence_target
 from services.vocabulary_ladder.deterministic import SenseContext, Skip, register
 from utils.answer_normalization import (
@@ -106,7 +107,7 @@ def build(ctx: SenseContext, skips: list[Skip]) -> list[dict]:
             ],
         },
         'normalization': normalization_spec(ctx.language_id),
-        'input_mode': 'ime' if ctx.language_id in (1, 3) else 'text',
+        'input_mode': 'ime' if language_registry.is_cjk(ctx.language_id) else 'text',
     }]
 
 

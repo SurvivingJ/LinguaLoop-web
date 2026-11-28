@@ -5,10 +5,10 @@ status: in-progress
 tech_page: ./particle-drill.tech.md
 last_updated: 2026-11-27
 open_questions:
-  - "OPEN (owner): apply migrations/grammar_drill_tracking.sql (shared with the Chinese drills, ADR-068) so ladder progress follows the learner across devices. Until then it stays in the browser."
-  - "OPEN (owner): should particle drilling count towards Studied-this-week minutes, the daily session and ELO like the counter drill does? Today it counts towards none (TASK-1273, TASK-1274)."
-  - "OPEN (owner): guides and the 'why' line of every exercise are English only. Translate for zh / es interface users? (TASK-1275)"
-  - "OPEN (owner): the answer keys were written and reviewed by Claude subagents only. A native-speaker spot check of a sample is recommended before promoting the drill (TASK-1272)."
+  - "OPEN (owner): apply migrations/grammar_drill_tracking.sql (shared with the Chinese drills, ADR-070) so ladder progress follows the learner across devices. Until then it stays in the browser."
+  - "OPEN (owner): should particle drilling count towards Studied-this-week minutes, the daily session and ELO like the counter drill does? Today it counts towards none (TASK-1280, TASK-1281)."
+  - "OPEN (owner): guides and the 'why' line of every exercise are English only. Translate for zh / es interface users? (TASK-1282)"
+  - "OPEN (owner): the answer keys were written and reviewed by Claude subagents only. A native-speaker spot check of a sample is recommended before promoting the drill (TASK-1279)."
 ---
 
 # Particle Drill (Japanese)
@@ -149,7 +149,7 @@ the setup page and from the feedback after a miss.
 - [[features/particle-drill.tech]] — technical specification
 - [[features/japanese-grammar-drill]] — the second course on this ladder, and the reading drill
 - [[features/knowledge-report]] — the vocabulary record the conjugation drill reads
-- [[decisions/ADR-067-particle-drill-static-content-client-engine]] — why the content is files and the engine runs in the browser
+- [[decisions/ADR-069-particle-drill-static-content-client-engine]] — why the content is files and the engine runs in the browser
 - [[tasklist/particle-drill.tasks]] — tasks, done and open
 - [[features/measure-word-trainer]] — the Chinese measure-word drill and the Japanese counter drill (the sibling trainers)
 - [[algorithms/vocabulary-ladder]] — the vocabulary ladder this ladder is modelled on

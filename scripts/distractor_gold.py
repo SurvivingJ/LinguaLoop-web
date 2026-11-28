@@ -43,11 +43,19 @@ VOCABULARY
 
 from __future__ import annotations
 
+import os
 import random
+import sys
 from collections import Counter, defaultdict
 from typing import Any, Iterable, Sequence
 
-LANG_NAME = {1: 'zh', 2: 'en', 3: 'ja'}
+# The registry imports nothing from the application, so this stays standalone.
+_REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if _REPO_ROOT not in sys.path:
+    sys.path.insert(0, _REPO_ROOT)
+from services import language_registry  # noqa: E402
+
+LANG_NAME = language_registry.id_to_code()
 
 # Gold label vocabularies. Kept here rather than in the labelling guide's prose
 # so the loader can reject a typo'd label instead of silently scoring it as a

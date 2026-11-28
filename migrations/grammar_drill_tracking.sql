@@ -4,7 +4,7 @@
 -- day, one current-state row per learner, language and topic, and the one
 -- function that writes both.
 --
--- SHARED STRUCTURE (2026-11-28, ADR-068; owner: "resolve a shared db structure
+-- SHARED STRUCTURE (2026-11-28, ADR-070; owner: "resolve a shared db structure
 -- for tracking grammar drill progress"). The same two tables and function
 -- serve the Chinese grammar drills (/grammar-drill/zh, language 1, four
 -- stages) and the Japanese drills (language 3): particle and grammar skills

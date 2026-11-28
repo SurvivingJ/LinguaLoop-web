@@ -25,7 +25,7 @@ from datetime import date, datetime, timedelta, timezone
 from typing import Any, Dict, List, Optional
 
 from config import Config
-from services import placement_tones
+from services import language_registry, placement_tones
 from services.exercise_content import store
 
 logger = logging.getLogger(__name__)
@@ -62,7 +62,7 @@ EX_GROUPS = {
     'semantic_discrimination': 'judge', 'spot_incorrect_sentence': 'judge',
     'tl_nl_translation': 'judge', 'synonym_antonym_match': 'judge',
 }
-LANG_CODE = {1: 'zh', 2: 'en', 3: 'ja'}
+LANG_CODE = language_registry.id_to_code()
 
 
 # ---------------------------------------------------------------------------
@@ -279,7 +279,7 @@ def word_formats(stage: int, lang: str, has_reading: bool, has_sentence: bool,
                  ex_groups: set) -> List[str]:
     """Formats for one word: cold recall first (stages 2-4), then the stage's
     preference order with unbuildable formats dropped; never fewer than two."""
-    base = STAGE_FORMATS[('cjk' if lang in ('ja', 'zh') else 'en', 1)] if stage == 1 else STAGE_FORMATS[(None, stage)]
+    base = STAGE_FORMATS[('cjk' if lang in language_registry.cjk_codes() else 'en', 1)] if stage == 1 else STAGE_FORMATS[(None, stage)]
     cold = COLD_FORMAT.get(lang, 'recall_typed')
     if cold == 'read_typed' and not has_reading:
         cold = 'recall_typed'

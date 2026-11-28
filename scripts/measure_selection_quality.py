@@ -67,6 +67,8 @@ from typing import Iterable, Optional, Sequence
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from services import language_registry  # noqa: E402
+
 #: Clamp for the inverted Elo expectation; the spec's [0.05, 0.95].
 S_MIN, S_MAX = 0.05, 0.95
 #: M1's on-target band, HALF-OPEN: 60 < pct <= 85. The tech spec writes
@@ -82,7 +84,7 @@ BELOW_FLOOR = 50.0
 #: served tests sit inside u* ± u_tol.
 U_STAR, U_TOL = 0.15, 0.10
 TOP_N = 10
-LANG_CODES = {1: 'zh', 2: 'en', 3: 'ja'}
+LANG_CODES = language_registry.id_to_code()
 
 #: TASK-781 arms: label -> (vocab_weight, combine_mode). 'w0' runs in sum mode
 #: because at weight 0 the mode cannot matter: (1+e)·1 is a monotone transform of

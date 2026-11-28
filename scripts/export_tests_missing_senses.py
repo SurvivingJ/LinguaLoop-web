@@ -42,6 +42,7 @@ except ImportError:  # run or imported as scripts.<name>
 bootstrap()
 
 
+from services import language_registry  # noqa: E402
 from config import Config
 from services.supabase_factory import SupabaseFactory, get_supabase_admin
 from scripts.sense_linking_common import PAGE, language_code_for
@@ -116,7 +117,7 @@ def to_csv_row(test: dict) -> dict:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument('--language', choices=['zh', 'en', 'ja'],
+    parser.add_argument('--language', choices=language_registry.codes(),
                         help='Restrict to one language (default: all)')
     parser.add_argument('--output', '-o', default=DEFAULT_OUTPUT,
                         help=f'CSV destination (default: {DEFAULT_OUTPUT})')

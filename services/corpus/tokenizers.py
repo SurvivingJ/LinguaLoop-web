@@ -2,6 +2,7 @@ import re
 import spacy
 from abc import ABC, abstractmethod
 from services.vocabulary.model_cache import model_cache
+from services import language_registry
 
 
 def _get_nlp_en():
@@ -268,6 +269,14 @@ class JapaneseTokenizer(LanguageTokenizer):
         return _get_nlp_ja()(text)
 
 
+# Tokenizer per language code. Add a language's class here (see services/language_readiness.py).
+TOKENIZER_CLASSES: dict[str, type[LanguageTokenizer]] = {
+    'zh': ChineseTokenizer,
+    'en': EnglishTokenizer,
+    'ja': JapaneseTokenizer,
+}
+
+
 def get_tokenizer(language_id: int) -> LanguageTokenizer:
     """
     Return the appropriate LanguageTokenizer subclass instance for a language.
@@ -276,12 +285,7 @@ def get_tokenizer(language_id: int) -> LanguageTokenizer:
     Raises:
         ValueError: If language_id is not supported.
     """
-    _registry = {
-        1: ChineseTokenizer,
-        2: EnglishTokenizer,
-        3: JapaneseTokenizer,
-    }
-    cls = _registry.get(language_id)
+    cls = TOKENIZER_CLASSES.get(language_registry.code_of(language_id))
     if cls is None:
         raise ValueError(f"No tokenizer registered for language_id={language_id}")
     return cls()

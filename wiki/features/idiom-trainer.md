@@ -5,8 +5,8 @@ status: in-progress
 tech_page: idiom-trainer.tech.md
 last_updated: 2026-11-28
 open_questions:
-  - "No human has checked the idiom lists, the cards or the stories (TASK-1289). The owner chose not to have the lists pruned by a native speaker before authoring."
-  - "Full tier: about 850 Chinese and 770 Japanese idioms. The owner asked for the core first (TASK-1290)."
+  - "No human has checked the idiom lists, the cards or the stories (TASK-1296). The owner chose not to have the lists pruned by a native speaker before authoring."
+  - "Full tier: about 850 Chinese and 770 Japanese idioms. The owner asked for the core first (TASK-1297)."
   - "The page's own interface text is English only; the nav labels are translated."
 ---
 
@@ -79,11 +79,11 @@ a round draws from.
 - Idioms are chosen for present-day use: nothing dated, bookish, regional or vulgar in the core.
 
 ## Open Questions
-- OPEN: native-speaker check of lists, cards and stories (TASK-1289).
-- OPEN: the full tier (TASK-1290).
+- OPEN: native-speaker check of lists, cards and stories (TASK-1296).
+- OPEN: the full tier (TASK-1297).
 
 ## Related Pages
 - [[features/idiom-trainer.tech]] — technical specification
-- [[decisions/ADR-068-one-tracking-structure-for-every-language]] — where progress is recorded
+- [[decisions/ADR-070-one-tracking-structure-for-every-language]] — where progress is recorded
 - [[features/grammar-drills]], [[features/japanese-grammar-drill]] — the earlier, smaller idiom topics
 - [[tasklist/idiom-trainer.tasks]]

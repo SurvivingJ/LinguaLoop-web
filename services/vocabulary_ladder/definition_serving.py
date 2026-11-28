@@ -61,6 +61,7 @@ from dataclasses import dataclass, field
 from bisect import bisect_left
 from typing import Iterable, Optional
 
+from services import language_registry
 from services.vocabulary_ladder.deterministic.definition_match import script_family
 from services.vocabulary_ladder.deterministic.lexicon import Lexicon, LexEntry
 
@@ -79,8 +80,8 @@ _MIN_SLICE = 40              # smallest distractor slice worth matching on
 _OVERSAMPLE = 12             # candidates drawn before the overlap filter
 _LEVEL_ORDER = ('standard', 'simple')
 
-_LANG_CODE = {1: 'zh', 2: 'en', 3: 'ja'}
-_LANG_FAMILY = {'zh': 'cjk', 'ja': 'cjk', 'en': 'latin'}
+_LANG_CODE = language_registry.id_to_code()
+_LANG_FAMILY = {lang.code: lang.script for lang in language_registry.all_languages()}
 
 
 # ---------------------------------------------------------------------------

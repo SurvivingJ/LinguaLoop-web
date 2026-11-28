@@ -15,13 +15,13 @@ idioms if they exist".
 
 ---
 
-## TASK-1287: Idiom trainer: contract, engine, pages, tracking
+## TASK-1294: Idiom trainer: contract, engine, pages, tracking
 
 **Status:** [x] Done (2026-11-28; repo, not deployed)
 **Feature:** idiom-trainer
 **Type:** feature
 **Complexity:** L (1-2d)
-**Depends On:** TASK-1282
+**Depends On:** TASK-1289
 
 **Description:**
 The card and list formats and their validator, the build to static files, the per-idiom ladder,
@@ -48,13 +48,13 @@ tracking.
 
 ---
 
-## TASK-1288: Author and review the core tier
+## TASK-1295: Author and review the core tier
 
 **Status:** [x] Done (2026-11-28)
 **Feature:** idiom-trainer
 **Type:** feature
 **Complexity:** XL (>2d)
-**Depends On:** TASK-1287
+**Depends On:** TASK-1294
 
 **Description:**
 Six ranked lists and 652 cards (zh 320, ja 332), each with six contexts and two misuses, and a
@@ -80,13 +80,13 @@ from the worker logs: about $120.
 
 ---
 
-## TASK-1289: Native-speaker check of the lists, cards and stories
+## TASK-1296: Native-speaker check of the lists, cards and stories
 
 **Status:** [?] Awaiting owner
 **Feature:** idiom-trainer
 **Type:** test
 **Complexity:** M (3-8h)
-**Depends On:** TASK-1288
+**Depends On:** TASK-1295
 
 **Description:**
 No human has seen this content. Idioms are where a model is most likely to choose something
@@ -108,13 +108,13 @@ The evaluation page exists and its fixes are merged.
 
 ---
 
-## TASK-1290: The full tier
+## TASK-1297: The full tier
 
 **Status:** [x] Done (2026-11-28)
 **Feature:** idiom-trainer
 **Type:** feature
 **Complexity:** XL (>2d)
-**Depends On:** TASK-1288
+**Depends On:** TASK-1295
 
 **Description:**
 Grow the sets to the full tier proposed on 2026-11-28: Chinese about 850 (chengyu 600,

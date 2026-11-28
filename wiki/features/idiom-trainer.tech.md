@@ -101,7 +101,7 @@ during the round, so the next one is new where one is left.
 5. **Two right answers per step, not the particle ladder's rolling accuracy.** An idiom is one
    fact; ten right answers master it and reviews carry the rest.
 6. **Static files and the shared tracking**, as the other drills
-   ([[decisions/ADR-068-one-tracking-structure-for-every-language]]).
+   ([[decisions/ADR-070-one-tracking-structure-for-every-language]]).
 
 ## Security Considerations
 Static content behind the login page; the answer key is in the browser, so nothing here may

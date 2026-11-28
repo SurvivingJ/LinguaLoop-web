@@ -112,7 +112,7 @@ content file is named by no review record.
 ## Database Impact
 
 No content table. Progress is recorded in the **shared grammar-drill tracking**
-([[decisions/ADR-068-one-tracking-structure-for-every-language]]): `grammar_drill_daily` and
+([[decisions/ADR-070-one-tracking-structure-for-every-language]]): `grammar_drill_daily` and
 `grammar_drill_state` through `record_grammar_drill_round`, language 3, **pending**
 (`migrations/grammar_drill_tracking.sql`, [[database/schema.tech]]). One state row per skill
 started (`topic` = the skill id; `conj-<form>` and `read-<category>` for the two generated
@@ -224,7 +224,7 @@ state per form id under `conj`.
 
 ## Key Architectural Decisions
 
-1. **Content is files in the repository, not database rows** ([[decisions/ADR-067-particle-drill-static-content-client-engine]]).
+1. **Content is files in the repository, not database rows** ([[decisions/ADR-069-particle-drill-static-content-client-engine]]).
    - **Rationale:** the database is at its size line (473 MB of a 475 MB working limit, [[tasklist/report-and-placement-apply-runbook]]); 10,000 items with guides are about 5 MB of JSON, read-only and versioned with the code.
    - **Alternatives rejected:** `dim_particle_*` tables with a session RPC like the measure-word drill (needs space and a live apply before anything works); static files under `static/` (no login check).
 2. **Exercises are built and judged in the browser.**
@@ -258,7 +258,7 @@ state per form id under `conj`.
    - **Alternatives rejected:** mixing only in the daily mix (the ladder would still promote on
      blocked answers); mixing in other functions of the same particle (the answer stays the same).
    - **Known limit:** the very first skill of a new learner (は) has nothing to mix with.
-9. **Progress is a client document mirrored to the shared grammar-drill tracking** ([[decisions/ADR-068-one-tracking-structure-for-every-language]]). The page works before the migration is applied and offline; the merge rule is per skill, most answers wins. Until 2026-11-28 the mirror was a JSON document in its own table; that table was withdrawn.
+9. **Progress is a client document mirrored to the shared grammar-drill tracking** ([[decisions/ADR-070-one-tracking-structure-for-every-language]]). The page works before the migration is applied and offline; the merge rule is per skill, most answers wins. Until 2026-11-28 the mirror was a JSON document in its own table; that table was withdrawn.
 
 ## Security Considerations
 
@@ -290,14 +290,14 @@ state per form id under `conj`.
   (including the missing-table path), all routes.
 - Manual / browser: `tests/e2e/redesign/serve.py` serves the real app with a fake login; the
   page was walked in Chromium at 393×759 through every exercise type and a full round
-  (see [[tasklist/particle-drill.tasks]] TASK-1271).
+  (see [[tasklist/particle-drill.tasks]] TASK-1278).
 
 ## Related Pages
 
 - [[features/particle-drill]] — prose description
-- [[decisions/ADR-067-particle-drill-static-content-client-engine]]
+- [[decisions/ADR-069-particle-drill-static-content-client-engine]]
 - [[tasklist/particle-drill.tasks]]
 - [[features/measure-word-trainer.tech]] — sibling trainers and the mastery rule this ladder mirrors
 - [[api/rpcs.tech]] — route table
 - [[database/schema.tech]] — grammar drill tracking (pending, shared)
-- [[decisions/ADR-068-one-tracking-structure-for-every-language]]
+- [[decisions/ADR-070-one-tracking-structure-for-every-language]]

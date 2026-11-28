@@ -47,13 +47,11 @@ that used to call into this module.
 
 import logging
 
+from services import language_registry
+
 logger = logging.getLogger(__name__)
 
-LANGUAGE_NAMES = {
-    "en": "English",
-    "zh": "Chinese",
-    "ja": "Japanese",
-}
+LANGUAGE_NAMES = language_registry.code_to_display()
 
 TASK_NAME = 'vocab_gloss_translation'
 

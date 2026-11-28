@@ -6,7 +6,7 @@ date: 2026-11-27
 
 # ADR-066: Grammar drill progress on the server as daily summaries plus one state row
 
-> **2026-11-28:** widened to every language by [[decisions/ADR-068-one-tracking-structure-for-every-language]] (stage limit 4 → 7; a profile per language in the service). The decision below stands.
+> **2026-11-28:** widened to every language by [[decisions/ADR-070-one-tracking-structure-for-every-language]] (stage limit 4 → 7; a profile per language in the service). The decision below stands.
 
 ## Context
 

@@ -55,11 +55,12 @@ except ImportError:  # run or imported as scripts.<name>
 bootstrap(log_level=None)
 
 
+from services import language_registry  # noqa: E402
 from scripts.audit_prompt_latin import cjk_ratio, leaks  # noqa: E402
 
-LANG_ID = {'zh': 1, 'en': 2, 'ja': 3}
+LANG_ID = language_registry.code_to_id()
 ID_LANG = {v: k for k, v in LANG_ID.items()}
-CJK_LANGS = ('zh', 'ja')
+CJK_LANGS = tuple(language_registry.cjk_codes())
 
 # --- check 3 patterns -------------------------------------------------------
 # Word-bounded so 'B1' in 'VITAMIN B12' or a bare 'C2' column ref does not fire.
@@ -164,7 +165,7 @@ def audit_row(row: dict) -> dict:
 
 def report(results: list[dict], checks: set[str], verbose: bool) -> None:
     counts = ', '.join('%s=%d' % (code, sum(1 for r in results if r['lang'] == code))
-                       for code in ('en', 'zh', 'ja'))
+                       for code in sorted(LANG_ID, key=lambda c: (c != 'en', LANG_ID[c])))  # en first, then id order
     print('Audited %d active prompt rows (%s)\n' % (len(results), counts))
 
     # ---- 1. language purity ------------------------------------------------

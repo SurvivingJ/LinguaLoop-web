@@ -44,8 +44,10 @@ except ImportError:  # run or imported as scripts.<name>
 
 bootstrap(log_level=None)
 
+from services import language_registry  # noqa: E402
 
-LANG_NAMES = {1: 'zh', 2: 'en', 3: 'ja'}
+
+LANG_NAMES = language_registry.id_to_code()
 
 
 def _coverage(db) -> list[dict]:

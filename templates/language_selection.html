@@ -26,35 +26,17 @@
     <!-- Language Selection Cards -->
     <div class="language-options ld-rowlist" role="group" aria-labelledby="langSelectTitle">
 
-        <!-- Chinese (id=1) -->
-        <button type="button" class="language-card ld-trow" data-id="1" aria-pressed="false">
-            <span class="ld-trow__glyph language-glyph" lang="zh" aria-hidden="true">中</span>
+        {# One card per active language of services/language_registry.py. #}
+        {% for l in study_languages %}
+        <button type="button" class="language-card ld-trow" data-id="{{ l.id }}" aria-pressed="false">
+            <span class="ld-trow__glyph language-glyph" lang="{{ l.code }}" aria-hidden="true">{{ l.glyph }}</span>
             <span class="ld-trow__mid">
-                <b><span class="language-flag" aria-hidden="true">🇨🇳</span> <span class="language-native" lang="zh">中文</span></b>
-                <small class="language-english" data-ld-i18n="lang_select.name_zh">Chinese</small>
+                <b><span class="language-flag" aria-hidden="true">{{ l.flag }}</span> <span class="language-native" lang="{{ l.code }}">{{ l.native_name }}</span></b>
+                <small class="language-english" data-ld-i18n="lang_select.name_{{ l.code }}">{{ l.display }}</small>
             </span>
             <i class="check-icon bi bi-check-circle-fill" aria-hidden="true" style="display: none;"></i>
         </button>
-
-        <!-- English (id=2) -->
-        <button type="button" class="language-card ld-trow" data-id="2" aria-pressed="false">
-            <span class="ld-trow__glyph language-glyph" lang="en" aria-hidden="true">E</span>
-            <span class="ld-trow__mid">
-                <b><span class="language-flag" aria-hidden="true">🇺🇸</span> <span class="language-native" lang="en">English</span></b>
-                <small class="language-english" data-ld-i18n="lang_select.name_en">English</small>
-            </span>
-            <i class="check-icon bi bi-check-circle-fill" aria-hidden="true" style="display: none;"></i>
-        </button>
-
-        <!-- Japanese (id=3) -->
-        <button type="button" class="language-card ld-trow" data-id="3" aria-pressed="false">
-            <span class="ld-trow__glyph language-glyph" lang="ja" aria-hidden="true">日</span>
-            <span class="ld-trow__mid">
-                <b><span class="language-flag" aria-hidden="true">🇯🇵</span> <span class="language-native" lang="ja">日本語</span></b>
-                <small class="language-english" data-ld-i18n="lang_select.name_ja">Japanese</small>
-            </span>
-            <i class="check-icon bi bi-check-circle-fill" aria-hidden="true" style="display: none;"></i>
-        </button>
+        {% endfor %}
 
     </div>
 

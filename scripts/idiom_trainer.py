@@ -37,7 +37,12 @@ SETS = {
 # after its core entries, which keep their place, ids and cards.
 FULL = {('zh', 'chengyu'): 600, ('zh', 'guanyong'): 150, ('zh', 'suyu'): 100,
         ('ja', 'kanyo'): 450, ('ja', 'yoji'): 200, ('ja', 'kotowaza'): 120}
-LANGUAGE_IDS = {'zh': 1, 'ja': 3}
+from services import language_registry  # noqa: E402
+
+
+def language_id(lang):
+    """dim_languages id of a content language, from the language registry."""
+    return language_registry.id_of(lang)
 TAGS = frozenset('effort success failure caution haste joy anger fear sadness relationship speech '
                  'knowledge foolishness change time quantity appearance behaviour luck difficulty '
                  'money work'.split())
@@ -334,7 +339,7 @@ def built_files(lang):
         idioms += [{'id': c['id'], 't': c['t'], 'r': c['r'], 'mean': c['mean'], 'lvl': c['lvl'],
                     'tag': c['tag'], 'set': key, 'rank': n, 'parts': c['parts'], 'story': bool(c['story'])}
                    for n, c in enumerate(rows)]
-    manifest = {'language': lang, 'language_id': LANGUAGE_IDS[lang], 'sets': sets,
+    manifest = {'language': lang, 'language_id': language_id(lang), 'sets': sets,
                 'total': len(idioms), 'idioms': idioms}
     out['manifest.json'] = json.dumps(manifest, ensure_ascii=False, separators=(',', ':'))
     return out, skipped

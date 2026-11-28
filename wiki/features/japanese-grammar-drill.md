@@ -5,7 +5,7 @@ status: in-progress
 tech_page: japanese-grammar-drill.tech.md
 last_updated: 2026-11-27
 open_questions:
-  - "No human has checked a sample of the answer keys (TASK-1281)."
+  - "No human has checked a sample of the answer keys (TASK-1288)."
   - "Should the look-alike kanji skills get a typed rung through handwriting or an IME? Today a written form can only be chosen."
 ---
 
@@ -82,11 +82,11 @@ their meaning, from a reviewed list of 609 words.
 - Skill ids are unique across both courses.
 
 ## Open Questions
-- OPEN: native-speaker spot check of the answer keys (TASK-1281).
+- OPEN: native-speaker spot check of the answer keys (TASK-1288).
 - OPEN: a typed rung for written forms.
 
 ## Related Pages
 - [[features/japanese-grammar-drill.tech]] — technical specification
 - [[features/particle-drill]] — the first course, the ladder and the authoring pipeline
-- [[decisions/ADR-067-particle-drill-static-content-client-engine]] — why the content is files
+- [[decisions/ADR-069-particle-drill-static-content-client-engine]] — why the content is files
 - [[tasklist/japanese-grammar-drill.tasks]]

@@ -15,10 +15,11 @@
   'use strict';
 
   const API = '/api/calibration/placement';
-  // dim_languages ids. `es` is a UI locale only: a Spanish-speaking learner
+  // dim_languages ids and codes, from the language registry. `es` is a UI locale only: a Spanish-speaking learner
   // reads English definitions, as in the vocabulary check (calibration.js).
-  const LANG_CODE = { 1: 'zh', 2: 'en', 3: 'ja' };
-  const CODE_TO_ID = { zh: 1, en: 2, ja: 3 };
+  const LANGS = window.LinguaLanguages;
+  const LANG_CODE = LANGS.idToCode();
+  const CODE_TO_ID = LANGS.codeToId();
   //: A fully right word stays on screen this long, then moves on (as the check).
   const CORRECT_PAUSE_MS = 450;
   //: The band strip draws one dot per 5% of the check's word pool.
@@ -228,8 +229,9 @@
     return LANG_CODE[id] || 'en';
   }
 
+  // The languages whose words are also tested on their reading.
   function isCjk() {
-    return state.lang === 1 || state.lang === 3;
+    return LANGS.hasFeature(state.lang, 'pronunciation_calibration');
   }
 
   function idkAllowed(item) {
@@ -453,7 +455,9 @@
     if (item.probe_kind === 'forced_guess') return 'placement.best_guess';
     if (item.probe_kind === 'sound_pair') return 'placement.sound_pair_prompt';
     if (item.kind === 'reading') {
-      return state.lang === 1 ? 'placement.choose_pinyin' : 'placement.choose_reading_ja';
+      return LANGS.hasFeature(state.lang, 'pinyin')
+        ? 'placement.choose_pinyin'
+        : 'placement.choose_reading_ja';
     }
     return 'placement.choose_meaning';
   }
@@ -611,7 +615,9 @@
 
   function partLabelKey(part) {
     if (isReadingPart(part)) {
-      return state.lang === 1 ? 'placement.reveal_pinyin' : 'placement.reveal_reading';
+      return LANGS.hasFeature(state.lang, 'pinyin')
+        ? 'placement.reveal_pinyin'
+        : 'placement.reveal_reading';
     }
     return 'placement.reveal_meaning';
   }
@@ -1050,7 +1056,7 @@
     if (LANG_CODE[result.word_language_id]) state.lang = result.word_language_id;
     if (LANG_CODE[result.definition_language_id]) state.defLang = result.definition_language_id;
     const cjk = isCjk();
-    const zh = state.lang === 1;
+    const zh = LANGS.hasFeature(state.lang, 'pinyin');
     const lists = groupLists(o.wordLists, o.sessionId);
 
     const root = el.result;

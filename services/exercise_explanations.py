@@ -71,7 +71,7 @@ from dataclasses import dataclass, field
 from typing import Any, Iterable, Optional, Union
 
 from config import Config
-from services import explanation_files
+from services import explanation_files, language_registry
 
 logger = logging.getLogger(__name__)
 
@@ -107,8 +107,8 @@ _LLM_TIMEOUT_S = 30
 _MAX_TOKENS = 2000
 _CAP = {'meaning': 400, 'explanation': 600, 'correction': 300}
 
-_LANG = {1: ('zh', 'Chinese'), 2: ('en', 'English'), 3: ('ja', 'Japanese')}
-_FAMILY = {'zh': 'cjk', 'ja': 'cjk', 'en': 'latin'}
+_LANG = {lang.id: (lang.code, lang.display) for lang in language_registry.all_languages()}
+_FAMILY = {lang.code: lang.script for lang in language_registry.all_languages()}
 
 _lock = threading.Lock()
 _memory: 'OrderedDict[tuple[str, int], tuple[int, dict]]' = OrderedDict()

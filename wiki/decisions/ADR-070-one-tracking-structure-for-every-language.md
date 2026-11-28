@@ -1,10 +1,10 @@
 ---
-title: "ADR-068: One tracking structure for the grammar drills of every language"
+title: "ADR-070: One tracking structure for the grammar drills of every language"
 status: accepted
 date: 2026-11-28
 ---
 
-# ADR-068: One tracking structure for the grammar drills of every language
+# ADR-070: One tracking structure for the grammar drills of every language
 
 ## Context
 Two branches built grammar drills on the same two days. `main` got the Chinese grammar drills
@@ -44,7 +44,7 @@ you resolve a shared db structure for tracking grammar drill progress and implem
 - One migration to apply, one runbook, one place to read a learner's improvement over time, for
   both languages. A third language needs a `Profile`, no migration.
 - Japanese gains daily summaries (answers, right first time, recall time, stage per day), which
-  the JSON document did not have. Trend charts for Japanese are not built yet (TASK-1283).
+  the JSON document did not have. Trend charts for Japanese are not built yet (TASK-1290).
 - The Japanese ladder can demote, the Chinese one cannot. `u` therefore means "highest stage
   reached" for Japanese and the current rung is `state.s.l`.
 - A Japanese learner can have several hundred state rows (one per skill started; about 330 bytes

@@ -37,7 +37,7 @@ breaking_change_risk: medium
 > only plans topics that carry `"added"` in `plan.json`), and `"free_levels": true` on a plan
 > topic (chengyu) to skip the level-mix check. Counts elsewhere on this page are from the first build.
 
-> **2026-11-28:** this drill's page is now `/grammar-drill/zh` (each language has its own; `/grammar-drill` sends the browser to its study language's page), and its tracking tables are shared with the Japanese drills ([[decisions/ADR-068-one-tracking-structure-for-every-language]]). Where this page says `/grammar-drill`, read `/grammar-drill/zh`.
+> **2026-11-28:** this drill's page is now `/grammar-drill/zh` (each language has its own; `/grammar-drill` sends the browser to its study language's page), and its tracking tables are shared with the Japanese drills ([[decisions/ADR-070-one-tracking-structure-for-every-language]]). Where this page says `/grammar-drill`, read `/grammar-drill/zh`.
 
 Verified against the code on branch `claude/happy-gates-qp9ifs` on 2026-11-27. Not deployed.
 Progress tracking (ADR-066) was added the same day in the working tree; its migration is not applied.

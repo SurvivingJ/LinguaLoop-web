@@ -10,6 +10,8 @@ import os
 from datetime import timedelta
 from dotenv import load_dotenv
 
+from services import language_registry
+
 # The test suite sets LINGUADOJO_SKIP_DOTENV (tests/conftest.py) so a developer's
 # .env cannot put live credentials into an offline test run.
 if not os.environ.get('LINGUADOJO_SKIP_DOTENV'):
@@ -188,12 +190,9 @@ class Config:
     # ==========================================================================
     # LANGUAGE CONFIGURATION - Single source of truth
     # ==========================================================================
-    # Language codes are ISO 639-1 (zh, en, ja). Single source of truth.
-    LANGUAGES = {
-        1: {'code': 'zh', 'name': 'chinese', 'display': 'Chinese'},
-        2: {'code': 'en', 'name': 'english', 'display': 'English'},
-        3: {'code': 'ja', 'name': 'japanese', 'display': 'Japanese'},
-    }
+    # The languages themselves are declared in services/language_registry.py;
+    # these names are kept for the callers that read them from Config.
+    LANGUAGES = language_registry.legacy_config()
     VALID_LANGUAGE_IDS = set(LANGUAGES.keys())
     LANGUAGE_ID_TO_NAME = {k: v['name'] for k, v in LANGUAGES.items()}
     LANGUAGE_CODE_TO_ID = {v['code']: k for k, v in LANGUAGES.items()}

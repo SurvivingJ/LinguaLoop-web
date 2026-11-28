@@ -46,6 +46,7 @@ from concurrent.futures import ThreadPoolExecutor
 from typing import Optional
 
 from config import Config
+from services import language_registry
 from services.dictation.tokenizer import normalize as _dictation_normalize
 from services.dimension_service import DimensionService
 from services.dual_translation import output_sanitizer
@@ -160,7 +161,7 @@ def _target_norm(text: str, l2_code: str) -> str:
     """Normalisation for surface/lemma presence checks: Tier 0's width + kana
     fold, then case-fold (en) and whitespace removal (CJK)."""
     out = _normalize_l2(text or "", l2_code).casefold()
-    if (l2_code or "").lower() in ("ja", "zh"):
+    if (l2_code or "").lower() in language_registry.cjk_codes():
         out = "".join(out.split())
     return out
 

@@ -29,6 +29,7 @@
     <script type="application/json" id="lingua-boot">{{ {'metadata': lingua_metadata, 'i18nVersions': i18n_versions, 'apiBase': url_for('index')}|tojson }}</script>
     {% if i18n_versions.get('en') %}<link rel="preload" as="fetch" crossorigin href="/static/i18n/en.json?v={{ i18n_versions['en'] }}">{% endif %}
     {# Synchronous on purpose: theme before first paint, session renewal before any page request. #}
+    <script src="{{ url_for('static', filename='js/language-registry.js') }}"></script>
     <script src="{{ url_for('static', filename='js/pages/base-head.js') }}"></script>
 
     <link rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap-5.3.2/css/bootstrap.min.css') }}">
@@ -259,9 +260,9 @@
                 <div class="modal-body">
                     <p class="text-muted mb-3" data-i18n="native_prompt.body">We'll explain new words in this language. You can change it any time in your profile.</p>
                     <div class="d-grid gap-2">
-                        <button type="button" class="btn btn-outline-primary" data-native-lang="2">English</button>
-                        <button type="button" class="btn btn-outline-primary" data-native-lang="1" lang="zh">中文</button>
-                        <button type="button" class="btn btn-outline-primary" data-native-lang="3" lang="ja">日本語</button>
+                        {% for l in native_language_choices %}
+                        <button type="button" class="btn btn-outline-primary" data-native-lang="{{ l.id }}"{% if l.code != 'en' %} lang="{{ l.code }}"{% endif %}>{{ l.native_name }}</button>
+                        {% endfor %}
                     </div>
                 </div>
                 <div class="modal-footer border-0">

@@ -1,4 +1,4 @@
-"""The shared grammar-drill tracking, Japanese profile (ADR-068).
+"""The shared grammar-drill tracking, Japanese profile (ADR-070).
 
 One structure (grammar_drill_daily, grammar_drill_state, record_grammar_drill_round)
 serves every language; services/grammar_drill_tracking.Profile says what a

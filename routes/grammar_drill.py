@@ -1,7 +1,7 @@
 """Grammar-drill progress tracking routes (TASK-1259, ADR-066), shared by the
 drills of every language that has a profile in services/grammar_drill_tracking
 (Chinese grammar drills; Japanese particle, grammar, conjugation and reading
-drills; ADR-068).
+drills; ADR-070).
 
   POST /api/grammar-drill/round     body: {language_id, round_key (uuid),
         mode: 'round'|'mixed'|'endless'|'sync', played_at? (epoch seconds),

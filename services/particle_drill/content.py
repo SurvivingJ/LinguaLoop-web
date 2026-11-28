@@ -1,6 +1,6 @@
 """Reads the built particle-drill content from ``data/particle_drill/<lang>/``.
 
-The content is static and ships with the code (ADR-067): ``catalog.json``,
+The content is static and ships with the code (ADR-069): ``catalog.json``,
 ``guides/<group>.json``, ``items/<skill>.jsonl`` (plus the authoring part
 files ``items/<skill>__<part>.jsonl``), ``packs/<skill>.json`` and
 ``conjugation/*.json``. ``scripts/particle_drill_build.py`` checks all of it
@@ -15,11 +15,15 @@ import os
 import threading
 from typing import Dict, List, Optional
 
+from services import language_registry
+
 logger = logging.getLogger(__name__)
 
 DATA_ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                           '..', '..', 'data', 'particle_drill'))
-LANGUAGES = {3: 'ja'}          # language_id -> content directory
+# Languages that have this drill's content (a directory per language code under
+# data/particle_drill/); ids and codes come from the language registry.
+CONTENT_CODES = ('ja',)
 COURSES = {None: '', '': '', 'particles': '', 'grammar': '-grammar'}   # course -> directory suffix
 CONJUGATION_LEXICONS = ('verbs', 'adjectives')
 
@@ -180,8 +184,8 @@ def get_content(language_id: int, course: Optional[str] = None) -> Optional[Cont
 
     ``course`` is None / 'particles' (the particle course) or 'grammar'.
     """
-    code = LANGUAGES.get(language_id)
-    if not code or course not in COURSES:
+    code = language_registry.code_of(language_id)
+    if code not in CONTENT_CODES or course not in COURSES:
         return None
     code += COURSES[course]
     with _lock:

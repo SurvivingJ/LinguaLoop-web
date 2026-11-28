@@ -44,6 +44,7 @@ except ImportError:  # run or imported as scripts.<name>
 bootstrap()
 
 
+from services import language_registry  # noqa: E402
 from config import Config
 from services.supabase_factory import SupabaseFactory, get_supabase_admin
 from services.vocabulary.sense_generator import SenseGenerator, find_sentence
@@ -402,7 +403,7 @@ class VocabBackfillRunner:
 def main():
     parser = base_parser(description='Backfill vocabulary for existing tests',
                          dry_run_help='Preview changes without writing to DB (the default)')
-    parser.add_argument('--language', required=True, choices=['zh', 'en', 'ja'],
+    parser.add_argument('--language', required=True, choices=language_registry.codes(),
                         help='Language code to process')
     parser.add_argument('--limit', type=int, default=0,
                         help='Max number of tests to process (0=all)')

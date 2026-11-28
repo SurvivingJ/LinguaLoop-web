@@ -17,10 +17,12 @@ from dataclasses import dataclass, field, asdict
 from difflib import SequenceMatcher
 from typing import Iterable, Optional
 
+from services import language_registry
+
 # This module holds the only copy of the sentence segmenter regexes (it imports
 # no LLM stack, so the offline harness can use it). passage_builder has no copy;
 # tests/test_sentence_refs.py asserts that.
-_CJK_CODES = frozenset({'zh', 'ja'})
+_CJK_CODES = frozenset(language_registry.cjk_codes())
 _CJK_TERMINATORS = '。！？…!?'
 # Closing quotes/brackets that follow a terminator stay with the sentence they
 # close: 她说：“……很重要。”她的意思是 splits after ”, not before it, and
@@ -47,7 +49,7 @@ USABLE_VERDICTS = ('pass', 'rewritten')
 #: Independent reviews of the exact same text (distinct runs) at which a
 #: reference skips the tightness floor in window selection (ADR-050).
 FLOOR_OVERRIDE_REVIEWS = 2
-LANG_CODE = {1: 'zh', 2: 'en', 3: 'ja'}
+LANG_CODE = language_registry.id_to_code()
 LANG_ID = {v: k for k, v in LANG_CODE.items()}
 
 # ---------------------------------------------------------------------------

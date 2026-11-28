@@ -1,9 +1,10 @@
 (function () {
   'use strict';
 
-  // dim_languages ids. `es` is a UI locale only — it has no dim_languages row,
+  // dim_languages ids by code, from the language registry. `es` is a UI locale only — it has no dim_languages row,
   // so a Spanish-speaking learner reads English definitions rather than none.
-  const LOCALE_TO_LANGUAGE_ID = { zh: 1, en: 2, ja: 3 };
+  const LANGS = window.LinguaLanguages;
+  const LOCALE_TO_LANGUAGE_ID = LANGS.codeToId();
 
   const el = {
     header: document.getElementById('calHeader'),
@@ -69,7 +70,7 @@
   // disabled rather than hidden for English — a control that vanishes reads
   // like a bug, one that is visibly unavailable reads like a limitation.
   function pronunciationAvailable() {
-    return wordLanguageId() === 1 || wordLanguageId() === 3;
+    return LANGS.hasFeature(wordLanguageId(), 'pronunciation_calibration');
   }
 
   function tr(key, params) {
@@ -90,7 +91,7 @@
 
   function wordLanguageId() {
     const id = parseInt(localStorage.getItem('selectedLanguageId'), 10);
-    return id === 1 || id === 2 || id === 3 ? id : 3;
+    return LANGS.find(id) ? id : 3;
   }
 
   function definitionLanguageId() {
@@ -239,7 +240,7 @@
   function renderItem(item) {
     el.prompt.textContent = item.lemma || '';
     // The word (and its reading) in the study language's font.
-    const wordLang = { 1: 'zh', 2: 'en', 3: 'ja' }[wordLanguageId()];
+    const wordLang = LANGS.codeOf(wordLanguageId());
     el.prompt.lang = wordLang;
     el.reading.lang = wordLang;
     el.reading.textContent = item.pronunciation || '';
@@ -472,7 +473,7 @@
   // The same range, label and answer dates as /knowledge (same estimator and gate), or the
   // reason none is shown yet, plus a link. Nothing at all when the report is switched off (404),
   // not deployed (503) or the request fails.
-  const LANGUAGE_CODES = { 1: 'zh', 2: 'en', 3: 'ja' };
+  const LANGUAGE_CODES = LANGS.idToCode();
   const INTL_LOCALES = { en: 'en-GB', es: 'es', ja: 'ja', zh: 'zh-CN' };
   let knowledgeRequest = 0;
 

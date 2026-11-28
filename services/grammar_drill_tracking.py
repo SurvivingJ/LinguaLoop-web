@@ -1,4 +1,4 @@
-"""Grammar-drill progress tracking (TASK-1259, ADR-066; shared by every language, ADR-068).
+"""Grammar-drill progress tracking (TASK-1259, ADR-066; shared by every language, ADR-070).
 
 Daily summaries per learner and topic plus one current-state row per topic, so
 that improvement over time can be read back and progress follows the learner
@@ -33,6 +33,7 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Optional
 
+from services import language_registry
 from services.day_boundary import review_today
 from services.drill_service import ZH_LANGUAGE_ID
 from services.pagination import fetch_all
@@ -40,7 +41,7 @@ from services.pagination import fetch_all
 logger = logging.getLogger(__name__)
 
 LANGUAGE_ID = ZH_LANGUAGE_ID           # the Chinese profile (kept for callers and tests)
-JA_LANGUAGE_ID = 3
+JA_LANGUAGE_ID = language_registry.id_of('ja')
 MANIFEST_PATH = (Path(__file__).resolve().parent.parent
                  / 'static' / 'data' / 'grammar' / 'zh' / 'manifest.json')
 
@@ -58,7 +59,7 @@ DB_MAX_STAGE = 7             # what the table's CHECK and the function allow
 IDIOM_STAGES = 6             # idiom trainer: five steps and Mastered (static/js/idioms/ladder.js)
 IDIOM_PREFIX = 'idiom-'
 IDIOM_DIR = Path(__file__).resolve().parent.parent / 'static' / 'data' / 'idioms'
-IDIOM_LANG = {1: 'zh', 3: 'ja'}
+IDIOM_CODES = ('zh', 'ja')   # languages with an idiom trainer (static/data/idioms/<code>)
 MAX_STATE_BYTES = 1500       # JSON text; the table's CHECK allows 4096 stored bytes
 MAX_SEQ = 10_000_000
 DEFAULT_DAYS = 180
@@ -167,8 +168,8 @@ def _ja_state(value: Any, now: datetime, max_stage: int) -> Optional[dict]:
 
 def idiom_ids(language_id: int) -> frozenset[str]:
     """Ids of the built idioms of a language (cached; re-read when the manifest changes)."""
-    lang = IDIOM_LANG.get(language_id)
-    path = IDIOM_DIR / lang / 'manifest.json' if lang else None
+    lang = language_registry.code_of(language_id)
+    path = IDIOM_DIR / lang / 'manifest.json' if lang in IDIOM_CODES else None
     if path is None or not path.exists():
         return frozenset()
     mtime = path.stat().st_mtime

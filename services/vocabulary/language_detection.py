@@ -13,7 +13,7 @@ def check_text_language(text: str, expected_lang_code: str) -> tuple[bool, str]:
 
     Args:
         text: The text to check (definition or example sentence)
-        expected_lang_code: ISO 639-1: 'zh', 'ja', or 'en'
+        expected_lang_code: ISO 639-1 code ('zh', 'ja' or 'en')
 
     Returns:
         (is_correct_language, reason)

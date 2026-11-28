@@ -557,7 +557,7 @@ GQ10 is marked ANSWERED with the owner's words.
 
 ---
 
-## TASK-1285: Five more Chinese topics and a worker runner
+## TASK-1292: Five more Chinese topics and a worker runner
 
 **Status:** [x] Done (2026-11-28; repo, not deployed)
 **Feature:** grammar-drills

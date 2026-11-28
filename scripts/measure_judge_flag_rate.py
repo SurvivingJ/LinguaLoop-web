@@ -72,6 +72,7 @@ bootstrap(log_level=None)
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 
+from services import language_registry  # noqa: E402
 import distractor_gold as gold_lib  # noqa: E402
 from services.llm_service import call_llm  # noqa: E402
 from services.test_generation.schemas import (  # noqa: E402
@@ -81,7 +82,7 @@ from services.test_generation.schemas import (  # noqa: E402
     axes_to_verdict,
 )
 
-LANG_NAME = {1: "zh", 2: "en", 3: "ja"}
+LANG_NAME = language_registry.id_to_code()
 
 # Where file-backed arms (`name=@prefix:model`) look for their bodies.
 EVAL_DIR = os.path.join(

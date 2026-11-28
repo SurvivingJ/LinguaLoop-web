@@ -24,6 +24,9 @@ function loadBrowserScript(relPath) {
   eval(code);
 }
 
+// The language registry first: utils.js and most page scripts read
+// window.LinguaLanguages (base.html loads it in the head).
+loadBrowserScript('static/js/language-registry.js');
 // Order matters: exercise-renderers.js delegates to window.LinguaUtils.escapeHtml
 loadBrowserScript('static/js/utils.js');
 loadBrowserScript('static/js/exercise-renderers.js');

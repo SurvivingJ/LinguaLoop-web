@@ -13,13 +13,13 @@ Built on 2026-11-27 (owner, after the particle drill: "build all of them, the sa
 
 ---
 
-## TASK-1278: Second course in the pipeline, service, routes and page
+## TASK-1285: Second course in the pipeline, service, routes and page
 
 **Status:** [x] Done (2026-11-27)
 **Feature:** japanese-grammar-drill
 **Type:** feature
 **Complexity:** L (1-2d)
-**Depends On:** TASK-1271
+**Depends On:** TASK-1278
 
 **Description:**
 Make the particle pipeline and page serve a second course: `PD_COURSE`, the grammar catalog and
@@ -47,13 +47,13 @@ the listed confusers of a particle skill were never used for interleaving.
 
 ---
 
-## TASK-1279: Author and review the grammar content
+## TASK-1286: Author and review the grammar content
 
 **Status:** [x] Done (2026-11-27)
 **Feature:** japanese-grammar-drill
 **Type:** feature
 **Complexity:** XL (>2d)
-**Depends On:** TASK-1278
+**Depends On:** TASK-1285
 
 **Description:**
 Run the pipeline for the grammar course: 8,340 items over 182 skills, 48 guides, 18 pattern
@@ -81,13 +81,13 @@ both edits were reverted from git before committing. A seven-job pilot was read 
 
 ---
 
-## TASK-1280: Reading drill (numbers, prices, times, dates, durations, ages, katakana)
+## TASK-1287: Reading drill (numbers, prices, times, dates, durations, ages, katakana)
 
 **Status:** [x] Done (2026-11-27)
 **Feature:** japanese-grammar-drill
 **Type:** feature
 **Complexity:** M (3-8h)
-**Depends On:** TASK-1277
+**Depends On:** TASK-1284
 
 **Description:**
 `static/js/particles/numbers.js` generates and reads the questions by rule; `/reading-drill`
@@ -112,16 +112,16 @@ Open `/reading-drill`, start: a price, a time and a date come up; type `sanbyaku
 
 ---
 
-## TASK-1281: Native-speaker spot check of the grammar answer keys
+## TASK-1288: Native-speaker spot check of the grammar answer keys
 
 **Status:** [?] Awaiting owner
 **Feature:** japanese-grammar-drill
 **Type:** test
 **Complexity:** M (3-8h)
-**Depends On:** TASK-1279
+**Depends On:** TASK-1286
 
 **Description:**
-As TASK-1272 for the particle course: no human has checked a sample. Draw about 300 items
+As TASK-1279 for the particle course: no human has checked a sample. Draw about 300 items
 stratified by stage; keigo, the conditionals and the conjecture patterns (そう / よう / らしい) carry
 the most risk of a distractor that a native speaker would accept.
 

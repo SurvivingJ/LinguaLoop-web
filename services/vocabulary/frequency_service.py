@@ -13,17 +13,15 @@ from typing import Optional
 
 from wordfreq import zipf_frequency
 
+from services import language_registry
+
 logger = logging.getLogger(__name__)
 
 # App language codes → wordfreq language codes.
 # App codes are ISO 639-1 and wordfreq uses the same codes, so this is a
 # passthrough. Kept as an explicit allow-list so unknown codes raise loudly
 # in _to_wordfreq_lang() rather than silently feeding garbage to wordfreq.
-_LANG_MAP: dict[str, str] = {
-    "zh": "zh",
-    "ja": "ja",
-    "en": "en",
-}
+_LANG_MAP: dict[str, str] = language_registry.wordfreq_codes()
 
 # Penalty subtracted from component-average for phrase scores
 _PHRASE_PENALTY = 0.5

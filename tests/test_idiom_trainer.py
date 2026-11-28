@@ -163,7 +163,7 @@ def test_static_files_are_built_and_idioms_are_unique():
         # an expression that two sets list (半斤八两; 背水の陣) is built once, in the earlier set
         listed = [e['t'] for key, *_ in it.SETS[lang] for e in it.load_list(lang, key)]
         assert len(ids) == len(set(listed)) and 0 <= len(listed) - len(ids) <= 5
-        assert manifest['language_id'] == it.LANGUAGE_IDS[lang]
+        assert manifest['language_id'] == it.language_id(lang)
         # the "complete" step needs every idiom's two halves in the manifest
         assert all(''.join(i['parts']) == i['t'] for i in manifest['idioms'])
 
@@ -190,7 +190,7 @@ def test_pages(client):
         html = resp.get_data(as_text=True)
         lang = path[-2:]
         assert f'data-lang="{lang}"' in html and f'data/idioms/{lang}/manifest.json' in html
-        assert f'data-language-id="{it.LANGUAGE_IDS[lang]}"' in html
+        assert f'data-language-id="{it.language_id(lang)}"' in html
     chooser = client.get('/idiom-trainer').get_data(as_text=True)
     assert 'data-base="/idiom-trainer"' in chooser and '/idiom-trainer/zh' in chooser and '/idiom-trainer/ja' in chooser
 

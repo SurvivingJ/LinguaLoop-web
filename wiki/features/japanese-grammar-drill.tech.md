@@ -45,7 +45,7 @@ static/js/particles/numbers.js    rule engine: readNumber, numberReadings, count
 ```
 
 ## Database Impact
-None of its own. Progress goes to the shared grammar-drill tracking ([[decisions/ADR-068-one-tracking-structure-for-every-language]], pending): a grammar skill is a topic with seven stages; a reading category is `read-<category>` with four.
+None of its own. Progress goes to the shared grammar-drill tracking ([[decisions/ADR-070-one-tracking-structure-for-every-language]], pending): a grammar skill is a topic with seven stages; a reading category is `read-<category>` with four.
 Reading-drill progress is stored in the same document under `conj["read:<category>"]`.
 
 ## API / RPC Surface

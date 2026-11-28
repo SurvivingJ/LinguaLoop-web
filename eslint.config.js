@@ -20,6 +20,7 @@ export default [
         LINGUADOJO: 'readonly',
         LinguaUtils: 'writable',
         LinguaMetadata: 'writable',
+        LinguaLanguages: 'readonly',
         authFetch: 'readonly',
         bootstrap: 'readonly',
       },

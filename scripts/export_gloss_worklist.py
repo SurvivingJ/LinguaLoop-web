@@ -59,6 +59,7 @@ except ImportError:  # run or imported as scripts.<name>
 bootstrap()
 
 
+from services import language_registry  # noqa: E402
 from config import Config
 from services.supabase_factory import SupabaseFactory, get_supabase_admin
 
@@ -145,9 +146,9 @@ def load_glossed_targets(db, target_id: int) -> set[tuple[int, int]]:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument('--source-language', required=True, choices=['zh', 'en', 'ja'])
+    parser.add_argument('--source-language', required=True, choices=language_registry.codes())
     parser.add_argument('--target-languages', required=True,
-                        help='Comma-separated: zh | en | ja (must exclude --source-language)')
+                        help=f"Comma-separated: {' | '.join(language_registry.codes())} (must exclude --source-language)")
     parser.add_argument('--overwrite', action='store_true')
     parser.add_argument('--batch-size', type=int, default=40)
     parser.add_argument('--limit', type=int, default=0)
@@ -163,7 +164,7 @@ def main() -> int:
                      args.source_language)
         return 1
     for code in targets:
-        if code not in ('zh', 'en', 'ja'):
+        if code not in language_registry.codes():
             logger.error("Unknown target language %r", code)
             return 1
 

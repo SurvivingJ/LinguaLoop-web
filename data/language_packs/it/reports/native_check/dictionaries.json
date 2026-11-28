@@ -1,0 +1,288 @@
+{
+ "checker": "opus",
+ "tables": {
+  "collocations": {
+   "rows": 49,
+   "ok": 34,
+   "wrong": 15,
+   "unnatural": 0,
+   "marks": [
+    {
+     "row": "fare colazione",
+     "field": "wrong_collocates",
+     "mark": "wrong",
+     "note": "'prendere' is acceptable: 'prendere la colazione' is standard Italian (dictionaries give fare colazione / prendere la colazione; hotels say 'la colazione si prende in sala'). Replace prendere with a verb that is truly impossible here, e.g. 'dare' or 'tenere'.",
+     "certain": false
+    },
+    {
+     "row": "avere sete",
+     "field": "wrong_collocates",
+     "mark": "wrong",
+     "note": "'fare' forms an established phrase with another meaning: 'il salato fa sete' (makes you thirsty), alongside 'mettere sete'. Replace fare with e.g. 'tenere' or 'stare'.",
+     "certain": false
+    },
+    {
+     "row": "avere fretta",
+     "field": "wrong_collocates",
+     "mark": "wrong",
+     "note": "'essere' is acceptable: 'essere di fretta' (sono di fretta = I'm in a hurry) is very common standard Italian with the same meaning, and 'non c'è fretta' is everyday. The calque essere is therefore not a clean error; either drop the row or keep essere only with an exercise sentence that excludes 'di' (better: drop).",
+     "certain": true
+    },
+    {
+     "row": "avere bisogno",
+     "field": "wrong_collocates",
+     "mark": "wrong",
+     "note": "'essere' occurs in the standard impersonal 'c'è bisogno di' (esserci bisogno), same meaning. In a personal-subject gap sentence ('Io ___ bisogno di aiuto') essere is wrong, but the profile requires wrong in every reading. Keep only if the gap sentence has a personal subject; otherwise replace.",
+     "certain": false
+    },
+    {
+     "row": "avere freddo",
+     "field": "wrong_collocates",
+     "mark": "wrong",
+     "note": "'essere' is acceptable in another reading: 'sono freddo' = I am cold to the touch / emotionally cold ('sei freddo, hai le mani gelate'; 'è una persona fredda'). The gap sentence must force the 'feel cold' reading; as a bare pair the distractor is not unacceptable in every reading.",
+     "certain": false
+    },
+    {
+     "row": "fare attenzione",
+     "field": "wrong_collocates",
+     "mark": "wrong",
+     "note": "'portare' forms an established phrase: 'portare l'attenzione su qualcosa' (direct attention to), common in instructions and writing. Replace portare with e.g. 'dare' (dare attenzione is also marginal, so better 'mettere' or 'tenere').",
+     "certain": false
+    },
+    {
+     "row": "risolvere un problema",
+     "field": "wrong_collocates",
+     "mark": "wrong",
+     "note": "'sciogliere' is acceptable: 'sciogliere un problema / un quesito / un dubbio' = risolverlo is listed in Treccani and used in formal writing. Replace sciogliere with e.g. 'fissare' (the real English-speaker calque of 'fix') or 'correggere'.",
+     "certain": false
+    },
+    {
+     "row": "chiedere scusa",
+     "field": "wrong_collocates",
+     "mark": "wrong",
+     "note": "'dire' is acceptable: 'dire scusa' / 'Di' scusa alla signora!' is everyday native usage with the same meaning (it is exactly English 'say sorry'). Remove dire (and from calque); the English-speaker calque of 'apologise' is not available, so leave calque out or use 'fare' as first distractor. en should be 'to apologise'.",
+     "certain": true
+    },
+    {
+     "row": "accendere la luce",
+     "field": "calque",
+     "mark": "wrong",
+     "note": "'aprire' is not what an English speaker produces ('open the light' is not English; 'aprire la luce' is a southern Italian regionalism). The English calque of 'turn on / put on the light' is 'girare' or 'mettere'; put that first and in calque.",
+     "certain": true
+    },
+    {
+     "row": "spegnere la luce",
+     "field": "calque",
+     "mark": "wrong",
+     "note": "'chiudere' is not an English calque ('close the light' is not English; 'chiudere la luce' is a southern regionalism). English 'turn off / switch off' gives 'girare' or 'fermare'/'staccare'; set calque accordingly (fermare is already listed).",
+     "certain": true
+    },
+    {
+     "row": "caffè forte",
+     "field": "calque",
+     "mark": "wrong",
+     "note": "'potente' is not an English calque: 'strong coffee' maps word-for-word to 'caffè forte', which is correct, so there is no calque; leave calque out (and the pair is a weak trap for English speakers).",
+     "certain": false
+    },
+    {
+     "row": "febbre alta",
+     "field": "calque",
+     "mark": "wrong",
+     "note": "'grande' is not an English calque: 'high fever' maps word-for-word to 'febbre alta', which is correct. Leave calque out.",
+     "certain": false
+    },
+    {
+     "row": "alta stagione",
+     "field": "calque",
+     "mark": "wrong",
+     "note": "'grande' is not an English calque: 'high season' maps to 'alta stagione' directly. Leave calque out.",
+     "certain": false
+    },
+    {
+     "row": "luna piena",
+     "field": "calque",
+     "mark": "wrong",
+     "note": "'completa' is not an English calque: 'full' is 'pieno' in every bilingual dictionary, so English speakers say 'luna piena'. Leave calque out.",
+     "certain": false
+    },
+    {
+     "row": "pressione alta",
+     "field": "wrong_collocates",
+     "mark": "wrong",
+     "note": "'grande' forms an established phrase: 'una grande pressione' (great pressure, physical or figurative: 'sotto grande pressione'). Replace grande with e.g. 'grossa' or 'larga'.",
+     "certain": true
+    }
+   ]
+  },
+  "verb_government": {
+   "rows": 57,
+   "ok": 49,
+   "wrong": 7,
+   "unnatural": 1,
+   "marks": [
+    {
+     "row": "parlare + noun (di)",
+     "field": "english_calque",
+     "mark": "wrong",
+     "note": "'parlare su' is accepted in formal/lecture use ('parlerà sulla crisi economica', cf. 'una relazione su'), so 'su' is not cleanly wrong. A cleaner calque is hard to find; consider dropping english_calque by setting differs_from_english false, or keep with certain=false.",
+     "certain": false
+    },
+    {
+     "row": "entrare + noun (in)",
+     "field": "preposition",
+     "mark": "wrong",
+     "note": "'a' is also standard with some nouns for the same meaning: entrare a scuola, entrare al cinema, entrare a teatro (and 'da' for the point of entry: entrare dalla finestra). The profile says to leave out heads where the preposition is not fixed; drop the row or restrict to nouns that take 'in' (in casa, in macchina, nel negozio).",
+     "certain": true
+    },
+    {
+     "row": "pagare + noun (∅)",
+     "field": "english_calque",
+     "mark": "wrong",
+     "note": "'pagare per' is correct Italian: 'Quanto hai pagato per quella borsa?', 'pagare per i propri errori'. The calque is not genuinely wrong; drop the row or set differs_from_english false.",
+     "certain": true
+    },
+    {
+     "row": "credere + noun (in)",
+     "field": "preposition",
+     "mark": "wrong",
+     "note": "For 'believe in' (existence) 'a' is equally standard: credere ai fantasmi, credere agli UFO, credere a Babbo Natale; 'in' dominates for faith/values (credere in Dio, nella giustizia). Two prepositions for the overlapping meaning; narrow en_pattern to 'to have faith in sb or sth' or drop.",
+     "certain": true
+    },
+    {
+     "row": "contento + noun (di)",
+     "field": "preposition",
+     "mark": "wrong",
+     "note": "'per' is also standard with a noun of cause: 'sono contento per il risultato', and the only option for the person one is happy for ('sono contento per te'). Not a fixed single preposition.",
+     "certain": false
+    },
+    {
+     "row": "bravo + noun (in)",
+     "field": "english_calque",
+     "mark": "wrong",
+     "note": "'a' is standard, not a calque error: 'bravo a tennis', 'bravo a scacchi', 'bravo a calcio', and colloquially 'bravo a scuola / a matematica'. Both in and a are used for 'good at'; drop or restrict to school subjects and change calque.",
+     "certain": true
+    },
+    {
+     "row": "pronto + infinitive (a)",
+     "field": "preposition",
+     "mark": "wrong",
+     "note": "'per' is equally standard before an infinitive: 'Siamo pronti per partire', 'pronto per uscire'. Two prepositions, same meaning: drop the row per the profile.",
+     "certain": true
+    },
+    {
+     "row": "invitare + infinitive (a)",
+     "field": "example",
+     "mark": "unnatural",
+     "note": "'Ti invito a cenare da noi sabato' is grammatical but natives say 'Ti invito a cena da noi sabato' (noun). Use an infinitive that is natural here: 'Ti invito a venire da noi sabato.'",
+     "certain": false
+    }
+   ]
+  },
+  "false_friends": {
+   "rows": 56,
+   "ok": 48,
+   "wrong": 8,
+   "unnatural": 0,
+   "marks": [
+    {
+     "row": "libreria ~ library",
+     "field": "kind",
+     "mark": "wrong",
+     "note": "Not full: in computing 'libreria' (software library) is the standard current term, listed in Treccani. Should be partial (note the profile itself cites libreria as full).",
+     "certain": false
+    },
+    {
+     "row": "gentile ~ gentle",
+     "field": "kind",
+     "mark": "wrong",
+     "note": "Not full: 'gentile' also means delicate, refined in current use ('lineamenti gentili', 'il gentil sesso', 'un fiore gentile'), which overlaps 'gentle'; partial. The trap is also mild (kind vs gentle), close to the profile's 'no harm' exclusion.",
+     "certain": false
+    },
+    {
+     "row": "palazzo ~ palace",
+     "field": "it_for_lookalike",
+     "mark": "wrong",
+     "note": "The usual Italian for 'palace' is 'palazzo' itself (Palazzo Reale, Palazzo Ducale, Palazzo Pitti); 'reggia' is only a royal residence. Correct value: 'palazzo reale' (or palazzo).",
+     "certain": false
+    },
+    {
+     "row": "comprensivo ~ comprehensive",
+     "field": "kind",
+     "mark": "wrong",
+     "note": "The row's own en_meaning lists 'inclusive (of)' ('prezzo comprensivo di IVA'), which is the 'including everything' sense of comprehensive; that is a shared sense, so partial, not full.",
+     "certain": false
+    },
+    {
+     "row": "lettura ~ lecture",
+     "field": "kind",
+     "mark": "wrong",
+     "note": "Not strictly full: 'lettura' also means a lecture/talk in academic use ('lettura magistrale', 'letture dantesche'; Treccani: conferenza su un autore o un'opera). Partial.",
+     "certain": false
+    },
+    {
+     "row": "romanzo ~ romance",
+     "field": "kind",
+     "mark": "wrong",
+     "note": "'romanzo' does cover the literary genre 'romance' ('romanzo cavalleresco', 'romanzo cortese' = medieval romance), and English 'romance' also means a romance novel ('romanzo rosa'). Partial rather than full.",
+     "certain": false
+    },
+    {
+     "row": "attendere ~ attend",
+     "field": "kind",
+     "mark": "wrong",
+     "note": "'attendere a' = attend to, see to ('attendere ai propri doveri, alle faccende'), a current dictionary sense shared with English 'attend (to)'. Partial; it_for_lookalike 'frequentare' fits only school/course, 'partecipare a' for events.",
+     "certain": false
+    },
+    {
+     "row": "simpatico ~ sympathetic",
+     "field": "kind",
+     "mark": "wrong",
+     "note": "English 'sympathetic' also means likeable ('a sympathetic character'), which is exactly 'simpatico' ('un personaggio simpatico'). The main senses differ but one is shared: partial.",
+     "certain": false
+    }
+   ]
+  },
+  "noun_gender": {
+   "rows": 60,
+   "ok": 60,
+   "wrong": 0,
+   "unnatural": 0,
+   "marks": []
+  },
+  "verb_conjugation": {
+   "rows": 60,
+   "ok": 59,
+   "wrong": 1,
+   "unnatural": 0,
+   "marks": [
+    {
+     "row": "vivere",
+     "field": "auxiliary_note",
+     "mark": "wrong",
+     "note": "Says 'essere when intransitive'. Intransitive vivere takes essere OR avere in standard Italian ('ho vissuto a Roma tre anni' is at least as common as 'sono vissuto'); dictionaries give aus. essere o avere. Correct note: 'Avere with a direct object (ha vissuto una vita felice); intransitive: essere or avere, both standard (è vissuto / ha vissuto a Roma).' auxiliary_choice must accept both for intransitive use.",
+     "certain": true
+    }
+   ]
+  }
+ },
+ "spec_notes": [
+  "collocations: 'every wrong_collocate unacceptable in every reading' cannot hold for verb_noun pairs with a concrete noun, because any transitive verb gives a compositional reading (prendere una foto = pick up a photo; avere un viaggio = have a trip coming up; prendere la spesa = collect the groceries). The rule needs restating as 'unacceptable with the meaning in the gap sentence', and the exercise sentence must fix that meaning.",
+  "collocations: 'put the English calque first and repeat it in calque' pushes authors to invent a calque where English maps word-for-word to the correct Italian (caffè forte, febbre alta, alta stagione, luna piena, pressione alta, prezzo alto). Such pairs carry no English-speaker trap and should be excluded, or calque must be explicitly absent.",
+  "collocations: avere + bodily-state nouns (freddo, caldo) collide with essere + adjective (sono freddo = I am cold to the touch / cold-natured), so the essere calque is acceptable in another reading; the profile's every-reading rule makes the core light-verb rows it asks for first formally impossible unless the gap sentence carries the disambiguation.",
+  "collocations: phrases needing an extra preposition (essere di fretta, esserci bisogno, arrivare all'obiettivo) are not addressed: say whether a distractor that is correct only with an added preposition counts as acceptable.",
+  "verb_government: preposition choice that depends on the noun (entrare in casa / a scuola; andare in / a) has no slot; the profile's 'leave out' rule applies but authors do not apply it. State it explicitly for motion verbs.",
+  "false_friends: kind is defined only from the Italian side ('never has the lookalike's meaning'); secondary senses of the ENGLISH word (sympathetic = likeable, attend to, romance = novel genre) also create overlap. The profile's own 'full' example libreria has a current computing sense (software library), so the example contradicts the definition.",
+  "false_friends: for partial rows whose shared sense IS the lookalike's main meaning (palazzo/palace), it_for_lookalike 'the usual Italian for the lookalike' is the lemma itself; the profile should say whether that is allowed or such rows excluded.",
+  "noun_gender: gender_cue for monosyllables in -e (re, tè) - literal reading gives e_ending, but the plural is invariable because it is monosyllabic; 'other' would teach better. Ambiguous.",
+  "noun_gender: plural_type for la mano / le mani is 'regular' by the letter of the rule (-o to -i), although the feminine -i plural is something learners must memorise; the profile should say explicitly.",
+  "verb_conjugation: past participles in -iuto (conosciuto, piaciuto, giaciuto) insert i to keep the sound; the profile does not say whether this is a spelling adjustment (regular) or a participle irregularity. The rows treat it as regular, which I accept.",
+  "verb_conjugation: auxiliary 'both' asks for a note on 'when each is used', but for vivere (and often iniziare, cambiare in some uses) intransitive use itself admits both; the note format should allow 'both, either' for intransitive."
+ ],
+ "patterns": [
+  "A 'wrong' partner or english_calque that is in fact acceptable standard Italian, often with a small change in construction: essere di fretta, c'è bisogno, prendere la colazione, dire scusa, pagare per, bravo a, pronto per, contento per, credere a, entrare a, parlare su (12 rows).",
+  "Calque field filled with a word an English speaker would not produce: regionalisms (aprire / chiudere la luce) or arbitrary non-calques where English maps directly (potente, grande x2, completa) (6 rows).",
+  "false_friends kind 'full' where a current secondary sense overlaps, on the Italian or the English side (libreria, lettura, attendere a, simpatico, comprensivo, romanzo, gentile) (7 rows).",
+  "Distractors that form an established phrase with another meaning: grande pressione, portare l'attenzione su, fare sete, sciogliere un problema, sono freddo (5 rows).",
+  "Form tables (noun_gender, verb_conjugation) are essentially clean; the only fault is an oversimplified auxiliary_note (vivere)."
+ ]
+}

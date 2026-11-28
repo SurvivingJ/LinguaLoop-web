@@ -1,0 +1,42 @@
+{
+  "checker": "opus",
+  "files": {
+    "present-tense-forms-01.jsonl": {
+      "items": 50, "ok": 49, "wrong": 0, "unnatural": 1,
+      "marks": {
+        "present-tense-forms-01-007": {"mark": "unnatural", "note": "With a date, a native speaker drops the article: 'Natale è il venticinque dicembre.' 'Il Natale' is the generic/festive use ('Il Natale si passa in famiglia'). Not wrong, but less natural than it should be for a model sentence. Suggested tl/q: 'Natale ___ il venticinque dicembre.'", "certain": false}
+      }
+    },
+    "ce-or-e-01.jsonl": {
+      "items": 51, "ok": 45, "wrong": 3, "unnatural": 3,
+      "marks": {
+        "ce-or-e-01-002": {"mark": "unnatural", "note": "'su questo piano' copies English 'on this floor'. Standard Italian says 'a questo piano': 'Scusi, c'è un distributore di caffè a questo piano?'", "certain": false},
+        "ce-or-e-01-009": {"mark": "wrong", "note": "The why says 'fa belongs to the weather only'. That is false: fa piacere, fa bene, fa male are everyday Italian, and item 025 of this same batch says 'fa male means it hurts'. Fix the why, e.g.: 'English it has no Italian counterpart: è difficile + infinitive. C'è would mean there is, and fare does not go with difficile.' The keyed answer and the sentence are fine.", "certain": true},
+        "ce-or-e-01-030": {"mark": "wrong", "note": "The why says 'fare is used only with caldo, freddo and tempo'. False: fa fresco, fa bello, fa brutto, fa buio are standard. Fix: 'Neve is a noun, so the pattern is c'è molta neve; fare goes with weather words such as caldo, freddo, fresco or bel tempo, not with a noun like neve.' The item itself is correct.", "certain": true},
+        "ce-or-e-01-033": {"mark": "unnatural", "note": "Marked lvl 1, but it has 13 words and three clauses ('Sono già le otto meno dieci, è tardi: devo correre al lavoro'). The profile's level 1 is one clause of 4 to 9 words. Make it lvl 2, or shorten it to 'È tardi, devo correre al lavoro.'", "certain": true},
+        "ce-or-e-01-046": {"mark": "wrong", "note": "The why says 'Fare takes only caldo, freddo and tempo for the weather'. False: fa fresco, fa bello, fa brutto, fa buio. The judgement itself is right ('fa nuvoloso' is wrong, 'è nuvoloso' is right). Fix the why: 'Nuvoloso is an adjective, so it goes with è: è nuvoloso. Fare does not take nuvoloso.'", "certain": true},
+        "ce-or-e-01-049": {"mark": "unnatural", "note": "Item-design defect, not an error in the Italian. The extra tile 'molto' cannot be used at all, because 'molta fame' is a single tile, so the learner never makes the molto/molta choice the why describes. Split the tiles ('ho', 'molta', 'fame', ...), keeping 'molto' as the extra, or drop the extra. The tl and the alts are fine.", "certain": true}
+      }
+    }
+  },
+  "guides": {
+    "present-tense-forms": [
+      {"where": "rules[0].note", "mark": "wrong", "note": "'The loro form follows the vowel of io, not of lui: parlano, but scrivono and dormono' is false: io is parlo, with -o, yet loro is parlano. The real rule is that -are verbs take -ano and -ere/-ire verbs take -ono. The stress part (PARlano, SCRIvono) is correct."},
+      {"where": "rules[6].rule", "mark": "wrong", "note": "'a short io form' does not fit faccio, and 'Noi and voi are built on the infinitive stem' does not fit facciamo or sappiamo (the note half-admits this). Say instead: tu in -ai, lui in -a, loro in -anno; voi regular (andate, fate, date, state, sapete); noi andiamo, facciamo, diamo, stiamo, sappiamo."},
+      {"where": "rules[5].examples[3]", "mark": "unnatural", "note": "'Avete tempo domani sera, se vi chiamo?' sounds awkward. More natural: 'Se vi chiamo domani sera, avete tempo?' or 'Avete tempo domani sera? Vi chiamo.'"},
+      {"where": "subs[4].focus", "mark": "unnatural", "note": "'io fo' is listed as a regularised error, but it is a real Tuscan and literary form of faccio. Replace it with a true learner error such as 'io faco' or 'loro fano'."},
+      {"where": "cheat[2]", "mark": "wrong", "note": "'noi is plain too (finiamo, usciamo, veniamo), except possiamo, vogliamo, dobbiamo' leaves out facciamo, sappiamo, diciamo, siamo and abbiamo, so a learner who follows it would write *faciamo or *sapiamo. Limit the claim to -isc- and to the esc-/veng- stems, or list the noi exceptions."}
+    ],
+    "ce-or-e": [
+      {"where": "rules[2].note", "mark": "wrong", "note": "'After dove only è / sono are possible ... Dove c'è Maria is not Italian.' The first half is false: 'Scusi, dove c'è una farmacia?' and 'Sai dove c'è un bancomat?' are everyday standard Italian (they ask where there is one). Only a known, definite subject rules out c'è: dov'è Maria, dov'è la farmacia. Restate the rule: with a known subject, dove + è/sono; dove c'è + an indefinite new thing is fine."},
+      {"where": "cheat[2]", "mark": "wrong", "note": "'After dove always è or sono' is false for the same reason (dove c'è una farmacia?). Say: 'Dove + a known thing or person: dov'è, dove sono.'"},
+      {"where": "rules[8].note", "mark": "wrong", "note": "'fa takes only caldo, freddo and tempo' is false: fa fresco, fa bello, fa brutto, fa buio, fa freddino. Say: 'fa takes caldo, freddo, fresco, bello/brutto, bel/brutto tempo, never a noun like sole or vento.' Items 030 and 046 repeat the false wording."}
+    ]
+  },
+  "patterns": [
+    "Over-absolute rules in whys and guides that are false at the edges: 'fa only with caldo, freddo, tempo' (ce-or-e 009, 030, 046, guide rules[8].note), 'after dove only è/sono' (guide rules[2].note, cheat[2]), 'short io form / noi on infinitive stem' and 'loro follows the vowel of io' (present-tense guide).",
+    "Level-1 items over the profile's one-clause, 4 to 9 word limit (ce-or-e 033 is the clearest; 012, 038, 039 and 045 also have two clauses, as does present-tense 009). Re-level them or shorten them.",
+    "Small calques or less natural choices in otherwise correct sentences ('su questo piano', 'Il Natale è il venticinque dicembre', 'Avete tempo domani sera, se vi chiamo?').",
+    "Tile design where the extra distractor tile cannot replace anything, because the target form is fused into a larger tile (ce-or-e 049)."
+  ]
+}

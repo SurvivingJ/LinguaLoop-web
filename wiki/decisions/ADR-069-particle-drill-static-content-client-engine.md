@@ -1,10 +1,10 @@
 ---
-title: "ADR-067: Particle drill content ships as files and is drilled in the browser"
+title: "ADR-069: Particle drill content ships as files and is drilled in the browser"
 status: accepted
 date: 2026-11-27
 ---
 
-# ADR-067: Particle drill content ships as files and is drilled in the browser
+# ADR-069: Particle drill content ships as files and is drilled in the browser
 
 ## Context
 
@@ -45,7 +45,7 @@ Three facts shaped the design:
 6. **Progress is a JSON document kept in the browser**, mirrored to one row per learner in a
    new table `user_drill_progress` once `migrations/particle_drill_progress.sql` is applied.
    The page works without the table. **Superseded on 2026-11-28 by
-   [[decisions/ADR-068-one-tracking-structure-for-every-language]]:** the mirror is the shared
+   [[decisions/ADR-070-one-tracking-structure-for-every-language]]:** the mirror is the shared
    grammar-drill tracking (one state row per skill, daily summaries); `user_drill_progress` was
    withdrawn before it was applied.
 7. **Authoring is done by `claude -p` workers**, each file written by one worker and reviewed
@@ -70,7 +70,7 @@ Three facts shaped the design:
 - Ladder state is not trustworthy server-side (it is client-written). It must not be used for
   entitlements, placement or the knowledge report without re-validation.
 - The drill does not yet write `test_attempts`, study time or ELO, so it is invisible to the
-  weekly-minutes total and the daily session ([[tasklist/particle-drill.tasks]] TASK-1273, 1239).
+  weekly-minutes total and the daily session ([[tasklist/particle-drill.tasks]] TASK-1280, 1239).
 - The repository grows by about 5.8 MB of JSON, and every web worker holds the loaded
   skills in memory (at most that much).
 - Content fixes need a deploy.

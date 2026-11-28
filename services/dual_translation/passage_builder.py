@@ -31,10 +31,11 @@ from __future__ import annotations
 
 from typing import Optional
 
+from services import language_registry
 from services.categorical_maps import DIFFICULTY_TO_TIER
 
 # Languages written without inter-word spaces — controls sentence joining.
-_CJK_CODES = frozenset({'zh', 'ja'})
+_CJK_CODES = frozenset(language_registry.cjk_codes())
 
 SOURCE_KIND = 'test_transcript'
 DEFAULT_STATUS = 'active'
