@@ -22,7 +22,7 @@ without one the near-duplicate check is skipped and the column stays NULL.
 
 Mind the database size before a large upload: on 2026-11-27 a live test plus
 its vocabulary linking cost roughly 45 KB including llm_calls rows
-(``LLM_CALLS_DB_LOG=0`` keeps call logs out of the database).
+(``LLM_CALLS_DB_LOGGING=false`` keeps call logs out of the database).
 """
 
 from __future__ import annotations

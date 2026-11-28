@@ -75,6 +75,7 @@ except ImportError:  # run or imported as scripts.<name>
 bootstrap(log_level=None)
 
 
+from services import language_registry  # noqa: E402
 from services.llm_service import call_llm  # noqa: E402
 from services.test_generation.schemas import (  # noqa: E402
     AnswerEntailmentVerdict,
@@ -88,7 +89,7 @@ from services.test_generation.schemas import (  # noqa: E402
 LIKERT_ACCEPT = 4.0   # score >= this  -> accept
 LIKERT_REJECT = 3.0   # score <  this  -> reject
 
-LANG_NAME = {1: "zh", 2: "en", 3: "ja"}
+LANG_NAME = language_registry.id_to_code()
 LANG_ID = {v: k for k, v in LANG_NAME.items()}
 JUDGE_TASK = "test_answer_entailment"
 

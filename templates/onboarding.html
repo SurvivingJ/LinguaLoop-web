@@ -38,21 +38,13 @@
         <h2 class="welcome-card-title" id="nativeLanguageHeading" data-i18n="onboarding.native_title">What's your native language?</h2>
         <p class="ld-small ld-muted native-language-desc" data-i18n="onboarding.native_desc">We'll use this to show translations in a language you already know. You can change it anytime from your profile.</p>
         <div class="native-language-options ld-stats" role="radiogroup" aria-labelledby="nativeLanguageHeading">
-            <div class="native-language-card ld-stat" data-id="1" role="radio" tabindex="0" aria-checked="false">
-                <span class="nl-flag" aria-hidden="true">🇨🇳</span>
-                <span class="nl-name" lang="zh">中文</span>
+            {% for l in study_languages %}
+            <div class="native-language-card ld-stat" data-id="{{ l.id }}" role="radio" tabindex="0" aria-checked="false">
+                <span class="nl-flag" aria-hidden="true">{{ l.flag }}</span>
+                <span class="nl-name" lang="{{ l.code }}">{{ l.native_name }}</span>
                 <i class="fas fa-check-circle nl-check" aria-hidden="true"></i>
             </div>
-            <div class="native-language-card ld-stat" data-id="2" role="radio" tabindex="0" aria-checked="false">
-                <span class="nl-flag" aria-hidden="true">🇺🇸</span>
-                <span class="nl-name" lang="en">English</span>
-                <i class="fas fa-check-circle nl-check" aria-hidden="true"></i>
-            </div>
-            <div class="native-language-card ld-stat" data-id="3" role="radio" tabindex="0" aria-checked="false">
-                <span class="nl-flag" aria-hidden="true">🇯🇵</span>
-                <span class="nl-name" lang="ja">日本語</span>
-                <i class="fas fa-check-circle nl-check" aria-hidden="true"></i>
-            </div>
+            {% endfor %}
         </div>
     </section>
 

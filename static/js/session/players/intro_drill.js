@@ -240,11 +240,14 @@ function norm(s) {
     .replace(/\s+/g, ' ');
 }
 
+// Readings are pinyin (typed with tone numbers) for a language with the registry's pinyin feature.
+const hasPinyin = (lang) => window.LinguaLanguages.hasFeature(lang, 'pinyin');
+
 export function gradeReading(input, word, lang) {
   const LP = window.LinguaPrestudy;
   const rd = word.reading;
   if (!rd || !String(input).trim()) return false;
-  if (lang === 'zh') {
+  if (hasPinyin(lang)) {
     if (!LP || !rd.numbered) return norm(input) === norm(rd.shown);
     const pi = LP.parsePinyinInput(input);
     return LP.gradeZh(pi.segs, pi.tones, rd.numbered, word.lemma).ok;
@@ -288,7 +291,7 @@ function options(correct, candidates, preferred = []) {
  */
 export function readingText(word, lang) {
   if (!word.reading) return '';
-  return lang === 'zh' ? formatPinyin(word.reading.shown) : word.reading.shown || '';
+  return hasPinyin(lang) ? formatPinyin(word.reading.shown) : word.reading.shown || '';
 }
 
 /**
@@ -298,7 +301,7 @@ export function readingText(word, lang) {
  * returned (u: written as v, the way it is typed); otherwise null and no hint.
  */
 export function typeableReading(word, lang) {
-  if (lang !== 'zh' || !word || !word.reading || !word.reading.numbered) return null;
+  if (!hasPinyin(lang) || !word || !word.reading || !word.reading.numbered) return null;
   const raw = String(word.reading.numbered).trim().replace(/\s+/g, ' ');
   const typed = raw.replace(/u:/g, 'v').replace(/U:/g, 'V');
   for (const c of typed === raw ? [raw] : [typed, raw]) {
@@ -334,10 +337,9 @@ export function buildItem(pickd, block, exUsed) {
         grade: 'reading',
         prompt: w.lemma,
         ask: T('intro.ask_reading', null, 'Type the reading'),
-        hint:
-          lang === 'zh'
-            ? T('intro.pinyin_hint', null, 'pinyin with tone numbers, e.g. mu4 tou5')
-            : T('intro.kana_hint', null, 'kana or romaji'),
+        hint: hasPinyin(lang)
+          ? T('intro.pinyin_hint', null, 'pinyin with tone numbers, e.g. mu4 tou5')
+          : T('intro.kana_hint', null, 'kana or romaji'),
       };
     case 'recall_typed':
       return {

@@ -26,42 +26,40 @@
     <!-- Language Selection Cards -->
     <div class="language-options ld-rowlist" role="group" aria-labelledby="langSelectTitle">
 
-        <!-- Chinese (id=1) -->
-        <button type="button" class="language-card ld-trow" data-id="1" aria-pressed="false">
-            <span class="ld-trow__glyph language-glyph" lang="zh" aria-hidden="true">中</span>
+        {# One card per active language of services/language_registry.py. #}
+        {% for l in study_languages %}
+        <button type="button" class="language-card ld-trow" data-id="{{ l.id }}" aria-pressed="false">
+            <span class="ld-trow__glyph language-glyph" lang="{{ l.code }}" aria-hidden="true">{{ l.glyph }}</span>
             <span class="ld-trow__mid">
-                <b><span class="language-flag" aria-hidden="true">🇨🇳</span> <span class="language-native" lang="zh">中文</span></b>
-                <small class="language-english" data-ld-i18n="lang_select.name_zh">Chinese</small>
+                <b><span class="language-flag" aria-hidden="true">{{ l.flag }}</span> <span class="language-native" lang="{{ l.code }}">{{ l.native_name }}</span></b>
+                <small class="language-english" data-ld-i18n="lang_select.name_{{ l.code }}">{{ l.display }}</small>
             </span>
             <i class="check-icon bi bi-check-circle-fill" aria-hidden="true" style="display: none;"></i>
         </button>
-
-        <!-- English (id=2) -->
-        <button type="button" class="language-card ld-trow" data-id="2" aria-pressed="false">
-            <span class="ld-trow__glyph language-glyph" lang="en" aria-hidden="true">E</span>
-            <span class="ld-trow__mid">
-                <b><span class="language-flag" aria-hidden="true">🇺🇸</span> <span class="language-native" lang="en">English</span></b>
-                <small class="language-english" data-ld-i18n="lang_select.name_en">English</small>
-            </span>
-            <i class="check-icon bi bi-check-circle-fill" aria-hidden="true" style="display: none;"></i>
-        </button>
-
-        <!-- Japanese (id=3) -->
-        <button type="button" class="language-card ld-trow" data-id="3" aria-pressed="false">
-            <span class="ld-trow__glyph language-glyph" lang="ja" aria-hidden="true">日</span>
-            <span class="ld-trow__mid">
-                <b><span class="language-flag" aria-hidden="true">🇯🇵</span> <span class="language-native" lang="ja">日本語</span></b>
-                <small class="language-english" data-ld-i18n="lang_select.name_ja">Japanese</small>
-            </span>
-            <i class="check-icon bi bi-check-circle-fill" aria-hidden="true" style="display: none;"></i>
-        </button>
+        {% endfor %}
 
     </div>
+
+    {# Onboarding gate (vocab-placement tech §8, TASK-1085): shown by
+       language-selection.js only when the learner arrives from /welcome and
+       has picked a language. "Yes" offers the placement in the dock; the other
+       answers change nothing. No answer is stored. #}
+    <section class="lang-gate ld-card" id="langGate" hidden aria-labelledby="langGateTitle">
+        <h2 class="ld-h2 lang-gate__title" id="langGateTitle"></h2>
+        <div class="ld-seg lang-gate__options" role="radiogroup" aria-labelledby="langGateTitle">
+            <button type="button" role="radio" aria-checked="false" data-studied="yes" data-i18n="onboarding.studied_yes">Yes</button>
+            <button type="button" role="radio" aria-checked="false" data-studied="few" data-i18n="onboarding.studied_few">Only a few words</button>
+            <button type="button" role="radio" aria-checked="false" data-studied="no" data-i18n="onboarding.studied_no">No</button>
+        </div>
+        <p class="ld-small ld-muted lang-gate__hint" id="langGateHint" hidden role="status"></p>
+    </section>
 </div>
 {% endblock %}
 
 {# Primary CTA: Daily Session (with Browse Tests as secondary) #}
 {% block dock %}
+<a id="placement-btn" class="ld-btn" href="{{ url_for('placement_page') }}" hidden
+   data-placement-url="{{ url_for('placement_page') }}" data-i18n="onboarding.placement_cta">Take the placement test</a>
 <button id="continue-btn" class="ld-btn" disabled data-i18n="lang_select.start_session"
         data-session-url="{{ url_for('study_session_page') }}">
     Start Daily Session

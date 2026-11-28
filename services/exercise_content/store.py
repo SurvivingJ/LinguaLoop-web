@@ -90,13 +90,14 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
 from config import Config
+from services import language_registry
 
 if TYPE_CHECKING:
     from services.exercise_content.backends import StorageBackend
 
 logger = logging.getLogger('services.exercise_content')
 
-LANGUAGE_CODES = {1: 'zh', 2: 'en', 3: 'ja'}   # same map as services/intro_drill.py LANG_CODE
+LANGUAGE_CODES = language_registry.id_to_code()   # same map as services/intro_drill.py LANG_CODE
 FILE_FORMAT = 1
 COMMIT_LOCK_NAMESPACE = 47047
 

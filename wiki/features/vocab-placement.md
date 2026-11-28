@@ -3,7 +3,7 @@ title: Vocabulary placement
 type: feature
 status: in-progress
 tech_page: ./vocab-placement.tech.md
-last_updated: 2026-11-18
+last_updated: 2026-11-27
 open_questions:
   - "PQ1 OPEN: For Chinese and Japanese, lead the ranges with 'meaning and reading' (default) or with 'meaning'?"
   - "PQ2 ANSWERED (owner, 2026-11-18): no exam-level output, 'not at the moment'. TASK-1090 stays parked."
@@ -11,7 +11,7 @@ open_questions:
   - "PQ4 OPEN: Up to 4 extra questions per test, clearly labelled 'not scored', to check how the scoring behaves? Default: yes."
   - "PQ5 ANSWERED (owner, 2026-11-18): approved — placement answers are their own kind of evidence, written per word, never 'rated known' on their own, and words with the meaning but not the reading go to reading practice (ADR-059 accepted)."
   - "PQ6 OPEN: Offer the placement to English learners at launch (meaning only)? Default: yes, once the pre-launch simulation includes English."
-  - "PQ7 OPEN: Offer it during onboarding, after asking 'Have you studied {language} before?' (no placement for 'No' or 'Only a few words')? Default: yes, skippable."
+  - "PQ7 ANSWERED (owner, 2026-11-27): 'build the onboarding offer' — built as the default: after the study language is chosen during onboarding, 'Have you studied {language} before?'; 'Yes' offers the placement, skippable; 'Only a few words' and 'No' offer nothing; no answer is stored."
   - "PQ8 OPEN: Retakes. Default: any time, at most 3 starts per language per day, never the same words within 180 days; a retake is compared with the previous placement."
   - "PQ9 OPEN: Keep the report's quality labels (a placement alone is usually 'Rough')? Default: yes."
   - "PQ10 ANSWERED for Chinese and Japanese (owner, 2026-11-18): about 60 questions (about 7 minutes; no new word after 9 minutes of answering). English was not part of the question and stays at 40 (about 5 minutes) unless the owner says otherwise."

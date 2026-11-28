@@ -18,6 +18,7 @@ EXPECTED = {
     'word_upload_watchlist_sweep_nightly': ('*', 4, 20),
     'knowledge_snapshots_nightly': ('*', 4, 25),
     'placement_close_stale_nightly': ('*', 4, 30),
+    'llm_calls_archive_weekly': ('sun', 3, 40),
     'study_plan_weekly_recompute': ('sun', 23, 0),
 }
 

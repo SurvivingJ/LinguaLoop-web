@@ -194,6 +194,7 @@ const ExRenderers = (function () {
    *     client-side, so equality against a single key would mark a right
    *     answer wrong.
    *   - `plain`     true when the options are native-language text.
+   *   - `onAnswered` (selected, ok) called once answered, before the feedback.
    */
   function mcq(badge, cefr, instr, prompt, opts, correct, expl, wordHTML, extra) {
     extra = extra || {};
@@ -246,6 +247,7 @@ const ExRenderers = (function () {
           o.querySelector('.option-text').appendChild(d);
         });
       }
+      if (extra.onAnswered) extra.onAnswered(sel, ok);
       showFeedbackNow(ok, expl);
       _submitAttempt(ok, { selected: sel });
     });
@@ -370,23 +372,37 @@ const ExRenderers = (function () {
     );
   }
 
+  /**
+   * Pick the sentence that uses the word correctly. After the answer every
+   * sentence shows its meaning and why the word fits or not, in the learner's
+   * language (ADR-064): attached by the session, else fetched on display. Until
+   * that arrives, the item's own notes (often English, often missing on the
+   * right sentence) are shown.
+   */
   function renderSemDiscrim(ex, c, w) {
-    const cor = c.sentences.find((s) => s.is_correct);
-    const notes = {};
-    c.sentences.forEach((s) => {
-      if (s.explanation) notes[s.text] = s.explanation;
+    const sentences = c.sentences;
+    const cor = sentences.find((s) => s.is_correct);
+    const labels = { wrongLabel: tr('exercises.semantic.wrong_label', 'Wrong') };
+    const stored = sentences.map((s) =>
+      s.explanation ? { meaning: '', explanation: s.explanation } : null
+    );
+    const hasStored = stored.some(Boolean);
+    const expl = explanationRequest(ex, c, sentences, labels, {
+      fallback: stored,
+      fallbackWhilePending: true,
     });
-    const hasNotes = Object.keys(notes).length > 0;
     mcq(
       fmtType('semantic_discrimination'),
       ex.cefr_level,
       i18n('exercises.instruction.which_sentence', { word: escHtml(c.target_word || 'the word') }),
       '',
-      c.sentences.map((s) => s.text),
+      sentences.map((s) => s.text),
       cor ? cor.text : '',
-      hasNotes ? '' : dedupeExpl(c.explanation),
+      expl.entries() || hasStored ? '' : dedupeExpl(c.explanation),
       w,
-      hasNotes ? { notes } : undefined
+      {
+        onAnswered: () => expl.answered(),
+      }
     );
   }
 
@@ -651,19 +667,259 @@ const ExRenderers = (function () {
     bindNext();
   }
 
+  // ── Per-option explanations (ADR-064) ──
+
+  /** exercise_id -> Promise<entries|null>, so a re-render does not ask twice. */
+  const _explanationRequests = new Map();
+
+  /**
+   * Fetch an item's per-option explanations in the learner's language from
+   * GET /api/practice/explanations/<id>. The server writes them on first
+   * request (seconds); 'pending' is asked again once. Resolves to the entries
+   * aligned with the item's sentences, or null.
+   */
+  function fetchExplanations(exerciseId, expected) {
+    if (!exerciseId || typeof window === 'undefined' || typeof window.authFetch !== 'function')
+      return null;
+    if (_explanationRequests.has(exerciseId)) return _explanationRequests.get(exerciseId);
+    const ask = async (triesLeft) => {
+      try {
+        const res = await window.authFetch(
+          '/api/practice/explanations/' + encodeURIComponent(exerciseId)
+        );
+        if (!res || !res.ok) return null;
+        const data = await res.json();
+        if (data && data.state === 'ready' && Array.isArray(data.option_explanations))
+          return data.option_explanations.length === expected ? data.option_explanations : null;
+        if (data && data.state === 'pending' && triesLeft > 1) {
+          await new Promise((r) => setTimeout(r, 2500));
+          return ask(triesLeft - 1);
+        }
+      } catch (e) {
+        /* explanations are an extra: the item works without them */
+      }
+      return null;
+    };
+    const p = ask(3).then((entries) => {
+      if (!entries) _explanationRequests.delete(exerciseId);
+      return entries;
+    });
+    _explanationRequests.set(exerciseId, p);
+    return p;
+  }
+
+  /**
+   * Under each option: verdict, meaning, why, and the correction for the wrong
+   * one. Options are matched to sentences by text (pick-the-sentence shuffles
+   * them); an entry may be null (no note for that sentence). Replaces any notes
+   * shown before.
+   *
+   * `labels.plainMeaning`: 'wrong' or 'all' — those entries' meaning is a gloss
+   * (what a particle marks, a form's name, a word's meaning), shown as it is:
+   * no quotes and no "Literally:" (word-option types).
+   */
+  function showOptionExplanations(entries, sentences, labels, list) {
+    labels = labels || {};
+    list = list || document.getElementById('optionsList');
+    clearExplanationLoading();
+    if (!list) return;
+    // Trimmed on both sides: the server and optionUnits trim, an option's
+    // data-value is its raw text.
+    const index = new Map(sentences.map((s, i) => [String(s.text).trim(), i]));
+    list.querySelectorAll('.exercise-option').forEach((o) => {
+      const i = index.get(String(o.dataset.value).trim());
+      const e = i === undefined ? null : entries[i];
+      const s = i === undefined ? null : sentences[i];
+      if (!e || !s) return;
+      const old = o.querySelector('.ex-opt-expl');
+      if (old) old.remove();
+      const wrong = s.is_correct === false;
+      const plain = labels.plainMeaning === 'all' || (labels.plainMeaning === 'wrong' && wrong);
+      const box = document.createElement('span');
+      box.className = 'ex-opt-expl' + (wrong ? ' ex-opt-expl--bad' : ' ex-opt-expl--ok');
+      let h = `<span class="ex-opt-expl__verdict">${escHtml(
+        wrong
+          ? labels.wrongLabel || tr('exercises.spot.error_label', 'Error')
+          : tr('exercises.spot.correct_label', 'Correct')
+      )}</span>`;
+      // A wrong sentence's meaning is its literal translation, so the mistake shows.
+      if (e.meaning && plain)
+        h += ` <span class="ex-opt-expl__meaning">${escHtml(e.meaning)}</span>`;
+      else if (e.meaning)
+        h +=
+          ` <span class="ex-opt-expl__meaning">` +
+          (wrong
+            ? `<span class="ex-opt-expl__lit">${escHtml(tr('exercises.spot.literally', 'Literally:'))}</span> `
+            : '') +
+          `“${escHtml(e.meaning)}”</span>`;
+      if (e.explanation) h += `<span class="ex-opt-expl__why">${escHtml(e.explanation)}</span>`;
+      if (wrong && e.correction)
+        h += `<span class="ex-opt-expl__fix">${escHtml(
+          tr('exercises.spot.correction', 'Correct form: ' + e.correction, { text: e.correction })
+        )}</span>`;
+      box.innerHTML = h;
+      o.classList.add('has-expl');
+      o.appendChild(box);
+    });
+  }
+
+  function clearExplanationLoading() {
+    const loading = document.getElementById('spotExplLoading');
+    if (loading) loading.remove();
+  }
+
+  function showExplanationLoading() {
+    const list = document.getElementById('optionsList');
+    if (!list || document.getElementById('spotExplLoading')) return;
+    const note = document.createElement('div');
+    note.id = 'spotExplLoading';
+    note.className = 'ex-opt-expl-loading';
+    note.textContent = tr('exercises.spot.loading', 'Loading explanations…');
+    list.after(note);
+  }
+
+  /**
+   * The per-option explanations of one item: attached ones, or a fetch started
+   * now. `answered()` marks the answer and shows what is in hand; while the
+   * fetch is out, a loading line (and, with `opts.fallbackWhilePending`, the
+   * item's own notes). `opts.fallback`: the item's own notes, one entry or null
+   * per sentence, shown under the options if the fetch brings nothing
+   * (with `opts.fallbackOnlyIfAsked`, only when a fetch was made: otherwise
+   * the caller shows its note in the feedback bar).
+   */
+  function explanationRequest(ex, c, sentences, labels, opts) {
+    opts = opts || {};
+    const n = sentences.length;
+    const fallback =
+      Array.isArray(opts.fallback) && opts.fallback.some(Boolean) ? opts.fallback : null;
+    let entries =
+      Array.isArray(c.option_explanations) && c.option_explanations.length === n
+        ? c.option_explanations
+        : null;
+    let answered = false;
+    let pending = false;
+    let asked = false;
+    // This item's options, taken when it is answered: a fetch that lands after
+    // the learner moved on must not paint the next item (particle options
+    // repeat across items, so matching by text would find them).
+    let list = null;
+    if (!entries) {
+      const request = fetchExplanations(ex.exercise_id, n);
+      if (request) {
+        asked = true;
+        pending = true;
+        request.then((got) => {
+          pending = false;
+          if (got) entries = got;
+          if (!answered || !list || !list.isConnected) return;
+          if (got) showOptionExplanations(entries, sentences, labels, list);
+          else if (fallback) showOptionExplanations(fallback, sentences, labels, list);
+          else clearExplanationLoading();
+        });
+      }
+    }
+    return {
+      entries: () => entries,
+      /** True when the explanations were asked for (shown under the options, never in the bar). */
+      asked: () => asked,
+      answered() {
+        answered = true;
+        list = document.getElementById('optionsList');
+        if (entries) {
+          showOptionExplanations(entries, sentences, labels, list);
+          return;
+        }
+        const fallbackHere = fallback && (asked || !opts.fallbackOnlyIfAsked);
+        if (fallbackHere && (!pending || opts.fallbackWhilePending))
+          showOptionExplanations(fallback, sentences, labels, list);
+        if (pending) showExplanationLoading();
+      },
+    };
+  }
+
+  /**
+   * A word-option item's options as explanation units, in stored order (the
+   * server's `option_explanations` follow it; see
+   * exercise_explanations._options_of), or null when it is not explainable.
+   */
+  function optionUnits(c) {
+    const text = (o) => {
+      const v = o && typeof o === 'object' ? o.text : o;
+      return typeof v === 'string' ? v.trim() : '';
+    };
+    const key = text(c.correct_answer);
+    const opts = Array.isArray(c.options) ? c.options.map(text) : [];
+    if (opts.length < 2 || !key || opts.some((t) => !t)) return null;
+    if (new Set(opts).size !== opts.length || opts.filter((t) => t === key).length !== 1)
+      return null;
+    if (
+      Array.isArray(c.accepted_answers) &&
+      new Set(c.accepted_answers.map(text).filter(Boolean)).size > 1
+    )
+      return null;
+    return opts.map((t) => ({ text: t, is_correct: t === key }));
+  }
+
+  /**
+   * mcq() arguments for a word-option type with per-option explanations
+   * (particle, word form, synonym / antonym): the feedback-bar note and the
+   * `extra` hooks. The item's own note (one line on the key, often in the
+   * target language) is shown in the bar only when explanations cannot even be
+   * asked for, otherwise under the key if the fetch brings nothing.
+   */
+  function wordOptionExplanations(ex, c, plainMeaning) {
+    const note = c.explanation || '';
+    const units = optionUnits(c);
+    if (!units) return { note, extra: undefined };
+    const expl = explanationRequest(
+      ex,
+      c,
+      units,
+      { wrongLabel: tr('exercises.semantic.wrong_label', 'Wrong'), plainMeaning },
+      {
+        fallback: units.map((u) =>
+          u.is_correct && note ? { meaning: '', explanation: note } : null
+        ),
+        fallbackOnlyIfAsked: true,
+      }
+    );
+    return {
+      note: expl.entries() || expl.asked() ? '' : note,
+      extra: { onAnswered: () => expl.answered() },
+    };
+  }
+
   function renderSpotSentence(ex, c, w) {
-    const incorrect = c.sentences.find((s) => !s.is_correct);
-    const opts = c.sentences.map((s) => s.text);
+    const sentences = c.sentences;
+    const incorrect = sentences.find((s) => !s.is_correct);
+    const opts = sentences.map((s) => s.text);
     let h =
       (w || '') +
       typeBadge('fa-search', fmtType('spot_incorrect_sentence'), ex.cefr_level) +
-      `<div class="exercise-instruction">Which sentence contains an error?</div>` +
+      `<div class="exercise-instruction">${escHtml(
+        tr('exercises.spot.instruction', 'Which sentence contains an error?')
+      )}</div>` +
       `<div class="exercise-options ld-opts" id="optionsList">`;
     opts.forEach((t, i) => {
       h += optionHTML(t, i, `<span class="option-text ex-tl">${escHtml(t)}</span>`);
     });
     h += `</div>`;
     paint(h, tapHintHTML() + FEEDBACK_HTML + nextBtnHTML());
+
+    // Feedback for every option in the learner's language: attached by the
+    // session when cached, otherwise asked for now so it is usually ready by
+    // the time the learner answers.
+    // The item's own note (often in the target language) is the fallback,
+    // shown under the wrong sentence only if ours cannot be had.
+    const ownNote = (s) =>
+      [s.error_description, s.error_type ? '(' + s.error_type + ')' : ''].filter(Boolean).join(' ');
+    const fallback = sentences.map((s) =>
+      s.is_correct === false && ownNote(s) ? { meaning: '', explanation: ownNote(s) } : null
+    );
+    const expl = explanationRequest(ex, c, sentences, undefined, {
+      fallback,
+      fallbackOnlyIfAsked: true,
+    });
 
     const correctVal = incorrect ? incorrect.text : '';
     document.getElementById('optionsList').addEventListener('click', (e) => {
@@ -680,12 +936,11 @@ const ExRenderers = (function () {
       });
       if (!ok) opt.classList.add('incorrect');
 
-      let expl = '';
-      if (incorrect) {
-        if (incorrect.error_description) expl += incorrect.error_description;
-        if (incorrect.error_type) expl += (expl ? ' ' : '') + '(' + incorrect.error_type + ')';
-      }
-      showFeedbackNow(ok, expl);
+      // Explanations go under the options; the feedback bar carries the old
+      // note only when they could not even be asked for (no id / no auth).
+      const note = !expl.entries() && !expl.asked() && incorrect ? ownNote(incorrect) : '';
+      expl.answered();
+      showFeedbackNow(ok, note);
       _submitAttempt(ok, { selected: sel });
     });
     bindNext();
@@ -1027,6 +1282,7 @@ const ExRenderers = (function () {
       if (c.form_label) prompt += ` &mdash; fill in the <em>${escHtml(c.form_label)}</em>`;
       prompt += '</div>';
     }
+    const why = wordOptionExplanations(ex, c, 'wrong');
     mcq(
       'Morphology Slot',
       null,
@@ -1034,8 +1290,9 @@ const ExRenderers = (function () {
       prompt,
       c.options || [],
       c.correct_answer || '',
-      c.explanation || '',
-      w
+      why.note,
+      w,
+      why.extra
     );
   }
 
@@ -1185,6 +1442,7 @@ const ExRenderers = (function () {
       (c.word_definition
         ? `<div class="ex-note ex-note--def">${escHtml(c.word_definition)}</div>`
         : '');
+    const why = wordOptionExplanations(ex, c, 'all');
     mcq(
       fmtType('synonym_antonym_match'),
       ex.cefr_level,
@@ -1192,8 +1450,9 @@ const ExRenderers = (function () {
       prompt,
       c.options || [],
       c.correct_answer || '',
-      c.explanation || '',
-      w
+      why.note,
+      w,
+      why.extra
     );
   }
 
@@ -1228,6 +1487,7 @@ const ExRenderers = (function () {
    */
   function renderParticleSelection(ex, c, w) {
     const prompt = `<div class="ex-sentence">${withBlank(c.sentence_with_blank)}</div>`;
+    const why = wordOptionExplanations(ex, c, 'wrong');
     mcq(
       fmtType('particle_selection'),
       ex.cefr_level,
@@ -1235,8 +1495,9 @@ const ExRenderers = (function () {
       prompt,
       c.options || [],
       c.correct_answer || '',
-      c.explanation || '',
-      w
+      why.note,
+      w,
+      why.extra
     );
   }
 

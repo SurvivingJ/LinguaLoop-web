@@ -12,7 +12,7 @@
 (function () {
   'use strict';
 
-  const LANG_CODES = { 1: 'zh', 2: 'en', 3: 'ja' };
+  const LANG_CODES = window.LinguaLanguages.idToCode();
   const GLYPHS = { 1: '词', 2: 'Aa', 3: '語' };
   const WINDOW_KEY = 'kn.growthWindow';
   const GROUP_ORDER = ['most_common', 'common', 'mid', 'rare', 'none'];
@@ -371,7 +371,8 @@
       }
       body.appendChild(node('p', 'kn-headline kn-headline--soft', text));
       const actions = node('div', 'kn-actions');
-      actions.appendChild(linkButton('/calibration', tr('knowledge.state.empty_check')));
+      actions.appendChild(linkButton('/placement', tr('knowledge.state.empty_placement')));
+      actions.appendChild(linkButton('/calibration', tr('knowledge.state.empty_check'), true));
       body.appendChild(actions);
     }
 

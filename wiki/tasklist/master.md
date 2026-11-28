@@ -1,6 +1,6 @@
 ---
 title: Master Task List
-last_updated: 2026-11-25
+last_updated: 2026-11-28
 ---
 
 # Master Task List
@@ -19,13 +19,33 @@ below.
 
 | Status | Rows in this file | All task files (union, file status wins) |
 |--------|-------------------|------------------------------------------|
-| Not Started | 71 | 87 |
+| Not Started | 88 | 104 |
 | In Progress (`[~]`) | 18 | 25 |
-| Blocked / Deferred / Awaiting decision (`[?]`; includes "Done (repo), awaiting live apply") | 59 | 58 |
+| Blocked / Deferred / Awaiting decision (`[?]`; includes "Done (repo), awaiting live apply") | 73 | 72 |
 | Won't Do (obsolete) | 3 | 3 |
 | Superseded | 2 | 2 |
-| Done | 221 | 365 |
-| **Total distinct task ids** | **374** | **540** |
+| Done | 230 | 374 |
+| **Total distinct task ids** | **409** | **575** |
+
+*2026-11-27 (merge of main into the grammar-drills branch):* both sides' rows kept; the summary above is the pre-merge base (71/87, 18/25, 59/58, 221/365, 374/540) plus both sides' changes (grammar drills: +4, +6, +5; main: +8, +8, +4). The grammar-drill ids were renumbered from TASK-1234–1248 to TASK-1254–1268 because main had taken TASK-1234–1253. Added by hand, not recounted with the checker.
+
+*2026-11-27 (grammar-drill tracking built, TASK-1259):* TASK-1259 Not Started → `[?]` Done (repo), awaiting live apply (owner decision "Do daily with the current space limit raised to 480mb", [[decisions/ADR-066-grammar-drill-daily-tracking]]; the database stop line is now 480 MB). Both columns moved by one: Not Started 76 → 75 (92 → 91), Blocked/awaiting 64 → 65 (63 → 64). No new task id. Counts adjusted by hand from the previous line, not re-run with the checker.
+
+*2026-11-27 (NEW — Chinese Grammar Drills, TASK-1254–1268):* 15 new ids, each with a row here and a block in [[tasklist/grammar-drills.tasks]]: 5 Done (repo, not deployed), 5 Not Started, 5 `[?]` awaiting an owner decision. Both columns moved by the same amounts (Not Started +5, Blocked/awaiting +5, Done +5, total +15), added by hand to the counts above; the checker (`check_wiki.py`) is not in this repository and was not run. The TASK-1034–1043 collision is untouched.
+
+
+*2026-11-27 (placement entry points):* TASK-1085 Blocked (PQ7) → Done (PQ7 answered; all four entry points built).
+*2026-11-27 (llm_calls archive):* added TASK-1253; then Not Started → Done (repo), awaiting deploy (weekly job; counted under Blocked / awaiting).
+
+*2026-11-27 (word-option batches):* TASK-1247 awaiting → Done, TASK-1248 Not Started → Done; added TASK-1252 (awaiting the owner).
+
+*2026-11-27 (word-option explanations):* TASK-1242 Not Started → Done (repo), awaiting deploy (counted under Blocked / awaiting); added TASK-1247 (awaiting the owner) and TASK-1248–1251 (Not Started).
+
+*2026-11-27:* TASK-1244 In Progress → Done (5,936 Japanese explanation files written, 17,218 items, $53.10); TASK-1244–1246 had been added the same day (1245 awaiting the owner, 1246 Not Started).
+
+*2026-11-26 (fixes: definition language, session speed, spot-the-error explanations):* added
+TASK-1234–1243 ([[tasklist/fixes-2026-11-26.tasks]]): 1234–1236 Done (repo), awaiting deploy, and 1237/1239
+awaiting the owner (counted under Blocked / awaiting); 1238, 1240–1243 Not Started.
 
 *2026-11-25 (after merging main, PR #44, into the JLPT seeding branch):* kept main's checker-based table and moved
 the one status this branch changed: TASK-1058 Not Started → Done (repo), awaiting deploy (counted under Blocked /
@@ -1501,7 +1521,7 @@ Full spec: [[tasklist/vocab-placement.tasks]] · [[features/vocab-placement]] ·
 | TASK-1082 | vocab-placement | Intro drill (and prestudy) show zh pinyin for diacritic-only readings | Done (repo) | S | — |
 | TASK-1083 | vocab-placement | Placement feeds test selection and the rating writer | [?] OQ33 | M | TASK-1080 |
 | TASK-1084 | vocab-placement | Placement page and i18n | Done (repo) | L | TASK-1080 |
-| TASK-1085 | vocab-placement | Entry points incl. onboarding gate | [?] PQ7 | S | TASK-1084, TASK-1040 |
+| TASK-1085 | vocab-placement | Entry points incl. onboarding gate | Done 2026-11-27 (not deployed) | S | TASK-1084, TASK-1040 |
 | TASK-1086 | vocab-placement | Report integration (LIVE-DB, owner) | [ ] | L | TASK-1078, TASK-1079, TASK-1081, TASK-1036, TASK-1039, TASK-1040, TASK-1044 |
 | TASK-1087 | vocab-placement | Simulation regression harness (V0) | Done (repo) | M | TASK-1078 |
 | TASK-1088 | vocab-placement | Launch per language (LIVE env, owner) | [~] switch removed 2026-11-23 (always on zh/en/ja); deploy + owner checks remain | S | TASK-1080, TASK-1081, TASK-1082, TASK-1084, TASK-1087, TASK-1092 (zh) (ja: TASK-1075) |
@@ -1553,6 +1573,57 @@ Full spec: [[tasklist/review-2026-11-22.tasks]]. Record: [[evaluations/codebase-
 | TASK-1231 | codebase-review-2026-11-22 | Wiki structure decisions | [?] | M | — |
 | TASK-1232 | codebase-review-2026-11-22 | Wiki pages still citing deleted files, and code with no spec | [ ] | L | — |
 | TASK-1233 | codebase-review-2026-11-22 | Deploy checklist for this review's code | [ ] | S | TASK-1200 |
+
+### Fixes 2026-11-26 — [[tasklist/fixes-2026-11-26.tasks]]
+
+| ID | Feature | Title | Status | Complexity | Depends On |
+|----|---------|-------|--------|------------|------------|
+| TASK-1234 | fixes-2026-11-26 | definition_match options in the learner's language | Done (repo) — not deployed | M | — |
+| TASK-1235 | fixes-2026-11-26 | Session-load latency cuts | Done (repo) — not deployed | M | — |
+| TASK-1236 | fixes-2026-11-26 | Per-option explanations: spot the error, pick the correct sentence (ADR-064) | Done (repo) — not deployed | L | — |
+| TASK-1237 | fixes-2026-11-26 | OWNER: apply `migrations/exercise_explanations.sql` | [?] | XS | TASK-1236 |
+| TASK-1238 | fixes-2026-11-26 | English glosses for Chinese words that have none | [ ] | L | — |
+| TASK-1239 | fixes-2026-11-26 | Verify ES256 tokens locally (JWKS) or lengthen the auth cache | [?] | S | — |
+| TASK-1240 | fixes-2026-11-26 | Serialise new-word admission per (user, language) | [ ] | M | — |
+| TASK-1241 | fixes-2026-11-26 | Prestudy spot-the-error / pick-the-sentence show per-option explanations | [ ] | S | TASK-1236 |
+| TASK-1242 | fixes-2026-11-26 | Explanations in the learner's language for particle, word form and synonym / antonym | Done (repo) — not deployed | M | TASK-1236 |
+| TASK-1243 | fixes-2026-11-26 | Generator writes learner-language definition options | [ ] | S | TASK-1234 |
+| TASK-1244 | fixes-2026-11-26 | Write every Japanese explanation ahead into Storage files (Sonnet 5.5, Message Batches) | [x] | M | TASK-1236 |
+| TASK-1245 | fixes-2026-11-26 | OWNER: OpenRouter key almost out of credit ($0.22 of $11.25 left) | [?] | XS | — |
+| TASK-1246 | fixes-2026-11-26 | Chinese explanations ahead of time | [ ] | M | TASK-1244 |
+| TASK-1247 | fixes-2026-11-26 | Write every Japanese particle / word-form / synonym explanation ahead ($28.39) | [x] | S | TASK-1242 |
+| TASK-1248 | fixes-2026-11-26 | Chinese synonym / antonym explanations ahead ($3.59) | [x] | XS | TASK-1247 |
+| TASK-1249 | fixes-2026-11-26 | Explanations for fill the blank, typed fill-in and word order (not chosen) | [ ] | M | TASK-1242 |
+| TASK-1250 | fixes-2026-11-26 | English word definitions in fill the blank, word form and synonym questions | [ ] | S | TASK-1234 |
+| TASK-1251 | fixes-2026-11-26 | Listening questions: notes in English, wrong-option notes shown | [ ] | S | — |
+| TASK-1252 | fixes-2026-11-26 | OWNER: Anthropic credit exhausted; then finish 2 held-back senses | [?] | XS | TASK-1247 |
+| TASK-1253 | fixes-2026-11-26 | Keep llm_calls small: archive it to Storage regularly (weekly job) | Done (repo) — not deployed | S | — |
+
+### Chinese Grammar Drills — NEW 2026-11-27
+Full spec: [[tasklist/grammar-drills.tasks]]. Feature: [[features/grammar-drills]]. Decision: [[decisions/ADR-065-grammar-drills-static-content-local-progress]]. Built on `claude/happy-gates-qp9ifs`, not deployed. The five `[?]` rows each wait on an owner decision stated in the task.
+
+| ID | Feature | Title | Status | Complexity | Depends On |
+|----|---------|-------|--------|------------|------------|
+| TASK-1254 | grammar-drills | Content contract, topic plan and the `grammar_drills.py` script | Done | L | — |
+| TASK-1255 | grammar-drills | Topic guides (39) written, validated and reconciled with reviewer notes | Done | L | TASK-1254 |
+| TASK-1256 | grammar-drills | Drill content authored, blind-reviewed and built (105 batches, 10,209 items) | Done | XL | TASK-1254, TASK-1255 |
+| TASK-1257 | grammar-drills | `/grammar-drill` page: engine, four-stage ladder, local progress, i18n, profile link | Done | XL | TASK-1254 |
+| TASK-1258 | grammar-drills | Infinite-practice generators (22 generators, 13 topics) and Endless mode | Done | L | TASK-1257 |
+| TASK-1259 | grammar-drills | Track grammar-drill progress on the server (daily summaries + state row; ADR-066) — Done (repo) 2026-11-27, awaiting live apply of `migrations/grammar_drill_tracking.sql` | [?] | L | — |
+| TASK-1260 | grammar-drills | Decide whether grammar drills join the Study Plan / daily session and feed ELO | [?] | XL | TASK-1259 |
+| TASK-1261 | grammar-drills | Native-speaker audit of the drill content | [ ] | XL | — |
+| TASK-1262 | grammar-drills | Decide the languages for guide and explanation text | [?] | XL | — |
+| TASK-1263 | grammar-drills | Review the es / ja / zh interface strings for the grammar-drill page | [ ] | S | — |
+| TASK-1264 | grammar-drills | Decide how Recall time is measured | [?] | M | — |
+| TASK-1265 | grammar-drills | Improve the meaning of generated sentences | [ ] | M | — |
+| TASK-1266 | grammar-drills | Make the contract and script reusable for Japanese particles | [ ] | M | — |
+| TASK-1267 | grammar-drills | Decide whether grammar drills get audio | [?] | L | — |
+| TASK-1268 | grammar-drills | Decide the relation between the measure-words topic and the Measure Word Trainer | [?] | S | — |
+| TASK-1271 | new-language-content-packs | Second Italian pilot with the amended briefs | [ ] | M | — |
+| TASK-1272 | new-language-content-packs | Scale the Italian pack to the profile's targets | [ ] | XL | TASK-1271 |
+| TASK-1273 | new-language-content-packs | Drill page reads a pack's built files | [ ] | M | — |
+| TASK-1274 | new-language-content-packs | Cross-field checks for pack dictionaries | [ ] | S | — |
+| TASK-1275 | language-registry | Language registry follow-ups (glyph tables, dim_languages check, feature gates) | [ ] | M | — |
 
 ### Language Packs (existing — unchanged)
 

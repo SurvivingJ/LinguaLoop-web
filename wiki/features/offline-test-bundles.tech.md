@@ -41,7 +41,7 @@ live save path and the upload path are the same code.
 |---|---|---|
 | `--provider claude-cli` | flag | process default provider; concurrency capped by `scripts/provider_arg.py` |
 | `LLM_FORCE_PROVIDER` | `claude_cli` | overrides providers pinned by callers (judges pin `openrouter`); entailment judge uses its LLM backend; `call_jev` raises `JevError`; `tier_classifier.classify_passage` asks Claude; `ProseWriter.client` (phrase detection) is the forced client |
-| `LLM_CALLS_DB_LOG` | `0` | no `llm_calls` rows (calls or judge verdicts) and no `generation_stage_timings` rows; `logs/llm_usage/*.csv` still written |
+| `LLM_CALLS_DB_LOGGING` | `0` | no `llm_calls` rows (calls or judge verdicts) and no `generation_stage_timings` rows; `logs/llm_usage/*.csv` still written |
 | `OPENROUTER_API_KEY` | dummy value | belt and braces: a path that still reaches OpenRouter fails with 401 instead of spending |
 | `OPENAI_API_KEY` | unset or dummy | only the near-duplicate embedding uses it; without a working key dedup degrades to exact-hash only (`dedup.py`). Since 2026-11-27 `TestGenConfig.validate` no longer requires it, nor `OPENROUTER_API_KEY` under `LLM_FORCE_PROVIDER=claude_cli` |
 
@@ -122,7 +122,7 @@ uncompressed_bytes, compressed_bytes, not_included`.
   the live near-dup threshold. Exit 1 if any record failed.
 
 ## Key Architectural Decisions
-1. **Decision:** bundle text only; audio and vocabulary at upload. See [[decisions/ADR-064-claude-only-offline-test-generation]].
+1. **Decision:** bundle text only; audio and vocabulary at upload. See [[decisions/ADR-069-claude-only-offline-test-generation]].
 2. **Decision:** one shared `_persist_test` for live and upload.
    - **Rationale:** a second save path would drift (payloads, review queue, ratings).
    - **Alternatives rejected:** an upload script with its own inserts.
@@ -137,7 +137,7 @@ role, like every generation script.
 `tests/test_offline_test_bundle.py`: slot plan (broad before deep, tier balance, shard
 partition), assembly (dedup by slot and passage hash, manifest, xz round trip), upload
 selection, record → `_persist_test` field mapping, record-version guard,
-`LLM_CALLS_DB_LOG=0` skipping the DB but not the CSV. `tests/test_force_provider_claude_cli.py`
+`LLM_CALLS_DB_LOGGING=false` skipping the DB but not the CSV. `tests/test_force_provider_claude_cli.py`
 covers `LLM_FORCE_PROVIDER`.
 
 ## Bundles

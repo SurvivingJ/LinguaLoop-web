@@ -10,6 +10,8 @@ import os
 from datetime import timedelta
 from dotenv import load_dotenv
 
+from services import language_registry
+
 # The test suite sets LINGUADOJO_SKIP_DOTENV (tests/conftest.py) so a developer's
 # .env cannot put live credentials into an offline test run.
 if not os.environ.get('LINGUADOJO_SKIP_DOTENV'):
@@ -160,6 +162,9 @@ class Config:
     # inside a scheduled job, before it fails instead of holding a worker.
     SUPABASE_POSTGREST_TIMEOUT = float(os.environ.get('SUPABASE_POSTGREST_TIMEOUT', '10'))
     SUPABASE_JOB_TIMEOUT = float(os.environ.get('SUPABASE_JOB_TIMEOUT', '120'))
+    # Weekly llm_calls archive (services/llm_calls_archive.py): whole UTC days of
+    # rows kept in the table; older rows move to Storage.
+    LLM_CALLS_ARCHIVE_KEEP_DAYS = int(os.environ.get('LLM_CALLS_ARCHIVE_KEEP_DAYS', '3'))
 
     # ==========================================================================
     # EXERCISE CONTENT STORAGE (ADR-049)
@@ -185,12 +190,9 @@ class Config:
     # ==========================================================================
     # LANGUAGE CONFIGURATION - Single source of truth
     # ==========================================================================
-    # Language codes are ISO 639-1 (zh, en, ja). Single source of truth.
-    LANGUAGES = {
-        1: {'code': 'zh', 'name': 'chinese', 'display': 'Chinese'},
-        2: {'code': 'en', 'name': 'english', 'display': 'English'},
-        3: {'code': 'ja', 'name': 'japanese', 'display': 'Japanese'},
-    }
+    # The languages themselves are declared in services/language_registry.py;
+    # these names are kept for the callers that read them from Config.
+    LANGUAGES = language_registry.legacy_config()
     VALID_LANGUAGE_IDS = set(LANGUAGES.keys())
     LANGUAGE_ID_TO_NAME = {k: v['name'] for k, v in LANGUAGES.items()}
     LANGUAGE_CODE_TO_ID = {v['code']: k for k, v in LANGUAGES.items()}
@@ -292,6 +294,22 @@ class Config:
     # Tried once when the primary call fails. Blank disables the model fallback.
     DT_SINGLE_CALL_FALLBACK_MODEL = os.environ.get(
         'DT_SINGLE_CALL_FALLBACK_MODEL', 'deepseek/deepseek-v4.1-flash')
+    # Per-option answer explanations in the learner's language (ADR-064,
+    # services/exercise_explanations.py): why each spot-the-error sentence is
+    # right or wrong. Generated once per (exercise, language), then cached in
+    # exercise_explanations. The pair was chosen on 2026-11-26 on live ja items:
+    # deepseek-v4.1-flash answered in ~4 s, gemini-3.5-flash in ~10 s, both
+    # accurate (qwen3.7-plus was as accurate but took 41 s).
+    EXERCISE_EXPLANATIONS_ENABLED = (
+        os.environ.get('EXERCISE_EXPLANATIONS_ENABLED', 'True').lower() == 'true')
+    EXERCISE_EXPLANATION_MODEL = os.environ.get(
+        'EXERCISE_EXPLANATION_MODEL', 'deepseek/deepseek-v4.1-flash')
+    # Tried once when the primary model fails or answers unusably. Blank disables it.
+    EXERCISE_EXPLANATION_FALLBACK_MODEL = os.environ.get(
+        'EXERCISE_EXPLANATION_FALLBACK_MODEL', 'google/gemini-3.5-flash')
+    # Items per session request whose explanations are generated ahead, in the
+    # background, so they are ready by the time the learner answers.
+    EXERCISE_EXPLANATION_WARM_PER_REQUEST = _env_int('EXERCISE_EXPLANATION_WARM_PER_REQUEST', 8)
     # Track E's "free translations are expected" prompt paragraph. Default OFF:
     # with prompt v1 it removed false flags on rephrased sentences but lowered
     # recall on near-verbatim answers (gpt-6-luna .88 -> .80). Not re-measured

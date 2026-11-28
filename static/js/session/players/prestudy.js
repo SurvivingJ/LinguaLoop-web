@@ -49,7 +49,7 @@ export function mount(container, ctx) {
             `${pct}% of this test's key words are new to you. Learn them first, then take the test.`
           );
 
-  const lang = { 1: 'zh', 2: 'en', 3: 'ja' }[Number(ctx.languageId)] || '';
+  const lang = window.LinguaLanguages.codeOf(Number(ctx.languageId));
   // The runner's header names the test type and title (seal 学); the eyebrow
   // says what this card is, and the stage keeps the test title so it reads on its own.
   // One task screen: the explanation in the stage, both choices in the dock.

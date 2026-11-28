@@ -56,10 +56,12 @@ except ImportError:  # run or imported as scripts.<name>
 
 bootstrap(log_level=None)
 
+from services import language_registry  # noqa: E402
+
 
 logger = logging.getLogger('generation_batch')
 
-LANGUAGE_NAMES = {1: 'Chinese', 2: 'English', 3: 'Japanese'}
+LANGUAGE_NAMES = language_registry.id_to_display()
 
 # Lemmas that are not words. The corpus contains bare digits ("1"), subscript
 # characters ("₂"), and mis-segmented conjugation strings ("啄む ます た");
@@ -68,7 +70,7 @@ _MAX_LEMMA_TOKENS = 3
 
 # Languages written without inter-word spaces, where a space in a lemma is
 # evidence of mis-segmentation rather than a legitimate phrase.
-_SPACELESS_LANGUAGES = frozenset({1, 3})
+_SPACELESS_LANGUAGES = frozenset(language_registry.cjk_ids())
 
 # Below this share of attempted senses ending in a rendered set, the batch is
 # producing noise and the run stops instead of buying more of it.

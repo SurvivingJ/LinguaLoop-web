@@ -68,16 +68,17 @@ bootstrap(log_level=None)
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+from services import language_registry  # noqa: E402
 from services.llm_service import call_llm  # noqa: E402
 from services.prompt_service import get_template_config  # noqa: E402
 from services.test_generation.config import get_test_gen_config  # noqa: E402
 from services.test_generation.schemas import MCQuestion  # noqa: E402
 
-LANG_ID = {'zh': 1, 'en': 2, 'ja': 3}
-LANG_NAME = {1: 'zh', 2: 'en', 3: 'ja'}
+LANG_ID = language_registry.code_to_id()
+LANG_NAME = language_registry.id_to_code()
 # `language_name` as dim_languages spells it -- the value the orchestrator feeds
 # the optional {language} placeholder.
-LANG_FULL = {1: 'Chinese', 2: 'English', 3: 'Japanese'}
+LANG_FULL = language_registry.id_to_display()
 
 TYPES = (
     'literal_detail',

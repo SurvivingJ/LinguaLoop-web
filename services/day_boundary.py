@@ -142,6 +142,13 @@ def plan_row(db, user_id: str, language_id: int) -> Optional[dict]:
     return dict(row) if row is not None else None
 
 
+def remember_plan_row(user_id: str, language_id: int, row: Optional[dict]) -> None:
+    """Seed ``plan_row``'s per-request memo with a row read on a pool thread
+    (where the request cache is out of reach). No-op outside a GET request."""
+    from services.request_cache import put
+    put(("plan_row", str(user_id), str(language_id)), dict(row) if row is not None else None)
+
+
 def plan_timezone(db, user_id: str, language_id: int) -> str:
     """The learner's configured timezone for (user, language), or ``UTC``.
 

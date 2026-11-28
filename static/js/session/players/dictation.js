@@ -159,7 +159,7 @@ export function mount(container, ctx) {
 
   function langCode() {
     const code = String((state.testData && state.testData.language) || '').toLowerCase();
-    return { cn: 'zh', jp: 'ja' }[code] || code;
+    return window.LinguaLanguages.codeOf(code, code); // legacy 'cn' / 'jp' -> 'zh' / 'ja'
   }
 
   // Task header: the session runner fills title / subtitle / seal itself; a

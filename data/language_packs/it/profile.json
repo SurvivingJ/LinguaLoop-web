@@ -1,0 +1,1016 @@
+{
+  "code": "it",
+  "name": "Italian",
+  "native_name": "Italiano",
+  "proposed_language_id": 4,
+  "variety": "Contemporary standard Italian of Italy (italiano standard / neo-standard) as written in national newspapers and taught for the CILS, CELI and PLIDA certificates: no regional words or dialect, Lei for formal address, passato prossimo as the spoken past, accents written by the standard rule (perché, è, città).",
+  "learner": "An adult English speaker (no other Romance language assumed) at CEFR A1 to B2; explanations and glosses are in English. C1 is used only as a label for the rare words of the frequency list.",
+  "text": {
+    "allowed_regex": "^[A-Za-zÀÈÉÌÒÙàèéìòù' ,.;:?!()\"«»–-]+$",
+    "forbidden_regex": "[0-9]",
+    "punctuation": " ,.;:?!()\"«»–",
+    "token_joiner": " ",
+    "casefold_tokens": true,
+    "length_unit": "words",
+    "sentence_min": 3,
+    "sentence_max": 22,
+    "romanisation": null
+  },
+  "pronunciation": {
+    "format": "IPA",
+    "rule": "Broad IPA between slashes with the primary stress mark before the stressed syllable and a dot between the other syllables, long consonants doubled: /teˈlɛ.fo.no/, /ˈpal.la/, /tʃitˈta/. stress_position is generated from the stress mark, so an entry without it cannot be used."
+  },
+  "levels": {
+    "scheme": "CEFR (as used by CILS, CELI, PLIDA and the Profilo della lingua italiana)",
+    "bands": [
+      "A1",
+      "A2",
+      "B1",
+      "B2",
+      "C1"
+    ],
+    "drill_levels": {
+      "1": "A1-A2 words; one clause of 4 to 9 words; presente, passato prossimo, simple imperatives; no subordinate clause",
+      "2": "B1 words; 7 to 14 words, at most one subordinate or coordinated clause; imperfetto, futuro, condizionale presente, object pronouns, reflexives",
+      "3": "B2 words; 10 to 22 words, two clauses; congiuntivo, periodo ipotetico, passive and si constructions, relative clauses with cui, combined pronouns"
+    }
+  },
+  "gloss_languages": [
+    "en"
+  ],
+  "tts_voices": [
+    "it-IT-IsabellaNeural",
+    "it-IT-DiegoNeural"
+  ],
+  "nlp": {
+    "tokeniser": "spaCy it_core_news_lg (it_core_news_md where memory is tight)",
+    "lemmatiser": "spaCy it_core_news_lg lemmatiser with its part-of-speech tags; simplemma only as the fallback used for the candidate list",
+    "notes": "Normalise the curly apostrophe to the straight one and text to NFC before anything else. Elision: spaCy splits l'amico, un'idea, dell'acqua, c'è, quest'anno into two tokens; exercises must treat the elided form and the next word as one unit for blanks and tiles. Fused preposition + article (del, nello, sugli, col) is one token; map it to the preposition for government checks and never count it as vocabulary. Enclitic pronouns are not split (vederlo, dammelo, andarsene, alzandosi): strip them by rule before lemmatising, and lemmatise reflexive verbs to the infinitive in -si only when the lexicon lists the verb that way. Truncated forms (un po', buon, bel, gran, far, signor, dottor) need a lookup. Homographs need the tagger, not the form: sono (io / loro), stato (essere, stare, the noun), porto, ancora, subito, legge, faccia, parti. The lemmatiser's errors on irregular verb forms (vado, feci, tenga) are checked against the verb_conjugation dictionary. Frequency: wordfreq, summed over the forms of a lemma. Typed answers: compare case-insensitively, keep accents significant."
+  },
+  "ladder": [
+    {
+      "type_code": "phonetic_recognition",
+      "ladder_level": 1,
+      "generator": "llm",
+      "status": "adapt",
+      "pos_classes": [
+        "all"
+      ],
+      "requires": [
+        "p1_sentences",
+        "tts"
+      ],
+      "note": "Same block (level_1, 4-8 options, listening). Italian distractors are real words that differ from the headword in what English ears miss: single against double consonant (pala / palla, sete / sette, nono / nonno, caro / carro), gl / l (figlio / filo), gn / n (sogno / sono), c / g and sc before e, i (cena / scena), and one vowel (pero / pera). Every option is spelled differently from the headword: pairs that differ only in stress (ancora, subito, principi) or only in open against closed e / o (pesca, venti) are written the same and cannot be options; stress goes to stress_position, and open / closed vowels are not drilled because standard speakers do not agree on them. Decline with no_minimal_pairs when fewer than three real neighbours exist."
+    },
+    {
+      "type_code": "definition_match",
+      "ladder_level": 2,
+      "generator": "deterministic",
+      "status": "reuse",
+      "pos_classes": [
+        "all"
+      ],
+      "requires": [
+        "same_tier_senses"
+      ],
+      "note": ""
+    },
+    {
+      "type_code": "cloze_completion",
+      "ladder_level": 3,
+      "generator": "llm",
+      "status": "adapt",
+      "pos_classes": [
+        "all"
+      ],
+      "requires": [
+        "p1_sentences"
+      ],
+      "note": "Same block (level_3, 4 options). The blank is the target in the form it has in the sentence. The frame around the blank gives away gender, number and first sound (un' ___, lo ___, gli ___, agreement on adjectives and participles), so every distractor must have the same gender, number and kind of first sound as the answer (vowel; s + consonant, z, gn, ps; other consonant) and, for a verb, the same person, tense and auxiliary. A distractor that is ruled out by grammar alone is a defect; the three wrong options must fail on meaning only. Do not blank a word that is elided or truncated in the sentence."
+    },
+    {
+      "type_code": "cloze_typed",
+      "ladder_level": 4,
+      "generator": "deterministic",
+      "status": "adapt",
+      "pos_classes": [
+        "concrete",
+        "abstract",
+        "action",
+        "property"
+      ],
+      "requires": [
+        "cloze_asset"
+      ],
+      "note": "Same generator. The answer check is case-insensitive and maps a curly apostrophe to a straight one. A missing or wrong accent (perche, perchè for perché; citta for città; e' for è) is not accepted as correct: it is reported as an accent error with the right spelling, because the accent is part of Italian spelling and can change the word (e / è, da / dà, li / lì). A single against double consonant slip is a plain wrong answer."
+    },
+    {
+      "type_code": "morphology_slot",
+      "ladder_level": 4,
+      "generator": "llm",
+      "status": "adapt",
+      "pos_classes": [
+        "concrete",
+        "abstract",
+        "action",
+        "property"
+      ],
+      "requires": [
+        "morph_forms>=2",
+        "inflecting_pos"
+      ],
+      "note": "Same block (level_4, 4 options, a sentence with the target's slot blanked). Verbs: the options are four forms of the same verb (other person, other tense or mood, wrong auxiliary pattern); adjectives: the four agreement forms (-o / -a / -i / -e) or, for two-form adjectives, forms with a wrong plural; nouns: singular, plural and plausible wrong plurals (uomo: uomini, not uomi). Exactly one form may fit the sentence: give the subject or a time expression that fixes person and tense. Every form offered as correct must agree with the verb_conjugation or noun_gender dictionary when the word is there. Decline with no_inflection for invariable words (adverbs, blu, rosa, loanwords such as bar, film)."
+    },
+    {
+      "type_code": "collocation_gap_fill",
+      "ladder_level": 5,
+      "generator": "llm",
+      "status": "adapt",
+      "pos_classes": [
+        "abstract",
+        "action",
+        "property",
+        "concrete"
+      ],
+      "requires": [
+        "primary_collocate",
+        "collocations_dict"
+      ],
+      "note": "Enabled only for senses whose pair is in the reviewed collocations dictionary (the grounding source; without it the type stays disabled, as for zh and ja). Italian's costly collocations are light verbs that English calques get wrong (fare una domanda, fare colazione, prendere una decisione, avere fame, dare un esame), so concrete nouns are included when the dictionary has them. The three distractors are the row's first three wrong_collocates (the dictionary requires at least three, so none is invented). Not written in the first fat-seed slice."
+    },
+    {
+      "type_code": "semantic_discrimination",
+      "ladder_level": 6,
+      "generator": "llm",
+      "status": "reuse",
+      "pos_classes": [
+        "all"
+      ],
+      "requires": [
+        "p1_definition"
+      ],
+      "note": ""
+    },
+    {
+      "type_code": "synonym_antonym_match",
+      "ladder_level": 6,
+      "generator": "llm",
+      "status": "reuse",
+      "pos_classes": [
+        "abstract",
+        "action",
+        "property"
+      ],
+      "requires": [
+        "sense_embedding"
+      ],
+      "note": ""
+    },
+    {
+      "type_code": "spot_incorrect_sentence",
+      "ladder_level": 7,
+      "generator": "llm",
+      "status": "adapt",
+      "pos_classes": [
+        "all"
+      ],
+      "requires": [
+        "p1_sentences"
+      ],
+      "note": "Same block (level_7: incorrect_sentence, corrected_sentence, error_description). The one error sits on the target word and is of a kind an English speaker really makes with it: a false-friend meaning, the wrong auxiliary (ho andato), the wrong preposition after it (dipende di), a wrong gender or agreement on it (la problema), a wrong irregular form (ha prenduto), or a calqued collocation. No spelling-only or accent-only errors, and no second error elsewhere in the sentence."
+    },
+    {
+      "type_code": "collocation_repair",
+      "ladder_level": 8,
+      "generator": "llm",
+      "status": "adapt",
+      "pos_classes": [
+        "abstract",
+        "action",
+        "property",
+        "concrete"
+      ],
+      "requires": [
+        "primary_collocate",
+        "collocations_dict"
+      ],
+      "note": "As collocation_gap_fill: grounded in the collocations dictionary; the broken sentence uses the row's calque or another of its wrong_collocates (chiedere una domanda) and the repair is the row's phrase. Not written in the first fat-seed slice."
+    },
+    {
+      "type_code": "jumbled_sentence",
+      "ladder_level": 9,
+      "generator": "deterministic",
+      "status": "adapt",
+      "pos_classes": [
+        "concrete",
+        "abstract",
+        "action",
+        "property"
+      ],
+      "requires": [
+        "p1_sentences"
+      ],
+      "note": "Same generator, different tiling: split on spaces only, so an elided form stays one tile with its noun (l'amico, un'idea, dell'acqua, c'è, quest'anno) and a clitic stays on its verb (dammelo, vederlo). Tiles are lower-cased except proper names. Italian word order is freer than English (subject after the verb, adverb placement, Oggi piove / Piove oggi), so use only sentences of at most eight tiles and accept every order a reviewer listed as valid, not just the stored one."
+    },
+    {
+      "type_code": "word_family",
+      "ladder_level": 4,
+      "generator": "llm",
+      "status": "adapt",
+      "pos_classes": [
+        "abstract",
+        "action",
+        "property"
+      ],
+      "requires": [
+        "morph_forms>=2"
+      ],
+      "note": "Carries over from English: Italian derivation is productive and regular enough to drill (decidere / decisione / deciso, felice / felicità / felicemente, -zione, -mento, -ità, -ezza, -oso, -abile, -mente). The sentence fixes the part of speech; options are members of the same family. Decline with no_family when the word has no common derived relative. Not written in the first fat-seed slice (the fat-seed brief's block set does not include it)."
+    },
+    {
+      "type_code": "tl_nl_translation",
+      "ladder_level": 3,
+      "generator": "llm",
+      "status": "adapt",
+      "pos_classes": [
+        "all"
+      ],
+      "requires": [
+        "p1_sentences",
+        "nl_gloss",
+        "false_friends_dict"
+      ],
+      "note": "Same type (Italian to the learner's language). Change: when the word is in the false_friends dictionary, the English lookalike (actually for attualmente, library for libreria) must be one of the distractors, with an explanation that names the Italian word for it."
+    },
+    {
+      "type_code": "nl_tl_translation",
+      "ladder_level": 3,
+      "generator": "llm",
+      "status": "adapt",
+      "pos_classes": [
+        "all"
+      ],
+      "requires": [
+        "p1_sentences",
+        "nl_gloss",
+        "false_friends_dict"
+      ],
+      "note": "Same type (learner's language to Italian). Changes: a noun is shown and answered with its definite article (the book: il libro) so that gender is rehearsed with the word; when the English prompt has an Italian lookalike that means something else (factory: fattoria), that lookalike is a distractor."
+    },
+    {
+      "type_code": "text_flashcard",
+      "ladder_level": null,
+      "generator": "deterministic",
+      "status": "reuse",
+      "pos_classes": [
+        "all"
+      ],
+      "requires": [
+        "p1_sentences"
+      ],
+      "note": ""
+    },
+    {
+      "type_code": "listening_flashcard",
+      "ladder_level": null,
+      "generator": "deterministic",
+      "status": "reuse",
+      "pos_classes": [
+        "all"
+      ],
+      "requires": [
+        "p1_sentences",
+        "tts"
+      ],
+      "note": ""
+    },
+    {
+      "type_code": "timed_speed_round",
+      "ladder_level": null,
+      "generator": "deterministic",
+      "status": "reuse",
+      "pos_classes": [
+        "all"
+      ],
+      "requires": [
+        "same_tier_senses"
+      ],
+      "note": ""
+    },
+    {
+      "type_code": "hanzi_to_pinyin",
+      "ladder_level": null,
+      "generator": null,
+      "status": "not_applicable",
+      "pos_classes": [],
+      "requires": [],
+      "note": "No second script: Italian spelling gives the sounds almost completely. What the spelling hides is the stressed syllable; see stress_position."
+    },
+    {
+      "type_code": "pinyin_to_hanzi",
+      "ladder_level": null,
+      "generator": null,
+      "status": "not_applicable",
+      "pos_classes": [],
+      "requires": [],
+      "note": "No second script and no romanisation. Spelling from sound (double consonants, accents) is drilled by cloze_typed and listening_flashcard."
+    },
+    {
+      "type_code": "tone_id_word",
+      "ladder_level": null,
+      "generator": null,
+      "status": "not_applicable",
+      "pos_classes": [],
+      "requires": [],
+      "note": "Italian has no lexical tone. Its analogue is the unmarked position of word stress: stress_position."
+    },
+    {
+      "type_code": "kanji_to_reading",
+      "ladder_level": null,
+      "generator": null,
+      "status": "not_applicable",
+      "pos_classes": [],
+      "requires": [],
+      "note": "No logographic script or reading to recover. Analogue: stress_position."
+    },
+    {
+      "type_code": "reading_to_kanji",
+      "ladder_level": null,
+      "generator": null,
+      "status": "not_applicable",
+      "pos_classes": [],
+      "requires": [],
+      "note": "No logographic script. Analogue for spelling from sound: cloze_typed with the accent rule."
+    },
+    {
+      "type_code": "classifier_match",
+      "ladder_level": null,
+      "generator": null,
+      "status": "not_applicable",
+      "pos_classes": [],
+      "requires": [],
+      "note": "Italian has no classifiers. The closed-class word a noun selects is its article: article_match."
+    },
+    {
+      "type_code": "counter_match",
+      "ladder_level": null,
+      "generator": null,
+      "status": "not_applicable",
+      "pos_classes": [],
+      "requires": [],
+      "note": "Italian counts with plain numerals and has no counters. The noun-driven choice is the article (article_match); irregular plurals go to morphology_slot."
+    },
+    {
+      "type_code": "particle_selection",
+      "ladder_level": null,
+      "generator": null,
+      "status": "not_applicable",
+      "pos_classes": [],
+      "requires": [],
+      "note": "Italian has no case particles. The same role (a small function word chosen by the frame) is played by prepositions: preposition_selection (authored) and government_match (from a dictionary)."
+    },
+    {
+      "type_code": "stress_position",
+      "ladder_level": 1,
+      "generator": "deterministic",
+      "status": "new",
+      "pos_classes": [
+        "all"
+      ],
+      "requires": [
+        "pronunciation",
+        "tts"
+      ],
+      "note": "Analogue of tone_id_word. The word is shown split into written syllables (te-le-fo-no) and the learner taps the stressed one, then hears it. Built from the sense's IPA, which must carry the primary stress mark and syllable dots; the generator syllabifies the spelling by rule and uses the index of the stressed syllable. Only words of three or more syllables (an unaccented two-syllable word is always stressed on the first); never words with a written final accent (città), where the spelling already says it; never homographs with two stresses (ancora, subito, principi), where the word alone has no single answer. If the number of written syllables and of IPA syllables differ, the word is skipped, not guessed. Priority: words stressed on the third-last syllable or earlier (telefono, zucchero, abitano) and words whose English cognate misleads."
+    },
+    {
+      "type_code": "article_match",
+      "ladder_level": 4,
+      "generator": "deterministic",
+      "status": "new",
+      "pos_classes": [
+        "concrete",
+        "abstract"
+      ],
+      "requires": [
+        "noun_gender_dict"
+      ],
+      "note": "Analogue of classifier_match, for nouns. From one noun_gender row the generator builds, in rising difficulty: (a) definite article, singular (___ zaino: lo; options il, lo, la, l'); (b) indefinite article (un, uno, una, un'); (c) definite article, plural form shown (___ uova: le; options i, gli, le); (d) preposition plus article (a, di, da, in, su + the noun: nello zaino, dell'acqua, sugli alberi; options are the forms of that one preposition), which is fully derivable from the row's article. The explanation is generated from the row: gender, gender_cue and the first-sound rule."
+    },
+    {
+      "type_code": "auxiliary_choice",
+      "ladder_level": 4,
+      "generator": "deterministic",
+      "status": "new",
+      "pos_classes": [
+        "action"
+      ],
+      "requires": [
+        "verb_conjugation_dict"
+      ],
+      "note": "For verbs. Prompt: the infinitive, a subject and passato prossimo; options: the avere form and the essere form with and without the right participle agreement (Maria + andare: è andata; ha andato; è andato; ha andata). Built from the verb_conjugation row (auxiliary, past_participle). The generator picks a feminine or plural subject for essere verbs so that the agreement shows, and puts si before the auxiliary for a reflexive (si è alzata). Verbs marked both are skipped: the choice depends on the sentence (ho finito il libro / il film è finito), so it is drilled in morphology_slot and the grammar drills; auxiliary_note is free text for the explanation and is never parsed."
+    },
+    {
+      "type_code": "conjugation_form",
+      "ladder_level": 4,
+      "generator": "deterministic",
+      "status": "new",
+      "pos_classes": [
+        "action"
+      ],
+      "requires": [
+        "verb_conjugation_dict"
+      ],
+      "note": "For verbs: one cell of the paradigm, without a sentence. Prompt: infinitive + tense + person (venire, presente, loro); the learner chooses, and at higher mastery types, the form (vengono). Distractors are generated: the regular form the verb would have (venono), another person, another tense. Cells: the six present forms, past participle, gerund and tu imperative are taken from the row. The other persons of the imperfect and the future (and the conditional) are computed from the stored io form by the endings, which have no exceptions (ero: eri, era, eravamo; andrò: andrai, andrà; andrei). Present subjunctive: io, tu, lui are the stored form, noi is the present noi form, voi is that form with -iate for -iamo, loro is the stored form + no (vada, andiamo, andiate, vadano). When the row has imperative_tu_short both imperatives are accepted as correct (vai, va') and neither is a distractor; a row without imperative_tu gets no imperative cell. Priority to the parts listed in irregular_in. morphology_slot stays the in-sentence version."
+    },
+    {
+      "type_code": "government_match",
+      "ladder_level": 4,
+      "generator": "deterministic",
+      "status": "new",
+      "pos_classes": [
+        "action",
+        "property",
+        "abstract"
+      ],
+      "requires": [
+        "verb_government_dict"
+      ],
+      "note": "For verbs, adjectives and nouns that fix the preposition of their complement. Prompt: the head with a gap and the kind of complement (cominciare ___ + infinitive; dipendere ___ + noun; ascoltare ___ + noun); options: four of ∅, a, di, da, in, con, su, per, always including the English calque when the row has differs_from_english. The prompt also shows the row's en_pattern, because one head can take several prepositions with different meanings (pensare a / pensare di, parlare di / con, chiedere a qualcuno / chiedere qualcosa); a preposition that another row gives for the same head and complement is never used as a distractor. Answer, example and explanation come from the verb_government row."
+    },
+    {
+      "type_code": "preposition_selection",
+      "ladder_level": 4,
+      "generator": "llm",
+      "status": "new",
+      "pos_classes": [
+        "concrete",
+        "abstract",
+        "action",
+        "property"
+      ],
+      "requires": [
+        "p1_sentences"
+      ],
+      "note": "Analogue of particle_selection, authored per sentence, for nouns, verbs and adjectives. Block name preposition_selection: {\"sentence_index\": n, \"sentence\": \"<core sentence n with one preposition replaced by ___>\", \"options\": [4 options]}, each option {\"text\", \"is_correct\", \"explanation\"}. The blanked word is a simple preposition (di, a, da, in, con, su, per, tra, fra) or a preposition fused with the article (al, della, nello, sugli); all four options have the same shape (all simple, or all fused with the same article form), so only the preposition is tested. Choose a preposition that the target word or the frame selects (pensare a, in Italia but a Roma, da tre anni, andare dal medico), where exactly one option is acceptable. Explanations are in English and say why each preposition is wrong here. Decline with {\"declined\": \"no_preposition\"} when no core sentence has such a preposition."
+    }
+  ],
+  "unique_features": [
+    {
+      "key": "noun_gender_and_articles",
+      "title": "Gender of nouns and the form of the article",
+      "why": "Every noun has a gender that English does not prepare the learner for, and the article depends on gender, number and the noun's first sound (il / lo / l' / la, i / gli / le, un / uno / una / un'). Errors here are the most frequent ones in learner Italian at every level, and they spread to adjectives, participles and pronouns. Opaque nouns (-e: il fiore, la notte) and exceptions (il problema, la mano, il cinema, l'uovo / le uova) must be learned word by word.",
+      "analogue": {
+        "zh": "measure words: a closed-class word chosen by the noun (classifier_match from the measure-word dictionary)",
+        "ja": "counters (counter_match from the counter dictionary)"
+      },
+      "delivered_by": "dictionary",
+      "dictionary": "noun_gender",
+      "exercise_types": [
+        "article_match",
+        "morphology_slot",
+        "nl_tl_translation"
+      ]
+    },
+    {
+      "key": "articulated_prepositions",
+      "title": "Prepositions fused with the article (al, nello, degli, sull')",
+      "why": "Five prepositions merge with the definite article into 35 forms. The learner must compute preposition + gender + number + first sound in one step while speaking; di + plural also serves as the partitive (dei libri, some books).",
+      "analogue": {
+        "zh": "none in this form; closest is classifier_match (a form fixed by the noun)",
+        "ja": "counter_match with sound changes on the counter"
+      },
+      "delivered_by": "dictionary",
+      "dictionary": "noun_gender",
+      "exercise_types": [
+        "article_match"
+      ]
+    },
+    {
+      "key": "auxiliary_and_participle_agreement",
+      "title": "essere or avere in compound tenses, and participle agreement",
+      "why": "English has one perfect auxiliary. Italian splits verbs between avere and essere (movement, change of state, reflexives, piacere), a few take both with a change of meaning (ho finito il libro / il film è finito), and with essere the participle agrees with the subject (Maria è andata). Ho andato is a signature error up to B1.",
+      "analogue": {
+        "zh": "none; nearest is a verb-driven closed choice such as the complement in grammar drills",
+        "ja": "particle_selection (a closed-class choice fixed by the verb)"
+      },
+      "delivered_by": "dictionary",
+      "dictionary": "verb_conjugation",
+      "exercise_types": [
+        "auxiliary_choice",
+        "spot_incorrect_sentence"
+      ]
+    },
+    {
+      "key": "verb_conjugation",
+      "title": "Person endings, three conjugations and the irregular high-frequency verbs",
+      "why": "Six person forms per tense with the subject pronoun normally dropped, so the ending carries the subject. The most frequent verbs are the irregular ones (essere, avere, andare, fare, dire, venire, potere, volere, dovere, sapere, uscire), -ire verbs split into two patterns (dormo / finisco), and participles of -ere verbs are mostly irregular (preso, messo, visto, scritto).",
+      "analogue": {
+        "zh": "none (no inflection; morphology_slot is disabled for zh)",
+        "ja": "morphology_slot for inflecting words"
+      },
+      "delivered_by": "dictionary",
+      "dictionary": "verb_conjugation",
+      "exercise_types": [
+        "conjugation_form",
+        "morphology_slot"
+      ]
+    },
+    {
+      "key": "preposition_government",
+      "title": "Which preposition a verb, adjective or noun takes",
+      "why": "The preposition before a noun or an infinitive is fixed by the head word and often differs from English: pensare a, dipendere da, cercare di fare, riuscire a fare, interessarsi di; and Italian has a direct object where English has a preposition (ascoltare la radio, aspettare l'autobus, cercare le chiavi) or the reverse (telefonare a Maria).",
+      "analogue": {
+        "zh": "verb-complement and coverb choices in grammar drills",
+        "ja": "particle_selection (which particle a verb takes)"
+      },
+      "delivered_by": "dictionary",
+      "dictionary": "verb_government",
+      "exercise_types": [
+        "government_match",
+        "preposition_selection"
+      ]
+    },
+    {
+      "key": "prepositions_by_frame",
+      "title": "Prepositions of place, time and means chosen by the frame",
+      "why": "in Italia but a Roma, in macchina but a piedi, da Maria / dal medico for a person's place, da tre anni with the present for an ongoing state, tra una settimana for the future. None is predictable from English in, at, to, for.",
+      "analogue": {
+        "zh": "none in the ladder; word-order and coverb topics in grammar drills",
+        "ja": "particle_selection, authored per sentence"
+      },
+      "delivered_by": "ladder",
+      "exercise_types": [
+        "preposition_selection"
+      ]
+    },
+    {
+      "key": "stress_and_double_consonants",
+      "title": "What the spelling hides or English ears miss: stress position and consonant length",
+      "why": "Italian spelling is close to phonemic, but stress is written only on a final vowel. Learners stress the second-last syllable by default and get telefono, zucchero, abitano, desiderano, sabato wrong for years. Consonant length is distinctive (pala / palla, sete / sette, penna / pena) and English speakers neither hear nor write it reliably.",
+      "analogue": {
+        "zh": "hanzi_to_pinyin, pinyin_to_hanzi, tone_id_word (generated from the reading)",
+        "ja": "kanji_to_reading, reading_to_kanji (generated from the reading)"
+      },
+      "delivered_by": "generator",
+      "exercise_types": [
+        "stress_position",
+        "phonetic_recognition",
+        "cloze_typed"
+      ]
+    },
+    {
+      "key": "light_verb_collocations",
+      "title": "Fixed verb + noun pairs that English calques get wrong",
+      "why": "fare una domanda (not chiedere), fare colazione, fare una passeggiata, prendere una decisione, avere fame / sonno / ragione / anni, dare un esame. The words are A1 but the pairing is not, and the calque is understood but marks the speaker at once.",
+      "analogue": {
+        "zh": "collocation types are disabled for lack of a grounding source",
+        "ja": "collocation types are disabled for lack of a grounding source"
+      },
+      "delivered_by": "dictionary",
+      "dictionary": "collocations",
+      "exercise_types": [
+        "collocation_gap_fill",
+        "collocation_repair"
+      ]
+    },
+    {
+      "key": "false_friends",
+      "title": "English lookalikes with another meaning",
+      "why": "English and Italian share thousands of Latin words, which makes most vocabulary cheap and a few hundred words dangerous: attualmente (currently), eventualmente (if need be), libreria (bookshop), fattoria (farm), parenti (relatives), sensibile (sensitive), educato (polite), pretendere (to demand). The learner is confident and wrong.",
+      "analogue": {
+        "zh": "none for English learners",
+        "ja": "none in the ladder (loanword shifts are not drilled)"
+      },
+      "delivered_by": "dictionary",
+      "dictionary": "false_friends",
+      "exercise_types": [
+        "tl_nl_translation",
+        "nl_tl_translation",
+        "spot_incorrect_sentence"
+      ]
+    },
+    {
+      "key": "clitic_pronouns",
+      "title": "Unstressed object pronouns: form, position and combinations",
+      "why": "lo / la / li / le against gli / le, ci and ne, placement before the finite verb but attached to infinitive, gerund and imperative (lo vedo, voglio vederlo, dammelo), combined forms (me lo, glielo, ce ne) and participle agreement with a preceding direct object (li ho visti). English has nothing comparable and the choice depends on the whole clause.",
+      "analogue": {
+        "zh": "grammar topics such as 把 / 被 and word order",
+        "ja": "particle drills (planned)"
+      },
+      "delivered_by": "grammar",
+      "exercise_types": [
+        "cloze",
+        "order",
+        "rewrite",
+        "judge"
+      ]
+    },
+    {
+      "key": "past_tense_choice",
+      "title": "passato prossimo against imperfetto",
+      "why": "English simple past covers both. The choice (completed event against background, habit or state) is made in almost every past sentence and stays unstable to B2: ero / sono stato, sapevo / ho saputo, volevo / ho voluto.",
+      "analogue": {
+        "zh": "the 了 / 过 / 着 topics",
+        "ja": "none yet"
+      },
+      "delivered_by": "grammar",
+      "exercise_types": [
+        "cloze",
+        "judge",
+        "rewrite"
+      ]
+    },
+    {
+      "key": "subjunctive_and_hypotheticals",
+      "title": "Congiuntivo after triggers, and the periodo ipotetico",
+      "why": "The subjunctive is obligatory after verbs of opinion, wish, doubt and emotion and after conjunctions such as benché, affinché, prima che (penso che sia, voglio che tu venga), and se clauses pair imperfect subjunctive with conditional (se avessi tempo, verrei). English gives no cue; learners use the indicative or the conditional in both halves.",
+      "analogue": {
+        "zh": "complement and conditional topics in grammar drills",
+        "ja": "none yet"
+      },
+      "delivered_by": "grammar",
+      "exercise_types": [
+        "cloze",
+        "rewrite",
+        "judge"
+      ]
+    },
+    {
+      "key": "agreement_chain",
+      "title": "Agreement of adjectives, possessives, demonstratives and participles",
+      "why": "Gender and number must be copied onto every word in the noun phrase and onto predicates, with special shapes before the noun (bel / bello / bell' / bei / begli, buon, quel / quello / quegli), possessives that take the article except with singular family nouns (la mia casa, mia madre).",
+      "analogue": {
+        "zh": "的 / 得 / 地 and other form choices fixed by the neighbouring word",
+        "ja": "none yet"
+      },
+      "delivered_by": "grammar",
+      "exercise_types": [
+        "cloze",
+        "judge",
+        "order"
+      ]
+    },
+    {
+      "key": "piacere_type_verbs",
+      "title": "Verbs built the other way round: piacere, mancare, servire, bastare, interessare",
+      "why": "The thing liked is the subject and the person is an indirect object: mi piace il caffè, mi piacciono i libri, a Maria piace ballare, ti manco (you miss me). English speakers say io piaccio il caffè, keep the verb singular before a plural, and read mi manchi backwards, well into B1; the compound tenses add essere and agreement with the thing (mi è piaciuta la pizza).",
+      "analogue": {
+        "zh": "none; nearest are word-order topics in grammar drills",
+        "ja": "が-marked objects of 好き / 分かる (not drilled yet)"
+      },
+      "delivered_by": "grammar",
+      "exercise_types": [
+        "cloze",
+        "order",
+        "rewrite",
+        "judge"
+      ]
+    },
+    {
+      "key": "formal_address",
+      "title": "tu against Lei, and the forms each one drags along",
+      "why": "English has one you. Italian chooses tu or Lei by relationship, and the choice changes the verb (third person singular), the pronouns (La, Le, Suo), the imperative (scusa / scusi, dimmi / mi dica) and the possessive. Learners mix the two inside one sentence (Scusi, puoi ripetere?) and the slip is socially visible from the first exchange in Italy.",
+      "analogue": {
+        "zh": "你 / 您, a word choice with no grammar attached",
+        "ja": "polite against plain style (です / ます), a grammar-drill topic"
+      },
+      "delivered_by": "grammar",
+      "exercise_types": [
+        "cloze",
+        "rewrite",
+        "judge"
+      ]
+    }
+  ],
+  "dictionaries": [
+    {
+      "key": "noun_gender",
+      "title": "Nouns: gender, articles and plural",
+      "unit": "one noun with one gender (a noun used with both genders gets one row per gender)",
+      "target": 2000,
+      "unique": [
+        "lemma",
+        "gender"
+      ],
+      "source_pos": "noun",
+      "fields": {
+        "lemma": {
+          "regex": "^[a-zàèéìòù]+$"
+        },
+        "gender": [
+          "m",
+          "f"
+        ],
+        "art_def_sg": [
+          "il",
+          "lo",
+          "la",
+          "l'"
+        ],
+        "art_indef_sg": [
+          "un",
+          "uno",
+          "una",
+          "un'"
+        ],
+        "gender_cue": [
+          "regular",
+          "suffix",
+          "e_ending",
+          "exception",
+          "other"
+        ],
+        "plural?": {
+          "regex": "^[a-zàèéìòù]+$"
+        },
+        "art_def_pl?": [
+          "i",
+          "gli",
+          "le"
+        ],
+        "plural_type": [
+          "regular",
+          "spelling",
+          "invariable",
+          "irregular",
+          "gender_switch",
+          "none"
+        ],
+        "en": "str",
+        "level": [
+          "A1",
+          "A2",
+          "B1",
+          "B2",
+          "C1"
+        ]
+      },
+      "exercises": [
+        "article_match",
+        "morphology_slot",
+        "nl_tl_translation"
+      ],
+      "author_notes": "lemma is the singular, lower case, one word. Leave out nouns used only in the plural (occhiali, pantaloni, forbici, soldi, ferie): the row has no place for them. Articles follow from gender and first sound and must be consistent with them: masculine lo / uno before s + consonant, z, gn, ps, pn, x, y and i + vowel (lo zaino, lo studente, lo gnomo, lo psicologo, lo yogurt); l' and un / un' before a vowel, and before a silent h (l'amico, un amico, l'amica, un'amica, l'hotel, un hotel, gli hotel); otherwise il / un, la / una (also before foreign j and w: il jazz, il weekend). Plural articles: i, gli (where the singular has lo or l' masculine), le. The one exception is il dio / gli dei. gender_cue, first that applies: suffix = the word ends in one of these and has the gender they predict: feminine -zione, -sione, -gione, -tà, -tù, -trice, -tudine (la stazione, la decisione, la stagione, la città, la virtù, l'attrice, l'abitudine), masculine -ore, -iere (il colore, il dottore, il bicchiere); regular = -o masculine or -a feminine; exception = the ending points the other way (il problema, il cinema, il collega, la mano, la radio, la foto); e_ending = any other noun in -e (il pane, la notte, il mare, la chiave, il nome); other = consonant, accented vowel or other ending (il bar, il caffè, la crisi, il film). plural_type: regular = -o to -i, -a to -e, -e to -i with no other change (masculine -a to -i, problema / problemi, also counts as regular); spelling = the regular ending plus a spelling fact the learner must know (amico / amici, banco / banchi, lago / laghi, zio / zii, studio / studi, arancia / arance, camicia / camicie, farmacia / farmacie); invariable = plural equals singular (città, bar, film, cinema, foto, crisi, re); irregular = anything else (uomo / uomini, dio / dei, ala / ali); gender_switch = masculine singular with a feminine plural in -a (uovo / uova, braccio / braccia, dito / dita, paio / paia): give art_def_pl le; none = no plural in normal use (fame, sete, latte, gente): leave plural and art_def_pl out. In every other case both plural and art_def_pl are required. A noun with two genders and two meanings (il fine / la fine, il capitale / la capitale) or a person noun used for both sexes (il / la collega, il / la cantante) gets two rows. en is a short English gloss that tells homographs apart. Include the high-frequency exceptions first; they are the point of the drill."
+    },
+    {
+      "key": "verb_conjugation",
+      "title": "Verbs: auxiliary, participle and the forms that cannot be computed",
+      "unit": "one verb (infinitive)",
+      "target": 600,
+      "unique": [
+        "lemma"
+      ],
+      "source_pos": "verb",
+      "fields": {
+        "lemma": {
+          "regex": "^[a-z]+(are|ere|ire|rre|rsi)$"
+        },
+        "class": [
+          "are",
+          "ere",
+          "ire",
+          "ire_isc",
+          "rre"
+        ],
+        "auxiliary": [
+          "avere",
+          "essere",
+          "both"
+        ],
+        "auxiliary_note?": "str",
+        "past_participle": {
+          "regex": "^[a-z]+[ts]o$"
+        },
+        "present": {
+          "list": {
+            "regex": "^[a-zàèéìòù]+$"
+          },
+          "min": 6,
+          "max": 6
+        },
+        "imperfect_io": {
+          "regex": "^([a-z]+vo|ero)$"
+        },
+        "future_io": {
+          "regex": "^[a-z]+rò$"
+        },
+        "subjunctive_io": {
+          "regex": "^[a-z]+[ai]$"
+        },
+        "gerund": {
+          "regex": "^[a-z]+(ando|endo)$"
+        },
+        "imperative_tu?": {
+          "regex": "^[a-z]+'?$"
+        },
+        "imperative_tu_short?": {
+          "regex": "^[a-z]+'$"
+        },
+        "irregular_in": {
+          "list": [
+            "present",
+            "participle",
+            "imperfect",
+            "future",
+            "subjunctive",
+            "gerund",
+            "imperative"
+          ],
+          "min": 0,
+          "max": 7
+        },
+        "en": "str",
+        "level": [
+          "A1",
+          "A2",
+          "B1",
+          "B2",
+          "C1"
+        ]
+      },
+      "exercises": [
+        "auxiliary_choice",
+        "conjugation_form",
+        "morphology_slot"
+      ],
+      "author_notes": "Forms are bare: no subject pronoun and no reflexive pronoun (alzarsi: present alzo, alzi, alza, alziamo, alzate, alzano; gerund alzando; imperative_tu alza). present is exactly io, tu, lui / lei, noi, voi, loro in that order. past_participle is the masculine singular. class: ire_isc for -ire verbs with -isc- (finire, capire, preferire, pulire), ire for the others (dormire, partire, sentire, aprire), rre for porre, tradurre, trarre and their compounds; fare, dire, bere are classed by the infinitive ending (are, ire, ere) and their departures go in irregular_in. auxiliary: essere for every reflexive and for essere-verbs (andare, venire, essere, stare, rimanere, nascere, morire, piacere, diventare, riuscire, arrivare, tornare, partire, uscire, entrare, cadere); avere for dovere, potere, volere, with an auxiliary_note that before an infinitive they take that verb's auxiliary (è dovuto partire); both only when standard usage really has both (finire, cominciare, cambiare, passare, salire, scendere, correre, vivere), and then auxiliary_note says in English when each is used. irregular_in lists the parts that cannot be derived from the infinitive by the regular pattern of the class: present (vado, esco, tengo, also -isc- is NOT irregular, it is the class), participle (fatto, preso, aperto), imperfect (ero, facevo, dicevo, bevevo), future (andrò, vedrò, verrò, sarò, berrò; also the regular -are change to -erò is not irregular), subjunctive (sia, abbia, sappia, dia, stia, vada, faccia), gerund (facendo, dicendo, bevendo), imperative (vai, fai, dai, stai, di', sii, abbi, sappi). imperative_tu is the tu form most used in writing (parla, prendi, finisci, vai, fai, dai, stai; di' for dire, the only field value with an apostrophe); imperative_tu_short is given only for the four verbs with a second, apostrophised form (va', fa', da', sta') and their compounds. Leave imperative_tu out for verbs with no imperative in use (potere, dovere, piacere). Spelling adjustments of -care, -gare, -ciare, -giare (paghi, cerchi, pagherò, mangi, mangerò) are not irregular. An empty list means fully regular. Leave out impersonal and defective verbs, which have no six-person paradigm in use (piovere, nevicare, bisognare, succedere, accadere), and verbs with a fixed clitic that is not si (andarsene, farcela, metterci, cavarsela): the lemma pattern rejects them. The passato remoto is not stored: it is recognised, not produced, in the level range. Write only forms you are certain of."
+    },
+    {
+      "key": "verb_government",
+      "title": "Government: the preposition a verb, adjective or noun takes",
+      "unit": "one head word with one kind of complement and the preposition it takes",
+      "target": 350,
+      "unique": [
+        "head",
+        "complement",
+        "preposition"
+      ],
+      "source_pos": "verb",
+      "fields": {
+        "head": {
+          "regex": "^[a-zàèéìòù]+( [a-zàèéìòù]+)?$"
+        },
+        "head_pos": [
+          "verb",
+          "adjective",
+          "noun"
+        ],
+        "complement": [
+          "noun",
+          "infinitive"
+        ],
+        "preposition": [
+          "∅",
+          "a",
+          "di",
+          "da",
+          "in",
+          "con",
+          "su",
+          "per"
+        ],
+        "differs_from_english": "bool",
+        "english_calque?": [
+          "∅",
+          "a",
+          "di",
+          "da",
+          "in",
+          "con",
+          "su",
+          "per"
+        ],
+        "en_pattern": {
+          "regex": "^[a-z][a-z' ]* (sb|sth|sb or sth|to do sth|do sth|doing sth)$"
+        },
+        "example": {
+          "regex": "^[A-ZÈ][A-Za-zÀÈÉÌÒÙàèéìòù' ,;:]+[.?!]$"
+        },
+        "level": [
+          "A1",
+          "A2",
+          "B1",
+          "B2",
+          "C1"
+        ]
+      },
+      "exercises": [
+        "government_match",
+        "preposition_selection"
+      ],
+      "author_notes": "Mostly verbs; add the common adjectives (contento di, pronto a, capace di, bravo in, diverso da) and nouns (bisogno di, voglia di, paura di) and two-word heads such as avere bisogno. head is the dictionary form; for an adjective head give it alone (contento), not with essere. preposition is the simple preposition, ∅ when the complement follows directly (ascoltare la radio; volere partire). complement: noun (a noun or pronoun, person or thing) or infinitive. A head that takes different prepositions with different meanings gets one row for each (pensare a: think about; pensare di + infinitive: plan to). For a verb with two objects write the row for the object whose marking differs from English (chiedere a: ask someone; telefonare a). differs_from_english is true when a word-for-word English habit gives a different result; english_calque is then the preposition (or ∅) the English speaker tends to put (dipendere: su; ascoltare: a; cercare 'look for': per; entrare 'enter': ∅). en_pattern is the English pattern, lower case, ending in the placeholder that stands for this row's complement: sb, sth, sb or sth, to do sth, do sth, doing sth (to depend on sth; to listen to sb or sth; to phone sb; to ask sb, for chiedere a; to ask for sth, for chiedere with no preposition; to try to do sth; to succeed in doing sth; happy about sth; afraid of doing sth). It is shown to the learner to tell apart two rows of one head, so two rows of the same head and complement must have different en_pattern. example is one short natural sentence that shows the pattern, with no digits; the preposition may appear fused with the article (dipende dal tempo). Only patterns that are fixed in the standard language: leave out heads where two prepositions are equally accepted for the same meaning, and patterns whose preposition is not in the list (scegliere tra, lottare contro). english_calque is required when differs_from_english is true, absent when it is false, and never equal to preposition."
+    },
+    {
+      "key": "collocations",
+      "title": "Collocations: fixed pairs, with the wrong partners learners choose",
+      "unit": "one fixed pair of a lexicon word and its partner",
+      "target": 500,
+      "unique": [
+        "phrase"
+      ],
+      "source_pos": "noun",
+      "fields": {
+        "node": {
+          "regex": "^[a-zàèéìòù]+$"
+        },
+        "node_pos": [
+          "noun",
+          "verb",
+          "adjective",
+          "adverb"
+        ],
+        "collocate": {
+          "regex": "^[a-zàèéìòù]+$"
+        },
+        "pattern": [
+          "verb_noun",
+          "adjective_noun",
+          "noun_adjective",
+          "verb_adverb",
+          "adverb_adjective"
+        ],
+        "phrase": {
+          "regex": "^[a-zàèéìòù']+( [a-zàèéìòù']+){1,4}$"
+        },
+        "wrong_collocates": {
+          "list": {
+            "regex": "^[a-zàèéìòù]+$"
+          },
+          "min": 3,
+          "max": 4
+        },
+        "calque?": {
+          "regex": "^[a-zàèéìòù]+$"
+        },
+        "en": "str",
+        "level": [
+          "A1",
+          "A2",
+          "B1",
+          "B2",
+          "C1"
+        ]
+      },
+      "exercises": [
+        "collocation_gap_fill",
+        "collocation_repair"
+      ],
+      "author_notes": "node is the word being taught (usually the noun), collocate its fixed partner as a dictionary form (for verb_noun the verb: fare, prendere, avere, dare, mettere). phrase is the pair in citation form, lower case, with the article only where the expression has one (fare una domanda, fare colazione, prendere una decisione, avere fame, dare un esame, pioggia forte, caffè forte). wrong_collocates are three or four words (they are the three distractors of collocation_gap_fill; a pair for which you cannot name three is left out) of the same part of speech as the collocate that a learner might choose and that a native speaker would not say in this pair; put the English calque first and repeat it in calque (chiedere for fare una domanda; fare for prendere una decisione; essere for avere fame). Never list a wrong collocate that is merely less common but acceptable (porre una domanda is correct Italian, so porre is not a wrong collocate). Start with the light-verb pairs of A1 to B1 nouns; they cost learners the most. phrase must contain node and collocate as written (the infinitive for a verb). en is the English equivalent of the phrase."
+    },
+    {
+      "key": "false_friends",
+      "title": "False friends for English speakers",
+      "unit": "one Italian word with the English word it resembles",
+      "target": 200,
+      "unique": [
+        "lemma",
+        "en_lookalike"
+      ],
+      "source_pos": "noun, verb, adjective, adverb",
+      "fields": {
+        "lemma": {
+          "regex": "^[a-zàèéìòù]+$"
+        },
+        "pos": [
+          "noun",
+          "verb",
+          "adjective",
+          "adverb"
+        ],
+        "en_lookalike": {
+          "regex": "^[a-z]+( [a-z]+)?$"
+        },
+        "en_meaning": "str",
+        "it_for_lookalike": {
+          "regex": "^[a-zàèéìòù']+( [a-zàèéìòù']+){0,3}$"
+        },
+        "kind": [
+          "full",
+          "partial"
+        ],
+        "level": [
+          "A1",
+          "A2",
+          "B1",
+          "B2",
+          "C1"
+        ]
+      },
+      "exercises": [
+        "tl_nl_translation",
+        "nl_tl_translation",
+        "spot_incorrect_sentence"
+      ],
+      "author_notes": "Words from the lexicon of any part of speech whose form suggests a wrong English meaning. lemma is the dictionary form (parente, not parenti). en_lookalike is the English word the learner thinks of (actually), en_meaning what the Italian word really means (currently, at present), it_for_lookalike the usual Italian for the English lookalike (in realtà), lower case. kind: full = the Italian word never has the lookalike's meaning in current use (attualmente, libreria, fattoria, parente, morbido, sensibile); partial = it shares one sense but its main or most frequent sense differs (argomento, educazione, eventuale, confrontare). When unsure between the two, check whether a monolingual dictionary lists the shared sense; if it does, partial. Only real traps a teacher has seen: no pairs where the meanings are close enough that the mistake does no harm."
+    }
+  ],
+  "targets": {
+    "lexicon": 5000,
+    "senses": 5000,
+    "grammar_items": 9000,
+    "grammar_topics": 36,
+    "fat_seed_documents": 5000,
+    "dictionary_rows": 3650
+  }
+}

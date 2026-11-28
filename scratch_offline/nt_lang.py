@@ -1,17 +1,22 @@
 """Language settings shared by the tool-free fat-seed scripts.
 
-The prompts were written for Japanese. Set NT_LANG (ja | zh | en; default ja)
+The prompts were written for Japanese. Set NT_LANG (a registered language code: ja | zh | en | ...; default ja)
 and every system prompt has "Japanese" replaced by the language's name, so the
 Japanese prompts stay byte-identical. nt_pipeline.py and nt_experiment.py set
 NT_LANG for the scripts they start.
 """
 import os
+import sys
 
-LANGUAGES = {  # code -> (name, dim_languages.id)
-    'ja': ('Japanese', 3),
-    'zh': ('Chinese', 1),
-    'en': ('English', 2),
-}
+_REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if _REPO not in sys.path:
+    sys.path.append(_REPO)  # appended: the fat-seed scripts' own modules keep precedence
+from services import language_registry  # noqa: E402
+
+# code -> (name, dim_languages.id), from services/language_registry.py. Planned
+# languages are included: content is authored before the app accepts the language.
+LANGUAGES = {lang.code: (lang.display, lang.id)
+             for lang in language_registry.all_languages(include_planned=True)}
 
 
 def code():

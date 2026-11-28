@@ -28,17 +28,14 @@ except ImportError:  # run or imported as scripts.<name>
 bootstrap()
 
 
+from services import language_registry  # noqa: E402
 from config import Config
 from services.supabase_factory import SupabaseFactory, get_supabase_admin
 from services.vocabulary.language_detection import check_text_language
 
 logger = logging.getLogger(__name__)
 
-TARGET_LANGUAGES = {
-    'zh': 'Chinese',
-    'en': 'English',
-    'ja': 'Japanese',
-}
+TARGET_LANGUAGES = language_registry.code_to_display()
 
 
 def get_openai_client():
@@ -324,7 +321,7 @@ def main():
         apply_help='with --fix, write the regenerated entries (default: dry run)',
         dry_run_help='Show what would be fixed without writing to DB (the default)',
     )
-    parser.add_argument('--language', required=True, choices=['zh', 'en', 'ja'],
+    parser.add_argument('--language', required=True, choices=language_registry.codes(),
                         help='Language code to validate')
     parser.add_argument('--limit', type=int, default=0,
                         help='Max number of senses to process (0=all)')

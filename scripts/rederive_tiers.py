@@ -26,9 +26,10 @@ except ImportError:  # run or imported as scripts.<name>
 bootstrap(log_level=None)
 
 
+from services import language_registry  # noqa: E402
 from services import tier_classifier  # noqa: E402
 
-LANG_IDS = {'zh': 1, 'en': 2, 'ja': 3}
+LANG_IDS = language_registry.code_to_id()
 
 
 def main() -> int:

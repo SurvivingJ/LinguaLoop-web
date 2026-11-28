@@ -61,6 +61,7 @@ bootstrap()
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))  # sibling scripts
 
 
+from services import language_registry  # noqa: E402
 from config import Config
 from services.supabase_factory import SupabaseFactory, get_supabase_admin
 from services.pagination import fetch_all
@@ -95,7 +96,7 @@ from services.vocabulary_ladder.config import (
 
 logger = logging.getLogger(__name__)
 
-LANG_ID = {'zh': 1, 'en': 2, 'ja': 3}
+LANG_ID = language_registry.code_to_id()
 DEFAULT_BATCH_SIZE = 8
 
 # Split-level generator classes, keyed by the level they own. Instantiated per
@@ -613,7 +614,7 @@ def write_csv_run(rows: list[dict], header: dict, manifest: dict, out_dir: str,
 def main() -> int:
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument('--language', required=True, choices=['zh', 'en', 'ja'])
+    parser.add_argument('--language', required=True, choices=language_registry.codes())
     parser.add_argument('--stage', choices=['core', 'exercises'],
                         help='required unless --format csv (which is stage 0 '
                              'of CSV authoring and selects like --stage core)')

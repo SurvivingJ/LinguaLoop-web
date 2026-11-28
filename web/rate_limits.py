@@ -63,6 +63,8 @@ ENDPOINT_LIMITS = {
     'dt_repair.check': (('20 per minute; 300 per hour', user_or_ip),),
     'dt_repair.hint': (('60 per minute', user_or_ip),),
     'dt_repair.practice_due': (('30 per minute', user_or_ip),),
+    # A cache miss makes a model call (ADR-064): generous for a learner, bounded for a script.
+    'practice.get_exercise_explanations': (('30 per minute; 600 per day', user_or_ip),),
 
     # Knowledge Report (wiki/features/knowledge-report.tech.md §6.5). The Pro
     # routes (words, word_detail, list_words, export) are added with their routes.
@@ -72,6 +74,9 @@ ENDPOINT_LIMITS = {
     # 3 starts a day is enforced in services/calibration_placement.start().
     'calibration.placement_start': (('10 per day', user_or_ip),),
     'calibration.placement_answer': (('120 per minute', user_or_ip),),
+    # Grammar-drill tracking (ADR-066): one small write per finished round.
+    'grammar_drill.record_round': (('30 per minute; 600 per hour', user_or_ip),),
+    'grammar_drill.get_progress': (('30 per minute', user_or_ip),),
 }
 
 EXEMPT_ENDPOINTS = ('health_check',)

@@ -3,12 +3,11 @@ title: What Is LinguaDojo
 type: overview
 status: complete
 tech_page: ./project.tech.md
-last_updated: 2026-11-23
+last_updated: 2026-11-27
 open_questions:
   - "OPEN: Payments. Buying tokens is switched off: the payment-intent route was removed because nothing verified a completed payment and credited the tokens. It returns together with a verified Stripe webhook. Until then the only live token-related page of the API is the package list."
   - "OPEN: The daily free tokens are never granted (the database function behind them does not exist), so token balances do not move. Decide the token economy, then create the function."
   - "OPEN: Subscription tiers beyond free — billing is designed ([[tasklist/billing.tasks]]) but not enforced; `ENTITLEMENTS_ENFORCED` is off."
-  - "OPEN: The Knowledge Report and the vocabulary placement are built and applied to the database but switched off by flags (`KNOWLEDGE_REPORT_ENABLED`, `PLACEMENT_ENABLED_LANGS`); the rollout decision is the owner's."
 ---
 
 # What Is LinguaDojo
@@ -48,8 +47,8 @@ A learner signs up with an emailed one-time code, picks a target language and ca
 | Measure-word and counter drills | Working | Chinese measure words and Japanese counters, with per-item mastery for Chinese. |
 | Word-list import and watchlist | Working | Learners upload up to 50 words; a nightly sweep is meant to match them to new tests (the sweep currently fails, see the technical page). |
 | Vocabulary check (calibration) | Working | Infinite multiple-choice check that measures vocabulary on a frequency scale. |
-| Vocabulary placement | Built, switched off | Adaptive placement test per language; enabled per language by a setting. |
-| Knowledge Report ("My vocabulary") | Built, switched off | Summary and growth of the learner's vocabulary; the nightly snapshots already accrue history. |
+| Vocabulary placement | Working | Adaptive placement test for Chinese, Japanese and English; always on (no switch); reached from the Me page, the empty "My vocabulary" page and the vocabulary check. New learners are offered it during onboarding after "Have you studied {language} before?". |
+| Knowledge Report ("My vocabulary") | Working | Summary and growth of the learner's vocabulary; always on (no switch); nightly snapshots accrue history since 2026-11-24. |
 | Mobile app shell | Working | One task per screen, themes, shared components. |
 | Corpus analysis | Working (operator) | Ingestion, collocation extraction, style profiling, through admin-only endpoints. |
 | Token economy | **Not working** | Token packages are listed, but buying is switched off and the daily free tokens are never granted. |

@@ -55,7 +55,7 @@ from services.exercise_generation.judges.base import (
     JudgeUnavailable, batch_mode, BatchModeThreadPoolExecutor,
 )
 from services.jev_client import JevError
-from services import tier_classifier
+from services import language_registry, tier_classifier
 from services.tier_classifier import TierAssessment
 from services.timing import stage, log_stage_seconds
 
@@ -151,7 +151,7 @@ def _write_review_queue_rows(
 @dataclass
 class BatchConfig:
     """Configuration for a batch test generation run."""
-    language_code: str                                # ISO 639-1: 'zh', 'en', 'ja'
+    language_code: str                                # ISO 639-1 code ('zh', 'en', 'ja')
     count: int = 20                                   # tests to generate
     test_type: str = 'listening'                      # 'listening' | 'reading'
     tier_id: Optional[int] = None                     # dim_complexity_tiers.id 1-6, or None (balanced)
@@ -942,13 +942,13 @@ class TestGenerationOrchestrator:
             'furigana_payload': None,
             'created_at': datetime.now(timezone.utc).isoformat(),
         }
-        if lang_config.language_code == 'zh' and prose:
+        if lang_config.language_code in language_registry.codes_with('pinyin') and prose:
             try:
                 from services.pinyin_service import process_passage
                 record['pinyin_payload'] = process_passage(prose)
             except Exception as e:
                 logger.warning(f"Pinyin payload generation failed (non-fatal): {e}")
-        if lang_config.language_code == 'ja' and prose:
+        if lang_config.language_code in language_registry.codes_with('pitch_accent') and prose:
             try:
                 from services.pitch_accent_service import (
                     process_passage as process_pitch_passage,
@@ -956,6 +956,7 @@ class TestGenerationOrchestrator:
                 record['pitch_payload'] = process_pitch_passage(prose)
             except Exception as e:
                 logger.warning(f"Pitch accent payload generation failed (non-fatal): {e}")
+        if lang_config.language_code in language_registry.codes_with('furigana') and prose:
             try:
                 from services.furigana_service import process_test_payload
                 record['furigana_payload'] = process_test_payload(prose, valid_questions)

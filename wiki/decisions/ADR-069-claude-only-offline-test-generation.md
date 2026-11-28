@@ -1,10 +1,10 @@
 ---
-title: "ADR-064: Claude-only test generation and offline test bundles"
+title: "ADR-069: Claude-only test generation and offline test bundles"
 status: accepted
 date: 2026-11-27
 ---
 
-# ADR-064: Claude-only test generation and offline test bundles
+# ADR-069: Claude-only test generation and offline test bundles
 
 ## Context
 On 2026-11-27 the owner asked for Japanese tests to be generated with headless Claude only,
@@ -23,7 +23,7 @@ loaded later. The database was at 492 MB of the 500 MB Free cap.
 2. Under it, passages are tiered by Claude against jev's six tier descriptions. The tier is
    stored with `age_tier_calibration = 'claude-uncalibrated'` (the owner chose this over
    keeping jev or storing the target tier).
-3. Offline runs write no database rows: `LLM_CALLS_DB_LOG=0` covers `llm_calls` and
+3. Offline runs write no database rows: `LLM_CALLS_DB_LOGGING=false` covers `llm_calls` and
    `generation_stage_timings`, and `dry_run` with an export sink replaces the save.
 4. Bundles are `tests.jsonl.xz` plus `manifest.json` under `data/offline_tests/<lang>-<date>/`.
    They hold everything except audio and vocabulary linking, which are made at upload

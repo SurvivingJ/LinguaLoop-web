@@ -68,7 +68,7 @@ later is one command and nothing they need has to be generated again.
 
 ## Related Pages
 - [[features/offline-test-bundles.tech]]
-- [[decisions/ADR-064-claude-only-offline-test-generation]]
+- [[decisions/ADR-069-claude-only-offline-test-generation]]
 - [[features/comprehension-tests]]
 - [[features/test-tier-assignment]]
 - [[database/schema.tech]]

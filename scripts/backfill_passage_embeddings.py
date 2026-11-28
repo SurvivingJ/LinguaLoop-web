@@ -44,7 +44,8 @@ def fetch_missing(db, language_id: int | None) -> list[dict]:
 
 def main(argv=None) -> int:
     p = argparse.ArgumentParser(description=__doc__.split('\n\n')[0])
-    p.add_argument('--language', type=int, choices=[1, 2, 3])
+    from services import language_registry
+    p.add_argument('--language', type=int, choices=language_registry.ids())
     p.add_argument('--batch', type=int, default=100)
     p.add_argument('--apply', action='store_true', help='write (default: dry run)')
     args = p.parse_args(argv)

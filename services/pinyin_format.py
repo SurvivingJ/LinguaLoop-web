@@ -18,6 +18,8 @@ import re
 import unicodedata
 from typing import Optional
 
+from services import language_registry
+
 _MARKS = {
     'a': 'āáǎà', 'e': 'ēéěè', 'i': 'īíǐì', 'o': 'ōóǒò', 'u': 'ūúǔù', 'ü': 'ǖǘǚǜ',
     'A': 'ĀÁǍÀ', 'E': 'ĒÉĚÈ', 'I': 'ĪÍǏÌ', 'O': 'ŌÓǑÒ', 'U': 'ŪÚǓÙ', 'Ü': 'ǕǗǙǛ',
@@ -121,6 +123,8 @@ def format_pinyin(text: Optional[str]) -> str:
 
 
 ZH_LANGUAGE_ID = 1
+_PINYIN_LANGUAGE_IDS = frozenset(str(i) for i in language_registry.ids_with('pinyin'))
+_PINYIN_LANGUAGE_CODES = frozenset(language_registry.codes_with('pinyin'))
 
 
 def display_pronunciation(text: Optional[str], language_id=None, language_code=None) -> str:
@@ -134,9 +138,9 @@ def display_pronunciation(text: Optional[str], language_id=None, language_code=N
     # test's language) is only a fallback, so a non-Chinese word in a Chinese
     # test is never run through the pinyin formatter.
     if language_id not in (None, ''):
-        is_zh = str(language_id) == str(ZH_LANGUAGE_ID)
+        is_zh = str(language_id) in _PINYIN_LANGUAGE_IDS
     else:
-        is_zh = language_code == 'zh'
+        is_zh = language_code in _PINYIN_LANGUAGE_CODES
     if is_zh:
         return format_pinyin(text)
     return '' if text is None else str(text)

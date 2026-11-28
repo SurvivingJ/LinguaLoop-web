@@ -549,6 +549,17 @@ fallback and the `EXERCISE_CONTENT_SOURCE` / `_WRITE` / `_DB_FALLBACK` / `_SHADO
   `drop_missing=False`; missing content keeps the client's verdict (fails open, as a failed
   lookup did).
 
+### Learner-language preparation in `_hydrate_items` (2026-11-26)
+
+`_hydrate_items(payload, language_id, nl_language_id)` runs three things concurrently —
+`store.hydrate`, `definition_serving.prepare` and `exercise_explanations.prefetch` (the last two
+read only ids and types) — then `definition_serving.apply` (definition_match options rebuilt in the
+learner's language or the item dropped) and `exercise_explanations.prepare_items` (cached
+spot-the-error explanations attached, missing ones generated in the background). `get_session`
+reads the learner's language (`nl`) and the plan row (with the follow-ups) beside the session RPC
+and seeds both into the request cache; `definition_serving.warm` starts the gloss pool load right
+after. See [[features/exercise-explanations.tech]], [[evaluations/latency-2026-11-26]].
+
 ## Post-RPC error-card injection (Dual Translation, TASK-618)
 
 After `get_practice_session` returns, `PracticeSessionService.get_session` interleaves due

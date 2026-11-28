@@ -30,6 +30,7 @@ except ImportError:  # run or imported as scripts.<name>
 bootstrap()
 
 
+from services import language_registry  # noqa: E402
 from config import Config
 from services.supabase_factory import SupabaseFactory, get_supabase_admin
 from services.vocabulary.frequency_service import get_zipf_score, get_zipf_score_for_phrase
@@ -157,7 +158,7 @@ def main():
     parser = base_parser(description='Backfill Zipf frequency scores for dim_vocabulary',
                          dry_run_help='Preview changes without writing to DB (the default)')
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('--language', choices=['zh', 'en', 'ja'],
+    group.add_argument('--language', choices=language_registry.codes(),
                        help='Language code to process')
     group.add_argument('--all', action='store_true',
                        help='Process all languages')
@@ -174,7 +175,7 @@ def main():
     # Initialize Supabase
     SupabaseFactory.initialize()
 
-    languages = ['zh', 'en', 'ja'] if args.all else [args.language]
+    languages = language_registry.codes() if args.all else [args.language]
     all_success = True
 
     for lang in languages:

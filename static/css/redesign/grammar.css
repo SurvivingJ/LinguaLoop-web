@@ -1,0 +1,1085 @@
+/* Redesign 2026-11 — grammar drills (/grammar-drill).
+   Loaded by templates/grammar_drill.html only (the drills render nowhere
+   else), after styles.css and the other redesign sheets. Uses the design
+   tokens and the shared .ld-* components; every rule is scoped to .gd, the
+   root of each screen drawn by static/js/grammar/app.js.
+
+   Each screen is .ld-screen.gd > [.gd-strip] + .ld-stage (the only thing that
+   scrolls) + .ld-dock (answers' feedback / Check / Next, pinned).
+     .gd--hub      categories and topic cards
+     .gd--topic    stage picker + guide
+     .gd--drill    one item: cloze, order / rewrite tiles, judge
+     .gd--results  round summary
+   Pinyin is always in the markup (<rt>, .gd-tile__py); .gd.is-py shows it. */
+
+.gd {
+  position: relative;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+.gd .gd-stage {
+  padding-top: 10px;
+}
+
+.gd .gd-msg {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin: auto 0;
+  padding: 32px 0;
+  text-align: center;
+  color: var(--ink-2);
+}
+
+/* ---------- Pinyin on demand ---------- */
+.gd rt {
+  display: none;
+  font: 500 0.48em/1.3 var(--f-body);
+  color: var(--ink-2);
+  user-select: none;
+}
+
+.gd.is-py rt {
+  display: ruby-text;
+}
+
+/* Long syllables (zhuāng) must not run into their neighbours. */
+.gd.is-py ruby {
+  margin-inline: 0.1em;
+}
+
+.gd .gd-nowrap {
+  white-space: nowrap;
+}
+
+.gd .gd-pybtn[aria-pressed='true'] {
+  background: var(--ink);
+  color: var(--bg);
+  border-color: var(--ink);
+}
+
+.gd .ld-chip:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+/* ==================================================================
+   Hub
+   ================================================================== */
+.gd .gd-hero__title {
+  font-size: 1.375rem;
+}
+
+.gd .gd-hero__row {
+  flex-wrap: wrap;
+}
+
+.gd .gd-hero .ld-btn:disabled {
+  background: transparent;
+  color: var(--hero-dim);
+  border-color: rgb(255 255 255 / 20%);
+}
+
+.gd .gd-hero__hint {
+  margin: 0;
+}
+
+.gd .gd-cat {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.gd .gd-cat__title {
+  margin-top: 6px;
+}
+
+.gd .gd-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+}
+
+.gd .gd-topic {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 68px;
+  padding: 10px 12px;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: border-color var(--duration-fast);
+}
+
+.gd .gd-topic:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.gd .gd-topic__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.gd .gd-topic__body b {
+  font-size: 0.9375rem;
+  line-height: 1.25;
+}
+
+.gd .gd-topic__body small {
+  font-size: 0.78rem;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.gd .gd-topic .ld-tag {
+  flex: none;
+}
+
+/* The topic's Chinese name: one big character, or a few small ones. */
+.gd .gd-glyph {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: var(--r-md);
+  background: var(--brand-wash);
+  color: var(--brand);
+  font: 700 1.625rem/1.1 var(--f-cjk);
+  text-align: center;
+  overflow: hidden;
+}
+
+.gd .gd-glyph--few {
+  font-size: 1rem;
+  word-spacing: -0.15em;
+}
+
+.gd .gd-glyph--many {
+  padding: 2px;
+  font-size: 0.8125rem;
+  line-height: 1.2;
+}
+
+.gd .gd-set b {
+  font-size: 0.9375rem;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .gd .gd-topic:hover {
+    border-color: var(--brand);
+  }
+}
+
+/* ==================================================================
+   Topic: stage picker + guide
+   ================================================================== */
+.gd .gd-topichead {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.gd .gd-topichead p {
+  margin: 4px 0 0;
+}
+
+.gd .gd-stages {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.gd .gd-stagebtn {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+  min-height: 62px;
+  padding: 9px 10px 9px 40px;
+  border: 1.5px solid var(--line);
+  border-radius: 15px;
+  background: var(--surface);
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.gd .gd-stagebtn b {
+  font-size: 0.9rem;
+}
+
+.gd .gd-stagebtn small {
+  font-size: 0.72rem;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+
+.gd .gd-stagebtn__n {
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  margin-top: -11px;
+  border-radius: 7px;
+  background: var(--surface-2);
+  color: var(--ink-2);
+  font: 700 0.75rem/1 var(--f-body);
+}
+
+.gd .gd-stagebtn.is-on {
+  border-color: var(--brand);
+  background: var(--brand-wash);
+}
+
+.gd .gd-stagebtn.is-on .gd-stagebtn__n {
+  background: var(--brand);
+  color: var(--brand-ink);
+}
+
+.gd .gd-stagebtn:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.gd .gd-stagebtn:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.gd .gd-note {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+}
+
+.gd .gd-note--ok {
+  color: var(--good);
+  font-weight: 600;
+}
+
+.gd .gd-guidebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.gd .gd-guide {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.gd .gd-guide p {
+  margin: 0;
+}
+
+.gd .gd-guide__summary {
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.gd .gd-guide__h {
+  margin-top: 6px;
+}
+
+.gd .gd-guide__cheat {
+  background: var(--brand-wash);
+  border-color: transparent;
+}
+
+.gd .gd-guide__cheat ul {
+  margin: 6px 0 0;
+  padding-left: 1.1em;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.gd .gd-rule {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.gd .gd-rule__text {
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.gd .gd-rule__pattern {
+  align-self: stretch;
+  padding: 6px 10px;
+  border-radius: var(--r-sm);
+  background: var(--surface-2);
+  font-size: 0.875rem;
+}
+
+.gd .gd-rule__note,
+.gd .gd-contrast__why {
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+}
+
+.gd .gd-exs {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.gd .gd-ex {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.gd .gd-zh {
+  font: 500 1.125rem/1.5 var(--f-cjk);
+  color: var(--ink);
+}
+
+.gd.is-py .gd-zh {
+  line-height: 2.1;
+}
+
+.gd .gd-ex__en {
+  display: block;
+  font-size: 0.8125rem;
+  color: var(--ink-2);
+}
+
+.gd .gd-contrast {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.gd .gd-contrast__row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.gd .gd-mark {
+  flex: none;
+  width: 1.1em;
+  font-weight: 700;
+  text-align: center;
+}
+
+.gd .gd-contrast__row--bad .gd-mark,
+.gd .gd-contrast__row--bad .gd-zh {
+  color: var(--bad);
+}
+
+.gd .gd-contrast__row--bad .gd-zh {
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+}
+
+.gd .gd-contrast__row--ok .gd-mark {
+  color: var(--good);
+}
+
+/* The guide during a drill: a sheet over the whole screen. */
+.gd .gd-sheet {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  animation: ld-rise 0.2s ease-out;
+}
+
+.gd .gd-sheet__head {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px var(--ld-pad-r) 8px var(--ld-pad-l);
+  border-bottom: 1px solid var(--line);
+}
+
+.gd .gd-sheet__body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 12px var(--ld-pad-r) calc(16px + var(--ld-safe-b)) var(--ld-pad-l);
+}
+
+/* ==================================================================
+   Drill
+   ================================================================== */
+.gd .gd-strip {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 2px var(--ld-pad-r) 6px var(--ld-pad-l);
+}
+
+.gd .gd-strip__row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.gd .gd-strip__tools {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.gd .gd-strip .ld-chip {
+  min-height: 40px;
+  padding: 0 10px;
+}
+
+.gd .gd-count {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+
+.gd .gd-live {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.gd .gd-live b {
+  color: var(--ink);
+}
+
+/* Countdown of the speed stage: drains left to right over the item's limit. */
+.gd .gd-timer {
+  height: 4px;
+  border-radius: 9px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+.gd .gd-timer > i {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 9px;
+  background: var(--warn);
+  transform-origin: left center;
+  animation: gd-drain linear forwards;
+}
+
+@keyframes gd-drain {
+  from {
+    transform: scaleX(1);
+  }
+
+  to {
+    transform: scaleX(0);
+  }
+}
+
+.gd .gd-item {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  /* Anchored near the top, not centred: the prompt must not jump when the
+     feedback opens in the dock and the stage gets shorter. */
+  padding: clamp(6px, 5dvh, 44px) 0 4px;
+  text-align: center;
+}
+
+.gd .gd-item p {
+  margin: 0;
+}
+
+.gd .gd-sentence {
+  font: 600 1.625rem/1.6 var(--f-cjk);
+  color: var(--ink);
+  text-wrap: pretty;
+}
+
+.gd.is-py .gd-sentence,
+.gd.is-py .gd-src,
+.gd.is-py .gd-fb__zh {
+  line-height: 2.2;
+}
+
+.gd .gd-sentence.is-bad {
+  text-decoration: underline wavy var(--bad);
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 5px;
+}
+
+.gd .gd-blank {
+  display: inline-block;
+  width: 2em;
+  height: 1.15em;
+  margin: 0 4px;
+  border-bottom: 3px solid var(--brand);
+  vertical-align: baseline;
+}
+
+.gd .gd-fill {
+  padding: 0 3px;
+  border-bottom: 3px solid var(--good);
+  background: none;
+  color: var(--good);
+}
+
+.gd .gd-fill--none {
+  font: 600 0.9rem/1 var(--f-body);
+}
+
+.gd .gd-cue {
+  font-size: 1rem;
+  line-height: 1.4;
+  color: var(--ink-2);
+}
+
+.gd .gd-src {
+  font: 500 1.3125rem/1.5 var(--f-cjk);
+  color: var(--ink);
+}
+
+.gd .gd-task {
+  align-self: center;
+  padding: 4px 12px;
+  border-radius: var(--r-pill);
+  background: var(--info-wash);
+  color: var(--ink);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+/* Options: large buttons, two by two. At a recall cloze they are hidden
+   behind .gd-recall until the learner asks for them. */
+.gd .gd-opts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.gd .gd-opt {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 68px;
+  padding: 10px 8px 10px 30px;
+  border: 1.5px solid var(--line);
+  border-radius: 15px;
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+  touch-action: manipulation;
+  transition:
+    border-color 0.12s,
+    background-color 0.12s;
+}
+
+.gd .gd-opt__text {
+  font: 600 1.5rem/1.15 var(--f-cjk);
+  overflow-wrap: anywhere;
+}
+
+.gd .gd-opt__text--none {
+  font: 600 1rem/1.2 var(--f-body);
+}
+
+.gd .gd-key {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  background: var(--surface-2);
+  color: var(--ink-2);
+  font: 700 0.7rem/1 var(--f-body);
+}
+
+.gd .gd-opt:focus {
+  outline: none;
+}
+
+.gd .gd-opt:focus-visible,
+.gd .gd-tile:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.gd .gd-opt:disabled {
+  cursor: default;
+}
+
+.gd .gd-opt.is-right {
+  border-color: var(--good);
+  background: var(--good-wash);
+}
+
+.gd .gd-opt.is-right .gd-key {
+  background: var(--good);
+  color: var(--surface);
+}
+
+.gd .gd-opt.is-wrong {
+  border-color: var(--bad);
+  background: var(--bad-wash);
+}
+
+.gd .gd-opt.is-wrong .gd-key {
+  background: var(--bad);
+  color: var(--surface);
+}
+
+.gd .gd-recall {
+  display: grid;
+  place-items: center;
+  min-height: 68px;
+  margin-top: 6px;
+  padding: 10px 14px;
+  border: 1.5px dashed var(--line-strong);
+  border-radius: 15px;
+  font-size: 0.9rem;
+  color: var(--ink-2);
+}
+
+/* Typed answer (the "type answers" setting, recall and speed stages). */
+.gd .gd-typed {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.gd .gd-typed__input {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 280px;
+  min-height: 56px;
+  padding: 6px 12px;
+  border: 1.5px solid var(--line-strong);
+  border-radius: 15px;
+  background: var(--surface);
+  color: var(--ink);
+  font: 600 1.5rem/1.2 var(--f-cjk);
+  text-align: center;
+}
+
+.gd .gd-typed__input::placeholder {
+  font: 400 0.9rem/1.2 var(--f-body);
+  color: var(--ink-3);
+}
+
+.gd .gd-typed__input:focus {
+  outline: none;
+  border-color: var(--brand);
+  box-shadow: var(--focus-ring);
+}
+
+.gd .gd-typed__input.is-right {
+  border-color: var(--good);
+  background: var(--good-wash);
+}
+
+.gd .gd-typed__input.is-wrong {
+  border-color: var(--bad);
+  background: var(--bad-wash);
+}
+
+/* Tiles: tap one to place it, tap a placed one to take it back. */
+.gd .gd-built {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 66px;
+  padding: 8px;
+  border: 1.5px dashed var(--line-strong);
+  border-radius: 15px;
+}
+
+.gd .gd-built.is-right {
+  border-style: solid;
+  border-color: var(--good);
+  background: var(--good-wash);
+}
+
+.gd .gd-built.is-wrong {
+  border-style: solid;
+  border-color: var(--bad);
+  background: var(--bad-wash);
+}
+
+.gd .gd-built__hint {
+  font-size: 0.875rem;
+  color: var(--ink-3);
+}
+
+.gd .gd-tiles {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+}
+
+.gd .gd-tile {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 48px;
+  min-height: 48px;
+  padding: 6px 12px;
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.gd .gd-tile__text {
+  font: 600 1.3125rem/1.2 var(--f-cjk);
+}
+
+.gd .gd-tile__py {
+  display: none;
+  font: 500 0.7rem/1.2 var(--f-body);
+  color: var(--ink-2);
+}
+
+.gd.is-py .gd-tile__py:not(:empty) {
+  display: block;
+}
+
+.gd .gd-tile:disabled {
+  cursor: default;
+}
+
+.gd .gd-tile--used {
+  border-style: dashed;
+  background: transparent;
+  cursor: default;
+}
+
+.gd .gd-tile--used > span {
+  visibility: hidden;
+}
+
+/* Dock: feedback above Next. */
+.gd .gd-fb {
+  max-height: 38dvh;
+  overflow-y: auto;
+  text-align: left;
+}
+
+.gd .gd-fb p {
+  margin: 0;
+}
+
+.gd .gd-fb__zh {
+  font: 500 1.1875rem/1.5 var(--f-cjk);
+  color: var(--ink);
+}
+
+.gd .gd-fb__answer b {
+  font: 700 1.125rem/1.2 var(--f-cjk);
+}
+
+.gd .gd-fb__en {
+  color: var(--ink-2);
+}
+
+.gd .gd-fb__why {
+  margin-top: 4px;
+  padding-top: 6px;
+  border-top: 1px solid var(--line);
+  line-height: 1.45;
+}
+
+.gd .gd-hint {
+  margin: 0;
+  min-height: 50px;
+  display: grid;
+  place-items: center;
+}
+
+/* ==================================================================
+   Results
+   ================================================================== */
+.gd .gd-results__score {
+  padding-top: 8px;
+  text-align: center;
+}
+
+.gd .gd-results__score p {
+  margin: 0;
+}
+
+.gd .gd-results__pct {
+  font: 800 3.25rem/1.1 var(--f-display);
+  letter-spacing: -0.03em;
+  color: var(--ink);
+}
+
+.gd .gd-progress {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.gd .gd-progress__head {
+  align-self: stretch;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 4px 10px;
+  font-size: 0.875rem;
+}
+
+.gd .gd-progress__head span {
+  color: var(--ink-2);
+}
+
+.gd .gd-progress__bar {
+  align-self: stretch;
+}
+
+.gd .gd-missed {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.gd .gd-missed .gd-ex {
+  padding: 8px 12px;
+  border-radius: var(--r-md);
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+
+/* ==================================================================
+   Wide screens
+   ================================================================== */
+@media (width >= 600px) {
+  .gd .gd-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .gd .gd-stages {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .gd .gd-sentence {
+    font-size: 1.875rem;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .gd .gd-opt:hover:not(:disabled),
+  .gd .gd-tile:hover:not(:disabled),
+  .gd .gd-stagebtn:hover:not(:disabled) {
+    border-color: var(--brand);
+  }
+}
+
+/* Touch screens have no number keys: hide the key badges. */
+@media (hover: none) {
+  .gd .gd-key {
+    display: none;
+  }
+
+  .gd .gd-opt {
+    padding-left: 8px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gd .gd-sheet {
+    animation: none;
+  }
+}
+
+/* ==================================================================
+   Progress over time (static/js/grammar/trendview.js): the topic
+   screen's Progress card and the hub's summary. Drawn only when the
+   server has history; inline SVG, one measure per chart.
+   ================================================================== */
+.gd .gd-trend {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.gd .gd-trend .ld-h2,
+.gd .gd-trend .ld-eyebrow,
+.gd .gd-trend p {
+  margin: 0;
+}
+
+.gd .gd-trend__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 16px;
+}
+
+.gd .gd-trend__m {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.gd .gd-trend__v {
+  font: 700 1.5rem/1.15 var(--f-display);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+.gd .gd-trend__d {
+  min-height: 1.3em;
+  font-size: 0.75rem;
+  line-height: 1.3;
+  color: var(--ink-2);
+}
+
+.gd .gd-trend__svg {
+  display: block;
+  width: 100%;
+  max-width: 280px;
+  height: auto;
+  overflow: visible;
+}
+
+.gd .gd-trend__base {
+  stroke: var(--line);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.gd .gd-trend__line {
+  fill: none;
+  stroke: var(--brand);
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.gd .gd-trend__dot {
+  fill: var(--brand);
+  stroke: var(--surface);
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Larger than the mark, invisible: carries the point's <title>. */
+.gd .gd-trend__hit {
+  fill: transparent;
+}
+
+.gd .gd-trend__hit:hover {
+  fill: var(--brand-wash);
+}
+
+.gd .gd-trend__needs {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+
+.gd .gd-trend__needs ul {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.gd .gd-trend__needs li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.875rem;
+  color: var(--ink);
+}
+
+.gd .gd-trend__needs li b {
+  flex: none;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--ink-2);
+}
+
+.gd .gd-trend__strip {
+  display: block;
+  width: 100%;
+  max-width: 460px;
+  height: auto;
+}
+
+/* One hue, light to dark: answers that day relative to the busiest day. */
+.gd .gd-trend__cell {
+  fill: var(--brand);
+}
+
+.gd .gd-trend__cell--0 {
+  fill: var(--line);
+}
+
+.gd .gd-trend__cell--1 {
+  fill-opacity: 0.3;
+}
+
+.gd .gd-trend__cell--2 {
+  fill-opacity: 0.5;
+}
+
+.gd .gd-trend__cell--3 {
+  fill-opacity: 0.75;
+}
+
+.gd .gd-trend__cap {
+  display: flex;
+  justify-content: space-between;
+  max-width: 460px;
+  font-size: 0.6875rem;
+}

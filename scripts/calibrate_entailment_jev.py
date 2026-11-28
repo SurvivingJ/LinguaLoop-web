@@ -26,6 +26,8 @@ except ImportError:  # run or imported as scripts.<name>
     from scripts._common import bootstrap
 
 bootstrap(log_level=None)
+
+from services import language_registry  # noqa: E402
 EXP_A = os.path.join(ROOT, "data", "eval", "jev_2026-09-26", "exp_a")
 sys.path.insert(0, EXP_A)
 OUT_DIR = os.path.join(ROOT, "data", "eval", "jev_entailment_calibration_2026-09-26")
@@ -39,7 +41,7 @@ for _s in (sys.stdout, sys.stderr):
 
 from scripts.measure_entailment_ab import _build_items  # noqa: E402
 
-LANG = {1: "zh", 2: "en", 3: "ja"}
+LANG = language_registry.id_to_code()
 
 
 def _load(path):

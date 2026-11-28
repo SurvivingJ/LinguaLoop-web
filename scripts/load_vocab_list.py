@@ -31,11 +31,12 @@ except ImportError:  # run or imported as scripts.<name>
 
 bootstrap()
 
+from services import language_registry  # noqa: E402
 from services.vocabulary.pos import normalize_pos  # noqa: E402
 from services.vocabulary.word_resolver import get_or_create_vocab_id  # noqa: E402
 
 logger = logging.getLogger(__name__)
-LANGUAGE_IDS = {'zh': 1, 'en': 2, 'ja': 3}
+LANGUAGE_IDS = language_registry.code_to_id()
 
 
 def load_items(path: str) -> list[dict]:

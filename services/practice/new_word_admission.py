@@ -336,11 +336,21 @@ class NewWordAdmissionMixin:
             except Exception as e:
                 logger.warning('eligible ladder count failed (non-fatal): %s', e)
 
-        # Read the supply flag BEFORE set_new_words_shortfall flips it.
+        # Read the supply flag BEFORE set_new_words_shortfall flips it. The
+        # daily session has usually read today's row already this request; a
+        # pool thread cannot see the request cache, so it is handed over here.
+        from services import request_cache
+        from services.test_service import daily_load_row_key
         today_iso = plan_today_iso(self.db, user_id, language_id)
+        row_key = daily_load_row_key(user_id, language_id, today_iso)
+        cached_row = request_cache.peek(row_key)
+        if cached_row is request_cache.MISSING:
+            supply_flags = lambda: self._today_supply_flags(user_id, language_id, today_iso)  # noqa: E731
+        else:
+            supply_flags = lambda: self._supply_flags_of(cached_row)  # noqa: E731
         _, (prior_checked, planned_in_budget, checked_e), subscribed = run_parallel(
             _servable_pool,
-            lambda: self._today_supply_flags(user_id, language_id, today_iso),
+            supply_flags,
             lambda: self._subscribed_sense_ids(user_id),
         )
         # A supply check is only valid for the E it was made under. A mid-day
@@ -366,9 +376,6 @@ class NewWordAdmissionMixin:
 
         shortfall = max(0, want_raw - len(admitted))
         try:
-            # Rewrites today's daily_test_loads targets: drop the request copy.
-            from services.request_cache import invalidate
-            invalidate('daily_load_row', str(user_id))
             self.db.rpc('set_new_words_shortfall', {
                 'p_user_id':     user_id,
                 'p_language_id': language_id,
@@ -377,10 +384,24 @@ class NewWordAdmissionMixin:
                 'p_checked_e':   new_today,
             }).execute()
         except Exception as e:
+            request_cache.invalidate('daily_load_row', str(user_id))
             logger.warning(
                 'set_new_words_shortfall failed (non-fatal) for user=%s '
                 'lang=%s: %s', user_id, language_id, e,
             )
+        else:
+            # The RPC sets exactly these three target keys; patch the request's
+            # copy of the row rather than dropping it, which cost the daily
+            # session a re-read of the whole row.
+            row = request_cache.peek(row_key)
+            if isinstance(row, dict):
+                targets = dict(row.get('daily_session_targets') or {})
+                targets.update(new_words_shortfall=shortfall,
+                               new_words_supply_checked=True,
+                               new_words_supply_checked_e=new_today)
+                request_cache.put(row_key, {**row, 'daily_session_targets': targets})
+            else:
+                request_cache.invalidate('daily_load_row', str(user_id))
 
         servable = min(new_today, unstarted + started_today + len(admitted))
         needs_rebuild = bool(
@@ -414,9 +435,14 @@ class NewWordAdmissionMixin:
         except Exception as e:
             logger.warning('supply-flag read failed (non-fatal): %s', e)
             return True, None, None     # unknown: do not trigger a rebuild
-        if not resp.data:
+        return self._supply_flags_of(resp.data[0] if resp.data else None)
+
+    @staticmethod
+    def _supply_flags_of(row: Optional[dict]):
+        """``_today_supply_flags`` over a daily_test_loads row already in hand."""
+        if not row:
             return True, None, None
-        targets = resp.data[0].get('daily_session_targets') or {}
+        targets = row.get('daily_session_targets') or {}
         planned = targets.get('new_words_in_budget')
         checked_e = targets.get('new_words_supply_checked_e')
         return (
@@ -555,15 +581,15 @@ class NewWordAdmissionMixin:
             senses: set = set()
             for start in range(0, len(test_ids), RECENT_TEST_CHUNK):
                 chunk = test_ids[start:start + RECENT_TEST_CHUNK]
-                t = (self.db.table('tests').select('id, vocab_sense_ids')
+                # One round trip: the questions come embedded with their test
+                # (two sequential reads cost ~0.5 s from production).
+                t = (self.db.table('tests')
+                     .select('id, vocab_sense_ids, questions(sense_ids)')
                      .in_('id', chunk).execute())
                 for row in (t.data or []):
                     senses.update(row.get('vocab_sense_ids') or [])
-                q = (self.db.table('questions').select('sense_ids')
-                     .in_('test_id', chunk)
-                     .filter('sense_ids', 'not.is', 'null').execute())
-                for row in (q.data or []):
-                    senses.update(row.get('sense_ids') or [])
+                    for question in (row.get('questions') or []):
+                        senses.update(question.get('sense_ids') or [])
             return senses
         except Exception as e:
             logger.warning(

@@ -131,7 +131,7 @@ integer (`{"tier": 1-6}`), logged as task `claude_tier_passage`. The result is s
 `age_tier_probabilities` and no confidence. Any failure raises `JevError`, as on the jev path,
 so a tier is never guessed. It is not fitted to the ja gold set; in the 2026-11-27 runs it rated
 passages higher than jev (a tier-3 target came back T5). See
-[[decisions/ADR-064-claude-only-offline-test-generation]].
+[[decisions/ADR-069-claude-only-offline-test-generation]].
 
 ## Key Architectural Decisions
 1. **Measure the passage, not the topic.** *Rationale:* the target tier is the prompt's aim,

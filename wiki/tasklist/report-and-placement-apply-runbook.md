@@ -2,7 +2,7 @@
 title: Knowledge Report and Vocabulary placement — apply and launch runbook
 type: overview
 status: in-progress
-last_updated: 2026-11-22
+last_updated: 2026-11-27
 ---
 
 # Knowledge Report and Vocabulary placement — apply and launch runbook
@@ -184,10 +184,19 @@ removed from the code.
 
 ## Not built yet (blocks nothing above)
 
-- Placement entry points and the onboarding offer (TASK-1085, blocked on PQ7). Until then the placement is reached
-  at `/placement`.
+- (Built 2026-11-27, TASK-1085 done, awaiting deploy: the placement entry points — a Me-hub row, the report's
+  empty state, a link on the calibration page and the onboarding offer on the language page.)
 - Report integration of placement ranges (TASK-1086), the Pro tier (TASK-1045–1053, 1059), the goal-path layout
   (TASK-1072), validation (TASK-1089), docs reconciliation (TASK-1057, TASK-1095).
+
+## 2026-11-27 — the database stop line is 480 MB
+
+Owner decision 2026-11-27 ("Do daily with the current space limit raised to 480mb"): the stop line
+named on this page as 475 MB is **480 MB** from now on; earlier entries keep the figure that
+applied when they were written. The database was 473.15 MB on 2026-11-24, so the headroom is
+6.85 MB, and the first use of it is the grammar-drill tracking migration
+([[decisions/ADR-066-grammar-drill-daily-tracking]]). Its apply steps and the owner's SQL queries
+(table sizes first) are on [[tasklist/grammar-drill-tracking-runbook]].
 
 ## Related Pages
 - [[features/knowledge-report]] · [[features/vocab-placement]]

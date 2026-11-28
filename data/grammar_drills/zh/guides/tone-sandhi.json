@@ -1,0 +1,251 @@
+{
+  "topic": "tone-sandhi",
+  "summary": "Some syllables change tone because of the tone that follows. 不 and 一 switch depending on the next syllable, a 3rd tone before another 3rd tone rises like a 2nd, and before any other tone it just stays low. Always look one syllable ahead. Pinyin here shows 不 and 一 as spoken (bú, yí, yì) but keeps the written 3rd-tone mark (nǐ hǎo, said ní hǎo).",
+  "subs": [
+    {
+      "key": "bu-fourth",
+      "label": "不 becomes bú before a 4th tone",
+      "focus": "不 directly before a 4th-tone syllable (是, 去, 要, 会, 对, 太, 用, 错, 客气, 看). Learner must pick bú, not bù. Classic error: keeping the dictionary tone and saying bù shì, bù yào with two falling tones in a row."
+    },
+    {
+      "key": "bu-stays",
+      "label": "不 stays bù, or goes light in the middle",
+      "focus": "不 before a 1st, 2nd or 3rd tone or alone stays bù (bù chī, bù lái, bù hǎo); inside V不V and V不complement it is light (shì bu shì, tīng bu dǒng). Error: over-applying bú everywhere (bú hǎo, bú zhī dao). Decide by the next syllable's tone."
+    },
+    {
+      "key": "yi-fourth",
+      "label": "一 becomes yí before a 4th tone",
+      "focus": "一 counting something, before a 4th-tone syllable or 个 (一个, 一样, 一定, 一共, 一下, 一次, 一块, 一会儿, 一件, 一万). Learner must pick yí. Errors: citation yī ge, or yì used for every changed 一."
+    },
+    {
+      "key": "yi-other",
+      "label": "一 becomes yì before 1st, 2nd, 3rd tones",
+      "focus": "一 before a 1st, 2nd or 3rd tone (一天, 一些, 一杯, 一年, 一直, 一条, 一起, 一点儿, 一本, 一百). Learner must pick yì, not yī and not yí. Error: yī qǐ, yī tiān, or yí nián by analogy with yí ge."
+    },
+    {
+      "key": "yi-number",
+      "label": "一 stays yī as a number name",
+      "focus": "一 read as a digit or ordinal keeps yī whatever follows: counting, end of phrase, 第一, 十一, 二十一, 一月, 一号, 星期一, years. Also light 一 in V一V (kàn yi kàn). Error: yí yuè, dì yí cì, shí yí ge. Contrast 一月 with 一个月. Avoid 一点 for one o'clock (variable)."
+    },
+    {
+      "key": "third-pair",
+      "label": "3rd + 3rd: the first rises",
+      "focus": "Two adjacent 3rd tones in one word or phrase (你好, 很好, 可以, 水果, 老板, 所以, 手表, 我想). Learner must identify that the first is said as a 2nd tone while the spelling keeps both marks. Error: two full dipping tones, or changing the second instead of the first."
+    },
+    {
+      "key": "third-three",
+      "label": "Three or more 3rd tones in a row",
+      "focus": "Runs of three or four 3rd tones (我很好, 老板也来, 我有五本). Learner groups by word or phrase, changes the first of each pair, and keeps the last one before a pause as 3rd. Error: changing none, or changing only the first syllable. Accept the fast all-rising variant."
+    },
+    {
+      "key": "half-third",
+      "label": "3rd tone before other tones stays low",
+      "focus": "A 3rd tone before a 1st, 2nd, 4th or neutral syllable (老师, 很忙, 好看, 我的, 喜欢) is low with no final rise and does NOT turn into a 2nd tone. Error: full dip-and-rise mid-sentence, or over-applying the rising change (hén máng). Full 3rd only alone or before a pause."
+    },
+    {
+      "key": "neutral",
+      "label": "Neutral tone: particles and doubled words",
+      "focus": "Which syllable is light: particles (的, 了, 吗, 呢, 吧, 着, 过), suffixes 子 and 们, the second half of doubled kin terms and verbs (妈妈, 谢谢, 看看, 想想). Error: full tone on both halves (mā mā, kàn kàn), or making 天天, 常常, 人人 light when they keep their tones."
+    }
+  ],
+  "rules": [
+    {
+      "sub": "bu-fourth",
+      "rule": "不 is normally bù (4th tone). Right before another 4th tone it rises to bú, so you never say two falling tones on 不 + word.",
+      "pattern": "不 (bú) + 4th-tone syllable",
+      "examples": [
+        {"zh": "我不是学生。", "py": "wǒ bú shì xué sheng", "en": "I'm not a student."},
+        {"zh": "明天我不去公司。", "py": "míng tiān wǒ bú qù gōng sī", "en": "I'm not going to the office tomorrow."},
+        {"zh": "这件衣服不太贵。", "py": "zhè jiàn yī fu bú tài guì", "en": "This piece of clothing isn't too expensive."},
+        {"zh": "不客气！", "py": "bú kè qi", "en": "You're welcome!"}
+      ],
+      "note": "Dictionaries and many textbooks still print bù in every word (bùshì, bùyào). The spoken tone is bú all the same."
+    },
+    {
+      "sub": "bu-stays",
+      "rule": "Before a 1st, 2nd or 3rd tone, and when 不 stands alone or ends the phrase, it keeps its own 4th tone: bù.",
+      "pattern": "不 (bù) + 1st / 2nd / 3rd-tone syllable; 不 (bù) alone",
+      "examples": [
+        {"zh": "我不吃肉。", "py": "wǒ bù chī ròu", "en": "I don't eat meat."},
+        {"zh": "他今天不来了。", "py": "tā jīn tiān bù lái le", "en": "He's not coming today after all."},
+        {"zh": "这个办法不好。", "py": "zhè ge bàn fǎ bù hǎo", "en": "This method is no good."},
+        {"zh": "不，我不去。", "py": "bù wǒ bú qù", "en": "No, I'm not going."}
+      ]
+    },
+    {
+      "sub": "bu-stays",
+      "rule": "Sandwiched in the middle of verb-不-verb questions and verb-不-result forms, 不 is short and light with no tone of its own.",
+      "pattern": "Verb + 不 (bu) + Verb; Verb + 不 (bu) + result",
+      "examples": [
+        {"zh": "你是不是老师？", "py": "nǐ shì bu shì lǎo shī", "en": "Are you a teacher?"},
+        {"zh": "我听不懂。", "py": "wǒ tīng bu dǒng", "en": "I can't understand (what I hear)."},
+        {"zh": "对不起，我来晚了。", "py": "duì bu qǐ wǒ lái wǎn le", "en": "Sorry, I'm late."}
+      ],
+      "note": "In slow, careful speech the tone can come back; then the normal rule applies (shì bú shì, tīng bù dǒng). Both are heard; light is the everyday default."
+    },
+    {
+      "sub": "yi-fourth",
+      "rule": "When 一 counts or modifies what follows and the next syllable is 4th tone, say yí (rising). 个 counts as 4th tone even though it is usually said lightly.",
+      "pattern": "一 (yí) + 4th-tone syllable; 一 (yí) + 个",
+      "examples": [
+        {"zh": "我有一个弟弟。", "py": "wǒ yǒu yí ge dì di", "en": "I have a younger brother."},
+        {"zh": "请等一下。", "py": "qǐng děng yí xià", "en": "Please wait a moment."},
+        {"zh": "这两个字的意思一样。", "py": "zhè liǎng ge zì de yì si yí yàng", "en": "These two characters mean the same thing."},
+        {"zh": "我们一共五个人。", "py": "wǒ men yí gòng wǔ ge rén", "en": "There are five of us altogether."}
+      ]
+    },
+    {
+      "sub": "yi-other",
+      "rule": "Before a 1st, 2nd or 3rd tone, 一 drops to yì (falling).",
+      "pattern": "一 (yì) + 1st / 2nd / 3rd-tone syllable",
+      "examples": [
+        {"zh": "他一天喝三杯咖啡。", "py": "tā yì tiān hē sān bēi kā fēi", "en": "He drinks three cups of coffee a day."},
+        {"zh": "我学了一年汉语。", "py": "wǒ xué le yì nián hàn yǔ", "en": "I studied Chinese for a year."},
+        {"zh": "我们一起去吧。", "py": "wǒ men yì qǐ qù ba", "en": "Let's go together."},
+        {"zh": "我会说一点儿汉语。", "py": "wǒ huì shuō yì diǎn r hàn yǔ", "en": "I can speak a little Chinese."}
+      ],
+      "note": "一百 and 一千 follow this rule (yì bǎi, yì qiān) and 一万 follows the 4th-tone rule (yí wàn), because 一 is counting the unit after it."
+    },
+    {
+      "sub": "yi-number",
+      "rule": "When 一 is read as a number name it keeps yī whatever comes next: counting, ordinals with 第, the last digit of a number, dates and weekdays, and at the end of a phrase.",
+      "pattern": "第 + 一 (yī); 十 + 一 (yī); 一 (yī) + 月 / 号; 星期 + 一 (yī)",
+      "examples": [
+        {"zh": "这是我第一次来中国。", "py": "zhè shì wǒ dì yī cì lái zhōng guó", "en": "This is my first time in China."},
+        {"zh": "我们班有二十一个学生。", "py": "wǒ men bān yǒu èr shí yī ge xué sheng", "en": "There are twenty-one students in our class."},
+        {"zh": "他的生日是一月一号。", "py": "tā de shēng rì shì yī yuè yī hào", "en": "His birthday is the first of January."},
+        {"zh": "今天星期一。", "py": "jīn tiān xīng qī yī", "en": "Today is Monday."}
+      ],
+      "note": "Compare 一月 yī yuè (January, a number name) with 一个月 yí ge yuè (one month, counting). Digit strings such as years also use yī; in phone and room numbers 一 is often read yāo instead."
+    },
+    {
+      "sub": "yi-number",
+      "rule": "Between a repeated one-syllable verb, 一 is light and toneless.",
+      "pattern": "Verb + 一 (yi) + Verb",
+      "examples": [
+        {"zh": "你看一看这本书。", "py": "nǐ kàn yi kàn zhè běn shū", "en": "Have a look at this book."},
+        {"zh": "请等一等。", "py": "qǐng děng yi děng", "en": "Please wait a bit."},
+        {"zh": "我想试一试。", "py": "wǒ xiǎng shì yi shì", "en": "I'd like to give it a try."}
+      ],
+      "note": "等一下 is not this pattern: there 一 counts 下 and is yí xià."
+    },
+    {
+      "sub": "third-pair",
+      "rule": "Two 3rd tones side by side: say the first one as a rising 2nd tone. The pinyin spelling keeps both 3rd-tone marks; only the sound changes.",
+      "pattern": "3rd + 3rd → 2nd + 3rd (nǐ hǎo → ní hǎo)",
+      "examples": [
+        {"zh": "你好！", "py": "nǐ hǎo", "en": "Hello! (said ní hǎo)"},
+        {"zh": "这儿可以坐吗？", "py": "zhè r kě yǐ zuò ma", "en": "May I sit here? (可以 said ké yǐ)"},
+        {"zh": "他爱吃水果。", "py": "tā ài chī shuǐ guǒ", "en": "He loves eating fruit. (水果 said shuí guǒ)"},
+        {"zh": "我想喝茶。", "py": "wǒ xiǎng hē chá", "en": "I'd like some tea. (我想 said wó xiǎng)"}
+      ],
+      "note": "The change needs the two syllables to be said together. Across a comma or a real pause the first one keeps its 3rd tone."
+    },
+    {
+      "sub": "third-three",
+      "rule": "With three or more 3rd tones, split the run into words or phrases first. Inside each group every 3rd tone before another 3rd rises; the last 3rd tone before a pause never changes.",
+      "pattern": "(3 + 3) + 3 → 2 + 2 + 3; 3 + (3 + 3) → low 3 + 2 + 3",
+      "examples": [
+        {"zh": "老板也来了。", "py": "lǎo bǎn yě lái le", "en": "The boss came too. (老板也 said láo bán yě)"},
+        {"zh": "我很好。", "py": "wǒ hěn hǎo", "en": "I'm fine. (said low wǒ + hén hǎo, or wó hén hǎo when fast)"},
+        {"zh": "我有五本书。", "py": "wǒ yǒu wǔ běn shū", "en": "I have five books. (said wó yǒu, wú běn)"}
+      ],
+      "note": "This is genuinely variable: speed and emphasis change the grouping, and in fast speech everything but the last syllable may rise. The fixed points are that a pair inside one word changes and the final 3rd tone stays."
+    },
+    {
+      "sub": "half-third",
+      "rule": "Before a 1st, 2nd, 4th or neutral syllable a 3rd tone is just low: it dips and stays down, with no rise at the end. It does not become a 2nd tone.",
+      "pattern": "3rd (low, no rise) + 1st / 2nd / 4th / neutral",
+      "examples": [
+        {"zh": "老师很忙。", "py": "lǎo shī hěn máng", "en": "The teacher is busy. (老 and 很 stay low)"},
+        {"zh": "我喜欢跳舞。", "py": "wǒ xǐ huan tiào wǔ", "en": "I like dancing. (我喜 said wó xǐ, 喜 low before 欢; 舞 full 3rd at the end)"},
+        {"zh": "你看，下雨了。", "py": "nǐ kàn xià yǔ le", "en": "Look, it's raining. (你 low before 看, 雨 low before 了)"}
+      ],
+      "note": "The full dip-and-rise 3rd tone is only heard on a word said alone or right before a pause. Mid-sentence, think 'low tone'."
+    },
+    {
+      "sub": "neutral",
+      "rule": "Grammar particles and the suffixes 子 and 们 are always light and short: no tone mark, and their pitch simply follows the syllable before.",
+      "pattern": "word + 的 / 了 / 吗 / 呢 / 吧 / 着 / 过 / 们 / 子 (light)",
+      "examples": [
+        {"zh": "他们是我的朋友。", "py": "tā men shì wǒ de péng you", "en": "They are my friends."},
+        {"zh": "你吃了吗？", "py": "nǐ chī le ma", "en": "Have you eaten?"},
+        {"zh": "我们走吧。", "py": "wǒ men zǒu ba", "en": "Let's go."},
+        {"zh": "孩子们在外面玩儿呢。", "py": "hái zi men zài wài miàn wán r ne", "en": "The children are playing outside."}
+      ]
+    },
+    {
+      "sub": "neutral",
+      "rule": "In doubled family words and doubled verbs the second syllable is light. Doubled measure words and adverbs (天天, 人人, 常常) keep both tones.",
+      "pattern": "AA: tone + light (mā ma, xiè xie, kàn kan)",
+      "examples": [
+        {"zh": "谢谢你，妈妈。", "py": "xiè xie nǐ mā ma", "en": "Thank you, Mum."},
+        {"zh": "你看看这个。", "py": "nǐ kàn kan zhè ge", "en": "Take a look at this."},
+        {"zh": "让我想想。", "py": "ràng wǒ xiǎng xiang", "en": "Let me think. (said xiáng xiang)"},
+        {"zh": "我姐姐天天跑步。", "py": "wǒ jiě jie tiān tiān pǎo bù", "en": "My older sister goes running every day. (姐 low, 天天 both 1st tone)"}
+      ],
+      "note": "A doubled 3rd-tone verb still makes the first half rise (想想 xiáng xiang, 走走 zóu zou), but kin terms and 子 words do not: 姐姐, 奶奶, 椅子 are low + light."
+    }
+  ],
+  "contrasts": [
+    {
+      "wrong": "我不是老师。",
+      "right": {"zh": "我不是老师。", "py": "wǒ bú shì lǎo shī", "en": "I'm not a teacher."},
+      "why": "The mistake is in the sound: bù shì, with two falling tones. 是 is 4th tone, so 不 must rise: bú shì."
+    },
+    {
+      "wrong": "我不喝咖啡。",
+      "right": {"zh": "我不喝咖啡。", "py": "wǒ bù hē kā fēi", "en": "I don't drink coffee."},
+      "why": "Said as bú hē by learners who make every 不 rise. 喝 is 1st tone, so nothing changes: bù hē. Only a following 4th tone triggers bú."
+    },
+    {
+      "wrong": "我买了一个手机。",
+      "right": {"zh": "我买了一个手机。", "py": "wǒ mǎi le yí ge shǒu jī", "en": "I bought a mobile phone."},
+      "why": "Said as yī ge with the dictionary tone. 一 counting something before 个 is always yí, even though 个 itself is said lightly."
+    },
+    {
+      "wrong": "我们一起吃饭吧。",
+      "right": {"zh": "我们一起吃饭吧。", "py": "wǒ men yì qǐ chī fàn ba", "en": "Let's eat together."},
+      "why": "Said as yī qǐ or, by analogy with yí ge, as yí qǐ. 起 is 3rd tone, so 一 falls: yì qǐ. Rising yí is only for a following 4th tone."
+    },
+    {
+      "wrong": "今天是十一月一号。",
+      "right": {"zh": "今天是十一月一号。", "py": "jīn tiān shì shí yī yuè yī hào", "en": "Today is the first of November."},
+      "why": "Said as shí yí yuè yí hào because 月 and 号 are 4th tone. In month names and dates 一 is a number name and stays yī."
+    },
+    {
+      "wrong": "这是第一课。",
+      "right": {"zh": "这是第一课。", "py": "zhè shì dì yī kè", "en": "This is Lesson One."},
+      "why": "Said as dì yí kè. After 第 the 一 is an ordinal and keeps yī even before a 4th tone. Compare 一课 on its own counting lessons: yí kè."
+    },
+    {
+      "wrong": "你好吗？",
+      "right": {"zh": "你好吗？", "py": "nǐ hǎo ma", "en": "How are you?"},
+      "why": "Said with two full dipping tones, which sounds slow and foreign. The first of two 3rd tones rises: ní hǎo ma. The spelling stays nǐ hǎo."
+    },
+    {
+      "wrong": "老师很忙。",
+      "right": {"zh": "老师很忙。", "py": "lǎo shī hěn máng", "en": "The teacher is busy."},
+      "why": "Said as hén máng, over-applying the rising change, or with a full dip-and-rise on 老 and 很. Before a 1st or 2nd tone a 3rd tone just stays low."
+    },
+    {
+      "wrong": "我有两个哥哥。",
+      "right": {"zh": "我有两个哥哥。", "py": "wǒ yǒu liǎng ge gē ge", "en": "I have two older brothers."},
+      "why": "Said as gē gē with two full high tones. In doubled family words the second syllable is light: gē ge. The measure word 个 is light too."
+    },
+    {
+      "wrong": "我听不懂。",
+      "right": {"zh": "我听不懂。", "py": "wǒ tīng bu dǒng", "en": "I can't understand."},
+      "why": "Said with a heavy, stressed bù as if 不 were the main word. Between a verb and its result 不 is quick and light: tīng bu dǒng."
+    }
+  ],
+  "cheat": [
+    "不 + 4th tone → bú. Before anything else, or alone → bù.",
+    "一 + 4th tone or 个 → yí. 一 + 1st / 2nd / 3rd tone → yì.",
+    "一 as a number name (counting, 第一, 十一, 一月, 一号, 星期一, end of phrase) → yī, whatever follows.",
+    "Two 3rd tones together: the first rises like a 2nd tone. The spelling does not change.",
+    "Three or more 3rd tones: group by words, raise the first of each pair, keep the last one as 3rd.",
+    "3rd tone before a 1st, 2nd, 4th or light syllable: stay low, no rise, and not a 2nd tone.",
+    "Particles, 子 / 们, doubled kin words and verbs (妈妈, 看看), middle 不 / 一 (好不好, 看一看): light."
+  ]
+}

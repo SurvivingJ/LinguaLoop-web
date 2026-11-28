@@ -3,10 +3,10 @@ title: API — Technical Specification
 type: api-tech
 status: complete
 prose_page: ./rpcs.md
-last_updated: 2026-11-23
+last_updated: 2026-11-27
 dependencies:
   - "Flask app factory `create_app()` in `app.py`, wired by the `web/` package (see [[features/web-package.tech]])"
-  - "18 route modules in `routes/` (the `routes/tests/` package is one of them; see [[features/routes-tests-package.tech]])"
+  - "19 route modules in `routes/` (the `routes/tests/` package is one of them; see [[features/routes-tests-package.tech]])"
   - "Supabase JWT middleware (`middleware/auth.py`)"
   - "Supabase Python client (PostgREST tables + RPC), service-role client from `routes/common.get_db()`"
   - "Flask-Limiter (`web/rate_limits.py`)"
@@ -193,6 +193,7 @@ All `@jwt_required`; the engine is `PracticeSessionService` (`services/practice_
 | GET | `/api/practice/session` | `practice.get_practice_session` | `language_id` (required), `mode` ∈ acquisition/maintenance/auto, `minutes` 1–180 (15), `debug`, `tail`; RPC `get_practice_session` (content always `p_include_content=false`; the exercise content is hydrated from Storage files, ADR-049) | `practice.js` |
 | GET | `/api/practice/extra` | `practice.get_practice_extra` | one open-ended round past the budget (ADR-036): `reviews=0\|1`, `new_words 0..EXTRA_NEW_WORDS_MAX`, `exclude`; RPC `get_review_ahead_items`, new-word admission | yes |
 | POST | `/api/practice/attempt` | `practice.submit_practice_attempt` | see below | yes |
+| GET | `/api/practice/explanations/<exercise_id>` | `practice.get_exercise_explanations` | per-option feedback in the learner's language for a spot-the-error item (ADR-064): `exercise_explanations.get_or_generate` → `{state: ready\|pending\|unsupported\|unavailable, option_explanations?, explanation_language?}`; first request may wait on one model call; 30/min + 600/day per user | `exercise-renderers.js` |
 | GET | `/api/practice/speed-round` | `practice.get_speed_round` | `SpeedRoundComposer.compose` over `user_word_ladder` and `exercises`; an empty battery is `200` with `no_content_reason` | `speed_round.js` |
 | POST | `/api/practice/intro/complete` | `practice.complete_intro_words` | new-word drill (ADR-040): `intro_drill.complete_word` per word (1–40) → RPC `intro_commit_word`; the server recounts, the client's "passed" is never read | yes |
 
@@ -229,6 +230,15 @@ All `@jwt_required`.
 | POST | `/api/classifier-drill/submit` | `classifier_drill.submit_drill` | `{language_id, correct_items, total_items, time_taken?, idempotency_key?, item_results?}`; RPC `process_classifier_drill_submission`, then `update_classifier_mastery` per answer; `attempts.apply_timing_and_progress` (kind `drill`) | yes |
 | GET | `/api/counter-drill/session?language_id=3&count=` | `counter_drill.get_drill_session` | RPC `get_counter_drill_session` | `classifier_drill.js` (shared engine) |
 | POST | `/api/counter-drill/submit` | `counter_drill.submit_drill` | same, no mastery step | yes |
+
+### Grammar drill tracking — [routes/grammar_drill.py](../../routes/grammar_drill.py) (added 2026-11-27; migration PENDING)
+
+Blueprint `grammar_drill` at `/api/grammar-drill`; validation and storage in `services/grammar_drill_tracking.py`. Both `@jwt_required`, Chinese only (`language_id` 1), own data only. Until `migrations/grammar_drill_tracking.sql` is applied both answer `503` with `error_code: GRAMMAR_TRACKING_UNAVAILABLE` (logged; remembered 600 s per process) and the page ignores it. Full specification (arguments, bounds, errors): [[features/grammar-drills.tech]] "API / RPC Surface"; decision: [[decisions/ADR-066-grammar-drill-daily-tracking]].
+
+| Method | Path | Handler | Reaches | Client |
+|---|---|---|---|---|
+| POST | `/api/grammar-drill/round` | `grammar_drill.record_round` | `{language_id, round_key (uuid), mode: round\|mixed\|endless\|sync, played_at?, topics: [{topic, answers, correct, timed, ms_sum, stage, instant, sub_misses, state}]}` (1 to 10 topics, ≤ 500 answers each, topics and sub-point keys checked against `static/data/grammar/zh/manifest.json`); practice day from `day_boundary.review_today`; RPC `record_grammar_drill_round` (idempotent on `round_key`); returns `{recorded, replayed, practice_day}`; limit 30/min and 600/h per user | `static/js/grammar/sync.js` |
+| GET | `/api/grammar-drill/progress?language_id=1&days=180` | `grammar_drill.get_progress` | `days` ≤ 365; reads `grammar_drill_state` and `grammar_drill_daily` for the token's user (`pagination.fetch_all`); returns `{today, days, states: {topic: state}, daily: [{topic, day, answers, correct, timed, ms_sum, stage, instant, sub_misses}]}`; limit 30/min per user | `static/js/grammar/sync.js` |
 
 ## Dual translation — [routes/dual_translation.py](../../routes/dual_translation.py) and [routes/dt_repair.py](../../routes/dt_repair.py)
 
@@ -309,6 +319,7 @@ Every RPC name that Python (outside `scripts/`, `tests/` and archives) calls, wi
 |---|---|
 | `process_test_submission`, `process_dictation_submission`, `process_pinyin_submission`, `process_pitch_accent_submission` | `routes/tests/submit.py: _submit_rpc` (name passed per route) |
 | `process_classifier_drill_submission` | `services/drill_service.py: DrillService.submit_session` (both drills) |
+| `record_grammar_drill_round` (**not live yet**: `migrations/grammar_drill_tracking.sql` pending, 2026-11-27) | `services/grammar_drill_tracking.py: record_round` |
 | `get_classifier_drill_session_v2` / `get_classifier_drill_session`, `get_counter_drill_session`, `update_classifier_mastery` | `services/drill_service.py` (names held on the two `DrillService` instances) |
 | `apply_attempt_timing_and_progress` | `services/attempts.py: apply_timing_and_progress` |
 | `record_exercise_attempt` | `services/practice/attempt_recording.py: record_attempt_with_updates` |

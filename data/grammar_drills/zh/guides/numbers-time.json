@@ -1,0 +1,485 @@
+{
+  "topic": "numbers-time",
+  "summary": "How numbers behave inside real sentences: dates, clock time, prices, ages, rough amounts and ordinals. The idea that makes it click: Chinese always goes from the biggest unit to the smallest (year, month, day, part of day, hour, minute), counts large numbers in 万 (ten thousands) rather than thousands, and gives every small word (多, 半, 左右, 第, 零) one fixed slot around the number and its measure word.",
+  "subs": [
+    {
+      "key": "date-order",
+      "label": "Dates and time order: 年 月 号 星期 上午 点",
+      "focus": "Force time units from largest to smallest (年, 月, 号/日, 星期, 上午/下午, 点, 分) with the whole time expression before the verb. Classic errors: English order (三点下午, 五号十月), time at the end of the sentence, 日 in a spoken sentence. Order items cut the time expression into tiles."
+    },
+    {
+      "key": "clock",
+      "label": "Clock time: 点, 分, 刻, 半, 差",
+      "focus": "Force the choice of the right clock word and its slot: 两点 (never 二点) for two o'clock, 半 and 一刻/三刻 after 点, 零 before single-digit minutes (九点零五分), and 差 + minutes + hour for 'to'. Classic errors: 二点, 半两点, 两点三十半, 五分差八点, and using 小时 (duration) where 点 (clock time) is needed."
+    },
+    {
+      "key": "big-numbers",
+      "label": "零 inside numbers, 万 and 亿",
+      "focus": "Force the correct reading of a number: one 零 for a skipped middle place (一百零五, 两千零八), 一十 inside a bigger number (一百一十), and four-digit grouping with 万 and 亿 (十万, 一百万). Classic errors: 一百五 meant as 105, 一百十, 十千, 一百千. The English cue must fix the exact number."
+    },
+    {
+      "key": "money",
+      "label": "Prices: 块, 毛, 分 and 元",
+      "focus": "Force the right money unit and its order: 块 then 毛 then 分 in speech, 元 in written or formal prices, 两块 for two, the last unit dropped (三块五), and 零 when 毛 is skipped (三块零五分). Classic errors: 二块, units in the wrong order, 钱 put before the number, and adding 是 or 有 before a price that needs neither."
+    },
+    {
+      "key": "approx",
+      "label": "Rough numbers: 多, 左右, 几",
+      "focus": "Force the slot of 多 (round number: 二十多个; one to nine: 三个多月), 左右 after the number phrase, and 几 for a small unknown number (几个, 十几个, 几十个). Classic errors: 三多个月, 二十个多人, 左右七点. Options are the same word in different slots, or 多 / 几 / 左右 against each other."
+    },
+    {
+      "key": "ordinals",
+      "label": "第 and when it is dropped",
+      "focus": "Force the choice between 第 + number + measure (第二次, 第三个) and the bare number for months, dates, weekdays, floors and grades (二月, 三楼, 二年级), plus the contrast with counting (二月 February, 两个月 two months). Classic errors: 第二月, 第两次, 两月, and dropping a required 第 (我二次来)."
+    },
+    {
+      "key": "half",
+      "label": "半: 半个小时, 一个半小时, 两天半",
+      "focus": "Force the slot of 半: before the measure when there is no whole number (半个小时, 半年), after the measure and before the noun when there is one (一个半小时, 三个半月), and at the very end when the unit is its own measure (两天半, 三年半, 一岁半). Classic errors: 一个小时半, 一半小时, 两半天, 半个年."
+    },
+    {
+      "key": "digits",
+      "label": "Phone, room and year numbers digit by digit",
+      "focus": "Force digit-by-digit reading of phone numbers, room numbers and years: 幺 for one in phone and room numbers, 零 for zero, 二 (not 两) for two. Classic errors: reading a year as a quantity (一千九百九十八年), 两 inside a digit string, 幺 in a year or a counted quantity. Write 幺 where it is read yāo."
+    },
+    {
+      "key": "age-percent",
+      "label": "Age with 岁, percentages and fractions",
+      "focus": "Force number + 岁 directly after the subject with no 是 and no 个 (他二十岁), 两岁 for two, and the Chinese order of percentages and fractions: 百分之 before the number, denominator + 分之 + numerator (三分之一). Classic errors: 我是二十岁 as the neutral statement, 二十个岁, 八十百分, 百分八十, 一分之三 for one third."
+    }
+  ],
+  "rules": [
+    {
+      "sub": "date-order",
+      "rule": "Say time from the biggest unit to the smallest, and put the whole time expression before the verb (after or before the subject).",
+      "pattern": "年 + 月 + 号 + 星期 + 上午/下午/晚上 + 点 + 分 + Verb",
+      "examples": [
+        {
+          "zh": "我们明天下午三点开会。",
+          "py": "wǒ men míng tiān xià wǔ sān diǎn kāi huì",
+          "en": "We have a meeting at three tomorrow afternoon."
+        },
+        {
+          "zh": "我星期五晚上八点有课。",
+          "py": "wǒ xīng qī wǔ wǎn shang bā diǎn yǒu kè",
+          "en": "I have class at eight on Friday evening."
+        },
+        {
+          "zh": "今天是十一月二十七号，星期五。",
+          "py": "jīn tiān shì shí yī yuè èr shí qī hào xīng qī wǔ",
+          "en": "Today is Friday, November the twenty-seventh."
+        },
+        {
+          "zh": "我的生日是五月二十号。",
+          "py": "wǒ de shēng rì shì wǔ yuè èr shí hào",
+          "en": "My birthday is May the twentieth."
+        }
+      ],
+      "note": "号 is what people say; 日 is used in writing and formal announcements (十月一日). Both are correct, so choose by register. 是 is often left out in a positive date or time sentence (今天星期五), but the negative needs 不是."
+    },
+    {
+      "sub": "clock",
+      "rule": "Hour + 点, then the minutes. Two o'clock is 两点. Half past is 半, a quarter past is 一刻, minutes under ten take 零, and 'X to the hour' is 差 + minutes + the coming hour.",
+      "pattern": "Hour + 点 + (零) + minutes + (分)   /   Hour + 点 + 半 or 一刻   /   差 + minutes + 分 + Hour + 点",
+      "examples": [
+        {
+          "zh": "现在两点半。",
+          "py": "xiàn zài liǎng diǎn bàn",
+          "en": "It's half past two now."
+        },
+        {
+          "zh": "我每天七点一刻起床。",
+          "py": "wǒ měi tiān qī diǎn yī kè qǐ chuáng",
+          "en": "I get up at a quarter past seven every day."
+        },
+        {
+          "zh": "火车九点零五分开。",
+          "py": "huǒ chē jiǔ diǎn líng wǔ fēn kāi",
+          "en": "The train leaves at five past nine."
+        },
+        {
+          "zh": "现在差五分八点。",
+          "py": "xiàn zài chà wǔ fēn bā diǎn",
+          "en": "It's five to eight now."
+        }
+      ],
+      "note": "Only the hour two is 两; 十二点 and 二十分 keep 二. 分 is usually dropped when the minutes are ten or more (两点二十). Thirty minutes is 半, not 两刻. With 差, 八点差五分 is also heard, but the minutes never go before 差. 点 is a clock time; 小时 is a length of time."
+    },
+    {
+      "sub": "big-numbers",
+      "rule": "Inside a number, a skipped place in the middle is read as one 零; zeros at the end are not read. Inside a bigger number, ten is 一十.",
+      "pattern": "百/千 + 零 + smaller part",
+      "examples": [
+        {
+          "zh": "这本书一共一百零五页。",
+          "py": "zhè běn shū yī gòng yī bǎi líng wǔ yè",
+          "en": "This book has a hundred and five pages in all."
+        },
+        {
+          "zh": "我们学校有一千零五十个学生。",
+          "py": "wǒ men xué xiào yǒu yī qiān líng wǔ shí gè xué sheng",
+          "en": "Our school has one thousand and fifty students."
+        },
+        {
+          "zh": "今天来了一百一十个人。",
+          "py": "jīn tiān lái le yī bǎi yī shí gè rén",
+          "en": "A hundred and ten people came today."
+        }
+      ],
+      "note": "In speech the last unit can be dropped, so 一百五 means 150, not 105. Two or more skipped places still take a single 零 (两千零八 for 2008). Before 百 both 二 and 两 are used; before 千, 万 and 亿 most speakers say 两."
+    },
+    {
+      "sub": "big-numbers",
+      "rule": "Chinese groups digits by four, not three. Count how many ten-thousands (万) there are; a hundred million is 一亿.",
+      "pattern": "number + 万   /   number + 亿   (十万 = 100,000; 一百万 = 1,000,000; 一千万 = 10,000,000)",
+      "examples": [
+        {
+          "zh": "这辆车要二十万块钱。",
+          "py": "zhè liàng chē yào èr shí wàn kuài qián",
+          "en": "This car costs two hundred thousand yuan."
+        },
+        {
+          "zh": "这个城市有三百万人。",
+          "py": "zhè ge chéng shì yǒu sān bǎi wàn rén",
+          "en": "This city has three million people."
+        },
+        {
+          "zh": "中国有十四亿人。",
+          "py": "zhōng guó yǒu shí sì yì rén",
+          "en": "China has 1.4 billion people."
+        },
+        {
+          "zh": "他每个月的工资是一万五千块。",
+          "py": "tā měi gè yuè de gōng zī shì yī wàn wǔ qiān kuài",
+          "en": "His salary is fifteen thousand yuan a month."
+        }
+      ],
+      "note": "There is no 十千 or 一百千: ten thousand is 一万 and a hundred thousand is 十万."
+    },
+    {
+      "sub": "money",
+      "rule": "Spoken prices use 块, then 毛, then 分, largest first; two is 两块. The last unit is usually dropped. Written and formal prices use 元.",
+      "pattern": "number + 块 + number + (毛)   /   number + 元",
+      "examples": [
+        {
+          "zh": "这个面包两块五。",
+          "py": "zhè ge miàn bāo liǎng kuài wǔ",
+          "en": "This bread is two yuan fifty."
+        },
+        {
+          "zh": "一共二十三块八毛。",
+          "py": "yī gòng èr shí sān kuài bā máo",
+          "en": "That's twenty-three yuan eighty altogether."
+        },
+        {
+          "zh": "咖啡三十二块一杯。",
+          "py": "kā fēi sān shí èr kuài yī bēi",
+          "en": "Coffee is thirty-two yuan a cup."
+        },
+        {
+          "zh": "这件衣服三百九十九元。",
+          "py": "zhè jiàn yī fu sān bǎi jiǔ shí jiǔ yuán",
+          "en": "This piece of clothing is 399 yuan."
+        }
+      ],
+      "note": "A price follows the subject directly; 是 and 有 are not needed. 钱 can follow a complete unit (五块钱) but not a dropped one (not 两块五钱). When 毛 is skipped, say 零: 三块零五分. A final two with its unit dropped is 二 (三块二); before 毛 both 两毛 and 二毛 are heard."
+    },
+    {
+      "sub": "approx",
+      "rule": "多 means 'and a bit more'. After a round number (ending in 十, 百, 千, 万) it comes before the measure; with a number from one to nine it comes after the measure.",
+      "pattern": "round number + 多 + Measure + Noun   /   one to nine + Measure + 多 + Noun",
+      "examples": [
+        {
+          "zh": "教室里有二十多个学生。",
+          "py": "jiào shì lǐ yǒu èr shí duō gè xué sheng",
+          "en": "There are twenty-odd students in the classroom."
+        },
+        {
+          "zh": "我学了三个多月汉语。",
+          "py": "wǒ xué le sān gè duō yuè hàn yǔ",
+          "en": "I've studied Chinese for a bit over three months."
+        },
+        {
+          "zh": "这件衣服一百多块钱。",
+          "py": "zhè jiàn yī fu yī bǎi duō kuài qián",
+          "en": "This piece of clothing is a hundred-odd yuan."
+        },
+        {
+          "zh": "他在北京住了两年多。",
+          "py": "tā zài běi jīng zhù le liǎng nián duō",
+          "en": "He lived in Beijing for over two years."
+        }
+      ],
+      "note": "The extra amount is smaller than the last unit named: 二十多 is 21 to 29, 三个多月 is three months and some days. 十 allows both with different meanings: 十多个月 is eleven to nineteen months, 十个多月 is ten months and a bit."
+    },
+    {
+      "sub": "approx",
+      "rule": "左右 (about) goes after the number and its measure. 几 stands in for an unknown number under ten: 几个 (a few), 十几个 (a dozen or so), 几十个 (dozens).",
+      "pattern": "number + Measure + 左右   /   几 + Measure + Noun   /   十几 + Measure   /   几十 + Measure",
+      "examples": [
+        {
+          "zh": "我们七点左右到。",
+          "py": "wǒ men qī diǎn zuǒ yòu dào",
+          "en": "We'll arrive at about seven."
+        },
+        {
+          "zh": "他今年三十岁左右。",
+          "py": "tā jīn nián sān shí suì zuǒ yòu",
+          "en": "He's about thirty this year."
+        },
+        {
+          "zh": "我买了几本书。",
+          "py": "wǒ mǎi le jǐ běn shū",
+          "en": "I bought a few books."
+        },
+        {
+          "zh": "昨天来了十几个人。",
+          "py": "zuó tiān lái le shí jǐ gè rén",
+          "en": "A dozen or so people came yesterday."
+        }
+      ],
+      "note": "大概 means the same as 左右 but goes before the number (大概七点), and the two can be used together. 十几 and 十多 overlap in meaning; 几 cannot follow 百 or 千 directly the way 多 can."
+    },
+    {
+      "sub": "ordinals",
+      "rule": "An ordinal is 第 + number + measure, and second is 第二, never 第两. Months, dates, weekdays, floors and school grades are already ordered names, so they take the bare number with no 第.",
+      "pattern": "第 + number + Measure + Noun   /   number + 月, 号, 楼, 年级",
+      "examples": [
+        {
+          "zh": "这是我第二次来中国。",
+          "py": "zhè shì wǒ dì èr cì lái zhōng guó",
+          "en": "This is my second time in China."
+        },
+        {
+          "zh": "我住在三楼。",
+          "py": "wǒ zhù zài sān lóu",
+          "en": "I live on the third floor."
+        },
+        {
+          "zh": "他二月回国。",
+          "py": "tā èr yuè huí guó",
+          "en": "He goes back to his country in February."
+        },
+        {
+          "zh": "我弟弟上二年级。",
+          "py": "wǒ dì di shàng èr nián jí",
+          "en": "My younger brother is in second grade."
+        }
+      ],
+      "note": "Bare number names a position, number + measure counts: 二月 is February but 两个月 is two months; 三楼 is the third floor but 三层楼 is three floors; 第一课 is lesson one but 一节课 is one class."
+    },
+    {
+      "sub": "half",
+      "rule": "Half alone: 半 goes before the measure. Whole number plus a half: 半 goes right after the measure. If the unit is its own measure (天, 年, 岁), 半 ends up last.",
+      "pattern": "半 + Measure + Noun   /   number + Measure + 半 + Noun   /   number + 天/年/岁 + 半",
+      "examples": [
+        {
+          "zh": "我等了半个小时。",
+          "py": "wǒ děng le bàn gè xiǎo shí",
+          "en": "I waited for half an hour."
+        },
+        {
+          "zh": "我们走了一个半小时。",
+          "py": "wǒ men zǒu le yī gè bàn xiǎo shí",
+          "en": "We walked for an hour and a half."
+        },
+        {
+          "zh": "我们在上海玩了两天半。",
+          "py": "wǒ men zài shàng hǎi wán le liǎng tiān bàn",
+          "en": "We spent two and a half days in Shanghai."
+        },
+        {
+          "zh": "他学了半年汉语。",
+          "py": "tā xué le bàn nián hàn yǔ",
+          "en": "He studied Chinese for half a year."
+        }
+      ],
+      "note": "天 and 年 never take 个 (半天, 半年, not 半个年), 月 always does (半个月, 一个半月), and 小时 is usually said with 个 but 半小时 is also common. 一半 means 'half of something' (一半的学生), not a duration."
+    },
+    {
+      "sub": "digits",
+      "rule": "Phone numbers, room numbers and years are read one digit at a time. In phone and room numbers the digit one is said 幺 (yāo); zero is 零 and two stays 二.",
+      "pattern": "digit + digit + digit ... (+ 年 / 房间 / 号)",
+      "examples": [
+        {
+          "zh": "报警电话是幺幺零。",
+          "py": "bào jǐng diàn huà shì yāo yāo líng",
+          "en": "The police emergency number is 110."
+        },
+        {
+          "zh": "我住在三幺二房间。",
+          "py": "wǒ zhù zài sān yāo èr fáng jiān",
+          "en": "I'm staying in room 312."
+        },
+        {
+          "zh": "他是二零零八年出生的。",
+          "py": "tā shì èr líng líng bā nián chū shēng de",
+          "en": "He was born in 2008."
+        },
+        {
+          "zh": "我一九九八年来的北京。",
+          "py": "wǒ yī jiǔ jiǔ bā nián lái de běi jīng",
+          "en": "I came to Beijing in 1998."
+        }
+      ],
+      "note": "幺 is mainland usage for digit strings (phone, room, some bus routes). It is never used in years, dates, prices or counted quantities, where one is 一. It is normally written 一 and only pronounced yāo; these drills write 幺 to show the reading. Saying yī in a phone number is also understood."
+    },
+    {
+      "sub": "age-percent",
+      "rule": "Age is number + 岁 straight after the subject: no 是, no 个, and two years old is 两岁. Ask children 几岁 and adults 多大.",
+      "pattern": "Subject + (今年) + number + 岁",
+      "examples": [
+        {
+          "zh": "他今年二十二岁。",
+          "py": "tā jīn nián èr shí èr suì",
+          "en": "He's twenty-two this year."
+        },
+        {
+          "zh": "我的孩子两岁半了。",
+          "py": "wǒ de hái zi liǎng suì bàn le",
+          "en": "My child is two and a half now."
+        },
+        {
+          "zh": "你的孩子今年几岁了？",
+          "py": "nǐ de hái zi jīn nián jǐ suì le",
+          "en": "How old is your child this year?"
+        },
+        {
+          "zh": "他弟弟还不到十八岁。",
+          "py": "tā dì di hái bù dào shí bā suì",
+          "en": "His younger brother isn't eighteen yet."
+        }
+      ],
+      "note": "是 is not impossible (it appears for contrast or correction, and 不是 is the negative), but the plain statement has none. When the age is ten or more, 岁 can be dropped in casual speech (他二十二)."
+    },
+    {
+      "sub": "age-percent",
+      "rule": "Percent is 百分之 + number, the reverse of English. Fractions name the bottom number first: denominator + 分之 + numerator.",
+      "pattern": "百分之 + number   /   denominator + 分之 + numerator",
+      "examples": [
+        {
+          "zh": "百分之八十的学生都来了。",
+          "py": "bǎi fēn zhī bā shí de xué sheng dōu lái le",
+          "en": "Eighty percent of the students came."
+        },
+        {
+          "zh": "我的手机还有百分之二十的电。",
+          "py": "wǒ de shǒu jī hái yǒu bǎi fēn zhī èr shí de diàn",
+          "en": "My phone still has twenty percent battery."
+        },
+        {
+          "zh": "我们班三分之二的学生是女生。",
+          "py": "wǒ men bān sān fēn zhī èr de xué sheng shì nǚ shēng",
+          "en": "Two thirds of the students in our class are girls."
+        },
+        {
+          "zh": "这个月我花了工资的三分之一。",
+          "py": "zhè ge yuè wǒ huā le gōng zī de sān fēn zhī yī",
+          "en": "This month I spent a third of my salary."
+        }
+      ],
+      "note": "Read 三分之二 as 'of three parts, two'. One half is normally 一半, not 二分之一, outside maths."
+    }
+  ],
+  "contrasts": [
+    {
+      "wrong": "我们开会三点下午明天。",
+      "right": {
+        "zh": "我们明天下午三点开会。",
+        "py": "wǒ men míng tiān xià wǔ sān diǎn kāi huì",
+        "en": "We have a meeting at three tomorrow afternoon."
+      },
+      "why": "Time goes before the verb and runs from large to small: day, part of day, hour. English order (three, afternoon, tomorrow) is exactly backwards."
+    },
+    {
+      "wrong": "现在二点半。",
+      "right": {
+        "zh": "现在两点半。",
+        "py": "xiàn zài liǎng diǎn bàn",
+        "en": "It's half past two now."
+      },
+      "why": "The hour two counts hours on the clock, so it is 两 before 点. 二 stays only inside 十二点 and in the minutes (二十分)."
+    },
+    {
+      "wrong": "现在五分差八点。",
+      "right": {
+        "zh": "现在差五分八点。",
+        "py": "xiàn zài chà wǔ fēn bā diǎn",
+        "en": "It's five to eight now."
+      },
+      "why": "差 comes first: 'lacking five minutes, eight o'clock'. The minutes cannot stand in front of 差."
+    },
+    {
+      "wrong": "他每个月的工资是十千块。",
+      "right": {
+        "zh": "他每个月的工资是一万块。",
+        "py": "tā měi gè yuè de gōng zī shì yī wàn kuài",
+        "en": "His salary is ten thousand yuan a month."
+      },
+      "why": "Chinese has its own unit for ten thousand, 万. 千 never takes a number above nine in front of it."
+    },
+    {
+      "wrong": "我学了三多个月汉语。",
+      "right": {
+        "zh": "我学了三个多月汉语。",
+        "py": "wǒ xué le sān gè duō yuè hàn yǔ",
+        "en": "I've studied Chinese for a bit over three months."
+      },
+      "why": "With a number from one to nine, the extra is a fraction of the unit, so 多 follows the measure: 三个多月."
+    },
+    {
+      "wrong": "教室里有二十个多学生。",
+      "right": {
+        "zh": "教室里有二十多个学生。",
+        "py": "jiào shì lǐ yǒu èr shí duō gè xué sheng",
+        "en": "There are twenty-odd students in the classroom."
+      },
+      "why": "After a round number, 多 adds whole extra students, so it sits on the number, before the measure. You cannot have a fraction of a student."
+    },
+    {
+      "wrong": "我们左右七点到。",
+      "right": {
+        "zh": "我们七点左右到。",
+        "py": "wǒ men qī diǎn zuǒ yòu dào",
+        "en": "We'll arrive at about seven."
+      },
+      "why": "左右 follows the number phrase. The word that goes in front is 大概."
+    },
+    {
+      "wrong": "他第二月回国。",
+      "right": {
+        "zh": "他二月回国。",
+        "py": "tā èr yuè huí guó",
+        "en": "He goes back to his country in February."
+      },
+      "why": "Month names are bare numbers. 第 is not used, and 两个月 would mean a length of two months."
+    },
+    {
+      "wrong": "我等了一个小时半。",
+      "right": {
+        "zh": "我等了一个半小时。",
+        "py": "wǒ děng le yī gè bàn xiǎo shí",
+        "en": "I waited for an hour and a half."
+      },
+      "why": "半 attaches to the measure 个, before the noun 小时. It only comes last when the unit is its own measure, as in 两天半."
+    },
+    {
+      "wrong": "八十百分的学生都来了。",
+      "right": {
+        "zh": "百分之八十的学生都来了。",
+        "py": "bǎi fēn zhī bā shí de xué sheng dōu lái le",
+        "en": "Eighty percent of the students came."
+      },
+      "why": "Percent is said 'of a hundred parts, eighty': 百分之 first, then the number, and 之 cannot be left out."
+    }
+  ],
+  "cheat": [
+    "Time goes big to small (年 月 号 星期 下午 点 分) and the whole lot sits before the verb.",
+    "Counting two of something is 两: 两点, 两块, 两岁, 两天半. Inside 十二, 二十, 第二, 二月 and digit strings it stays 二.",
+    "A gap in the middle of a number gets one 零: 一百零五. 一百五 is 150.",
+    "Think in 万: 10,000 is 一万, 100,000 is 十万, a million is 一百万.",
+    "多: round number, then 多, then measure (二十多个); one to nine, measure first (三个多月).",
+    "半 alone goes before the measure (半个小时); with a whole number it goes after the measure (一个半小时, 两天半).",
+    "左右 comes after the number; 百分之 and 分之 come before it: 七点左右, 百分之八十, 三分之一."
+  ]
+}

@@ -80,10 +80,10 @@ def test_upload_select_filters():
 
 def test_db_call_logging_switch(monkeypatch):
     from services.llm_service import db_call_logging_enabled
-    monkeypatch.delenv('LLM_CALLS_DB_LOG', raising=False)
+    monkeypatch.delenv('LLM_CALLS_DB_LOGGING', raising=False)
     assert db_call_logging_enabled()
     for off in ('0', 'false', 'OFF'):
-        monkeypatch.setenv('LLM_CALLS_DB_LOG', off)
+        monkeypatch.setenv('LLM_CALLS_DB_LOGGING', off)
         assert not db_call_logging_enabled()
 
 
@@ -91,7 +91,7 @@ def test_llm_call_log_skips_db_but_writes_csv(monkeypatch):
     import services.llm_service as svc
     import services.supabase_factory as sf
     csv_rows = []
-    monkeypatch.setenv('LLM_CALLS_DB_LOG', '0')
+    monkeypatch.setenv('LLM_CALLS_DB_LOGGING', 'false')
     monkeypatch.setattr(sf, 'get_supabase_admin', lambda: pytest.fail('DB touched'))
     monkeypatch.setattr(svc, '_log_llm_call_csv', csv_rows.append)
     svc._log_llm_call(

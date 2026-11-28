@@ -31,6 +31,11 @@
                         <span><b data-i18n="common.nav.knowledge">My vocabulary</b><small data-i18n="me.knowledge_sub">What the app knows about your words</small></span></span>
                     <span class="ld-set__chev" aria-hidden="true">›</span>
                 </a>
+                <a class="ld-set" href="{{ url_for('placement_page') }}" id="mePlacementRow">
+                    <span class="me-set__main"><span class="ld-seal" aria-hidden="true">級</span>
+                        <span><b data-i18n="placement.title">Vocabulary placement</b><small data-i18n="me.placement_sub">Find your level in about 7 minutes</small></span></span>
+                    <span class="ld-set__chev" aria-hidden="true">›</span>
+                </a>
                 <a class="ld-set" href="{{ url_for('study_plan_page') }}">
                     <span class="me-set__main"><span class="ld-seal" aria-hidden="true">☰</span>
                         <span><b data-i18n="common.nav.study_plan">Study Plan</b><small data-me-t="me.study_plan_sub">Daily minutes, modules, new words, prestudy</small></span></span>
@@ -59,6 +64,11 @@
                 <a class="ld-set lang-gate d-none" data-lang-gate="zh" href="{{ url_for('classifier_drill_page') }}">
                     <span class="me-set__main"><span class="ld-seal" lang="zh" aria-hidden="true">量</span>
                         <span><b data-i18n="common.nav.classifier_drill">Measure Words</b><small data-me-t="me.classifier_drill_sub">Practise Chinese measure words</small></span></span>
+                    <span class="ld-set__chev" aria-hidden="true">›</span>
+                </a>
+                <a class="ld-set lang-gate d-none" data-lang-gate="zh" href="{{ url_for('grammar_drill_page') }}">
+                    <span class="me-set__main"><span class="ld-seal" lang="zh" aria-hidden="true">法</span>
+                        <span><b data-i18n="common.nav.grammar_drill">Grammar Drills</b><small data-me-t="me.grammar_drill_sub">Drill Chinese grammar points until they are instant</small></span></span>
                     <span class="ld-set__chev" aria-hidden="true">›</span>
                 </a>
                 <a class="ld-set lang-gate d-none" data-lang-gate="ja" href="{{ url_for('counter_drill_page') }}">

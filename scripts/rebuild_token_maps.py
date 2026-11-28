@@ -59,6 +59,7 @@ except ImportError:  # run or imported as scripts.<name>
 bootstrap()
 
 
+from services import language_registry  # noqa: E402
 from config import Config
 from scripts.sense_linking_common import (
     PAGE,
@@ -218,7 +219,7 @@ def run(db, tests: list[dict], language_code: str, language_id: int,
 def main() -> int:
     parser = base_parser(description=__doc__,
                          formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument('--language', choices=['zh', 'en', 'ja'])
+    parser.add_argument('--language', choices=language_registry.codes())
     parser.add_argument('--test-id', help='tests.id (uuid) or tests.slug')
     parser.add_argument('--all', action='store_true',
                         help='Consider every active test, not just drifted ones')

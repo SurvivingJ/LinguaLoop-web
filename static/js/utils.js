@@ -54,17 +54,10 @@ const ELO_RANGES = {
   },
 };
 
-// Language flag mapping
+// Language flag mapping: by code, lower-case name and name. The study
+// languages are added from the registry (js/language-registry.js) below;
+// these are languages it does not carry.
 const LANGUAGE_FLAGS = {
-  en: '🇺🇸',
-  english: '🇺🇸',
-  English: '🇺🇸',
-  zh: '🇨🇳',
-  chinese: '🇨🇳',
-  Chinese: '🇨🇳',
-  ja: '🇯🇵',
-  japanese: '🇯🇵',
-  Japanese: '🇯🇵',
   ko: '🇰🇷',
   korean: '🇰🇷',
   Korean: '🇰🇷',
@@ -72,6 +65,11 @@ const LANGUAGE_FLAGS = {
   french: '🇫🇷',
   French: '🇫🇷',
 };
+window.LinguaLanguages.list().forEach(function (lang) {
+  LANGUAGE_FLAGS[lang.code] = lang.flag;
+  LANGUAGE_FLAGS[lang.name.toLowerCase()] = lang.flag;
+  LANGUAGE_FLAGS[lang.name] = lang.flag;
+});
 
 // Debug mode - set to false in production
 const DEBUG = false;

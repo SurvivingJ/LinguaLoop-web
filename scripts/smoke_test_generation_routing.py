@@ -74,13 +74,13 @@ except ImportError:  # run or imported as scripts.<name>
 
 bootstrap(log_level=None)
 
+from services import language_registry  # noqa: E402
+
 
 # Languages keyed by code -> (language_id, language_name). The ids are
 # dim_languages PKs and are relied on by prompt_templates.language_id.
 LANGS: dict[str, tuple[int, str]] = {
-    'zh': (1, 'Chinese'),
-    'en': (2, 'English'),
-    'ja': (3, 'Japanese'),
+    lang.code: (lang.id, lang.display) for lang in language_registry.all_languages()
 }
 
 # Two question types with deliberately different failure surfaces:
@@ -187,7 +187,7 @@ def run_language(code: str, types: list[str], verbose: bool) -> dict:
     # A model that ignores the language instruction is a real failure mode, and
     # a CJK passage returned in English would sail past a pure length check.
     ascii_ratio = sum(c.isascii() for c in prose) / max(len(prose), 1)
-    wrong_script = code in ('zh', 'ja') and ascii_ratio > 0.5
+    wrong_script = language_registry.is_cjk(code) and ascii_ratio > 0.5
     # 50 chars is the orchestrator's own hard gate (orchestrator.py:402). The
     # word count is reported, not asserted: `split()` is whitespace-based and
     # therefore meaningless for zh/ja, where it returns ~1 for a full passage.

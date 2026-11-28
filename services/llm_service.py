@@ -144,14 +144,14 @@ def _resolve_provider(provider: str | None) -> tuple[str, str]:
 
 
 def db_call_logging_enabled() -> bool:
-    """``LLM_CALLS_DB_LOG=0`` stops observability rows going to the database.
+    """Whether observability rows go to the database.
 
-    Covers llm_calls (call rows and judge verdict rows) and
-    generation_stage_timings. The daily CSV under logs/llm_usage is still
-    written. For offline runs whose output is stored outside the database;
-    default on.
+    Same switch as ``llm_calls_db_logging_enabled`` (``LLM_CALLS_DB_LOGGING``),
+    read by the writers outside this module too: judge verdict rows
+    (``judges.base.log_judge_verdict``) and ``generation_stage_timings``
+    (``services.timing.log_stage_seconds``). The local CSV log is unaffected.
     """
-    return (os.environ.get('LLM_CALLS_DB_LOG') or '1').strip().lower() not in ('0', 'false', 'no', 'off')
+    return llm_calls_db_logging_enabled()
 
 
 def forced_provider() -> str | None:
@@ -591,10 +591,6 @@ def _csv_log_path(when: datetime) -> str:
     return os.path.join(directory, f'llm_calls_{when:%Y-%m-%d}.csv')
 
 
-class _SkipDbLog(Exception):
-    """Internal: LLM_CALLS_DB_LOG=0 skips the database insert only."""
-
-
 def _log_llm_call_csv(row: dict) -> None:
     """Append one row to the daily LLM-usage CSV. Best-effort; never raises."""
     try:
@@ -660,6 +656,20 @@ def _insert_llm_call_row(client, row: dict) -> None:
             _warned_missing_llm_calls_columns = True
         fallback_row = {k: v for k, v in row.items() if k not in _NEW_LLM_CALLS_COLUMNS}
         client.table('llm_calls').insert(fallback_row).execute()
+
+
+# LLM_CALLS_DB_LOGGING=false skips the llm_calls insert (the CSV log and the
+# cost hooks still run). For bulk runs: each row is ~1.3 KB with raw_response,
+# and a run of ~18k calls would add ~24 MB to a database near its size cap
+# (scripts/prewrite_exercise_explanations.py sets it for its own process).
+# Read at call time, so a script can set it after import.
+_DB_LOGGING_OFF_VALUES = frozenset({'false', '0', 'no', 'off'})
+
+
+def llm_calls_db_logging_enabled() -> bool:
+    """False when ``LLM_CALLS_DB_LOGGING`` is false/0/no/off (default: on)."""
+    value = os.environ.get('LLM_CALLS_DB_LOGGING', 'true')
+    return value.strip().lower() not in _DB_LOGGING_OFF_VALUES
 
 
 # ---------------------------------------------------------------------------
@@ -760,7 +770,8 @@ def _log_llm_call(
 ) -> None:
     """Record one LLM round-trip: a row in llm_calls (DB) and a row in the
     daily CSV log. Both sinks are best-effort — neither can raise back into
-    the calling pipeline.
+    the calling pipeline. ``LLM_CALLS_DB_LOGGING=false`` skips the DB row
+    (``llm_calls_db_logging_enabled``).
 
     ``sense_id``/``generation_batch_id`` fall back to the ``generation_context``
     contextvars when not passed explicitly; ``call_role`` defaults to
@@ -792,49 +803,46 @@ def _log_llm_call(
         'latency_ms': latency_ms,
     })
 
-    try:
-        if not db_call_logging_enabled():
-            raise _SkipDbLog
-        from services.supabase_factory import get_supabase_admin, get_supabase
-        admin_client = get_supabase_admin()
-        if admin_client:
-            client = admin_client
-        else:
-            logger.warning("Supabase service role key not available; observability fallback to anon client (RLS-restricted)")
-            client = get_supabase()
-        if client is None:
-            raise RuntimeError("no supabase client available")
-        row = {
-            'pipeline': pipeline,
-            'task_name': task_name,
-            'template_version': template_version,
-            'model': model,
-            'temperature': temperature,
-            'seed': seed,
-            'prompt_hash': prompt_hash.hex() if prompt_hash else None,
-            'raw_response': raw_response,
-            'parsed_ok': parsed_ok,
-            'schema_ok': schema_ok,
-            'judge_verdict': judge_verdict,
-            'judge_confidence': judge_confidence,
-            'latency_ms': latency_ms,
-            'artifact_id': artifact_id,
-            'cost_usd': cost_usd,
-            'language_code': language_code,
-            'prompt_tokens': input_tokens,
-            'completion_tokens': output_tokens,
-            'cached_tokens': cached_tokens,
-            'reasoning_tokens': reasoning_tokens,
-            'sense_id': effective_sense_id,
-            'call_role': effective_call_role,
-            'generation_batch_id': effective_batch_id,
-        }
-        _insert_llm_call_row(client, row)
-    except _SkipDbLog:
-        pass
-    except Exception as exc:
-        # Observability must never break the calling pipeline.
-        logger.warning("llm_calls logging failed: %s", exc)
+    if llm_calls_db_logging_enabled():
+        try:
+            from services.supabase_factory import get_supabase_admin, get_supabase
+            admin_client = get_supabase_admin()
+            if admin_client:
+                client = admin_client
+            else:
+                logger.warning("Supabase service role key not available; observability fallback to anon client (RLS-restricted)")
+                client = get_supabase()
+            if client is None:
+                raise RuntimeError("no supabase client available")
+            row = {
+                'pipeline': pipeline,
+                'task_name': task_name,
+                'template_version': template_version,
+                'model': model,
+                'temperature': temperature,
+                'seed': seed,
+                'prompt_hash': prompt_hash.hex() if prompt_hash else None,
+                'raw_response': raw_response,
+                'parsed_ok': parsed_ok,
+                'schema_ok': schema_ok,
+                'judge_verdict': judge_verdict,
+                'judge_confidence': judge_confidence,
+                'latency_ms': latency_ms,
+                'artifact_id': artifact_id,
+                'cost_usd': cost_usd,
+                'language_code': language_code,
+                'prompt_tokens': input_tokens,
+                'completion_tokens': output_tokens,
+                'cached_tokens': cached_tokens,
+                'reasoning_tokens': reasoning_tokens,
+                'sense_id': effective_sense_id,
+                'call_role': effective_call_role,
+                'generation_batch_id': effective_batch_id,
+            }
+            _insert_llm_call_row(client, row)
+        except Exception as exc:
+            # Observability must never break the calling pipeline.
+            logger.warning("llm_calls logging failed: %s", exc)
 
     _log_llm_call_csv({
         'pipeline': pipeline,

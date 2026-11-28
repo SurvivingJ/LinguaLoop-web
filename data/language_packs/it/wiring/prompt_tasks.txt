@@ -1,0 +1,93 @@
+# prompt_templates.task_name values that need a row with language_id = 4 (Italian).
+# One name per line; lines starting with # are comments. 38 names, two of them new.
+# Source: the seed migrations in migrations/ and the call sites that read them
+# (services/prompt_service.py). The live prompt_templates table was not queried.
+# Nothing here has been inserted: writing the Italian prompt text is tasks 9, 10, 26, 30
+# and 31 in wiring/tasks.md.
+#
+# How a missing row fails:
+#   LOUD  get_template_config / get_template_text raise: the feature stops for Italian
+#   SOFT  the caller logs a warning and skips the step (required=False)
+#   EN    load_template_text serves the English text; output is steered by an English prompt
+
+# --- Vocabulary ladder: generation (LOUD). Without these no exercise asset can be
+# --- generated for an Italian sense; the fat-seed runner also reads them as its brief.
+vocab_prompt1_core
+vocab_prompt2_exercises
+vocab_prompt3_transforms
+ladder_l4_morphology_generation
+ladder_syn_ant_generation
+ladder_word_family_generation
+
+# --- Vocabulary ladder: judges (LOUD). Without these the judge of each type cannot
+# --- load its model and prompt, so items of that type are not accepted.
+ladder_p1_sentence_judge
+ladder_l1_distractor_judge
+cloze_distractor_judge
+ladder_sentence_validity_judge
+ladder_relation_judge
+ladder_word_family_judge
+translation_uniqueness_judge
+
+# --- Vocabulary ladder: collocation levels 5 and 8 (LOUD once enabled). The capability
+# --- rows are inserted disabled; these rows are needed before task 19 enables them.
+ladder_l8_collocation_repair_generation
+ladder_collocation_judge
+
+# --- Vocabulary ladder: NEW names, proposed here, for the one new authored type
+# --- preposition_selection (task 26). They do not exist for any language yet; the
+# --- names follow ladder_particle_selection_generation / ladder_particle_judge.
+ladder_preposition_selection_generation
+ladder_preposition_judge
+
+# --- Sense dictionary and vocabulary extraction. Without vocab_phrase_detection the
+# --- extraction pipeline raises on an Italian test (LOUD); without the two sense
+# --- prompts new words found in tests get no definition (SOFT); without the
+# --- classification prompt scripts/backfill_semantic_class.py cannot label Italian
+# --- senses, and an unlabelled sense gets the fallback ladder.
+vocab_phrase_detection
+vocab_definition_generation
+vocab_sense_selection
+semantic_class_classification
+
+# --- Test generation. prose_generation and question_literal_detail are read with
+# --- get_template_config for the model (LOUD); the other texts fall back to
+# --- English (EN), which produces English-steered Italian tests.
+prose_generation
+title_generation
+question_literal_detail
+question_vocabulary_context
+question_main_idea
+question_supporting_detail
+question_inference
+question_author_purpose
+
+# --- Test quality judges (LOUD). Without these generated Italian tests cannot be
+# --- checked for answer entailment or distractor plausibility and are not published.
+test_answer_entailment
+test_distractor_plausibility
+
+# --- Dual translation grading (LOUD), read per L2 language by the router.
+dual_translation_tier1
+dual_translation_tier2
+dual_translation_tier3
+
+# --- Transcript mining and legacy exercise generation (LOUD, get_template_text has
+# --- no fallback). Needed only if services/exercise_generation/transcript_miner.py
+# --- is run for Italian; the ladder does not use them.
+exercise_sentence_generation
+vocab_sentence_generation
+collocation_sentence_generation
+cloze_distractor_generation
+
+# --- NOT needed for Italian (listed so that nobody adds them):
+#   ladder_particle_selection_generation, ladder_particle_judge   Japanese particles
+#   ja_kana_homophone_pick, ja_kana_fragment_check                Japanese kana
+#   tl_nl_translation_generation, nl_tl_translation_generation    seeded for zh/ja by the
+#       archived exercise-generation schema; no ladder generator reads them today. If
+#       task 20 builds the translation generator it must name its own prompt rows.
+#   explorer_ideation_t1..t6, gatekeeper_check                    read without a language
+#   scenario_batch_generation, conversation_*                     seeded per language, but no
+#       Python code reads them any more (conversation module archived)
+#   vocab_gloss_translation                                       retired (glosses are written in session)
+#   vocab_validation, vocab_prompt1_core_repair                   no per-language row is read

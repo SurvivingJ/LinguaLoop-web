@@ -37,6 +37,8 @@ from typing import Optional
 
 from wordfreq import tokenize as wf_tokenize, zipf_frequency
 
+from services import language_registry
+
 logger = logging.getLogger(__name__)
 
 
@@ -49,14 +51,12 @@ logger = logging.getLogger(__name__)
 # entries are direct passthroughs. Full names kept for callers that pass
 # language *names* (e.g. via Config.get_model_for_language).
 _LANG_MAP: dict[str, str] = {
-    'en': 'en',
-    'zh': 'zh',
-    'ja': 'ja',
-    'it': 'it',
-    'english': 'en',
-    'chinese': 'zh',
-    'japanese': 'ja',
-    'italian': 'it',
+    # Planned languages too: scoring text is pure, and offline bundles for a
+    # language not yet active (e.g. Italian, data/offline_tests/it-*) seed
+    # their ELO from it.
+    **language_registry.wordfreq_codes(include_planned=True),
+    **{lang.name: lang.wordfreq
+       for lang in language_registry.all_languages(include_planned=True) if lang.wordfreq},
 }
 
 # Tokens with Zipf below this are treated as "unknown to wordfreq" in

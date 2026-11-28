@@ -134,10 +134,20 @@ def _item(eid, sid, exercise_type='definition_match', mode='maintenance', **extr
             'mode': mode, 'content_version': 0, **extra}
 
 
+@pytest.fixture(autouse=True)
+def _no_definition_language(monkeypatch):
+    """These tests use ``definition_match`` as a stand-in type with placeholder
+    content; with no known definition language nothing is localised
+    (definition_serving has its own tests)."""
+    monkeypatch.setattr('services.vocabulary.gloss_lookup.get_user_definition_language_id',
+                        lambda db, user_id: None)
+
+
 @pytest.fixture
 def quiet_session(monkeypatch):
     """get_session's side reads switched off: no follow-ups, no intro words, no DT cards."""
     monkeypatch.setattr(session_assembly, 'plan_today_iso', lambda db, u, lang: '2026-11-17')
+    monkeypatch.setattr(session_assembly, 'local_today_iso', lambda tz, now=None: '2026-11-17')
     monkeypatch.setattr(prestudy, 'due_followup_senses', lambda *a, **k: [])
     monkeypatch.setattr(prestudy, 'mark_followups', lambda *a, **k: None)
     monkeypatch.setattr(intro_drill, 'ENABLED', False)
@@ -393,6 +403,7 @@ def test_followups_are_hydrated_with_the_session_items(quiet_session, monkeypatc
 def test_extra_round_asks_without_content_and_hydrates_once(monkeypatch):
     monkeypatch.setattr(intro_drill, 'ENABLED', False)
     monkeypatch.setattr(session_assembly, 'plan_today_iso', lambda db, u, lang: '2026-11-17')
+    monkeypatch.setattr(session_assembly, 'local_today_iso', lambda tz, now=None: '2026-11-17')
     monkeypatch.setattr(prestudy, 'due_followup_senses', lambda *a, **k: [5])
     monkeypatch.setattr(prestudy, 'mark_followups', lambda *a, **k: None)
     order = []
@@ -511,14 +522,15 @@ def test_a_session_request_makes_at_most_two_hydrate_calls(monkeypatch):
     for r in rows:
         r['content_version'] = 0
     monkeypatch.setattr(session_assembly, 'plan_today_iso', lambda db, u, lang: '2026-11-17')
+    monkeypatch.setattr(session_assembly, 'local_today_iso', lambda tz, now=None: '2026-11-17')
     monkeypatch.setattr(prestudy, 'due_followup_senses', lambda *a, **k: [])
     monkeypatch.setattr(intro_drill, 'ENABLED', True)
     monkeypatch.setattr(intro_drill, 'intro_sense_ids', lambda db, u: {41})
     monkeypatch.setattr(intro_drill, 'route_untaught',
                         lambda *a, **k: {'admitted': [], 'deferred': []})
     monkeypatch.setattr(intro_drill, 'block_for_session',
-                        lambda svc, u, lang, mode: intro_drill.build_block(
-                            svc.db, u, lang, _ladder_rows(41)))
+                        lambda svc, u, lang, mode, gloss_lang=None: intro_drill.build_block(
+                            svc.db, u, lang, _ladder_rows(41), gloss_lang=gloss_lang))
     monkeypatch.setattr('services.dual_translation.cards.select_error_exercises_for_practice',
                         lambda *a, **k: [])
     fake = FakeHydrate({'x1': {'q': 'one'}, 'x2': {'q': 'two'}, 'e1': {'q': 'e'}})

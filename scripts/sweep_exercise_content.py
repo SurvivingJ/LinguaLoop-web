@@ -63,7 +63,7 @@ from services.exercise_content import store
 logger = logging.getLogger('scripts.sweep_exercise_content')
 
 LANGUAGE_IDS = {code: language_id for language_id, code in store.LANGUAGE_CODES.items()}
-LANGUAGE_ORDER = ('en', 'ja', 'zh')
+LANGUAGE_ORDER = tuple(sorted(LANGUAGE_IDS))
 LIVE_VERSIONS_RPC = 'exercise_content_live_versions'
 #: Rows per keyset page when the live-versions RPC times out.
 LIVE_VERSIONS_PAGE = 1000
@@ -290,7 +290,7 @@ def build_parser() -> argparse.ArgumentParser:
         description='Delete exercise content files no exercises row points at, after a grace '
                     'period (ADR-049, TASK-1024). Dry run unless --apply.',
         epilog='Exit codes: 0 done; 1 errors (see the report); 2 refused.')
-    parser.add_argument('--language', required=True, choices=('zh', 'ja', 'en', 'all'))
+    parser.add_argument('--language', required=True, choices=(*LANGUAGE_IDS, 'all'))
     parser.add_argument('--apply', action='store_true',
                         help='delete the files (default: dry run, nothing is deleted)')
     parser.add_argument('--grace-hours', type=_hours, default=DEFAULT_GRACE_HOURS, metavar='H',

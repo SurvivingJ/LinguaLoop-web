@@ -15,7 +15,7 @@ otherwise produce the same passage as a live test written from that topic.
 Meant to run with every LLM call on headless Claude and nothing written to the
 database:
 
-    LLM_FORCE_PROVIDER=claude_cli LLM_CALLS_DB_LOG=0 \\
+    LLM_FORCE_PROVIDER=claude_cli LLM_CALLS_DB_LOGGING=false \\
       python -m scripts.export_offline_tests --language ja --count 500 \\
         --tiers 1,2,3,4 --shards 4 --shard 0 --out data/offline_tests/ja-2026-11-27
 
@@ -63,7 +63,6 @@ ANGLES = (
     'a description of a place or an event connected to it',
 )
 
-LANG_IDS = {'zh': 1, 'en': 2, 'ja': 3}
 
 
 def angle_instruction(angle: str, note: str = '') -> str:
@@ -369,7 +368,9 @@ def assemble(args) -> int:
 
 def main(argv=None) -> int:
     p = argparse.ArgumentParser(description=__doc__.split('\n\n')[0])
-    p.add_argument('--language', required=True, choices=sorted(LANG_IDS))
+    from services import language_registry
+    p.add_argument('--language', required=True, choices=language_registry.codes(),
+                   help='an active language (the base for --content-language)')
     p.add_argument('--out', required=True, help='bundle directory')
     p.add_argument('--count', type=int, default=500)
     p.add_argument('--tiers', default='1,2,3,4')

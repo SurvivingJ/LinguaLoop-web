@@ -74,6 +74,8 @@ document.addEventListener('DOMContentLoaded', function () {
         id: parseInt(this.dataset.id),
       };
 
+      renderGate();
+
       // Enable continue button and the secondary browse-tests link
       continueBtn.disabled = false;
       if (browseTestsLink) {
@@ -83,6 +85,89 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
   });
+
+  // ---- Onboarding gate (vocab-placement tech §8, TASK-1085) ----
+  // Only for a learner who arrives from the welcome page (onboarding.js sets
+  // the per-tab mark). "Have you studied {language} before?": "Yes" makes the
+  // placement the main action and Start Daily Session the way to skip it; the
+  // other two answers leave the page as it is. Nothing is stored or sent.
+  const gate = document.getElementById('langGate');
+  const gateTitle = document.getElementById('langGateTitle');
+  const gateHint = document.getElementById('langGateHint');
+  const placementBtn = document.getElementById('placement-btn');
+  const gateOptions = gate ? gate.querySelectorAll('[data-studied]') : [];
+  const LANG_CODES = window.LinguaLanguages.idToCode();
+  let studied = null;
+  let onboarding = false;
+  try {
+    onboarding = sessionStorage.getItem('ld_onboarding') === '1';
+  } catch {
+    onboarding = false;
+  }
+
+  function gateText(key, params, fallback) {
+    const i18n = window.LinguaI18n;
+    const text = i18n && typeof i18n.t === 'function' ? i18n.t(key, params) : key;
+    return text && text !== key ? text : fallback;
+  }
+
+  function renderGate() {
+    if (!gate || !placementBtn || !onboarding || !selectedLanguage) return;
+    const code = LANG_CODES[selectedLanguage.id];
+    if (!code) return;
+    const language = gateText('lang_select.name_' + code, null, code);
+    gateTitle.textContent = gateText(
+      'onboarding.studied_before',
+      { language: language },
+      'Have you studied ' + language + ' before?'
+    );
+    gate.hidden = false;
+    gateOptions.forEach(function (btn) {
+      btn.setAttribute('aria-checked', String(btn.dataset.studied === studied));
+    });
+    const offer = studied === 'yes';
+    // A language with a reading part takes longer (as placement.js).
+    const readings = window.LinguaLanguages.hasFeature(code, 'pronunciation_calibration');
+    const time = gateText(
+      readings ? 'placement.intro_time_cjk' : 'placement.intro_time_en',
+      null,
+      readings ? 'About 7 minutes' : 'About 5 minutes'
+    );
+    gateHint.textContent = gateText(
+      'onboarding.placement_hint',
+      { time: time },
+      time + '. A short test finds your level, so you start with the right words. You can skip it.'
+    );
+    gateHint.hidden = !offer;
+    placementBtn.hidden = !offer;
+    placementBtn.href =
+      placementBtn.dataset.placementUrl + '?lang=' + encodeURIComponent(selectedLanguage.id);
+    continueBtn.classList.toggle('ld-btn--ghost', offer);
+    if (browseTestsLink) browseTestsLink.hidden = offer;
+  }
+
+  gateOptions.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      studied = btn.dataset.studied;
+      renderGate();
+    });
+  });
+  document.addEventListener('languageChanged', renderGate);
+
+  function endOnboarding() {
+    try {
+      sessionStorage.removeItem('ld_onboarding');
+    } catch {
+      /* non-fatal */
+    }
+  }
+
+  if (placementBtn) {
+    placementBtn.addEventListener('click', function () {
+      persistSelectedLanguage();
+      endOnboarding();
+    });
+  }
 
   // Persist the chosen language (1=Chinese, 2=English, 3=Japanese) before
   // navigating, so both the daily session and the tests page see it.
@@ -96,6 +181,7 @@ document.addEventListener('DOMContentLoaded', function () {
   continueBtn.addEventListener('click', function () {
     if (selectedLanguage) {
       persistSelectedLanguage();
+      endOnboarding();
       window.location.href = continueBtn.dataset.sessionUrl;
     }
   });
@@ -110,6 +196,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return;
       }
       persistSelectedLanguage();
+      endOnboarding();
     });
   }
 

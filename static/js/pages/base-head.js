@@ -61,8 +61,12 @@
   // Sans covers UI text in a zh/ja interface; Serif is the redesign's face
   // for target-language text (var(--f-cjk), .ld-tl), so only the study
   // language needs it.
-  const FAMILY = { zh: 'Noto+Sans+SC:wght@400;500;700', ja: 'Noto+Sans+JP:wght@400;500;700' };
-  const SERIF = { zh: 'Noto+Serif+SC:wght@500;700', ja: 'Noto+Serif+JP:wght@500;700' };
+  // The family specs are the language registry's fontSans / fontSerif
+  // (js/language-registry.js, loaded just before this file).
+  function fontOf(code, field) {
+    const lang = code ? window.LinguaLanguages.find(code) : null;
+    return lang && lang.code === code ? lang[field] : null;
+  }
   const LANGS = (boot.metadata && boot.metadata.languages) || [];
   const requested = {};
   function codeForStudyLanguage(id) {
@@ -84,12 +88,12 @@
     document.head.appendChild(link);
   }
   function ensureFont(code) {
-    if (!code || !FAMILY[code]) return;
-    addFontSheet(code, FAMILY[code]);
+    const family = fontOf(code, 'fontSans');
+    if (family) addFontSheet(code, family);
   }
   function ensureSerif(code) {
-    if (!code || !SERIF[code]) return;
-    addFontSheet('serif-' + code, SERIF[code]);
+    const family = fontOf(code, 'fontSerif');
+    if (family) addFontSheet('serif-' + code, family);
   }
   window.LinguaFonts = {
     ensure: ensureFont,

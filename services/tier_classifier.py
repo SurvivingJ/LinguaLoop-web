@@ -31,12 +31,12 @@ from typing import Mapping, Optional
 from services.categorical_maps import (
     DIFFICULTY_TO_TIER, TIER_CONSTRAINTS, TIER_DISPLAY_NAMES, VALID_TIERS,
 )
-from services import jev_client
+from services import jev_client, language_registry
 from services.jev_client import JevError
 
 logger = logging.getLogger(__name__)
 
-LANG_IDS = {'zh': 1, 'en': 2, 'ja': 3}
+LANG_IDS = language_registry.code_to_id()
 N_TIERS = len(VALID_TIERS)
 
 #: Longest passage sent to jev (its context is 32k tokens shared with the

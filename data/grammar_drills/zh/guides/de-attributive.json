@@ -1,0 +1,369 @@
+{
+  "topic": "de-attributive",
+  "summary": "的 links whatever describes a noun to that noun, and the describing part always comes first: owner, adjective phrase or a whole clause + 的 + noun. The idea that makes it click: 的 marks a loose, built-on-the-spot description. Tight, ready-made pairs (我妈妈, 好朋友, 三本书) do without it, and when the noun is obvious you can drop the noun and let 的 stand in for it (我的, 红的, 吃的).",
+  "subs": [
+    {
+      "key": "possession",
+      "label": "Owner + 的 + thing",
+      "focus": "Decide that an owner (pronoun, name, noun) needs 的 before an ordinary thing, owner first: 我的手机, 老师的办公室. Mistakes: ✗这是我书; English 'of' order (✗办公室的老师 for 'the teacher's office'). Use full neutral sentences; avoid casual topic-style 我手机没电了, where 的 does drop."
+    },
+    {
+      "key": "kin-drop",
+      "label": "我妈妈, 我们学校: 的 usually dropped",
+      "focus": "Recognise that pronoun + kin/close relation (我妈妈, 我朋友) or own group (我家, 我们学校, 我们公司) normally has no 的, and chains keep only the last 的 (我妈妈的朋友). Mistake: over-extending to things (✗我书). 我的妈妈 is grammatical: never mark it wrong or force ∅ vs 的 there; use judge-correct items and chains."
+    },
+    {
+      "key": "adj-de",
+      "label": "好朋友 vs 很好的朋友",
+      "focus": "Decide if an adjective needs 的: bare one-syllable usually none (好朋友, 新书); degree word + adjective (很/非常/最) or two syllables need it (很好的朋友, 漂亮的衣服). Mistake: ✗很好朋友. 新的书 is possible in contrast, so test 'no 的' only in set pairs or after another 的 (我的好朋友). Never use 很多 + noun as an error."
+    },
+    {
+      "key": "rel-clause",
+      "label": "Clause + 的 + noun (我昨天买的书)",
+      "focus": "Build 'the N that...' as clause + 的 + noun, no word for 'that/who'. Mistakes: clause after the noun (✗书我昨天买很贵), missing 的 (✗我昨天买书很贵), 了 inside (use 我昨天买的书). Cover subject gaps (喜欢喝茶的人), object gaps (妈妈做的菜), place/time nouns (我们吃饭的地方). Suits order and rewrite items."
+    },
+    {
+      "key": "nominal",
+      "label": "的 with no noun: 我的, 红的, 吃的",
+      "focus": "Keep 的 when the noun is dropped: 这本书是我的, 我要大的, 有吃的吗, 这是我昨天买的. Mistakes: dropping 的 with the noun (✗这本书是我, ✗我要大), a bare adjective for 'the big one' (大的一个 is colloquial: never judge-wrong). Test with A 还是 B choices, 谁的 answers, and 吃的 / 喝的 / 穿的 as 'things to eat / drink / wear'."
+    },
+    {
+      "key": "num-order",
+      "label": "Where number + measure goes",
+      "focus": "Place number/这/那 + measure: owner first (我的两个朋友; ✗两个我的朋友); new item, 一 + measure before the description (一个很好的朋友); 这/那 + measure usually after a clause (我昨天买的那本书). 那本我昨天买的书 and spoken 很好的一个朋友 also occur: put them in alts or glue the tiles, never mark them wrong."
+    },
+    {
+      "key": "measure-no-de",
+      "label": "No 的 after a measure word",
+      "focus": "Leave 的 out after number/这/那/几/哪 + measure word: 三本书, 这个人, 一些问题. Mistakes: ✗三本的书, ✗这个的人, ✗一些的问题. Use individual measures (个, 本, 件, 张, 只, 杯, 些). Avoid amounts that describe the noun's kind or size, where 的 is normal: 两个小时的电影, 十块钱的东西."
+    }
+  ],
+  "rules": [
+    {
+      "sub": "possession",
+      "rule": "The owner comes first, then 的, then the thing owned. This works the same for pronouns, names and nouns, and it replaces both 'my / your' and 'X's' and 'of X'.",
+      "pattern": "Owner + 的 + Noun",
+      "examples": [
+        {
+          "zh": "这是我的手机。",
+          "py": "zhè shì wǒ de shǒu jī",
+          "en": "This is my phone."
+        },
+        {
+          "zh": "李老师的办公室在三楼。",
+          "py": "lǐ lǎo shī de bàn gōng shì zài sān lóu",
+          "en": "Teacher Li's office is on the third floor."
+        },
+        {
+          "zh": "你看见小王的自行车了吗？",
+          "py": "nǐ kàn jiàn xiǎo wáng de zì xíng chē le ma",
+          "en": "Have you seen Xiao Wang's bike?"
+        }
+      ],
+      "note": "In casual speech people sometimes drop 的 before a thing at the start of a sentence (我手机没电了). Learn the full form first; it is always correct."
+    },
+    {
+      "sub": "kin-drop",
+      "rule": "With a personal pronoun before a family member, a close relation or a group you belong to, 的 is normally left out. For home, school, company, class and country, use the plural pronoun (我们, 你们, 他们) or 我家.",
+      "pattern": "Pronoun + Family member / Institution",
+      "examples": [
+        {
+          "zh": "我妈妈是医生。",
+          "py": "wǒ mā ma shì yī shēng",
+          "en": "My mother is a doctor."
+        },
+        {
+          "zh": "我们学校有两个图书馆。",
+          "py": "wǒ men xué xiào yǒu liǎng gè tú shū guǎn",
+          "en": "Our school has two libraries."
+        },
+        {
+          "zh": "你家离公司远吗？",
+          "py": "nǐ jiā lí gōng sī yuǎn ma",
+          "en": "Is your home far from the office?"
+        }
+      ],
+      "note": "我的妈妈 and 我们的学校 are not wrong; they sound heavier or more emphatic. The version without 的 is the everyday default. 我学校 and 我公司 are also said in casual speech."
+    },
+    {
+      "sub": "kin-drop",
+      "rule": "In a chain of owners, drop 的 after the pronoun and keep it on the last link, before the thing or person you are really talking about.",
+      "pattern": "Pronoun + Relation + 的 + Noun",
+      "examples": [
+        {
+          "zh": "我哥哥的车是新的。",
+          "py": "wǒ gē ge de chē shì xīn de",
+          "en": "My older brother's car is new."
+        },
+        {
+          "zh": "她是我妈妈的朋友。",
+          "py": "tā shì wǒ mā ma de péng you",
+          "en": "She is a friend of my mother's."
+        },
+        {
+          "zh": "我们公司的老板很年轻。",
+          "py": "wǒ men gōng sī de lǎo bǎn hěn nián qīng",
+          "en": "The boss of our company is very young."
+        }
+      ]
+    },
+    {
+      "sub": "adj-de",
+      "rule": "A bare one-syllable adjective usually goes straight onto the noun with no 的, forming a tight pair.",
+      "pattern": "Adjective (one syllable) + Noun",
+      "examples": [
+        {
+          "zh": "他是我的好朋友。",
+          "py": "tā shì wǒ de hǎo péng you",
+          "en": "He is my good friend."
+        },
+        {
+          "zh": "我想买一本新书。",
+          "py": "wǒ xiǎng mǎi yī běn xīn shū",
+          "en": "I want to buy a new book."
+        },
+        {
+          "zh": "请给我一杯热水。",
+          "py": "qǐng gěi wǒ yī bēi rè shuǐ",
+          "en": "Please give me a glass of hot water."
+        }
+      ],
+      "note": "Adding 的 here (新的书) is possible when you are contrasting, 'the new one, not the old one', but it is not the neutral choice."
+    },
+    {
+      "sub": "adj-de",
+      "rule": "Once the adjective has a degree word in front of it (很, 非常, 特别, 最, 不太), 的 is required. Adjectives of two syllables normally take 的 too.",
+      "pattern": "很 / 非常 / 最 + Adjective + 的 + Noun",
+      "examples": [
+        {
+          "zh": "她是一个很好的老师。",
+          "py": "tā shì yī gè hěn hǎo de lǎo shī",
+          "en": "She is a very good teacher."
+        },
+        {
+          "zh": "这是我们这儿最便宜的手机。",
+          "py": "zhè shì wǒ men zhè r zuì pián yi de shǒu jī",
+          "en": "This is the cheapest phone we have here."
+        },
+        {
+          "zh": "我想找一个安静的地方看书。",
+          "py": "wǒ xiǎng zhǎo yī gè ān jìng de dì fang kàn shū",
+          "en": "I want to find a quiet place to read."
+        }
+      ],
+      "note": "很多 and 不少 are exceptions: 很多人, 很多问题 need no 的. A two-syllable adjective without 的 (一个安静地方) is also heard, so it is not a safe 'wrong' sentence."
+    },
+    {
+      "sub": "rel-clause",
+      "rule": "To say 'the N that ...', put the whole describing clause in front of the noun and close it with 的. There is no word for 'that', 'who' or 'which', and the clause never follows the noun.",
+      "pattern": "Clause + 的 + Noun",
+      "examples": [
+        {
+          "zh": "我昨天买的书很有意思。",
+          "py": "wǒ zuó tiān mǎi de shū hěn yǒu yì si",
+          "en": "The book I bought yesterday is very interesting."
+        },
+        {
+          "zh": "喜欢喝咖啡的人越来越多。",
+          "py": "xǐ huan hē kā fēi de rén yuè lái yuè duō",
+          "en": "More and more people like drinking coffee."
+        },
+        {
+          "zh": "妈妈做的菜最好吃。",
+          "py": "mā ma zuò de cài zuì hǎo chī",
+          "en": "The food Mum cooks tastes the best."
+        },
+        {
+          "zh": "这是我们第一次见面的地方。",
+          "py": "zhè shì wǒ men dì yī cì jiàn miàn de dì fang",
+          "en": "This is the place where we first met."
+        }
+      ],
+      "note": "Even for a finished action, leave 了 out of the clause: 我昨天买的书, not 我昨天买了的书."
+    },
+    {
+      "sub": "nominal",
+      "rule": "When the noun is obvious, drop the noun but keep 的. Owner / adjective / verb + 的 then means 'mine', 'the red one', 'something to eat'.",
+      "pattern": "Owner / Adjective / Verb + 的",
+      "examples": [
+        {
+          "zh": "这本书是我的，那本是他的。",
+          "py": "zhè běn shū shì wǒ de nà běn shì tā de",
+          "en": "This book is mine; that one is his."
+        },
+        {
+          "zh": "红的太贵了，我要白的。",
+          "py": "hóng de tài guì le wǒ yào bái de",
+          "en": "The red one is too expensive; I'll take the white one."
+        },
+        {
+          "zh": "家里有吃的吗？",
+          "py": "jiā lǐ yǒu chī de ma",
+          "en": "Is there anything to eat at home?"
+        },
+        {
+          "zh": "这不是我昨天买的。",
+          "py": "zhè bù shì wǒ zuó tiān mǎi de",
+          "en": "This isn't the one I bought yesterday."
+        }
+      ],
+      "note": "You need no word for 'one': 'the big one' is just 大的. 大的那个 and colloquial 大的一个 also exist."
+    },
+    {
+      "sub": "num-order",
+      "rule": "An owner goes before the number and measure word. English 'two of my friends' becomes 'my two friends'.",
+      "pattern": "Owner + 的 + Number + Measure + Noun",
+      "examples": [
+        {
+          "zh": "我的两个朋友都在上海工作。",
+          "py": "wǒ de liǎng gè péng you dōu zài shàng hǎi gōng zuò",
+          "en": "Two of my friends both work in Shanghai."
+        },
+        {
+          "zh": "他的那本词典很有用。",
+          "py": "tā de nà běn cí diǎn hěn yǒu yòng",
+          "en": "That dictionary of his is very useful."
+        }
+      ],
+      "note": "Before a number or 这/那 the 的 after a pronoun is often dropped in speech: 我两个朋友, 他那本词典."
+    },
+    {
+      "sub": "num-order",
+      "rule": "When you introduce something new with 一 + measure word, the number comes first and the description + 的 sits right before the noun. With 这/那 + measure word and a clause, the clause usually comes first.",
+      "pattern": "Number + Measure + Description + 的 + Noun",
+      "examples": [
+        {
+          "zh": "我昨天看了一部很有意思的电影。",
+          "py": "wǒ zuó tiān kàn le yī bù hěn yǒu yì si de diàn yǐng",
+          "en": "I watched a very interesting film yesterday."
+        },
+        {
+          "zh": "我有一个会说中文的同事。",
+          "py": "wǒ yǒu yī gè huì shuō zhōng wén de tóng shì",
+          "en": "I have a colleague who can speak Chinese."
+        },
+        {
+          "zh": "我昨天买的那本书在桌子上。",
+          "py": "wǒ zuó tiān mǎi de nà běn shū zài zhuō zi shàng",
+          "en": "That book I bought yesterday is on the table."
+        }
+      ],
+      "note": "那本我昨天买的书 is also correct, just less common than 我昨天买的那本书."
+    },
+    {
+      "sub": "measure-no-de",
+      "rule": "Number, 这, 那, 几 or 哪 + measure word attaches directly to the noun. Never put 的 after the measure word.",
+      "pattern": "Number / 这 / 那 + Measure + Noun",
+      "examples": [
+        {
+          "zh": "我买了三本书。",
+          "py": "wǒ mǎi le sān běn shū",
+          "en": "I bought three books."
+        },
+        {
+          "zh": "这个人我不认识。",
+          "py": "zhè ge rén wǒ bù rèn shi",
+          "en": "I don't know this person."
+        },
+        {
+          "zh": "我有一些问题想问你。",
+          "py": "wǒ yǒu yī xiē wèn tí xiǎng wèn nǐ",
+          "en": "I have some questions I'd like to ask you."
+        }
+      ],
+      "note": "An amount that describes what kind of thing it is does take 的: 两个小时的电影 (a two-hour film), 十块钱的东西 (something costing ten yuan)."
+    }
+  ],
+  "contrasts": [
+    {
+      "wrong": "这是我书。",
+      "right": {
+        "zh": "这是我的书。",
+        "py": "zhè shì wǒ de shū",
+        "en": "This is my book."
+      },
+      "why": "Dropping 的 after a pronoun is for family and institutions, not for things. A thing you own needs 的."
+    },
+    {
+      "wrong": "她是一个很好老师。",
+      "right": {
+        "zh": "她是一个很好的老师。",
+        "py": "tā shì yī gè hěn hǎo de lǎo shī",
+        "en": "She is a very good teacher."
+      },
+      "why": "好老师 works without 的, but 很 + adjective is a phrase, and a phrase must be linked to the noun with 的."
+    },
+    {
+      "wrong": "我买了三本的书。",
+      "right": {
+        "zh": "我买了三本书。",
+        "py": "wǒ mǎi le sān běn shū",
+        "en": "I bought three books."
+      },
+      "why": "A measure word is already the link between the number and the noun. Nothing goes between them."
+    },
+    {
+      "wrong": "书我昨天买很贵。",
+      "right": {
+        "zh": "我昨天买的书很贵。",
+        "py": "wǒ zuó tiān mǎi de shū hěn guì",
+        "en": "The book I bought yesterday was expensive."
+      },
+      "why": "English puts 'that I bought yesterday' after the noun. Chinese puts the whole clause before the noun and closes it with 的."
+    },
+    {
+      "wrong": "我昨天买书很贵。",
+      "right": {
+        "zh": "我昨天买的书很贵。",
+        "py": "wǒ zuó tiān mǎi de shū hěn guì",
+        "en": "The book I bought yesterday was expensive."
+      },
+      "why": "Without 的 this reads as 'I bought books yesterday' followed by a stray 'very expensive'. 的 is what turns the clause into a description of 书."
+    },
+    {
+      "wrong": "这个手机不是我。",
+      "right": {
+        "zh": "这个手机不是我的。",
+        "py": "zhè ge shǒu jī bù shì wǒ de",
+        "en": "This phone isn't mine."
+      },
+      "why": "Without 的 the sentence says 'this phone is not me'. 'Mine' is 我的: the noun can go, 的 cannot."
+    },
+    {
+      "wrong": "两个我的朋友来了。",
+      "right": {
+        "zh": "我的两个朋友来了。",
+        "py": "wǒ de liǎng gè péng you lái le",
+        "en": "Two of my friends came."
+      },
+      "why": "'Two of my friends' is not built in English order. The owner goes first, then number + measure word, then the noun."
+    },
+    {
+      "wrong": "我要那个大。",
+      "right": {
+        "zh": "我要那个大的。",
+        "py": "wǒ yào nà ge dà de",
+        "en": "I want that big one."
+      },
+      "why": "When the noun is left out, 的 must stay: 大的 is 'the big one'. A bare adjective cannot stand in for the noun."
+    },
+    {
+      "wrong": "这个的人是谁？",
+      "right": {
+        "zh": "这个人是谁？",
+        "py": "zhè ge rén shì shéi",
+        "en": "Who is this person?"
+      },
+      "why": "这 + measure word points directly at the noun, just like a number + measure word. No 的 after 个."
+    }
+  ],
+  "cheat": [
+    "Whatever describes the noun goes before it; 的 closes the description. Never put a clause after the noun.",
+    "Pronoun + family or your own school / company / home: skip 的 (我妈妈, 我们学校). Pronoun + thing: keep it (我的书).",
+    "One-syllable adjective alone: no 的 (好朋友). See 很 / 非常 / 最 or a two-syllable adjective: add 的.",
+    "A verb or a whole clause before a noun? It must end in 的: 我昨天买的书.",
+    "Right after a measure word (三本, 这个, 一些): no 的.",
+    "Noun left out? Keep 的: 我的, 红的, 吃的.",
+    "Owner before the number (我的两个朋友); 一个 before the description (一个很好的朋友)."
+  ]
+}

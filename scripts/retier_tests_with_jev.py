@@ -47,12 +47,13 @@ except ImportError:  # run or imported as scripts.<name>
 bootstrap(log_format='%(asctime)s %(levelname)s %(message)s')
 
 
+from services import language_registry  # noqa: E402
 from services import tier_classifier  # noqa: E402
 from services.jev_client import JevError  # noqa: E402
 
 logger = logging.getLogger('retier_tests_with_jev')
 
-LANG_CODES = {1: 'zh', 2: 'en', 3: 'ja'}
+LANG_CODES = language_registry.id_to_code()
 results_path = os.path.join(
     REPO, 'data', 'eval', f'jev_retier_{date.today():%Y-%m-%d}', 'results.json')
 BUDGET_STOP_USD = 0.25  # the task said "stop and ask" at $1; stop well before

@@ -22,6 +22,7 @@ import time
 from datetime import datetime, timedelta, timezone
 from typing import Callable, Optional
 
+from services import language_registry
 from services import placement_design as pd
 from services.supabase_factory import get_supabase_admin
 from services.vocabulary import knowledge_estimate as ke
@@ -29,7 +30,7 @@ from services.vocabulary import knowledge_estimate as ke
 logger = logging.getLogger(__name__)
 
 MODE = 'placement'
-SUPPORTED_LANGUAGE_IDS = (1, 2, 3)
+SUPPORTED_LANGUAGE_IDS = tuple(language_registry.ids())
 RESULT_MAX_BYTES = 2048
 DAILY_STARTS_PER_LANGUAGE = 3
 FRAME_CHANGE_SHARE = 0.01
@@ -49,7 +50,7 @@ class PlacementError(Exception):
 # ---------------------------------------------------------------- languages
 
 # The placement is always on for every language it supports (owner, 2026-11-23: no feature switch).
-PLACEMENT_LANGUAGES = frozenset({pd.LANG_ZH, pd.LANG_EN, pd.LANG_JA})
+PLACEMENT_LANGUAGES = frozenset(language_registry.ids())
 
 
 def enabled_languages() -> set[int]:

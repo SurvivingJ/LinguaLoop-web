@@ -4,6 +4,8 @@ import re
 from abc import ABC, abstractmethod
 from collections import defaultdict
 
+from services import language_registry
+
 
 class LanguageProcessor(ABC):
     """
@@ -90,8 +92,7 @@ class LanguageProcessor(ABC):
     @staticmethod
     def for_language(language_id: int) -> 'LanguageProcessor':
         """Factory method. Returns the correct subclass for the given language_id."""
-        mapping = {1: ChineseProcessor, 2: EnglishProcessor, 3: JapaneseProcessor}
-        cls = mapping.get(language_id)
+        cls = PROCESSOR_CLASSES.get(language_registry.code_of(language_id))
         if cls is None:
             raise ValueError(f"No LanguageProcessor for language_id={language_id}")
         return cls()
@@ -569,6 +570,13 @@ def prepare_jumbled_content(content: dict, language_id: int) -> dict:
         'correct_ordering': list(range(len(chunks))),
     }
 
+
+# Processor per language code. Add a language's class here (see services/language_readiness.py).
+PROCESSOR_CLASSES: dict[str, type[LanguageProcessor]] = {
+    'zh': ChineseProcessor,
+    'en': EnglishProcessor,
+    'ja': JapaneseProcessor,
+}
 
 MIN_JUMBLED_CHUNKS = 3
 

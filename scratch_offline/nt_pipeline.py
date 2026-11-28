@@ -19,6 +19,8 @@ import subprocess
 import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
+import nt_lang  # same directory; reads services/language_registry.py
+
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CHEATSHEETS = os.path.join(REPO, '.claude/skills/fat-seed-authoring/cheatsheets')
 
@@ -90,7 +92,7 @@ def main():
     ap.add_argument('--workers', type=int, default=4)
     ap.add_argument('--limit', type=int, default=0)
     ap.add_argument('--from', dest='start', default='r0000')
-    ap.add_argument('--lang', default='ja', help='ja | zh | en (sets NT_LANG for the scripts)')
+    ap.add_argument('--lang', default='ja', help=f"{' | '.join(sorted(nt_lang.LANGUAGES))} (sets NT_LANG for the scripts)")
     ap.add_argument('--runs-dir', default='', help='default data/exercise_seeding/<lang>/wf2')
     ap.add_argument('--cheatsheet', default='', help='default cheatsheets/<lang>.md in the skill')
     args = ap.parse_args()

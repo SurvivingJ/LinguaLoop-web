@@ -1,0 +1,291 @@
+{
+ "lemma": "essere",
+ "pos": "verb",
+ "sense_hint": "essere: esistenza, stato o identità",
+ "core": {
+  "definition": "Verbo che indica l'esistenza, lo stato o l'identità di qualcuno o di qualcosa.",
+  "pos": "verb",
+  "register": "neutral",
+  "pronunciation": "/ˈɛs.se.re/",
+  "forms": [
+   "sono",
+   "sei",
+   "è",
+   "siamo",
+   "stato"
+  ],
+  "primary_collocate": null,
+  "sentences": [
+   {
+    "text": "Oggi sono molto stanco.",
+    "target_word": "sono"
+   },
+   {
+    "text": "Marta è di Napoli, ma abita a Torino da due anni.",
+    "target_word": "è"
+   },
+   {
+    "text": "Voi siete già pronti, perché avete preparato tutto ieri.",
+    "target_word": "siete"
+   },
+   {
+    "text": "Ieri noi eravamo a casa perché pioveva molto.",
+    "target_word": "eravamo"
+   },
+   {
+    "text": "Tu sei la mia migliore amica da molti anni.",
+    "target_word": "sei"
+   },
+   {
+    "text": "Domani io sarò a Roma per lavoro, quindi non ci vediamo.",
+    "target_word": "sarò"
+   },
+   {
+    "text": "Sono stato in Spagna tre volte, ma non ho visto Madrid.",
+    "target_word": "stato"
+   },
+   {
+    "text": "Mio padre è medico e lavora in un grande ospedale.",
+    "target_word": "è"
+   },
+   {
+    "text": "Siamo molto contenti, perché oggi è il tuo compleanno.",
+    "target_word": "Siamo"
+   },
+   {
+    "text": "I miei genitori sono in vacanza, perciò la casa è vuota.",
+    "target_word": "sono"
+   }
+  ]
+ },
+ "variants": {
+  "A": {
+   "level_1": {
+    "declined": "no_minimal_pairs"
+   },
+   "level_3": {
+    "sentence_index": 7,
+    "options": [
+     {
+      "text": "è",
+      "is_correct": true,
+      "explanation": "Correct: è is the third person singular of essere and states the identity or job of mio padre."
+     },
+     {
+      "text": "dorme",
+      "is_correct": false,
+      "explanation": "semantic: dorme means he sleeps; sleeping is not an identity or a job, so it cannot link padre to medico."
+     },
+     {
+      "text": "ride",
+      "is_correct": false,
+      "explanation": "semantic: ride means he laughs; it describes an action and cannot state what his profession is."
+     },
+     {
+      "text": "parte",
+      "is_correct": false,
+      "explanation": "valency: parte means he leaves; it cannot take a predicate noun like medico."
+     }
+    ]
+   },
+   "level_4": {
+    "sentence_index": 3,
+    "base_form": "essere",
+    "form_label": "imperfetto, noi",
+    "options": [
+     {
+      "text": "eravamo",
+      "is_correct": true,
+      "explanation": "Correct: imperfetto, noi form of essere; ieri and pioveva point to a past state."
+     },
+     {
+      "text": "siamo",
+      "is_correct": false,
+      "explanation": "This is the present, noi form; it clashes with ieri, which needs a past tense."
+     },
+     {
+      "text": "saremo",
+      "is_correct": false,
+      "explanation": "This is the future, noi form; ieri places the action in the past."
+     },
+     {
+      "text": "eravate",
+      "is_correct": false,
+      "explanation": "This is the imperfetto but the voi form; the subject here is noi."
+     }
+    ]
+   },
+   "level_6": {
+    "sentence_index": 7,
+    "correct_sentence_index": 7,
+    "wrong_sentences": [
+     {
+      "text": "Mio fratello è venti anni e studia all'università.",
+      "explanation": "Italian gives age with avere (ha venti anni); essere cannot express age, which English speakers copy from 'he is twenty'."
+     },
+     {
+      "text": "Sono fame, andiamo a mangiare qualcosa.",
+      "explanation": "Hunger is expressed with avere (ho fame), not essere, although English says 'I am hungry'."
+     },
+     {
+      "text": "Sei bene oggi? Ieri avevi la febbre.",
+      "explanation": "Asking about health uses stare (stai bene?); essere does not describe how someone is feeling in this way."
+     }
+    ]
+   },
+   "level_7": {
+    "sentence_index": 6,
+    "incorrect_sentence": "Ieri ho stato a casa di Luca.",
+    "corrected_sentence": "Ieri sono stato a casa di Luca.",
+    "error_description": "The passato prossimo of essere takes essere as its own auxiliary: sono stato, not ho stato.",
+    "correct_sentence_indices": [
+     1,
+     7
+    ]
+   },
+   "synonym_antonym_match": {
+    "declined": "no_relation"
+   },
+   "preposition_selection": {
+    "sentence_index": 5,
+    "sentence": "Domani io sarò ___ Roma per lavoro, quindi non ci vediamo.",
+    "options": [
+     {
+      "text": "a",
+      "is_correct": true,
+      "explanation": "Correct: a is used with the name of a city, so essere a Roma means to be in Rome."
+     },
+     {
+      "text": "in",
+      "is_correct": false,
+      "explanation": "in is used with countries and regions (in Italia), not with a city; in Roma is wrong."
+     },
+     {
+      "text": "da",
+      "is_correct": false,
+      "explanation": "da expresses origin or someone's home (da Marco); it does not locate you in a city."
+     },
+     {
+      "text": "su",
+      "is_correct": false,
+      "explanation": "su means on or about; it cannot place a person in a city."
+     }
+    ]
+   }
+  },
+  "B": {
+   "level_1": {
+    "declined": "no_minimal_pairs"
+   },
+   "level_3": {
+    "sentence_index": 4,
+    "options": [
+     {
+      "text": "sei",
+      "is_correct": true,
+      "explanation": "Correct: sei is the tu form of essere and links tu to la mia migliore amica."
+     },
+     {
+      "text": "hai",
+      "is_correct": false,
+      "explanation": "semantic: hai means you have; you cannot have your best friend as a possession in this way."
+     },
+     {
+      "text": "mangi",
+      "is_correct": false,
+      "explanation": "semantic: mangi means you eat; it cannot connect tu with a noun phrase like la mia migliore amica."
+     },
+     {
+      "text": "dormi",
+      "is_correct": false,
+      "explanation": "valency: dormi means you sleep; it takes no complement naming who you are."
+     }
+    ]
+   },
+   "level_4": {
+    "sentence_index": 5,
+    "base_form": "essere",
+    "form_label": "futuro, io",
+    "options": [
+     {
+      "text": "sarò",
+      "is_correct": true,
+      "explanation": "Correct: futuro semplice, io form of essere; domani points to the future."
+     },
+     {
+      "text": "ero",
+      "is_correct": false,
+      "explanation": "This is the imperfetto, io form; domani is in the future, not the past."
+     },
+     {
+      "text": "fui",
+      "is_correct": false,
+      "explanation": "This is the passato remoto, io form; it narrates a distant past and clashes with domani."
+     },
+     {
+      "text": "sarai",
+      "is_correct": false,
+      "explanation": "This is the future but the tu form; the subject here is io."
+     }
+    ]
+   },
+   "level_6": {
+    "sentence_index": 9,
+    "correct_sentence_index": 9,
+    "wrong_sentences": [
+     {
+      "text": "Oggi sono molto caldo, apriamo la finestra.",
+      "explanation": "Feeling warm is ho caldo with avere; sono caldo is understood as a remark about being sexually attractive."
+     },
+     {
+      "text": "Marta è ragione: il treno parte alle otto.",
+      "explanation": "To be right is avere ragione; essere cannot be used here, though English says 'she is right'."
+     },
+     {
+      "text": "Nonna è sempre molto bene, nonostante l'età.",
+      "explanation": "Health is stare bene; essere does not say how someone is doing."
+     }
+    ]
+   },
+   "level_7": {
+    "sentence_index": 2,
+    "incorrect_sentence": "Marco e Giulia sei amici da tanti anni.",
+    "corrected_sentence": "Marco e Giulia sono amici da tanti anni.",
+    "error_description": "The subject is Marco e Giulia, so essere must be the third person plural sono, not the tu form sei.",
+    "correct_sentence_indices": [
+     0,
+     9
+    ]
+   },
+   "synonym_antonym_match": {
+    "declined": "no_relation"
+   },
+   "preposition_selection": {
+    "sentence_index": 9,
+    "sentence": "I miei genitori sono ___ vacanza, perciò la casa è vuota.",
+    "options": [
+     {
+      "text": "in",
+      "is_correct": true,
+      "explanation": "Correct: in vacanza is the fixed phrase for being on holiday."
+     },
+     {
+      "text": "a",
+      "is_correct": false,
+      "explanation": "a vacanza is not used for this meaning; the idiom is in vacanza."
+     },
+     {
+      "text": "di",
+      "is_correct": false,
+      "explanation": "di vacanza does not form a phrase with essere here."
+     },
+     {
+      "text": "su",
+      "is_correct": false,
+      "explanation": "su vacanza is not Italian for being on holiday."
+     }
+    ]
+   }
+  }
+ }
+}

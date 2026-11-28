@@ -1,0 +1,427 @@
+{
+  "topic": "shi-de",
+  "summary": "是…的 is for a past event that both speakers already know happened. It does not report the event; it picks out one detail of it: when, where, how, who did it, or what for. 是 goes right before that detail and 的 closes the verb phrase. If the event itself is the news, use 了. If you are only filling in a detail of something already known, use 是…的.",
+  "subs": [
+    {
+      "key": "detail-known-past",
+      "label": "Stressing when, where, how",
+      "focus": "The event is already known (the person is here, the thing is bought); the sentence supplies its time, place or manner. Learner must put 是 right before that phrase and 的 after the verb. Classic errors: 是 in the wrong slot (我昨天是到的), no 的 (我是坐地铁来), detail placed after the verb."
+    },
+    {
+      "key": "agent-purpose",
+      "label": "Stressing who did it or what for",
+      "focus": "Stress the doer (这个菜是我妈妈做的, 是谁告诉你的) or the purpose (我是来学中文的, 他是为了工作搬到上海的). The learner must place 是 before the doer or before the purpose phrase and keep the final 的. Classic errors: English-style 被 passive for 'was made by' (这个菜被我妈妈做了), dropping 的, or 是 after the doer."
+    },
+    {
+      "key": "de-position",
+      "label": "Where 的 goes when there is an object",
+      "focus": "Noun object: 的 right after the verb (我是在北京学的中文) or at the end (学中文的), both right, so order/rewrite items must list both as alts. Pronoun object or verb ending in 来/去: 的 last (我是昨天看见他的, 他是上个月回来的). Classic errors: 的 before the verb, 的 splitting 回来 (回的来). Never mark 的 + pronoun wrong in judge items."
+    },
+    {
+      "key": "omit-shi",
+      "label": "Dropping 是 (but never 的)",
+      "focus": "是 is often dropped in spoken affirmatives and questions (我昨天到的, 你怎么来的?) but 的 must stay. No cloze where 是 and ∅ both work: test 的 against 了/∅ in a 是-less sentence, or use judge items. Classic errors: rejecting 我坐地铁来的, or keeping 是 and dropping 的."
+    },
+    {
+      "key": "negative",
+      "label": "Negative: 不是…的",
+      "focus": "The negative is always 不是 + detail + verb + 的; 是 cannot be dropped and 没 is not used. It denies the detail, not the event. Classic errors: 我不坐飞机来的, 我没坐飞机来的, 我没是坐飞机来的, or 不 placed before the verb (我是坐飞机不来的)."
+    },
+    {
+      "key": "vs-le",
+      "label": "是…的 or 了?",
+      "focus": "Choose between reporting a new event (了) and giving a detail of a known one (是…的). Context must force one reading: a visible object or earlier clause sets up the event, or it is clearly news. Also: no 了 inside 是…的 (我是昨天来了的). Classic error: answering when/where/how about a known event with 了."
+    },
+    {
+      "key": "questions",
+      "label": "Asking about a known past event",
+      "focus": "Questions about the when/where/how/who of a known past event use 是…的 with the question word in the stressed slot: 你是怎么来的? 你是什么时候到的? 是谁做的? Yes/no forms: …的吗? and 是不是…的? Classic errors: 你怎么来了? (which means 'how come you are here?'), 你什么时候到了?, and adding 吗 to a question-word question."
+    },
+    {
+      "key": "no-future",
+      "label": "Not for future or habitual events",
+      "focus": "This pattern is only for events that have already happened. With 明天, 下个星期, 打算, 要 or 每天, the sentence uses plain word order with no 是…的. The learner must see the time reference and refuse 的. Classic error: 我是明天坐火车去的 for 'It's tomorrow that I'm going by train'."
+    }
+  ],
+  "rules": [
+    {
+      "sub": "detail-known-past",
+      "rule": "The event is known and already over; you are saying when or where. Put 是 right before the time or place and 的 after the verb.",
+      "pattern": "Subject + 是 + time / place + Verb + 的",
+      "examples": [
+        {
+          "zh": "我是昨天到的。",
+          "py": "wǒ shì zuó tiān dào de",
+          "en": "I arrived yesterday. (It was yesterday that I arrived.)"
+        },
+        {
+          "zh": "我们是在大学认识的。",
+          "py": "wǒ men shì zài dà xué rèn shi de",
+          "en": "We met at university."
+        },
+        {
+          "zh": "他是去年来中国的。",
+          "py": "tā shì qù nián lái zhōng guó de",
+          "en": "He came to China last year."
+        }
+      ],
+      "note": "English usually shows this stress with the voice only, so the English cue often looks like a plain past sentence. Ask: is the event itself already known?"
+    },
+    {
+      "sub": "detail-known-past",
+      "rule": "The same frame stresses how something was done: by what transport, with whom, in what way.",
+      "pattern": "Subject + 是 + manner (坐… / 跟… / 用… / 怎么) + Verb + 的",
+      "examples": [
+        {
+          "zh": "我是坐地铁来的。",
+          "py": "wǒ shì zuò dì tiě lái de",
+          "en": "I came by subway."
+        },
+        {
+          "zh": "她是跟朋友一起去的。",
+          "py": "tā shì gēn péng you yī qǐ qù de",
+          "en": "She went with friends."
+        },
+        {
+          "zh": "这个字我是用手机查的。",
+          "py": "zhè ge zì wǒ shì yòng shǒu jī chá de",
+          "en": "I looked this character up on my phone."
+        }
+      ]
+    },
+    {
+      "sub": "agent-purpose",
+      "rule": "To say who did something that is already done, put 是 before the doer. Do not use 被 for 'was made / bought / written by'.",
+      "pattern": "Thing + 是 + doer + Verb + 的",
+      "examples": [
+        {
+          "zh": "这个菜是我妈妈做的。",
+          "py": "zhè ge cài shì wǒ mā ma zuò de",
+          "en": "My mum made this dish."
+        },
+        {
+          "zh": "这本书是朋友送的。",
+          "py": "zhè běn shū shì péng you sòng de",
+          "en": "This book was a present from a friend."
+        },
+        {
+          "zh": "是小王告诉我的。",
+          "py": "shì xiǎo wáng gào su wǒ de",
+          "en": "It was Xiao Wang who told me."
+        }
+      ]
+    },
+    {
+      "sub": "agent-purpose",
+      "rule": "To stress the purpose of coming, going or doing something, put 是 before the purpose phrase (来/去 + verb, or 为了…).",
+      "pattern": "Subject + 是 + 来 / 去 + purpose + 的  or  Subject + 是 + 为了… + Verb + 的",
+      "examples": [
+        {
+          "zh": "我是来学中文的。",
+          "py": "wǒ shì lái xué zhōng wén de",
+          "en": "I came to study Chinese. (That is what I am here for.)"
+        },
+        {
+          "zh": "他是为了工作搬到上海的。",
+          "py": "tā shì wèi le gōng zuò bān dào shàng hǎi de",
+          "en": "He moved to Shanghai for work."
+        },
+        {
+          "zh": "我们是来找李老师的。",
+          "py": "wǒ men shì lái zhǎo lǐ lǎo shī de",
+          "en": "We are here to see Teacher Li."
+        }
+      ]
+    },
+    {
+      "sub": "de-position",
+      "rule": "With a noun object, 的 can go right after the verb or at the end of the sentence. Both are correct; 的 before the object is very common in speech, especially in the north.",
+      "pattern": "Subject + 是 + detail + Verb + 的 + Object  or  Subject + 是 + detail + Verb + Object + 的",
+      "examples": [
+        {
+          "zh": "我是在北京学的中文。",
+          "py": "wǒ shì zài běi jīng xué de zhōng wén",
+          "en": "I learned Chinese in Beijing."
+        },
+        {
+          "zh": "我是在北京学中文的。",
+          "py": "wǒ shì zài běi jīng xué zhōng wén de",
+          "en": "I learned Chinese in Beijing."
+        },
+        {
+          "zh": "你是在哪儿买的票？",
+          "py": "nǐ shì zài nǎ r mǎi de piào",
+          "en": "Where did you buy the tickets?"
+        },
+        {
+          "zh": "我是上个星期看的这个电影。",
+          "py": "wǒ shì shàng ge xīng qī kàn de zhè ge diàn yǐng",
+          "en": "I saw this film last week."
+        }
+      ],
+      "note": "Either way 的 never goes before the verb, and the object never moves in front of 是 unless it is the topic (这个电影我是上个星期看的)."
+    },
+    {
+      "sub": "de-position",
+      "rule": "With a pronoun object, or when the verb ends in 来 or 去, put 的 at the very end. 的 never splits a verb from its 来/去.",
+      "pattern": "Subject + 是 + detail + Verb + pronoun / 来 / 去 + 的",
+      "examples": [
+        {
+          "zh": "我是昨天看见他的。",
+          "py": "wǒ shì zuó tiān kàn jiàn tā de",
+          "en": "I saw him yesterday."
+        },
+        {
+          "zh": "他是上个月回来的。",
+          "py": "tā shì shàng ge yuè huí lái de",
+          "en": "He came back last month."
+        },
+        {
+          "zh": "是李老师告诉我们的。",
+          "py": "shì lǐ lǎo shī gào su wǒ men de",
+          "en": "It was Teacher Li who told us."
+        }
+      ],
+      "note": "的 before a pronoun (是我告诉的他) is heard in casual northern speech, but 的 at the end is the standard choice. With a place after 来/去/到, 的 at the end is also the safe choice: 他是去年来中国的."
+    },
+    {
+      "sub": "omit-shi",
+      "rule": "In affirmative statements and questions 是 can be dropped in everyday speech. 的 cannot: it is what marks the pattern.",
+      "pattern": "Subject + (是) + detail + Verb + 的",
+      "examples": [
+        {
+          "zh": "我昨天到的。",
+          "py": "wǒ zuó tiān dào de",
+          "en": "I arrived yesterday."
+        },
+        {
+          "zh": "我坐地铁来的。",
+          "py": "wǒ zuò dì tiě lái de",
+          "en": "I came by subway."
+        },
+        {
+          "zh": "你在哪儿买的？",
+          "py": "nǐ zài nǎ r mǎi de",
+          "en": "Where did you buy it?"
+        }
+      ],
+      "note": "Keeping 是 is never wrong, and it is usual in careful or written style. After 这 or 那 as the subject, keep it: 这是我昨天买的."
+    },
+    {
+      "sub": "negative",
+      "rule": "The negative is 不是…的. 是 must be there, and the negation is 不, not 没. It says the detail is wrong, not that nothing happened.",
+      "pattern": "Subject + 不是 + detail + Verb + 的",
+      "examples": [
+        {
+          "zh": "我不是坐飞机来的。",
+          "py": "wǒ bù shì zuò fēi jī lái de",
+          "en": "I didn't come by plane. (I came some other way.)"
+        },
+        {
+          "zh": "这件衣服不是我买的。",
+          "py": "zhè jiàn yī fu bù shì wǒ mǎi de",
+          "en": "I wasn't the one who bought this piece of clothing."
+        },
+        {
+          "zh": "他不是昨天到的，是前天到的。",
+          "py": "tā bù shì zuó tiān dào de shì qián tiān dào de",
+          "en": "He didn't arrive yesterday; he arrived the day before."
+        }
+      ],
+      "note": "我没坐飞机来 (no 的) is a different, also correct sentence: a plain statement that a plane trip did not happen."
+    },
+    {
+      "sub": "vs-le",
+      "rule": "New event the listener does not know about: use 了. Detail of an event the listener already knows about: use 是…的.",
+      "pattern": "news: Subject + Verb + 了 + Object  /  detail: (Object) + 是 + detail + Verb + 的",
+      "examples": [
+        {
+          "zh": "我昨天买了一件衣服。",
+          "py": "wǒ zuó tiān mǎi le yī jiàn yī fu",
+          "en": "I bought a piece of clothing yesterday. (news)"
+        },
+        {
+          "zh": "这件衣服是昨天买的。",
+          "py": "zhè jiàn yī fu shì zuó tiān mǎi de",
+          "en": "This piece of clothing was bought yesterday. (we can both see it; only 'when' is new)"
+        },
+        {
+          "zh": "他去上海了，是坐火车去的。",
+          "py": "tā qù shàng hǎi le shì zuò huǒ chē qù de",
+          "en": "He has gone to Shanghai; he went by train."
+        }
+      ],
+      "note": "A sentence with a time word and 了 is not wrong in itself (我昨天去了北京 reports a trip). It is wrong only as the answer to 'when / how / where did that known event happen?'."
+    },
+    {
+      "sub": "vs-le",
+      "rule": "Do not put 了 inside 是…的. The pattern already places the event in the past.",
+      "pattern": "Subject + 是 + detail + Verb + 的 (no 了)",
+      "examples": [
+        {
+          "zh": "我是昨天来的。",
+          "py": "wǒ shì zuó tiān lái de",
+          "en": "I came yesterday."
+        },
+        {
+          "zh": "我是在网上买的。",
+          "py": "wǒ shì zài wǎng shàng mǎi de",
+          "en": "I bought it online."
+        }
+      ],
+      "note": "Some regional speech does say 是…了的; standard Mandarin leaves 了 out."
+    },
+    {
+      "sub": "questions",
+      "rule": "To ask when, where, how or who about a known past event, use 是…的 with the question word in the stressed slot. Yes/no questions add 吗 or use 是不是.",
+      "pattern": "Subject + 是 + 什么时候 / 在哪儿 / 怎么 / 跟谁 + Verb + 的？",
+      "examples": [
+        {
+          "zh": "你是怎么来的？",
+          "py": "nǐ shì zěn me lái de",
+          "en": "How did you get here?"
+        },
+        {
+          "zh": "你是什么时候到的？",
+          "py": "nǐ shì shén me shí hou dào de",
+          "en": "When did you arrive?"
+        },
+        {
+          "zh": "晚饭是谁做的？",
+          "py": "wǎn fàn shì shéi zuò de",
+          "en": "Who made dinner?"
+        },
+        {
+          "zh": "你是不是坐地铁来的？",
+          "py": "nǐ shì bù shì zuò dì tiě lái de",
+          "en": "Did you come by subway?"
+        }
+      ],
+      "note": "你怎么来了？ is a real sentence but means 'How come you are here?' (surprise), not 'By what means did you come?'."
+    },
+    {
+      "sub": "no-future",
+      "rule": "For plans, future events and habits, use plain word order (often with 要, 会 or 打算). This 是…的 is only for events that are already over.",
+      "pattern": "Subject + future time + (要 / 打算) + manner / place + Verb",
+      "examples": [
+        {
+          "zh": "我明天坐火车去。",
+          "py": "wǒ míng tiān zuò huǒ chē qù",
+          "en": "I'm going by train tomorrow."
+        },
+        {
+          "zh": "他打算明年去中国学中文。",
+          "py": "tā dǎ suàn míng nián qù zhōng guó xué zhōng wén",
+          "en": "He plans to go to China next year to study Chinese."
+        },
+        {
+          "zh": "我每天坐地铁上班。",
+          "py": "wǒ měi tiān zuò dì tiě shàng bān",
+          "en": "I take the subway to work every day."
+        }
+      ],
+      "note": "There is a separate 是…的 that makes a firm statement of opinion (他是会来的, 'he will come, I assure you'). It is a different pattern and is not drilled here."
+    }
+  ],
+  "contrasts": [
+    {
+      "wrong": "你怎么来了？",
+      "right": {
+        "zh": "你是怎么来的？",
+        "py": "nǐ shì zěn me lái de",
+        "en": "How did you get here?"
+      },
+      "why": "As a way to ask 'how did you get here?' this fails: the coming is known and you want the manner. 你怎么来了 is a real sentence, but it means 'how come you are here?'."
+    },
+    {
+      "wrong": "我是坐地铁来。",
+      "right": {
+        "zh": "我是坐地铁来的。",
+        "py": "wǒ shì zuò dì tiě lái de",
+        "en": "I came by subway."
+      },
+      "why": "是 can be dropped but 的 cannot. Without 的 the sentence is unfinished."
+    },
+    {
+      "wrong": "我是昨天来了的。",
+      "right": {
+        "zh": "我是昨天来的。",
+        "py": "wǒ shì zuó tiān lái de",
+        "en": "I came yesterday."
+      },
+      "why": "是…的 already places the event in the past; standard Mandarin does not add 了 inside it."
+    },
+    {
+      "wrong": "我不坐飞机来的。",
+      "right": {
+        "zh": "我不是坐飞机来的。",
+        "py": "wǒ bù shì zuò fēi jī lái de",
+        "en": "I didn't come by plane."
+      },
+      "why": "是 may be dropped only in affirmative sentences. The negative is always 不是…的."
+    },
+    {
+      "wrong": "我没是在北京学的中文。",
+      "right": {
+        "zh": "我不是在北京学的中文。",
+        "py": "wǒ bù shì zài běi jīng xué de zhōng wén",
+        "en": "It wasn't in Beijing that I learned Chinese."
+      },
+      "why": "是 is negated with 不 even when the event is past; 没是 does not exist."
+    },
+    {
+      "wrong": "这个菜被我妈妈做了。",
+      "right": {
+        "zh": "这个菜是我妈妈做的。",
+        "py": "zhè ge cài shì wǒ mā ma zuò de",
+        "en": "This dish was made by my mum."
+      },
+      "why": "English 'was made by' only identifies the doer of a finished thing. Chinese uses 是 + doer + verb + 的 for that, not 被."
+    },
+    {
+      "wrong": "我是明天坐火车去的。",
+      "right": {
+        "zh": "我明天坐火车去。",
+        "py": "wǒ míng tiān zuò huǒ chē qù",
+        "en": "I'm going by train tomorrow."
+      },
+      "why": "The trip has not happened yet. 是…的 for stressing a detail only works for events that are already over."
+    },
+    {
+      "wrong": "你什么时候到了？",
+      "right": {
+        "zh": "你是什么时候到的？",
+        "py": "nǐ shì shén me shí hou dào de",
+        "en": "When did you arrive?"
+      },
+      "why": "The arrival is known and only the time is being asked, so the question takes 是…的, not 了."
+    },
+    {
+      "wrong": "他是上个月回的来。",
+      "right": {
+        "zh": "他是上个月回来的。",
+        "py": "tā shì shàng ge yuè huí lái de",
+        "en": "He came back last month."
+      },
+      "why": "的 cannot split a verb from its 来/去. It goes after the whole verb."
+    },
+    {
+      "wrong": "我是到昨天的。",
+      "right": {
+        "zh": "我是昨天到的。",
+        "py": "wǒ shì zuó tiān dào de",
+        "en": "It was yesterday that I arrived."
+      },
+      "why": "是 stands directly in front of the detail being stressed (昨天), and the verb comes after that detail, right before 的."
+    }
+  ],
+  "cheat": [
+    "Event already known, and you are giving or asking when / where / how / who / what for? Use 是…的, not 了.",
+    "是 goes right before the stressed detail; 的 goes after the verb.",
+    "Noun object: 的 before it or after it, both fine. Pronoun object or verb ending in 来/去: 的 last.",
+    "是 may drop in affirmatives and questions; 的 never drops.",
+    "Negative is always 不是…的. Never 没, never without 是.",
+    "No 了 inside 是…的.",
+    "明天, 打算, 每天 in the sentence? No 是…的."
+  ]
+}
