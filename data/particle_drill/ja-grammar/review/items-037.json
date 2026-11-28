@@ -1,0 +1,14 @@
+{"batch":"items-037","files":["items/ko-ka.jsonl","items/ko-mo.jsonl"],"checked":70,"fixed":12,"deleted":0,"replaced":0,"issues":[
+{"file":"items/ko-ka.jsonl","jp_before":"のどが渇[かわ]きました。{何[なに]か|ko-ka}飲[の]みませんか。","problem":"English 'Won't you drink something?' is unnatural for the invitation 飲みませんか.","action":"English changed to 'Shall we have something to drink?'."},
+{"file":"items/ko-ka.jsonl","jp_before":"この近[ちか]くに{どこか|ko-ka}いい喫茶店[きっさてん]はありませんか。","problem":"Distractor 何か is acceptable: 何かいい喫茶店はありませんか is natural and means the same.","action":"Replaced distractor 何か with いつか."},
+{"file":"items/ko-ka.jsonl","jp_before":"{いつか|ko-ka}あなたに会[あ]ったことがある気[き]がします。","problem":"Unnatural: the set phrase is どこかで会ったことがある; いつか here sounds off.","action":"Rewrote as {いつか}聞いた歌が、ラジオから流れてきました (past いつか), with new English, why and distractors."},
+{"file":"items/ko-ka.jsonl","jp_before":"食[た]べたあとで、{何[なに]か|ko-ka}デザートはいかがですか。","problem":"食べたあとで with no subject is clumsy for an offer.","action":"Changed to 食後に…; lv 5 -> 4."},
+{"file":"items/ko-ka.jsonl","jp_before":"祖母[そぼ]の家[いえ]に{いつか|ko-ka}泊[と]まったことがあります。","problem":"いつか + たことがある for 'once' is unnatural (一度 / 前に would be said); the English does not match.","action":"Rewrote as {いつか}うちに遊びに来てください ('Please come and visit us sometime'), avoiding いつでも as a distractor."},
+{"file":"items/ko-mo.jsonl","jp_before":"この問題[もんだい]は{誰[だれ]にも|ko-mo}わかりませんでした。","problem":"Distractor 何にも is colloquial for 何も and makes a grammatical sentence ('didn't understand anything').","action":"Replaced 何にも with 誰でも."},
+{"file":"items/ko-mo.jsonl","jp_before":"私[わたし]の秘密[ひみつ]は{誰[だれ]にも|ko-mo}言[い]っていません。","problem":"Distractor 何にも (colloquial 何も) gives 'haven't said anything about my secret', which is almost the same meaning.","action":"Replaced 何にも with 誰でも."},
+{"file":"items/ko-mo.jsonl","jp_before":"この話[はなし]は{誰[だれ]にも|ko-mo}話[はな]さないでください。","problem":"Distractor 何にも (colloquial 何も) gives a grammatical sentence close in meaning.","action":"Replaced 何にも with 誰でも."},
+{"file":"items/ko-mo.jsonl","jp_before":"店[みせ]の中[なか]に{誰[だれ]も|ko-mo}客[きゃく]がいませんでした。","problem":"誰も客がいない is unnatural (客が一人もいない is what people say); also どこ forms were under-represented in the set.","action":"Rewrote as 鍵を探しましたが、{どこにも}ありませんでした with new English, why and distractors."},
+{"file":"items/ko-mo.jsonl","jp_before":"駅[えき]までの道[みち]には{何[なに]も|ko-mo}ありません。","problem":"Odd statement; also balanced the set toward どこも.","action":"Rewrote as 駅の近くのホテルは{どこも}空いていませんでした ('None of the hotels near the station had rooms free'), lv 4."},
+{"file":"items/ko-mo.jsonl","jp_before":"このことは{誰[だれ]も|ko-mo}知[し]らないはずです。","problem":"English 'Nobody should know about this' reads as an obligation, not the expectation はず expresses.","action":"English changed to 'Surely nobody knows about this.'"},
+{"file":"items/ko-mo.jsonl","jp_before":"この町[まち]には{どこにも|ko-mo}本屋[ほんや]がありません。","problem":"Stacked には…どこにも is awkward word order.","action":"Reordered to この町には本屋が{どこにも}ありません。"}
+]}

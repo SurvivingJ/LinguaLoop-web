@@ -1,0 +1,78 @@
+{
+ "batch": "items-117",
+ "files": [
+  "items/pt-gachi.jsonl"
+ ],
+ "checked": 46,
+ "fixed": 6,
+ "deleted": 0,
+ "replaced": 5,
+ "issues": [
+  {
+   "file": "items/pt-gachi.jsonl",
+   "jp_before": "弟[おとうと]は子[こ]どものころ病気[びょうき]{がち|pt-gachi}で、よく学校[がっこう]を休[やす]みました。",
+   "problem": "English repeated 'often' awkwardly (often ill ... often missed).",
+   "action": "Rewrote the English."
+  },
+  {
+   "file": "items/pt-gachi.jsonl",
+   "jp_before": "最近[さいきん]、仕事[しごと]が忙[いそが]しくて疲[つか]れ{気味[ぎみ]|pt-gachi}です。",
+   "problem": "Distractor がち is acceptable: 最近仕事が忙しくて疲れがちです is natural with nearly the same meaning.",
+   "action": "Replaced distractor がち with ずくめ."
+  },
+  {
+   "file": "items/pt-gachi.jsonl",
+   "jp_before": "電車[でんしゃ]は雪[ゆき]のため、少[すこ]し遅[おく]れ{気味[ぎみ]|pt-gachi}で運転[うんてん]しています。",
+   "problem": "遅れ気味で運転しています is unidiomatic, and the item near-duplicated item 9 (transport late in snow).",
+   "action": "Replaced with a new 気味 item."
+  },
+  {
+   "file": "items/pt-gachi.jsonl",
+   "jp_before": "彼[かれ]は寝不足[ねぶそく]{気味[ぎみ]|pt-gachi}なのか、会議[かいぎ]中[ちゅう]ずっとあくびをしていました。",
+   "problem": "Distractor がち is acceptable: 寝不足がちなのか (chronically short of sleep) also explains the yawning.",
+   "action": "Replaced distractor がち with ずくめ."
+  },
+  {
+   "file": "items/pt-gachi.jsonl",
+   "jp_before": "年[とし]を取[と]ると、体[からだ]が弱[よわ]り{がち|pt-gachi}になります。",
+   "problem": "弱りがちになります is redundant and clumsy (がち + になる).",
+   "action": "Rewrote the sentence."
+  },
+  {
+   "file": "items/pt-gachi.jsonl",
+   "jp_before": "サッカーをして、服[ふく]は汗[あせ]{だらけ|pt-gachi}になりました。",
+   "problem": "汗だらけ is unnatural for sweaty clothes (汗びっしょり / 汗だく is said), and the why was confused.",
+   "action": "Replaced with a new だらけ item."
+  },
+  {
+   "file": "items/pt-gachi.jsonl",
+   "jp_before": "最近[さいきん]、うちの犬[いぬ]は元気[げんき]がなく、食欲[しょくよく]が落[お]ち{気味[ぎみ]|pt-gachi}です。",
+   "problem": "Distractor がち is acceptable: 最近食欲が落ちがちです is natural with nearly the same meaning.",
+   "action": "Replaced distractor がち with ばかり."
+  },
+  {
+   "file": "items/pt-gachi.jsonl",
+   "jp_before": "彼女[かのじょ]は子[こ]どものころ、風邪[かぜ]をひき{がち|pt-gachi}でした。",
+   "problem": "Near-duplicate of item 5 (often ill as a child), and its why falsely claimed 風邪をひき気味 is impossible (it is a common phrase).",
+   "action": "Replaced with a new がち item."
+  },
+  {
+   "file": "items/pt-gachi.jsonl",
+   "jp_before": "今週[こんしゅう]は仕事[しごと]が詰[つ]まり{気味[ぎみ]|pt-gachi}で、残業[ざんぎょう]が続[つづ]いています。",
+   "problem": "仕事が詰まり気味 is an unidiomatic collocation.",
+   "action": "Rewrote with the idiomatic 鼻が詰まり気味."
+  },
+  {
+   "file": "items/pt-gachi.jsonl",
+   "jp_before": "体重[たいじゅう]が増[ふ]え{気味[ぎみ]|pt-gachi}なので、夜[よる]は軽[かる]い食事[しょくじ]にしています。",
+   "problem": "Near-duplicate of item 10 (weight creeping up, 太り気味).",
+   "action": "Replaced with a new 気味 item."
+  },
+  {
+   "file": "items/pt-gachi.jsonl",
+   "jp_before": "今年[ことし]の新入生[しんにゅうせい]は、授業[じゅぎょう]についていけず、不安[ふあん]{気味[ぎみ]|pt-gachi}のようです。",
+   "problem": "不安気味 is a marginal collocation (不安げ / 不安そう are normal).",
+   "action": "Replaced with a new 気味 item."
+  }
+ ]
+}

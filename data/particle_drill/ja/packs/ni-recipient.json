@@ -1,0 +1,305 @@
+[
+ {
+  "id": "ni-recipient-1",
+  "lv": 5,
+  "tpl": "<who>{は|wa-topic}<to>{に|ni-recipient}<act>。",
+  "en": "<who> <act> <to>.",
+  "f": 1,
+  "d": [
+   "を",
+   "で",
+   "と"
+  ],
+  "why": "The person who receives the letter, item or information is marked with に.",
+  "vars": {
+   "who": [
+    [
+     "私[わたし]",
+     "I"
+    ],
+    [
+     "兄[あに]",
+     "My older brother"
+    ],
+    [
+     "田中[たなか]さん",
+     "Mr. Tanaka"
+    ],
+    [
+     "父[ちち]",
+     "My father"
+    ],
+    [
+     "鈴木[すずき]さん",
+     "Ms. Suzuki"
+    ],
+    [
+     "弟[おとうと]",
+     "My younger brother"
+    ]
+   ],
+   "to": [
+    [
+     "友達[ともだち]",
+     "a friend"
+    ],
+    [
+     "先生[せんせい]",
+     "the teacher"
+    ],
+    [
+     "姉[あね]",
+     "my older sister"
+    ],
+    [
+     "祖母[そぼ]",
+     "my grandmother"
+    ],
+    [
+     "山田[やまだ]さん",
+     "Ms. Yamada"
+    ],
+    [
+     "学生[がくせい]たち",
+     "the students"
+    ],
+    [
+     "子供[こども]たち",
+     "the children"
+    ]
+   ],
+   "act": [
+    [
+     "お土産[みやげ]{を|o-object}あげました",
+     "gave a souvenir to"
+    ],
+    [
+     "写真[しゃしん]{を|o-object}見[み]せました",
+     "showed photos to"
+    ],
+    [
+     "花[はな]{を|o-object}あげました",
+     "gave flowers to"
+    ],
+    [
+     "傘[かさ]{を|o-object}貸[か]しました",
+     "lent an umbrella to"
+    ],
+    [
+     "本[ほん]{を|o-object}渡[わた]しました",
+     "handed a book to"
+    ],
+    [
+     "道[みち]{を|o-object}教[おし]えました",
+     "gave directions to"
+    ],
+    [
+     "お茶[ちゃ]{を|o-object}出[だ]しました",
+     "served tea to"
+    ]
+   ]
+  }
+ },
+ {
+  "id": "ni-recipient-2",
+  "lv": 3,
+  "tpl": "<when>、<to>{に|ni-recipient}<act>ください。",
+  "en": "Please <act> <to> <when>.",
+  "f": 0,
+  "d": [
+   "を",
+   "で",
+   "と"
+  ],
+  "why": "The person who should receive the item or message takes に.",
+  "vars": {
+   "when": [
+    [
+     "明日[あした]",
+     "tomorrow"
+    ],
+    [
+     "後[あと]で",
+     "later"
+    ],
+    [
+     "今日[きょう]",
+     "today"
+    ],
+    [
+     "来週[らいしゅう]",
+     "next week"
+    ],
+    [
+     "すぐ",
+     "right away"
+    ],
+    [
+     "今度[こんど]",
+     "next time"
+    ]
+   ],
+   "to": [
+    [
+     "部長[ぶちょう]",
+     "the manager"
+    ],
+    [
+     "田中[たなか]さん",
+     "Mr. Tanaka"
+    ],
+    [
+     "先生[せんせい]",
+     "the teacher"
+    ],
+    [
+     "お客[きゃく]さん",
+     "the customer"
+    ],
+    [
+     "山本[やまもと]さん",
+     "Ms. Yamamoto"
+    ],
+    [
+     "鈴木[すずき]さん",
+     "Ms. Suzuki"
+    ],
+    [
+     "課長[かちょう]",
+     "the section chief"
+    ]
+   ],
+   "act": [
+    [
+     "この手紙[てがみ]{を|o-object}渡[わた]して",
+     "give this letter to"
+    ],
+    [
+     "地図[ちず]{を|o-object}見[み]せて",
+     "show the map to"
+    ],
+    [
+     "結果[けっか]{を|o-object}伝[つた]えて",
+     "pass the results on to"
+    ],
+    [
+     "この荷物[にもつ]{を|o-object}届[とど]けて",
+     "deliver this package to"
+    ],
+    [
+     "この本[ほん]{を|o-object}返[かえ]して",
+     "return this book to"
+    ],
+    [
+     "お茶[ちゃ]{を|o-object}出[だ]して",
+     "serve tea to"
+    ],
+    [
+     "新[あたら]しい住所[じゅうしょ]{を|o-object}教[おし]えて",
+     "give the new address to"
+    ]
+   ]
+  }
+ },
+ {
+  "id": "ni-recipient-3",
+  "lv": 3,
+  "tpl": "<who>{は|wa-topic}まだ<to>{に|ni-recipient}<act>いません。",
+  "en": "<who> <act> <to> yet.",
+  "f": 1,
+  "d": [
+   "を",
+   "で",
+   "と"
+  ],
+  "why": "The person on the receiving end of the reply, money or message is marked with に.",
+  "vars": {
+   "who": [
+    [
+     "兄[あに]",
+     "My older brother"
+    ],
+    [
+     "田中[たなか]さん",
+     "Mr. Tanaka"
+    ],
+    [
+     "父[ちち]",
+     "My father"
+    ],
+    [
+     "鈴木[すずき]さん",
+     "Ms. Suzuki"
+    ],
+    [
+     "妹[いもうと]",
+     "My younger sister"
+    ],
+    [
+     "中村[なかむら]さん",
+     "Mr. Nakamura"
+    ]
+   ],
+   "to": [
+    [
+     "先生[せんせい]",
+     "the teacher"
+    ],
+    [
+     "母[はは]",
+     "my mother"
+    ],
+    [
+     "祖父[そふ]",
+     "my grandfather"
+    ],
+    [
+     "大家[おおや]さん",
+     "the landlord"
+    ],
+    [
+     "山田[やまだ]さん",
+     "Ms. Yamada"
+    ],
+    [
+     "部長[ぶちょう]",
+     "the manager"
+    ],
+    [
+     "姉[あね]",
+     "my older sister"
+    ]
+   ],
+   "act": [
+    [
+     "返事[へんじ]{を|o-object}して",
+     "hasn't replied to"
+    ],
+    [
+     "電話番号[でんわばんごう]{を|o-object}教[おし]えて",
+     "hasn't given the phone number to"
+    ],
+    [
+     "お金[かね]{を|o-object}返[かえ]して",
+     "hasn't paid the money back to"
+    ],
+    [
+     "本当[ほんとう]{の|no-possessive}こと{を|o-object}言[い]って",
+     "hasn't told the truth to"
+    ],
+    [
+     "書類[しょるい]{を|o-object}渡[わた]して",
+     "hasn't handed the documents to"
+    ],
+    [
+     "鍵[かぎ]{を|o-object}返[かえ]して",
+     "hasn't returned the key to"
+    ],
+    [
+     "お礼[れい]{を|o-object}言[い]って",
+     "hasn't said thank you to"
+    ]
+   ]
+  }
+ }
+]

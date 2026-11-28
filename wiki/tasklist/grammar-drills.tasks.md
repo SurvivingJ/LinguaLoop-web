@@ -3,8 +3,8 @@ title: "Chinese Grammar Drills — Task Breakdown"
 feature: grammar-drills
 prose_page: ../features/grammar-drills.md
 tech_page: ../features/grammar-drills.tech.md
-total_tasks: 15
-done: 5
+total_tasks: 16
+done: 7
 last_updated: 2026-11-27
 ---
 
@@ -207,7 +207,7 @@ generators only. Sentence meaning is sometimes flat (TASK-1265).
 
 ## TASK-1259: Track grammar-drill progress on the server (daily summaries + state)
 
-**Status:** [?] Done (repo, 2026-11-27), awaiting live apply of `migrations/grammar_drill_tracking.sql`
+**Status:** [x] Done (repo 2026-11-27; migration applied to the live project 2026-11-28, verified)
 **Feature:** grammar-drills
 **Type:** feature
 **Complexity:** L (1-2d)
@@ -554,3 +554,45 @@ sentences with explanations. They share no code or data.
 GQ10 is marked ANSWERED with the owner's words.
 
 ---
+
+---
+
+## TASK-1292: Five more Chinese topics and a worker runner
+
+**Status:** [x] Done (2026-11-28; repo, not deployed)
+**Feature:** grammar-drills
+**Type:** feature
+**Complexity:** L (1-2d)
+**Depends On:** TASK-1254
+
+**Description:**
+Owner: "Run agent swarms to build all for Chinese and Japanese". Add near-synonyms,
+collocations, look-alike characters, chengyu and multi-reading characters. The first four are
+authored batches through the existing contract; the fifth is a generator over a reviewed word
+table. `scripts/grammar_drills_swarm.py` runs the author and the blind reviewer as headless
+Claude Code workers.
+
+**Acceptance Criteria:**
+- [x] `plan.json` has the five topics (10 batches); guides validate; every batch has a reviewed file and a verdict
+- [x] `python scripts/grammar_drills.py build --check` reports the static files up to date: 44 topics, 11,192 items
+- [x] the polyphone table (294 words) passes `grammar_drills_swarm.py check-words`: every right and wrong reading is a real reading of the character (pypinyin)
+- [x] the `polyphones` generator is registered and covered by the generator tests
+- [x] the runner plans only topics that carry `"added"`; the first build is never reopened (test)
+
+**Technical Notes:**
+16 jobs (5 guides, the word table, 10 batches), none failed; the blind compare flagged 152 items
+over the new and earlier verdicts combined and the reviewers fixed the batches as in the first
+build. Notional cost about $40. Two things to know: (1) `build` drops a sentence that appears in
+two topics, and the earlier file name wins, so the new topics took 17 sentences from four
+existing topics (questions, separable-verbs, you-zai-hai, zai-progressive); (2) the chengyu guide
+wrote 马马虎虎 with its colloquial reading, which the validator rejects; it now carries the
+dictionary reading mǎ mǎ hǔ hǔ.
+
+**Files to Create / Modify:**
+- `data/grammar_drills/zh/plan.json`, `guides/`, `batches/`, `blind/`, `reviewed/`, `verdicts/`, `words/polyphones.json`
+- `scripts/grammar_drills_swarm.py`, `scripts/grammar_drills.py` (`free_levels`)
+- `static/js/grammar/generators/polyphones.js`, `polyphones-data.js`, `index.js`; `static/data/grammar/zh/`
+- `tests/test_grammar_drills_script.py`, `tests/unit/grammar-generators.test.js`
+
+**Verification:**
+Open `/grammar-drill/zh`, choose 多音字, start Endless: a word is shown and its reading is chosen.

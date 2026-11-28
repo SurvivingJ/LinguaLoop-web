@@ -1,0 +1,5 @@
+{"batch":"items-042","files":["items/cn-dakara.jsonl","items/cn-mataha.jsonl"],"checked":75,"fixed":3,"deleted":0,"replaced":0,"issues":[
+{"file":"items/cn-mataha.jsonl","jp_before":"水[みず]{あるいは/または|cn-mataha}お茶[ちゃ]を一[ひと]つ無料[むりょう]で選[えら]べます。","problem":"'水またはお茶を一つ無料で選べます' is awkward (一つ after a noun-or-noun phrase reads unnaturally).","action":"Rewrote as セットの飲み物は、水あるいは/またはお茶から選べます。 with matching English."},
+{"file":"items/cn-mataha.jsonl","jp_before":"会員[かいいん]の方[かた]{あるいは/または|cn-mataha}その家族[かぞく]は、無料[むりょう]で入場[にゅうじょう]できます。","problem":"Register mismatch: respectful 会員の方 paired with plain その家族 in a formal notice.","action":"Changed その家族 to そのご家族."},
+{"file":"items/cn-mataha.jsonl","jp_before":"参加者[さんかしゃ]は本人[ほんにん]{あるいは/または|cn-mataha}家族[かぞく]に限[かぎ]ります。","problem":"'why' claimed formal rules use あるいは, though または (listed as alternative) is equally standard.","action":"Rewrote why: あるいは or または, never the question-only それとも."}
+]}

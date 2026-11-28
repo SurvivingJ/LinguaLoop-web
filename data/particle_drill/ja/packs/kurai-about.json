@@ -1,0 +1,20 @@
+[
+ {"id":"kurai-about-1","lv":5,
+  "tpl":"<who>{は|wa-topic}毎日[まいにち]<amount>{くらい/ぐらい/ほど|kurai-about}<act>。",
+  "en":"<who> <act> for about <amount> every day.",
+  "f":1,"d":["ごろ","だけ","まで"],
+  "why":"くらい after a length of time means 'about'; ごろ is only for points in time.",
+  "vars":{
+   "who":[["田中[たなか]さん","Mr. Tanaka"],["佐藤[さとう]さん","Ms. Sato"],["父[ちち]","My father"],["母[はは]","My mother"],["兄[あに]","My older brother"],["姉[あね]","My older sister"],["祖父[そふ]","My grandfather"]],
+   "amount":[["十分[じゅっぷん]","ten minutes"],["十五分[じゅうごふん]","fifteen minutes"],["二十分[にじゅっぷん]","twenty minutes"],["三十分[さんじゅっぷん]","thirty minutes"],["四十分[よんじゅっぷん]","forty minutes"],["一時間[いちじかん]","an hour"],["一時間半[いちじかんはん]","an hour and a half"],["二時間[にじかん]","two hours"]],
+   "act":[["勉強[べんきょう]します","studies"],["歩[ある]きます","walks"],["本[ほん]{を|o-object}読[よ]みます","reads"],["ピアノ{を|o-object}弾[ひ]きます","plays the piano"],["泳[およ]ぎます","swims"],["テレビ{を|o-object}見[み]ます","watches TV"]]}},
+ {"id":"kurai-about-2","lv":4,
+  "tpl":"<from>{から|kara-from}<to>{まで|made-until}<means>{で|de-means}何分[なんぷん]{くらい/ぐらい/ほど|kurai-about}かかりますか。",
+  "en":"About how many minutes does it take from <from> to <to> by <means>?",
+  "f":3,"d":["ごろ","だけ","まで"],
+  "why":"くらい after a question amount like 何分 asks for a rough figure; ごろ would ask for a clock time.",
+  "vars":{
+   "from":[["ここ","here"],["駅[えき]","the station"],["ホテル","the hotel"],["大学[だいがく]","the university"],["会社[かいしゃ]","the office"],["学校[がっこう]","the school"]],
+   "to":[["病院[びょういん]","the hospital"],["図書館[としょかん]","the library"],["郵便局[ゆうびんきょく]","the post office"],["公園[こうえん]","the park"],["スーパー","the supermarket"],["美術館[びじゅつかん]","the art museum"],["市役所[しやくしょ]","city hall"]],
+   "means":[["自転車[じてんしゃ]","bicycle"],["バス","bus"],["車[くるま]","car"],["タクシー","taxi"],["電車[でんしゃ]","train"],["地下鉄[ちかてつ]","subway"]]}}
+]

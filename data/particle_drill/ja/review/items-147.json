@@ -1,0 +1,5 @@
+{"batch":"items-147","files":["items/double-mo.jsonl"],"checked":48,"fixed":3,"deleted":0,"replaced":0,"issues":[
+{"file":"items/double-mo.jsonl","jp_before":"この電車[でんしゃ]{は|wa-topic}京都駅[きょうとえき]{にも|double-mo}止[と]まります。","problem":"Distractor でも is acceptable: 止まる takes both に and で for the stopping place (京都駅でも止まります is natural).","action":"Moved でも into the slot as an alternative ({にも/でも}); replaced distractor with へも; updated why."},
+{"file":"items/double-mo.jsonl","jp_before":"山[やま]{の|no-possessive}上[うえ]{からも|double-mo}海[うみ]{が|ga-sense}見[み]えます{か|ka-question}。","problem":"Distractor でも (山の上でも海が見えますか) is natural with nearly the same meaning.","action":"Replaced distractor でも with へも."},
+{"file":"items/double-mo.jsonl","jp_before":"東京[とうきょう]{からも|double-mo}注文[ちゅうもん]{が|ga-existence}ありました。","problem":"Distractors でも/にも with a bare place name (東京でも注文がありました) give an acceptable reading of 'orders from Tokyo too'.","action":"Rewrote as 東京のお客さんからも注文がありました ('There were orders from customers in Tokyo too.'), f=1, so the source is a person and でも/にも are plainly wrong."}
+]}

@@ -1,0 +1,19 @@
+{
+ "batch": "items-012",
+ "files": ["items/tr-hairu.jsonl"],
+ "checked": 58,
+ "fixed": 9,
+ "deleted": 0,
+ "replaced": 0,
+ "issues": [
+  {"file": "items/tr-hairu.jsonl", "jp_before": "雨[あめ]がひどいので、犬[いぬ]を家[いえ]に{入[い]れました|tr-hairu}。", "problem": "Present ひどいので clashes with the past narrative ('It was raining hard').", "action": "Changed to ひどかったので."},
+  {"file": "items/tr-hairu.jsonl", "jp_before": "郵便局[ゆうびんきょく]へ手紙[てがみ]を{出[だ]しに行[い]きます|tr-hairu}。", "problem": "Distractor 出しに来ます tested 行く/来る rather than the transitive pair; why referred to that.", "action": "Replaced distractors with 出させに行きます / 出られに行きます alongside 出に行きます; why rewritten."},
+  {"file": "items/tr-hairu.jsonl", "jp_before": "階段[かいだん]を{上[あ]がって|tr-hairu}、右[みぎ]にトイレがあります。", "problem": "Te-form followed by an existence statement is awkward for directions.", "action": "Rewrote as 階段を上がると、右にトイレがあります with matching English and dictionary-form distractors."},
+  {"file": "items/tr-hairu.jsonl", "jp_before": "お皿[さら]を{下[さ]げてもいいですか|tr-hairu}。", "problem": "why mentions a waiter who is not in the sentence.", "action": "why now says the speaker clears the plates."},
+  {"file": "items/tr-hairu.jsonl", "jp_before": "この店[みせ]は先月[せんげつ]、値段[ねだん]を{下[さ]げました|tr-hairu}。", "problem": "Near-duplicate of the 店は商品の値段を上げました item (shop changes prices).", "action": "Rewrote as テレビの音量を少し下げてもらえますか。"},
+  {"file": "items/tr-hairu.jsonl", "jp_before": "気温[きおん]が{下[さ]がる|tr-hairu}と、湖[みずうみ]に氷[こおり]が張[は]ります。", "problem": "Near-duplicate of 夜は気温が下がります (third temperature item).", "action": "Rewrote as 値段が下がるまで、買うのを待ちます。"},
+  {"file": "items/tr-hairu.jsonl", "jp_before": "机[つくえ]から消[け]しゴムが{落[お]ちて|tr-hairu}いますよ。", "problem": "机から落ちています is an unnatural way to describe something lying where it fell.", "action": "Rewrote as 机の下に消しゴムが落ちていますよ (There's an eraser lying under the desk)."},
+  {"file": "items/tr-hairu.jsonl", "jp_before": "試験[しけん]に{落[お]ちて|tr-hairu}、とても悲[かな]しかったです。", "problem": "Distractor 落とされて (passive, 'was failed') is close to acceptable with the same meaning.", "action": "Replaced with potential 落とせて, which is ungrammatical here."},
+  {"file": "items/tr-hairu.jsonl", "jp_before": "風[かぜ]で帽子[ぼうし]が川[かわ]に{落[お]ちました|tr-hairu}。", "problem": "Distractor 落とされました (passive) is marginally acceptable with the wind as cause and the same English meaning; why was vague.", "action": "Replaced with 落としていました; why rewritten."}
+ ]
+}

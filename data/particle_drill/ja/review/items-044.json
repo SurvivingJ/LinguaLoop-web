@@ -1,0 +1,7 @@
+{"batch":"items-044","files":["items/mo-both.jsonl","items/mo-total-negation.jsonl"],"checked":77,"fixed":5,"deleted":0,"replaced":0,"issues":[
+{"file":"items/mo-both.jsonl","jp_before":"祖父[そふ]{は|wa-topic}目[め]{も|mo-both}耳[みみ]{も|mo-both}よくありません。","problem":"why was muddled ('gives neither/both for the pair').","action":"Rewrote why: with a negative predicate AもBも says the same bad condition applies to both."},
+{"file":"items/mo-total-negation.jsonl","jp_before":"今日[きょう]{は|wa-topic}何[なに]{も|mo-total-negation}したくありません。","problem":"why was confusing ('even したくない needs も').","action":"Rewrote why in plain English."},
+{"file":"items/mo-total-negation.jsonl","jp_before":"電車[でんしゃ]{の|no-possessive}中[なか]{で|de-place}誰[だれ]{も|mo-total-negation}話[はな]していませんでした。","problem":"English 'in the train' is unnatural.","action":"Changed to 'on the train'."},
+{"file":"items/mo-total-negation.jsonl","jp_before":"今年[ことし]{の|no-possessive}夏[なつ]{は|wa-topic}どこ{に|ni-destination}{も|mo-total-negation}行[い]けなかった。","problem":"どこへも is equally natural but not listed as an alternative.","action":"Slot changed to {に/へ|ni-destination}."},
+{"file":"items/mo-total-negation.jsonl","jp_before":"誰[だれ]{も|mo-total-negation}知[し]らない町[まち]{に|ni-destination}引[ひ]っ越[こ]しました。","problem":"町へ引っ越しました is equally natural but へ was not listed.","action":"Slot changed to {に/へ|ni-destination}."}
+]}

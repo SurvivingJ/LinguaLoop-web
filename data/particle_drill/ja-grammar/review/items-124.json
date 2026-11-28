@@ -1,0 +1,7 @@
+{"batch":"items-124","files":["items/ym-n5-days.jsonl"],"checked":48,"fixed":5,"deleted":0,"replaced":0,"issues":[
+{"file":"items/ym-n5-days.jsonl","jp_before":"{土曜日[どようび]|ym-n5-days}は天気[てんき]がいいので、公園[こうえん]へ行[い]きましょう。","problem":"Asserts future weather as a plain fact; unnatural as a reason for a suggestion.","action":"Changed to 天気がいいそうなので and English to 'I hear the weather will be good on Saturday'."},
+{"file":"items/ym-n5-days.jsonl","jp_before":"{十二月[じゅうにがつ]|ym-n5-days}は大[おお]きい祭[まつ]りがあります。","problem":"Time frame for an existence sentence reads more naturally with には.","action":"Changed は to には."},
+{"file":"items/ym-n5-days.jsonl","jp_before":"{日曜日[にちようび]|ym-n5-days}の朝[あさ]は、いつもゆっくり起[お]きます。","problem":"English 'get up slowly' mistranslates ゆっくり起きる (get up late / take one's time).","action":"English changed to 'I always take my time getting up'."},
+{"file":"items/ym-n5-days.jsonl","jp_before":"{一日[ついたち]|ym-n5-days}は店[みせ]が休[やす]みです。","problem":"一日は店が休みです can also be read いちにち ('closed for one day'); the sentence does not fix the reading ついたち, and いちにち is a distractor.","action":"Rewrote as 店は{一日}から三日まで休みです ('from the first to the third'), which forces ついたち."},
+{"file":"items/ym-n5-days.jsonl","jp_before":"{七日[なのか]|ym-n5-days}は私[わたし]の誕生日[たんじょうび]です。","problem":"Distractor なぬか is an accepted variant reading of 七日.","action":"Replaced なぬか with ななか."}
+]}

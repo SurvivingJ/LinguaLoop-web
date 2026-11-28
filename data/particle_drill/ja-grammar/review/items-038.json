@@ -1,0 +1,156 @@
+{
+ "batch": "items-038",
+ "files": [
+  "items/ko-demo.jsonl"
+ ],
+ "checked": 35,
+ "fixed": 24,
+ "deleted": 0,
+ "replaced": 0,
+ "issues": [
+  {
+   "file": "items/ko-demo.jsonl",
+   "jp_before": "今日[きょう]は私[わたし]のおごりです。{何[なん]でも|ko-demo}好[す]きな物[もの]を頼[たの]んでください。",
+   "problem": "Distractor 誰でも is acceptable when treating a group (\"anyone, order what you like\").",
+   "action": "Replaced 誰でも with どこでも."
+  },
+  {
+   "file": "items/ko-demo.jsonl",
+   "jp_before": "この辞書[じしょ]を見[み]れば、{何[なん]でも|ko-demo}分[わ]かります。",
+   "problem": "Distractor 誰でも gives a natural sentence (\"anyone can understand if they look in this dictionary\").",
+   "action": "Replaced 誰でも with 何が."
+  },
+  {
+   "file": "items/ko-demo.jsonl",
+   "jp_before": "この店[みせ]では、{何[なん]でも|ko-demo}三百円[さんびゃくえん]で買[か]えます。",
+   "problem": "Distractor 誰でも is natural (\"anyone can buy it for 300 yen\").",
+   "action": "Replaced 誰でも with 何が."
+  },
+  {
+   "file": "items/ko-demo.jsonl",
+   "jp_before": "日本語[にほんご]は、勉強[べんきょう]すれば{誰[だれ]でも|ko-demo}話[はな]せるようになります。",
+   "problem": "Distractor 何でも is plausible (\"you become able to speak about anything\").",
+   "action": "Replaced 何でも with 誰が."
+  },
+  {
+   "file": "items/ko-demo.jsonl",
+   "jp_before": "この問題[もんだい]は簡単[かんたん]なので、{誰[だれ]でも|ko-demo}できます。",
+   "problem": "Distractor どこでも yields a grammatical sentence (\"can do it anywhere\").",
+   "action": "Replaced どこでも with 何でも."
+  },
+  {
+   "file": "items/ko-demo.jsonl",
+   "jp_before": "この図書館[としょかん]は、{誰[だれ]でも|ko-demo}無料[むりょう]で使[つか]えます。",
+   "problem": "Distractor 何でも is natural (\"you can use anything in this library for free\").",
+   "action": "Replaced 何でも with 誰が."
+  },
+  {
+   "file": "items/ko-demo.jsonl",
+   "jp_before": "彼[かれ]は優[やさ]しいので、{誰[だれ]でも|ko-demo}彼[かれ]を好[す]きになります。",
+   "problem": "Distractor 誰も with a positive verb can read as literary \"everyone\".",
+   "action": "Replaced 誰も with 誰が."
+  },
+  {
+   "file": "items/ko-demo.jsonl",
+   "jp_before": "初心者[しょしんしゃ]でも、{誰[だれ]でも|ko-demo}楽[たの]しめるゲームです。",
+   "problem": "初心者でも、誰でも stacks two でも phrases redundantly and reads awkwardly.",
+   "action": "Rewrote the sentence."
+  },
+  {
+   "file": "items/ko-demo.jsonl",
+   "jp_before": "緊張[きんちょう]する気持[きも]ちは、{誰[だれ]でも|ko-demo}分[わ]かります。",
+   "problem": "Distractor 誰も with 分かります can read as \"everyone understands\" (誰も知っている type).",
+   "action": "Replaced 誰も with 誰が; adjusted why."
+  },
+  {
+   "file": "items/ko-demo.jsonl",
+   "jp_before": "悪[わる]いことをしたら、{誰[だれ]でも|ko-demo}謝[あやま]らなければなりません。",
+   "problem": "English awkward (\"If you do something wrong, anyone has to apologize\"); distractor 何でも is plausible (\"apologize for anything\").",
+   "action": "Fixed English; replaced 何でも with 誰が."
+  },
+  {
+   "file": "items/ko-demo.jsonl",
+   "jp_before": "質問[しつもん]があれば、{いつでも|ko-demo}電話[でんわ]してください。",
+   "problem": "Distractor どこでも is natural (\"call me from anywhere\").",
+   "action": "Replaced どこでも with いつも."
+  },
+  {
+   "file": "items/ko-demo.jsonl",
+   "jp_before": "私[わたし]は暇[ひま]なので、{いつでも|ko-demo}会[あ]えますよ。",
+   "problem": "Distractor どこでも is natural (\"we can meet anywhere\"); 誰でも plausible (\"I can meet anyone\").",
+   "action": "Replaced 誰でも and どこでも with 何でも and どこも."
+  },
+  {
+   "file": "items/ko-demo.jsonl",
+   "jp_before": "この店[みせ]は二十四時間[にじゅうよじかん]開[あ]いているので、{いつでも|ko-demo}買[か]い物[もの]ができます。",
+   "problem": "Distractor 誰でも is plausible (\"open 24 hours, so anyone can shop\").",
+   "action": "Replaced 誰でも with 何でも."
+  },
+  {
+   "file": "items/ko-demo.jsonl",
+   "jp_before": "困[こま]ったときは、{いつでも|ko-demo}相談[そうだん]に来[き]てください。",
+   "problem": "Distractor 何でも is natural (\"come and consult me about anything\"); どこでも borderline.",
+   "action": "Replaced with どこか and 何も."
+  },
+  {
+   "file": "items/ko-demo.jsonl",
+   "jp_before": "荷物[にもつ]は、{いつでも|ko-demo}取[と]りに来[き]てかまいません。",
+   "problem": "Distractor 誰でも is natural (\"anyone may come and pick up the luggage\").",
+   "action": "Replaced 誰でも with 何でも."
+  },
+  {
+   "file": "items/ko-demo.jsonl",
+   "jp_before": "先生[せんせい]は、学生[がくせい]が来[く]れば{いつでも|ko-demo}会[あ]ってくれます。",
+   "problem": "Distractor 誰でも is plausible (\"will meet any student who comes\").",
+   "action": "Replaced 誰でも with 何でも."
+  },
+  {
+   "file": "items/ko-demo.jsonl",
+   "jp_before": "このパソコンは軽[かる]いので、{どこでも|ko-demo}持[も]って行[い]けます。",
+   "problem": "どこでも持って行けます is a destination use where どこにでも/どこへでも is standard; distractor 誰でも is also plausible.",
+   "action": "Rewrote with 持ち歩く and new distractors."
+  },
+  {
+   "file": "items/ko-demo.jsonl",
+   "jp_before": "ネットがあれば、{どこでも|ko-demo}仕事[しごと]ができます。",
+   "problem": "Distractor 誰でも is natural (\"if there is internet, anyone can work\").",
+   "action": "Replaced 誰でも with 何でも."
+  },
+  {
+   "file": "items/ko-demo.jsonl",
+   "jp_before": "うちの犬[いぬ]は、私[わたし]が行[い]く所[ところ]なら{どこでも|ko-demo}ついて来[き]ます。",
+   "problem": "Destination use (行く所ならどこでもついて来ます) where どこにでも is the standard form.",
+   "action": "Rewrote the sentence."
+  },
+  {
+   "file": "items/ko-demo.jsonl",
+   "jp_before": "この町[まち]は小[ちい]さいので、{どこでも|ko-demo}歩[ある]いて行[い]けます。",
+   "problem": "Destination use (どこでも歩いて行けます) where どこへでも/どこにでも is standard; distractor 誰でも plausible.",
+   "action": "Rewrote the sentence."
+  },
+  {
+   "file": "items/ko-demo.jsonl",
+   "jp_before": "旅行[りょこう]はどこに行[い]きたいですか。あなたとなら、{どこでも|ko-demo}いいです。",
+   "problem": "Distractor どこも is acceptable (どこもいい = every place is nice).",
+   "action": "Replaced どこも with 何でも."
+  },
+  {
+   "file": "items/ko-demo.jsonl",
+   "jp_before": "地図[ちず]があれば、{どこでも|ko-demo}行[い]けます。",
+   "problem": "Destination use (どこでも行けます) where どこへでも/どこにでも is standard; distractor 誰でも plausible.",
+   "action": "Rewrote the sentence."
+  },
+  {
+   "file": "items/ko-demo.jsonl",
+   "jp_before": "駅[えき]の近[ちか]くなら、{どこでも|ko-demo}家[いえ]を借[か]りたいです。",
+   "problem": "Unnatural word order (駅の近くなら、どこでも家を借りたいです) and the English \"want to rent anywhere\" is odd.",
+   "action": "Rewrote as どこでもかまいません."
+  },
+  {
+   "file": "items/ko-demo.jsonl",
+   "jp_before": "旅行[りょこう]が好[す]きなので、{どこでも|ko-demo}行[い]きたいです。",
+   "problem": "どこでも行きたいです is unnatural (needs どこへでも/どこにでも, and the sense is odd).",
+   "action": "Rewrote the sentence."
+  }
+ ]
+}

@@ -1,0 +1,20 @@
+[
+ {"id":"x-ni-e-made-1","lv":5,
+  "tpl":"<who>{は|wa-topic}昨日[きのう]<time>{まで|made-until}<act>。",
+  "en":"<who> <act> until <time> yesterday.",
+  "f":1,"d":["に","へ"],
+  "why":"The action went on and stopped at that time, so まで; に would give the moment it started.",
+  "vars":{
+   "who":[["父[ちち]","My father"],["兄[あに]","My older brother"],["姉[あね]","My older sister"],["弟[おとうと]","My younger brother"],["妹[いもうと]","My younger sister"],["田中[たなか]さん","Mr. Tanaka"],["鈴木[すずき]さん","Ms. Suzuki"],["山本[やまもと]さん","Mr. Yamamoto"]],
+   "time":[["九時[くじ]","nine"],["十時[じゅうじ]","ten"],["十一時[じゅういちじ]","eleven"],["十二時[じゅうにじ]","twelve"],["二時[にじ]","two"],["三時[さんじ]","three"],["五時[ごじ]","five"],["一時[いちじ]","one"]],
+   "act":[["勉強[べんきょう]しました","studied"],["働[はたら]きました","worked"],["寝[ね]ました","slept"],["部屋[へや]{を|o-object}掃除[そうじ]しました","cleaned the room"],["テレビ{を|o-object}見[み]ました","watched TV"],["友達[ともだち]{と|to-with}話[はな]しました","talked with friends"],["ピアノ{を|o-object}練習[れんしゅう]しました","practised the piano"],["本[ほん]{を|o-object}読[よ]みました","read"]]}},
+ {"id":"x-ni-e-made-2","lv":5,
+  "tpl":"<who>{は|wa-topic}毎朝[まいあさ]<time>{に|ni-time}<act>。",
+  "en":"<who> <act> at <time> every morning.",
+  "f":1,"d":["まで","へ"],
+  "why":"A one-off action at a clock time takes に; まで would mean the action lasted until then.",
+  "vars":{
+   "who":[["父[ちち]","My father"],["母[はは]","My mother"],["兄[あに]","My older brother"],["姉[あね]","My older sister"],["田中[たなか]さん","Mr. Tanaka"],["鈴木[すずき]さん","Ms. Suzuki"],["山本[やまもと]さん","Mr. Yamamoto"],["佐藤[さとう]さん","Ms. Sato"]],
+   "time":[["五時半[ごじはん]","half past five"],["六時[ろくじ]","six"],["六時半[ろくじはん]","half past six"],["七時[しちじ]","seven"],["七時十五分[しちじじゅうごふん]","a quarter past seven"],["七時半[しちじはん]","half past seven"],["八時[はちじ]","eight"]],
+   "act":[["起[お]きます","gets up"],["目[め]{が|ga-subject}覚[さ]めます","wakes up"],["家[いえ]{を|o-departure}出[で]ます","leaves home"],["朝[あさ]ご飯[はん]{を|o-object}食[た]べます","has breakfast"],["電車[でんしゃ]{に|ni-target}乗[の]ります","gets on the train"],["会社[かいしゃ]{に|ni-destination}着[つ]きます","arrives at the office"],["ジム{に/へ|ni-destination}行[い]きます","goes to the gym"]]}}
+]

@@ -1,0 +1,241 @@
+{
+ "batch": "items-081",
+ "files": [
+  "items/hodo-nai.jsonl",
+  "items/ba-hodo.jsonl"
+ ],
+ "checked": 73,
+ "fixed": 36,
+ "deleted": 2,
+ "replaced": 2,
+ "issues": [
+  {
+   "file": "items/hodo-nai.jsonl",
+   "jp_before": "今日[きょう]{は|wa-topic}昨日[きのう]{ほど|hodo-nai}寒[さむ]くないです。",
+   "problem": "lv 5 is implausible: the target pattern ほど～ない is N4 grammar",
+   "action": "lv 5->4"
+  },
+  {
+   "file": "items/hodo-nai.jsonl",
+   "jp_before": "この店[みせ]{の|no-possessive}ケーキ{は|wa-topic}あの店[みせ]{の|no-possessive}ケーキ{ほど|hodo-nai}甘[あま]くありません。",
+   "problem": "lv 3 too hard: all vocabulary is N5/N4",
+   "action": "lv"
+  },
+  {
+   "file": "items/hodo-nai.jsonl",
+   "jp_before": "弟[おとうと]{は|wa-topic}兄[あに]{ほど|hodo-nai}背[せ]{が/は|ga-subject}高[たか]くありません。",
+   "problem": "lv 5 is implausible: the target pattern ほど～ない is N4 grammar",
+   "action": "lv 5->4"
+  },
+  {
+   "file": "items/hodo-nai.jsonl",
+   "jp_before": "私[わたし]{の|no-possessive}町[まち]{は|wa-topic}東京[とうきょう]{ほど|hodo-nai}人[ひと]{が/は|ga-subject}多[おお]くない。",
+   "problem": "lv 5 is implausible: the target pattern ほど～ない is N4 grammar",
+   "action": "lv 5->4"
+  },
+  {
+   "file": "items/hodo-nai.jsonl",
+   "jp_before": "今年[ことし]{の|no-possessive}夏[なつ]{は|wa-topic}去年[きょねん]{ほど|hodo-nai}暑[あつ]くなかった。",
+   "problem": "lv 5 is implausible: the target pattern ほど～ない is N4 grammar",
+   "action": "lv 5->4"
+  },
+  {
+   "file": "items/hodo-nai.jsonl",
+   "jp_before": "彼女[かのじょ]{は|wa-topic}姉[あね]{ほど|hodo-nai}料理[りょうり]{が/は|ga-stative}上手[じょうず]じゃありません。",
+   "problem": "姉 means my own sister, but the English says her older sister; lv 5 is implausible: the target pattern ほど～ない is N4 grammar",
+   "action": "rewrote jp; lv 5->4"
+  },
+  {
+   "file": "items/hodo-nai.jsonl",
+   "jp_before": "日本語[にほんご]{の|no-possessive}漢字[かんじ]{は|wa-topic}ひらがな{ほど|hodo-nai}簡単[かんたん]じゃない。",
+   "problem": "lv 5 is implausible: the target pattern ほど～ない is N4 grammar",
+   "action": "lv 5->4"
+  },
+  {
+   "file": "items/hodo-nai.jsonl",
+   "jp_before": "東京[とうきょう]{の|no-possessive}冬[ふゆ]{は|wa-topic}北海道[ほっかいどう]{の|no-possessive}冬[ふゆ]{ほど|hodo-nai}寒[さむ]くない。",
+   "problem": "lv 5 is implausible: the target pattern ほど～ない is N4 grammar",
+   "action": "lv 5->4"
+  },
+  {
+   "file": "items/hodo-nai.jsonl",
+   "jp_before": "兄[あに]{は|wa-topic}父[ちち]{ほど|hodo-nai}お酒[さけ]{を|o-object}飲[の]みません。",
+   "problem": "lv 5 is implausible: the target pattern ほど～ない is N4 grammar",
+   "action": "lv 5->4"
+  },
+  {
+   "file": "items/hodo-nai.jsonl",
+   "jp_before": "犬[いぬ]{は|wa-topic}猫[ねこ]{ほど|hodo-nai}寝[ね]ません。",
+   "problem": "lv 5 is implausible: the target pattern ほど～ない is N4 grammar",
+   "action": "lv 5->4"
+  },
+  {
+   "file": "items/hodo-nai.jsonl",
+   "jp_before": "電車[でんしゃ]{は|wa-topic}バス{ほど|hodo-nai}時間[じかん]{が/は|ga-subject}かかりません。",
+   "problem": "lv 5 is implausible: the target pattern ほど～ない is N4 grammar",
+   "action": "lv 5->4"
+  },
+  {
+   "file": "items/hodo-nai.jsonl",
+   "jp_before": "母[はは]{は|wa-topic}祖母[そぼ]{ほど|hodo-nai}早[はや]く起[お]きません。",
+   "problem": "lv 5 is implausible: the target pattern ほど～ない is N4 grammar",
+   "action": "lv 5->4"
+  },
+  {
+   "file": "items/hodo-nai.jsonl",
+   "jp_before": "私[わたし]{は|wa-topic}妹[いもうと]{ほど|hodo-nai}歌[うた]{が/は|ga-stative}上手[じょうず]じゃありません。",
+   "problem": "lv 5 is implausible: the target pattern ほど～ない is N4 grammar",
+   "action": "lv 5->4"
+  },
+  {
+   "file": "items/hodo-nai.jsonl",
+   "jp_before": "昼[ひる]{は|wa-topic}朝[あさ]{ほど|hodo-nai}電車[でんしゃ]{が/は|ga-subject}込[こ]んでいません。",
+   "problem": "crowded is normally written 混んで",
+   "action": "fixed kanji"
+  },
+  {
+   "file": "items/hodo-nai.jsonl",
+   "jp_before": "私[わたし]{は|wa-topic}姉[あね]{ほど|hodo-nai}本[ほん]{を|o-object}読[よ]みません。",
+   "problem": "lv 5 is implausible: the target pattern ほど～ない is N4 grammar",
+   "action": "lv 5->4"
+  },
+  {
+   "file": "items/hodo-nai.jsonl",
+   "jp_before": "山田[やまだ]さん{ほど|hodo-nai}勉強[べんきょう]する人[ひと]{は|wa-negative}いません。",
+   "problem": "lv 5 is implausible: the target pattern ほど～ない is N4 grammar",
+   "action": "lv 5->4"
+  },
+  {
+   "file": "items/hodo-nai.jsonl",
+   "jp_before": "彼女[かのじょ]{ほど|hodo-nai}英語[えいご]{が|ga-stative}上手[じょうず]な人[ひと]{は|wa-negative}このクラス{に|ni-location}いません。",
+   "problem": "inside a noun-modifying clause が can be の (英語の上手な人)",
+   "action": "added alternative"
+  },
+  {
+   "file": "items/hodo-nai.jsonl",
+   "jp_before": "今日[きょう]{は|wa-topic}いつも{ほど|hodo-nai}人[ひと]{が/は|ga-subject}来[き]ませんでした。",
+   "problem": "lv 5 is implausible: the target pattern ほど～ない is N4 grammar",
+   "action": "lv 5->4"
+  },
+  {
+   "file": "items/hodo-nai.jsonl",
+   "jp_before": "弟[おとうと]{は|wa-topic}テレビ{を|o-object}見[み]る時間[じかん]{ほど|hodo-nai}勉強[べんきょう]しません。",
+   "problem": "テレビを見る時間ほど勉強しません compares a time span with studying: unnatural Japanese; deleted and replaced",
+   "action": "replaced"
+  },
+  {
+   "file": "items/hodo-nai.jsonl",
+   "jp_before": "私[わたし]{の|no-possessive}部屋[へや]{は|wa-topic}姉[あね]{の|no-possessive}部屋[へや]{ほど|hodo-nai}広[ひろ]くありません。",
+   "problem": "lv 5 is implausible: the target pattern ほど～ない is N4 grammar",
+   "action": "lv 5->4"
+  },
+  {
+   "file": "items/hodo-nai.jsonl",
+   "jp_before": "母[はは]{は|wa-topic}父[ちち]{ほど|hodo-nai}コーヒー{を|o-object}飲[の]みません。",
+   "problem": "near-duplicate of line 11 (兄は父ほどお酒を飲みません); deleted and replaced",
+   "action": "replaced"
+  },
+  {
+   "file": "items/ba-hodo.jsonl",
+   "jp_before": "日本語[にほんご]{は|wa-topic}勉強[べんきょう]すれ{ば|ba-conditional}する{ほど/だけ|ba-hodo}おもしろくなります。",
+   "problem": "lv too easy: ～ば～ほど is N3 grammar",
+   "action": "lv 4->3"
+  },
+  {
+   "file": "items/ba-hodo.jsonl",
+   "jp_before": "ピアノ{は|wa-topic}練習[れんしゅう]すれ{ば|ba-conditional}する{ほど/だけ|ba-hodo}上手[じょうず]{に|ni-change}なります。",
+   "problem": "lv too easy: ～ば～ほど is N3 grammar",
+   "action": "lv 4->3"
+  },
+  {
+   "file": "items/ba-hodo.jsonl",
+   "jp_before": "この歌[うた]{は|wa-topic}聞[き]け{ば|ba-conditional}聞[き]く{ほど|ba-hodo}好[す]き{に|ni-change}なる。",
+   "problem": "lv too easy: ～ば～ほど is N3 grammar",
+   "action": "lv 5->3"
+  },
+  {
+   "file": "items/ba-hodo.jsonl",
+   "jp_before": "安[やす]けれ{ば|ba-conditional}安[やす]い{ほど/だけ|ba-hodo}いいです。",
+   "problem": "安ければ安いだけいい is not natural; ～ば～だけ suits effort-and-result verbs, not this adjective; lv too easy: ～ば～ほど is N3 grammar",
+   "action": "removed alternative; lv 4->3"
+  },
+  {
+   "file": "items/ba-hodo.jsonl",
+   "jp_before": "考[かんが]えれ{ば|ba-conditional}考[かんが]える{ほど|ba-hodo}わからなくなってきた。",
+   "problem": "lv too easy: ～ば～ほど is N3 grammar",
+   "action": "lv 4->3"
+  },
+  {
+   "file": "items/ba-hodo.jsonl",
+   "jp_before": "道[みち]{が|ga-sub-clause}狭[せま]けれ{ば|ba-conditional}狭[せま]い{ほど|ba-hodo}運転[うんてん]{は|wa-topic}難[むずか]しくなります。",
+   "problem": "運転が難しくなります is equally natural",
+   "action": "added alternative"
+  },
+  {
+   "file": "items/ba-hodo.jsonl",
+   "jp_before": "荷物[にもつ]{は|wa-topic}少[すく]なけれ{ば|ba-conditional}少[すく]ない{ほど|ba-hodo}楽[らく]です。",
+   "problem": "lv too easy: ～ば～ほど is N3 grammar",
+   "action": "lv 4->3"
+  },
+  {
+   "file": "items/ba-hodo.jsonl",
+   "jp_before": "山[やま]{を|o-path}登[のぼ]れ{ば|ba-conditional}登[のぼ]る{ほど|ba-hodo}空気[くうき]{が|ga-subject}薄[うす]くなります。",
+   "problem": "山に登る is equally natural for climbing the mountain",
+   "action": "added alternative"
+  },
+  {
+   "file": "items/ba-hodo.jsonl",
+   "jp_before": "野菜[やさい]{は|wa-topic}新[あたら]しけれ{ば|ba-conditional}新[あたら]しい{ほど|ba-hodo}おいしいです。",
+   "problem": "lv too easy: ～ば～ほど is N3 grammar",
+   "action": "lv 4->3"
+  },
+  {
+   "file": "items/ba-hodo.jsonl",
+   "jp_before": "説明[せつめい]{は|wa-topic}簡単[かんたん]{なら/ならば|nara-conditional}簡単[かんたん]な{ほど|ba-hodo}いいです。",
+   "problem": "lv too easy: ～ば～ほど is N3 grammar",
+   "action": "lv 4->3"
+  },
+  {
+   "file": "items/ba-hodo.jsonl",
+   "jp_before": "お菓子[かし]{を|o-object}食[た]べれ{ば|ba-conditional}食[た]べる{ほど|ba-hodo}太[ふと]ります。",
+   "problem": "lv too easy: ～ば～ほど is N3 grammar",
+   "action": "lv 4->3"
+  },
+  {
+   "file": "items/ba-hodo.jsonl",
+   "jp_before": "知[し]れ{ば|ba-conditional}知[し]る{ほど|ba-hodo}この町[まち]{が/を|ga-stative}好[す]き{に|ni-change}なります。",
+   "problem": "lv too easy: ～ば～ほど is N3 grammar",
+   "action": "lv 4->3"
+  },
+  {
+   "file": "items/ba-hodo.jsonl",
+   "jp_before": "温度[おんど]{が|ga-sub-clause}高[たか]けれ{ば|ba-conditional}高[たか]い{ほど|ba-hodo}、氷[こおり]{は|wa-topic}早[はや]く溶[と]けます。",
+   "problem": "氷が早く溶けます is equally natural",
+   "action": "added alternative"
+  },
+  {
+   "file": "items/ba-hodo.jsonl",
+   "jp_before": "寒[さむ]けれ{ば|ba-conditional}寒[さむ]い{ほど|ba-hodo}、温[あたた]かいスープ{が/は|ga-subject}おいしく感[かん]じます。",
+   "problem": "lv too easy: ～ば～ほど is N3 grammar",
+   "action": "lv 4->3"
+  },
+  {
+   "file": "items/ba-hodo.jsonl",
+   "jp_before": "寝[ね]れ{ば|ba-conditional}寝[ね]る{ほど|ba-hodo}、もっと寝[ね]たくなる。",
+   "problem": "lv too easy: ～ば～ほど is N3 grammar",
+   "action": "lv 4->3"
+  },
+  {
+   "file": "items/ba-hodo.jsonl",
+   "jp_before": "歩[ある]け{ば|ba-conditional}歩[ある]く{ほど|ba-hodo}足[あし]{が/は|ga-subject}痛[いた]くなる。",
+   "problem": "lv too easy: ～ば～ほど is N3 grammar",
+   "action": "lv 4->3"
+  },
+  {
+   "file": "items/ba-hodo.jsonl",
+   "jp_before": "星[ほし]{は|wa-topic}暗[くら]けれ{ば|ba-conditional}暗[くら]い{ほど|ba-hodo}よく見[み]えます。",
+   "problem": "lv too easy: ～ば～ほど is N3 grammar",
+   "action": "lv 4->3"
+  }
+ ]
+}

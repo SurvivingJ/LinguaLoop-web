@@ -1,0 +1,15 @@
+{"batch":"guides-035",
+ "files":["guides/nikanshite.json","guides/nioite.json","guides/niwatatte.json","guides/nisotte.json","guides/nimotozuite.json"],
+ "checked":6,
+ "fixed":8,
+ "deleted":0,
+ "issues":[
+  {"file":"guides/nikanshite.json","problem":"Mistake 1 bad sentence 日本の文化に関して本を読みました can be read as an adverbial ('regarding Japanese culture, I read books'), so it is not clearly wrong.","action":"Replaced with これは日本の文化に関して本です (ungrammatical) → に関する本です."},
+  {"file":"guides/nioite.json","problem":"Mistake 2 bad 大学において生活はとても楽しい can be read adverbially, and the good version mixes stiff における with casual とても楽しい.","action":"Replaced with これは江戸時代において町の地図です → における町の地図です."},
+  {"file":"guides/niwatatte.json","problem":"Mistake 1 bad 今夜から明日の朝にわたって is grammatical (から〜にわたって exists for bounded periods); it is only unusual in forecasts, not wrong.","action":"Replaced with a clear error: 三時にわたって (clock point) → 三時間にわたって."},
+  {"file":"guides/niwatatte.json","problem":"Mistake 2 bad 五分にわたって歯を磨きました is stylistically inflated, not ungrammatical.","action":"Replaced with 長年にわたって研究が実を結んだ → にわたる研究 (noun-modifier form). Added 'weather forecasts use it' to the にかけて contrast so the forecast point is kept."},
+  {"file":"guides/nisotte.json","problem":"Mistake 2 bad データに沿って結論を出しました is unusual but not clearly wrong.","action":"Replaced with これは会社の方針に沿って計画です → に沿った計画です."},
+  {"file":"guides/nisotte.json","problem":"Contrast note 'Facts and evidence take に基づいて' overstates; 事実に沿って is natural.","action":"Narrowed to 'A conclusion drawn from data or evidence takes に基づいて.'"},
+  {"file":"guides/nimotozuite.json","problem":"nimotozuite mistake 1 hinged only on a comma (調査に基づく、報告書); without it the bad sentence is correct. Mistake 2 (規則をもとに処分が決まった) is not clearly wrong to natives.","action":"Replaced with データに基づく判断してください → に基づいて判断して, and 調査の結果を基づいて → に基づいて (the を基づいて error the explain names)."},
+  {"file":"guides/nimotozuite.json","problem":"womotoni mistake 2 bad 観光をもとに発展してきた is borderline acceptable, not plainly wrong.","action":"Replaced with 遺産をもとに兄弟が争った → をめぐって (a conf particle; clearly wrong)."}
+ ]}

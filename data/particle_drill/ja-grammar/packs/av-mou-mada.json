@@ -1,0 +1,22 @@
+[
+ {"id": "av-mou-mada-1", "lv": 5,
+  "tpl": "<who>は{もう|av-mou-mada}<act>ました。<tail>",
+  "en": "<who> has already <act>. <tail>",
+  "f": 0, "d": ["まだ", "また", "もうすぐ"],
+  "why": "A finished action that happened sooner than expected ('already') takes もう with ました; まだ cannot go with a finished affirmative.",
+  "vars": {
+   "who": [["田中[たなか]さん", "Mr. Tanaka"], ["鈴木[すずき]さん", "Ms. Suzuki"], ["山本[やまもと]さん", "Mr. Yamamoto"], ["佐藤[さとう]さん", "Ms. Sato"], ["弟[おとうと]", "My younger brother"], ["妹[いもうと]", "My younger sister"], ["先生[せんせい]", "The teacher"], ["父[ちち]", "My father"]],
+   "act": [["昼[ひる]ご飯[はん]を食[た]べ", "had lunch"], ["家[いえ]に帰[かえ]り", "gone home"], ["駅[えき]に着[つ]き", "arrived at the station"], ["その本[ほん]を読[よ]み", "read that book"], ["部屋[へや]を掃除[そうじ]し", "cleaned the room"], ["手紙[てがみ]を出[だ]し", "posted the letter"], ["出[で]かけ", "gone out"], ["切符[きっぷ]を買[か]い", "bought the tickets"]],
+   "tail": [["知[し]っていましたか。", "Did you know?"], ["早[はや]いですね。", "That was quick."], ["思[おも]ったより早[はや]かったです。", "That was sooner than I expected."], ["母[はは]から聞[き]きました。", "I heard it from my mother."], ["さっき聞[き]きました。", "I just heard."], ["電話[でんわ]で聞[き]きました。", "I heard it on the phone."]]
+  }},
+ {"id": "av-mou-mada-2", "lv": 4,
+  "tpl": "<name>、すみません。<task>は{まだ|av-mou-mada}です。<next>",
+  "en": "<name>, I'm sorry. I haven't finished <task> yet. <next>",
+  "f": 0, "d": ["もう", "また", "ずっと"],
+  "why": "'Not yet' is まだです: まだ marks something that has not happened so far, while もう would mean it is already done.",
+  "vars": {
+   "name": [["田中[たなか]さん", "Mr. Tanaka"], ["鈴木[すずき]さん", "Ms. Suzuki"], ["山本[やまもと]さん", "Mr. Yamamoto"], ["佐藤[さとう]さん", "Ms. Sato"], ["中村[なかむら]さん", "Mr. Nakamura"], ["小林[こばやし]さん", "Ms. Kobayashi"]],
+   "task": [["宿題[しゅくだい]", "the homework"], ["レポート", "the report"], ["掃除[そうじ]", "the cleaning"], ["洗濯[せんたく]", "the laundry"], ["準備[じゅんび]", "the preparations"], ["片付[かたづ]け", "the tidying up"], ["仕事[しごと]", "my work"], ["作文[さくぶん]", "the essay"]],
+   "next": [["あと少[すこ]しです。", "I'm almost there."], ["今[いま]やっています。", "I'm doing it now."], ["明日[あした]やります。", "I'll do it tomorrow."], ["午後[ごご]にやります。", "I'll do it this afternoon."], ["今夜[こんや]やります。", "I'll do it tonight."], ["すぐやります。", "I'll do it right away."], ["もう少[すこ]し待[ま]ってください。", "Please give me a little more time."], ["これから始[はじ]めます。", "I'm about to start."]]
+  }}
+]

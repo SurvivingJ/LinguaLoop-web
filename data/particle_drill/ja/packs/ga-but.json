@@ -1,0 +1,20 @@
+[
+ {"id":"ga-but-1","lv":4,
+  "tpl":"<who>{は|wa-topic}<like>{が|ga-stative}好[す]きです{が/けど|ga-but}、<dislike>{は|wa-contrast}好[す]きじゃありません。",
+  "en":"<who> likes <like>, but not <dislike>.",
+  "f":2,"d":["から","ので","と"],
+  "why":"The second clause turns against the first, so the polite clause ends in が meaning \"but\".",
+  "vars":{
+   "who":[["母[はは]","My mother"],["父[ちち]","My father"],["姉[あね]","My older sister"],["弟[おとうと]","My younger brother"],["妹[いもうと]","My younger sister"],["祖父[そふ]","My grandfather"],["田中[たなか]さん","Mr. Tanaka"],["山田[やまだ]さん","Ms. Yamada"]],
+   "like":[["肉[にく]","meat"],["魚[さかな]","fish"],["甘[あま]い物[もの]","sweet things"],["ケーキ","cake"],["チョコレート","chocolate"],["ラーメン","ramen"]],
+   "dislike":[["野菜[やさい]","vegetables"],["トマト","tomatoes"],["ピーマン","green peppers"],["納豆[なっとう]","natto"],["きのこ","mushrooms"],["牛乳[ぎゅうにゅう]","milk"]]}},
+ {"id":"ga-but-2","lv":4,
+  "tpl":"すみません、<when>、<place>{に/へ|ni-destination}行[い]きたいんです{が/けど|ga-but}、<ask>。",
+  "en":"Excuse me, I'd like to go to <place> <when>. <ask>",
+  "f":1,"d":["から","と","を"],
+  "why":"Here が does not contrast anything: it softly introduces the situation before the question.",
+  "vars":{
+   "when":[["これから","now"],["明日[あした]","tomorrow"],["午後[ごご]","this afternoon"],["週末[しゅうまつ]","at the weekend"],["夕方[ゆうがた]","this evening"],["来週[らいしゅう]","next week"]],
+   "place":[["駅[えき]","the station"],["市役所[しやくしょ]","city hall"],["郵便局[ゆうびんきょく]","the post office"],["美術館[びじゅつかん]","the art museum"],["動物園[どうぶつえん]","the zoo"],["図書館[としょかん]","the library"],["中央病院[ちゅうおうびょういん]","Central Hospital"],["野球場[やきゅうじょう]","the baseball stadium"]],
+   "ask":[["どう行[い]け{ば|ba-conditional}いいですか","How do I get there?"],["ここ{から|kara-from}遠[とお]いですか","Is it far from here?"],["徒歩[とほ]{で|de-means}行[い]けますか","Can I get there on foot?"],["バス{で|de-means}行[い]けますか","Can I get there by bus?"],["何分[なんぷん]{ぐらい/くらい|kurai-about}かかりますか","About how long does it take?"],["この近[ちか]くですか","Is it near here?"]]}}
+]

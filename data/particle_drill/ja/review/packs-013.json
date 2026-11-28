@@ -1,0 +1,7 @@
+{"batch":"packs-013",
+ "files":["packs/no-subject.json","packs/no-explanatory.json","packs/to-and.json","packs/to-with.json"],
+ "checked":7,"fixed":2,"deleted":0,
+ "issues":[
+  {"file":"packs/no-explanatory.json","pack":"no-explanatory-1","problem":"event value まだ来[き]ていない makes the distractor です grammatical (来ていないです is standard polite), so です is not plainly wrong for that combination","action":"removed the value (7 events remain, 336 combinations)"},
+  {"file":"packs/to-with.json","pack":"to-with-1","problem":"公園[こうえん]{を|o-path}散歩[さんぽ]しました: 公園で散歩しました is equally natural with the same English but was not listed","action":"slot changed to {を/で|o-path}"}
+ ]}

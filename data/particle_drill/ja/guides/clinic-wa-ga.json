@@ -1,0 +1,71 @@
+{
+ "group": "clinic-wa-ga",
+ "intro": "は and が can both follow the same noun, but they do different jobs. は sets the frame: 'as for X, here is what I want to say'. が points at the subject inside the event: 'X is the one that does or is this'. So you are not choosing a translation. You are asking whether the noun is the subject of the conversation or the subject of the verb. Run through the questions below in order and stop at the first yes.",
+ "skills": [
+  {
+   "id": "x-wa-ga",
+   "rule": "Ask in order: inside a noun-modifying or if / when clause? が. A question word, or the answer to one? が. A new event you are reporting? が. Otherwise, something known that you comment on or contrast? は.",
+   "explain": "Q1. Is the noun inside a clause that modifies a noun, or inside an if / when clause (たら, ば, と, とき, 前に)? Then が: 母が作ったケーキ, 雨が降ったら. は does not go there. Clauses ending in が, けど or から are looser and can have their own は, as in Q4.\n\nQ2. Is the noun a question word (誰, 何, どれ), or the answer to one? Then が. 誰が来ましたか is answered with 田中さんが来ました. A question word never takes は.\n\nQ3. Are you reporting something you have just noticed, or describing a scene? Then が: あ、バスが来た. Nothing is being talked about yet, so there is no topic.\n\nQ4. Otherwise, is the noun known (yourself, a thing already mentioned, a whole category) and the rest of the sentence a comment on it? Then は: 私は学生です, 猫は肉を食べます. Contrast and negatives also lean to は: 肉は食べますが、魚は食べません.\n\nOne sentence often has both: 象は鼻が長い, 'elephants (topic) have long trunks (subject)'.",
+   "patterns": [
+    "[noun] が [verb] [noun]  (inside a modifying clause)",
+    "誰 / 何 が [verb] か  ->  [answer] が [verb]",
+    "[known topic] は [comment]",
+    "[topic] は [subject] が [adjective]"
+   ],
+   "examples": [
+    {
+     "jp": "私[わたし]{は}学生[がくせい]です。",
+     "en": "I'm a student."
+    },
+    {
+     "jp": "誰[だれ]{が}来[き]ましたか。",
+     "en": "Who came?"
+    },
+    {
+     "jp": "田中[たなか]さん{が}来[き]ました。",
+     "en": "It was Tanaka-san who came."
+    },
+    {
+     "jp": "母[はは]{が}作[つく]ったケーキはおいしいです。",
+     "en": "The cake my mother made is delicious."
+    },
+    {
+     "jp": "象[ぞう]{は}鼻[はな]{が}長[なが]いです。",
+     "en": "Elephants have long trunks."
+    },
+    {
+     "jp": "肉[にく]{は}食[た]べますが、魚[さかな]{は}食[た]べません。",
+     "en": "I eat meat, but I don't eat fish."
+    }
+   ],
+   "contrast": [
+    {
+     "vs": "は",
+     "note": "は asks the listener to hold X in mind and hear a comment on it. 田中さんは来ました answers 'and Tanaka?' and quietly contrasts him with others."
+    },
+    {
+     "vs": "が",
+     "note": "が puts X inside the event as its subject, and often as the new or chosen item. 田中さんが来ました announces an arrival or answers 'who came?'."
+    }
+   ],
+   "mistakes": [
+    {
+     "bad": "誰[だれ]{は}来[き]ましたか。",
+     "good": "誰[だれ]{が}来[き]ましたか。",
+     "note": "A question word is never the topic; you cannot comment on something you do not know yet."
+    },
+    {
+     "bad": "雨[あめ]{は}降[ふ]ったら、行[い]きません。",
+     "good": "雨[あめ]{が}降[ふ]ったら、行[い]きません。",
+     "note": "The subject of an if / when clause takes が; は cannot sit inside it."
+    },
+    {
+     "bad": "はじめまして。私[わたし]{が}山田[やまだ]です。",
+     "good": "はじめまして。私[わたし]{は}山田[やまだ]です。",
+     "note": "In an introduction you are commenting on yourself. 私が山田です means 'I'm the Yamada (you're looking for)'."
+    }
+   ],
+   "tip": "Noun-modifying or if / when clause, or question word: が. Fresh news: が. Known thing plus a comment: は."
+  }
+ ]
+}

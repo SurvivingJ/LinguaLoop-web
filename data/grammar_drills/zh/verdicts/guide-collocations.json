@@ -1,0 +1,14 @@
+{
+  "file": "guides/collocations.json",
+  "checked": 10,
+  "fixed": 7,
+  "issues": [
+    {"problem": "Contrast '我昨天晚上有一个很奇怪的梦。' is not reliably wrong to every native speaker (有个奇怪的梦 is heard), and the do focus listed 有一个梦 as an error to test, which would yield disputable judge items.", "action": "Replaced the contrast with 他给我们开了一个笑话 -> 讲了一个笑话 (clearly wrong). Do focus now allows the dream point only as a cloze with 了 (做了 vs 有了), never as a judge item."},
+    {"problem": "do focus did not warn that 做签证 is common colloquial mainland usage, so items could key 做 wrong against 办签证.", "action": "Added: never key 做签证 wrong; drill 办 with 手续 and 事."},
+    {"problem": "daily focus listed 做生日 as an error, but 做生日 is a real regional (Wu/southern) expression, and 度过生日 is fine, so 做/度 distractors to 过生日 are unsafe.", "action": "Removed 做生日 as an error; told writers not to key it wrong and to use 开 or 打 as distractors."},
+    {"problem": "kan-chi rule and focus implied 读 is only for reading aloud, so following it mechanically would key 读书 / 读小说 / 读报 wrong.", "action": "Rule now notes 读书 'read' is fine; focus says never key 读书, 读报, 读小说 wrong."},
+    {"problem": "adjectives focus listed 声音很高 as an error for 'loud', but 声音高 can also mean volume (高声, 调高声音), so it is ambiguous.", "action": "Removed it as a keyed error, told writers to avoid it in items, and softened the rule note to 'ambiguous, often high-pitched'."},
+    {"problem": "ride-kai focus listed 坐马 as an error without mentioning 坐马车 'ride in a carriage', which is correct and could be keyed wrong by analogy.", "action": "Replaced 坐马 with the clearer error 骑出租车 and noted that 坐马车 is correct."},
+    {"problem": "My kan-chi rule edit pushed rules[5].rule over the 220-character limit.", "action": "Shortened the wording; validate-guide reports OK."}
+  ]
+}

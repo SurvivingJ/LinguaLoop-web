@@ -1,0 +1,20 @@
+[
+ {"id":"pt-sou-hear-1","lv":4,
+  "tpl":"<source>によると、<when>は<place>で雨[あめ]が{降[ふ]るそうです|pt-sou-hear}。",
+  "en":"According to <source>, it will rain in <place> <when>.",
+  "f":0,"d":["降[ふ]りそうです","降[ふ]ったそうです","降[ふ]っていたそうです"],
+  "why":"によると names a source, so the report takes plain non-past 降る + そうです; 降りそう would describe how the sky looks.",
+  "vars":{
+   "source":[["天気予報[てんきよほう]","the weather forecast"],["ニュース","the news"],["ラジオの天気予報[てんきよほう]","the weather report on the radio"],["母[はは]の話[はなし]","my mother"],["新聞[しんぶん]","the newspaper"],["天気[てんき]アプリ","the weather app"],["朝[あさ]のニュース","the morning news"]],
+   "when":[["明日[あした]","tomorrow"],["明日[あした]の朝[あさ]","tomorrow morning"],["今夜[こんや]","tonight"],["週末[しゅうまつ]","at the weekend"],["明後日[あさって]","the day after tomorrow"],["来週[らいしゅう]の月曜日[げつようび]","next Monday"],["土曜日[どようび]","on Saturday"]],
+   "place":[["東京[とうきょう]","Tokyo"],["大阪[おおさか]","Osaka"],["京都[きょうと]","Kyoto"],["九州[きゅうしゅう]","Kyushu"],["北海道[ほっかいどう]","Hokkaido"],["名古屋[なごや]","Nagoya"],["沖縄[おきなわ]","Okinawa"]]}},
+ {"id":"pt-sou-hear-2","lv":4,
+  "tpl":"<person>から聞[き]いたんですが、<who>は<when>{結婚[けっこん]するそうです|pt-sou-hear}。",
+  "en":"I heard from <person> that <who> is getting married <when>.",
+  "f":0,"d":["結婚[けっこん]しそうです","結婚[けっこん]したそうです","結婚[けっこん]したがっています"],
+  "why":"Passing on what you were told about a future event takes the plain non-past 結婚する + そうです.",
+  "vars":{
+   "person":[["母[はは]","my mother"],["父[ちち]","my father"],["兄[あに]","my older brother"],["姉[あね]","my older sister"],["妹[いもうと]","my younger sister"],["祖母[そぼ]","my grandmother"],["おば","my aunt"]],
+   "who":[["鈴木[すずき]さん","Ms. Suzuki"],["山本[やまもと]さん","Mr. Yamamoto"],["いとこ","my cousin"],["高橋[たかはし]さん","Ms. Takahashi"],["中村[なかむら]さん","Mr. Nakamura"],["佐藤[さとう]さんの娘[むすめ]さん","Mr. Sato's daughter"],["隣[となり]の家[いえ]の息子[むすこ]さん","the son of the family next door"]],
+   "when":[["来月[らいげつ]","next month"],["来年[らいねん]の春[はる]に","next spring"],["今年[ことし]の秋[あき]に","this autumn"],["六月[ろくがつ]に","in June"],["来年[らいねん]","next year"],["年末[ねんまつ]に","at the end of the year"],["夏[なつ]に","in the summer"]]}}
+]

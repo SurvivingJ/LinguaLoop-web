@@ -1,0 +1,8 @@
+{"batch":"items-m50030","files":["items/cl-toru__m50.jsonl","items/cl-hiku__m50.jsonl","items/cl-gasuru__m50.jsonl","items/cs-nakya__m50.jsonl","items/cs-sound__m50.jsonl"],"checked":47,"fixed":6,"deleted":0,"replaced":0,"issues":[
+{"file":"items/cl-toru__m50.jsonl","jp_before":"夕食[ゆうしょく]は、家族[かぞく]みんなで食事[しょくじ]を{取[と]る|cl-toru}ことにしています。","problem":"夕食は…食事を取る is redundant (dinner … have a meal).","action":"Opened with 毎晩 instead of 夕食は and adjusted the English."},
+{"file":"items/cl-hiku__m50.jsonl","jp_before":"図書館[としょかん]で、線[せん]を{引[ひ]いて|cl-hiku}ある古[ふる]い本[ほん]を借[か]りてしまった。","problem":"The resulting state is normally 線が引いてある; を + てある is non-standard here.","action":"Changed を to が and rewrote the why."},
+{"file":"items/cl-hiku__m50.jsonl","jp_before":"発表[はっぴょう]の順番[じゅんばん]は、くじを{引[ひ]いて|cl-hiku}決[き]めることになりました。","problem":"Near-duplicate of an existing cl-hiku.jsonl item (順番はくじを引いて決めましょう).","action":"Rewrote as くじを引いた結果、私が最初に発表することになった。 with matching past-form distractors."},
+{"file":"items/cl-gasuru__m50.jsonl","jp_before":"京都[きょうと]の古[ふる]い町[まち]を歩[ある]いていると、昔[むかし]に戻[もど]ったような感[かん]じ{がします|cl-gasuru}。","problem":"Distractor になります gives ～ような感じになります, which is natural and means the same.","action":"Replaced the distractor with にします."},
+{"file":"items/cs-nakya__m50.jsonl","jp_before":"買[か]った野菜[やさい]は今日[きょう]中[じゅう]に{食[た]べなければ/食[た]べなくては|cs-nakya}なりません。","problem":"In a reverse (careful-style) item the distractors should include contracted forms of other patterns.","action":"Replaced the distractor 食べても with 食べちゃ."},
+{"file":"items/cs-sound__m50.jsonl","jp_before":"公園[こうえん]で走[はし]ってる{とこ|cs-sound}を、友達[ともだち]に写真[しゃしん]で撮[と]られた。","problem":"写真で撮られた is unnatural; the collocation is 写真に撮る.","action":"Changed 写真で to 写真に."}
+]}

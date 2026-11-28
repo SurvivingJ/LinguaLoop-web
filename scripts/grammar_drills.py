@@ -356,7 +356,9 @@ def validate_file(path, plan, quiet=False, min_items=None):
                 problems.append(f'type mix: {got} {typ} items, target {round(target * scale)} '
                                 f'(±{MIX_TOLERANCE})')
         lv = Counter(i.get('lvl') for i in items)
-        if lv.get(1, 0) < 0.25 * len(items) or lv.get(3, 0) < 0.1 * len(items):
+        # A topic may opt out (plan.json "free_levels": true): chengyu have no HSK 1-2 items.
+        if not topic.get('free_levels') and (
+                lv.get(1, 0) < 0.25 * len(items) or lv.get(3, 0) < 0.1 * len(items)):
             problems.append(f'level mix: lvl1={lv.get(1, 0)} lvl2={lv.get(2, 0)} lvl3={lv.get(3, 0)}; '
                             'need at least 25% level 1 and 10% level 3')
         if subs:

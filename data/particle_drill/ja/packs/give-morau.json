@@ -1,0 +1,204 @@
+[
+ {
+  "id": "give-morau-1",
+  "lv": 4,
+  "tpl": "<who>{は/が|wa-topic}<giver>{に/から|give-morau}<obj>{を|o-object}もらいました。",
+  "en": "<who> got <obj> from <giver>.",
+  "f": 1,
+  "d": [
+   "を",
+   "が",
+   "で"
+  ],
+  "why": "With もらう the person you receive from is marked with に (or から).",
+  "vars": {
+   "who": [
+    [
+     "私[わたし]",
+     "I"
+    ],
+    [
+     "妹[いもうと]",
+     "My younger sister"
+    ],
+    [
+     "弟[おとうと]",
+     "My younger brother"
+    ],
+    [
+     "姉[あね]",
+     "My older sister"
+    ],
+    [
+     "いとこ",
+     "My cousin"
+    ],
+    [
+     "兄[あに]",
+     "My older brother"
+    ]
+   ],
+   "giver": [
+    [
+     "祖父[そふ]",
+     "my grandfather"
+    ],
+    [
+     "祖母[そぼ]",
+     "my grandmother"
+    ],
+    [
+     "友達[ともだち]",
+     "a friend"
+    ],
+    [
+     "田中[たなか]さん",
+     "Mr. Tanaka"
+    ],
+    [
+     "叔母[おば]",
+     "my aunt"
+    ],
+    [
+     "鈴木[すずき]さん",
+     "Ms. Suzuki"
+    ],
+    [
+     "山田[やまだ]さん",
+     "Mr. Yamada"
+    ]
+   ],
+   "obj": [
+    [
+     "お菓子[かし]",
+     "some sweets"
+    ],
+    [
+     "本[ほん]",
+     "a book"
+    ],
+    [
+     "手紙[てがみ]",
+     "a letter"
+    ],
+    [
+     "お土産[みやげ]",
+     "a souvenir"
+    ],
+    [
+     "古[ふる]い自転車[じてんしゃ]",
+     "an old bicycle"
+    ],
+    [
+     "チケット",
+     "a ticket"
+    ],
+    [
+     "りんご",
+     "some apples"
+    ]
+   ]
+  }
+ },
+ {
+  "id": "give-morau-2",
+  "lv": 4,
+  "tpl": "<giver>{に/から|give-morau}もらった<obj>{を|o-object}<act>。",
+  "en": "I <act> the <obj> I got from <giver>.",
+  "f": 0,
+  "d": [
+   "が",
+   "を",
+   "で"
+  ],
+  "why": "Inside the clause, the person the thing came from takes に or から; が would make them the one who received it.",
+  "vars": {
+   "giver": [
+    [
+     "祖母[そぼ]",
+     "my grandmother"
+    ],
+    [
+     "父[ちち]",
+     "my father"
+    ],
+    [
+     "友達[ともだち]",
+     "a friend"
+    ],
+    [
+     "兄[あに]",
+     "my older brother"
+    ],
+    [
+     "田中[たなか]さん",
+     "Mr. Tanaka"
+    ],
+    [
+     "叔父[おじ]",
+     "my uncle"
+    ],
+    [
+     "姉[あね]",
+     "my older sister"
+    ]
+   ],
+   "obj": [
+    [
+     "マフラー",
+     "scarf"
+    ],
+    [
+     "時計[とけい]",
+     "watch"
+    ],
+    [
+     "傘[かさ]",
+     "umbrella"
+    ],
+    [
+     "財布[さいふ]",
+     "wallet"
+    ],
+    [
+     "かばん",
+     "bag"
+    ],
+    [
+     "万年筆[まんねんひつ]",
+     "fountain pen"
+    ],
+    [
+     "手袋[てぶくろ]",
+     "gloves"
+    ]
+   ],
+   "act": [
+    [
+     "なくしました",
+     "lost"
+    ],
+    [
+     "今[いま]も使[つか]っています",
+     "still use"
+    ],
+    [
+     "大切[たいせつ]にしています",
+     "treasure"
+    ],
+    [
+     "忘[わす]れてきました",
+     "left behind"
+    ],
+    [
+     "探[さが]しています",
+     "am looking for"
+    ],
+    [
+     "持[も]ってきました",
+     "brought"
+    ]
+   ]
+  }
+ }
+]

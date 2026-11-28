@@ -1,0 +1,7 @@
+{"batch":"packs-027",
+ "files":["packs/bakari-just.json","packs/hodo-extent.json","packs/hodo-nai.json","packs/ba-hodo.json","packs/kurai-about.json"],
+ "checked":7,"fixed":2,"deleted":0,
+ "issues":[
+  {"file":"packs/hodo-nai.json","pack":"hodo-nai-1","problem":"Non-focus が slot after the ほど phrase (私ほど背が高くありません) is equally natural with contrastive は in a negative comparison, but は was not listed as an alternative.","action":"Changed every が slot in the adj values to {が/は|…}."},
+  {"file":"packs/kurai-about.json","pack":"kurai-about-2","problem":"English 'from here to the city hall' reads unnaturally; 'city hall' normally takes no article.","action":"Changed the English value to 'city hall'."}
+ ]}

@@ -1,0 +1,20 @@
+[
+ {"id":"cl-wear-1","lv":5,
+  "tpl":"<who>は<item>を{履[は]いて|cl-wear}<end>。",
+  "en":"<who> <end> <item>.",
+  "f":0,"d":["着[き]て","かぶって","かけて"],
+  "why":"Anything you step into, such as shoes, socks or boots, is worn with 履く, not 着る.",
+  "vars":{
+   "who":[["弟[おとうと]","My younger brother"],["姉[あね]","My older sister"],["田中[たなか]さん","Mr. Tanaka"],["妹[いもうと]","My younger sister"],["父[ちち]","My father"],["鈴木[すずき]さん","Ms. Suzuki"],["友達[ともだち]","My friend"],["祖母[そぼ]","My grandmother"]],
+   "item":[["新[あたら]しい靴[くつ]","new shoes"],["白[しろ]い靴下[くつした]","white socks"],["黒[くろ]いブーツ","black boots"],["サンダル","sandals"],["下駄[げた]","geta"],["長靴[ながぐつ]","rain boots"],["赤[あか]いスニーカー","red sneakers"],["古[ふる]い運動靴[うんどうぐつ]","old trainers"]],
+   "end":[["いました","was wearing"],["出[で]かけました","went out in"],["来[き]ました","came wearing"],["歩[ある]きました","walked in"],["帰[かえ]りました","went home in"],["待[ま]っていました","was waiting in"]]}},
+ {"id":"cl-wear-2","lv":4,
+  "tpl":"どうして<who>は<item>を{かぶって|cl-wear}<act>。",
+  "en":"Why did <who> <act> <item>?",
+  "f":0,"d":["着[き]て","履[は]いて","かけて"],
+  "why":"Things that go on top of the head, such as hats, caps and helmets, take かぶる.",
+  "vars":{
+   "who":[["田中[たなか]さん","Mr. Tanaka"],["鈴木[すずき]さん","Ms. Suzuki"],["佐藤[さとう]さん","Mr. Sato"],["山本[やまもと]さん","Ms. Yamamoto"],["木村[きむら]さん","Mr. Kimura"],["中村[なかむら]さん","Ms. Nakamura"],["あの人[ひと]","that person"],["弟[おとうと]さん","your brother"]],
+   "item":[["帽子[ぼうし]","a hat"],["黒[くろ]い帽子[ぼうし]","a black hat"],["ヘルメット","a helmet"],["麦[むぎ]わら帽子[ぼうし]","a straw hat"],["野球帽[やきゅうぼう]","a baseball cap"],["ニット帽[ぼう]","a knit cap"],["大[おお]きな帽子[ぼうし]","a big hat"],["古[ふる]い帽子[ぼうし]","an old hat"]],
+   "act":[["いたんですか","wear"],["来[き]たんですか","come in"],["寝[ね]たんですか","sleep in"],["出[で]かけたんですか","go out in"],["歩[ある]いていたんですか","walk around in"],["走[はし]ったんですか","run in"]]}}
+]

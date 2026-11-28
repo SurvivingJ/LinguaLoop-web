@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% set defer_base_scripts = true %}
+{% set page_js = module_assets('js/pages', 'particle-drill.js') %}
+{# One task per screen: Back pill header, a scrolling stage, answers and
+   Continue in a pinned dock. The page is client-rendered
+   (static/js/pages/particle-drill.js); views switch on the URL hash, so the
+   Back pill steps from a drill to its guide to the ladder. #}
+{% set task_mode = true %}
+{% set task_back = 'history' %}
+
+{% block title %}Particles | LinguaDojo{% endblock %}
+
+{% block body_class %}bg-slate-50 trainer-page{% endblock %}
+
+{% block task_back_href %}{{ url_for('study_session_page', mode='practice') }}{% endblock %}
+{% block task_title %}<span data-pd-title>Particles</span>{% endblock %}
+{% block task_glyph %}は{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/redesign/particles.css') }}">
+<script type="importmap">{{ module_assets('js/particles').import_map|tojson }}</script>
+{% for href in page_js.preload %}<link rel="modulepreload" href="{{ href }}">
+{% endfor %}
+{% endblock %}
+
+{% block content %}
+<div id="particleDrillRoot" class="trainer-host pd-host" lang="en">
+    <div class="drill-msg" data-i18n="particle_drill.loading">Loading…</div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script type="module" src="{{ page_js.entry }}"></script>
+{% endblock %}

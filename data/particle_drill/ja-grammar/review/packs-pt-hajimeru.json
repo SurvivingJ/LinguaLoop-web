@@ -1,0 +1,10 @@
+{"batch":"packs-pt-hajimeru",
+ "files":["packs/pt-hajimeru.json","packs/pt-youninaru.json","packs/pt-yasui.json"],
+ "checked":6,
+ "fixed":3,
+ "deleted":0,
+ "issues":[
+  {"file":"packs/pt-hajimeru.json","pack":"pt-hajimeru-1","problem":"addr value 前の列の人 is an awkward form of address next to the other 〜の皆さん values when announcing to a group.","action":"Replaced with 前[まえ]の列[れつ]の皆[みな]さん (English 'Front row' unchanged)."},
+  {"file":"packs/pt-youninaru.json","pack":"pt-youninaru-2","problem":"Distractor ことにしてください is not plainly wrong: 'なるべく早く寝ることにしてください' reads naturally as 'make it a rule to go to bed as early as possible', close to the English.","action":"Replaced with ようになりました, which clashes with なるべく plus a request and with the English 'please'."},
+  {"file":"packs/pt-yasui.json","pack":"pt-yasui-2","problem":"With the item marked by は (粉薬は飲み…, ボタンは押し…, 靴は歩き…), distractor すぎて gives a grammatical object-topic reading ('took too much of the powder', 'pressed the buttons too much'), so it was not plainly wrong.","action":"Changed は to が in all eight item values (粉薬が飲みにくくて etc.). This is also the more natural marking for a cause clause and rules out the すぎて reading."}
+ ]}

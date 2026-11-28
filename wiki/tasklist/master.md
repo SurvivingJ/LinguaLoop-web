@@ -19,13 +19,31 @@ below.
 
 | Status | Rows in this file | All task files (union, file status wins) |
 |--------|-------------------|------------------------------------------|
-| Not Started | 88 | 104 |
+| Not Started | 90 | 106 |
 | In Progress (`[~]`) | 18 | 25 |
-| Blocked / Deferred / Awaiting decision (`[?]`; includes "Done (repo), awaiting live apply") | 73 | 72 |
+| Blocked / Deferred / Awaiting decision (`[?]`; includes "Done (repo), awaiting live apply") | 78 | 77 |
 | Won't Do (obsolete) | 3 | 3 |
-| Superseded | 2 | 2 |
-| Done | 230 | 374 |
-| **Total distinct task ids** | **409** | **575** |
+| Superseded | 3 | 3 |
+| Done | 244 | 388 |
+| **Total distinct task ids** | **436** | **602** |
+
+*2026-11-29 (second merge of main, PR #49):* both sides' rows kept. Not Started is main's 88/104 plus this branch's +2 (90/106); the other rows are this branch's (main did not change them); the total adds main's five new ids to this branch's 431/597. This branch's ids were renumbered again, TASK-1276–1290 → TASK-1283–1297 and ADR-069/068 → ADR-069/070, because main took TASK-1276–1275, ADR-069 and ADR-070.
+
+*2026-11-28 (idiom full tier):* TASK-1297 Awaiting → Done (Awaiting −1, Done +1).
+
+*2026-11-28 (tracking migration applied):* TASK-1259 `[?]` awaiting live apply → Done (Awaiting −1, Done +1).
+
+*2026-11-28 (idiom trainer):* new TASK-1294 and TASK-1295 Done, TASK-1296 and TASK-1297 Awaiting (Done +2, Awaiting +2, 4 ids).
+
+*2026-11-28 (more drills for Japanese and Chinese):* new TASK-1291 Done, TASK-1292 Done, TASK-1293 Awaiting (Done +2, Awaiting +1, 3 ids).
+
+*2026-11-28 (shared grammar-drill tracking):* TASK-1280 Awaiting → Superseded (its table was withdrawn); new TASK-1289 Done and TASK-1290 Not Started (Awaiting −1, Superseded +1, Done +1, Not Started +1, 2 ids).
+
+*2026-11-28 (merge of main into the particle-drill branch):* both sides' rows kept; the summary is main's (83/99, 18/25, 73/72, 230/374, 409/575) plus this branch's changes (Not Started +1, Awaiting +5, Done +7, 13 ids). This branch's ids were renumbered TASK-1276–1246 → TASK-1276–1281 and its ADR-069 → ADR-069, because main took those numbers.
+
+*2026-11-27 (grammar drill):* added TASK-1285 to TASK-1288 by arithmetic on the table above (Done +3, Awaiting +1); no other row changed.
+
+*2026-11-27 (particle drill):* added TASK-1276 to TASK-1284 by arithmetic on the table above (Done +4, Not Started +1, Awaiting +4); no other row changed.
 
 *2026-11-27 (merge of main into the grammar-drills branch):* both sides' rows kept; the summary above is the pre-merge base (71/87, 18/25, 59/58, 221/365, 374/540) plus both sides' changes (grammar drills: +4, +6, +5; main: +8, +8, +4). The grammar-drill ids were renumbered from TASK-1234–1248 to TASK-1254–1268 because main had taken TASK-1234–1253. Added by hand, not recounted with the checker.
 
@@ -1609,7 +1627,7 @@ Full spec: [[tasklist/grammar-drills.tasks]]. Feature: [[features/grammar-drills
 | TASK-1256 | grammar-drills | Drill content authored, blind-reviewed and built (105 batches, 10,209 items) | Done | XL | TASK-1254, TASK-1255 |
 | TASK-1257 | grammar-drills | `/grammar-drill` page: engine, four-stage ladder, local progress, i18n, profile link | Done | XL | TASK-1254 |
 | TASK-1258 | grammar-drills | Infinite-practice generators (22 generators, 13 topics) and Endless mode | Done | L | TASK-1257 |
-| TASK-1259 | grammar-drills | Track grammar-drill progress on the server (daily summaries + state row; ADR-066) — Done (repo) 2026-11-27, awaiting live apply of `migrations/grammar_drill_tracking.sql` | [?] | L | — |
+| TASK-1259 | grammar-drills | Track grammar-drill progress on the server (daily summaries + state row; ADR-066) — repo 2026-11-27; migration applied to the live project 2026-11-28 | [x] | L | — |
 | TASK-1260 | grammar-drills | Decide whether grammar drills join the Study Plan / daily session and feed ELO | [?] | XL | TASK-1259 |
 | TASK-1261 | grammar-drills | Native-speaker audit of the drill content | [ ] | XL | — |
 | TASK-1262 | grammar-drills | Decide the languages for guide and explanation text | [?] | XL | — |
@@ -1624,6 +1642,47 @@ Full spec: [[tasklist/grammar-drills.tasks]]. Feature: [[features/grammar-drills
 | TASK-1273 | new-language-content-packs | Drill page reads a pack's built files | [ ] | M | — |
 | TASK-1274 | new-language-content-packs | Cross-field checks for pack dictionaries | [ ] | S | — |
 | TASK-1275 | language-registry | Language registry follow-ups (glyph tables, dim_languages check, feature gates) | [ ] | M | — |
+### Particle Drill (Japanese) — NEW 2026-11-27
+Full spec: [[tasklist/particle-drill.tasks]]. Feature: [[features/particle-drill]]. Built in one session: 10,549 reviewed exercise items, 138 guides, 278 pattern packs, the conjugation gym and the `/particle-drill` page. Four rows are `[?]` (owner: spot check, live apply, two decisions).
+
+| ID | Feature | Title | Status | Complexity | Depends On |
+|----|---------|-------|--------|------------|------------|
+| TASK-1276 | particle-drill | Content format, catalog, validator and authoring pipeline | [x] | L | — |
+| TASK-1277 | particle-drill | Author and review the content (guides, items, packs, conjugation) | [x] | XL | TASK-1276 |
+| TASK-1278 | particle-drill | Drill page, engine, routes and tests | [x] | L | TASK-1276 |
+| TASK-1279 | particle-drill | Native-speaker spot check of the answer keys | [?] | M | TASK-1277 |
+| TASK-1280 | particle-drill | Apply the progress table (`migrations/particle_drill_progress.sql`) | Superseded by TASK-1259 / TASK-1289 | XS | TASK-1278 |
+| TASK-1281 | particle-drill | Count particle drilling in study time, the daily session and (optionally) ELO | [?] | M | TASK-1280 |
+| TASK-1282 | particle-drill | Guides and reasons in the learner's interface language | [?] | L | TASK-1277 |
+| TASK-1283 | particle-drill | "Report this sentence" from the drill | [ ] | S | TASK-1278 |
+| TASK-1284 | particle-drill | Conjugation drill as its own page, fed by the words the learner knows | [x] | M | TASK-1278 |
+| TASK-1289 | particle-drill | Shared tracking structure; a grammar-drill page per language | [x] | L | TASK-1278, TASK-1259 |
+| TASK-1290 | particle-drill | Progress charts for the Japanese drills | [ ] | M | TASK-1289, TASK-1259 |
+| TASK-1291 | particle-drill | Depth and five more areas for the Japanese drills | [x] | XL | TASK-1277, TASK-1286 |
+| TASK-1292 | grammar-drills | Five more Chinese topics and a worker runner | [x] | L | TASK-1254 |
+| TASK-1293 | particle-drill | Listening drills (Japanese sound length; Chinese tones and initials) | [?] | L | — |
+
+### Idiom Trainer (Chinese and Japanese)
+
+Full spec: [[tasklist/idiom-trainer.tasks]]. Feature: [[features/idiom-trainer]]. A card per idiom with its story where one exists, six contexts each, a five-step ladder with spaced reviews; core tier 652 idioms.
+
+| ID | Feature | Title | Status | Complexity | Depends On |
+|----|---------|-------|--------|------------|------------|
+| TASK-1294 | idiom-trainer | Idiom trainer: contract, engine, pages, tracking | [x] | L | TASK-1289 |
+| TASK-1295 | idiom-trainer | Author and review the core tier | [x] | XL | TASK-1294 |
+| TASK-1296 | idiom-trainer | Native-speaker check of the lists, cards and stories | [?] | M | TASK-1295 |
+| TASK-1297 | idiom-trainer | The full tier | [x] | XL | TASK-1295 |
+
+### Grammar Drill and Reading Drill (Japanese)
+
+Full spec: [[tasklist/japanese-grammar-drill.tasks]]. Feature: [[features/japanese-grammar-drill]]. A second course on the particle pipeline and ladder (182 skills, 8,340 reviewed items, 48 guides) and a rule-generated reading drill.
+
+| ID | Feature | Title | Status | Complexity | Depends On |
+|----|---------|-------|--------|------------|------------|
+| TASK-1285 | japanese-grammar-drill | Second course in the pipeline, service, routes and page | [x] | L | TASK-1278 |
+| TASK-1286 | japanese-grammar-drill | Author and review the grammar content | [x] | XL | TASK-1285 |
+| TASK-1287 | japanese-grammar-drill | Reading drill (numbers, prices, times, dates, durations, ages, katakana) | [x] | M | TASK-1284 |
+| TASK-1288 | japanese-grammar-drill | Native-speaker spot check of the grammar answer keys | [?] | M | TASK-1286 |
 
 ### Language Packs (existing — unchanged)
 

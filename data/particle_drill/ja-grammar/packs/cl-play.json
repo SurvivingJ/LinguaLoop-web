@@ -1,0 +1,20 @@
+[
+ {"id":"cl-play-1","lv":4,
+  "tpl":"<who>は<event>で<inst>を{弾[ひ]きました|cl-play}。",
+  "en":"<who> played <inst> <event>.",
+  "f":0,"d":["吹[ふ]きました","しました","遊[あそ]びました"],
+  "why":"Instruments with strings or keys are played with 弾く; する and 遊ぶ never take an instrument.",
+  "vars":{
+   "who":[["姉[あね]","My older sister"],["田中[たなか]さん","Mr. Tanaka"],["兄[あに]","My older brother"],["娘[むすめ]","My daughter"],["鈴木[すずき]さん","Ms. Suzuki"],["祖父[そふ]","My grandfather"],["友達[ともだち]","My friend"],["先生[せんせい]","The teacher"]],
+   "event":[["パーティー","at the party"],["結婚式[けっこんしき]","at the wedding"],["コンサート","at the concert"],["誕生日会[たんじょうびかい]","at the birthday party"],["お祭[まつ]り","at the festival"],["発表会[はっぴょうかい]","at the recital"],["文化祭[ぶんかさい]","at the school festival"],["送別会[そうべつかい]","at the farewell party"]],
+   "inst":[["ピアノ","the piano"],["ギター","the guitar"],["バイオリン","the violin"],["チェロ","the cello"],["琴[こと]","the koto"],["ウクレレ","the ukulele"],["ベース","the bass"],["三味線[しゃみせん]","the shamisen"]]}},
+ {"id":"cl-play-2","lv":5,
+  "tpl":"<when>、<with>と<game>を{しません/やりません|cl-play}か。",
+  "en":"Would you like to play <game> with <with> <when>?",
+  "f":0,"d":["遊[あそ]びません","弾[ひ]きません","吹[ふ]きません"],
+  "why":"Sports and games are played with する (or casual やる); 遊ぶ cannot take the game as its object.",
+  "vars":{
+   "when":[["明日[あした]","tomorrow"],["今週末[こんしゅうまつ]","this weekend"],["日曜日[にちようび]","on Sunday"],["今度[こんど]","sometime"],["来週[らいしゅう]","next week"],["午後[ごご]","this afternoon"]],
+   "with":[["私[わたし]たち","us"],["弟[おとうと]","my brother"],["田中[たなか]さん","Mr. Tanaka"],["クラスのみんな","everyone from class"],["子供[こども]たち","the kids"],["父[ちち]","my dad"]],
+   "game":[["サッカー","soccer"],["テニス","tennis"],["野球[やきゅう]","baseball"],["バスケットボール","basketball"],["ゴルフ","golf"],["卓球[たっきゅう]","table tennis"],["トランプ","cards"],["バドミントン","badminton"]]}}
+]

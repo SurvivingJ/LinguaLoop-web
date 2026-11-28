@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% set defer_base_scripts = true %}
+{% set page_js = module_assets('js/pages', 'particle-drill.js') %}
+{# The conjugation drill as its own page. Same client script as the particle
+   drill (static/js/pages/particle-drill.js); data-home="conj" makes the
+   conjugation setup the home view. Words come from the learner's own
+   vocabulary (GET /api/particle-drill/conjugation/words) plus the level lists. #}
+{% set task_mode = true %}
+{% set task_back = 'history' %}
+
+{% block title %}Conjugation | LinguaDojo{% endblock %}
+
+{% block body_class %}bg-slate-50 trainer-page{% endblock %}
+
+{% block task_back_href %}{{ url_for('study_session_page', mode='practice') }}{% endblock %}
+{% block task_title %}<span data-pd-title>Conjugation</span>{% endblock %}
+{% block task_glyph %}て{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/redesign/particles.css') }}">
+<script type="importmap">{{ module_assets('js/particles').import_map|tojson }}</script>
+{% for href in page_js.preload %}<link rel="modulepreload" href="{{ href }}">
+{% endfor %}
+{% endblock %}
+
+{% block content %}
+<div id="particleDrillRoot" class="trainer-host pd-host" lang="en" data-home="conj">
+    <div class="drill-msg" data-i18n="particle_drill.loading">Loading…</div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script type="module" src="{{ page_js.entry }}"></script>
+{% endblock %}

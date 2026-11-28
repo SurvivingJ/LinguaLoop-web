@@ -1,0 +1,20 @@
+[
+ {"id":"to-conditional-1","lv":4,
+  "tpl":"<route>{を|o-path}<dist>行[い]く{と|to-conditional}、<spot>{が|ga-existence}あります。",
+  "en":"If you go <dist> along <route>, there's <spot>.",
+  "f":1,"d":["ば","たら","ても"],
+  "why":"Dictionary form + と gives a sure result or a discovery: do this and you will find that.",
+  "vars":{
+   "route":[["この道[みち]","this road"],["あの道[みち]","that road"],["この通[とお]り","this street"],["大通[おおどお]り","the main road"],["駅前通[えきまえどお]り","the street in front of the station"],["商店街[しょうてんがい]","the shopping street"]],
+   "dist":[["まっすぐ","straight"],["少[すこ]し","a little way"],["百[ひゃく]メートル","a hundred metres"],["二百[にひゃく]メートル","two hundred metres"],["三百[さんびゃく]メートル","three hundred metres"],["五百[ごひゃく]メートル","five hundred metres"]],
+   "spot":[["郵便局[ゆうびんきょく]","a post office"],["銀行[ぎんこう]","a bank"],["本屋[ほんや]","a bookshop"],["コンビニ","a convenience store"],["交番[こうばん]","a police box"],["病院[びょういん]","a hospital"],["図書館[としょかん]","a library"],["花屋[はなや]","a florist"]]}},
+ {"id":"to-conditional-2","lv":4,
+  "tpl":"<who>{は|wa-topic}<event>{と|to-conditional}、すぐ<react>。",
+  "en":"Whenever <who> <event>, they <react> right away.",
+  "f":2,"d":["ば","たら","ても"],
+  "why":"Dictionary form + と describes a habit: every time the first thing happens, the second follows.",
+  "vars":{
+   "who":[["子供[こども]たち","the children"],["両親[りょうしん]","my parents"],["祖父母[そふぼ]","my grandparents"],["息子[むすこ]たち","my sons"],["娘[むすめ]たち","my daughters"],["孫[まご]たち","my grandchildren"]],
+   "event":[["家[いえ]{に/へ|ni-destination}帰[かえ]る","get home"],["外[そと]{から|kara-from}帰[かえ]る","come in from outside"],["散歩[さんぽ]{から|kara-from}帰[かえ]る","get back from a walk"],["買[か]い物[もの]{から|kara-from}帰[かえ]る","get back from shopping"],["旅行[りょこう]{から|kara-from}帰[かえ]る","get back from a trip"],["公園[こうえん]{から|kara-from}帰[かえ]る","get back from the park"]],
+   "react":[["手[て]{を|o-object}洗[あら]います","wash their hands"],["うがい{を|o-object}します","gargle"],["シャワー{を|o-object}浴[あ]びます","take a shower"],["着替[きが]えます","change their clothes"],["冷[つめ]たい水[みず]{を|o-object}飲[の]みます","drink some cold water"],["ソファ{で|de-place}休[やす]みます","rest on the sofa"],["テレビ{を|o-object}つけます","turn on the TV"]]}}
+]

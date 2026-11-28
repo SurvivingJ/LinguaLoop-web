@@ -1,0 +1,20 @@
+[
+ {"id":"av-kitto-1","lv":4,
+  "tpl":"<ctx>。<who>は{きっと|av-kitto}<act>。",
+  "en":"<ctx> I'm sure <who> will <act>.",
+  "f":0,"d":["たぶん","ぜひ","まさか"],
+  "why":"Strong confidence, 'I'm sure', is きっと, often closed with でしょう or と思います; たぶん is only 'probably', and ぜひ and まさか do not fit a confident guess.",
+  "vars":{
+   "ctx":[["心配[しんぱい]しないでください","Don't worry."],["大丈夫[だいじょうぶ]ですよ","It'll be all right."],["安心[あんしん]してください","Rest assured."],["元気[げんき]を出[だ]してください","Cheer up."],["心配[しんぱい]はいりませんよ","There's no need to worry."],["落[お]ち込[こ]まないでください","Don't feel down."]],
+   "who":[["田中[たなか]さん","Mr. Tanaka"],["山田[やまだ]さん","Ms. Yamada"],["先生[せんせい]","the teacher"],["母[はは]","my mother"],["兄[あに]","my older brother"],["姉[あね]","my older sister"],["佐藤[さとう]さん","Mr. Sato"],["部長[ぶちょう]","the manager"]],
+   "act":[["喜[よろこ]ぶでしょう","be pleased"],["賛成[さんせい]してくれると思[おも]います","agree with us"],["手伝[てつだ]ってくれると思[おも]います","help us"],["来[き]てくれるでしょう","come"],["分[わ]かってくれますよ","understand"],["間[ま]に合[あ]うと思[おも]います","make it in time"],["許[ゆる]してくれるでしょう","forgive you"],["気[き]に入[い]ってくれますよ","like it"]]}},
+ {"id":"av-kitto-2","lv":4,
+  "tpl":"<when>の<city>は{たぶん/おそらく|av-kitto}<weather>でしょう。",
+  "en":"<city> will probably be <weather> <when>.",
+  "f":0,"d":["きっと","ぜひ","全然[ぜんぜん]"],
+  "why":"A guess you are not sure of, 'probably', is たぶん or おそらく with でしょう; きっと would claim certainty, and ぜひ and 全然 do not go with でしょう.",
+  "vars":{
+   "when":[["明日[あした]","tomorrow"],["明後日[あさって]","the day after tomorrow"],["週末[しゅうまつ]","at the weekend"],["今夜[こんや]","tonight"],["来週[らいしゅう]","next week"],["明日[あした]の朝[あさ]","tomorrow morning"]],
+   "city":[["東京[とうきょう]","Tokyo"],["大阪[おおさか]","Osaka"],["京都[きょうと]","Kyoto"],["札幌[さっぽろ]","Sapporo"],["福岡[ふくおか]","Fukuoka"],["名古屋[なごや]","Nagoya"],["仙台[せんだい]","Sendai"],["横浜[よこはま]","Yokohama"]],
+   "weather":[["雨[あめ]","rainy"],["晴[は]れ","clear"],["曇[くも]り","cloudy"],["寒[さむ]い","cold"],["暑[あつ]い","hot"],["暖[あたた]かい","warm"],["涼[すず]しい","cool"]]}}
+]

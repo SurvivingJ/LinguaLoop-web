@@ -1,0 +1,5 @@
+{"batch":"packs-038","files":["packs/give-ageru.json","packs/give-kureru.json","packs/give-morau.json"],"checked":6,"fixed":3,"deleted":0,"issues":[
+{"file":"packs/give-ageru.json","pack":"give-ageru-1","problem":"Non-focus topic slot listed only は, but が is equally natural with the same English for a neutral report of who gave what.","action":"Changed slot to {は/が|wa-topic}."},
+{"file":"packs/give-kureru.json","pack":"give-kureru-1","problem":"desc value 大切です is stilted as a bare predicate for a gift; topic slot omitted が, which is as natural (more so with 見つかりません / なくなりました).","action":"Replaced 大切です with とても気に入っています ('is a real favourite of mine'); slot changed to {は/が|wa-topic}."},
+{"file":"packs/give-morau.json","pack":"give-morau-1","problem":"who values 息子 / 娘 combined with giver 祖父 / 祖母 ('my grandfather') make the giver the child's great-grandparent, an odd reading; topic slot omitted equally natural が.","action":"Replaced 息子 / 娘 with 姉 ('My older sister') and いとこ ('My cousin'); slot changed to {は/が|wa-topic}."}
+]}

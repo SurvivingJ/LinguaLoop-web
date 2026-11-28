@@ -1,0 +1,20 @@
+[
+ {"id":"no-nominalizer-1","lv":4,
+  "tpl":"<who>{は|wa-topic}<actor>{が|ga-sub-clause}<act>{の|no-nominalizer}{を|o-object}見[み]ました。",
+  "en":"<who> saw <actor> <act>.",
+  "f":2,"d":["こと","に","が"],
+  "why":"With a verb of seeing or hearing, the scene you perceive is turned into a noun with の, never こと.",
+  "vars":{
+   "who":[["私[わたし]","I"],["母[はは]","My mother"],["父[ちち]","My father"],["山田[やまだ]さん","Ms. Yamada"],["祖父[そふ]","My grandfather"],["姉[あね]","My older sister"]],
+   "actor":[["子供[こども]たち","the children"],["学生[がくせい]たち","the students"],["弟[おとうと]","my younger brother"],["妹[いもうと]","my younger sister"],["田中[たなか]さん","Mr. Tanaka"],["先生[せんせい]","the teacher"],["友達[ともだち]","my friend"]],
+   "act":[["泣[な]いている","crying"],["笑[わら]っている","laughing"],["踊[おど]っている","dancing"],["歌[うた]っている","singing"],["走[はし]っている","running"],["寝[ね]ている","sleeping"],["電話[でんわ]している","talking on the phone"]]}},
+ {"id":"no-nominalizer-2","lv":4,
+  "tpl":"<who>{は|wa-topic}<event>{の|no-nominalizer}{を|o-object}<dur>待[ま]ちました。",
+  "en":"<who> waited <dur> for <event>.",
+  "f":2,"d":["こと","に","が"],
+  "why":"待つ needs a noun as its object, so the event you wait for is nominalized with の; こと does not work with 待つ.",
+  "vars":{
+   "who":[["母[はは]","My mother"],["田中[たなか]さん","Mr. Tanaka"],["学生[がくせい]たち","The students"],["私[わたし]たち","We"],["兄[あに]","My older brother"],["佐藤[さとう]さん","Ms. Sato"],["子供[こども]たち","The children"],["祖父[そふ]","My grandfather"]],
+   "event":[["雨[あめ]{が|ga-sub-clause}止[や]む","the rain to stop"],["バス{が|ga-sub-clause}来[く]る","the bus to come"],["電車[でんしゃ]{が|ga-sub-clause}来[く]る","the train to come"],["父[ちち]{が|ga-sub-clause}帰[かえ]ってくる","my father to come home"],["店[みせ]{が|ga-sub-clause}開[あ]く","the shop to open"],["会議[かいぎ]{が|ga-sub-clause}終[お]わる","the meeting to end"],["荷物[にもつ]{が|ga-sub-clause}届[とど]く","the parcel to arrive"],["お客[きゃく]さん{が|ga-sub-clause}来[く]る","the guests to arrive"]],
+   "dur":[["五分[ごふん]","five minutes"],["十分[じゅっぷん]","ten minutes"],["二十分[にじゅっぷん]","twenty minutes"],["三十分[さんじゅっぷん]","thirty minutes"],["一時間[いちじかん]","an hour"],["二時間[にじかん]","two hours"]]}}
+]

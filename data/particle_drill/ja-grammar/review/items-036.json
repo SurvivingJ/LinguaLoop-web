@@ -1,0 +1,7 @@
+{"batch":"items-036","files":["items/ko-nani.jsonl"],"checked":55,"fixed":5,"deleted":0,"replaced":0,"issues":[
+{"file":"items/ko-nani.jsonl","jp_before":"卵[たまご]は冷蔵庫[れいぞうこ]に{いくつ|ko-nani}ありますか。六[む]つあります。","problem":"Furigana wrong: 六つ is read むっつ, but 六[む]つ gives むつ.","action":"Changed the reading to 六[むっ]つ."},
+{"file":"items/ko-nani.jsonl","jp_before":"昨日[きのう]、{誰[だれ]|ko-nani}があなたに電話[でんわ]をしましたか。母[はは]がしました。","problem":"Translationese: あなたに with a 誰が…電話をしましたか frame and the reply 母がしました are unnatural.","action":"Rewrote as 昨日[きのう]の夜[よる]、{誰[だれ]|ko-nani}が来[き]ましたか。母[はは]が来[き]ました。 / 'Who came last night? My mother came.' Kept the same distractors and updated why."},
+{"file":"items/ko-nani.jsonl","jp_before":"駅[えき]まで{どう|ko-nani}やって行[い]きますか。バスで行[い]きます。","problem":"The slot held only どう before a visible やって, so every distractor (誰やって, いつやって, どこやって) was a malformed string, not a competing question word.","action":"Moved やって into the slot ({どうやって|ko-nani}) and replaced the distractors with なぜ, いつ and 誰[だれ]と. Each is well-formed but does not fit the reply バスで."},
+{"file":"items/ko-nani.jsonl","jp_before":"あなたは{なぜ/どうして|ko-nani}日本語[にほんご]を勉強[べんきょう]していますか。…","problem":"Unnatural あなたは at the start, and the plain …していますか is stiff for a why-question.","action":"Dropped あなたは and changed the ending to 勉強[べんきょう]しているんですか."},
+{"file":"items/ko-nani.jsonl","jp_before":"{なぜ/どうして|ko-nani}彼女[かのじょ]は泣[な]いているの？悲[かな]しい映画[えいが]を見[み]たからだよ。","problem":"lv 5 is too low: 泣く and 悲しい are N4 words.","action":"Changed lv to 4."}
+]}

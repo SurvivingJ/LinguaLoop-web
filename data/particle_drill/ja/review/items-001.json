@@ -1,0 +1,6 @@
+{"batch":"items-001","files":["items/wa-topic__2.jsonl"],"checked":50,"fixed":4,"deleted":0,"replaced":0,"issues":[
+{"file":"items/wa-topic__2.jsonl","jp_before":"銀行[ぎんこう]{は|wa-topic}駅[えき]{の|no-possessive}隣[となり]{に|ni-location}あります。","problem":"Near-duplicate of the この会社は東京にあります item, and あります was used four times in the file.","action":"Rewrote as 銀行は駅の隣です and updated why; same focus slot and distractors."},
+{"file":"items/wa-topic__2.jsonl","jp_before":"今日[きょう]{は|wa-topic}授業[じゅぎょう]{が|ga-existence}ありません。","problem":"In a negative existence sentence 授業はありません is just as natural, but the non-focus slot did not list it.","action":"Changed the slot to {が/は|ga-existence}."},
+{"file":"items/wa-topic__2.jsonl","jp_before":"学校[がっこう]{は|wa-topic}駅[えき]{から|kara-from}近[ちか]いです。","problem":"駅に近い is equally natural with the same meaning, but the non-focus slot did not list it.","action":"Changed the slot to {から/に|kara-from}."},
+{"file":"items/wa-topic__2.jsonl","jp_before":"日本語[にほんご]{の|no-possessive}授業[じゅぎょう]{は|wa-topic}毎週[まいしゅう]金曜日[きんようび]{に|ni-time}あります。","problem":"The English 'is on Fridays every week' was unnatural.","action":"Changed the English to 'The Japanese class is every Friday.'"}
+]}

@@ -1,0 +1,330 @@
+{
+ "group": "no",
+ "intro": "の turns what comes before it into a description of a noun. Between two nouns, A の B means \"B, of the A kind\": B is the thing, A narrows it down. After a verb or adjective, の wraps the action up so it can be used as a noun; with no noun after it, の stands in for one you have already mentioned; inside a clause before a noun it can mark the subject; and at the end of a sentence, のです wraps the whole statement up as an explanation. The thing always comes last, and everything before の describes it.",
+ "skills": [
+  {
+   "id": "no-possessive",
+   "rule": "A の B: B is the thing, A tells you whose, which, where or what kind.",
+   "explain": "Put の between two nouns and the second becomes the head: 私の本 is a book (mine), while 本の私 would be a me that belongs to the book. English \"X's Y\" and \"the Y of X\" both come out as X の Y, so the order is the reverse of \"of\": the owner, place, maker or material goes first. The link is broad: possession (母の傘), origin (日本の車), location (駅の前), topic (日本語の先生) and apposition (友達の田中さん, \"my friend Tanaka\"). You can chain it: 私の兄の車.\n\nの joins nouns only. い-adjectives attach directly (大きい家) and な-adjectives take な (静かな部屋). A verb or a whole clause also attaches directly with no の: 昨日買った本.\n\nWhen a phrase ending in another particle describes a noun, add の after that particle: 友達からの手紙, 東京での生活. Without の the particle phrase would attach to the verb instead.",
+   "patterns": [
+    "[noun A] の [noun B]",
+    "[noun] から / で / へ / と の [noun]",
+    "[noun A] の [noun B] の [noun C]"
+   ],
+   "examples": [
+    {
+     "jp": "私[わたし]{の}本[ほん]です。",
+     "en": "It's my book."
+    },
+    {
+     "jp": "これは母[はは]{の}傘[かさ]です。",
+     "en": "This is my mother's umbrella."
+    },
+    {
+     "jp": "日本[にほん]{の}車[くるま]は高[たか]いですか。",
+     "en": "Are Japanese cars expensive?"
+    },
+    {
+     "jp": "駅[えき]{の}前[まえ]で待[ま]っています。",
+     "en": "I'm waiting in front of the station."
+    },
+    {
+     "jp": "友達[ともだち]{の}田中[たなか]さんを紹介[しょうかい]します。",
+     "en": "Let me introduce my friend, Mr Tanaka."
+    },
+    {
+     "jp": "友達[ともだち]から{の}手紙[てがみ]を読[よ]みました。",
+     "en": "I read the letter from my friend."
+    }
+   ],
+   "contrast": [
+    {
+     "vs": "は",
+     "note": "わたしは ほん makes わたし a topic and still needs a predicate (わたしは ほんを よみます). わたしの ほん is a single noun phrase, \"my book\", that can sit anywhere a noun can."
+    },
+    {
+     "vs": "な",
+     "note": "な links a な-adjective to a noun (しずかな へや); の links a noun to a noun (がくせいの へや). Words like びょうき are nouns, so it is びょうきの ひと."
+    }
+   ],
+   "mistakes": [
+    {
+     "bad": "大[おお]きい{の}家[いえ]に住[す]んでいます。",
+     "good": "大[おお]きい家[いえ]に住[す]んでいます。",
+     "note": "い-adjectives sit directly before the noun; no の."
+    },
+    {
+     "bad": "昨日[きのう]買[か]った{の}本[ほん]を読[よ]みました。",
+     "good": "昨日[きのう]買[か]った本[ほん]を読[よ]みました。",
+     "note": "A verb clause modifies a noun directly; の only joins nouns."
+    },
+    {
+     "bad": "これは本[ほん]{の}友達[ともだち]です。",
+     "good": "これは友達[ともだち]{の}本[ほん]です。",
+     "note": "本の友達 means \"a book friend\". For \"my friend's book\" the owner goes first and the book, the thing you mean, goes last."
+    }
+   ],
+   "tip": "Two nouns in a row? The one you are talking about goes last, and の goes between. An adjective or a verb in front? No の."
+  },
+  {
+   "id": "no-nominalizer",
+   "rule": "Plain verb or adjective + の turns an action or state into a noun: \"the doing of it\".",
+   "explain": "A verb cannot take が or を on its own, so to say \"I like swimming\" Japanese wraps the verb in の first: 泳ぐのが好きです. The verb stays in plain form and keeps its own objects and tense (本を読むの, 鍵をかけたの). After a noun or な-adjective, use なの: 静かなのが好き.\n\nThe particle after の comes from the predicate: 好き, 嫌い, 上手, 下手, 得意 take のが; 忘れる, 手伝う, 待つ, 見る, 聞く take のを; のは introduces a judgement (話すのは難しい).\n\nこと does the same job, and often either is fine. The edge: の is for a concrete event you see, hear or take part in, and it is required with perception verbs (歌うのを聞いた, 走っているのが見える) and with 手伝う and 待つ. こと is for an idea or a fact stated as such, and it is required before です in definitions (趣味は本を読むことです) and in the fixed patterns ことができる, ことがある, ことにする.",
+   "patterns": [
+    "[plain verb] の が 好き / 上手 / 嫌い",
+    "[plain verb] の を 見る / 聞く / 忘れる / 手伝う",
+    "[plain verb] の は [adjective] です",
+    "[noun / な-adjective] な の"
+   ],
+   "examples": [
+    {
+     "jp": "泳[およ]ぐ{の}が好[す]きです。",
+     "en": "I like swimming."
+    },
+    {
+     "jp": "母[はは]は料理[りょうり]を作[つく]る{の}が上手[じょうず]です。",
+     "en": "My mother is good at cooking."
+    },
+    {
+     "jp": "日本語[にほんご]で話[はな]す{の}は難[むずか]しいです。",
+     "en": "Speaking in Japanese is hard."
+    },
+    {
+     "jp": "鍵[かぎ]をかける{の}を忘[わす]れました。",
+     "en": "I forgot to lock the door."
+    },
+    {
+     "jp": "子供[こども]たちが歌[うた]う{の}を聞[き]きました。",
+     "en": "I heard the children singing."
+    },
+    {
+     "jp": "引[ひ]っ越[こ]しを手伝[てつだ]う{の}は大変[たいへん]でした。",
+     "en": "Helping with the move was hard work."
+    }
+   ],
+   "contrast": [
+    {
+     "vs": "こと",
+     "note": "こと names an idea or fact; の names an event as it happens. しゅみは よむことです (not のです), よむことが できます (not のが). But うたうのを ききました (not ことを): you hear an event, not an idea."
+    },
+    {
+     "vs": "が",
+     "note": "が cannot follow a bare verb: およぐが すきです is ungrammatical. The verb must be made a noun first, and then が marks it: およぐのが すきです."
+    }
+   ],
+   "mistakes": [
+    {
+     "bad": "泳[およ]ぐ{が}好[す]きです。",
+     "good": "泳[およ]ぐ{の}が好[す]きです。",
+     "note": "A verb needs の before a particle can attach to it."
+    },
+    {
+     "bad": "子供[こども]たちが歌[うた]う{こと}を聞[き]きました。",
+     "good": "子供[こども]たちが歌[うた]う{の}を聞[き]きました。",
+     "note": "With verbs of seeing and hearing, the event takes の, never こと."
+    },
+    {
+     "bad": "趣味[しゅみ]は写真[しゃしん]を撮[と]る{の}です。",
+     "good": "趣味[しゅみ]は写真[しゃしん]を撮[と]る{こと}です。",
+     "note": "Defining something with ...です takes こと; のです here would be read as an explanation."
+    }
+   ],
+   "tip": "Seeing, hearing, helping or waiting while it happens? の. A definition before です, or できる / ある / にする after it? こと."
+  },
+  {
+   "id": "no-pronoun",
+   "rule": "With no noun after it, の means \"one\": the thing you both already have in mind.",
+   "explain": "When the noun is obvious from context, Japanese drops it and keeps の in its place: 赤いの \"the red one\", 安いの \"a cheaper one\", 昨日買ったの \"the one I bought yesterday\". It attaches like a noun: い-adjectives and verbs directly, な-adjectives with な (静かなの).\n\nAfter a noun, の already links to the missing noun, so \"mine\" is 私の, never 私のの: この傘は私のです.\n\nThe edge with もの: もの means \"a thing\" in general, so 赤いものをください asks for something red, any red thing. の points at a particular item in front of you or already mentioned. For people, use 人 or 方 instead: calling a person の sounds offhand.",
+   "patterns": [
+    "[い-adjective] の",
+    "[な-adjective] な の",
+    "[plain verb] の",
+    "[noun] の (= [noun]'s one)"
+   ],
+   "examples": [
+    {
+     "jp": "赤[あか]い{の}をください。",
+     "en": "The red one, please."
+    },
+    {
+     "jp": "この傘[かさ]は私[わたし]{の}です。",
+     "en": "This umbrella is mine."
+    },
+    {
+     "jp": "もっと安[やす]い{の}はありますか。",
+     "en": "Do you have a cheaper one?"
+    },
+    {
+     "jp": "部屋[へや]は静[しず]かな{の}がいいです。",
+     "en": "For the room, I'd like a quiet one."
+    },
+    {
+     "jp": "昨日[きのう]買[か]った{の}はどこですか。",
+     "en": "Where's the one I bought yesterday?"
+    },
+    {
+     "jp": "大[おお]きい{の}と小[ちい]さい{の}、どちらにしますか。",
+     "en": "Which will you have, the big one or the small one?"
+    }
+   ],
+   "contrast": [
+    {
+     "vs": "もの",
+     "note": "あかいものを ください asks for something red in general; あかいのを ください picks the red one out of the ones in view."
+    },
+    {
+     "vs": "こと",
+     "note": "こと is a matter or a fact, never a physical object. For \"the one\" you can pick up, use の."
+    },
+    {
+     "vs": "人",
+     "note": "For a person, say せの たかい ひと, not せの たかいの: の for people sounds dismissive."
+    }
+   ],
+   "mistakes": [
+    {
+     "bad": "これは私[わたし]{の}のです。",
+     "good": "これは私[わたし]{の}です。",
+     "note": "\"Mine\" is a single の; the possessive の already stands in for the noun."
+    },
+    {
+     "bad": "静[しず]か{の}がいいです。",
+     "good": "静[しず]かな{の}がいいです。",
+     "note": "な-adjectives keep な before the pronoun の, exactly as before a noun."
+    }
+   ],
+   "tip": "English \"one\" standing in for a noun, or \"mine\" / \"yours\"? The Japanese says の."
+  },
+  {
+   "id": "no-subject",
+   "rule": "Inside a clause that describes a noun, the subject can take の instead of が.",
+   "explain": "In a relative clause (a verb or adjective clause placed before a noun), the subject is normally marked が, but の is just as correct: 母が作った料理 and 母の作った料理 both mean \"the food my mother made\". This is common with short descriptive clauses: 背の高い人 \"a tall person\", 目の大きい猫, 雨の降る日.\n\nIt only works before a noun. At the end of a sentence the subject must be が: 母が作りました, never 母の作りました. Nouns like 時 and 日 count, so 雨の降る時 is fine.\n\nKeep が when the clause also has a を object. 田中さんが手紙を書いた日 is clear, but with の the listener reads 田中さんの手紙 \"Mr Tanaka's letter\" first. The subject inside a relative clause never takes は.\n\nHow to tell it from the possessive: after this の comes a verb or adjective, not the noun it describes.",
+   "patterns": [
+    "[subject] の [verb / adjective] [noun]",
+    "= [subject] が [verb / adjective] [noun]"
+   ],
+   "examples": [
+    {
+     "jp": "背[せ]{の}高[たか]い人[ひと]は誰[だれ]ですか。",
+     "en": "Who is the tall person?"
+    },
+    {
+     "jp": "目[め]{の}大[おお]きい猫[ねこ]を飼[か]っています。",
+     "en": "I have a cat with big eyes."
+    },
+    {
+     "jp": "母[はは]{の}作[つく]った料理[りょうり]が一番[いちばん]好[す]きです。",
+     "en": "I like the food my mother makes best of all."
+    },
+    {
+     "jp": "雨[あめ]{の}降[ふ]る日[ひ]は家[いえ]にいます。",
+     "en": "On rainy days I stay at home."
+    },
+    {
+     "jp": "友達[ともだち]{の}住[す]んでいる町[まち]は静[しず]かです。",
+     "en": "The town where my friend lives is quiet."
+    },
+    {
+     "jp": "田中[たなか]さん{の}書[か]いた本[ほん]を読[よ]みましたか。",
+     "en": "Have you read the book Mr Tanaka wrote?"
+    }
+   ],
+   "contrast": [
+    {
+     "vs": "が",
+     "note": "が is always possible here and is the safe default; の is the lighter, very common variant in short clauses. Outside a noun-describing clause, only が works."
+    },
+    {
+     "vs": "は",
+     "note": "は never marks the subject inside a relative clause: せは たかい ひと is wrong. は belongs to the main sentence."
+    },
+    {
+     "vs": "の (possessive)",
+     "note": "たなかさんの ほん is Mr Tanaka's book; たなかさんの かいた ほん is the book Mr Tanaka wrote. A verb right after の means it is the subject."
+    }
+   ],
+   "mistakes": [
+    {
+     "bad": "この料理[りょうり]は母[はは]{の}作[つく]りました。",
+     "good": "この料理[りょうり]は母[はは]{が}作[つく]りました。",
+     "note": "の can replace が only in a clause in front of a noun, not in the main sentence."
+    },
+    {
+     "bad": "背[せ]{は}高[たか]い人[ひと]が好[す]きです。",
+     "good": "背[せ]{の}高[たか]い人[ひと]が好[す]きです。",
+     "note": "The subject of a describing clause takes の or が, never は."
+    },
+    {
+     "bad": "田中[たなか]さん{の}手紙[てがみ]を書[か]いた日[ひ]を覚[おぼ]えています。",
+     "good": "田中[たなか]さん{が}手紙[てがみ]を書[か]いた日[ひ]を覚[おぼ]えています。",
+     "note": "With a を object in the clause, の reads as \"Mr Tanaka's letter\"; keep が."
+    }
+   ],
+   "tip": "の followed by a verb or adjective, then a noun? It is が in disguise: swap in が, and if the sentence still means the same, it is the subject."
+  },
+  {
+   "id": "no-explanatory",
+   "rule": "End with んです when the sentence explains something or asks for an explanation.",
+   "explain": "んです (written のです, casual んだ or の) wraps the sentence up as background: \"the thing is...\". Use it to give a reason or excuse (頭が痛いんです \"I have a headache, that's why\"), to ask about something you have noticed (どうしたんですか \"What's wrong?\"), and to lead into a request (道を聞きたいんですが...). The verb or い-adjective before it is in plain form, past included (止まっていたんです); a noun or な-adjective takes な (学生なんです, 静かなんです).\n\nA question with んですか assumes there is something to explain: 行くんですか means \"So you're going?\", 行きますか is a neutral \"Are you going?\". Overuse sounds insistent; for a plain fact nobody asked about, use です or ます.\n\nIn casual speech, the question is just の with rising intonation (どうしたの？), and statements use んだ.",
+   "patterns": [
+    "[plain verb / い-adjective] んです",
+    "[noun / な-adjective] な んです",
+    "[plain form] んですか",
+    "[plain form] んですが、[request]"
+   ],
+   "examples": [
+    {
+     "jp": "頭[あたま]が痛[いた]い{んです}。",
+     "en": "I have a headache, that's why."
+    },
+    {
+     "jp": "どうした{んです}か。",
+     "en": "What's wrong?"
+    },
+    {
+     "jp": "明日[あした]、試験[しけん]がある{んです}。",
+     "en": "I have an exam tomorrow, you see."
+    },
+    {
+     "jp": "日曜日[にちようび]は休[やす]みな{んです}か。",
+     "en": "So you're off on Sundays?"
+    },
+    {
+     "jp": "遅[おく]れてすみません。電車[でんしゃ]が止[と]まっていた{んです}。",
+     "en": "Sorry I'm late. The trains had stopped."
+    },
+    {
+     "jp": "すみません、駅[えき]に行[い]きたい{んです}が、道[みち]を教[おし]えてもらえますか。",
+     "en": "Excuse me, I'm trying to get to the station. Could you tell me the way?"
+    }
+   ],
+   "contrast": [
+    {
+     "vs": "です",
+     "note": "いたいです reports a fact; いたいんです offers it as the reason behind something (being late, leaving early, looking unwell)."
+    },
+    {
+     "vs": "か",
+     "note": "いきますか asks for information; いくんですか asks you to confirm or explain something you have noticed, such as a packed bag."
+    },
+    {
+     "vs": "よ",
+     "note": "よ pushes new information at the listener; んです explains the situation. They combine: いくんですよ \"I'm going, you see\"."
+    }
+   ],
+   "mistakes": [
+    {
+     "bad": "弟[おとうと]はまだ学生[がくせい]{んです}。",
+     "good": "弟[おとうと]はまだ学生[がくせい]な{んです}。",
+     "note": "After a noun or な-adjective, んです needs な."
+    },
+    {
+     "bad": "頭[あたま]が痛[いた]いな{んです}。",
+     "good": "頭[あたま]が痛[いた]い{んです}。",
+     "note": "い-adjectives and verbs attach directly; な is only for nouns and な-adjectives."
+    }
+   ],
+   "tip": "Could you add \"that's why\" or \"so...?\" in English? Then end with んです."
+  }
+ ]
+}

@@ -1,0 +1,41 @@
+[
+ {
+  "id": "te-hoshii-1",
+  "lv": 4,
+  "tpl": "<who>{に|te-hoshii}<act><end>",
+  "en": "<end> <who> to <act>.",
+  "f": 0,
+  "d": ["を", "で", "と"],
+  "why": "With ～てほしい the person you want to do the action is marked with に.",
+  "vars": {
+   "who": [
+    ["母[はは]", "my mother"],
+    ["父[ちち]", "my father"],
+    ["兄[あに]", "my older brother"],
+    ["姉[あね]", "my older sister"],
+    ["夫[おっと]", "my husband"],
+    ["妻[つま]", "my wife"],
+    ["息子[むすこ]", "my son"],
+    ["娘[むすめ]", "my daughter"]
+   ],
+   "act": [
+    ["早[はや]く帰[かえ]ってきて", "come home early"],
+    ["もっと野菜[やさい]{を|o-object}食[た]べて", "eat more vegetables"],
+    ["たばこ{を|o-object}やめて", "quit smoking"],
+    ["私[わたし]{の|no-possessive}話[はなし]{を|o-object}聞[き]いて", "listen to what I have to say"],
+    ["引[ひ]っ越[こ]し{を|o-object}手伝[てつだ]って", "help with the move"],
+    ["夕飯[ゆうはん]{を|o-object}作[つく]って", "make dinner"],
+    ["ゆっくり休[やす]んで", "get some proper rest"],
+    ["運転[うんてん]{を|o-object}代[か]わって", "take over the driving"]
+   ],
+   "end": [
+    ["ほしいです。", "I want"],
+    ["ほしいんです。", "I really want"],
+    ["ほしいな。", "I'd like"],
+    ["ほしい{と|to-quote}思[おも]います。", "I would like"],
+    ["ほしかったです。", "I wanted"],
+    ["ほしかったんです。", "I really wanted"]
+   ]
+  }
+ }
+]

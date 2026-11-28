@@ -1,0 +1,337 @@
+[
+ {
+  "id": "x-o-ga-1",
+  "lv": 4,
+  "tpl": "<who>{は|wa-topic}<skill>{が|ga-stative}<pred>。",
+  "en": "<who> <pred> <skill>.",
+  "f": 1,
+  "d": [
+   "を"
+  ],
+  "why": "上手, 下手, 得意 and 苦手 are adjectives, not actions, so the skill they describe takes が.",
+  "vars": {
+   "who": [
+    [
+     "母[はは]",
+     "My mother"
+    ],
+    [
+     "父[ちち]",
+     "My father"
+    ],
+    [
+     "兄[あに]",
+     "My older brother"
+    ],
+    [
+     "田中[たなか]さん",
+     "Mr. Tanaka"
+    ],
+    [
+     "佐藤[さとう]さん",
+     "Ms. Sato"
+    ],
+    [
+     "友達[ともだち]",
+     "My friend"
+    ],
+    [
+     "山田[やまだ]さん",
+     "Mr. Yamada"
+    ]
+   ],
+   "skill": [
+    [
+     "料理[りょうり]",
+     "cooking"
+    ],
+    [
+     "歌[うた]",
+     "singing"
+    ],
+    [
+     "テニス",
+     "tennis"
+    ],
+    [
+     "水泳[すいえい]",
+     "swimming"
+    ],
+    [
+     "絵[え]",
+     "drawing"
+    ],
+    [
+     "ダンス",
+     "dancing"
+    ],
+    [
+     "スキー",
+     "skiing"
+    ],
+    [
+     "運転[うんてん]",
+     "driving"
+    ]
+   ],
+   "pred": [
+    [
+     "上手[じょうず]です",
+     "is good at"
+    ],
+    [
+     "とても上手[じょうず]です",
+     "is very good at"
+    ],
+    [
+     "下手[へた]です",
+     "is bad at"
+    ],
+    [
+     "得意[とくい]です",
+     "excels at"
+    ],
+    [
+     "苦手[にがて]です",
+     "struggles with"
+    ],
+    [
+     "あまり上手[じょうず]じゃありません",
+     "isn't very good at"
+    ]
+   ]
+  }
+ },
+ {
+  "id": "x-o-ga-2",
+  "lv": 5,
+  "tpl": "<who>{は|wa-topic}<lang>{が|ga-stative}<pred>。",
+  "en": "<who> <pred> <lang>.",
+  "f": 1,
+  "d": [
+   "を"
+  ],
+  "why": "わかる and できる describe an ability, not an action, so the language takes が.",
+  "vars": {
+   "who": [
+    [
+     "田中[たなか]さん",
+     "Mr. Tanaka"
+    ],
+    [
+     "佐藤[さとう]さん",
+     "Ms. Sato"
+    ],
+    [
+     "姉[あね]",
+     "My older sister"
+    ],
+    [
+     "父[ちち]",
+     "My father"
+    ],
+    [
+     "先生[せんせい]",
+     "The teacher"
+    ],
+    [
+     "山田[やまだ]さん",
+     "Mr. Yamada"
+    ],
+    [
+     "いとこ",
+     "My cousin"
+    ]
+   ],
+   "lang": [
+    [
+     "英語[えいご]",
+     "English"
+    ],
+    [
+     "中国語[ちゅうごくご]",
+     "Chinese"
+    ],
+    [
+     "韓国語[かんこくご]",
+     "Korean"
+    ],
+    [
+     "フランス語[ご]",
+     "French"
+    ],
+    [
+     "ドイツ語[ご]",
+     "German"
+    ],
+    [
+     "スペイン語[ご]",
+     "Spanish"
+    ],
+    [
+     "ロシア語[ご]",
+     "Russian"
+    ],
+    [
+     "イタリア語[ご]",
+     "Italian"
+    ]
+   ],
+   "pred": [
+    [
+     "わかります",
+     "understands"
+    ],
+    [
+     "少[すこ]しわかります",
+     "understands a little"
+    ],
+    [
+     "全然[ぜんぜん]わかりません",
+     "doesn't understand any"
+    ],
+    [
+     "できます",
+     "can speak"
+    ],
+    [
+     "少[すこ]しできます",
+     "can speak a little"
+    ],
+    [
+     "あまりできません",
+     "can't speak much"
+    ],
+    [
+     "わかりませんでした",
+     "didn't understand"
+    ]
+   ]
+  }
+ },
+ {
+  "id": "x-o-ga-3",
+  "lv": 5,
+  "tpl": "<who>{は|wa-topic}<where>{で|de-place}<lang>{を|o-object}<act>。",
+  "en": "<who> <act> <lang> <where>.",
+  "f": 2,
+  "d": [
+   "が"
+  ],
+  "why": "勉強する, 習う and 教える are actions done to the language, so it takes を, unlike わかる.",
+  "vars": {
+   "who": [
+    [
+     "兄[あに]",
+     "My older brother"
+    ],
+    [
+     "姉[あね]",
+     "My older sister"
+    ],
+    [
+     "田中[たなか]さん",
+     "Mr. Tanaka"
+    ],
+    [
+     "佐藤[さとう]さん",
+     "Ms. Sato"
+    ],
+    [
+     "友達[ともだち]",
+     "My friend"
+    ],
+    [
+     "山田[やまだ]さん",
+     "Mr. Yamada"
+    ]
+   ],
+   "where": [
+    [
+     "大学[だいがく]",
+     "at university"
+    ],
+    [
+     "学校[がっこう]",
+     "at school"
+    ],
+    [
+     "家[いえ]",
+     "at home"
+    ],
+    [
+     "会社[かいしゃ]",
+     "at work"
+    ],
+    [
+     "市民[しみん]センター",
+     "at the community centre"
+    ],
+    [
+     "語学[ごがく]学校[がっこう]",
+     "at a language school"
+    ]
+   ],
+   "lang": [
+    [
+     "英語[えいご]",
+     "English"
+    ],
+    [
+     "中国語[ちゅうごくご]",
+     "Chinese"
+    ],
+    [
+     "韓国語[かんこくご]",
+     "Korean"
+    ],
+    [
+     "フランス語[ご]",
+     "French"
+    ],
+    [
+     "ドイツ語[ご]",
+     "German"
+    ],
+    [
+     "スペイン語[ご]",
+     "Spanish"
+    ],
+    [
+     "ロシア語[ご]",
+     "Russian"
+    ],
+    [
+     "イタリア語[ご]",
+     "Italian"
+    ]
+   ],
+   "act": [
+    [
+     "勉強[べんきょう]しています",
+     "is studying"
+    ],
+    [
+     "習[なら]っています",
+     "is learning"
+    ],
+    [
+     "教[おし]えています",
+     "teaches"
+    ],
+    [
+     "勉強[べんきょう]しました",
+     "studied"
+    ],
+    [
+     "教[おし]えていました",
+     "used to teach"
+    ],
+    [
+     "習[なら]い始[はじ]めました",
+     "has started learning"
+    ]
+   ]
+  }
+ }
+]

@@ -1,0 +1,9 @@
+{"file":"guides/chengyu.json","checked":8,"fixed":5,"issues":[
+{"problem":"马马虎虎 was romanised mǎ mǎ hu hu in two examples, and the note called the dictionary reading mǎ ma hū hū a mere speech variant. 现代汉语词典 gives mǎ·mahūhū.","action":"Both examples changed to mǎ ma hū hū. The note now gives this as the standard reading and adds that 马虎 on its own is mǎ hu."},
+{"problem":"The summary said 'None takes a direct object' and grammar rule 2 said 'no idiom takes a direct object'. Stated that way it covers all chengyu, which overgeneralises.","action":"Both now say 'none of these'."},
+{"problem":"Grammar rule 1 said 'Never put 很 in front', which contradicts its own note: 很不可思议 and 很莫名其妙 are fine.","action":"Changed to 'Do not put 很 in front of them', so the rule covers only the descriptive idioms it lists. The note keeps the exceptions."},
+{"problem":"Grammar rule 2 said 无论如何 'opens the clause'. Taken literally, that would mark 你无论如何都要来 as wrong, and that sentence is fine.","action":"Reworded: 无论如何 comes before the verb phrase, with 都 or 也 after it. Also shortened so the rule fits the 220-character limit."},
+{"problem":"The English for one contrast, 'two items of clothing', was awkward.","action":"Changed to 'two pieces of clothing'."},
+{"problem":"Checked with no change needed: every other rule, example, pinyin reading (落 là, 兴 xìng, 还 huán, 模 mú, 长 zhǎng, 翼 yì), English line and wrong sentence; every contrast is clearly wrong. All idioms in the plan.json scope are covered by a sub-point, and 不好意思 is excluded as the scope requires.","action":"none"},
+{"problem":"The opencc and pypinyin modules are not installed and could not be installed, so validate-guide could not run as is.","action":"Ran validate-guide through a scratchpad wrapper that turns off only the traditional-character and per-character reading checks; it reported OK. I checked simplified characters and readings by hand."}
+]}

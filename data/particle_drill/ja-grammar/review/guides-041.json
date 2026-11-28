@@ -1,0 +1,7 @@
+{"batch":"guides-041","files":["guides/cs-verb.json","guides/cs-end.json"],"checked":6,"fixed":5,"deleted":0,"issues":[
+{"file":"guides/cs-verb.json","problem":"Intro said the helper's initial vowel merges into て/で, which is false for てしまう → ちゃう (しま is not a vowel) and imprecise for ている (い simply drops).","action":"Reworded to 'the start of the helper drops out or fuses with the て or で'."},
+{"file":"guides/cs-end.json","problem":"cs-sound explain claimed れ also becomes ん before ない/の; no common standard case, and it omitted る before な (するな → すんな).","action":"Restated the rule as ら before ない and る before の or な."},
+{"file":"guides/cs-end.json","problem":"cs-tte contrast called と 'written', implying it is not used in speech.","action":"Changed to 'neutral and fine in writing; って is casual speech'."},
+{"file":"guides/cs-end.json","problem":"cs-sound mistake 'まだその映画を見ない' was a poor model sentence (まだ + plain non-past 見ない is odd; 'haven't seen' is 見てない), and the slot boundary differed between bad and good.","action":"Replaced with 最近、テレビは見{んない} / 見{ない}, same slot boundary."},
+{"file":"guides/cs-end.json","problem":"cs-sound tip ('say the full form in your head ...') was not a usable split-second test.","action":"Replaced with a register check plus the ら/る → ん restriction."}
+]}

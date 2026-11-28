@@ -1,0 +1,13 @@
+{"batch":"items-059","files":["items/x-adverb__2.jsonl"],"checked":37,"fixed":10,"deleted":0,"replaced":0,
+"issues":[
+{"file":"items/x-adverb__2.jsonl","jp_before":"{たとえ|av-tatoe}テストの点[てん]が悪[わる]くても、私[わたし]は勉強[べんきょう]をやめません。","problem":"Distractor もし is acceptable: もし…ても is common native usage meaning 'even if'.","action":"Replaced distractor もし with まさか."},
+{"file":"items/x-adverb__2.jsonl","jp_before":"{もし|av-moshi}明日[あした]雨[あめ]が降[ふ]ったら、会社[かいしゃ]を休[やす]んでもいいですか。","problem":"Asking to skip work because of rain is an implausible scenario.","action":"Rewrote the condition to the trains stopping; updated English."},
+{"file":"items/x-adverb__2.jsonl","jp_before":"新[あたら]しい仕事[しごと]に{なかなか|av-nakanaka}慣[な]れません。","problem":"Distractor すぐ gives 'can't get used to it quickly', close to the given English.","action":"Replaced すぐ with まさか."},
+{"file":"items/x-adverb__2.jsonl","jp_before":"この会社[かいしゃ]の仕事[しごと]は{とても|av-degree}忙[いそが]しいです。","problem":"English 'The work ... is very busy' is unnatural.","action":"English changed to 'Work at this company is very hectic.'"},
+{"file":"items/x-adverb__2.jsonl","jp_before":"今週[こんしゅう]は{あまり|av-zenzen}勉強[べんきょう]できませんでした。","problem":"勉強する used six times in the file (verb reuse limit is three).","action":"Rewrote to 残業しませんでした with new English; lv 3."},
+{"file":"items/x-adverb__2.jsonl","jp_before":"まさかあの優秀[ゆうしゅう]な学生[がくせい]が試験[しけん]に{落[お]ちないだろう|av-masaka}と思[おも]っていた。","problem":"English 'I never thought ... would fail' mistranslates 'I was sure he wouldn't possibly fail'.","action":"English corrected to 'I thought there was no way that excellent student would fail the exam.'"},
+{"file":"items/x-adverb__2.jsonl","jp_before":"もし時間[じかん]が{あったら/あれば/あるなら|av-moshi}、図書館[としょかん]で勉強[べんきょう]したいです。","problem":"勉強する overused in the file.","action":"Main clause changed to 帰りに本屋に寄りたいです; English and lv updated."},
+{"file":"items/x-adverb__2.jsonl","jp_before":"たとえ仕事[しごと]が{忙[いそが]しくても|av-tatoe}、毎日[まいにち]日本語[にほんご]を勉強[べんきょう]します。","problem":"勉強する overused in the file.","action":"Main clause changed to 毎日運動します; English updated."},
+{"file":"items/x-adverb__2.jsonl","jp_before":"漢字[かんじ]がなかなか{覚[おぼ]えられません|av-nakanaka}。","problem":"English 'can't memorise ... easily' is redundant and awkward.","action":"English changed to 'I just can't seem to memorise kanji.'"},
+{"file":"items/x-adverb__2.jsonl","jp_before":"昨夜[ゆうべ]は忙[いそが]しくて、{ろくに|av-mettani}寝[ね]ていません。","problem":"English simple past did not match the ていません result state.","action":"English changed to 'I was so busy last night that I've hardly slept.'"}
+]}

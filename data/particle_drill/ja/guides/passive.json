@@ -1,0 +1,69 @@
+{"group":"passive",
+ "intro":"A Japanese passive turns the sentence round so that the person (or thing) on the receiving end becomes the subject, marked は or が. The doer is pushed out of subject position and marked に, \"at the hands of\". If something else is still acted on, such as your wallet or your foot, it keeps its を. For creators of works and for formal, impersonal agents, the doer is marked によって instead of に.",
+ "skills":[
+  {"id":"passive-agent",
+   "rule":"In a passive sentence the doer takes に and the one it happens to takes は or が: 私は先生に褒められた.",
+   "explain":"Start from the active sentence 先生が私を褒めた \"the teacher praised me\". In the passive the person praised moves up to subject (私は), the doer drops to に (先生に), and the verb takes -れる / -られる: 私は先生に褒められた \"I was praised by the teacher\". English \"by\" is に here, never で.\n\nWith verbs where something passes from the doer to you (言う, 頼む, 渡す, 送る, 教える, 誘う), から is also correct: 先生から(に)注意された \"I was warned by the teacher\". Use から when another に is already in the sentence. With physical actions that hit you directly (噛む, 叩く, 踏む, 刺す), only に works.\n\nThe doer can be a person, an animal or even the weather: 犬に噛まれた, 雨に降られた \"I got caught in the rain\". When the subject is obvious it is simply left out: 先生に褒められました.",
+   "patterns":["[person] は [doer] に [verb-(ら)れる]","[doer] に [object] を [verb-(ら)れる]","[doer] から [言われる / 頼まれる / 渡される]"],
+   "examples":[
+    {"jp":"犬[いぬ]{に}噛[か]まれました。","en":"I was bitten by a dog."},
+    {"jp":"先生[せんせい]{に}褒[ほ]められました。","en":"I was praised by the teacher."},
+    {"jp":"弟[おとうと]は母[はは]{に}叱[しか]られました。","en":"My little brother was told off by our mother."},
+    {"jp":"知[し]らない人[ひと]{に}道[みち]を聞[き]かれました。","en":"A stranger asked me the way."},
+    {"jp":"友達[ともだち]{に}誘[さそ]われて、映画[えいが]を見[み]に行[い]きました。","en":"A friend invited me, so I went to see a film."}
+   ],
+   "contrast":[
+    {"vs":"で","note":"で marks a place, a tool or a cause, never the doer of a passive. 犬で噛まれた is wrong; the dog that bit you is 犬に."},
+    {"vs":"から","note":"から is also correct for the doer with verbs of saying, asking and handing over (先生から言われた). It fails with direct physical action: 蚊から刺された is wrong, use 蚊に."},
+    {"vs":"を","note":"を marks what is still acted on (道を聞かれた), never the doer. 先生を褒められた is wrong."}
+   ],
+   "mistakes":[
+    {"bad":"私[わたし]は先生[せんせい]を褒[ほ]められました。","good":"私[わたし]は先生[せんせい]{に}褒[ほ]められました。","note":"The teacher did the praising, so in the passive the teacher is に. を would make the teacher the one praised."},
+    {"bad":"犬[いぬ]で噛[か]まれました。","good":"犬[いぬ]{に}噛[か]まれました。","note":"English \"by\" is not で. The doer of a passive is に."},
+    {"bad":"弟[おとうと]が母[はは]が叱[しか]られました。","good":"弟[おとうと]が母[はは]{に}叱[しか]られました。","note":"A passive has one subject, the one on the receiving end. The doer drops to に."}
+   ],
+   "tip":"See -れる / -られる on the verb? Ask \"who did it?\" That person gets に."},
+  {"id":"passive-suffering",
+   "rule":"In the suffering passive the person affected is the subject, the doer takes に, and the thing acted on keeps を: 私は泥棒に財布を盗まれた.",
+   "explain":"Japanese can make the victim the subject even when the action was done to something of theirs. Active: 泥棒が私の財布を盗んだ. Suffering passive: 私は泥棒に財布を盗まれた \"I had my wallet stolen by a thief\". The wallet is still the object, so it keeps を. The victim is usually left unsaid. This form almost always means the event was bad for you, like English \"on me\": 弟にケーキを食べられた \"my brother ate my cake on me\".\n\nYour body parts and belongings take を this way: 足を踏まれた \"someone stepped on my foot\", 腕を刺された.\n\nThe other way to say it makes the thing the subject: 財布が盗まれた \"the wallet was stolen\". That is also correct, but then there is no victim in the sentence. Choose by subject: if the person is the subject, the thing is を. Intransitive verbs also make suffering passives, with no を at all: 雨に降られた, 子供に泣かれた.",
+   "patterns":["[victim] は [doer] に [thing] を [verb-(ら)れる]","[body part] を [踏まれる / 刺される / 叩かれる]"],
+   "examples":[
+    {"jp":"電車[でんしゃ]で足[あし]{を}踏[ふ]まれました。","en":"Someone stepped on my foot on the train."},
+    {"jp":"弟[おとうと]にケーキ{を}食[た]べられました。","en":"My little brother ate my cake."},
+    {"jp":"蚊[か]に腕[うで]{を}刺[さ]されました。","en":"A mosquito bit me on the arm."},
+    {"jp":"泥棒[どろぼう]に財布[さいふ]{を}盗[ぬす]まれました。","en":"A thief stole my wallet."},
+    {"jp":"母[はは]に日記[にっき]{を}読[よ]まれてしまいました。","en":"My mother read my diary, to my horror."}
+   ],
+   "contrast":[
+    {"vs":"が","note":"財布が盗まれた makes the wallet the subject and leaves the victim out. Once the person is the subject (私は…), the wallet must stay を."},
+    {"vs":"に","note":"に marks the doer (泥棒に), not the thing taken. 泥棒に財布に盗まれた is wrong."},
+    {"vs":"で","note":"で marks where it happened (電車で), not what was acted on."}
+   ],
+   "mistakes":[
+    {"bad":"私[わたし]は泥棒[どろぼう]に財布[さいふ]に盗[ぬす]まれました。","good":"私[わたし]は泥棒[どろぼう]に財布[さいふ]{を}盗[ぬす]まれました。","note":"Only the doer takes に. What was stolen keeps を."},
+    {"bad":"電車[でんしゃ]で足[あし]が踏[ふ]まれました。","good":"電車[でんしゃ]で足[あし]{を}踏[ふ]まれました。","note":"Your own body part is not a separate subject. You are the one affected, so the foot stays を."}
+   ],
+   "tip":"Is the subject the person who suffered? Then the thing that was done to keeps を, the culprit gets に."},
+  {"id":"passive-niyotte",
+   "rule":"Mark the creator of a work, or a formal or institutional doer, with によって: この絵は有名な画家によって描かれた.",
+   "explain":"Use によって with verbs of creating or discovering: 書く, 描く, 建てる, 作る, 造る, 発明する, 開発する, 発見する. The subject is the work, and a work is not affected by being made, so に sounds wrong there: この小説は若い作家によって書かれた, not 作家に書かれた.\n\nによって also marks the agent in formal, written passives where the doer is an organisation or group: ルールは委員会によって決められた. News and textbooks use it a lot.\n\nIt has edges on both sides. For everyday things done to you by a person, use に: 母に叱られた. によって there sounds like a police report. And a tool or material is で, not によって: 鉛筆で書かれた \"written in pencil\". によって can also mean \"depending on\" (人によって違う); that is a separate use.",
+   "patterns":["[work] は [creator] によって [書かれた / 建てられた / 発明された]","[rule / decision] は [organisation] によって [verb-(ら)れた]"],
+   "examples":[
+    {"jp":"この絵[え]は有名[ゆうめい]な画家[がか]{によって}描[か]かれました。","en":"This painting was painted by a famous artist."},
+    {"jp":"この小説[しょうせつ]は若[わか]い作家[さっか]{によって}書[か]かれました。","en":"This novel was written by a young author."},
+    {"jp":"新[あたら]しいルールは委員会[いいんかい]{によって}決[き]められました。","en":"The new rules were decided by the committee."},
+    {"jp":"この橋[はし]は百年前[ひゃくねんまえ]に村[むら]の人々[ひとびと]{によって}造[つく]られました。","en":"This bridge was built a hundred years ago by the villagers."},
+    {"jp":"この薬[くすり]は日本[にほん]の研究者[けんきゅうしゃ]{によって}開発[かいはつ]されました。","en":"This medicine was developed by Japanese researchers."}
+   ],
+   "contrast":[
+    {"vs":"に","note":"に is the doer of an action that affects the subject (先生に褒められた). For a work being created, に sounds wrong; use によって."},
+    {"vs":"で","note":"で is the tool, material or cause: ペンで書かれた \"written with a pen\". によって is the person or group who did it."},
+    {"vs":"から","note":"から marks a source (先生から言われた) or a raw material (ワインはぶどうから作られる). It never marks the person who created a work."}
+   ],
+   "mistakes":[
+    {"bad":"この絵[え]は有名[ゆうめい]な画家[がか]に描[か]かれました。","good":"この絵[え]は有名[ゆうめい]な画家[がか]{によって}描[か]かれました。","note":"The painting is created, not affected. The creator of a work takes によって."},
+    {"bad":"手紙[てがみ]は鉛筆[えんぴつ]によって書[か]かれていました。","good":"手紙[てがみ]は鉛筆[えんぴつ]{で}書[か]かれていました。","note":"A pencil is a tool, so it takes で. によって is for the person who did it."},
+    {"bad":"この小説[しょうせつ]は若[わか]い作家[さっか]から書[か]かれました。","good":"この小説[しょうせつ]は若[わか]い作家[さっか]{によって}書[か]かれました。","note":"から is a source or a material, never the author. The creator of a work takes によって."}
+   ],
+   "tip":"Did someone create the subject (a book, a building, an invention), or is it an official decision? によって. Was something done to someone? に."}
+ ]}

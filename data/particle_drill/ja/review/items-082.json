@@ -1,0 +1,8 @@
+{"batch":"items-082","files":["items/kurai-about.jsonl","items/kurai-extent.jsonl"],"checked":76,"fixed":6,"deleted":0,"replaced":0,"issues":[
+{"file":"items/kurai-about.jsonl","jp_before":"毎月[まいつき]映画[えいが]{を|o-object}二回[にかい]{ぐらい/くらい/ほど|kurai-about}見[み]ます。","problem":"English 'about two films a month' mistranslates 二回 (two times).","action":"English changed to 'I watch films about twice a month.'"},
+{"file":"items/kurai-about.jsonl","jp_before":"駅前[えきまえ]{の|no-possessive}パン屋[や]{で|de-place}パン{を|o-object}五[いつ]つ{くらい/ぐらい/ほど|kurai-about}買[か]いました。","problem":"パン五つ is five buns/rolls, not loaves.","action":"English changed to 'about five bread rolls'."},
+{"file":"items/kurai-about.jsonl","jp_before":"私[わたし]{は|wa-topic}ここ{に/で|ni-location}三年[さんねん]{ぐらい/くらい/ほど|kurai-about}住[す]んでいます。","problem":"で listed as alternative for 住む; ここで住んでいます is not standard.","action":"Removed /で from the slot."},
+{"file":"items/kurai-about.jsonl","jp_before":"今日[きょう]{は|wa-topic}昨日[きのう]{より|yori-comparison}五度[ごど]{くらい/ぐらい|kurai-about}寒[さむ]いです。","problem":"ほど (五度ほど寒い) is equally natural but was not listed.","action":"Added ほど as alternative."},
+{"file":"items/kurai-about.jsonl","jp_before":"店[みせ]{の|no-possessive}前[まえ]{に|ni-location}人[ひと]{が|ga-subject}十人[じゅうにん]{くらい/ぐらい/ほど|kurai-about}並[なら]んでいました。","problem":"店の前で並んでいました is equally natural for this non-focus slot.","action":"Added で as alternative to the に slot."},
+{"file":"items/kurai-extent.jsonl","jp_before":"自分[じぶん]{の|no-possessive}部屋[へや]{の|no-possessive}掃除[そうじ]{くらい/ぐらい|kurai-extent}自分[じぶん]{で|de-means}しなさい。","problem":"English 'You can at least...' does not render the imperative しなさい.","action":"English changed to 'At least clean your own room yourself.'"}
+]}

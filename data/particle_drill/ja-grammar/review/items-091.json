@@ -1,0 +1,11 @@
+{"batch":"items-091","files":["items/pt-sugiru.jsonl","items/pt-kata.jsonl"],"checked":56,"fixed":9,"deleted":0,"replaced":0,"issues":[
+{"file":"items/pt-sugiru.jsonl","jp_before":"この靴[くつ]は小[ちい]さ{すぎます|pt-sugiru}。もっと大[おお]きいのはありますか。","problem":"Distractor くなりました (小さくなりました, 'have got too small for me') fits the request for bigger shoes almost as well as the answer.","action":"Replaced the distractor with くてもいいです, which contradicts the request."},
+{"file":"items/pt-sugiru.jsonl","jp_before":"このバスは込[こ]み{すぎて|pt-sugiru}、乗[の]れませんでした。","problem":"混む is the standard spelling (込む is dated); このバス sounds odd in a past-tense narration.","action":"Rewrote as 朝[あさ]のバスは混[こ]みすぎて… with the English 'The morning bus was too crowded…'."},
+{"file":"items/pt-kata.jsonl","jp_before":"このカメラの使[つか]い{方[かた]|pt-kata}がわかりません。","problem":"The why claimed that もの cannot attach to a stem, which is false (使い物, 食べ物).","action":"Reworded: こと, もの and ところ never mean 'the way of doing' after a stem."},
+{"file":"items/pt-kata.jsonl","jp_before":"友達[ともだち]にスマホの写真[しゃしん]の撮[と]り{方[かた]|pt-kata}を教[おし]えてもらいました。","problem":"スマホの写真の撮り方 is awkward; the English 'with my smartphone' needs で.","action":"Rewrote as スマホできれいな写真の撮り方…, with matching English."},
+{"file":"items/pt-kata.jsonl","jp_before":"この自動[じどう]販売機[はんばいき]の買[か]い{方[かた]|pt-kata}がわかりません。","problem":"自動販売機の買い方 is unnatural collocation.","action":"Rewrote as 駅[えき]で切符[きっぷ]の買[か]い方がわからなくて、困[こま]りました。"},
+{"file":"items/pt-kata.jsonl","jp_before":"この漢字[かんじ]の書[か]き{方[かた]|pt-kata}を見[み]せてください。","problem":"Near-duplicate of line 1 (この漢字の読み方を教えてください) and a second 書き方 item.","action":"Rewrote as ネクタイの結[むす]び方を覚[おぼ]えたいです。 (lv 4)."},
+{"file":"items/pt-kata.jsonl","jp_before":"このアプリの登録[とうろく]のし{方[かた]|pt-kata}がわかりません。","problem":"The standard written form is 仕方 (しかた); splitting it as し + 方[かた] teaches a non-standard spelling.","action":"Rewrote as この薬[くすり]の飲[の]み方を、もう一度[いちど]説明[せつめい]してください。"},
+{"file":"items/pt-kata.jsonl","jp_before":"コーヒーのいれ{方[かた]|pt-kata}で、味[あじ]が変[か]わります。","problem":"Distractor もの gives コーヒーのいれもの (入れ物, the container) で味が変わります, a natural sentence.","action":"Rewrote as 祖母[そぼ]はお茶[ちゃ]のいれ方がとても丁寧[ていねい]です。, where 入れ物 makes no sense (lv 3)."},
+{"file":"items/pt-kata.jsonl","jp_before":"この町[まち]の暮[く]らし{方[かた]|pt-kata}を少[すこ]し教[おし]えてください。","problem":"この町の暮らし方 is awkward; the place of living needs での.","action":"Changed to この町[まち]での暮らし方."}
+]}

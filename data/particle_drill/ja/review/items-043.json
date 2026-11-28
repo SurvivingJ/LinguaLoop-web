@@ -1,0 +1,6 @@
+{"batch":"items-043","files":["items/mo-also.jsonl"],"checked":66,"fixed":4,"deleted":0,"replaced":0,"issues":[
+{"file":"items/mo-also.jsonl","jp_before":"昨日[きのう]{は|wa-topic}雨[あめ]{が|ga-subject}降[ふ]りませんでした。今日[きょう]{も|mo-also}降[ふ]りません。","problem":"English 'It isn't raining today' does not match 降りません (that would be 降っていません); は is equally natural for 雨 in the negative sentence but was not listed.","action":"Changed to 今日[きょう]{も}降[ふ]らないでしょう / 'It probably won't rain today either'; added は as alternative in the 雨 slot."},
+{"file":"items/mo-also.jsonl","jp_before":"お茶[ちゃ]{を|o-object}ください。水[みず]{も|mo-also}ください。","problem":"Distractor まで ('even water, please') is grammatical and close to the additive meaning.","action":"Replaced distractor まで with が."},
+{"file":"items/mo-also.jsonl","jp_before":"兄[あに]{は|wa-topic}サッカー{が|ga-stative}好[す]きです。野球[やきゅう]{も|mo-also}好[す]きです。","problem":"Distractor まで ('he even likes baseball') is natural and nearly the same additive meaning.","action":"Replaced distractor まで with で."},
+{"file":"items/mo-also.jsonl","jp_before":"彼[かれ]{は|wa-topic}日本語[にほんご]{が|ga-stative}分[わ]かります。ドイツ語[ご]{も|mo-also}分[わ]かります。","problem":"Distractor まで ('he even understands German') is natural and nearly the same additive meaning.","action":"Replaced distractor まで with で."}
+]}

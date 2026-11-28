@@ -1,0 +1,110 @@
+{
+ "batch": "items-m50031",
+ "files": [
+  "items/towa__m50.jsonl",
+  "items/dewa-scope__m50.jsonl",
+  "items/double-mo__m50.jsonl"
+ ],
+ "checked": 73,
+ "fixed": 14,
+ "deleted": 0,
+ "replaced": 2,
+ "issues": [
+  {
+   "file": "items/towa__m50.jsonl",
+   "jp_before": "「楽観的[らっかんてき]」{とは/というのは|towa}、先[さき]{の|no-possessive}こと{を|o-object}明[あか]るく考[かんが]える様子[ようす]です。",
+   "problem": "English 'being in a state of thinking brightly' is unnatural.",
+   "action": "Rewrote en: 'Optimistic' describes someone who looks on the bright side of what lies ahead."
+  },
+  {
+   "file": "items/towa__m50.jsonl",
+   "jp_before": "親友[しんゆう]{が|ga-sub-clause}留学[りゅうがく]する{とは|towa}、知[し]りませんでした。",
+   "problem": "Distractor とも is acceptable before 知らなかった (〜とも知らず), with nearly the same meaning.",
+   "action": "Replaced distractor とも with にも."
+  },
+  {
+   "file": "items/towa__m50.jsonl",
+   "jp_before": "山田[やまだ]さん{が|ga-sub-clause}あんなに怒[おこ]る{とは|towa}、思[おも]っていませんでした。",
+   "problem": "Distractor とも works with 思っていませんでした ('didn't even think'), so it is not plainly wrong.",
+   "action": "Replaced distractor とも with にも."
+  },
+  {
+   "file": "items/towa__m50.jsonl",
+   "jp_before": "今日[きょう]{の|no-possessive}パーティー{が|ga-sub-clause}こんなに楽[たの]しい{とは|towa}、思[おも]いませんでした。",
+   "problem": "Distractor とも works with 思いませんでした; lv 4 is below the N3 level of とは.",
+   "action": "Replaced distractor とも with にも; set lv 3."
+  },
+  {
+   "file": "items/towa__m50.jsonl",
+   "jp_before": "親[おや]{が|ga-sub-clause}あんなに心配[しんぱい]してくれていた{とは|towa}、気[き]づきませんでした。",
+   "problem": "Distractor とも is acceptable with 気づきませんでした.",
+   "action": "Replaced distractor とも with にも."
+  },
+  {
+   "file": "items/towa__m50.jsonl",
+   "jp_before": "みんな{が|ga-sub-clause}来[こ]られない{とは|towa}、残念[ざんねん]です。",
+   "problem": "lv 4 is below the N3 level of とは.",
+   "action": "Set lv 3."
+  },
+  {
+   "file": "items/towa__m50.jsonl",
+   "jp_before": "あの二人[ふたり]{が|ga-sub-clause}別[わか]れた{とは|towa}、信[しん]じられません。",
+   "problem": "lv 4 is below the N3 level of とは.",
+   "action": "Set lv 3."
+  },
+  {
+   "file": "items/towa__m50.jsonl",
+   "jp_before": "強[つよ]い彼女[かのじょ]{が|ga-sub-clause}泣[な]く{とは|towa}、驚[おどろ]きました。",
+   "problem": "lv 4 is below the N3 level of とは.",
+   "action": "Set lv 3."
+  },
+  {
+   "file": "items/towa__m50.jsonl",
+   "jp_before": "「幸[しあわ]せ」{とは/というのは|towa}、家族[かぞく]{と|to-with}ゆっくり食事[しょくじ]{を|o-object}することだ{と|to-quote}私[わたし]{は|wa-topic}思[おも]います。",
+   "problem": "lv 4 is below the N3 level of とは.",
+   "action": "Set lv 3."
+  },
+  {
+   "file": "items/towa__m50.jsonl",
+   "jp_before": "最近[さいきん]、友達[ともだち]{に|ni-target}あまり連絡[れんらく]しません。{というのは/というのも|towa}、みんな仕事[しごと]{が|ga-subject}忙[いそが]しい{から|kara-because}です。",
+   "problem": "lv 4 is below the N3 level of sentence-initial というのは.",
+   "action": "Set lv 3."
+  },
+  {
+   "file": "items/towa__m50.jsonl",
+   "jp_before": "日曜日[にちようび]{は|wa-topic}家[いえ]{に|ni-location}います。{というのは/というのも|towa}、友達[ともだち]{が|ga-subject}遊[あそ]び{に|ni-purpose}来[く]る{から|kara-because}です。",
+   "problem": "lv 5 is implausible for sentence-initial というのは (N3).",
+   "action": "Set lv 3."
+  },
+  {
+   "file": "items/dewa-scope__m50.jsonl",
+   "jp_before": "兄[あに]{の|no-possessive}部屋[へや]{では|dewa-scope}、いつも音楽[おんがく]{が|ga-sense}聞[き]こえます。",
+   "problem": "Hearing music 'in' the room with 聞こえる sounds odd; a native would say 部屋から聞こえる.",
+   "action": "Rewrote: 兄の部屋では、いつも音楽が流れています。 / 'In my brother's room, there's always music playing.' (が now ga-subject)."
+  },
+  {
+   "file": "items/dewa-scope__m50.jsonl",
+   "jp_before": "この狭[せま]い台所[だいどころ]{では|dewa-scope}、大[おお]きいなべ{は|wa-negative}使[つか]えません。",
+   "problem": "Distractor には is close to acceptable here ('too small for a big pot' reading).",
+   "action": "Replaced distractor には with からは."
+  },
+  {
+   "file": "items/dewa-scope__m50.jsonl",
+   "jp_before": "祖父[そふ]{の|no-possessive}話[はなし]{では|dewa-scope}、昔[むかし]この辺[へん]{は|wa-topic}全部[ぜんぶ]田[た]んぼだったそうです。",
+   "problem": "Near-duplicate of item 2 (family member の話では + past そうです).",
+   "action": "Replaced with: うちの近所では、ごみは朝八時までに出します。 / 'In our neighbourhood, rubbish is put out by eight in the morning.'"
+  },
+  {
+   "file": "items/dewa-scope__m50.jsonl",
+   "jp_before": "うち{の|no-possessive}子[こ]{の|no-possessive}様子[ようす]{では|dewa-scope}、今日[きょう]{は|wa-topic}学校[がっこう]{で|de-place}何[なに]かあったようです。",
+   "problem": "Near-duplicate of item 5 (family member の様子では … ようです).",
+   "action": "Replaced with: 私の計算では、今月の電気代は先月より安くなります。 / 'By my calculation, this month's electricity bill will be lower than last month's.'"
+  },
+  {
+   "file": "items/double-mo__m50.jsonl",
+   "jp_before": "クラスメート{とも|double-mo}宿題[しゅくだい]{を|o-object}しました。",
+   "problem": "と + 宿題をする without 一緒に sounds unnatural.",
+   "action": "Added 一緒に (unmarked, part of a fixed adverb): クラスメートとも一緒に宿題をしました。"
+  }
+ ]
+}

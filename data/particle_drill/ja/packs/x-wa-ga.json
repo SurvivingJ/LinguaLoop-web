@@ -1,0 +1,38 @@
+[
+ {"id":"x-wa-ga-1","lv":4,
+  "tpl":"<who>{が/の|ga-sub-clause}作[つく]った<dish>{は/が|wa-topic}<adj>。",
+  "en":"The <dish> <who> made <adj>.",
+  "f":0,"d":["は"],
+  "why":"The maker is the subject inside a clause describing the dish, and a subject inside such a clause takes が (or の), never は.",
+  "vars":{
+   "who":[["母[はは]","my mother"],["父[ちち]","my father"],["姉[あね]","my older sister"],["兄[あに]","my older brother"],["祖母[そぼ]","my grandmother"],["友達[ともだち]","my friend"],["田中[たなか]さん","Mr. Tanaka"],["鈴木[すずき]さん","Ms. Suzuki"]],
+   "dish":[["カレー","curry"],["スープ","soup"],["パン","bread"],["ケーキ","cake"],["ピザ","pizza"],["パイ","pie"],["グラタン","gratin"]],
+   "adj":[["おいしかったです","was delicious"],["とても人気[にんき]でした","was very popular"],["すぐなくなりました","was gone in no time"],["まだ温[あたた]かかったです","was still warm"],["少[すこ]し冷[つめ]たかったです","was a little cold"],["本当[ほんとう]においしかったです","was really delicious"]]}},
+ {"id":"x-wa-ga-2","lv":5,
+  "tpl":"<place>{の|no-possessive}<item>{の|no-possessive}中[なか]{で|de-scope}どれ{が|ga-question}一番[いちばん]<adj>{か|ka-question}。",
+  "en":"Which of the <item> <place> is <adj>?",
+  "f":3,"d":["は"],
+  "why":"どれ is the unknown thing being asked about, and a question word as subject always takes が; どれは is impossible.",
+  "vars":{
+   "place":[["この店[みせ]","in this shop"],["あの店[みせ]","in that shop"],["あのデパート","in that department store"],["このデパート","in this department store"],["このカタログ","in this catalogue"],["このサイト","on this website"]],
+   "item":[["かばん","bags"],["靴[くつ]","shoes"],["傘[かさ]","umbrellas"],["時計[とけい]","watches"],["帽子[ぼうし]","hats"],["カメラ","cameras"],["自転車[じてんしゃ]","bicycles"],["パソコン","computers"]],
+   "adj":[["高[たか]いです","the most expensive"],["安[やす]いです","the cheapest"],["軽[かる]いです","the lightest"],["重[おも]いです","the heaviest"],["新[あたら]しいです","the newest"],["古[ふる]いです","the oldest"],["大[おお]きいです","the biggest"],["小[ちい]さいです","the smallest"]]}},
+ {"id":"x-wa-ga-3","lv":5,
+  "tpl":"<pre><who>{は|wa-topic}<time>どこ{に/へ|ni-destination}行[い]きました{か|ka-question}。",
+  "en":"<pre> where did <who> go <time>?",
+  "f":0,"d":["が"],
+  "why":"The question word どこ is in the predicate, so the person asked about is the known topic and takes は; が would wrongly make them the unknown.",
+  "vars":{
+   "pre":[["ところで、","By the way,"],["ねえ、","Hey,"],["あの、","Um,"],["それで、","So,"],["そういえば、","Come to think of it,"],["じゃあ、","Then"]],
+   "who":[["田中[たなか]さん","Mr. Tanaka"],["鈴木[すずき]さん","Ms. Suzuki"],["お母[かあ]さん","your mother"],["お父[とう]さん","your father"],["お姉[ねえ]さん","your older sister"],["弟[おとうと]さん","your younger brother"],["先生[せんせい]","the teacher"],["部長[ぶちょう]","the manager"]],
+   "time":[["昨日[きのう]","yesterday"],["昨夜[ゆうべ]","last night"],["今朝[けさ]","this morning"],["さっき","just now"],["先週[せんしゅう]","last week"],["先月[せんげつ]","last month"],["去年[きょねん]","last year"],["週末[しゅうまつ]","at the weekend"]]}},
+ {"id":"x-wa-ga-4","lv":5,
+  "tpl":"<pre>この<item>{は|wa-topic}<q>{か|ka-question}。",
+  "en":"<pre> <q> this <item>?",
+  "f":0,"d":["が"],
+  "why":"この marks a thing already in front of you, so it is the topic and takes は; the question word in the predicate carries the new information.",
+  "vars":{
+   "pre":[["それで、","So,"],["あの、","Um,"],["ねえ、","Hey,"],["ところで、","By the way,"],["そういえば、","Come to think of it,"],["ちなみに、","Just out of interest,"]],
+   "item":[["かばん","bag"],["時計[とけい]","watch"],["傘[かさ]","umbrella"],["帽子[ぼうし]","hat"],["財布[さいふ]","wallet"],["カメラ","camera"],["辞書[じしょ]","dictionary"],["ペン","pen"]],
+   "q":[["いくらです","how much is"],["誰[だれ]{の|no-pronoun}です","whose is"],["どこ{で|de-place}買[か]いました","where did you buy"],["いつ買[か]いました","when did you buy"],["どこ{で|de-place}見[み]つけました","where did you find"],["誰[だれ]{が|ga-question}くれました","who gave you"]]}}
+]

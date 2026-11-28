@@ -1,0 +1,24 @@
+{"group":"x-cond",
+ "intro":"This clinic mixes と, ば, たら and なら. English 'if' and 'when' do not decide between them; the shape of the sentence does. Ask the questions below in order and stop at the first one that settles it. Most items are decided by the order in time of A and B, and by what stands at the end of the sentence.",
+ "skills":[
+  {"id":"x-cond",
+   "rule":"Check the order in time, then the ending, then the kind of link: B before A is なら, will or request rules out と, a real past event rules out ば and なら, an automatic result is と.",
+   "explain":"Q1. Does B happen before A, or is A a plan or topic someone has raised, with advice on it? なら: 行くなら切符を買っておいて. Only なら allows B first.\n\nQ2. Is B a request, invitation, wish or plan? と is out. ば survives only after a state (あれば, 安ければ). After an action verb, use たら: 着いたら電話して.\n\nQ3. Is B a single real past event? ば and なら are out (ば survives only for past habits: 暇があれば本を読んだ). A discovery takes たら or と (開けたら空だった). Someone's next action in a story takes と.\n\nQ4. Is B an automatic result: nature, machines, directions, habits? と (ば is also fine for general truths).\n\nQ5. Fixed patterns: 〜ばいい, 〜ば〜ほど and 〜ばよかった take ば; 〜たらどう takes たら.\n\nIf nothing has decided it and A is a single future event, use たら: it is the safe default.",
+   "patterns":["B before A / advice on a plan → なら","request, wish, plan → たら (ば after a state); never と","real past discovery → たら / と; never ば, なら","automatic or general result → と (ば)","ばいい · ば〜ほど · ばよかった → ば; たらどう → たら"],
+   "examples":[
+    {"jp":"日本[にほん]に来[き]{たら}、連絡[れんらく]してください。","en":"Get in touch once you've arrived in Japan."},
+    {"jp":"日本[にほん]に来[く]る{なら}、連絡[れんらく]してください。","en":"If you're planning to come to Japan, let me know (beforehand)."},
+    {"jp":"春[はる]になる{と}、暖[あたた]かくなります。","en":"When spring comes, it gets warm."},
+    {"jp":"時間[じかん]があれ{ば}、手伝[てつだ]ってください。","en":"If you have time, please help me."},
+    {"jp":"窓[まど]を開[あ]け{たら}、雪[ゆき]が降[ふ]っていた。","en":"When I opened the window, it was snowing."},
+    {"jp":"この漢字[かんじ]はどう読[よ]め{ば}いいですか。","en":"How should I read this kanji?"}],
+   "contrast":[
+    {"vs":"たら vs なら","note":"Same verb, opposite order: 来たら連絡して (after you arrive), 来るなら連絡して (before you come). Check which happens first."},
+    {"vs":"と vs たら","note":"と for what always happens, never with a request: 押すと開く. たら for one event, any ending: 押したら教えて."},
+    {"vs":"ば vs たら","note":"After an action verb, ば cannot take a request: 着けば電話して is wrong, 着いたら電話して is right. After a state both work: 暇なら / 暇だったら / 暇であれば."}],
+   "mistakes":[
+    {"bad":"海外[かいがい]に行[い]っ{たら}、出発前[しゅっぱつまえ]にパスポートを確認[かくにん]してね。","good":"海外[かいがい]に行[い]く{なら}、出発前[しゅっぱつまえ]にパスポートを確認[かくにん]してね。","note":"The check comes before departure, so B precedes A: なら."},
+    {"bad":"家[いえ]に着[つ]く{と}、メールしてね。","good":"家[いえ]に着[つ]い{たら}、メールしてね。","note":"A request after と is impossible; a single future event takes たら."},
+    {"bad":"ドアを開[あ]けれ{ば}、猫[ねこ]がいた。","good":"ドアを開[あ]け{たら}、猫[ねこ]がいた。","note":"ば cannot report a real past discovery."}],
+   "tip":"Ask: which comes first, what is at the end, and did it really happen? Those three answers name the conditional."}
+ ]}

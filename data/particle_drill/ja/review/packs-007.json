@@ -1,0 +1,14 @@
+{
+ "batch": "packs-007",
+ "files": ["packs/ni-purpose.json", "packs/ni-frequency.json", "packs/ni-change.json"],
+ "checked": 7,
+ "fixed": 5,
+ "deleted": 0,
+ "issues": [
+  {"file": "packs/ni-frequency.json", "pack": "ni-frequency-1", "problem": "unit values 二週間 / 二か月 ('every two weeks/months') gave odd rates with 二回/二度 ('twice every two weeks' = once a week).", "action": "Replaced with 年 / 一年 ('a year')."},
+  {"file": "packs/ni-frequency.json", "pack": "ni-frequency-1", "problem": "act 部屋を掃除します ('cleans the room') read oddly with yearly units ('cleans the room once a year').", "action": "Replaced with 美術館に/へ行きます ('goes to the art museum')."},
+  {"file": "packs/ni-change.json", "pack": "ni-change-1", "problem": "English 'has been getting' + bare adjective was unnatural ('has been getting quiet/famous').", "action": "English changed to 'has started to become'."},
+  {"file": "packs/ni-change.json", "pack": "ni-change-1", "problem": "English 'should become' read as a wish/obligation with 危険 ('should become dangerous').", "action": "English changed to 'is expected to become'."},
+  {"file": "packs/ni-change.json", "pack": "ni-change-2", "problem": "verb しませんでした: negative にする without contrastive は (ビールにしませんでした) is unnatural; ビールにはしませんでした would be expected.", "action": "Replaced with するつもりです ('is going to have')."}
+ ]
+}

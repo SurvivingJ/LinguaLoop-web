@@ -1,0 +1,20 @@
+[
+ {"id":"no-pronoun-1","lv":5,
+  "tpl":"<who>{は|wa-topic}<adj>{の|no-pronoun}{を|o-object}<act>。",
+  "en":"<who> <act> the <adj> one.",
+  "f":1,"d":["こと","が","で"],
+  "why":"An adjective cannot stand alone as a noun; adding の turns it into \"the ... one\".",
+  "vars":{
+   "who":[["母[はは]","My mother"],["田中[たなか]さん","Mr. Tanaka"],["兄[あに]","My older brother"],["姉[あね]","My older sister"],["父[ちち]","My father"],["友達[ともだち]","My friend"],["山田[やまだ]さん","Ms. Yamada"]],
+   "adj":[["赤[あか]い","red"],["青[あお]い","blue"],["白[しろ]い","white"],["黒[くろ]い","black"],["大[おお]きい","big"],["小[ちい]さい","small"],["安[やす]い","cheap"],["新[あたら]しい","new"],["古[ふる]い","old"],["長[なが]い","long"]],
+   "act":[["買[か]いました","bought"],["もらいました","got"],["借[か]りました","borrowed"],["使[つか]いました","used"],["取[と]りました","took"],["探[さが]しました","looked for"]]}},
+ {"id":"no-pronoun-2","lv":5,
+  "tpl":"<owner>{の|no-possessive}<thing>{は|wa-topic}あの<adj>{の|no-pronoun}です。",
+  "en":"<owner> <thing> is that <adj> one over there.",
+  "f":2,"d":["こと","が","を"],
+  "why":"\"The black one\" is an adjective plus の, which stands in for the noun already mentioned.",
+  "vars":{
+   "owner":[["田中[たなか]さん","Mr. Tanaka's"],["母[はは]","My mother's"],["父[ちち]","My father's"],["兄[あに]","My older brother's"],["先生[せんせい]","The teacher's"],["鈴木[すずき]さん","Ms. Suzuki's"],["姉[あね]","My older sister's"],["友達[ともだち]","My friend's"]],
+   "thing":[["かばん","bag"],["傘[かさ]","umbrella"],["車[くるま]","car"],["自転車[じてんしゃ]","bicycle"],["帽子[ぼうし]","hat"],["コート","coat"],["カップ","cup"],["財布[さいふ]","wallet"]],
+   "adj":[["大[おお]きい","big"],["小[ちい]さい","small"],["黒[くろ]い","black"],["白[しろ]い","white"],["赤[あか]い","red"],["青[あお]い","blue"],["新[あたら]しい","new"],["古[ふる]い","old"]]}}
+]

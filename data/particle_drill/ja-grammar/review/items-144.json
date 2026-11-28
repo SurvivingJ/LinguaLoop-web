@@ -1,0 +1,4 @@
+{"batch":"items-144","files":["items/cl-wear.jsonl"],"checked":46,"fixed":2,"deleted":0,"replaced":0,"issues":[
+{"file":"items/cl-wear.jsonl","jp_before":"きのうは、帽子[ぼうし]を{かぶらなかった|cl-wear}ので、頭[あたま]が痛[いた]くなりました。","problem":"Nothing in the sentence explains why not wearing a hat would cause a headache; it reads oddly.","action":"Added the context 暑かったのに (it was hot) and adjusted the English."},
+{"file":"items/cl-wear.jsonl","jp_before":"靴下[くつした]を{履[は]かないで|cl-wear}外[そと]に出[で]ると、足[あし]が冷[つめ]たいです。","problem":"Near-duplicate of the boots item (no footwear, cold feet); 足が冷たいです is slightly unnatural as a general consequence (冷たくなります would fit).","action":"Rewrote as 暑い日は、靴下を履かないでサンダルで出かけます。 with new English; lv set to 4."}
+]}

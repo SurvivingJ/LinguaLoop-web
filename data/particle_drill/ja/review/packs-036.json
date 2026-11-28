@@ -1,0 +1,9 @@
+{"batch":"packs-036",
+ "files":["packs/x-conditionals.json","packs/tameni-purpose.json","packs/youni-purpose.json","packs/x-tameni-youni.json"],
+ "checked":7,
+ "fixed":1,
+ "deleted":0,
+ "issues":[
+  {"file":"packs/x-conditionals.json","pack":"x-conditionals-1","problem":"Variable 'when' had only 5 values (rule requires 6 to 12).","action":"Added 年末[ねんまつ] / 'at the end of the year'; all 288 combinations read correctly with なら as the only answer."},
+  {"file":"packs/tameni-purpose.json","pack":"tameni-purpose-1","problem":"Distractor まで gives a grammatical sentence ('saved until buying a car'), but the meaning changes so the English 'to buy' no longer fits, which the rules allow. のに/ので/から were rejected as replacements: purpose のに is acceptable here, and ので/から leave the English almost the same.","action":"Kept as is; no change."}
+ ]}

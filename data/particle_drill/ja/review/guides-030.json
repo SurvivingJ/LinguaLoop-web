@@ -1,0 +1,13 @@
+{"batch":"guides-030",
+ "files":["guides/final-wa-sa.json","guides/final-mono.json","guides/final-tomo.json","guides/final-ja-nai.json","guides/final-tte.json"],
+ "checked":6,
+ "fixed":6,
+ "deleted":0,
+ "issues":[
+  {"file":"guides/final-ja-nai.json","problem":"explain claimed a real negative always changes the word, which is false after nouns and na-adjectives (静かじゃない can be either the negative or the particle); the most important ambiguity was missing","action":"Rewrote paragraph 2: the shape tells them apart only after verbs and i-adjectives; after nouns and na-adjectives context and tone decide. Trimmed paragraph 1 to stay under 900 characters"},
+  {"file":"guides/final-ja-nai.json","problem":"rule said 'after a plain form', but the plain form of a noun includes だ, which contradicts the no-だ rule","action":"Rule now reads 'after a plain form (a noun without だ)'"},
+  {"file":"guides/final-tte.json","problem":"the mistake 明日は休みって marked as wrong is heard in casual speech; it is less standard, not clearly wrong","action":"Deleted that mistake entry and kept the polite-register one"},
+  {"file":"guides/final-tte.json","problem":"explain said that 休みって without だ sounds like the start of a topic, which overstates the rule","action":"Removed the sentence; kept 'nouns and na-adjectives keep だ'"},
+  {"file":"guides/final-tomo.json","problem":"少なくとも was described as とも 'after a counter or number word', which it is not","action":"Reworded: 'the とも of 二人とも (both of them) or 少なくとも (at least), which is a different word'"},
+  {"file":"guides/final-wa-sa.json","problem":"one sa-final example (昨日さ、…) showed the mid-sentence filler さ, not the sentence-final function the skill teaches","action":"Replaced it with 心配ないよ。すぐ慣れるさ。 / Don't worry. You'll soon get used to it."}
+ ]}

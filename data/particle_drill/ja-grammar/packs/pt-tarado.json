@@ -1,0 +1,20 @@
+[
+ {"id":"pt-tarado-1","lv":4,
+  "tpl":"<prob>なら、<who>に<act>{たらどうですか|pt-tarado}。",
+  "en":"If <prob>, why don't you <act> <who>?",
+  "f":0,"d":["てもいいですか","たことがありますか","ていますか"],
+  "why":"Gently suggesting a step to the listener is the ta-form + らどうですか: why don't you ...?",
+  "vars":{
+   "prob":[["そんなに悩[なや]んでいる","you are that worried about it"],["一人[ひとり]で決[き]められない","you can't decide on your own"],["どうしたらいいか分[わ]からない","you don't know what to do"],["まだ迷[まよ]っている","you are still unsure"],["不安[ふあん]","you feel anxious"],["困[こま]っている","you are stuck"],["自信[じしん]がない","you are not confident"],["心配[しんぱい]","it worries you"]],
+   "who":[["先生[せんせい]","your teacher"],["先輩[せんぱい]","someone senior to you"],["ご家族[かぞく]","your family"],["ご両親[りょうしん]","your parents"],["友達[ともだち]","a friend"],["信頼[しんらい]できる人[ひと]","someone you trust"]],
+   "act":[["相談[そうだん]し","talk it over with"],["話[はな]し","talk to"],["話[はな]してみ","try talking to"],["相談[そうだん]してみ","try consulting"],["聞[き]いてみ","try asking"],["相談[そうだん]に乗[の]ってもらっ","get some advice from"]]}},
+ {"id":"pt-tarado-2","lv":4,
+  "tpl":"<lead><who>の<ill>が早[はや]く{良[よ]くなるといいですね/良[よ]くなればいいですね/良[よ]くなったらいいですね|pt-tarado}。",
+  "en":"<lead> I hope <who>'s <ill> gets better soon.",
+  "f":0,"d":["良[よ]くなるそうですね","良[よ]くなったそうですね","良[よ]くなってはいけませんね"],
+  "why":"Hoping for a good outcome you cannot control is 〜といい (or ばいい / たらいい) + ですね.",
+  "vars":{
+   "lead":[["大変[たいへん]ですね。","That must be hard."],["そうですか。","I see."],["心配[しんぱい]ですね。","You must be worried."],["それは大変[たいへん]でしたね。","That sounds tough."],["それはいけませんね。","Oh dear."],["知[し]りませんでした。","I didn't know."]],
+   "who":[["お母[かあ]さん","your mother"],["お父[とう]さん","your father"],["おばあさん","your grandmother"],["おじいさん","your grandfather"],["奥[おく]さん","your wife"],["ご主人[しゅじん]","your husband"],["息子[むすこ]さん","your son"],["娘[むすめ]さん","your daughter"]],
+   "ill":[["風邪[かぜ]","cold"],["けが","injury"],["腰[こし]の痛[いた]み","back pain"],["咳[せき]","cough"],["喉[のど]の痛[いた]み","sore throat"],["頭痛[ずつう]","headache"]]}}
+]

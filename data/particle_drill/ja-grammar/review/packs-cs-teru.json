@@ -1,0 +1,8 @@
+{"batch":"packs-cs-teru","files":["packs/cs-teru.json","packs/cs-chau.json","packs/cs-nakya.json"],"checked":6,"fixed":4,"deleted":0,"issues":[
+ {"file":"packs/cs-teru.json","pack":"cs-teru-2","problem":"prep value 玄関の鍵を開けとく is odd as party preparation, especially with 昼までに/早めに (door left unlocked all afternoon)","action":"replaced with 部屋を片付けとく 'tidy up the room'"},
+ {"file":"packs/cs-teru.json","pack":"cs-teru-2","problem":"timing 昼までに 'by lunchtime' clashes with evening events (ordering pizza / chilling juice by lunch for a party tonight)","action":"replaced with 出かける前に 'before I head out'"},
+ {"file":"packs/cs-teru.json","pack":"cs-teru-2","problem":"event 夜は親戚がうちに集まる does not say 'tonight' like its English and the other values","action":"changed to 今夜は親戚がうちに集まる"},
+ {"file":"packs/cs-nakya.json","pack":"cs-nakya-1","problem":"task 洗濯しなきゃ is unnatural with deadlines 月末までに / 週末までに; when value 母が来るまでに clashes with tasks like 論文を仕上げ / ホテルを予約","action":"replaced task with 家賃を払わなきゃ 'pay the rent' and when value with 来週までに 'by next week'"},
+ {"file":"packs/cs-nakya.json","pack":"cs-nakya-2","problem":"act 物を食べ is a stilted object for 'eat'","action":"replaced with お菓子を食べ 'eat snacks'"},
+ {"file":"packs/cs-chau.json","pack":"cs-chau-1","problem":"react 最悪だよ glossed 'It was awful' (tense mismatch with the Japanese)","action":"English changed to 'What a disaster'"}
+]}

@@ -1,0 +1,20 @@
+[
+ {"id":"x-mo-wa-1","lv":5,
+  "tpl":"<time>、<who>{も|mo-also}<state>。",
+  "en":"<time>, <who> <state> too.",
+  "f":0,"d":["は"],
+  "why":"The English says too: this person is added to others who did the same, so も; は would set them apart instead.",
+  "vars":{
+   "time":[["昨日[きのう]","Yesterday"],["一昨日[おととい]","The day before yesterday"],["水曜日[すいようび]","On Wednesday"],["その日[ひ]","That day"],["先週[せんしゅう]","Last week"],["金曜日[きんようび]","On Friday"],["月曜日[げつようび]","On Monday"]],
+   "who":[["父[ちち]","my father"],["母[はは]","my mother"],["兄[あに]","my older brother"],["姉[あね]","my older sister"],["田中[たなか]さん","Mr. Tanaka"],["鈴木[すずき]さん","Ms. Suzuki"],["先生[せんせい]","the teacher"],["部長[ぶちょう]","the manager"]],
+   "state":[["疲[つか]れていました","was tired"],["風邪[かぜ]{を|o-object}ひきました","caught a cold"],["遅[おく]れて来[き]ました","came late"],["早[はや]く帰[かえ]りました","went home early"],["仕事[しごと]{を|o-object}休[やす]みました","took a day off work"],["寝坊[ねぼう]しました","overslept"],["忙[いそが]しそうでした","seemed busy"]]}},
+ {"id":"x-mo-wa-2","lv":5,
+  "tpl":"<who>{は|wa-topic}<a>{は/を|wa-contrast}食[た]べますが、<b>{は|wa-contrast}食[た]べません。",
+  "en":"<who> eats <a> but not <b>.",
+  "f":2,"d":["も"],
+  "why":"The second food is set against the first (eats one, not the other), so contrastive は; も would mean not that either, which clashes with eating the first.",
+  "vars":{
+   "who":[["父[ちち]","My father"],["母[はは]","My mother"],["兄[あに]","My older brother"],["姉[あね]","My older sister"],["弟[おとうと]","My younger brother"],["妹[いもうと]","My younger sister"],["田中[たなか]さん","Mr. Tanaka"],["祖父[そふ]","My grandfather"]],
+   "a":[["肉[にく]","meat"],["野菜[やさい]","vegetables"],["卵[たまご]","eggs"],["パン","bread"],["ご飯[はん]","rice"],["果物[くだもの]","fruit"]],
+   "b":[["魚[さかな]","fish"],["刺身[さしみ]","sashimi"],["納豆[なっとう]","natto"],["辛[から]い物[もの]","spicy food"],["甘[あま]い物[もの]","sweet things"],["ピーマン","green peppers"],["貝[かい]","shellfish"],["きのこ","mushrooms"]]}}
+]

@@ -1,0 +1,20 @@
+[
+ {"id":"pt-hajimeru-1","lv":4,
+  "tpl":"<addr>、<signal>ら、<act>{始[はじ]めてください|pt-hajimeru}。",
+  "en":"<addr>, when <signal>, please start <act>.",
+  "f":0,"d":["出[だ]してください","続[つづ]けてください","終[お]わってください"],
+  "why":"Nothing has begun before the signal, so it is the start: masu stem + 始める. 〜出す (sudden start) is not used in requests.",
+  "vars":{
+   "addr":[["皆[みな]さん","Everyone"],["一年生[いちねんせい]の皆[みな]さん","First-years"],["参加者[さんかしゃ]の皆[みな]さん","Participants"],["赤[あか]チームの皆[みな]さん","Red team"],["前[まえ]の列[れつ]の皆[みな]さん","Front row"],["二組[にくみ]の皆[みな]さん","Class two"]],
+   "signal":[["笛[ふえ]が鳴[な]った","the whistle blows"],["ベルが鳴[な]った","the bell rings"],["私[わたし]が手[て]をたたいた","I clap my hands"],["私[わたし]が合図[あいず]をした","I give the signal"],["電気[でんき]がついた","the lights come on"],["旗[はた]が上[あ]がった","the flag goes up"],["十時[じゅうじ]になった","it is ten o'clock"]],
+   "act":[["問題[もんだい]を解[と]き","solving the problems"],["走[はし]り","running"],["歌[うた]い","singing"],["食[た]べ","eating"],["片付[かたづ]け","tidying up"],["踊[おど]り","dancing"],["準備[じゅんび]をし","getting ready"]]}},
+ {"id":"pt-hajimeru-2","lv":4,
+  "tpl":"<dur>たっても、<who>はまだ<act>{続[つづ]けていました|pt-hajimeru}。",
+  "en":"Even after <dur>, <who> was still <act>.",
+  "f":0,"d":["始[はじ]めていました","出[だ]していました","終[お]わっていました"],
+  "why":"まだ after a long time means the action went on without stopping: masu stem + 続ける.",
+  "vars":{
+   "dur":[["三十分[さんじゅっぷん]","thirty minutes"],["一時間[いちじかん]","an hour"],["二時間[にじかん]","two hours"],["三時間[さんじかん]","three hours"],["四時間[よじかん]","four hours"],["半日[はんにち]","half a day"]],
+   "who":[["父[ちち]","my father"],["祖母[そぼ]","my grandmother"],["兄[あに]","my older brother"],["姉[あね]","my older sister"],["弟[おとうと]","my younger brother"],["田中[たなか]さん","Mr. Tanaka"],["佐藤[さとう]さん","Ms. Sato"],["隣[となり]の人[ひと]","the person next to me"]],
+   "act":[["話[はな]し","talking"],["歌[うた]い","singing"],["本[ほん]を読[よ]み","reading"],["ゲームをし","playing games"],["待[ま]ち","waiting"],["歩[ある]き","walking"],["テレビを見[み]","watching TV"],["勉強[べんきょう]し","studying"]]}}
+]

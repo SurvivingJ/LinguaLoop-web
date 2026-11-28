@@ -1,0 +1,20 @@
+[
+ {"id":"nara-conditional-1","lv":3,
+  "tpl":"<when>{に|ni-time}<plan>{なら|nara-conditional}、<advice>。",
+  "en":"If you're going to <plan> in <when>, <advice>.",
+  "f":2,"d":["と","ば","たら"],
+  "why":"なら takes up the listener's plan and gives advice before it happens; と cannot carry advice, and ば and たら need other verb forms.",
+  "vars":{
+   "when":[["春[はる]","spring"],["夏[なつ]","summer"],["秋[あき]","autumn"],["冬[ふゆ]","winter"],["年末[ねんまつ]","late December"],["三月[さんがつ]","March"],["六月[ろくがつ]","June"],["九月[くがつ]","September"]],
+   "plan":[["車[くるま]{を|o-object}買[か]う","buy a car"],["犬[いぬ]{を|o-object}飼[か]う","get a dog"],["家[いえ]{を|o-object}建[た]てる","build a house"],["パーティー{を|o-object}開[ひら]く","throw a party"],["引[ひ]っ越[こ]し{を|o-object}する","move house"],["京都[きょうと]{に/へ|ni-destination}旅行[りょこう]する","travel to Kyoto"],["新[あたら]しい部屋[へや]{を|o-object}探[さが]す","look for a new flat"],["店[みせ]{を|o-object}開[ひら]く","open a shop"]],
+   "advice":[["早[はや]めに準備[じゅんび]したほうがいいですよ","you'd better start getting ready early"],["私[わたし]{に|ni-recipient}教[おし]えてくださいね","please let me know"],["何[なん]でも聞[き]いてくださいね","feel free to ask me anything"],["今[いま]から計画[けいかく]{を|o-object}立[た]てましょう","let's start planning now"],["家族[かぞく]{と|to-with}よく話[はな]し合[あ]ってください","talk it over properly with your family"],["お金[かね]{を|o-object}貯[た]めておいたほうがいいですよ","you'd better save up some money first"]]}},
+ {"id":"nara-conditional-2","lv":4,
+  "tpl":"<topic>{なら|nara-conditional}、<who>{が|ga-subject}<end>。",
+  "en":"When it comes to <topic>, <who> <end>.",
+  "f":0,"d":["と","ば","たら"],
+  "why":"Noun + なら picks up a subject someone has raised: if it's X you mean, then this person is the one.",
+  "vars":{
+   "topic":[["料理[りょうり]","cooking"],["歴史[れきし]","history"],["車[くるま]","cars"],["音楽[おんがく]","music"],["映画[えいが]","films"],["漢字[かんじ]","kanji"],["野球[やきゅう]","baseball"],["花[はな]","flowers"],["鳥[とり]","birds"],["パソコン","computers"]],
+   "who":[["田中[たなか]さん","Mr. Tanaka"],["山本[やまもと]さん","Ms. Yamamoto"],["鈴木[すずき]さん","Mr. Suzuki"],["佐藤[さとう]先生[せんせい]","Professor Sato"],["兄[あに]","my older brother"],["姉[あね]","my older sister"],["父[ちち]","my father"],["祖父[そふ]","my grandfather"]],
+   "end":[["詳[くわ]しいですよ","knows a lot"],["よく知[し]っていますよ","knows the subject well"],["何[なん]でも知[し]っていますよ","knows just about everything"],["一番[いちばん]詳[くわ]しい{と|to-quote}思[おも]います","knows the most, I think"],["教[おし]えてくれますよ","can teach you"],["詳[くわ]しく説明[せつめい]してくれますよ","can tell you all about it in detail"]]}}
+]

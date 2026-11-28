@@ -1,0 +1,20 @@
+[
+ {"id":"tara-conditional-1","lv":4,
+  "tpl":"<who>、<event>{たら|tara-conditional}、<request>。",
+  "en":"<who>, when you <event>, <request>.",
+  "f":1,"d":["ても","と","ば"],
+  "why":"A request that follows a completed event takes たら: once that has happened, please do this.",
+  "vars":{
+   "who":[["田中[たなか]さん","Mr. Tanaka"],["山田[やまだ]さん","Ms. Yamada"],["鈴木[すずき]さん","Mr. Suzuki"],["佐藤[さとう]さん","Ms. Sato"],["中村[なかむら]さん","Mr. Nakamura"],["小林[こばやし]さん","Ms. Kobayashi"]],
+   "event":[["駅[えき]{に|ni-destination}着[つ]い","get to the station"],["空港[くうこう]{に|ni-destination}着[つ]い","arrive at the airport"],["ホテル{に|ni-destination}着[つ]い","get to the hotel"],["家[いえ]{に/へ|ni-destination}帰[かえ]っ","get home"],["仕事[しごと]{が|ga-sub-clause}終[お]わっ","finish work"],["準備[じゅんび]{が|ga-sub-clause}でき","are ready"],["レポート{が|ga-sub-clause}書[か]き終[お]わっ","finish writing the report"],["予定[よてい]{が|ga-sub-clause}決[き]まっ","know your plans"]],
+   "request":[["電話[でんわ]してください","please call me"],["連絡[れんらく]してください","please get in touch"],["教[おし]えてください","please let me know"],["メール{を|o-object}ください","please send me an email"],["メッセージ{を|o-object}送[おく]ってください","please send me a message"],["すぐ知[し]らせてください","please tell me right away"]]}},
+ {"id":"tara-conditional-2","lv":4,
+  "tpl":"<who>{は|wa-topic}、もし<cond>{たら|tara-conditional}、<question>。",
+  "en":"<who>, if you <cond>, <question>?",
+  "f":2,"d":["ても","と","ば"],
+  "why":"もし … たら sets up an imagined situation and asks what would happen in it.",
+  "vars":{
+   "who":[["田中[たなか]さん","Mr. Tanaka"],["山田[やまだ]さん","Ms. Yamada"],["鈴木[すずき]さん","Mr. Suzuki"],["佐藤[さとう]さん","Ms. Sato"],["中村[なかむら]さん","Mr. Nakamura"],["小林[こばやし]さん","Ms. Kobayashi"],["先生[せんせい]","Professor"],["お父[とう]さん","Dad"]],
+   "cond":[["宝[たから]くじ{が|ga-sub-clause}当[あ]たっ","won the lottery"],["お金[かね]{が|ga-existence}たくさんあっ","had lots of money"],["長[なが]い休[やす]み{が|ga-stative}取[と]れ","could take a long holiday"],["時間[じかん]{が|ga-existence}もっとあっ","had more time"],["英語[えいご]{が|ga-stative}上手[じょうず]に話[はな]せ","could speak English well"],["一年[いちねん]自由[じゆう]な時間[じかん]{が|ga-existence}あっ","had a whole year free"]],
+   "question":[["まず何[なに]{を|o-object}しますか","what would you do first"],["誰[だれ]{と|to-with}旅行[りょこう]したいですか","who would you like to travel with"],["どこ{に/へ|ni-destination}行[い]きたいですか","where would you like to go"],["誰[だれ]{に|ni-target}会[あ]いたいですか","who would you like to see"],["何[なに]{が|ga-stative}一番[いちばん]したいですか","what would you most like to do"],["何[なに]{を|o-object}始[はじ]めますか","what would you start doing"]]}}
+]

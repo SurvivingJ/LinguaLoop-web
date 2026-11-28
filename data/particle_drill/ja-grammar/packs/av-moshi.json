@@ -1,0 +1,20 @@
+[
+ {"id":"av-moshi-1","lv":4,
+  "tpl":"<who>、{もし|av-moshi}<cond>、<req>",
+  "en":"<who>, <cond>, <req>",
+  "f":0,"d":["たとえ","まるで","きっと"],
+  "why":"もし opens an 'if' clause ending in たら / ば / なら; たとえ needs ても, まるで needs ようだ, and きっと cannot start a condition.",
+  "vars":{
+   "who":[["田中[たなか]さん","Mr. Tanaka"],["山田[やまだ]さん","Ms. Yamada"],["佐藤[さとう]さん","Mr. Sato"],["鈴木[すずき]さん","Ms. Suzuki"],["高橋[たかはし]さん","Mr. Takahashi"],["伊藤[いとう]さん","Ms. Ito"]],
+   "cond":[["時間[じかん]があったら","if you have time"],["暇[ひま]だったら","if you're free"],["都合[つごう]がよければ","if it suits you"],["時間[じかん]があれば","if you have some time"],["明日[あした]空[あ]いていたら","if you're free tomorrow"],["週末[しゅうまつ]暇[ひま]なら","if you're free at the weekend"]],
+   "req":[["一緒[いっしょ]に映画[えいが]を見[み]に行[い]きませんか。","would you like to go and see a film with me?"],["うちに遊[あそ]びに来[き]てください。","please come over to my place."],["引[ひ]っ越[こ]しを手伝[てつだ]ってくれませんか。","could you help me move house?"],["一緒[いっしょ]に昼[ひる]ご飯[はん]を食[た]べませんか。","shall we have lunch together?"],["この資料[しりょう]を見[み]てもらえませんか。","could you have a look at these documents?"],["電話[でんわ]をください。","please give me a call."],["少[すこ]し相談[そうだん]に乗[の]ってもらえませんか。","could I ask your advice about something?"]]}},
+ {"id":"av-moshi-2","lv":3,
+  "tpl":"<when>{万一[まんいち]/万[まん]が一[いち]|av-moshi}<emg>、<instr>。",
+  "en":"If by any chance <emg> <when>, <instr>.",
+  "f":0,"d":["たとえ","まるで","きっと"],
+  "why":"'If by any chance', for an unlikely emergency, is 万一 with たら; たとえ needs ても, まるで needs ようだ, and きっと cannot start a condition.",
+  "vars":{
+   "when":[["旅行中[りょこうちゅう]に","during the trip"],["一人[ひとり]のときに","when you're on your own"],["外出中[がいしゅつちゅう]に","while you're out"],["出張中[しゅっちょうちゅう]に","while you're on a business trip"],["散歩中[さんぽちゅう]に","while you're out for a walk"],["夜遅[よるおそ]く","late at night"]],
+   "emg":[["地震[じしん]が起[お]きたら","there is an earthquake"],["道[みち]に迷[まよ]ったら","you get lost"],["気分[きぶん]が悪[わる]くなったら","you feel ill"],["けがをしたら","you get hurt"],["事故[じこ]にあったら","you have an accident"],["財布[さいふ]をなくしたら","you lose your wallet"],["困[こま]ったことがあったら","you get into trouble"]],
+   "instr":[["すぐに私[わたし]に連絡[れんらく]してください","please contact me right away"],["この番号[ばんごう]に電話[でんわ]してください","please call this number"],["近[ちか]くの人[ひと]に助[たす]けを求[もと]めてください","please ask someone nearby for help"],["落[お]ち着[つ]いて行動[こうどう]してください","please stay calm and act carefully"],["遠慮[えんりょ]しないで電話[でんわ]してください","don't hesitate to phone"],["すぐに家族[かぞく]に知[し]らせてください","please let your family know at once"]]}}
+]

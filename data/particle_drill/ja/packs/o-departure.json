@@ -1,0 +1,20 @@
+[
+{"id":"o-departure-1","lv":5,
+ "tpl":"<who>{は|wa-topic}<time>{に|ni-time}<place>{を/から|o-departure}出[で]ました。",
+ "en":"<who> left <place> at <time>.",
+ "f":2,"d":["に","で","が"],
+ "why":"The place you leave with 出る takes を: it marks the point you move away from.",
+ "vars":{
+  "who":[["田中[たなか]さん","Mr. Tanaka"],["父[ちち]","My father"],["兄[あに]","My older brother"],["鈴木[すずき]さん","Ms. Suzuki"],["先生[せんせい]","The teacher"],["姉[あね]","My older sister"],["山田[やまだ]さん","Mr. Yamada"]],
+  "time":[["六時[ろくじ]","six"],["七時[しちじ]","seven"],["七時半[しちじはん]","half past seven"],["八時[はちじ]","eight"],["九時[くじ]","nine"],["十時[じゅうじ]","ten"]],
+  "place":[["家[いえ]","home"],["会社[かいしゃ]","the office"],["学校[がっこう]","the school"],["部屋[へや]","the room"],["駅[えき]","the station"],["病院[びょういん]","the hospital"],["ホテル","the hotel"],["図書館[としょかん]","the library"]]}},
+{"id":"o-departure-2","lv":4,
+ "tpl":"<who>{は|wa-topic}<vehicle>{を/から|o-departure}降[お]りて、<next>。",
+ "en":"<who> <vehicle> and <next>.",
+ "f":1,"d":["に","で","が"],
+ "why":"The vehicle you get off with 降りる takes を: it is the point you leave.",
+ "vars":{
+  "who":[["田中[たなか]さん","Mr. Tanaka"],["母[はは]","My mother"],["兄[あに]","My older brother"],["山本[やまもと]さん","Ms. Yamamoto"],["子供[こども]たち","The children"],["私[わたし]たち","We"],["祖母[そぼ]","My grandmother"]],
+  "vehicle":[["電車[でんしゃ]","got off the train"],["バス","got off the bus"],["タクシー","got out of the taxi"],["地下鉄[ちかてつ]","got off the subway"],["新幹線[しんかんせん]","got off the bullet train"],["船[ふね]","got off the boat"],["車[くるま]","got out of the car"]],
+  "next":[["少[すこ]し休[やす]みました","rested for a bit"],["地図[ちず]{を|o-object}見[み]ました","looked at the map"],["写真[しゃしん]{を|o-object}撮[と]りました","took a photo"],["水[みず]{を|o-object}買[か]いました","bought some water"],["道[みち]{を|o-object}聞[き]きました","asked the way"],["傘[かさ]{を|o-object}さしました","put up an umbrella"],["少[すこ]し歩[ある]きました","walked a little"]]}}
+]

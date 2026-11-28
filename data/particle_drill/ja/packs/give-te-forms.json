@@ -1,0 +1,20 @@
+[
+ {"id":"give-te-forms-1","lv":4,
+  "tpl":"<when>、<who>{に|give-te-forms}<act>もらいました。",
+  "en":"I had <who> <act> <when>.",
+  "f":0,"d":["を","が","で"],
+  "why":"With てもらう, the person who does the favour for you is marked with に.",
+  "vars":{
+   "when":[["昨日[きのう]","yesterday"],["週末[しゅうまつ]","at the weekend"],["おととい","the day before yesterday"],["先週[せんしゅう]","last week"],["この前[まえ]","the other day"],["先月[せんげつ]","last month"]],
+   "who":[["兄[あに]","my older brother"],["姉[あね]","my older sister"],["父[ちち]","my father"],["母[はは]","my mother"],["弟[おとうと]","my younger brother"],["友達[ともだち]","a friend"],["田中[たなか]さん","Mr. Tanaka"],["山田[やまだ]さん","Ms. Yamada"]],
+   "act":[["自転車[じてんしゃ]{を|o-object}直[なお]して","fix my bicycle"],["荷物[にもつ]{を|o-object}運[はこ]んで","carry my luggage"],["写真[しゃしん]{を|o-object}撮[と]って","take a photo of me"],["作文[さくぶん]{を|o-object}見[み]て","look over my essay"],["晩[ばん]ご飯[はん]{を|o-object}作[つく]って","make dinner"],["車[くるま]{を|o-object}洗[あら]って","wash the car"],["宿題[しゅくだい]{を|o-object}手伝[てつだ]って","help me with my homework"],["引[ひ]っ越[こ]し{を|o-object}手伝[てつだ]って","help me with my move"]]}},
+ {"id":"give-te-forms-2","lv":4,
+  "tpl":"<giver>{は|wa-topic}<rec>{に|give-te-forms}<act>あげました。",
+  "en":"<giver> <act> <rec>.",
+  "f":1,"d":["を","が","で"],
+  "why":"With てあげる, the person who receives the favour (the thing lent, shown, made or bought goes to them) is marked with に.",
+  "vars":{
+   "giver":[["姉[あね]","My older sister"],["兄[あに]","My older brother"],["母[はは]","My mother"],["父[ちち]","My father"],["弟[おとうと]","My younger brother"],["妹[いもうと]","My younger sister"]],
+   "rec":[["近所[きんじょ]の子供[こども]","a child from the neighbourhood"],["友達[ともだち]","a friend"],["留学生[りゅうがくせい]","an exchange student"],["隣[となり]のおばあさん","the old lady next door"],["田中[たなか]さん","Mr. Tanaka"],["山田[やまだ]さん","Ms. Yamada"]],
+   "act":[["本[ほん]{を|o-object}貸[か]して","lent a book to"],["お菓子[かし]{を|o-object}分[わ]けて","shared some sweets with"],["ケーキ{を|o-object}焼[や]いて","baked a cake for"],["お茶[ちゃ]{を|o-object}入[い]れて","made tea for"],["写真[しゃしん]{を|o-object}見[み]せて","showed some photos to"],["プレゼント{を|o-object}買[か]って","bought a present for"]]}}
+]

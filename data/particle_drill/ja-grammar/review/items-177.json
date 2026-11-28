@@ -1,0 +1,18 @@
+{
+ "batch": "items-177",
+ "files": ["items/cv-kakeru.jsonl"],
+ "checked": 41,
+ "fixed": 7,
+ "deleted": 1,
+ "replaced": 1,
+ "issues": [
+  {"file": "items/cv-kakeru.jsonl", "jp_before": "ちょうど家[いえ]の前[まえ]を{通[とお]りかかった|cv-kakeru}ので、友[とも]だちの家[いえ]に寄[よ]ってみました。", "problem": "家の前 and 友だちの家 in one sentence read as two different houses; awkward.", "action": "Rewrote as ちょうど友だちの家の前を通りかかったので、寄ってみました。"},
+  {"file": "items/cv-kakeru.jsonl", "jp_before": "電話[でんわ]が鳴[な]ったとき、ちょうどお茶[ちゃ]を{飲[の]みかけた|cv-kakeru}ところでした。", "problem": "English 'was just about to drink' does not match 飲みかけたところ (had just started drinking).", "action": "English changed to 'I had just started to drink my tea.'"},
+  {"file": "items/cv-kakeru.jsonl", "jp_before": "彼女[かのじょ]はにっこり私[わたし]に{笑[わら]いかけました|cv-kakeru}。", "problem": "Distractor 笑い返しました ('smiled back at me') also fits 'She gave me a smile'.", "action": "Replaced distractor with 笑い転げました."},
+  {"file": "items/cv-kakeru.jsonl", "jp_before": "明日[あした]は朝[あさ]早[はや]く{出[で]かける|cv-kakeru}ので、今夜[こんや]は早[はや]く寝[ね]ます。", "problem": "Distractor 出直す (come again early tomorrow) is natural in this frame.", "action": "Replaced distractor with 出揃う."},
+  {"file": "items/cv-kakeru.jsonl", "jp_before": "週末[しゅうまつ]、家族[かぞく]で海[うみ]へ{出[で]かけました|cv-kakeru}。", "problem": "Near-duplicate of the 買い物に出かけました item; 出かける over-represented (5 of 41) while 言いかける had only 2.", "action": "Deleted and replaced with a new 言いかける item: 何か言いかけてやめるのは、よくないですよ。"},
+  {"file": "items/cv-kakeru.jsonl", "jp_before": "先生[せんせい]は生徒[せいと]に「なぜだと思[おも]いますか」と{問[と]いかけました|cv-kakeru}。", "problem": "Without context, distractor 問い返しました (asked back) is plausible for this counter-question.", "action": "Added 授業の初めに so no prior question exists; English updated."},
+  {"file": "items/cv-kakeru.jsonl", "jp_before": "彼[かれ]の歌[うた]は聞[き]く人[ひと]の心[こころ]に{訴[うった]えかけます|cv-kakeru}。", "problem": "With a habitual present, distractor 訴え続けます ('keep appealing') is nearly synonymous with the English.", "action": "Rewrote as a single past event (彼のスピーチは…強く訴えかけました) so 訴え続けました changes the meaning."},
+  {"file": "items/cv-kakeru.jsonl", "jp_before": "父[ちち]は何[なに]か{言[い]いかけた|cv-kakeru}が、母[はは]の顔[かお]を見[み]て黙[だま]りました。", "problem": "Near-duplicate of the 言いかけて、急に黙りました item.", "action": "Changed 黙りました to やめました, English 'stopped'."}
+ ]
+}

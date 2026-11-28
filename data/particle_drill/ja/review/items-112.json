@@ -1,0 +1,6 @@
+{"batch":"items-112","files":["items/youni-purpose.jsonl"],"checked":47,"fixed":4,"deleted":0,"replaced":0,"issues":[
+{"file":"items/youni-purpose.jsonl","jp_before":"後[うし]ろの人[ひと]{に|ni-target}聞[き]こえる{ように|youni-purpose}、大[おお]きな声[こえ]{で|de-means}話[はな]します。","problem":"The の in 後ろの人 was not marked as a slot.","action":"Marked it {の|no-possessive} and moved f from 1 to 2."},
+{"file":"items/youni-purpose.jsonl","jp_before":"祖母[そぼ]{が|ga-sub-clause}一人[ひとり]{で|de-means}歩[ある]ける{ように|youni-purpose}、毎朝[まいあさ]いっしょに散歩[さんぽ]します。","problem":"一人で is the number-of-people use of で (de-scope), not means.","action":"Changed the skill id to de-scope."},
+{"file":"items/youni-purpose.jsonl","jp_before":"風[かぜ]{が|ga-subject}強[つよ]い日[ひ]{は|wa-topic}、帽子[ぼうし]{が|ga-subject}飛[と]ばされない{ように|youni-purpose}、手[て]{で|de-means}押[お]さえます。","problem":"The が in 風が強い日 is inside a relative clause, where 風の強い日 is just as natural.","action":"Changed it to {が/の|ga-sub-clause}."},
+{"file":"items/youni-purpose.jsonl","jp_before":"疲[つか]れない{ように|youni-purpose}、ゆっくり山[やま]{を|o-path}登[のぼ]りました。","problem":"山に登る is just as natural as 山を登る, but に was not listed as an alternative.","action":"Changed it to {を/に|o-path}."}
+]}

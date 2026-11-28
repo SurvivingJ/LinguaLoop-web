@@ -1,0 +1,24 @@
+{
+ "batch": "items-m50017",
+ "files": [
+  "items/youni-purpose__m50.jsonl",
+  "items/aida-ni__m50.jsonl",
+  "items/uchi-ni__m50.jsonl",
+  "items/maeni-atode__m50.jsonl",
+  "items/toki-when__m50.jsonl"
+ ],
+ "checked": 51,
+ "fixed": 6,
+ "deleted": 2,
+ "replaced": 2,
+ "issues": [
+  {"file": "items/aida-ni__m50.jsonl", "jp_before": "友達[ともだち]{が/の|ga-sub-clause}電話[でんわ]{で|de-means}話[はな]している{あいだに|aida-ni}、私[わたし]{は|wa-topic}メール{を|o-object}書[か]きました。", "problem": "Near-duplicate of the existing aida-ni.jsonl item 母が電話で話しているあいだに...; the の alternative also misparses as 'on my friend's phone'.", "action": "Replaced with a new あいだに item: 友達が駅で待っているあいだに、急いで着替えました。"},
+  {"file": "items/aida-ni__m50.jsonl", "jp_before": "彼[かれ]{が/の|ga-sub-clause}楽[たの]しそうに話[はな]している{あいだ|aida-ni}ずっと、彼女[かのじょ]{は|wa-topic}黙[だま]っていました。", "problem": "Near-duplicate of the existing aida-ni.jsonl item 彼が話しているあいだずっと、彼女は下を向いていました。", "action": "Replaced with a new あいだ item: 試合を見ているあいだずっと、手に汗をかいていました。"},
+  {"file": "items/aida-ni__m50.jsonl", "jp_before": "母[はは]{が/の|ga-sub-clause}友達[ともだち]{と|to-with}話[はな]している{あいだ|aida-ni}ずっと、私[わたし]{は|wa-topic}退屈[たいくつ]でした。", "problem": "The の alternative is not equivalent: 母の友達と話している reads as 'talking with my mother's friend'.", "action": "Removed の; the slot is now {が|ga-sub-clause}."},
+  {"file": "items/aida-ni__m50.jsonl", "jp_before": "みんな{が/の|ga-sub-clause}意見[いけん]{を|o-object}言[い]っている{あいだに|aida-ni}、鈴木[すずき]さん{は|wa-topic}メモ{を|o-object}取[と]りました。", "problem": "The の alternative reads as みんなの意見 'everyone's opinions'; not equivalent.", "action": "Removed の; the slot is now {が|ga-sub-clause}."},
+  {"file": "items/aida-ni__m50.jsonl", "jp_before": "好[す]きな人[ひと]{が/の|ga-sub-clause}そば{に|ni-location}いる{あいだ|aida-ni}ずっと、胸[むね]{が|ga-subject}どきどきしていました。", "problem": "The の alternative gives 好きな人のそば 'beside the person I like', which changes who is where.", "action": "Removed の; the slot is now {が|ga-sub-clause}."},
+  {"file": "items/aida-ni__m50.jsonl", "jp_before": "友達[ともだち]{が/の|ga-sub-clause}東京[とうきょう]{に|ni-location}住[す]んでいる{あいだに|aida-ni}、一度[いちど]遊[あそ]び{に|ni-purpose}行[い]きたいです。", "problem": "The の alternative attaches to 東京 ('my friend's Tokyo') and is unnatural.", "action": "Removed の; the slot is now {が|ga-sub-clause}."},
+  {"file": "items/aida-ni__m50.jsonl", "jp_before": "友達[ともだち]{が/の|ga-sub-clause}準備[じゅんび]{を|o-object}している{あいだに|aida-ni}、私[わたし]{は|wa-topic}飲[の]み物[もの]{を|o-object}買[か]ってきます。", "problem": "The の alternative reads as 友達の準備 'my friend's preparations'; not equivalent.", "action": "Removed の; the slot is now {が|ga-sub-clause}."},
+  {"file": "items/toki-when__m50.jsonl", "jp_before": "電車[でんしゃ]{が|ga-sub-clause}込[こ]んでいる{とき|toki-when}{は/に|wa-topic}、バス{で|de-means}行[い]きます。", "problem": "込んでいる is a dated spelling; the standard form for 'crowded' is 混んでいる.", "action": "Changed the kanji to 混[こ]んでいる."}
+ ]
+}

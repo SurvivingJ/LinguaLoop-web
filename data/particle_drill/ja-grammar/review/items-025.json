@@ -1,0 +1,7 @@
+{"batch":"items-025","files":["items/kg-o-suru.jsonl","items/kg-sasete.jsonl"],"checked":85,"fixed":5,"deleted":0,"replaced":0,"issues":[
+ {"file":"items/kg-o-suru.jsonl","jp_before":"お客様[きゃくさま]がお帰[かえ]りになるときは、玄関[げんかん]で{お見送[みおく]りします|kg-o-suru}。","problem":"Near-duplicate of the ご案内します item (same frame: customer leaving, entrance).","action":"Rewrote as 明日、先生が帰国されるので、空港でお見送りします; updated en and why."},
+ {"file":"items/kg-o-suru.jsonl","jp_before":"お客様[きゃくさま]、ご注文[ちゅうもん]の品[しな]は、本日[ほんじつ]中[じゅう]に{ご送付[そうふ]します|kg-o-suru}。","problem":"English 'within today' is unnatural.","action":"English changed to 'by the end of today'."},
+ {"file":"items/kg-o-suru.jsonl","jp_before":"社長[しゃちょう]、こちらが同僚[どうりょう]の鈴木[すずき]です。{ご紹介[しょうかい]します|kg-o-suru}。","problem":"Unnatural order: ご紹介します after the person has already been presented.","action":"Rewrote as 社長、同僚の鈴木をご紹介します。 with matching English."},
+ {"file":"items/kg-sasete.jsonl","jp_before":"お先[さき]に、私[わたし]から質問[しつもん]を{させていただきます|kg-sasete}。","problem":"お先に with asking a question is odd; close to the 'では、私から先に発表させていただきます' item.","action":"Rewrote as では、皆様を代表して、私から一つ質問させていただきます。 with whole-word distractors and new why."},
+ {"file":"items/kg-sasete.jsonl","jp_before":"すみません、少[すこ]し電話[でんわ]を{かけさせていただけますか|kg-sasete}。","problem":"少し電話をかける is awkward.","action":"Changed to 電話を一本かけさせていただけますか; English 'may I make a quick phone call?'."}
+]}

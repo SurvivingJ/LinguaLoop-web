@@ -1,0 +1,58 @@
+{"group":"double",
+ "intro":"A case particle (に, で, と, から, まで, へ) says what role a phrase plays. A second particle adds a layer without erasing the role: は makes it the topic or a contrast, も says \"also\", and の lets the whole phrase describe a noun. The one law: が and を do not stack in everyday Japanese. They vanish under は and も, and cannot take の at all.",
+ "skills":[
+  {"id":"double-particles",
+   "rule":"To make a に / で / と / から / まで / へ phrase the topic or a contrast, keep the particle and add は; が and を are replaced by は instead.",
+   "explain":"Plain は cannot carry a role. 田中さんは話しません means \"Tanaka doesn't talk\"; 田中さんとは話しません means \"I don't talk with Tanaka\". So when a phrase with に, で, と, から, まで or へ becomes the topic, it keeps its particle and adds は: には, では, とは, からは, までは, へは.\n\nThe usual job is contrast: 京都へは行ったことがありません (Kyoto, at least, I've never been to). That is why these pairs are so common with negatives and in pairs of clauses: 田中さんとはよく話しますが、山田さんとはあまり話しません.\n\nが and を are different. They are not kept: 本を → 本は, 猫が → 猫は. をは and がは do not exist.\n\nOnly に of time or of place with ある / いる can often drop: 日曜日は or 日曜日には, この町は駅が二つある. と, から, まで and へ must stay.",
+   "patterns":["[noun] に / で / と / から / まで / へ + は","A とは ...が、B とは ...","[noun] を / が → [noun] は"],
+   "examples":[
+    {"jp":"日曜日[にちようび]{には}、家族[かぞく]と出[で]かけます。","en":"On Sundays I go out with my family."},
+    {"jp":"家[いえ]の中[なか]{では}靴[くつ]を脱[ぬ]いでください。","en":"Please take your shoes off inside the house."},
+    {"jp":"駅[えき]{までは}歩[ある]いて十分[じゅっぷん]です。","en":"To the station, it's a ten-minute walk."},
+    {"jp":"京都[きょうと]{へは}行[い]ったことがありません。","en":"Kyoto is one place I've never been to."},
+    {"jp":"東京[とうきょう]{からは}新幹線[しんかんせん]で行[い]きました。","en":"From Tokyo onwards, I went by shinkansen."},
+    {"jp":"田中[たなか]さん{とは}よく話[はな]しますが、山田[やまだ]さん{とは}あまり話[はな]しません。","en":"I often talk with Tanaka, but I don't talk much with Yamada."}],
+   "contrast":[
+    {"vs":"は","note":"Plain は replaces the case particle, so the role is lost: 山田さんは会いません (Yamada won't meet) vs 山田さんには会いません (I won't meet Yamada). Use plain は only where the case particle was が or を."},
+    {"vs":"にも","note":"Same shape with も: には singles out (\"Kyoto, at least\"), にも adds (\"Kyoto too\")."}],
+   "mistakes":[
+    {"bad":"漫画[まんが]{をは}読[よ]みません。","good":"漫画[まんが]{は}読[よ]みません。","note":"を is replaced by は, never followed by it."},
+    {"bad":"山田[やまだ]さん{は}まだ話[はな]していません。","good":"山田[やまだ]さん{とは}まだ話[はな]していません。","note":"For \"I haven't talked with Yamada yet\" the と must stay; without it Yamada becomes the one not talking."}],
+   "tip":"Take the は off: if the plain sentence needs に, で, と, から, まで or へ there, keep it in front of は. Only が and を disappear."},
+  {"id":"double-mo",
+   "rule":"To say \"also\" about a に / で / と / から phrase, keep the particle and add も; が and を are replaced by も.",
+   "explain":"も works like は: it replaces が and を (パンも買った, not パンをも) but sits after every other case particle: にも, でも, とも, からも, へも, までも. 弟にもお土産を買った is \"I bought a souvenir for my brother too\"; 弟も買った would make the brother the buyer or the thing bought.\n\nWith a question word and a negative, the same stacks mean \"no one, nowhere\": どこにも行かなかった, 誰とも話さなかった, 誰にも言わないで. The particle the verb needs stays: 会う takes に, so \"I met no one\" is 誰にも会わなかった. Only for subjects and objects is it bare 誰も / 何も.\n\nWatch でも. で + も is \"at X too\" or \"by X too\": 図書館でも勉強できます. The single particle でも means \"even\" or \"or something\": 子供でもできる, お茶でも飲みませんか. Test: if \"also at / also by\" fits, it is で + も.",
+   "patterns":["[noun] に / で / と / から / へ + も","[question word] に / と / から + も + [negative]","[noun] を / が → [noun] も"],
+   "examples":[
+    {"jp":"弟[おとうと]{にも}お土産[みやげ]を買[か]いました。","en":"I bought a souvenir for my brother too."},
+    {"jp":"図書館[としょかん]{でも}勉強[べんきょう]できます。","en":"You can study at the library too."},
+    {"jp":"先生[せんせい]{からも}メールが来[き]ました。","en":"I got an email from the teacher as well."},
+    {"jp":"山田[やまだ]さん{とも}相談[そうだん]しました。","en":"I also talked it over with Yamada."},
+    {"jp":"昨日[きのう]はどこ{にも}行[い]きませんでした。","en":"I didn't go anywhere yesterday."},
+    {"jp":"パーティーでは誰[だれ]{とも}話[はな]さなかった。","en":"I didn't talk to anyone at the party."}],
+   "contrast":[
+    {"vs":"も","note":"Bare も replaces the case particle: 弟も手紙を書いた (my brother also wrote a letter) vs 弟にも手紙を書いた (I wrote a letter to my brother too)."},
+    {"vs":"でも (even)","note":"子供でもできる is \"even a child can\", one particle. 公園でも遊べる is で + も, \"you can play in the park too\"."},
+    {"vs":"には","note":"には contrasts (\"to him, at least\"); にも adds (\"to him as well\")."}],
+   "mistakes":[
+    {"bad":"駅[えき]で誰[だれ]{も}会[あ]いませんでした。","good":"駅[えき]で誰[だれ]{にも}会[あ]いませんでした。","note":"会う marks the person with に, so \"I met no one\" keeps it: 誰にも."},
+    {"bad":"パン{をも}買[か]いました。","good":"パン{も}買[か]いました。","note":"を is replaced by も; をも is not used in everyday Japanese."}],
+   "tip":"Say the sentence without も. Whatever particle is left before it (に, で, と, から) stays in front of も; if it was を or が, it goes."},
+  {"id":"no-compound",
+   "rule":"To make a particle phrase describe a noun, add の: での, との, からの, までの, への; a destination or recipient に becomes への, a time に becomes plain の, and を / が cannot take の.",
+   "explain":"A particle phrase cannot sit directly before a noun: ×友達と旅行. Add の and it becomes a modifier: 友達との旅行 (a trip with friends), 東京からの電車 (the train from Tokyo), 駅までの道 (the way to the station), 日本での生活 (life in Japan).\n\nThe stacked particle keeps the meaning that plain の would lose. 母の手紙 is a letter from or belonging to my mother; 母への手紙 is a letter to her. 日本の生活 is \"Japanese life\"; 日本での生活 is \"life in Japan\".\n\nThere is no にの. For a destination or recipient use への (母へのプレゼント, 外国への旅行). A time に becomes plain の (七時の電車). For other に meanings, rephrase with a verb: 壁に掛かっている絵.\n\nThere is no をの or がの either. Join the noun with plain の (日本語の勉強) or use a verb clause (日本語を勉強すること).",
+   "patterns":["[noun] で / と / から / まで / へ + の + [noun]","[destination / recipient] に → への + [noun]","[noun] を / が → [noun] の + [noun]"],
+   "examples":[
+    {"jp":"友達[ともだち]{との}約束[やくそく]を忘[わす]れました。","en":"I forgot my promise to my friend."},
+    {"jp":"母[はは]{への}手紙[てがみ]を書[か]いています。","en":"I'm writing a letter to my mother."},
+    {"jp":"東京[とうきょう]{からの}電車[でんしゃ]が遅[おく]れています。","en":"The train from Tokyo is running late."},
+    {"jp":"駅[えき]{までの}道[みち]を教[おし]えてください。","en":"Please tell me the way to the station."},
+    {"jp":"日本[にほん]{での}生活[せいかつ]はどうですか。","en":"How is life in Japan?"}],
+   "contrast":[
+    {"vs":"の","note":"Plain の loses the role: 母の手紙 (Mum's letter) vs 母への手紙 (a letter to Mum); 先生の話 (the teacher's talk) vs 先生との話 (a talk with the teacher)."},
+    {"vs":"にの","note":"にの does not exist. Destination or recipient: への. Time: plain の (七時の電車). Anything else: a verb such as にある or に対する."}],
+   "mistakes":[
+    {"bad":"母[はは]{にの}プレゼントを買[か]いました。","good":"母[はは]{への}プレゼントを買[か]いました。","note":"に cannot take の; a gift for someone is への."},
+    {"bad":"友達[ともだち]{と}旅行[りょこう]は楽[たの]しかった。","good":"友達[ともだち]{との}旅行[りょこう]は楽[たの]しかった。","note":"A particle phrase directly before a noun needs の."},
+    {"bad":"日本語[にほんご]{をの}勉強[べんきょう]は楽[たの]しいです。","good":"日本語[にほんご]{の}勉強[べんきょう]は楽[たの]しいです。","note":"を cannot take の; join the nouns with plain の."}],
+   "tip":"Is a noun coming right after the particle? Add の. If it is a destination or recipient に, say への; a time に or a を / が becomes plain の."}]}

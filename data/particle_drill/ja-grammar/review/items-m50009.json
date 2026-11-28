@@ -1,0 +1,17 @@
+{"batch":"items-m50009","files":["items/av-mettani__m50.jsonl","items/av-nakanaka__m50.jsonl","items/av-masaka__m50.jsonl","items/av-kitto__m50.jsonl"],"checked":79,"fixed":15,"deleted":0,"replaced":0,"issues":[
+{"file":"items/av-mettani__m50.jsonl","jp_before":"祖父[そふ]は毎日[まいにち]散歩[さんぽ]するが、雨[あめ]の日[ひ]はめったに{出[で]かけません|av-mettani}。","problem":"lv 4 too low: the item drills めったに (N3).","action":"lv set to 3."},
+{"file":"items/av-nakanaka__m50.jsonl","jp_before":"初[はじ]めてにしては、{なかなか|av-nakanaka}上手[じょうず]な歌[うた]だったと思[おも]います。","problem":"上手な歌 is unnatural: 上手 describes the singing, not the song.","action":"Rewritten as なかなか上手に歌えていたと思います / 'I thought you sang rather well'."},
+{"file":"items/av-masaka__m50.jsonl","jp_before":"{まさか|av-masaka}鍵[かぎ]をかけ忘[わす]れたんじゃないでしょうね。","problem":"Near-duplicate of an existing item in av-masaka.jsonl (まさか財布を忘れたんじゃないでしょうね).","action":"Rewritten: まさか、玄関の鍵を開けたまま出かけたんじゃないでしょうね。 with new English."},
+{"file":"items/av-masaka__m50.jsonl","jp_before":"朝[あさ]起[お]きたら、{まさか|av-masaka}家族[かぞく]全員[ぜんいん]が寝坊[ねぼう]しているとは。","problem":"Awkward: 起きたら … まさか … とは mixes a narrative frame with the exclamation, and the speaker who woke up is also said to be oversleeping.","action":"Rewritten: まさか家族全員が同じ朝に寝坊するとは。 / 'Who would have thought the whole family would oversleep on the same morning!'"},
+{"file":"items/av-masaka__m50.jsonl","jp_before":"{まさか|av-masaka}宿題[しゅくだい]をまだやっていないんじゃないでしょうね。","problem":"English 'Surely you haven't still not done your homework?' is ungrammatical. lv 4 too low.","action":"English changed to 'Don't tell me you still haven't done your homework!'; lv set to 3."},
+{"file":"items/av-masaka__m50.jsonl","jp_before":"まさか猫[ねこ]が冷蔵庫[れいぞうこ]の中[なか]に入[はい]っている{はずがない|av-masaka}。","problem":"はずはない is an equally natural answer with the same meaning.","action":"Slot changed to {はずがない/はずはない}."},
+{"file":"items/av-masaka__m50.jsonl","jp_before":"まさか祖母[そぼ]が一人[ひとり]で富士山[ふじさん]に登[のぼ]った{とは|av-masaka}。","problem":"なんて is equally natural here with the same English.","action":"Slot changed to {とは/なんて}."},
+{"file":"items/av-masaka__m50.jsonl","jp_before":"まさか今日[きょう]が妹[いもうと]の誕生日[たんじょうび]だった{なんて|av-masaka}。","problem":"とは is equally natural here with the same English. lv 4 too low.","action":"Slot changed to {なんて/とは}; lv set to 3."},
+{"file":"items/av-masaka__m50.jsonl","jp_before":"まさか子[こ]どもが一人[ひとり]で電車[でんしゃ]に乗[の]れる{とは|av-masaka}思[おも]わなかった。","problem":"なんて思わなかった is equally natural with the same English.","action":"Slot changed to {とは/なんて}."},
+{"file":"items/av-masaka__m50.jsonl","jp_before":"まさかあの几帳面[きちょうめん]な父[ちち]が約束[やくそく]を忘[わす]れる{はずはないだろう|av-masaka}。","problem":"はずがないだろう is an equally natural answer.","action":"Slot changed to {はずはないだろう/はずがないだろう}."},
+{"file":"items/av-masaka__m50.jsonl","jp_before":"{まさか|av-masaka}妹[いもうと]が先[さき]に結婚[けっこん]するとは思[おも]っていませんでした。","problem":"lv 4 too low: まさか is N3.","action":"lv set to 3."},
+{"file":"items/av-masaka__m50.jsonl","jp_before":"{まさか|av-masaka}今日[きょう]がごみの日[ひ]だったとは。","problem":"lv 4 too low: まさか is N3.","action":"lv set to 3."},
+{"file":"items/av-masaka__m50.jsonl","jp_before":"{まさか|av-masaka}、これを全部[ぜんぶ]自分[じぶん]で作[つく]ったんですか。","problem":"lv 4 too low: まさか is N3.","action":"lv set to 3."},
+{"file":"items/av-masaka__m50.jsonl","jp_before":"{まさか|av-masaka}こんな遅[おそ]い時間[じかん]にお客[きゃく]さんが来[く]るとは思[おも]わなかった。","problem":"lv 4 too low: まさか is N3.","action":"lv set to 3."},
+{"file":"items/av-masaka__m50.jsonl","jp_before":"{まさか|av-masaka}五分[ごふん]で夕食[ゆうしょく]ができるとは思[おも]いませんでした。","problem":"lv 4 too low: まさか is N3.","action":"lv set to 3."}
+]}

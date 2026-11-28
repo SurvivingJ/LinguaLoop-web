@@ -1,0 +1,49 @@
+{"group":"causative",
+ "intro":"The causative (-せる / -させる) adds a new person at the top of the sentence: the one who makes or lets someone act. The causer is the subject (は / が). The person made to act drops to を or に, and which one depends on the verb. Turn the causative into a passive (-させられる) and the person made to act becomes the subject again, with the causer marked に.",
+ "skills":[
+  {"id":"causative-o-ni",
+   "rule":"If the verb already has a を object, the person made to act takes に; with a verb that has no object, を means \"make\" and に means \"let\".",
+   "explain":"Transitive verb with its own object: the causee is always に, because Japanese avoids two を on one verb. 母は弟に野菜を食べさせた \"Mum made my brother eat his vegetables\". The same holds when the object is only understood: 私に払わせてください \"let me pay\".\n\nVerb with no object (行く, 来る, 帰る, 走る, 休む): both are possible, and they differ. を means the causee had no say: 子供を早く帰らせた \"made the children go home early\". に respects their wish: 子供に好きなだけ遊ばせた \"let the children play as much as they liked\". If the verb takes a path with を (公園を走る), the causee must be に.\n\nVerbs of emotion and reaction (泣く, 笑う, 怒る, 驚く, 心配する, 喜ぶ) take only を: 母を心配させた. 待たせる also takes を for the person: 友達を待たせた, お待たせしました.",
+   "patterns":["[causer] は [causee] に [object] を [verb-(さ)せる]","[causer] は [causee] を [intransitive verb-(さ)せる]","[person] を [泣かせる / 心配させる / 待たせる]"],
+   "examples":[
+    {"jp":"私[わたし]{に}払[はら]わせてください。","en":"Please let me pay."},
+    {"jp":"先生[せんせい]は学生[がくせい]{に}本[ほん]を読[よ]ませました。","en":"The teacher had the students read the book."},
+    {"jp":"母[はは]は弟[おとうと]{に}野菜[やさい]を食[た]べさせました。","en":"Mum made my little brother eat his vegetables."},
+    {"jp":"遅[おく]れて、友達[ともだち]{を}一時間[いちじかん]も待[ま]たせてしまいました。","en":"I was late and kept my friend waiting a whole hour."},
+    {"jp":"子供[こども]{を}泣[な]かせてはいけません。","en":"You mustn't make children cry."},
+    {"jp":"父[ちち]は熱[ねつ]がある妹[いもうと]{を}学校[がっこう]に行[い]かせませんでした。","en":"My father didn't send my sister to school when she had a fever."}
+   ],
+   "contrast":[
+    {"vs":"を","note":"を for the causee only when the verb has no object of its own. With an object present (野菜を), the causee must move to に."},
+    {"vs":"が","note":"が (or は) marks the causer, the one who makes or lets. The person made to act is never が in an active causative."},
+    {"vs":"と","note":"と means \"together with\". 弟と食べさせた would mean someone ate along with your brother, not that he was made to eat."}
+   ],
+   "mistakes":[
+    {"bad":"母[はは]は弟[おとうと]を野菜[やさい]を食[た]べさせました。","good":"母[はは]は弟[おとうと]{に}野菜[やさい]を食[た]べさせました。","note":"Two を on one verb is not allowed. The object keeps を, so the person eating takes に."},
+    {"bad":"私[わたし]が払[はら]わせてください。","good":"私[わたし]{に}払[はら]わせてください。","note":"You are the one allowed to pay, not the one giving permission. The causee is に."},
+    {"bad":"彼女[かのじょ]に泣[な]かせてしまいました。","good":"彼女[かのじょ]{を}泣[な]かせてしまいました。","note":"Emotional reactions like crying take を for the person you caused it in."}
+   ],
+   "tip":"Count the を. Is there already one on the verb? Causee gets に. None? Forced, or an emotion: を. Allowed: に."},
+  {"id":"causative-passive",
+   "rule":"In a causative-passive (-させられる) the person made to act is the subject, and the one who made them takes に: 私は母に野菜を食べさせられた.",
+   "explain":"Start from the causative 母が私に野菜を食べさせた \"Mum made me eat vegetables\". Make it passive and you, the one forced, become the subject; Mum drops to に: 私は母に野菜を食べさせられた \"I was made to eat vegetables by Mum\". Anything you were made to do something to keeps を.\n\nThe form says you did it against your will. Ichidan verbs take -させられる (食べさせられる). Godan verbs usually shorten to -される: 待たされる, 飲まされる, 歌わされる, 走らされる. Verbs ending in す cannot shorten: 話させられる, not 話さされる. する becomes させられる, 来る becomes 来させられる.\n\nDo not confuse it with the plain causative, where the causer is the subject: 母は私に… vs 私は母に…させられた. In both, に sits on a person, but a different one. In the causative-passive, に is always the one who did the forcing.",
+   "patterns":["[person forced] は [causer] に [object] を [verb-させられる / -される]","[causer] に [待たされる / 飲まされる / 歌わされる]"],
+   "examples":[
+    {"jp":"部長[ぶちょう]{に}お酒[さけ]を飲[の]まされました。","en":"My boss made me drink."},
+    {"jp":"駅[えき]で友達[ともだち]{に}一時間[いちじかん]も待[ま]たされました。","en":"My friend kept me waiting at the station for a whole hour."},
+    {"jp":"子供[こども]のころ、母[はは]{に}ピアノを習[なら]わされました。","en":"When I was a child, my mother made me take piano lessons."},
+    {"jp":"先生[せんせい]{に}作文[さくぶん]を書[か]き直[なお]させられました。","en":"The teacher made me rewrite my essay."},
+    {"jp":"毎日[まいにち]コーチ{に}グラウンドを十周[じゅっしゅう]走[はし]らされます。","en":"Every day the coach makes us run ten laps of the field."}
+   ],
+   "contrast":[
+    {"vs":"を","note":"を stays on what you were made to act on (お酒を, ピアノを). The person who forced you is never を."},
+    {"vs":"が","note":"が (or は) marks you, the one who was made to act. The causer cannot be が in this form."},
+    {"vs":"から","note":"The causer of a causative-passive is marked に. から is not the normal choice here."}
+   ],
+   "mistakes":[
+    {"bad":"私[わたし]は母[はは]を野菜[やさい]を食[た]べさせられました。","good":"私[わたし]は母[はは]{に}野菜[やさい]を食[た]べさせられました。","note":"Mum did the forcing, so she is に. を stays only on the vegetables."},
+    {"bad":"私[わたし]は先生[せんせい]が作文[さくぶん]を書[か]かされました。","good":"私[わたし]は先生[せんせい]{に}作文[さくぶん]を書[か]かされました。","note":"One subject only: the person forced. The one who made you do it takes に."},
+    {"bad":"駅[えき]で友達[ともだち]で一時間[いちじかん]も待[ま]たされました。","good":"駅[えき]で友達[ともだち]{に}一時間[いちじかん]も待[ま]たされました。","note":"で marks the place (駅で). The person who kept you waiting is に."}
+   ],
+   "tip":"Hear -させられる or -される with a sigh in it? Ask \"who made me?\" That person gets に."}
+ ]}

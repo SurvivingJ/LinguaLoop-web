@@ -25,9 +25,22 @@ PAGES = (
     ('/placement', 'placement_page', 'placement.html'),
     ('/classifier-drill', 'classifier_drill_page', 'classifier_drill.html'),
     ('/counter-drill', 'counter_drill_page', 'counter_drill.html'),
-    # Chinese grammar drills: static content (static/data/grammar/zh); progress
-    # tracking is routes/grammar_drill.py (/api/grammar-drill).
+    ('/particle-drill', 'particle_drill_page', 'particle_drill.html'),
+    ('/conjugation-drill', 'conjugation_drill_page', 'conjugation_drill.html'),
+    ('/reading-drill', 'reading_drill_page', 'reading_drill.html'),
+    # Grammar drills, one page per study language. Both keep progress through
+    # routes/grammar_drill.py (/api/grammar-drill: shared daily + state tables).
+    #   zh: static/data/grammar/zh, static/js/grammar/
+    #   ja: the grammar course of the particle drill (data/particle_drill/ja-grammar)
+    ('/grammar-drill/zh', 'grammar_drill_zh_page', 'grammar_drill_zh.html'),
+    ('/grammar-drill/ja', 'grammar_drill_ja_page', 'grammar_drill_ja.html'),
+    # The address without a language sends the browser to its study language's page.
     ('/grammar-drill', 'grammar_drill_page', 'grammar_drill.html'),
+    # Idiom trainer, one page per study language (static/data/idioms/<lang>); progress
+    # through the same tracking, as topics idiom-<id>.
+    ('/idiom-trainer/zh', 'idiom_trainer_zh_page', 'idiom_trainer_zh.html'),
+    ('/idiom-trainer/ja', 'idiom_trainer_ja_page', 'idiom_trainer_ja.html'),
+    ('/idiom-trainer', 'idiom_trainer_page', 'idiom_trainer.html'),
     ('/dual-translation', 'dual_translation_page', 'dual_translation.html'),
     ('/dual-translation/profile', 'dual_translation_profile_page', 'dual_translation_profile.html'),
     # Knowledge Report ("My vocabulary"); always on.

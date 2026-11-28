@@ -1,0 +1,7 @@
+{"batch":"items-089","files":["items/tte-quote.jsonl","items/tte-topic.jsonl"],"checked":68,"fixed":5,"deleted":0,"replaced":0,"issues":[
+{"file":"items/tte-quote.jsonl","jp_before":"田中[たなか]さん{は/が|wa-topic}明日[あした]来[こ]ない{って/と|tte-quote}言[い]っていました。","problem":"why claimed no other particle can follow the clause, contradicting the listed alternative と","action":"rewrote why"},
+{"file":"items/tte-quote.jsonl","jp_before":"医者[いしゃ]{は/が|wa-topic}少[すこ]し休[やす]んだ方[ほう]{が|ga-stative}いい{って/と|tte-quote}話[はな]していました。","problem":"が in 方がいい is not the object of 好き/欲しい-type predicates; ga-stative is the wrong skill","action":"changed non-focus slot skill to ga-subject"},
+{"file":"items/tte-quote.jsonl","jp_before":"兄[あに]{は|wa-topic}大[おお]きい車[くるま]{が|ga-stative}欲[ほ]しい{って/と|tte-quote}言[い]っています。","problem":"non-focus topic slot missing the equally natural alternative が","action":"slot changed to {は/が|wa-topic}"},
+{"file":"items/tte-quote.jsonl","jp_before":"山本[やまもと]{って/という|tte-quote}先生[せんせい]{は|wa-topic}厳[きび]しいです{か|ka-question}。","problem":"lv 2 too high; hardest word 厳しい is N3","action":"lv set to 3"},
+{"file":"items/tte-quote.jsonl","jp_before":"隣[となり]{の|no-possessive}人[ひと]{が|ga-subject}大声[おおごえ]{で|de-means}助[たす]けて{って/と|tte-quote}叫[さけ]びました。","problem":"lv 2 too high; 叫ぶ and 大声 are N3","action":"lv set to 3"}
+]}

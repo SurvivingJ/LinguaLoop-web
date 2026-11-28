@@ -1,0 +1,15 @@
+{
+ "batch": "items-136",
+ "files": ["items/x-yomi.jsonl"],
+ "checked": 70,
+ "fixed": 5,
+ "deleted": 0,
+ "replaced": 0,
+ "issues": [
+  {"file": "items/x-yomi.jsonl", "jp_before": "{来月[らいげつ]|ym-n5-move}から新[あたら]しい仕事[しごと]が始[はじ]まります。", "problem": "Distractor こじげつ is not a reading any learner would assemble (来 is never こじ).", "action": "Replaced こじげつ with きげつ (from 来ます)."},
+  {"file": "items/x-yomi.jsonl", "jp_before": "駅[えき]の{入口[いりぐち]|ym-n5-move}で友達[ともだち]を待[ま]っています。", "problem": "Distractor いりくち is a dictionary-listed variant reading of 入口, so it is not plainly wrong.", "action": "Replaced いりくち with にゅうぐち; clarified the why."},
+  {"file": "items/x-yomi.jsonl", "jp_before": "{今日[きょう]|ym-jukuji}は朝[あさ]からとても寒[さむ]いですね。", "problem": "English was ungrammatical ('It is really cold since the morning today').", "action": "English changed to 'It has been really cold since this morning, hasn't it?'"},
+  {"file": "items/x-yomi.jsonl", "jp_before": "誕生日[たんじょうび]に新[あたら]しい{時計[とけい]|ym-jukuji}を買[か]ってもらいました。", "problem": "Unnatural English ('I got a new watch bought for me for my birthday').", "action": "English changed to 'Someone bought me a new watch for my birthday.'"},
+  {"file": "items/x-yomi.jsonl", "jp_before": "次[つぎ]の駅[えき]でバスを{降[お]|ym-n3-a}ります。", "problem": "駅 is a train station; getting off a bus at the next 駅 is unnatural and does not match 'next stop'.", "action": "Rewrote with 電車: 次の駅で電車を降ります / 'I will get off the train at the next station.'"}
+ ]
+}

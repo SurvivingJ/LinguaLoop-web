@@ -1,0 +1,10 @@
+{"batch":"items-140","files":["items/nt-n3-b.jsonl"],"checked":50,"fixed":8,"deleted":0,"replaced":0,"issues":[
+{"file":"items/nt-n3-b.jsonl","jp_before":"信号[しんごう]が{緑[みどり]|nt-n3-b}になったら、渡[わた]ってください。","problem":"Japanese calls a green traffic light 青, so 信号が緑になったら is unnatural to model.","action":"Rewrote as この公園は{緑}が多くて、気持ちがいいです (greenery); same distractors."},
+{"file":"items/nt-n3-b.jsonl","jp_before":"授業[じゅぎょう]の声[こえ]を{録音[ろくおん]|nt-n3-b}してもいいですか。","problem":"授業の声 ('the voice of the lesson') is an odd collocation.","action":"Changed to 先生の話を{録音}してもいいですか / 'May I record what the teacher says?'"},
+{"file":"items/nt-n3-b.jsonl","jp_before":"宝[たから]くじに当[あ]たるなんて、{幸運[こううん]|nt-n3-b}でしたね。","problem":"English translation was awkward ('Winning the lottery, you were lucky, weren't you?').","action":"English changed to 'You won the lottery? That was lucky!'"},
+{"file":"items/nt-n3-b.jsonl","jp_before":"家族[かぞく]みんなが元気[げんき]で、とても{幸[しあわ]せ|nt-n3-b}です。","problem":"why claimed 辛 has one extra stroke; in fact 幸 (8 strokes) has one more than 辛 (7).","action":"why rewritten: 幸 has 土 on top, 辛 has 立 on top."},
+{"file":"items/nt-n3-b.jsonl","jp_before":"このカレーは{辛[から]い|nt-n3-b}ので、水[みず]をください。","problem":"why claimed 幸 'lacks the top stroke', which is false.","action":"why rewritten: 辛 has 立 on top, 幸 has 土 on top."},
+{"file":"items/nt-n3-b.jsonl","jp_before":"髪[かみ]を{輪[わ]|nt-n3-b}ゴムで結[むす]びました。","problem":"Slot split the word 輪ゴム.","action":"Slot widened to {輪[わ]ゴム}; distractors 輸/論/倫[わ]ゴム."},
+{"file":"items/nt-n3-b.jsonl","jp_before":"日曜日[にちようび]に、祖父[そふ]の{墓[はか]|nt-n3-b}参[まい]りに行[い]きました。","problem":"Slot split the word 墓参り.","action":"Slot widened to {墓参[はかまい]り}; distractors 暮/募/幕参[はかまい]り."},
+{"file":"items/nt-n3-b.jsonl","jp_before":"外国[がいこく]の大学[だいがく]に{応募[おうぼ]|nt-n3-b}するつもりです。","problem":"One applies to a university with 出願/受験, not 応募; the collocation is unnatural.","action":"Changed to 外国の大学の奨学金に{応募}するつもりです / 'apply for a scholarship at a university abroad'."}
+]}

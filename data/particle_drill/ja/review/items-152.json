@@ -1,0 +1,22 @@
+{"batch":"items-152",
+ "files":["items/nishitagatte.jsonl","items/nitomonatte.jsonl","items/totomoni.jsonl"],
+ "checked":73,"fixed":16,"deleted":1,"replaced":1,
+ "issues":[
+  {"file":"items/nishitagatte.jsonl","jp_before":"時間がたつに従って、悲しみ{は/も}薄れました。","problem":"も was listed as an alternative in a non-focus slot. It adds 'too', which the English does not have.","action":"Changed the alternative to は/が."},
+  {"file":"items/nishitagatte.jsonl","jp_before":"駅から離れるに従って、店の数{は/も}減ります。","problem":"も was listed as an alternative in a non-focus slot. It adds 'too', which the English does not have.","action":"Changed the alternative to は/が."},
+  {"file":"items/nishitagatte.jsonl","jp_before":"日が暮れるに従って、気温{は/も}下がりました。","problem":"も was listed as an alternative in a non-focus slot. It adds 'too', which the English does not have.","action":"Changed the alternative to は/が."},
+  {"file":"items/nitomonatte.jsonl","jp_before":"台風の接近に伴って、電車{は/も}止まります。","problem":"The distractor に従って is arguable with a gradual noun like 接近. The も alternative adds 'too'.","action":"Replaced the distractor with に加えて. Changed the alternative to は/が."},
+  {"file":"items/nitomonatte.jsonl","jp_before":"彼女は結婚に伴って、生活のリズムを大きく変えました。","problem":"に伴って sits awkwardly with a volitional main clause whose subject is the same person.","action":"Rewrote the main clause as the non-volitional 生活のリズムが大きく変わりました and updated the English."},
+  {"file":"items/nitomonatte.jsonl","jp_before":"新しい駅の開業に伴って、周辺の道路が整備されました。","problem":"The distractor に応じて ('in response to the opening') is marginally acceptable.","action":"Replaced に応じて with として."},
+  {"file":"items/nitomonatte.jsonl","jp_before":"法律の改正に伴って、手続きが必要になりました。","problem":"The distractors に従って ('in accordance with the revision') and に応じて ('in response to') can be read as acceptable.","action":"Replaced them with として and に対して. Kept につれて."},
+  {"file":"items/nitomonatte.jsonl","jp_before":"ダイヤ改正に伴って、電車の本数が減りました。","problem":"The distractors に従って and に応じて can be read as acceptable with a timetable revision.","action":"Replaced them with として and に対して."},
+  {"file":"items/nitomonatte.jsonl","jp_before":"新しい制度の開始に伴って、書類の書き方が変わります。","problem":"The distractors に従って and に応じて can be read as acceptable with the start of a new system.","action":"Replaced them with として and に対して."},
+  {"file":"items/nitomonatte.jsonl","jp_before":"システムの変更に伴って、古いデータは削除されます。","problem":"The distractors に従って ('in accordance with the change') and に応じて ('in response to the change') are plausible.","action":"Replaced them with として and に対して."},
+  {"file":"items/nitomonatte.jsonl","jp_before":"大学に入るに伴って、兄は一人暮らしを始めました。","problem":"Verb + に伴って is stiff here. The item also nearly duplicates 就職に伴って、娘は一人で暮らし始めました。","action":"Deleted the item and replaced it with 工場の閉鎖に伴って、多くの人が仕事を失いました。 (same skill)."},
+  {"file":"items/nitomonatte.jsonl","jp_before":"子供が生まれるに伴って、引っ越しを考え始めました。","problem":"生まれるに伴って is unnatural. The noun form 誕生に伴って is the standard pattern.","action":"Rewrote as 子供の誕生に伴って、引っ越しを考え始めました。 and adjusted the English."},
+  {"file":"items/totomoni.jsonl","jp_before":"選手たちはコーチとともに毎日練習しました。","problem":"The 'why' assumed the coach's gender ('he').","action":"Changed 'he' to 'the coach'."},
+  {"file":"items/totomoni.jsonl","jp_before":"ベルの音とともに、授業が始まりました。","problem":"The distractor に従って ('following the bell') is marginally acceptable.","action":"Replaced it with につれて, which cannot be used with an instantaneous event."},
+  {"file":"items/totomoni.jsonl","jp_before":"春の訪れとともに、桜が咲きました。","problem":"The distractor に従って is marginally acceptable with a seasonal-progression noun.","action":"Replaced it with として."},
+  {"file":"items/totomoni.jsonl","jp_before":"時代の流れ{とともに/に伴って}、言葉もゆっくり変わります。","problem":"につれて is equally natural here but was not listed.","action":"Added につれて as an alternative."},
+  {"file":"items/totomoni.jsonl","jp_before":"技術の進歩{とともに/に伴って}、私たちの生活は便利になりました。","problem":"につれて is equally natural here but was not listed.","action":"Added につれて as an alternative."}
+ ]}

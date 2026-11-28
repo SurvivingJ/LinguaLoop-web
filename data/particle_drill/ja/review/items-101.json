@@ -1,0 +1,7 @@
+{"batch":"items-101","files":["items/te-mo.jsonl"],"checked":61,"fixed":4,"deleted":1,"replaced":1,"issues":[
+{"file":"items/te-mo.jsonl","jp_before":"仕事[しごと]{が|ga-subject}どんなに多[おお]く{ても|te-mo}、毎日[まいにち]母[はは]{に|ni-target}会[あ]います。","problem":"Non-focus slot: 母と会う is just as natural as 母に会う; alternative missing.","action":"Slot changed to {に/と|ni-target}."},
+{"file":"items/te-mo.jsonl","jp_before":"夏休[なつやす]み{が|ga-subject}終[お]わっ{ても|te-mo}、あの子[こ]{は|wa-topic}宿題[しゅくだい]{を|o-object}しないでしょう。","problem":"English assigned a gender ('his') that あの子 does not carry.","action":"English changed to 'that child probably still won't do the homework.'"},
+{"file":"items/te-mo.jsonl","jp_before":"何度[なんど]説明[せつめい]{を|o-object}聞[き]い{ても|te-mo}、使[つか]い方[かた]{が|ga-stative}分[わ]かりません。","problem":"Near-duplicate of the 何度読んでも…分かりません item (same frame and result); 聞く and 分かる also overused in the batch.","action":"Deleted and replaced with 部屋[へや]{を|o-object}いくら探[さが]し{ても|te-mo}、鍵[かぎ]{が|ga-subject}見[み]つかりません。"},
+{"file":"items/te-mo.jsonl","jp_before":"電車[でんしゃ]{が|ga-subject}止[と]まっ{ても|te-mo}、タクシー{で|de-means}会社[かいしゃ]{に/へ|ni-destination}行[い]きます。","problem":"行く used more than three times in the batch.","action":"Rewrote main clause to タクシー{で|de-means}家[いえ]{に/へ|ni-destination}帰[かえ]ります (go home by taxi)."},
+{"file":"items/te-mo.jsonl","jp_before":"どんなに大[おお]きな声[こえ]{で|de-means}呼[よ]ん{でも|te-mo}、犬[いぬ]{は|wa-topic}来[き]ません。","problem":"来る used five times in the batch.","action":"Rewrote main clause to 祖父[そふ]{は|wa-topic}気[き]づきません (my grandfather doesn't notice)."}
+]}

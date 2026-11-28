@@ -1,0 +1,12 @@
+{"batch":"items-113","files":["items/pt-hikaku.jsonl"],"checked":52,"fixed":10,"deleted":0,"replaced":0,"issues":[
+{"file":"items/pt-hikaku.jsonl","jp_before":"私[わたし]のカメラは友達[ともだち]の{より|pt-hikaku}ずっと古[ふる]いです。","problem":"why cites the AよりBのほうが pattern, which the sentence does not use","action":"rewrote why"},
+{"file":"items/pt-hikaku.jsonl","jp_before":"思[おも]った{より|pt-hikaku}試験[しけん]は簡単[かんたん]でした。","problem":"awkward word order (思ったより before the topic); why cites a のほうが pattern not present","action":"reordered to 試験は思ったより簡単でした; rewrote why as a minimal pair with 思ったほど"},
+{"file":"items/pt-hikaku.jsonl","jp_before":"弟[おとうと]は兄[あに]{ほど|pt-hikaku}背[せ]が高[たか]くありません。","problem":"near-duplicate (and contradiction) of the 兄より弟のほうが背が高い item; 背が高い overused in the file","action":"rewrote as 弟は兄ほど足が速くありません with new English"},
+{"file":"items/pt-hikaku.jsonl","jp_before":"母[はは]は父[ちち]{ほど|pt-hikaku}早[はや]く起[お]きません。","problem":"near-duplicate of the 家族の中で一番早く起きるのは母です item","action":"rewrote as 妹は私ほどテレビを見ません with new English"},
+{"file":"items/pt-hikaku.jsonl","jp_before":"スポーツの中[なか]で{一番[いちばん]|pt-hikaku}サッカーが好[す]きです。","problem":"unnatural word order (natural is サッカーが一番好き) and near-duplicate of the の中で…一番好き items","action":"rewrote as この店で一番人気があるのはカレーです with new English"},
+{"file":"items/pt-hikaku.jsonl","jp_before":"兄弟[きょうだい]{の中[なか]で|pt-hikaku}弟[おとうと]が一番[いちばん]背[せ]が高[たか]いです。","problem":"English 'the youngest' mistranslates 弟 (my younger brother); bare で is an equally natural alternative","action":"fixed English; added で as alternative"},
+{"file":"items/pt-hikaku.jsonl","jp_before":"四季[しき]{の中[なか]で|pt-hikaku}春[はる]が一番[いちばん]好[す]きです。","problem":"bare で (四季で春が一番好き) is equally natural and not listed","action":"added で as alternative"},
+{"file":"items/pt-hikaku.jsonl","jp_before":"日本料理[にほんりょうり]{の中[なか]で|pt-hikaku}何[なに]が一番[いちばん]好[す]きですか。","problem":"bare で is equally natural and not listed","action":"added で as alternative"},
+{"file":"items/pt-hikaku.jsonl","jp_before":"食[た]べ物[もの]{の中[なか]で|pt-hikaku}寿司[すし]が一番[いちばん]おいしいと思[おも]います。","problem":"bare で is equally natural and not listed","action":"added で as alternative"},
+{"file":"items/pt-hikaku.jsonl","jp_before":"野菜[やさい]{の中[なか]で|pt-hikaku}トマトが一番[いちばん]好[す]きです。","problem":"bare で is equally natural and not listed","action":"added で as alternative"}
+]}

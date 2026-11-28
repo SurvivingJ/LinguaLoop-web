@@ -1,0 +1,6 @@
+{"batch":"packs-033",
+ "files":["packs/shi-listing.json","packs/te-sequence.json","packs/te-mo.json","packs/te-wa.json"],
+ "checked":6,"fixed":1,"deleted":0,
+ "issues":[
+  {"file":"packs/shi-listing.json","pack":"shi-listing-1","problem":"Second slot listed ので as an alternative, but b values ending in a na-adjective (店員も親切だ) give the ungrammatical 親切だので (needs なので).","action":"Removed ので from the alternatives; slot is now {し/から|shi-listing}, and から is valid after every b value."}
+ ]}

@@ -1,0 +1,5 @@
+{"batch":"items-m50045","files":["items/karatoitte__m50.jsonl","items/toshitemo__m50.jsonl"],"checked":53,"fixed":43,"deleted":0,"replaced":0,"issues":[
+{"file":"items/karatoitte__m50.jsonl","jp_before":"(23 lines: 1-3, 5-21, 24-26; lv 3 or 4)","problem":"lv was 3 or 4, but からといって is N2 grammar, so the hardest item in each sentence is N2 (the base file uses 2).","action":"Set lv to 2."},
+{"file":"items/karatoitte__m50.jsonl","jp_before":"キャンプ{を|o-object}する{からといって|karatoitte}、ゴミ{を|o-object}捨[す]て{ても|te-mo}いいわけではありません。","problem":"Odd logic: going camping is not a plausible reason to think dumping rubbish is fine, and 'throw away your rubbish' does not say littering.","action":"Rewrote as 自然[しぜん]{の|no-possessive}中[なか]だ{からといって|karatoitte}、ゴミ{を|o-object}どこ{に|ni-destination}捨[す]て{ても|te-mo}いいわけではありません。 / 'Just because you're out in nature doesn't mean you can throw your rubbish anywhere.'"},
+{"file":"items/toshitemo__m50.jsonl","jp_before":"(20 lines: 1-7, 10-17, 19-21, 23-24; lv 3)","problem":"lv was 3, but the skill is catalogued at N2 and the base file uses 2 throughout.","action":"Set lv to 2."}
+]}

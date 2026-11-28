@@ -1,0 +1,6 @@
+{"batch":"items-132","files":["items/nitsuite.jsonl"],"checked":42,"fixed":3,"deleted":1,"replaced":1,"issues":[
+ {"file":"items/nitsuite.jsonl","jp_before":"事故[じこ]{について|nitsuite}警察[けいさつ]{に|ni-target}報告[ほうこく]しました。","problem":"Distractor として gives a natural sentence ('reported it to the police as an accident').","action":"Replaced として with によって in d."},
+ {"file":"items/nitsuite.jsonl","jp_before":"山田[やまだ]さん{は|wa-topic}健康[けんこう]{について|nitsuite}ずっと心配[しんぱい]しています。","problem":"Distractor に対して is borderline acceptable with 心配 (worry).","action":"Replaced に対して with にとって in d."},
+ {"file":"items/nitsuite.jsonl","jp_before":"兄[あに]{は|wa-topic}大学[だいがく]{で|de-place}経済[けいざい]{について|nitsuite}研究[けんきゅう]しています。","problem":"English 'studying economics' corresponds to 経済を勉強, not research on economics.","action":"Changed English to 'My older brother is doing research on economics at university.'"},
+ {"file":"items/nitsuite.jsonl","jp_before":"留学生[りゅうがくせい]{が/は|ga-subject}自分[じぶん]{の|no-possessive}国[くに]{の|no-possessive}料理[りょうり]{について|nitsuite}紹介[しょうかい]しました。","problem":"Near-duplicate of the item 留学生が自分の国について発表しました.","action":"Deleted; replaced with このアプリ{について|nitsuite}意見[いけん]{を|o-object}聞[き]かせてください。 (Please let me hear your opinion about this app.)"}
+]}

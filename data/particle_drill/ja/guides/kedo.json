@@ -1,0 +1,43 @@
+{"group":"kedo",
+ "intro":"After a clause, けど and が are a hinge. The first clause is laid down, and the second turns against it (\"A, but B\") or simply follows on from it as background (\"I'm going tomorrow, want to come?\"). The two mean the same; けど is the everyday spoken form, が is the polite and written one.",
+ "skills":[
+  {"id":"kedo-but",
+   "rule":"Clause + けど means \"A, but B\"; it also sets up background before a question or request, and softens a sentence you leave unfinished.",
+   "explain":"けど follows a complete predicate, plain or polite: 高いけど, 行ったけど, 行きますけど. Nouns and na-adjectives need だ (or です) in front: 学生だけど, 静かだけど. Longer forms けれど and けれども are the same word, more careful in tone.\n\nIt has three jobs. Contrast: 高いけど、おいしい \"it's expensive, but it's good\". Lead-in, where there is no real contrast and the first clause just gives background: 映画に行くけど、来ない？ \"I'm going to a film; want to come?\" Trailing off: a sentence that ends in けど leaves the rest unsaid and sounds polite and hesitant: 駅へ行きたいんですけど… \"I'd like to get to the station (could you help?)\".\n\nThe edge is the reason words. から and ので mean \"so\": the first clause leads to the second. けど means the second goes against the first, or simply stands beside it. のに is also \"although\", but it carries surprise or annoyance and cannot be followed by a request, an invitation or \"let's\". けど is neutral and allows all of them.",
+   "patterns":["[plain / polite clause] けど、[clause]","[noun / na-adj] だ けど、[clause]","[background] けど、[question / request]？","[polite clause] んです けど…"],
+   "examples":[
+    {"jp":"高[たか]い{けど}、おいしいです。","en":"It's expensive, but it's good."},
+    {"jp":"雨[あめ]だ{けど}、出[で]かけます。","en":"It's raining, but I'm going out."},
+    {"jp":"日本語[にほんご]は難[むずか]しい{けど}、面白[おもしろ]いです。","en":"Japanese is hard, but it's interesting."},
+    {"jp":"何度[なんど]も電話[でんわ]した{けど}、出[で]なかった。","en":"I called several times, but they didn't pick up."},
+    {"jp":"明日[あした]映画[えいが]に行[い]く{けど}、一緒[いっしょ]に来[こ]ない？","en":"I'm going to a film tomorrow; do you want to come with me?"},
+    {"jp":"すみません、駅[えき]へ行[い]きたいんです{けど}…。","en":"Excuse me, I'm trying to get to the station..."}],
+   "contrast":[
+    {"vs":"から / ので","note":"から and ので mean \"so, because\": 高いから買わない \"it's expensive, so I won't buy it\". 高いけど買う \"it's expensive, but I'll buy it\". Same first clause, opposite logic."},
+    {"vs":"のに","note":"のに is \"although\" with surprise or complaint (勉強したのに落ちた \"I studied and still failed!\"). It cannot be followed by a request or \"let's\"; けど can."},
+    {"vs":"し","note":"し stacks reasons pointing the same way (安いし、おいしい). けど sets two things against each other (安いけど、まずい)."}],
+   "mistakes":[
+    {"bad":"彼[かれ]は学生[がくせい]けど、毎日[まいにち]働[はたら]いています。","good":"彼[かれ]は学生[がくせい]だ{けど}、毎日[まいにち]働[はたら]いています。","note":"After a noun or na-adjective, put だ before けど."},
+    {"bad":"高[たか]いだけど、買[か]います。","good":"高[たか]い{けど}、買[か]います。","note":"An i-adjective attaches directly; never add だ after it."},
+    {"bad":"高[たか]いのに、買[か]いましょう。","good":"高[たか]い{けど}、買[か]いましょう。","note":"のに cannot be followed by \"let's\" or a request. Use けど."}],
+   "tip":"Does \"but\" fit between the clauses, or are you just giving background before asking? けど. Does \"so\" fit? Then it is から or ので."},
+  {"id":"ga-but",
+   "rule":"Clause + が is the polite or written \"but\"; like けど, it also introduces background before a question or request (失礼ですが…).",
+   "explain":"Conjunctive が follows a complete predicate: 高いですが, 行きましたが, 学生ですが. In plain style it is 高いが or 学生だが, which sounds written or stiff; in casual speech use けど instead. In polite speech and in writing, が is the normal choice.\n\nIt does the same jobs as けど. Contrast: 部屋は狭いですが、駅から近いです. Lead-in: a fixed set of polite openers ends in が, and you should learn them as units: 失礼ですが \"excuse me, but\", すみませんが, 申し訳ありませんが \"I'm sorry, but\", and on the phone もしもし、田中ですが… \"Hello, this is Tanaka (calling for...)\".\n\nDo not confuse it with subject が. Subject が comes straight after a noun: 雨が降る. \"But\" が comes after a predicate: a verb, an adjective, or です / だ. Look at the word just before が: if it is a bare noun, it is the subject marker; if it ends a clause, it means \"but\".",
+   "patterns":["[polite clause] が、[clause]","[plain clause] が、[clause] (written)","失礼です / すみません が、[question / request]","[noun] です が、[noun] は いますか (phone)"],
+   "examples":[
+    {"jp":"失礼[しつれい]です{が}、お名前[なまえ]は？","en":"Excuse me, but may I have your name?"},
+    {"jp":"部屋[へや]は狭[せま]いです{が}、駅[えき]から近[ちか]いです。","en":"The room is small, but it's close to the station."},
+    {"jp":"薬[くすり]を飲[の]みました{が}、まだ頭[あたま]が痛[いた]いです。","en":"I took some medicine, but my head still hurts."},
+    {"jp":"申[もう]し訳[わけ]ありません{が}、今日[きょう]は休[やす]みです。","en":"I'm sorry, but we're closed today."},
+    {"jp":"もしもし、田中[たなか]です{が}、山田[やまだ]さんはいらっしゃいますか。","en":"Hello, this is Tanaka. Is Mr. Yamada there?"},
+    {"jp":"値段[ねだん]は高[たか]い{が}、品質[ひんしつ]はいい。","en":"The price is high, but the quality is good."}],
+   "contrast":[
+    {"vs":"けど","note":"Same meaning. けど is the default in conversation; が is polite speech and writing. Plain だが in casual talk sounds like a novel."},
+    {"vs":"から / ので","note":"These mean \"so\". 雨ですから、行きません \"it's raining, so I won't go\" against 雨ですが、行きます \"it's raining, but I'll go\"."},
+    {"vs":"が (subject)","note":"After a bare noun, が marks the subject (猫が好きです). \"But\" が only ever follows a predicate (猫が好きですが…)."}],
+   "mistakes":[
+    {"bad":"すみませんから、ちょっといいですか。","good":"すみません{が}、ちょっといいですか。","note":"A polite lead-in before a request takes が (or けど), never から."},
+    {"bad":"この町[まち]は静[しず]かが、不便[ふべん]です。","good":"この町[まち]は静[しず]かです{が}、不便[ふべん]です。","note":"A na-adjective cannot end a clause on its own: add です (or だ) before \"but\" が."}],
+   "tip":"Is the word right before が a verb, an adjective or です? Then が means \"but\". A bare noun before が is the subject."}
+ ]}

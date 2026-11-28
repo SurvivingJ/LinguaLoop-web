@@ -1,0 +1,410 @@
+[
+ {
+  "id": "x-ni-de-1",
+  "lv": 5,
+  "tpl": "<who>{は|wa-topic}<place>{に|ni-location}<exist>。",
+  "en": "<who> <exist> <place>.",
+  "f": 1,
+  "d": [
+   "で"
+  ],
+  "why": "いる only says where someone is, so the place takes に; で needs an action.",
+  "vars": {
+   "who": [
+    [
+     "母[はは]",
+     "My mother"
+    ],
+    [
+     "父[ちち]",
+     "My father"
+    ],
+    [
+     "兄[あに]",
+     "My older brother"
+    ],
+    [
+     "姉[あね]",
+     "My older sister"
+    ],
+    [
+     "田中[たなか]さん",
+     "Mr. Tanaka"
+    ],
+    [
+     "佐藤[さとう]さん",
+     "Ms. Sato"
+    ],
+    [
+     "祖母[そぼ]",
+     "My grandmother"
+    ]
+   ],
+   "place": [
+    [
+     "家[いえ]",
+     "at home"
+    ],
+    [
+     "二階[にかい]",
+     "upstairs"
+    ],
+    [
+     "台所[だいどころ]",
+     "in the kitchen"
+    ],
+    [
+     "庭[にわ]",
+     "in the garden"
+    ],
+    [
+     "駅[えき]",
+     "at the station"
+    ],
+    [
+     "病院[びょういん]",
+     "at the hospital"
+    ],
+    [
+     "銀行[ぎんこう]",
+     "at the bank"
+    ],
+    [
+     "外[そと]",
+     "outside"
+    ]
+   ],
+   "exist": [
+    [
+     "います",
+     "is"
+    ],
+    [
+     "いました",
+     "was"
+    ],
+    [
+     "いませんでした",
+     "was not"
+    ],
+    [
+     "いるはずです",
+     "should be"
+    ],
+    [
+     "いるでしょう",
+     "is probably"
+    ],
+    [
+     "いるかもしれません",
+     "might be"
+    ]
+   ]
+  }
+ },
+ {
+  "id": "x-ni-de-2",
+  "lv": 5,
+  "tpl": "<who>{は|wa-topic}<place>{で|de-place}<act>。",
+  "en": "<who> <act> <place>.",
+  "f": 1,
+  "d": [
+   "に"
+  ],
+  "why": "Waiting, reading or resting is an action, so the place where it happens takes で.",
+  "vars": {
+   "who": [
+    [
+     "田中[たなか]さん",
+     "Mr. Tanaka"
+    ],
+    [
+     "兄[あに]",
+     "My older brother"
+    ],
+    [
+     "母[はは]",
+     "My mother"
+    ],
+    [
+     "佐藤[さとう]さん",
+     "Ms. Sato"
+    ],
+    [
+     "山田[やまだ]さん",
+     "Mr. Yamada"
+    ],
+    [
+     "先生[せんせい]",
+     "The teacher"
+    ]
+   ],
+   "place": [
+    [
+     "公園[こうえん]",
+     "in the park"
+    ],
+    [
+     "喫茶店[きっさてん]",
+     "in a café"
+    ],
+    [
+     "ロビー",
+     "in the lobby"
+    ],
+    [
+     "バス停[てい]",
+     "at the bus stop"
+    ],
+    [
+     "駅前[えきまえ]",
+     "in front of the station"
+    ],
+    [
+     "待合室[まちあいしつ]",
+     "in the waiting room"
+    ],
+    [
+     "ベンチ",
+     "on a bench"
+    ],
+    [
+     "ホーム",
+     "on the platform"
+    ]
+   ],
+   "act": [
+    [
+     "人[ひと]{を|o-object}待[ま]っていました",
+     "was waiting for someone"
+    ],
+    [
+     "本[ほん]{を|o-object}読[よ]んでいました",
+     "was reading a book"
+    ],
+    [
+     "電話[でんわ]{を|o-object}していました",
+     "was on the phone"
+    ],
+    [
+     "少[すこ]し休[やす]みました",
+     "rested for a bit"
+    ],
+    [
+     "地図[ちず]{を|o-object}見[み]ていました",
+     "was looking at a map"
+    ],
+    [
+     "コーヒー{を|o-object}飲[の]んでいました",
+     "was drinking coffee"
+    ]
+   ]
+  }
+ },
+ {
+  "id": "x-ni-de-3",
+  "lv": 4,
+  "tpl": "<who>{は|wa-topic}<area>{に|ni-location}<live>。",
+  "en": "<who> <live> <area>.",
+  "f": 1,
+  "d": [
+   "で"
+  ],
+  "why": "住む marks where you live with に: it names a location, not the scene of an action.",
+  "vars": {
+   "who": [
+    [
+     "兄[あに]",
+     "My older brother"
+    ],
+    [
+     "姉[あね]",
+     "My older sister"
+    ],
+    [
+     "田中[たなか]さん",
+     "Mr. Tanaka"
+    ],
+    [
+     "佐藤[さとう]さん",
+     "Ms. Sato"
+    ],
+    [
+     "いとこ",
+     "My cousin"
+    ],
+    [
+     "友達[ともだち]",
+     "My friend"
+    ],
+    [
+     "おじ",
+     "My uncle"
+    ]
+   ],
+   "area": [
+    [
+     "東京[とうきょう]",
+     "in Tokyo"
+    ],
+    [
+     "大阪[おおさか]",
+     "in Osaka"
+    ],
+    [
+     "京都[きょうと]",
+     "in Kyoto"
+    ],
+    [
+     "北海道[ほっかいどう]",
+     "in Hokkaido"
+    ],
+    [
+     "アメリカ",
+     "in America"
+    ],
+    [
+     "田舎[いなか]",
+     "in the countryside"
+    ],
+    [
+     "海外[かいがい]",
+     "abroad"
+    ],
+    [
+     "この町[まち]",
+     "in this town"
+    ]
+   ],
+   "live": [
+    [
+     "住[す]んでいます",
+     "lives"
+    ],
+    [
+     "住[す]んでいました",
+     "used to live"
+    ],
+    [
+     "住[す]みたがっています",
+     "wants to live"
+    ],
+    [
+     "住[す]むつもりです",
+     "plans to live"
+    ],
+    [
+     "住[す]み始[はじ]めました",
+     "has started living"
+    ],
+    [
+     "住[す]んでいたそうです",
+     "apparently used to live"
+    ]
+   ]
+  }
+ },
+ {
+  "id": "x-ni-de-4",
+  "lv": 4,
+  "tpl": "<who>{は|wa-topic}<place>{で|de-place}<work>。",
+  "en": "<who> <work> <place>.",
+  "f": 1,
+  "d": [
+   "に"
+  ],
+  "why": "働く is an action, so the workplace takes で; compare 住む, which takes に.",
+  "vars": {
+   "who": [
+    [
+     "姉[あね]",
+     "My older sister"
+    ],
+    [
+     "兄[あに]",
+     "My older brother"
+    ],
+    [
+     "田中[たなか]さん",
+     "Mr. Tanaka"
+    ],
+    [
+     "佐藤[さとう]さん",
+     "Ms. Sato"
+    ],
+    [
+     "友達[ともだち]",
+     "My friend"
+    ],
+    [
+     "いとこ",
+     "My cousin"
+    ],
+    [
+     "山田[やまだ]さん",
+     "Mr. Yamada"
+    ]
+   ],
+   "place": [
+    [
+     "銀行[ぎんこう]",
+     "at a bank"
+    ],
+    [
+     "病院[びょういん]",
+     "at a hospital"
+    ],
+    [
+     "郵便局[ゆうびんきょく]",
+     "at a post office"
+    ],
+    [
+     "本屋[ほんや]",
+     "at a bookshop"
+    ],
+    [
+     "工場[こうじょう]",
+     "at a factory"
+    ],
+    [
+     "ホテル",
+     "at a hotel"
+    ],
+    [
+     "レストラン",
+     "at a restaurant"
+    ],
+    [
+     "空港[くうこう]",
+     "at an airport"
+    ]
+   ],
+   "work": [
+    [
+     "働[はたら]いています",
+     "works"
+    ],
+    [
+     "働[はたら]いていました",
+     "used to work"
+    ],
+    [
+     "アルバイト{を|o-object}しています",
+     "has a part-time job"
+    ],
+    [
+     "働[はたら]くつもりです",
+     "plans to work"
+    ],
+    [
+     "働[はたら]きたがっています",
+     "wants to work"
+    ],
+    [
+     "働[はたら]き始[はじ]めました",
+     "has started working"
+    ]
+   ]
+  }
+ }
+]

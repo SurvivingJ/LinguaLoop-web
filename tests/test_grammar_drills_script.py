@@ -15,6 +15,9 @@ _spec = importlib.util.spec_from_file_location(
 gd = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(gd)
 
+import sys  # noqa: E402
+sys.path.insert(0, os.path.join(ROOT, 'scripts'))   # for grammar_drills_swarm (imported in tests below)
+
 SUBS = ['x']
 
 
@@ -140,7 +143,11 @@ def test_compare_flags_ambiguity_and_wrong_key(tmp_path, monkeypatch, capsys):
 
 def test_plan_batches_and_mixes():
     plan = gd.load_plan()
-    assert sum(t['batches'] for t in plan['topics']) == 105
+    # 105 in the first build; 10 more for the four topics added on 2026-11-28
+    assert sum(t['batches'] for t in plan['topics'] if not t.get('added')) == 105
+    assert sum(t['batches'] for t in plan['topics']) == 115
+    added = {t['slug'] for t in plan['topics'] if t.get('added')}
+    assert added == {'near-synonyms', 'collocations', 'look-alike-characters', 'chengyu', 'polyphones'}
     cats = {c['key'] for c in plan['categories']}
     slugs = [t['slug'] for t in plan['topics']]
     assert len(set(slugs)) == len(slugs)
@@ -166,3 +173,64 @@ def test_shipped_content_is_valid_and_built():
             assert gd.validate_item(obj, subs, slug) == [], (path, n)
     if gd.source_files(plan):
         assert gd.cmd_build(check_only=True) == 0
+
+
+# ------------------------------------------------- topics added 2026-11-28 and their runner
+def test_free_levels_topic_skips_the_level_mix_only():
+    """chengyu has no HSK 1-2 items: its plan entry opts out of the level check."""
+    plan = gd.load_plan()
+    assert gd.topic_of(plan, 'chengyu').get('free_levels') is True
+    assert not any(t.get('free_levels') for t in plan['topics'] if t['slug'] != 'chengyu')
+    path = os.path.join(gd.DATA, 'reviewed', 'chengyu-01.jsonl')
+    _, problems = gd.validate_file(path, plan, quiet=True, min_items=90)
+    assert problems == []
+
+
+def test_polyphone_table_is_checked_and_built():
+    import grammar_drills_swarm as swarm
+    assert swarm.check_words() == []
+    with open(swarm.WORDS, encoding='utf-8') as fh:
+        rows = json.load(fh)
+    assert len(rows) >= swarm.MIN_WORDS
+    # every listed reading, right and wrong, is a real reading of the character
+    for r in rows:
+        ch = r['w'][r['i']]
+        known = gd.readings(ch)
+        assert r['py'].split(' ')[r['i']] in known and set(r['wrong']) <= known, r['w']
+    # the generator's data file is what build-words writes
+    _, body = swarm.words_js()
+    assert open(swarm.WORDS_JS, encoding='utf-8').read() == body, \
+        'run python scripts/grammar_drills_swarm.py build-words --apply'
+    assert body.count('\n  ["') == len(rows)
+
+
+@pytest.mark.parametrize('change, fragment', [
+    (lambda r: r.update(py='yin hang'), 'not a reading'),
+    (lambda r: r.update(wrong=['háng']), 'right reading is among'),
+    (lambda r: r.update(wrong=['bàng']), 'is not a reading of'),
+    (lambda r: r.update(w='行', py='háng', i=0), '2 to 6'),
+    (lambda r: r.update(i=5), 'must index'),
+    (lambda r: r.update(why='short'), 'why must be'),
+    (lambda r: r.pop('lvl'), 'needs exactly'),
+])
+def test_polyphone_checker_rejects(tmp_path, change, fragment):
+    import grammar_drills_swarm as swarm
+    row = {'w': '银行', 'py': 'yín háng', 'i': 1, 'wrong': ['xíng'], 'en': 'bank',
+           'why': 'A firm or a line of business is read with the other sound.', 'lvl': 1}
+    change(row)
+    path = tmp_path / 'p.json'
+    path.write_text(json.dumps([row], ensure_ascii=False), encoding='utf-8')
+    errs = swarm.check_words(str(path))
+    assert any(fragment in e for e in errs), errs
+
+
+def test_the_runner_only_plans_added_topics_and_every_new_file_has_a_verdict():
+    import grammar_drills_swarm as swarm
+    all_jobs = swarm.jobs()
+    assert {v['slug'] for v in all_jobs.values() if v['kind'] == 'batch'} == \
+        {'near-synonyms', 'collocations', 'look-alike-characters', 'chengyu'}
+    assert 'words-polyphones' in all_jobs
+    assert swarm.pending(all_jobs) == {}
+    for jid in all_jobs:
+        name = jid[len('batch-'):] if jid.startswith('batch-') else jid
+        assert os.path.exists(swarm.verdict(name)), jid

@@ -1,0 +1,20 @@
+[
+ {"id":"zutsu-each-1","lv":4,
+  "tpl":"<who>{は|wa-topic}<group>{に|ni-recipient}<item>{ずつ|zutsu-each}配[くば]りました。",
+  "en":"<who> gave <group> <item> each.",
+  "f":3,"d":["だけ","ごと","も"],
+  "why":"ずつ after a number means that amount goes to each person in turn: so many each.",
+  "vars":{
+   "who":[["先生[せんせい]","The teacher"],["母[はは]","My mother"],["父[ちち]","My father"],["祖母[そぼ]","My grandmother"],["田中[たなか]さん","Mr. Tanaka"],["鈴木[すずき]さん","Ms. Suzuki"],["山田[やまだ]さん","Mr. Yamada"],["佐藤[さとう]さん","Ms. Sato"]],
+   "group":[["子供[こども]たち","the children"],["生徒[せいと]たち","the pupils"],["学生[がくせい]たち","the students"],["みんな","everyone"],["参加者[さんかしゃ]","the participants"],["部員[ぶいん]たち","the club members"],["選手[せんしゅ]たち","the players"]],
+   "item":[["りんご{を|o-object}二[ふた]つ","two apples"],["鉛筆[えんぴつ]{を|o-object}三本[さんぼん]","three pencils"],["ノート{を|o-object}一冊[いっさつ]","one notebook"],["本[ほん]{を|o-object}一冊[いっさつ]","one book"],["紙[かみ]{を|o-object}二枚[にまい]","two sheets of paper"],["みかん{を|o-object}五[いつ]つ","five mandarins"],["クッキー{を|o-object}二枚[にまい]","two biscuits"],["風船[ふうせん]{を|o-object}一[ひと]つ","one balloon"]]}},
+ {"id":"zutsu-each-2","lv":4,
+  "tpl":"<group>{が/は|ga-subject}<count>{ずつ|zutsu-each}<act>。",
+  "en":"<group> <act> <count> at a time.",
+  "f":1,"d":["だけ","も","ほど"],
+  "why":"ずつ after a number of people means they did it in groups of that size: so many at a time.",
+  "vars":{
+   "group":[["学生[がくせい]","The students"],["子供[こども]たち","The children"],["生徒[せいと]たち","The pupils"],["参加者[さんかしゃ]","The participants"],["選手[せんしゅ]たち","The players"],["観光客[かんこうきゃく]","The tourists"],["社員[しゃいん]たち","The staff"]],
+   "count":[["一人[ひとり]","one"],["二人[ふたり]","two"],["三人[さんにん]","three"],["四人[よにん]","four"],["五人[ごにん]","five"],["六人[ろくにん]","six"]],
+   "act":[["部屋[へや]{に/へ|ni-destination}入[はい]りました","went into the room"],["部屋[へや]{を|o-departure}出[で]ました","left the room"],["バス{に|ni-destination}乗[の]りました","got on the bus"],["バス{を|o-departure}降[お]りました","got off the bus"],["エレベーター{に|ni-destination}乗[の]りました","got into the lift"],["ステージ{に/へ|ni-destination}上[あ]がりました","went up onto the stage"],["橋[はし]{を|o-path}渡[わた]りました","crossed the bridge"],["店[みせ]{に/へ|ni-destination}入[はい]りました","went into the shop"]]}}
+]

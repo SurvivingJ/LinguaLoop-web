@@ -1,0 +1,12 @@
+{"batch":"packs-008",
+ "files":["packs/ni-source.json","packs/ni-reason.json","packs/e-direction.json","packs/e-no.json"],
+ "checked":6,
+ "fixed":3,
+ "deleted":0,
+ "issues":[
+  {"file":"packs/ni-source.json","pack":"ni-source-2","problem":"subject values 将棋 (shogi) and 生け花 (flower arranging) are well above the pack's lv 4 band.","action":"Replaced with 日本語 (Japanese) and 絵 (painting)."},
+  {"file":"packs/ni-reason.json","pack":"ni-reason-1","problem":"Cause values 大きな音 and 大きな地震 make で (cause) as natural as に (音で驚いた, 地震で驚いた), so the focus blank had a second correct answer that was not listed.","action":"Replaced with 見事な演奏 (the brilliant performance) and 意外な答え (the unexpected answer), which naturally take に only."},
+  {"file":"packs/e-no.json","pack":"e-no-1","problem":"Frame '<target>への<thing>を送りました' also allows plain に (先生に手紙を送りました) with the same English, so the blank had two correct answers. Several things (メール, 返事, メッセージ) could not be reused in a physical frame.","action":"Rewrote the frame as '<target>への<thing>{は/が}<place>にあります' ('The letter to my teacher is in the drawer'), where only への can link the two nouns. New thing and place variables (6 each, physical objects; English carries to/for), and the target 'a friend' changed to 'my friend'. 252 combinations."},
+  {"file":"packs/e-direction.json","pack":"e-direction-1, e-direction-2","problem":"No problems found: に alternative listed, distractors wrong in every combination, English correct.","action":"No change."},
+  {"file":"packs/ni-source.json","pack":"ni-source-1","problem":"No problems found.","action":"No change."}
+ ]}

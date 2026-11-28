@@ -1,0 +1,21 @@
+{
+ "batch": "items-155",
+ "files": ["items/nikagitte.jsonl", "items/bakarika.jsonl", "items/dokoroka.jsonl"],
+ "checked": 76,
+ "fixed": 11,
+ "deleted": 0,
+ "replaced": 0,
+ "issues": [
+  {"file": "items/nikagitte.jsonl", "jp_before": "普段[ふだん]{は|wa-contrast}静[しず]かな隣[となり]{の|no-possessive}犬[いぬ]{が|ga-subject}、眠[ねむ]い日[ひ]{に限[かぎ]って|nikagitte}朝[あさ]{から|kara-from}吠[ほ]えている。", "problem": "Non-focus slot 犬が is equally natural as 犬は; alternative missing.", "action": "Slot changed to {が/は|ga-subject}."},
+  {"file": "items/nikagitte.jsonl", "jp_before": "遠足[えんそく]{の|no-possessive}日[ひ]{に限[かぎ]って|nikagitte}、娘[むすめ]{は|wa-topic}熱[ねつ]{を|o-object}出[だ]した。", "problem": "Non-focus slot 娘は is equally natural as 娘が; alternative missing.", "action": "Slot changed to {は/が|wa-topic}."},
+  {"file": "items/bakarika.jsonl", "jp_before": "彼[かれ]{は|wa-topic}ピアノ{ばかりか/ばかりでなく/はもちろん/に限[かぎ]らず|bakarika}、バイオリン{も|mo-also}弾[ひ]ける。", "problem": "だけでなく is equally natural but not listed as an alternative.", "action": "Added だけでなく to the focus slot alternatives."},
+  {"file": "items/bakarika.jsonl", "jp_before": "その歌手[かしゅ]{は|wa-topic}国内[こくない]{ばかりか/ばかりでなく/はもちろん/に限[かぎ]らず|bakarika}、海外[かいがい]{でも|double-mo}人気[にんき]{が|ga-existence}ある。", "problem": "だけでなく is equally natural but not listed as an alternative.", "action": "Added だけでなく to the focus slot alternatives."},
+  {"file": "items/bakarika.jsonl", "jp_before": "この辺[へん]{は|wa-topic}夏[なつ]{ばかりか/ばかりでなく/はもちろん/に限[かぎ]らず|bakarika}、冬[ふゆ]{も|mo-also}観光客[かんこうきゃく]{が|ga-subject}多[おお]い。", "problem": "だけでなく is equally natural but not listed as an alternative.", "action": "Added だけでなく to the focus slot alternatives."},
+  {"file": "items/bakarika.jsonl", "jp_before": "この問題[もんだい]{は|wa-topic}子供[こども]{ばかりか/ばかりでなく/はもちろん/に限[かぎ]らず|bakarika}、大人[おとな]{にも|double-mo}分[わ]からない。", "problem": "だけでなく is equally natural but not listed as an alternative.", "action": "Added だけでなく to the focus slot alternatives."},
+  {"file": "items/bakarika.jsonl", "jp_before": "社長[しゃちょう]{は|wa-topic}社員[しゃいん]{ばかりか/ばかりでなく/だけでなく|bakarika}、その家族[かぞく]{まで/も|made-even}食事[しょくじ]{に|ni-purpose}招[まね]いた。", "problem": "After a noun, はもちろん is equally natural but not listed.", "action": "Added はもちろん to the focus slot alternatives."},
+  {"file": "items/bakarika.jsonl", "jp_before": "彼[かれ]{は|wa-topic}友達[ともだち]{ばかりか/ばかりでなく/だけでなく|bakarika}、家族[かぞく]{に|ni-recipient}{まで|made-even}嘘[うそ]{を|o-object}ついた。", "problem": "After a noun, はもちろん is equally natural but not listed.", "action": "Added はもちろん to the focus slot alternatives."},
+  {"file": "items/bakarika.jsonl", "jp_before": "あのパン屋[や]{は|wa-topic}地元[じもと]{の|no-possessive}人[ひと]{ばかりか/ばかりでなく/だけでなく|bakarika}、観光客[かんこうきゃく]{も|mo-also}よく買[か]い{に|ni-purpose}来[く]る。", "problem": "After a noun, はもちろん is equally natural but not listed.", "action": "Added はもちろん to the focus slot alternatives."},
+  {"file": "items/bakarika.jsonl", "jp_before": "このアプリ{は|wa-topic}無料[むりょう]な{ばかりか/ばかりでなく/だけでなく|bakarika}、広告[こうこく]{も|mo-also}出[で]ない。", "problem": "無料 is a noun; 無料なばかりか is marginal, and the why wrongly calls it a na-adjective.", "action": "Rewrote as 無料[むりょう]であるばかりか and corrected the why."},
+  {"file": "items/dokoroka.jsonl", "jp_before": "今年[ことし]{は|wa-topic}給料[きゅうりょう]{が|ga-subject}上[あ]がる{どころか|dokoroka}、ボーナス{も|mo-emphasis}出[で]なかった。", "problem": "ボーナスも ('not even a bonus') is not the amount-emphasis use that mo-emphasis covers; the file's other 'not even' items use mo-also.", "action": "Skill id changed to mo-also."}
+ ]
+}

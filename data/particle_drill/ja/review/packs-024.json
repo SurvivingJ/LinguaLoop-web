@@ -1,0 +1,5 @@
+{"batch":"packs-024","files":["packs/x-made-madeni.json","packs/x-mo-wa.json"],"checked":4,"fixed":3,"deleted":0,"issues":[
+ {"file":"packs/x-mo-wa.json","pack":"x-mo-wa-1","problem":"time value 今朝 (This morning) clashes with state 早く帰りました (went home early) and reads oddly with 仕事を休みました","action":"replaced 今朝/This morning with 水曜日[すいようび]/On Wednesday"},
+ {"file":"packs/x-mo-wa.json","pack":"x-mo-wa-1","problem":"English 'took the day off work' is wrong with Last week / On Friday framing (no specific day referent)","action":"changed English to 'took a day off work'"},
+ {"file":"packs/x-mo-wa.json","pack":"x-mo-wa-2","problem":"non-focus slot after <a> (肉は食べますが) is equally natural with を for the same English; を was missing as an alternative","action":"slot changed to {は/を|wa-contrast}"}
+]}

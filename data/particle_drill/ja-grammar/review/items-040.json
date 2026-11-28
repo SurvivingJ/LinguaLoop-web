@@ -1,0 +1,8 @@
+{"batch":"items-040","files":["items/cn-soshite.jsonl"],"checked":45,"fixed":6,"deleted":0,"replaced":0,"issues":[
+{"file":"items/cn-soshite.jsonl","jp_before":"姉[あね]は看護師[かんごし]です。{そして/それに|cn-soshite}、妹[いもうと]は先生[せんせい]です。","problem":"Distractors だから and ですから are the same word in two registers (duplicate distractor).","action":"Replaced ですから with つまり."},
+{"file":"items/cn-soshite.jsonl","jp_before":"あのレストランは安[やす]いです。{それに/その上[うえ]|cn-soshite}、料理[りょうり]もおいしいです。","problem":"Distractor でも is natural here (cheap, but the food is good), since cheapness suggests low quality.","action":"Replaced でも with それとも."},
+{"file":"items/cn-soshite.jsonl","jp_before":"風邪[かぜ]をひきました。{その上[うえ]/それに|cn-soshite}、熱[ねつ]まで出[で]ました。","problem":"Distractor だから is plausible: a cold can cause the fever, so a causal reading is acceptable.","action":"Replaced だから with ところで."},
+{"file":"items/cn-soshite.jsonl","jp_before":"田中[たなか]先生[せんせい]は説明[せつめい]が上手[じょうず]です。{その上[うえ]/それに|cn-soshite}、とても優[やさ]しい方[かた]です。","problem":"English 'they are a very kind person' reads awkwardly for a single named professor.","action":"English changed to 'What is more, the professor is a very kind person.'"},
+{"file":"items/cn-soshite.jsonl","jp_before":"昨日[きのう]は残業[ざんぎょう]でした。{その上[うえ]/それに|cn-soshite}、終電[しゅうでん]も逃[に]しました。","problem":"Distractor だから is acceptable: working overtime naturally causes missing the last train.","action":"Replaced だから with つまり."},
+{"file":"items/cn-soshite.jsonl","jp_before":"今朝[けさ]は寝坊[ねぼう]をしました。{その上[うえ]/それに|cn-soshite}、バスにも乗[の]り遅[おく]れました。","problem":"Distractor ですから is acceptable: oversleeping naturally causes missing the bus.","action":"Replaced ですから with ところで."}
+]}

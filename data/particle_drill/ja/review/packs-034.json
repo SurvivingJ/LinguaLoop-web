@@ -1,0 +1,11 @@
+{"batch":"packs-034",
+ "files":["packs/nagara-while.json","packs/tari-tari.json","packs/to-conditional.json"],
+ "checked":6,
+ "fixed":4,
+ "deleted":0,
+ "issues":[
+  {"file":"packs/nagara-while.json","pack":"nagara-while-1","problem":"bg value 昔の歌 contains an unmarked の particle; marking it would add a slot to one bg value only and shift the focus index for that value","action":"replaced with 古い歌を聞き (listening to old songs), one slot like the other bg values"},
+  {"file":"packs/tari-tari.json","pack":"tari-tari-1","problem":"服を洗ったり is stilted for doing the laundry as a weekend activity","action":"replaced with 洗濯をし / doing the laundry"},
+  {"file":"packs/tari-tari.json","pack":"tari-tari-2","problem":"物を食べ / 'eat' is vague and slightly unnatural as a listed prohibited act","action":"replaced with お菓子を食べ / eat snacks"},
+  {"file":"packs/to-conditional.json","pack":"to-conditional-2","problem":"は/が alternative on the subject: with が the subject covers only the と-clause, so the main-clause subject (they) is no longer guaranteed and the English no longer fits","action":"slot reduced to {は|wa-topic}"}
+ ]}

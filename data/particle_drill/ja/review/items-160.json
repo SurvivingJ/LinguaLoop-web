@@ -1,0 +1,410 @@
+{
+ "batch": "items-160",
+ "files": [
+  "items/nisakidatte.jsonl",
+  "items/uede.jsonl",
+  "items/ueni.jsonl"
+ ],
+ "checked": 70,
+ "fixed": 60,
+ "deleted": 0,
+ "replaced": 0,
+ "issues": [
+  {
+   "file": "items/nisakidatte.jsonl",
+   "jp_before": "試合[しあい]{に先立[さきだ]って|nisakidatte}、選手[せんしゅ]{は|wa-topic}準備運動[じゅんびうんどう]{を|o-object}しました。",
+   "problem": "Subject slot: が is equally natural here; alternative missing",
+   "action": "replaced `選手[せんしゅ]{は|wa-topic}` with `選手[せんしゅ]{は/が|wa-topic}`"
+  },
+  {
+   "file": "items/nisakidatte.jsonl",
+   "jp_before": "工事[こうじ]{に先立[さきだ]って|nisakidatte}、市[し]{は|wa-topic}住民[じゅうみん]{に|ni-recipient}お知[し]らせ{を|o-object}送[おく]りました。",
+   "problem": "Subject slot: が is equally natural here; alternative missing",
+   "action": "replaced `市[し]{は|wa-topic}` with `市[し]{は/が|wa-topic}`"
+  },
+  {
+   "file": "items/nisakidatte.jsonl",
+   "jp_before": "新製品[しんせいひん]{の|no-possessive}発売[はつばい]{に先立[さきだ]って|nisakidatte}、会社[かいしゃ]{は|wa-topic}記者会見[きしゃかいけん]{を|o-object}行[おこな]いました。",
+   "problem": "Subject slot: が is equally natural here; alternative missing",
+   "action": "replaced `会社[かいしゃ]{は|wa-topic}` with `会社[かいしゃ]{は/が|wa-topic}`"
+  },
+  {
+   "file": "items/nisakidatte.jsonl",
+   "jp_before": "手術[しゅじゅつ]{に先立[さきだ]って|nisakidatte}、医者[いしゃ]{は|wa-topic}患者[かんじゃ]{に|ni-recipient}詳[くわ]しく説明[せつめい]しました。",
+   "problem": "Subject slot: が is equally natural here; alternative missing",
+   "action": "replaced `医者[いしゃ]{は|wa-topic}` with `医者[いしゃ]{は/が|wa-topic}`"
+  },
+  {
+   "file": "items/nisakidatte.jsonl",
+   "jp_before": "実習[じっしゅう]{に先立[さきだ]って|nisakidatte}、学生[がくせい]{は|wa-topic}安全[あんぜん]{の|no-possessive}講習[こうしゅう]{を|o-object}受[う]けました。",
+   "problem": "Subject slot: が is equally natural here; alternative missing",
+   "action": "replaced `学生[がくせい]{は|wa-topic}` with `学生[がくせい]{は/が|wa-topic}`"
+  },
+  {
+   "file": "items/nisakidatte.jsonl",
+   "jp_before": "結婚式[けっこんしき]{に先立[さきだ]って|nisakidatte}、両家[りょうけ]{が|ga-subject}顔合[かおあ]わせ{を|o-object}しました。",
+   "problem": "Subject slot: は is equally natural here; alternative missing",
+   "action": "replaced `両家[りょうけ]{が|ga-subject}` with `両家[りょうけ]{が/は|ga-subject}`"
+  },
+  {
+   "file": "items/nisakidatte.jsonl",
+   "jp_before": "演奏[えんそう]{に先立[さきだ]って|nisakidatte}、指揮者[しきしゃ]{が|ga-subject}曲[きょく]{について|nitsuite}話[はな]しました。",
+   "problem": "Subject slot: は is equally natural here; alternative missing",
+   "action": "replaced `指揮者[しきしゃ]{が|ga-subject}` with `指揮者[しきしゃ]{が/は|ga-subject}`"
+  },
+  {
+   "file": "items/nisakidatte.jsonl",
+   "jp_before": "社長[しゃちょう]{の|no-possessive}到着[とうちゃく]{に先立[さきだ]って|nisakidatte}、玄関[げんかん]{を|o-object}きれいに掃除[そうじ]しました。",
+   "problem": "English overtranslates きれいに掃除する (\"until it was spotless\")",
+   "action": "replaced `they cleaned the entrance until it was spotless` with `they cleaned the entrance thoroughly`"
+  },
+  {
+   "file": "items/nisakidatte.jsonl",
+   "jp_before": "試合[しあい]{に先立[さきだ]って|nisakidatte}、選手[せんしゅ]{は/が|wa-topic}準備運動[じゅんびうんどう]{を|o-object}しました。",
+   "problem": "lv 3 understates the level: the focus grammar itself is JLPT N2",
+   "action": "set lv to 2"
+  },
+  {
+   "file": "items/nisakidatte.jsonl",
+   "jp_before": "会議[かいぎ]{に先立[さきだ]って|nisakidatte}、資料[しりょう]{を|o-object}全員[ぜんいん]{に|ni-recipient}配[くば]りました。",
+   "problem": "lv 3 understates the level: the focus grammar itself is JLPT N2",
+   "action": "set lv to 2"
+  },
+  {
+   "file": "items/nisakidatte.jsonl",
+   "jp_before": "旅行[りょこう]{に先立[さきだ]って|nisakidatte}、ホテル{を|o-object}予約[よやく]しておきました。",
+   "problem": "lv 4 understates the level: the focus grammar itself is JLPT N2",
+   "action": "set lv to 2"
+  },
+  {
+   "file": "items/nisakidatte.jsonl",
+   "jp_before": "引[ひ]っ越[こ]し{に先立[さきだ]って|nisakidatte}、いらない物[もの]{を|o-object}全部[ぜんぶ]捨[す]てました。",
+   "problem": "lv 3 understates the level: the focus grammar itself is JLPT N2",
+   "action": "set lv to 2"
+  },
+  {
+   "file": "items/nisakidatte.jsonl",
+   "jp_before": "面接[めんせつ]{に先立[さきだ]って|nisakidatte}、会社[かいしゃ]{の|no-possessive}ホームページ{を|o-object}よく読[よ]んでおきました。",
+   "problem": "lv 3 understates the level: the focus grammar itself is JLPT N2",
+   "action": "set lv to 2"
+  },
+  {
+   "file": "items/nisakidatte.jsonl",
+   "jp_before": "出発[しゅっぱつ]{に先立[さきだ]って|nisakidatte}、全員[ぜんいん]{で|de-scope}荷物[にもつ]{を|o-object}確認[かくにん]しました。",
+   "problem": "lv 3 understates the level: the focus grammar itself is JLPT N2",
+   "action": "set lv to 2"
+  },
+  {
+   "file": "items/nisakidatte.jsonl",
+   "jp_before": "発表[はっぴょう]{に先立[さきだ]って|nisakidatte}、先生[せんせい]{に|give-te-forms}原稿[げんこう]{を|o-object}見[み]てもらいました。",
+   "problem": "lv 3 understates the level: the focus grammar itself is JLPT N2",
+   "action": "set lv to 2"
+  },
+  {
+   "file": "items/nisakidatte.jsonl",
+   "jp_before": "大会[たいかい]{に先立[さきだ]って|nisakidatte}、コース{を|o-object}下見[したみ]しました。",
+   "problem": "lv 3 understates the level: the focus grammar itself is JLPT N2",
+   "action": "set lv to 2"
+  },
+  {
+   "file": "items/nisakidatte.jsonl",
+   "jp_before": "社長[しゃちょう]{の|no-possessive}到着[とうちゃく]{に先立[さきだ]って|nisakidatte}、玄関[げんかん]{を|o-object}きれいに掃除[そうじ]しました。",
+   "problem": "lv 3 understates the level: the focus grammar itself is JLPT N2",
+   "action": "set lv to 2"
+  },
+  {
+   "file": "items/nisakidatte.jsonl",
+   "jp_before": "契約[けいやく]{に先立[さきだ]って|nisakidatte}、条件[じょうけん]{を|o-object}もう一度[いちど]確[たし]かめましょう。",
+   "problem": "lv 3 understates the level: the focus grammar itself is JLPT N2",
+   "action": "set lv to 2"
+  },
+  {
+   "file": "items/nisakidatte.jsonl",
+   "jp_before": "出張[しゅっちょう]{に先立[さきだ]って|nisakidatte}、パスポート{の|no-possessive}期限[きげん]{を|o-object}確認[かくにん]しました。",
+   "problem": "lv 3 understates the level: the focus grammar itself is JLPT N2",
+   "action": "set lv to 2"
+  },
+  {
+   "file": "items/uede.jsonl",
+   "jp_before": "説明[せつめい]{を|o-object}聞[き]いた{上[うえ]で|uede}、買[か]う{かどうか|ka-embedded}決[き]めます。",
+   "problem": "Distractor 際に: 説明を聞いた際に、買うかどうか決めます is acceptable Japanese with nearly the same meaning",
+   "action": "replaced `\"d\":[\"上[うえ]に\",\"上[うえ]は\",\"際[さい]に\"]` with `\"d\":[\"上[うえ]に\",\"上[うえ]は\",\"うちに\"]`"
+  },
+  {
+   "file": "items/uede.jsonl",
+   "jp_before": "事故[じこ]{の|no-possessive}原因[げんいん]{を|o-object}調[しら]べた{上[うえ]で|uede}、対策[たいさく]{を|o-object}考[かんが]えます。",
+   "problem": "Distractor 際に: 原因を調べた際に、対策を考えます is acceptable Japanese close to the English",
+   "action": "replaced `\"d\":[\"上[うえ]に\",\"上[うえ]は\",\"際[さい]に\"]` with `\"d\":[\"上[うえ]に\",\"上[うえ]は\",\"うちに\"]`"
+  },
+  {
+   "file": "items/uede.jsonl",
+   "jp_before": "両親[りょうしん]{の|no-possessive}同意[どうい]{を|o-object}得[え]た{上[うえ]で|uede}、二人[ふたり]{は|wa-topic}結婚[けっこん]しました。",
+   "problem": "Subject slot: が is equally natural here; alternative missing",
+   "action": "replaced `二人[ふたり]{は|wa-topic}` with `二人[ふたり]{は/が|wa-topic}`"
+  },
+  {
+   "file": "items/uede.jsonl",
+   "jp_before": "両方[りょうほう]{の|no-possessive}意見[いけん]{を|o-object}聞[き]いた{上[うえ]で|uede}、先生[せんせい]{が|ga-subject}判断[はんだん]しました。",
+   "problem": "Subject slot: は is equally natural here; alternative missing",
+   "action": "replaced `先生[せんせい]{が|ga-subject}` with `先生[せんせい]{が/は|ga-subject}`"
+  },
+  {
+   "file": "items/uede.jsonl",
+   "jp_before": "子供[こども]{を|o-object}育[そだ]てる{上[うえ]で|uede}、周[まわ]り{の|no-possessive}人[ひと]{の|no-possessive}助[たす]け{が|ga-subject}大[おお]きかったです。",
+   "problem": "V-る上で followed by 助けが大きかった is awkward; 上で \"in doing\" wants an evaluative predicate (necessary, indispensable)",
+   "action": "replaced `助[たす]け{が|ga-subject}大[おお]きかったです。\",\"en\":\"In raising my child, the help of the people around me was very significant.\"` with `助[たす]け{は/が|wa-topic}欠[か]かせません。\",\"en\":\"In raising children, help from the people around you is indispensable.\"`"
+  },
+  {
+   "file": "items/uede.jsonl",
+   "jp_before": "子供[こども]{を|o-object}育[そだ]てる{上[うえ]で|uede}、周[まわ]り{の|no-possessive}人[ひと]{の|no-possessive}助[たす]け{は/が|wa-topic}欠[か]かせません。",
+   "problem": "why updated to match the rewritten sentence",
+   "action": "replaced `The help mattered within the process` with `Help is indispensable within the process`"
+  },
+  {
+   "file": "items/uede.jsonl",
+   "jp_before": "日本[にほん]{で|de-place}働[はたら]く{上[うえ]で|uede}、敬語[けいご]{は|wa-contrast}避[さ]けて通[とお]れません。",
+   "problem": "Slot is a plain topic (not contrast), and を is equally natural with 避けて通れない",
+   "action": "replaced `敬語[けいご]{は|wa-contrast}` with `敬語[けいご]{は/を|wa-topic}`"
+  },
+  {
+   "file": "items/uede.jsonl",
+   "jp_before": "家族[かぞく]{と|to-with}よく相談[そうだん]した{上[うえ]で|uede}、留学[りゅうがく]{を|o-object}決[き]めました。",
+   "problem": "lv 3 understates the level: the focus grammar itself is JLPT N2",
+   "action": "set lv to 2"
+  },
+  {
+   "file": "items/uede.jsonl",
+   "jp_before": "説明[せつめい]{を|o-object}聞[き]いた{上[うえ]で|uede}、買[か]う{かどうか|ka-embedded}決[き]めます。",
+   "problem": "lv 3 understates the level: the focus grammar itself is JLPT N2",
+   "action": "set lv to 2"
+  },
+  {
+   "file": "items/uede.jsonl",
+   "jp_before": "外国[がいこく]{で|de-place}生活[せいかつ]する{上[うえ]で|uede}、一番[いちばん]困[こま]る{の|no-nominalizer}{は|wa-topic}言葉[ことば]です。",
+   "problem": "lv 3 understates the level: the focus grammar itself is JLPT N2",
+   "action": "set lv to 2"
+  },
+  {
+   "file": "items/uede.jsonl",
+   "jp_before": "仕事[しごと]{の|no-possessive}{上[うえ]で|uede}、英語[えいご]{が|ga-subject}必要[ひつよう]{に|ni-change}なりました。",
+   "problem": "lv 3 understates the level: the focus grammar itself is JLPT N2",
+   "action": "set lv to 2"
+  },
+  {
+   "file": "items/uede.jsonl",
+   "jp_before": "もう少[すこ]しよく考[かんが]えた{上[うえ]で|uede}、お返事[へんじ]します。",
+   "problem": "lv 3 understates the level: the focus grammar itself is JLPT N2",
+   "action": "set lv to 2"
+  },
+  {
+   "file": "items/uede.jsonl",
+   "jp_before": "値段[ねだん]{と|to-and}品質[ひんしつ]{を|o-object}比[くら]べた{上[うえ]で|uede}、一番[いちばん]いい物[もの]{を|o-object}選[えら]びます。",
+   "problem": "lv 3 understates the level: the focus grammar itself is JLPT N2",
+   "action": "set lv to 2"
+  },
+  {
+   "file": "items/uede.jsonl",
+   "jp_before": "試着[しちゃく]した{上[うえ]で|uede}、サイズ{を|o-object}選[えら]んでください。",
+   "problem": "lv 3 understates the level: the focus grammar itself is JLPT N2",
+   "action": "set lv to 2"
+  },
+  {
+   "file": "items/uede.jsonl",
+   "jp_before": "この薬[くすり]{は|wa-topic}医者[いしゃ]{に/と|ni-target}相談[そうだん]した{上[うえ]で|uede}飲[の]んでください。",
+   "problem": "lv 3 understates the level: the focus grammar itself is JLPT N2",
+   "action": "set lv to 2"
+  },
+  {
+   "file": "items/uede.jsonl",
+   "jp_before": "予算[よさん]{を|o-object}決[き]めた{上[うえ]で|uede}、旅行[りょこう]{の|no-possessive}計画[けいかく]{を|o-object}立[た]てました。",
+   "problem": "lv 3 understates the level: the focus grammar itself is JLPT N2",
+   "action": "set lv to 2"
+  },
+  {
+   "file": "items/uede.jsonl",
+   "jp_before": "資料[しりょう]{を|o-object}読[よ]んだ{上[うえ]で|uede}、質問[しつもん]{が|ga-existence}あれ{ば|ba-conditional}お聞[き]きください。",
+   "problem": "lv 3 understates the level: the focus grammar itself is JLPT N2",
+   "action": "set lv to 2"
+  },
+  {
+   "file": "items/uede.jsonl",
+   "jp_before": "みんな{で|de-scope}話[はな]し合[あ]った{上[うえ]で|uede}、旅行[りょこう]{の|no-possessive}行[い]き先[さき]{を|o-object}決[き]めよう。",
+   "problem": "lv 3 understates the level: the focus grammar itself is JLPT N2",
+   "action": "set lv to 2"
+  },
+  {
+   "file": "items/ueni.jsonl",
+   "jp_before": "道[みち]{が|ga-subject}込[こ]んでいた{上[うえ]に|ueni}、雨[あめ]{まで/も|made-even}降[ふ]ってきて、遅刻[ちこく]しました。",
+   "problem": "Crowded roads are normally written 混んで in modern standard Japanese",
+   "action": "replaced `込[こ]んで` with `混[こ]んで`"
+  },
+  {
+   "file": "items/ueni.jsonl",
+   "jp_before": "この仕事[しごと]{は|wa-topic}給料[きゅうりょう]{が|ga-subject}高[たか]い{上[うえ]に|ueni}、休[やす]み{も|mo-also}多[おお]いです。",
+   "problem": "Distractor のに: 給料が高いのに、休みも多い is natural Japanese (surprised \"and yet\")",
+   "action": "replaced `\"d\":[\"上[うえ]で\",\"上[うえ]は\",\"のに\"]` with `\"d\":[\"上[うえ]で\",\"上[うえ]は\",\"くせに\"]`"
+  },
+  {
+   "file": "items/ueni.jsonl",
+   "jp_before": "彼[かれ]{は|wa-topic}遅刻[ちこく]した{上[うえ]に|ueni}、連絡[れんらく]{も|mo-also}ありませんでした。",
+   "problem": "Distractor のに: 遅刻したのに、連絡もなかった is a natural complaint close to the English",
+   "action": "replaced `\"d\":[\"上[うえ]で\",\"上[うえ]は\",\"のに\"]` with `\"d\":[\"上[うえ]で\",\"上[うえ]は\",\"うちに\"]`"
+  },
+  {
+   "file": "items/ueni.jsonl",
+   "jp_before": "あの人[ひと]{は|wa-topic}有名[ゆうめい]な{上[うえ]に|ueni}、とても親切[しんせつ]です。",
+   "problem": "Distractor のに: 有名なのに、とても親切です is fully natural Japanese",
+   "action": "replaced `\"d\":[\"上[うえ]で\",\"上[うえ]は\",\"のに\"]` with `\"d\":[\"上[うえ]で\",\"上[うえ]は\",\"くせに\"]`"
+  },
+  {
+   "file": "items/ueni.jsonl",
+   "jp_before": "うちの犬[いぬ]{は|wa-topic}かわいい{上[うえ]に|ueni}、とても賢[かしこ]いです。",
+   "problem": "Distractor のに: かわいいのに、とても賢い is acceptable Japanese",
+   "action": "replaced `\"d\":[\"上[うえ]で\",\"上[うえ]は\",\"のに\"]` with `\"d\":[\"上[うえ]で\",\"上[うえ]は\",\"くせに\"]`"
+  },
+  {
+   "file": "items/ueni.jsonl",
+   "jp_before": "この靴[くつ]{は|wa-topic}安[やす]い{上[うえ]に|ueni}、軽[かる]く{て|te-sequence}、とても歩[ある]きやすいです。",
+   "problem": "Distractor のに: 安いのに、軽くて歩きやすい is very natural Japanese",
+   "action": "replaced `\"d\":[\"上[うえ]で\",\"上[うえ]は\",\"のに\"]` with `\"d\":[\"上[うえ]で\",\"上[うえ]は\",\"くせに\"]`"
+  },
+  {
+   "file": "items/ueni.jsonl",
+   "jp_before": "会議[かいぎ]{が|ga-subject}長[なが]かった{上[うえ]に|ueni}、内容[ないよう]{も|mo-also}難[むずか]しくて、疲[つか]れました。",
+   "problem": "Subject slot: は is equally natural here; alternative missing",
+   "action": "replaced `会議[かいぎ]{が|ga-subject}` with `会議[かいぎ]{が/は|ga-subject}`"
+  },
+  {
+   "file": "items/ueni.jsonl",
+   "jp_before": "道[みち]{が|ga-subject}狭[せま]い{上[うえ]に|ueni}、車[くるま]{も|mo-also}多[おお]い{ので|node-because}、気[き]{を|o-object}つけてください。",
+   "problem": "Subject slot: は is equally natural here; alternative missing",
+   "action": "replaced `道[みち]{が|ga-subject}` with `道[みち]{が/は|ga-subject}`"
+  },
+  {
+   "file": "items/ueni.jsonl",
+   "jp_before": "このレストラン{は|wa-topic}安[やす]い{上[うえ]に|ueni}、料理[りょうり]{も|mo-also}おいしいです。",
+   "problem": "lv 3 understates the level: the focus grammar itself is JLPT N2",
+   "action": "set lv to 2"
+  },
+  {
+   "file": "items/ueni.jsonl",
+   "jp_before": "今日[きょう]{は|wa-topic}雨[あめ]{が|ga-subject}降[ふ]っている{上[うえ]に|ueni}、風[かぜ]{も|mo-also}強[つよ]いです。",
+   "problem": "lv 3 understates the level: the focus grammar itself is JLPT N2",
+   "action": "set lv to 2"
+  },
+  {
+   "file": "items/ueni.jsonl",
+   "jp_before": "彼女[かのじょ]{は|wa-topic}頭[あたま]{が|ga-subject}いい{上[うえ]に|ueni}、性格[せいかく]{も|mo-also}優[やさ]しいです。",
+   "problem": "lv 3 understates the level: the focus grammar itself is JLPT N2",
+   "action": "set lv to 2"
+  },
+  {
+   "file": "items/ueni.jsonl",
+   "jp_before": "道[みち]{が|ga-subject}混[こ]んでいた{上[うえ]に|ueni}、雨[あめ]{まで/も|made-even}降[ふ]ってきて、遅刻[ちこく]しました。",
+   "problem": "lv 3 understates the level: the focus grammar itself is JLPT N2",
+   "action": "set lv to 2"
+  },
+  {
+   "file": "items/ueni.jsonl",
+   "jp_before": "この部屋[へや]{は|wa-topic}駅[えき]{から|kara-from}近[ちか]い{上[うえ]に|ueni}、家賃[やちん]{も|mo-also}安[やす]い{ので|node-because}、とても人気[にんき]です。",
+   "problem": "lv 3 understates the level: the focus grammar itself is JLPT N2",
+   "action": "set lv to 2"
+  },
+  {
+   "file": "items/ueni.jsonl",
+   "jp_before": "風邪[かぜ]{を|o-object}ひいた{上[うえ]に|ueni}、熱[ねつ]{も|mo-also}あります。",
+   "problem": "lv 3 understates the level: the focus grammar itself is JLPT N2",
+   "action": "set lv to 2"
+  },
+  {
+   "file": "items/ueni.jsonl",
+   "jp_before": "財布[さいふ]{を|o-object}なくした{上[うえ]に|ueni}、携帯[けいたい]{も|mo-also}壊[こわ]れてしまいました。",
+   "problem": "lv 3 understates the level: the focus grammar itself is JLPT N2",
+   "action": "set lv to 2"
+  },
+  {
+   "file": "items/ueni.jsonl",
+   "jp_before": "この仕事[しごと]{は|wa-topic}給料[きゅうりょう]{が|ga-subject}高[たか]い{上[うえ]に|ueni}、休[やす]み{も|mo-also}多[おお]いです。",
+   "problem": "lv 3 understates the level: the focus grammar itself is JLPT N2",
+   "action": "set lv to 2"
+  },
+  {
+   "file": "items/ueni.jsonl",
+   "jp_before": "田中[たなか]さん{は|wa-topic}歌[うた]{が|ga-stative}上手[じょうず]な{上[うえ]に|ueni}、ギター{も|mo-also}弾[ひ]けます。",
+   "problem": "lv 3 understates the level: the focus grammar itself is JLPT N2",
+   "action": "set lv to 2"
+  },
+  {
+   "file": "items/ueni.jsonl",
+   "jp_before": "昨日[きのう]{は|wa-topic}疲[つか]れていた{上[うえ]に|ueni}、お腹[なか]{も/が|mo-also}痛[いた]くて、早[はや]く寝[ね]ました。",
+   "problem": "lv 3 understates the level: the focus grammar itself is JLPT N2",
+   "action": "set lv to 2"
+  },
+  {
+   "file": "items/ueni.jsonl",
+   "jp_before": "この町[まち]{は|wa-topic}静[しず]かな{上[うえ]に|ueni}、買[か]い物[もの]{も|mo-also}便利[べんり]です。",
+   "problem": "lv 3 understates the level: the focus grammar itself is JLPT N2",
+   "action": "set lv to 2"
+  },
+  {
+   "file": "items/ueni.jsonl",
+   "jp_before": "彼[かれ]{は|wa-topic}遅刻[ちこく]した{上[うえ]に|ueni}、連絡[れんらく]{も|mo-also}ありませんでした。",
+   "problem": "lv 3 understates the level: the focus grammar itself is JLPT N2",
+   "action": "set lv to 2"
+  },
+  {
+   "file": "items/ueni.jsonl",
+   "jp_before": "あの映画[えいが]{は|wa-topic}ストーリー{が|ga-subject}おもしろい{上[うえ]に|ueni}、音楽[おんがく]{も|mo-also}すばらしいです。",
+   "problem": "lv 3 understates the level: the focus grammar itself is JLPT N2",
+   "action": "set lv to 2"
+  },
+  {
+   "file": "items/ueni.jsonl",
+   "jp_before": "夜[よる]{は|wa-topic}寒[さむ]い{上[うえ]に|ueni}、暗[くら]い{ので|node-because}、一人[ひとり]{で|de-scope}歩[ある]かないでください。",
+   "problem": "lv 3 understates the level: the focus grammar itself is JLPT N2",
+   "action": "set lv to 2"
+  },
+  {
+   "file": "items/ueni.jsonl",
+   "jp_before": "寝坊[ねぼう]した{上[うえ]に|ueni}、電車[でんしゃ]{も|mo-also}遅[おく]れて、一時間[いちじかん]{も|mo-emphasis}遅刻[ちこく]しました。",
+   "problem": "lv 3 understates the level: the focus grammar itself is JLPT N2",
+   "action": "set lv to 2"
+  },
+  {
+   "file": "items/ueni.jsonl",
+   "jp_before": "あの人[ひと]{は|wa-topic}有名[ゆうめい]な{上[うえ]に|ueni}、とても親切[しんせつ]です。",
+   "problem": "lv 3 understates the level: the focus grammar itself is JLPT N2",
+   "action": "set lv to 2"
+  },
+  {
+   "file": "items/ueni.jsonl",
+   "jp_before": "会議[かいぎ]{が/は|ga-subject}長[なが]かった{上[うえ]に|ueni}、内容[ないよう]{も|mo-also}難[むずか]しくて、疲[つか]れました。",
+   "problem": "lv 3 understates the level: the focus grammar itself is JLPT N2",
+   "action": "set lv to 2"
+  },
+  {
+   "file": "items/ueni.jsonl",
+   "jp_before": "この部屋[へや]{は|wa-topic}狭[せま]い{上[うえ]に|ueni}、日当[ひあ]たり{も|mo-also}悪[わる]い{ので|node-because}、引[ひ]っ越[こ]したいです。",
+   "problem": "lv 3 understates the level: the focus grammar itself is JLPT N2",
+   "action": "set lv to 2"
+  },
+  {
+   "file": "items/ueni.jsonl",
+   "jp_before": "道[みち]{が/は|ga-subject}狭[せま]い{上[うえ]に|ueni}、車[くるま]{も|mo-also}多[おお]い{ので|node-because}、気[き]{を|o-object}つけてください。",
+   "problem": "lv 3 understates the level: the focus grammar itself is JLPT N2",
+   "action": "set lv to 2"
+  },
+  {
+   "file": "items/ueni.jsonl",
+   "jp_before": "兄[あに]{は|wa-topic}試合[しあい]{に|ni-target}負[ま]けた{上[うえ]に|ueni}、怪我[けが]{まで/も|made-even}してしまいました。",
+   "problem": "lv 3 understates the level: the focus grammar itself is JLPT N2",
+   "action": "set lv to 2"
+  },
+  {
+   "file": "items/ueni.jsonl",
+   "jp_before": "この靴[くつ]{は|wa-topic}安[やす]い{上[うえ]に|ueni}、軽[かる]く{て|te-sequence}、とても歩[ある]きやすいです。",
+   "problem": "lv 3 understates the level: the focus grammar itself is JLPT N2",
+   "action": "set lv to 2"
+  }
+ ]
+}

@@ -1,0 +1,110 @@
+{
+ "batch": "items-m50026",
+ "files": [
+  "items/niyotte-means__m50.jsonl",
+  "items/niyotte-depending__m50.jsonl",
+  "items/niyoruto__m50.jsonl"
+ ],
+ "checked": 60,
+ "fixed": 16,
+ "deleted": 0,
+ "replaced": 0,
+ "issues": [
+  {
+   "file": "items/niyotte-means__m50.jsonl",
+   "jp_before": "農家の努力によって、この町の果物は有名になりました。",
+   "problem": "Non-focus slot 果物は: が equally natural, not listed.",
+   "action": "Slot changed to {は/が|wa-topic}."
+  },
+  {
+   "file": "items/niyotte-means__m50.jsonl",
+   "jp_before": "冷凍技術の発達によって、新鮮な魚を遠くまで運べるようになりました。",
+   "problem": "Object of potential 運べる can take が as well as を; alternative missing.",
+   "action": "Slot changed to {を/が|o-object}."
+  },
+  {
+   "file": "items/niyotte-depending__m50.jsonl",
+   "jp_before": "山の高さによって、見られる花が変わります。",
+   "problem": "After 'X によって', the varying subject takes contrastive は as naturally as が; alternative missing (existing file lists が/は).",
+   "action": "Slot changed to {が/は|ga-subject}."
+  },
+  {
+   "file": "items/niyotte-depending__m50.jsonl",
+   "jp_before": "川によって、釣れる魚が違います。",
+   "problem": "After 'X によって', the varying subject takes contrastive は as naturally as が; alternative missing (existing file lists が/は).",
+   "action": "Slot changed to {が/は|ga-subject}."
+  },
+  {
+   "file": "items/niyotte-depending__m50.jsonl",
+   "jp_before": "体質によって、薬の効き方が違います。",
+   "problem": "After 'X によって', the varying subject takes contrastive は as naturally as が; alternative missing (existing file lists が/は).",
+   "action": "Slot changed to {が/は|ga-subject}."
+  },
+  {
+   "file": "items/niyotte-depending__m50.jsonl",
+   "jp_before": "花の種類によって、咲く時期が異なります。",
+   "problem": "After 'X によって', the varying subject takes contrastive は as naturally as が; alternative missing (existing file lists が/は).",
+   "action": "Slot changed to {が/は|ga-subject}."
+  },
+  {
+   "file": "items/niyotte-depending__m50.jsonl",
+   "jp_before": "登る山によって、必要な道具が決まります。",
+   "problem": "After 'X によって', the varying subject takes contrastive は as naturally as が; alternative missing (existing file lists が/は).",
+   "action": "Slot changed to {が/は|ga-subject}."
+  },
+  {
+   "file": "items/niyotte-depending__m50.jsonl",
+   "jp_before": "けがの程度によって、治る期間が大きく異なります。",
+   "problem": "After 'X によって', the varying subject takes contrastive は as naturally as が; alternative missing (existing file lists が/は).",
+   "action": "Slot changed to {が/は|ga-subject}."
+  },
+  {
+   "file": "items/niyotte-depending__m50.jsonl",
+   "jp_before": "鳥の種類によって、鳴き声がまったく違います。",
+   "problem": "After 'X によって', the varying subject takes contrastive は as naturally as が; alternative missing (existing file lists が/は).",
+   "action": "Slot changed to {が/は|ga-subject}."
+  },
+  {
+   "file": "items/niyotte-depending__m50.jsonl",
+   "jp_before": "雲の量によって、見える星の数が決まります。",
+   "problem": "After 'X によって', the varying subject takes contrastive は as naturally as が; alternative missing (existing file lists が/は).",
+   "action": "Slot changed to {が/は|ga-subject}."
+  },
+  {
+   "file": "items/niyotte-depending__m50.jsonl",
+   "jp_before": "走り方によって、足への負担が変わります。",
+   "problem": "After 'X によって', the varying subject takes contrastive は as naturally as が; alternative missing (existing file lists が/は).",
+   "action": "Slot changed to {が/は|ga-subject}."
+  },
+  {
+   "file": "items/niyotte-depending__m50.jsonl",
+   "jp_before": "選手によって、得意な技が違います。",
+   "problem": "違う used a fifth time in the batch (limit three); が-only slot also missed は.",
+   "action": "Rewrote to 得意な技{は/が|wa-topic}さまざまです with matching English."
+  },
+  {
+   "file": "items/niyotte-depending__m50.jsonl",
+   "jp_before": "ゴルフは、風の強さによって使うクラブを変えます。",
+   "problem": "ゴルフは as topic of 変えます makes golf the agent; natural Japanese is ゴルフでは ('in golf').",
+   "action": "Rewrote to ゴルフ{で|de-place}{は|wa-contrast}、...; focus index moved from 2 to 3."
+  },
+  {
+   "file": "items/niyoruto__m50.jsonl",
+   "jp_before": "同僚によると、新しい上司は厳しいけど、話しやすい人だそうです。",
+   "problem": "が is an equally valid 'but' with the same meaning; alternative missing.",
+   "action": "Slot changed to {けど/が|kedo-but}."
+  },
+  {
+   "file": "items/niyoruto__m50.jsonl",
+   "jp_before": "母によると、祖父は最近散歩が好きになったそうです。",
+   "problem": "散歩を好きになる is also standard; alternative missing.",
+   "action": "Slot changed to {が/を|ga-stative}."
+  },
+  {
+   "file": "items/niyoruto__m50.jsonl",
+   "jp_before": "田中さんによると、課長は今度の旅行がとても楽しみだそうです。",
+   "problem": "が marking the object of the emotion predicate 楽しみ was tagged ga-subject.",
+   "action": "Skill id changed to ga-stative."
+  }
+ ]
+}

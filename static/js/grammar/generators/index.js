@@ -21,6 +21,7 @@ import { baGenerators, beiGenerators } from './ba-bei.js';
 import { generators as comparison } from './comparison.js';
 import { generators as duration } from './duration-frequency.js';
 import { generators as separable } from './separable-verbs.js';
+import { generators as polyphones } from './polyphones.js';
 
 const TABLE = {
   'numbers-time': numbersTime,
@@ -36,6 +37,7 @@ const TABLE = {
   comparison,
   'duration-frequency': duration,
   'separable-verbs': separable,
+  polyphones,
 };
 
 const withDefaultRng = ({ key, label, make }) => ({

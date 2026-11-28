@@ -1,0 +1,411 @@
+{
+ "batch": "lex-adjectives",
+ "files": [
+  "conjugation/adjectives.json"
+ ],
+ "checked": 260,
+ "fixed": 74,
+ "deleted": 6,
+ "issues": [
+  {
+   "entry": "無い",
+   "problem": "Not an adjective to drill: it is the negative of ある; its own negative なくない and other forms are unnatural as drill output.",
+   "action": "deleted"
+  },
+  {
+   "entry": "辛い",
+   "problem": "gloss 'salty' is wrong: salty is しょっぱい / 塩辛い",
+   "action": "en -> 'spicy (hot)'"
+  },
+  {
+   "entry": "五月蠅い",
+   "problem": "五月蠅い is rare ateji; the word is normally written うるさい",
+   "action": "d -> うるさい"
+  },
+  {
+   "entry": "太い",
+   "problem": "lv 3 is off; JLPT level is about N4",
+   "action": "lv 3 -> 4"
+  },
+  {
+   "entry": "細い",
+   "problem": "lv 3 is off; JLPT level is about N4",
+   "action": "lv 3 -> 4"
+  },
+  {
+   "entry": "厚い",
+   "problem": "lv 3 is off; JLPT level is about N4",
+   "action": "lv 3 -> 4"
+  },
+  {
+   "entry": "薄い",
+   "problem": "lv 3 is off; JLPT level is about N4",
+   "action": "lv 3 -> 4"
+  },
+  {
+   "entry": "丸い",
+   "problem": "lv 3 is off; JLPT level is about N4",
+   "action": "lv 3 -> 4"
+  },
+  {
+   "entry": "緩い",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "狡い",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "しつこい",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "きつい",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "面倒くさい",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "蒸し暑い",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "薄暗い",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "細長い",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "平たい",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "久しい",
+   "problem": "Literary as a predicate; forms like 久しくない / 久しかった are not natural modern Japanese.",
+   "action": "deleted"
+  },
+  {
+   "entry": "眠たい",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "青白い",
+   "problem": "lv 3 is off; JLPT level is about N1",
+   "action": "lv 3 -> 1"
+  },
+  {
+   "entry": "惜しい",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "望ましい",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "勇ましい",
+   "problem": "lv 3 is off; JLPT level is about N1",
+   "action": "lv 3 -> 1"
+  },
+  {
+   "entry": "恋しい",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "等しい",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "怪しい",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "険しい",
+   "problem": "lv 3 is off; JLPT level is about N1",
+   "action": "lv 3 -> 1"
+  },
+  {
+   "entry": "眩しい",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "憎い",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "鈍い",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "鋭い",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "粗い",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "荒い",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "温い",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "痒い",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "幼い",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "素早い",
+   "problem": "lv 3 is off; JLPT level is about N1",
+   "action": "lv 3 -> 1"
+  },
+  {
+   "entry": "手早い",
+   "problem": "lv 3 is off; JLPT level is about N1",
+   "action": "lv 3 -> 1"
+  },
+  {
+   "entry": "分厚い",
+   "problem": "lv 3 is off; JLPT level is about N1",
+   "action": "lv 3 -> 1"
+  },
+  {
+   "entry": "堅い",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "忙しない",
+   "problem": "Rare word that already ends in negative-looking ない; the drill negative せわしなくない is unnatural and confusing.",
+   "action": "deleted"
+  },
+  {
+   "entry": "喧しい",
+   "problem": "lv 3 is off; JLPT level is about N1",
+   "action": "lv 3 -> 1"
+  },
+  {
+   "entry": "普通",
+   "problem": "Attributive form is normally 普通の; 普通な is non-standard, so na-adjective conjugation would generate poor forms.",
+   "action": "deleted"
+  },
+  {
+   "entry": "本当",
+   "problem": "Noun-like: the attributive form is 本当の, not 本当な, so na-adjective conjugation would generate wrong forms.",
+   "action": "deleted"
+  },
+  {
+   "entry": "冷静",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "慎重",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "適切",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "完璧",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "手軽",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "身近",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "最高",
+   "problem": "Attributive form is normally 最高の; 最高な is colloquial, so na-adjective conjugation would generate poor forms.",
+   "action": "deleted"
+  },
+  {
+   "entry": "貴重",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "活発",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "愉快",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "快適",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "上品",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "頑固",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "不自由",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "公平",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "平等",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "無口",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "確実",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "透明",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "重大",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "深刻",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "容易",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "困難",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "窮屈",
+   "problem": "lv 3 is off; JLPT level is about N1",
+   "action": "lv 3 -> 1"
+  },
+  {
+   "entry": "穏やか",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "爽やか",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "鮮やか",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "滑らか",
+   "problem": "lv 3 is off; JLPT level is about N1",
+   "action": "lv 3 -> 1"
+  },
+  {
+   "entry": "華やか",
+   "problem": "lv 3 is off; JLPT level is about N1",
+   "action": "lv 3 -> 1"
+  },
+  {
+   "entry": "器用",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "不器用",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "生意気",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "異常",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "不自然",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "我儘",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  },
+  {
+   "entry": "呑気",
+   "problem": "lv 3 is off; JLPT level is about N2",
+   "action": "lv 3 -> 2"
+  }
+ ]
+}

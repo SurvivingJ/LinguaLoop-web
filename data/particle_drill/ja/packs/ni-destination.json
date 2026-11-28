@@ -1,0 +1,29 @@
+[
+ {"id":"ni-destination-1","lv":5,
+  "tpl":"<who>{は|wa-topic}<when><place>{に/へ|ni-destination}行[い]きました。",
+  "en":"<who> went to <place> <when>.",
+  "f":1,"d":["で","を","と"],
+  "why":"The place you go to is the destination of 行く, so it takes に (へ also works).",
+  "vars":{
+   "who":[["田中[たなか]さん","Mr. Tanaka"],["母[はは]","My mother"],["兄[あに]","My older brother"],["先生[せんせい]","Our teacher"],["鈴木[すずき]さん","Ms. Suzuki"],["友達[ともだち]","My friend"]],
+   "when":[["昨日[きのう]","yesterday"],["先週[せんしゅう]","last week"],["今朝[けさ]","this morning"],["先月[せんげつ]","last month"],["おととい","the day before yesterday"],["午後[ごご]","in the afternoon"]],
+   "place":[["図書館[としょかん]","the library"],["郵便局[ゆうびんきょく]","the post office"],["病院[びょういん]","the hospital"],["銀行[ぎんこう]","the bank"],["駅[えき]","the station"],["公園[こうえん]","the park"],["デパート","the department store"],["美術館[びじゅつかん]","the art museum"]]}},
+ {"id":"ni-destination-2","lv":5,
+  "tpl":"<who>{は|wa-topic}<when><place>{に/へ|ni-destination}来[き]ますか。",
+  "en":"Is <who> coming to <place> <when>?",
+  "f":1,"d":["で","を","が"],
+  "why":"The place someone comes to is the goal of 来る, so it takes に (へ also works).",
+  "vars":{
+   "who":[["田中[たなか]さん","Mr. Tanaka"],["山田[やまだ]さん","Ms. Yamada"],["先生[せんせい]","the teacher"],["鈴木[すずき]さん","Mr. Suzuki"],["佐藤[さとう]さん","Ms. Sato"],["お兄[にい]さん","your older brother"]],
+   "when":[["明日[あした]","tomorrow"],["今日[きょう]","today"],["来週[らいしゅう]","next week"],["あさって","the day after tomorrow"],["午後[ごご]","in the afternoon"],["朝[あさ]","in the morning"]],
+   "place":[["学校[がっこう]","school"],["会社[かいしゃ]","the office"],["教室[きょうしつ]","the classroom"],["うち","our house"],["駅[えき]","the station"],["病院[びょういん]","the hospital"],["図書館[としょかん]","the library"]]}},
+ {"id":"ni-destination-3","lv":4,
+  "tpl":"<when>、<country>{に/へ|ni-destination}<plan>。",
+  "en":"<when>, <plan> <country>.",
+  "f":0,"d":["を","が","と"],
+  "why":"The country you move or travel to is a destination, so it takes に (へ also works).",
+  "vars":{
+   "when":[["来年[らいねん]","Next year"],["来月[らいげつ]","Next month"],["再来月[さらいげつ]","The month after next"],["来週[らいしゅう]","Next week"],["年末[ねんまつ]","At the end of the year"],["再来年[さらいねん]","The year after next"]],
+   "country":[["アメリカ","the US"],["イギリス","the UK"],["フランス","France"],["ドイツ","Germany"],["カナダ","Canada"],["オーストラリア","Australia"],["韓国[かんこく]","Korea"],["中国[ちゅうごく]","China"]],
+   "plan":[["行[い]くつもりです","I'm planning to go to"],["引[ひ]っ越[こ]します","I'm moving to"],["留学[りゅうがく]します","I'm going to study in"],["行[い]きたいです","I want to go to"],["行[い]く予定[よてい]です","I'm scheduled to go to"],["行[い]きます","I'm going to"]]}}
+]

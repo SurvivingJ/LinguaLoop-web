@@ -1,0 +1,306 @@
+{
+ "group": "cn-logic",
+ "intro": "These connectors open a second sentence and name its logical job relative to the first. Before you choose, ask what the second sentence does to the first: does it give the reason for it (なぜなら), go against what it led you to expect (それなのに), follow from it as the next event or a response (すると, そこで, それなら), say it again in other words (つまり), or zoom in on an instance of it (たとえば, 特に)? Get the relation right and the family follows; register then picks the member.",
+ "skills": [
+  {
+   "id": "cn-nazenara",
+   "rule": "When the second sentence gives the reason for what you just said, open it with なぜなら (formal), というのは (explaining) or だって (casual), and close the reason with から or んです.",
+   "explain": "Japanese normally puts the reason first (熱がある。だから休む). These three reverse the order: the claim comes first, the reason follows. なぜなら is the written, argumentative one, and its sentence ends in からだ / からです (or のだ): この案には反対だ。なぜなら、費用がかかりすぎるからだ.\n\nというのは is the spoken, explanatory version, used when you add background to a statement you just made, typically ending in からです or んです. だって is casual and often defensive, a justification to someone close: ending in から, んだもん or もん. Do not use だって to a superior in a formal setting; it sounds childish.\n\nThe edge: if the second sentence is the result rather than the cause, you need だから / それで, not these. And in dialogue, answering どうして? directly takes ～からです or だって, not なぜなら. Note also that X というのは at the start of a sentence can mean 'what X means is'; here it is a connector standing alone.",
+   "patterns": [
+    "[claim]。なぜなら、[reason] からだ。",
+    "[claim]。というのは、[reason] からです / んです。",
+    "[claim]。だって、[reason] んだもん / から。"
+   ],
+   "examples": [
+    {
+     "jp": "「どうして食[た]べないの？」「{だって}、辛[から]すぎるんだもん。」",
+     "en": "\"Why aren't you eating?\" \"Because it's too spicy!\""
+    },
+    {
+     "jp": "今日[きょう]は早[はや]く帰[かえ]るね。{だって}、明日[あした]は朝[あさ]六時[ろくじ]に出発[しゅっぱつ]だから。",
+     "en": "I'm going home early today. After all, we leave at six tomorrow morning."
+    },
+    {
+     "jp": "明日[あした]の会議[かいぎ]には出[で]られません。{というのは}、朝[あさ]から出張[しゅっちょう]があるんです。",
+     "en": "I can't attend tomorrow's meeting. The thing is, I have a business trip from the morning."
+    },
+    {
+     "jp": "旅行[りょこう]は来月[らいげつ]に延期[えんき]しました。{というのは}、台風[たいふう]が来[く]るからです。",
+     "en": "We've postponed the trip to next month. That's because a typhoon is coming."
+    },
+    {
+     "jp": "この計画[けいかく]には反対[はんたい]です。{なぜなら}、費用[ひよう]がかかりすぎるからです。",
+     "en": "I'm against this plan, because it costs far too much."
+    }
+   ],
+   "contrast": [
+    {
+     "vs": "だから",
+     "note": "Same logic, opposite order. だから goes reason → result: 熱がある。だから休む. なぜなら goes result → reason: 休む。なぜなら熱があるからだ."
+    },
+    {
+     "vs": "すると",
+     "note": "すると reports what happened next. It says nothing about why the first sentence is true."
+    },
+    {
+     "vs": "ところが",
+     "note": "ところが introduces an unexpected turn of events, not an explanation."
+    }
+   ],
+   "mistakes": [
+    {
+     "bad": "雨[あめ]がひどかった。{なぜなら}、試合[しあい]は中止[ちゅうし]になった。",
+     "good": "雨[あめ]がひどかった。{だから}、試合[しあい]は中止[ちゅうし]になった。",
+     "note": "The cancellation is the result of the rain, not its reason, so the connector is だから."
+    },
+    {
+     "bad": "この案[あん]には反対[はんたい]です。{なぜなら}、費用[ひよう]が高[たか]いです。",
+     "good": "この案[あん]には反対[はんたい]です。{なぜなら}、費用[ひよう]が高[たか]いからです。",
+     "note": "The reason sentence must close with から(です) or のだ; なぜなら alone does not make it a reason."
+    },
+    {
+     "bad": "部長[ぶちょう]、明日[あした]は休[やす]ませてください。{だって}、病院[びょういん]に行[い]くんです。",
+     "good": "部長[ぶちょう]、明日[あした]は休[やす]ませてください。{というのは}、病院[びょういん]に行[い]かなければならないんです。",
+     "note": "だって is casual and sounds like a child's excuse to a superior; というのは explains politely."
+    }
+   ],
+   "tip": "Does the second sentence answer 'why?' about the first? Then it is the なぜなら family, and it ends in から or んです. Formal: なぜなら; explaining: というのは; casual: だって."
+  },
+  {
+   "id": "cn-sorenanoni",
+   "rule": "When the first sentence should have led to one thing and the second reports the opposite, use それなのに (a fact, with frustration or surprise), それでも (even so, still) or にもかかわらず (formal).",
+   "explain": "All three are a stronger, more specific 'but': the first sentence sets up an expectation and the second breaks it. 一生懸命勉強した。それなのに、落ちた.\n\nそれなのに carries the speaker's feeling: surprise, disappointment, blame. Its second sentence is a fact that has happened or is true. It cannot introduce the speaker's own intention, invitation, request or command.\n\nそれでも means 'even so, still': the result holds in spite of the first fact. It is calmer, and unlike それなのに it can introduce a will or a decision: 反対された。それでも行く.\n\nにもかかわらず (also それにもかかわらず) is the written, formal version, used in reports and news; it also attaches directly to a noun or clause (雨にもかかわらず). Plain contrast without a broken expectation is しかし / でも; an expected result is だから.",
+   "patterns": [
+    "[fact that should lead to X]。それなのに、[not X: fact]。",
+    "[obstacle]。それでも、[result holds / I will still]。",
+    "[fact]。(それ)にもかかわらず、[opposite fact]。 (formal)"
+   ],
+   "examples": [
+    {
+     "jp": "薬[くすり]を飲[の]みました。{それでも}、熱[ねつ]が下[さ]がりません。",
+     "en": "I took the medicine. Even so, my fever won't go down."
+    },
+    {
+     "jp": "一生懸命[いっしょうけんめい]勉強[べんきょう]した。{それなのに}、試験[しけん]に落[お]ちてしまった。",
+     "en": "I studied as hard as I could. And yet I failed the exam."
+    },
+    {
+     "jp": "何度[なんど]も説明[せつめい]しました。{それなのに}、彼[かれ]はまた同[おな]じミスをしました。",
+     "en": "I explained it many times. And still he made the same mistake again."
+    },
+    {
+     "jp": "家族[かぞく]には反対[はんたい]された。{それでも}、留学[りゅうがく]したい。",
+     "en": "My family was against it. Even so, I want to study abroad."
+    },
+    {
+     "jp": "台風[たいふう]が近[ちか]づいていた。{にもかかわらず}、多[おお]くの人[ひと]が海[うみ]で泳[およ]いでいた。",
+     "en": "A typhoon was approaching. Despite this, many people were swimming in the sea."
+    }
+   ],
+   "contrast": [
+    {
+     "vs": "だから",
+     "note": "だから gives the expected result: 勉強した。だから合格した. それなのに gives the opposite of what was expected."
+    },
+    {
+     "vs": "そのうえ",
+     "note": "そのうえ adds a second point in the same direction ('on top of that'); it never reverses."
+    },
+    {
+     "vs": "しかし / でも",
+     "note": "Plain 'but' for any contrast. それなのに / それでも say specifically that the first fact should have prevented the second."
+    }
+   ],
+   "mistakes": [
+    {
+     "bad": "雨[あめ]が降[ふ]っている。{それなのに}、出[で]かけよう。",
+     "good": "雨[あめ]が降[ふ]っている。{それでも}、出[で]かけよう。",
+     "note": "それなのに cannot introduce your own intention or invitation; それでも can."
+    },
+    {
+     "bad": "道[みち]がとても混[こ]んでいた。{それなのに}、会議[かいぎ]に遅[おく]れてしまった。",
+     "good": "道[みち]がとても混[こ]んでいた。{だから}、会議[かいぎ]に遅[おく]れてしまった。",
+     "note": "Being late is what heavy traffic leads to, so nothing is unexpected: だから."
+    }
+   ],
+   "tip": "'It should have worked, and it didn't (sigh)' → それなのに. 'Even so, still' or 'I'll do it anyway' → それでも. Formal writing → にもかかわらず."
+  },
+  {
+   "id": "cn-suruto",
+   "rule": "すると reports what happened next after an action; そこで introduces a deliberate step taken to deal with the situation; それなら answers what someone has just said with a suggestion or decision.",
+   "explain": "All three move the story forward from the first sentence, but in different ways.\n\nすると ('and then, whereupon'): after an action, it reports what then happened or was discovered, usually something outside the actor's control, in the past: ボタンを押した。すると、ドアが開いた. It also draws an inference from what you just heard: すると、昨日は家にいなかったんですね.\n\nそこで ('so, therefore'): the first sentence is a problem or situation, the second is a planned action someone chose in response: 客が減った。そこで、値段を下げた. A mere natural consequence is だから, not そこで.\n\nそれなら ('in that case'): a reply to the other person's words, followed by a suggestion, advice, request or decision. Casual: じゃあ, だったら. It does not report past events.",
+   "patterns": [
+    "[action]。すると、[what then happened]。",
+    "[problem / situation]。そこで、[deliberate response]。",
+    "「[what you said]」「それなら、[suggestion / decision]。」"
+   ],
+   "examples": [
+    {
+     "jp": "ボタンを押[お]した。{すると}、ドアが開[あ]いた。",
+     "en": "I pressed the button. Then the door opened."
+    },
+    {
+     "jp": "窓[まど]を開[あ]けました。{すると}、冷[つめ]たい風[かぜ]が入[はい]ってきました。",
+     "en": "I opened the window. When I did, a cold wind came in."
+    },
+    {
+     "jp": "「駅[えき]までの道[みち]がわかりません。」「{それなら}、地図[ちず]を書[か]きましょう。」",
+     "en": "\"I don't know the way to the station.\" \"In that case, I'll draw you a map.\""
+    },
+    {
+     "jp": "客[きゃく]が減[へ]ってきた。{そこで}、店[みせ]は値段[ねだん]を下[さ]げることにした。",
+     "en": "Customers were falling off. So the shop decided to lower its prices."
+    },
+    {
+     "jp": "会議室[かいぎしつ]が全部[ぜんぶ]使[つか]われていました。{そこで}、近[ちか]くのカフェで打[う]ち合[あ]わせをしました。",
+     "en": "All the meeting rooms were in use, so we held the meeting at a nearby café."
+    }
+   ],
+   "contrast": [
+    {
+     "vs": "だから",
+     "note": "だから links any cause to any result. そこで only introduces a chosen action; すると only reports what happened."
+    },
+    {
+     "vs": "しかし",
+     "note": "しかし marks a contrast. すると and そこで continue in the same direction."
+    },
+    {
+     "vs": "つまり",
+     "note": "つまり restates; it adds no new event. すると adds what happened next."
+    }
+   ],
+   "mistakes": [
+    {
+     "bad": "「雨[あめ]が降[ふ]ってきたよ。」「{すると}、傘[かさ]を持[も]っていこう。」",
+     "good": "「雨[あめ]が降[ふ]ってきたよ。」「{それなら}、傘[かさ]を持[も]っていこう。」",
+     "note": "Answering what someone said with a proposal takes それなら."
+    },
+    {
+     "bad": "道[みち]に迷[まよ]った。{すると}、近[ちか]くの人[ひと]に聞[き]いた。",
+     "good": "道[みち]に迷[まよ]った。{そこで}、近[ちか]くの人[ひと]に聞[き]いた。",
+     "note": "Asking someone is your planned response to the problem: そこで. すると would introduce something that just happened to you."
+    }
+   ],
+   "tip": "Did it just happen (すると), did someone choose to act because of it (そこで), or am I replying to your words (それなら)?"
+  },
+  {
+   "id": "cn-tsumari",
+   "rule": "When the second part says the same thing again in other words, use つまり (in other words), 要するに (in short, after a long explanation) or すなわち (namely, formal writing).",
+   "explain": "These add no new fact: they rephrase, define or sum up what came before. You could put an equals sign between the two parts.\n\nつまり is the all-purpose one, spoken and written. It clarifies (父の弟、つまり叔父) or states what something amounts to: つまり、しばらく会えないということです. It is common after a phrase as well as at the start of a sentence.\n\n要するに sums up a long or tangled explanation in one bottom line. It can sound impatient when you use it on someone else's words (要するに、やりたくないんでしょう).\n\nすなわち is formal and written: an exact equivalence, 'namely, that is'. It sounds stiff in casual talk.\n\nThe edge: if the second sentence is a consequence (a new fact), you need だから. If it is one instance of the first, you need たとえば.",
+   "patterns": [
+    "[A]、つまり [A in other words]",
+    "[long explanation]。要するに、[bottom line]。",
+    "[A]、すなわち [exact equivalent] (formal)"
+   ],
+   "examples": [
+    {
+     "jp": "父[ちち]の弟[おとうと]、{つまり}叔父[おじ]が来[き]ました。",
+     "en": "My father's younger brother, in other words my uncle, came."
+    },
+    {
+     "jp": "彼女[かのじょ]は来月[らいげつ]から一年間[いちねんかん]海外[かいがい]です。{つまり}、しばらく会[あ]えないということです。",
+     "en": "She's abroad for a year from next month. In other words, we won't see her for a while."
+    },
+    {
+     "jp": "色々[いろいろ]説明[せつめい]しましたが、{要[よう]するに}、お金[かね]が足[た]りないんです。",
+     "en": "I've explained a lot, but in short, we don't have enough money."
+    },
+    {
+     "jp": "長[なが]い話[はなし]だったけど、{要[よう]するに}、彼[かれ]は会社[かいしゃ]を辞[や]めたいらしい。",
+     "en": "It was a long story, but basically he seems to want to quit the company."
+    },
+    {
+     "jp": "次[つぎ]の会議[かいぎ]は来月[らいげつ]の第一[だいいち]月曜日[げつようび]、{すなわち}五日[いつか]に行[おこな]われます。",
+     "en": "The next meeting will be held on the first Monday of next month, namely the fifth."
+    }
+   ],
+   "contrast": [
+    {
+     "vs": "だから",
+     "note": "だから adds a consequence: 熱がある。だから休む. つまり only says the first part again: 熱がある。つまり、病気だ."
+    },
+    {
+     "vs": "たとえば",
+     "note": "たとえば gives one instance of the category; つまり restates the whole of it."
+    },
+    {
+     "vs": "ところで",
+     "note": "ところで changes the subject. つまり stays on exactly the same point."
+    }
+   ],
+   "mistakes": [
+    {
+     "bad": "熱[ねつ]があった。{つまり}、学校[がっこう]を休[やす]んだ。",
+     "good": "熱[ねつ]があった。{だから}、学校[がっこう]を休[やす]んだ。",
+     "note": "Staying home is a consequence of the fever, not the fever said again: だから."
+    },
+    {
+     "bad": "話[はなし]が長[なが]くなったけど、{すなわち}、行[い]きたくないんだよね。",
+     "good": "話[はなし]が長[なが]くなったけど、{要[よう]するに}、行[い]きたくないんだよね。",
+     "note": "すなわち is formal writing; a casual bottom line after a long explanation is 要するに."
+    }
+   ],
+   "tip": "Could you put '=' between the two parts? Then it is this family: つまり by default, 要するに for the bottom line, すなわち in formal writing."
+  },
+  {
+   "id": "cn-tatoeba",
+   "rule": "To give a sample of what you just named, use たとえば; to single out the member that stands out most, use 特に (とりわけ in formal writing).",
+   "explain": "Both zoom in from a general statement to something narrower, but they do different jobs.\n\nたとえば ('for example') picks one or more ordinary instances to illustrate a category; the list often ends in や ... など or とか: 温泉が多い。たとえば、箱根や別府が有名です. It also introduces a suggestion: たとえば、水泳はどうですか.\n\n特に ('especially, in particular') picks out the member that is more true than the rest: 野菜が好きです。特に、トマトをよく食べます. It also works inside a sentence before the predicate (特に好きです), and with a negative it means 'nothing in particular': 特に問題はありません.\n\nとりわけ means the same as 特に but is more emphatic and written, 'above all'.\n\nThe edge: たとえば says 'one of many', 特に says 'the most'. If you are restating the whole category, use つまり.",
+   "patterns": [
+    "[category]。たとえば、[instance] や [instance] (など)。",
+    "[general statement]。特に、[the outstanding member]。",
+    "[general statement]が、とりわけ [the outstanding member]。 (formal)"
+   ],
+   "examples": [
+    {
+     "jp": "野菜[やさい]が好[す]きです。{特[とく]に}、トマトをよく食[た]べます。",
+     "en": "I like vegetables. I eat tomatoes especially often."
+    },
+    {
+     "jp": "今年[ことし]の冬[ふゆ]は寒[さむ]い。{特[とく]に}、朝[あさ]が冷[ひ]える。",
+     "en": "This winter is cold. The mornings are especially chilly."
+    },
+    {
+     "jp": "何[なに]かスポーツをしたほうがいいですよ。{たとえば}、水泳[すいえい]はどうですか。",
+     "en": "You should take up a sport. Swimming, for example?"
+    },
+    {
+     "jp": "日本[にほん]には温泉[おんせん]が多[おお]いです。{たとえば}、箱根[はこね]や別府[べっぷ]が有名[ゆうめい]です。",
+     "en": "Japan has many hot springs. For example, Hakone and Beppu are famous."
+    },
+    {
+     "jp": "この町[まち]は一年中[いちねんじゅう]観光客[かんこうきゃく]が多[おお]いが、{とりわけ}夏[なつ]は混雑[こんざつ]する。",
+     "en": "This town has many tourists all year, but above all it is crowded in summer."
+    }
+   ],
+   "contrast": [
+    {
+     "vs": "つまり",
+     "note": "つまり restates the whole point; たとえば gives only a sample of it."
+    },
+    {
+     "vs": "たとえば / 特に",
+     "note": "Same list, different claim: 果物が好き。たとえば、りんご = apples are one of them; 特に、りんご = apples most of all."
+    },
+    {
+     "vs": "しかし",
+     "note": "しかし introduces a contrast; たとえば and 特に stay with the same point and narrow it."
+    }
+   ],
+   "mistakes": [
+    {
+     "bad": "果物[くだもの]は何[なん]でも好[す]きですが、{たとえば}、りんごが一番[いちばん]好[す]きです。",
+     "good": "果物[くだもの]は何[なん]でも好[す]きですが、{特[とく]に}、りんごが好[す]きです。",
+     "note": "The one you like most is singled out, not sampled: 特に."
+    },
+    {
+     "bad": "日本料理[にほんりょうり]が好[す]きです。{つまり}、寿司[すし]や天[てん]ぷらが好[す]きです。",
+     "good": "日本料理[にほんりょうり]が好[す]きです。{たとえば}、寿司[すし]や天[てん]ぷらが好[す]きです。",
+     "note": "Sushi and tempura are examples of Japanese food, not the whole category restated."
+    }
+   ],
+   "tip": "'Such as' → たとえば; 'especially' → 特に (とりわけ in writing). One of many, or the most?"
+  }
+ ]
+}

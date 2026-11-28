@@ -1,46 +1,16 @@
-{% extends "base.html" %}
-{% set defer_base_scripts = true %}
-{% set page_js = module_assets('js/pages', 'grammar-drill.js') %}
-{# One task per screen (FOUNDATION.md): Back pill header, each screen a scrolling
-   stage with its actions in a pinned dock. The Back pill steps drill -> topic
-   -> hub (static/js/grammar/app.js) and leaves the page from the hub. #}
-{% set task_mode = true %}
-{% set task_back = 'history' %}
-
-{% block title %}Grammar Drills | LinguaDojo{% endblock %}
-
-{% block body_class %}bg-slate-50 trainer-page{% endblock %}
-
-{% block task_back_href %}{{ url_for('profile') }}{% endblock %}
-{% block task_title %}<span data-i18n="grammar_drill.title">Grammar Drills</span>{% endblock %}
-{% block task_glyph %}法{% endblock %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/redesign/grammar.css') }}">
-{# The page is an ES-module app (page_js.entry -> js/grammar/app.js). The import
-   map gives every relative import its ?v= URL: the grammar modules (and the
-   optional generators, loaded with import()) plus js/session for dom.js. #}
-{% set _imports = dict(module_assets('js/session').import_map.imports, **module_assets('js/grammar').import_map.imports) %}
-<script type="importmap">{{ {'imports': _imports}|tojson }}</script>
-{% for href in page_js.preload %}<link rel="modulepreload" href="{{ href }}">
-{% endfor %}
-{% endblock %}
-
-{% block content %}
-{# Content is static JSON built by scripts/grammar_drills.py; the manifest URL
-   is versioned here and names each topic file's version. #}
-{# The generators module is optional. Its URL carries ?v= only when the file
-   exists; without it nothing is imported (no failed request in the console). #}
-{% set _gen = url_for('static', filename='js/grammar/generators/index.js') %}
-{# data-language-id: Chinese (services/drill_service.ZH_LANGUAGE_ID), for the
-   progress tracking calls (/api/grammar-drill, static/js/grammar/sync.js). #}
-<div id="grammarRoot" class="trainer-host" lang="zh" data-language-id="1"
-     data-manifest="{{ url_for('static', filename='data/grammar/zh/manifest.json') }}"
-     data-generators="{{ _gen if '?v=' in _gen else '' }}">
-    <div class="ld-screen gd"><div class="ld-stage"><div class="gd-msg" data-i18n="grammar_drill.loading">Loading…</div></div></div>
-</div>
-{% endblock %}
-
-{% block extra_js %}
-<script type="module" src="{{ page_js.entry }}"></script>
-{% endblock %}
+{# /grammar-drill without a language: each study language has its own page
+   (/grammar-drill/zh, /grammar-drill/ja). The script sends the browser to the
+   page of its study language; without a script, the two links below. #}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grammar Drills | LinguaDojo</title>
+    <script src="{{ url_for('static', filename='js/pages/grammar-drill-redirect.js') }}"></script>
+</head>
+<body>
+    <p><a href="{{ url_for('grammar_drill_zh_page') }}" lang="zh">中文 Grammar drills</a></p>
+    <p><a href="{{ url_for('grammar_drill_ja_page') }}" lang="ja">日本語 Grammar drills</a></p>
+</body>
+</html>
