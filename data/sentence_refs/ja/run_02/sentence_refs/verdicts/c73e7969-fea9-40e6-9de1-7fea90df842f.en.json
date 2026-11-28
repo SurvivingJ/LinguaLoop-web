@@ -1,33 +1,34 @@
 {
-  "test_id": "c73e7969-fea9-40e6-9de1-7fea90df842f",
-  "l1": "en",
-  "sentences": [
-    {
-      "idx": 0,
-      "verdict": "pending",
-      "entailment_ok": null,
-      "changed": false,
-      "notes": "",
-      "tightness": 0.8235,
-      "back_translation": "手作りのアクセサリーを売りたい人は、まずオンラインビジネスを始める。"
-    },
-    {
-      "idx": 1,
-      "verdict": "pending",
-      "entailment_ok": null,
-      "changed": false,
-      "notes": "",
-      "tightness": 0.5714,
-      "back_translation": "きれいな写真を撮って、ネットで売る。"
-    },
-    {
-      "idx": 2,
-      "verdict": "pending",
-      "entailment_ok": null,
-      "changed": false,
-      "notes": "",
-      "tightness": 0.9538,
-      "back_translation": "そして、たくさんの人に見てもらうために、SNSでマーケティングをする。"
-    }
-  ]
+ "test_id": "c73e7969-fea9-40e6-9de1-7fea90df842f",
+ "l1": "en",
+ "reviewer_model": "claude-opus-5-5",
+ "sentences": [
+  {
+   "idx": 0,
+   "verdict": "pass",
+   "entailment_ok": true,
+   "changed": false,
+   "notes": "",
+   "tightness": 0.8235,
+   "back_translation": "手作りのアクセサリーを売りたい人は、まずオンラインビジネスを始める。"
+  },
+  {
+   "idx": 1,
+   "verdict": "pass",
+   "entailment_ok": true,
+   "changed": false,
+   "notes": "low tightness: きれいな写真を撮って/売る vs gold 写真をきれいにとって/販売; same meaning.",
+   "tightness": 0.5714,
+   "back_translation": "きれいな写真を撮って、ネットで売る。"
+  },
+  {
+   "idx": 2,
+   "verdict": "pass",
+   "entailment_ok": true,
+   "changed": false,
+   "notes": "",
+   "tightness": 0.9538,
+   "back_translation": "そして、たくさんの人に見てもらうために、SNSでマーケティングをする。"
+  }
+ ]
 }

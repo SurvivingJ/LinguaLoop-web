@@ -1,29 +1,30 @@
 {
   "test_id": "bfb1c906-03bd-4328-b7d7-98be909dee54",
   "l1": "en",
+  "reviewer_model": "claude-opus-5-5",
   "sentences": [
     {
       "idx": 0,
-      "verdict": "pending",
-      "entailment_ok": null,
+      "verdict": "pass",
+      "entailment_ok": true,
       "changed": false,
-      "notes": "",
+      "notes": "'how money moves' vs 動かし方 (how money is moved) is close enough; 国 rendered as 'the government' is natural.",
       "tightness": 0.7,
       "back_translation": "政府は、お金の動きを決める金融政策を行う。"
     },
     {
       "idx": 1,
-      "verdict": "pending",
-      "entailment_ok": null,
-      "changed": false,
-      "notes": "",
+      "verdict": "rewritten",
+      "entailment_ok": true,
+      "changed": true,
+      "notes": "'it' read as the debt doing the spending; gold's implied subject is the state (国), so named it.",
       "tightness": 0.7119,
       "back_translation": "国債、つまり借りたお金が多いと、市場にたくさんのお金を入れる。"
     },
     {
       "idx": 2,
-      "verdict": "pending",
-      "entailment_ok": null,
+      "verdict": "pass",
+      "entailment_ok": true,
       "changed": false,
       "notes": "",
       "tightness": 0.8163,

@@ -1,11 +1,12 @@
 {
   "test_id": "631531cd-f6af-4fdc-b21e-96c17456cb27",
   "l1": "en",
+  "reviewer_model": "claude-opus-5-5",
   "sentences": [
     {
       "idx": 0,
-      "verdict": "pending",
-      "entailment_ok": null,
+      "verdict": "pass",
+      "entailment_ok": true,
       "changed": false,
       "notes": "",
       "tightness": 0.9231,
@@ -13,8 +14,8 @@
     },
     {
       "idx": 1,
-      "verdict": "pending",
-      "entailment_ok": null,
+      "verdict": "pass",
+      "entailment_ok": true,
       "changed": false,
       "notes": "",
       "tightness": 0.7018,
@@ -22,10 +23,10 @@
     },
     {
       "idx": 2,
-      "verdict": "pending",
-      "entailment_ok": null,
+      "verdict": "pass",
+      "entailment_ok": true,
       "changed": false,
-      "notes": "",
+      "notes": "Low tightness is word order (これは経済学で) and kana/kanji choice; meaning matches.",
       "tightness": 0.5909,
       "back_translation": "経済学では、これは市場の価格が変わる仕組みです。"
     }

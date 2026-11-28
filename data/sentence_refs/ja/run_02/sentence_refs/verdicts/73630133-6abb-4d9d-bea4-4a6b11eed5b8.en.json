@@ -1,29 +1,30 @@
 {
   "test_id": "73630133-6abb-4d9d-bea4-4a6b11eed5b8",
   "l1": "en",
+  "reviewer_model": "claude-opus-5-5",
   "sentences": [
     {
       "idx": 0,
-      "verdict": "pending",
-      "entailment_ok": null,
-      "changed": false,
-      "notes": "",
+      "verdict": "rewritten",
+      "entailment_ok": true,
+      "changed": true,
+      "notes": "Gold name is ゆうき; 'Yuki' reads as ゆき (a different name used elsewhere in the run); rewritten to standard Hepburn 'Yūki'.",
       "tightness": 0.9388,
       "back_translation": "メイカースペースで、ゆきは3Dプリントをしました。"
     },
     {
       "idx": 1,
-      "verdict": "pending",
-      "entailment_ok": null,
+      "verdict": "pass",
+      "entailment_ok": true,
       "changed": false,
-      "notes": "",
+      "notes": "Gold omits the subject; 'He' is required by English and consistent with the male name ゆうき.",
       "tightness": 0.7907,
       "back_translation": "コンピューターでデザインを描いて、機械に送ります。"
     },
     {
       "idx": 2,
-      "verdict": "pending",
-      "entailment_ok": null,
+      "verdict": "pass",
+      "entailment_ok": true,
       "changed": false,
       "notes": "",
       "tightness": 0.96,
@@ -31,8 +32,8 @@
     },
     {
       "idx": 3,
-      "verdict": "pending",
-      "entailment_ok": null,
+      "verdict": "pass",
+      "entailment_ok": true,
       "changed": false,
       "notes": "",
       "tightness": 0.8,
