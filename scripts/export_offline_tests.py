@@ -66,11 +66,14 @@ ANGLES = (
 LANG_IDS = {'zh': 1, 'en': 2, 'ja': 3}
 
 
-def angle_instruction(angle: str) -> str:
-    return (
+def angle_instruction(angle: str, note: str = '') -> str:
+    text = (
         f'\n\nWrite this passage as {angle}. Keep to the topic, the level and '
         'the length given above.'
     )
+    if note:
+        text += f'\n{note.strip()}'
+    return text
 
 
 def slot_key(topic_id: str, tier: int, variant: int = 0) -> str:
@@ -220,7 +223,7 @@ def run_shard(args) -> int:
             ok = orch._generate_test(
                 topic=topic, lang_config=lang_config, category_name=category_name,
                 tier_id=slot['tier'], test_type=args.type, dry_run=True,
-                prose_extra_instruction=angle_instruction(slot['angle']),
+                prose_extra_instruction=angle_instruction(slot['angle'], args.prose_note),
                 export_sink=captured.append,
             )
         except JudgeUnavailable:
@@ -341,6 +344,8 @@ def main(argv=None) -> int:
     p.add_argument('--workers', type=int, default=2)
     p.add_argument('--exclude-bundle', action='append', default=[],
                    help='earlier bundle dir whose slots and passages to skip (repeatable)')
+    p.add_argument('--prose-note', default='',
+                   help='extra instruction appended to every prose prompt (e.g. a target exam level)')
     p.add_argument('--variant', type=int, default=0,
                    help='N > 0: extra slots <topic>:T<tier>:vN for pairs already used')
     p.add_argument('--angle-offset', type=int, default=0,

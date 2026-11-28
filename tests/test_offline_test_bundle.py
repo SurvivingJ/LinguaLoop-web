@@ -215,3 +215,9 @@ def test_variant_slots_have_distinct_keys():
                          exclude=frozenset(s['key'] for s in base))
     assert [s['key'] for s in v2] == ['a:T1:v2', 'a:T2:v2']
     assert exp.slot_key('a', 3) == 'a:T3'
+
+
+def test_angle_instruction_appends_note():
+    text = exp.angle_instruction(exp.ANGLES[0], ' Use HSK 7-9 vocabulary. ')
+    assert text.endswith('\nUse HSK 7-9 vocabulary.')
+    assert exp.angle_instruction(exp.ANGLES[0]).endswith('length given above.')
