@@ -29,6 +29,7 @@
     <script type="application/json" id="lingua-boot">{{ {'metadata': lingua_metadata, 'i18nVersions': i18n_versions, 'apiBase': url_for('index')}|tojson }}</script>
     {% if i18n_versions.get('en') %}<link rel="preload" as="fetch" crossorigin href="/static/i18n/en.json?v={{ i18n_versions['en'] }}">{% endif %}
     {# Synchronous on purpose: theme before first paint, session renewal before any page request. #}
+    <script src="{{ url_for('static', filename='js/language-registry.js') }}"></script>
     <script src="{{ url_for('static', filename='js/pages/base-head.js') }}"></script>
 
     <link rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap-5.3.2/css/bootstrap.min.css') }}">
