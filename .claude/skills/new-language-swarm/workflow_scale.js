@@ -17,6 +17,8 @@ export const meta = {
 // work (every key optional):
 //   lexicon:   {start, end, chunk, firstFile}            candidate ranks -> lexicon_NN.jsonl
 //   guides:    [slug, ...]
+//   guideReviews: [[slug, ...], ...]                      reviewer per group of guides
+//   dictInputs: [{key, first, last}]                      files whose .in.json exists (dict-inputs), in parallel
 //   senses:    {first, last}                              write_NNN.in.json must exist (sense-batches)
 //   dicts:     [{key, firstFile, files, rows}]            files of one key run one after another
 //   drills:    [{slug, first, last, items}]               batch numbers first..last
@@ -83,6 +85,24 @@ if (W.lexicon) {
 for (const slug of W.guides || []) {
   jobs.push(() => run('guide', 'Guides', `guide ${slug}`, 'guide-writer',
     `Write ${PACK}/grammar/guides/${slug}.json for the topic "${slug}".`, M.lead))
+}
+
+for (const g of W.guideReviews || []) {
+  jobs.push(() => run('guide-review', 'Guides', `review guides ${g[0]}…`, 'guide-reviewer',
+    `Review and correct these guides: ${g.map(x => `${PACK}/grammar/guides/${x}.json`).join(', ')}.`, M.reviewer))
+}
+
+for (const d of W.dictInputs || []) {
+  for (const i of seq(d.first, d.last)) {
+    const f = `${d.key}_${nn(i)}`
+    jobs.push(() => pair('dictionary', 'Dictionaries', f,
+      { role: 'dictionary-author', task: `Write the dictionary "${d.key}" rows for exactly the headwords listed in ${PACK}/dictionaries/${f}.in.json ` +
+          `(one row per headword, in that order) to ${PACK}/dictionaries/${f}.jsonl. Leave out a headword only when the profile's rules ` +
+          `exclude it or it is not a word of this class, and say which in your report. Do not add other words. Validate your own file: ` +
+          `run "${TOOL} validate-dict ${lang} ${d.key}" and fix what is reported for ${f}.jsonl; ignore lines about other files being written now.` },
+      { role: 'dictionary-reviewer', task: `Review ${PACK}/dictionaries/${f}.jsonl; write ${PACK}/dictionaries/reviewed/${f}.jsonl and its verdict file. ` +
+          `Other reviewed files of this table are being written now: fix what "validate-dict ${lang} ${d.key} --reviewed" reports for your file only.` }))
+  }
 }
 
 if (W.senses) {

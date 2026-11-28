@@ -1054,6 +1054,49 @@ def cmd_validate_dict(a):
     return report(P(a.lang, *where), errs, n_rows, 'rows')
 
 
+def cmd_dict_inputs(a):
+    """Cut the lexicon words of a dictionary's part of speech, most frequent first, into author input files.
+
+    Writes dictionaries/<key>_NN.in.json (lists of {lemma, pos, level, hint}) for words not yet a headword of the
+    table, so parallel authors never take the same word.
+    """
+    prof = load_profile(a.lang)
+    spec = dict_spec(prof, a.key)
+    wanted = {p.strip() for p in str(spec.get('source_pos') or '').split(',') if p.strip()}
+    head = (spec.get('unique') or ['lemma'])[0]
+    have, last = set(), 0
+    d = P(a.lang, 'dictionaries')
+    for name in sorted(os.listdir(d)):
+        m = re.match(rf'^{re.escape(a.key)}_(\d+)\.(jsonl|in\.json)$', name)
+        if not m:
+            continue
+        last = max(last, int(m.group(1)))
+        path = os.path.join(d, name)
+        if name.endswith('.jsonl'):
+            have |= {str(o.get(head)).lower() for _, o, e in read_jsonl(path) if not e and isinstance(o, dict)}
+        else:
+            have |= {w['lemma'].lower() for w in load_json(path)}
+    rows = [o for _, _, o, e in lexicon_rows(a.lang) if not e and isinstance(o, dict) and not o.get('drop')
+            and o.get('pos') in wanted and str(o.get('lemma')).lower() not in have]
+    rows.sort(key=lambda o: -float(o.get('zipf') or 0))
+    seen, todo = set(), []
+    for o in rows:
+        if o['lemma'].lower() not in seen:
+            seen.add(o['lemma'].lower())
+            todo.append(o)
+    todo = todo[:a.limit] if a.limit else todo
+    names = []
+    for i in range(0, len(todo), a.rows):
+        last += 1
+        name = f'{a.key}_{last:02d}.in.json'
+        with open(os.path.join(d, name), 'w', encoding='utf-8') as fh:
+            json.dump([{k: o.get(k) for k in ('lemma', 'pos', 'level', 'hint')} for o in todo[i:i + a.rows]], fh,
+                      ensure_ascii=False, indent=1)
+        names.append(name)
+    print(json.dumps({'files': names, 'words': len(todo)}))
+    return 0
+
+
 # --------------------------------------------------------------------------
 # fat-seed documents: shape only (the real validator is scripts/fat_seed_runner.py check, which needs
 # the language's prompt templates and capability rows in the database)
@@ -1724,6 +1767,8 @@ def main(argv=None):
     add('tests-compare', cmd_tests_compare, path, tag, (('--cold-only',), {'action': 'store_true'}))
     add('tests-export', cmd_tests_export)
     add('lexicon-dedupe', cmd_lexicon_dedupe)
+    add('dict-inputs', cmd_dict_inputs, (('key',), {}), (('--rows',), {'type': int, 'default': 100}),
+        (('--limit',), {'type': int, 'default': 0}))
     add('archive', cmd_archive)
     add('unarchive', cmd_unarchive, (('--force',), {'action': 'store_true'}))
     add('status', cmd_status, (('--json',), {'action': 'store_true'}))
