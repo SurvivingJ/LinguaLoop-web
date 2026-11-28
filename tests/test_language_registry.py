@@ -61,7 +61,7 @@ def test_features():
     with pytest.raises(KeyError):
         lr.ids_with('no_such_feature')
     with pytest.raises(ValueError):
-        lr.Language(id=9, code='xx', name='x', display='X', native_name='X', locale='xx', flag='', script='latin',
+        lr.Language(id=9, code='xx', name='x', display='X', native_name='X', locale='xx', flag='', glyph='X', script='latin',
                     features=frozenset({'nope'}))
 
 
@@ -84,10 +84,10 @@ def test_config_reads_the_registry():
 
 def test_duplicate_ids_and_codes_are_refused():
     zh = lr.get(1)
-    twin = lr.Language(id=1, code='xx', name='x', display='X', native_name='X', locale='xx', flag='', script='latin')
+    twin = lr.Language(id=1, code='xx', name='x', display='X', native_name='X', locale='xx', flag='', glyph='X', script='latin')
     with pytest.raises(ValueError, match='id 1'):
         lr._check([zh, twin])
-    clash = lr.Language(id=9, code='cn', name='x', display='X', native_name='X', locale='xx', flag='', script='latin')
+    clash = lr.Language(id=9, code='cn', name='x', display='X', native_name='X', locale='xx', flag='', glyph='X', script='latin')
     with pytest.raises(ValueError, match="'cn'"):
         lr._check([zh, clash])
 

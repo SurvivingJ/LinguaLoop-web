@@ -255,9 +255,9 @@
                 <div class="modal-body">
                     <p class="text-muted mb-3" data-i18n="native_prompt.body">We'll explain new words in this language. You can change it any time in your profile.</p>
                     <div class="d-grid gap-2">
-                        <button type="button" class="btn btn-outline-primary" data-native-lang="2">English</button>
-                        <button type="button" class="btn btn-outline-primary" data-native-lang="1" lang="zh">中文</button>
-                        <button type="button" class="btn btn-outline-primary" data-native-lang="3" lang="ja">日本語</button>
+                        {% for l in native_language_choices %}
+                        <button type="button" class="btn btn-outline-primary" data-native-lang="{{ l.id }}"{% if l.code != 'en' %} lang="{{ l.code }}"{% endif %}>{{ l.native_name }}</button>
+                        {% endfor %}
                     </div>
                 </div>
                 <div class="modal-footer border-0">

@@ -55,6 +55,7 @@ class Language:
     native_name: str              # the language's own name ('中文')
     locale: str                   # BCP 47 tag for TTS, fonts and the html lang attribute
     flag: str
+    glyph: str                    # one character shown on the language's seal and cards
     script: str                   # CJK or LATIN
     status: str = ACTIVE
     legacy_codes: tuple = ()      # codes older rows and clients still send ('cn', 'jp')
@@ -104,7 +105,7 @@ class Language:
 _REGISTRY: tuple = (
     Language(
         id=1, code='zh', name='chinese', display='Chinese', native_name='中文',
-        locale='zh-CN', flag='🇨🇳', script=CJK, legacy_codes=('cn',),
+        locale='zh-CN', flag='🇨🇳', glyph='中', script=CJK, legacy_codes=('cn',),
         wordfreq='zh', langdetect=('zh-cn', 'zh-tw', 'zh'),
         web_font_sans='Noto+Sans+SC:wght@400;500;700', web_font_serif='Noto+Serif+SC:wght@500;700',
         features=frozenset({'pinyin', 'tones', 'traditional_variants', 'classifier_drill', 'grammar_drills',
@@ -112,12 +113,12 @@ _REGISTRY: tuple = (
     ),
     Language(
         id=2, code='en', name='english', display='English', native_name='English',
-        locale='en-US', flag='🇺🇸', script=LATIN,
+        locale='en-US', flag='🇺🇸', glyph='E', script=LATIN,
         wordfreq='en', langdetect=('en',),
     ),
     Language(
         id=3, code='ja', name='japanese', display='Japanese', native_name='日本語',
-        locale='ja-JP', flag='🇯🇵', script=CJK, legacy_codes=('jp',),
+        locale='ja-JP', flag='🇯🇵', glyph='日', script=CJK, legacy_codes=('jp',),
         wordfreq='ja', langdetect=('ja',),
         web_font_sans='Noto+Sans+JP:wght@400;500;700', web_font_serif='Noto+Serif+JP:wght@500;700',
         features=frozenset({'furigana', 'pitch_accent', 'particles', 'counter_drill',
@@ -126,7 +127,7 @@ _REGISTRY: tuple = (
     # Content pack in data/language_packs/it/; not selectable until its wiring tasks are done.
     Language(
         id=4, code='it', name='italian', display='Italian', native_name='Italiano',
-        locale='it-IT', flag='🇮🇹', script=LATIN, status=PLANNED,
+        locale='it-IT', flag='🇮🇹', glyph='I', script=LATIN, status=PLANNED,
         wordfreq='it', langdetect=('it',),
     ),
 )
@@ -265,6 +266,17 @@ def token_joiner(ref: LanguageRef) -> str:
     return lang.token_joiner if lang else ' '
 
 
+def needs_ime(ref: LanguageRef) -> bool:
+    lang = find(ref, include_planned=True)
+    return bool(lang and lang.needs_ime)
+
+
+def native_language_choices(default_code: str = 'en') -> list:
+    """Active languages for a "what is your native language" picker: the default first, then id order."""
+    langs = all_languages()
+    return [x for x in langs if x.code == default_code] + [x for x in langs if x.code != default_code]
+
+
 def script_family(ref: LanguageRef) -> str:
     """'cjk' / 'latin'; '' for an unknown language."""
     lang = find(ref, include_planned=True)
@@ -290,7 +302,7 @@ def browser_payload() -> dict:
     """What static/js/language-registry.js carries. Planned languages are included and marked."""
     return {'languages': [
         {'id': lang.id, 'code': lang.code, 'name': lang.display, 'nativeName': lang.native_name,
-         'locale': lang.locale, 'flag': lang.flag, 'script': lang.script, 'spaced': lang.spaced,
+         'locale': lang.locale, 'flag': lang.flag, 'glyph': lang.glyph, 'script': lang.script, 'spaced': lang.spaced,
          'active': lang.is_active, 'legacyCodes': list(lang.legacy_codes),
          'fontSans': lang.web_font_sans, 'fontSerif': lang.web_font_serif,
          'features': sorted(lang.features)}
