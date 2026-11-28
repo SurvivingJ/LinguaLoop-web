@@ -1623,7 +1623,7 @@ Full spec: [[tasklist/grammar-drills.tasks]]. Feature: [[features/grammar-drills
 | TASK-1256 | grammar-drills | Drill content authored, blind-reviewed and built (105 batches, 10,209 items) | Done | XL | TASK-1254, TASK-1255 |
 | TASK-1257 | grammar-drills | `/grammar-drill` page: engine, four-stage ladder, local progress, i18n, profile link | Done | XL | TASK-1254 |
 | TASK-1258 | grammar-drills | Infinite-practice generators (22 generators, 13 topics) and Endless mode | Done | L | TASK-1257 |
-| TASK-1259 | grammar-drills | Track grammar-drill progress on the server (daily summaries + state row; ADR-066) — migration applied live 2026-11-28 | [x] | L | — |
+| TASK-1259 | grammar-drills | Track grammar-drill progress on the server (daily summaries + state row; ADR-066) — repo 2026-11-27; migration applied to the live project 2026-11-28 | [x] | L | — |
 | TASK-1260 | grammar-drills | Decide whether grammar drills join the Study Plan / daily session and feed ELO | [?] | XL | TASK-1259 |
 | TASK-1261 | grammar-drills | Native-speaker audit of the drill content | [ ] | XL | — |
 | TASK-1262 | grammar-drills | Decide the languages for guide and explanation text | [?] | XL | — |
