@@ -1,0 +1,43 @@
+{
+  "test_id": "d71cadf7-6639-4386-8fde-51ac5ea4ee5d",
+  "l1": "en",
+  "reviewer_model": "claude-sonnet-5-5",
+  "sentences": [
+    {
+      "idx": 0,
+      "verdict": "rewritten",
+      "entailment_ok": true,
+      "changed": true,
+      "notes": "name reading ゆうき (Yuuki, not Yuki); gold has no gender, so 'her' removed; 10代 kept as 10s",
+      "tightness": 0.7368,
+      "back_translation": "昨日、十代のゆきさんは初めてみんなの前で詩を朗読しました。"
+    },
+    {
+      "idx": 1,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.9231,
+      "back_translation": "それはスポークンワードのパフォーマンスです。"
+    },
+    {
+      "idx": 2,
+      "verdict": "rewritten",
+      "entailment_ok": true,
+      "changed": true,
+      "notes": "name reading ゆうき; gender-neutral subject",
+      "tightness": 0.8163,
+      "back_translation": "ゆきさんは緊張していましたが、大きな声で読みました。"
+    },
+    {
+      "idx": 3,
+      "verdict": "pass",
+      "entailment_ok": true,
+      "changed": false,
+      "notes": "",
+      "tightness": 0.8571,
+      "back_translation": "最後に、みんなが大きな拍手をしました。"
+    }
+  ]
+}
