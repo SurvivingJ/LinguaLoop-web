@@ -164,6 +164,17 @@ def test_missing_numbers_compares_values_not_digit_strings():
     assert m('20世纪70年代', 'the 1970s') == []
     assert m('20世纪70年代', 'the 1870s') == ['20', '70']
     assert m('20世纪', 'in the 19th century') == ['20']
+    # ages and decades as words (developer 2026-11-28: 10代 is "teens")
+    assert m('10代のゆうきさん', 'Yuki, a teenager') == []
+    assert m('10代の男の子', 'a teenage boy') == []
+    assert m('10代の男の子', 'a boy in his teens') == []
+    assert m('10代の男の子', 'a boy in his 10s') == []
+    assert m('20代の女性', 'a woman in her twenties') == []
+    assert m('20代の女性', 'a woman in her thirties') == ['20']
+    assert m('10代の男の子', 'a boy in his twenties') == ['10']
+    assert m('70年代の音楽', 'music of the seventies') == []
+    assert m('70年代の音楽', 'music of the eighties') == ['70']
+    assert m('5代目の社長', 'the fifth president') == []
     assert m('He was born in May.', '他五月出生。') == []
     # numbers written as words count in the reference (developer 2026-11-17)
     assert m('３個のりんごを買った。', 'He bought three apples.') == []

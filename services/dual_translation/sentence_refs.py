@@ -283,6 +283,10 @@ def _number_mentions(text: str) -> list[tuple[str, set]]:
             vals |= {(v - 1) * 100 + y for y in range(100)}  # 20世纪 -> any year 1900-1999
         if t[m.end():m.end() + 2] == '年代' and v == int(v) and 0 <= v < 100 and v % 10 == 0:
             vals |= {1900 + v, 2000 + v}  # 70年代 -> the 1970s
+            if 20 <= v <= 90:
+                vals.add(f'decade:{int(v)}')  # 70年代 -> the seventies
+        if t[m.end():m.end() + 1] == '代' and v == int(v) and 10 <= v <= 90 and v % 10 == 0:
+            vals.add(f'decade:{int(v)}')  # 10代 -> teens, 20代 -> twenties (ages)
         if t[m.end():m.end() + 1] == '月' and 1 <= v <= 12 and v == int(v):
             vals.add(_MONTHS[int(v) - 1])  # 11月 -> 'november'
         out.append((m.group(1), vals))
@@ -391,16 +395,35 @@ def _cjk_numeral_values(text: str) -> set:
     return vals
 
 
+_DECADE_WORD_RE = re.compile(
+    r'\b(teens?|teenage[rd]?s?|twenties|thirties|forties|fifties|sixties|seventies|eighties|nineties)\b',
+    re.IGNORECASE)
+_DECADE_WORDS = {'twenties': 20, 'thirties': 30, 'forties': 40, 'fifties': 50, 'sixties': 60,
+                 'seventies': 70, 'eighties': 80, 'nineties': 90}
+
+
+def _decade_word_values(text: str) -> set:
+    """``decade:N`` for English decade words: "teens"/"teenage(r)" carry 10代,
+    "twenties" … "nineties" carry 20代 … 90代 and 70年代 ("the seventies")."""
+    out = set()
+    for w in _DECADE_WORD_RE.findall(text or ''):
+        w = w.lower()
+        out.add(f'decade:{_DECADE_WORDS.get(w, 10)}')
+    return out
+
+
 def missing_numbers(l2_text: str, l1_text: str) -> list[str]:
     """Numbers written with digits in the gold that the reference does not carry
     (by value; scale words and 万/亿/千 are understood on both sides; in the
-    reference a number may also be written as words or CJK numerals)."""
+    reference a number may also be written as words or CJK numerals, and an
+    age or decade (10代, 70年代) as "teens" or "the seventies")."""
     def norm(vals):
         return {v.normalize() if hasattr(v, 'normalize') else v for v in vals}
     have: set = set()
     for _, vals in _number_mentions(l1_text):
         have |= norm(vals)
     have |= norm(_en_word_values(l1_text)) | norm(_cjk_numeral_values(l1_text))
+    have |= _decade_word_values(l1_text)
     return [label for label, vals in _number_mentions(l2_text)
             if any(not isinstance(v, str) for v in vals) and not (norm(vals) & have)]
 
