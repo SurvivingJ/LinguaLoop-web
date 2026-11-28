@@ -8,7 +8,7 @@ export const meta = {
     { title: 'Senses', detail: 'author and reviewer per batch' },
     { title: 'Dictionaries', detail: 'author and reviewer per file, files of one table in sequence' },
     { title: 'Drills', detail: 'author and blind reviewer per batch' },
-    { title: 'Tests', detail: 'planners, then author and blind reviewer per batch' },
+    { title: 'Tests', detail: 'planners; per batch author, blind reviewer, cold solver, fixer' },
     { title: 'Exercises', detail: 'fat-seed author and reviewer per group' },
   ],
 }
@@ -131,7 +131,12 @@ for (const t of W.tests || []) {
     const f = `t${t.tier}-${nn(b)}`
     jobs.push(() => pair('tests', 'Tests', f,
       { role: 'test-author', task: `Write the tests of batch "${f}" in ${PACK}/tests/plan/t${t.tier}.json to ${PACK}/tests/batches/${f}.jsonl.` },
-      { role: 'test-reviewer', task: `Review ${PACK}/tests/batches/${f}.jsonl (blind solve first); write ${PACK}/tests/reviewed/${f}.jsonl and the verdict file.` }))
+      { role: 'test-reviewer', task: `Review ${PACK}/tests/batches/${f}.jsonl (blind solve first); write ${PACK}/tests/reviewed/${f}.jsonl and the verdict file.` })
+      // a solver who has seen nothing answers the reviewed questions without the passages; a fixer repairs what it got
+      .then(r => (r && r.validator_ok) ? run('tests-cold', 'Tests', 'cold ' + f, 'test-cold-solver',
+        `Cold-solve the reviewed batch ${f}.`, M.reviewer) : null)
+      .then(r => (r && r.validator_ok) ? run('tests-fix', 'Tests', 'fix ' + f, 'test-fixer',
+        `Repair the questions of ${PACK}/tests/reviewed/${f}.jsonl that the cold solver answered without the passage.`, M.reviewer) : null))
   }
 }
 

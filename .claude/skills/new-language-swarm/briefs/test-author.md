@@ -33,3 +33,32 @@ every factual claim about the real world you kept and were not sure of.
 
 Keep each passage distinct from the other tiers' tests on neighbouring
 subjects: follow your topic's angle, not the general subject.
+
+## Questions that need the passage (from the pilot)
+
+In the pilot a solver who never saw the passages answered 85 to 100 percent
+of the questions. The reasons, and what to do about each:
+
+1. **The passage said what anyone would expect.** A question about a detail
+   is only as good as the detail. Give every passage particulars that could
+   have been otherwise and that nobody could predict: the character goes on
+   Tuesday and not at the weekend, likes the cheap one better, the delay was
+   caused by a lost key and not by traffic, the second step is done before
+   the first. Then ask about those. If the true answer is the stereotype or
+   the famous fact, change the passage or drop the question.
+2. **Other questions leaked the answer.** Read your questions as a set: a
+   word in one question's stem or choices must not settle another. Do not
+   name in a stem something a different question asks for.
+3. **The key looked different.** Every choice has the same form, length and
+   degree of detail, and every wrong choice is something that could be true
+   of a text with this title. For `main_idea` and `author_purpose` that means
+   four summaries of the same scope and tone (not one balanced sentence
+   against three narrow ones): the wrong ones describe a slightly different
+   text on the same subject, or get the passage's emphasis or conclusion
+   wrong.
+4. **General knowledge.** On real subjects (a food, a monument, an inventor)
+   do not ask what the world already knows about them; ask what this passage
+   adds: the narrator's case, an order, a reason, a comparison it draws.
+
+Before you keep a question, hide the passage and ask: which choice would a
+clever stranger pick? If it is the key, the question is not finished.

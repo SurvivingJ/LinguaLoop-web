@@ -1400,15 +1400,15 @@ def cmd_validate_tests(a):
     return report(path, problems, len(tests), 'tests')
 
 
-def tests_blind_paths(lang, path):
-    name = os.path.basename(path)[:-6]
+def tests_blind_paths(lang, path, tag=''):
+    name = os.path.basename(path)[:-6] + (f'.{tag}' if tag else '')
     d = P(lang, 'tests', 'blind')
     return {k: os.path.join(d, f'{name}.{k}.jsonl') for k in ('nopassage', 'passage', 'answers_nopassage', 'answers')}
 
 
 def cmd_tests_strip(a):
     path = resolve(a.lang, a.path, 'tests/batches')
-    bp = tests_blind_paths(a.lang, path)
+    bp = tests_blind_paths(a.lang, path, a.tag)
     os.makedirs(os.path.dirname(bp['passage']), exist_ok=True)
     rows = [o for _, o, e in read_jsonl(path) if not e and isinstance(o, dict)]
     with open(bp['nopassage'], 'w', encoding='utf-8') as f1, open(bp['passage'], 'w', encoding='utf-8') as f2:
@@ -1427,14 +1427,14 @@ def cmd_tests_strip(a):
 
 def cmd_tests_compare(a):
     path = resolve(a.lang, a.path, 'tests/batches')
-    bp = tests_blind_paths(a.lang, path)
-    for k in ('answers_nopassage', 'answers'):
+    bp = tests_blind_paths(a.lang, path, a.tag)
+    for k in ('answers_nopassage',) if a.cold_only else ('answers_nopassage', 'answers'):
         if not os.path.exists(bp[k]):
             print(f'no answers file at {os.path.relpath(bp[k], ROOT)}')
             return 2
     tests = {o['slug']: o for _, o, e in read_jsonl(path) if not e and isinstance(o, dict) and 'slug' in o}
     cold = {o.get('slug'): o.get('answers') for _, o, e in read_jsonl(bp['answers_nopassage']) if not e}
-    warm = {o.get('slug'): o.get('answers') for _, o, e in read_jsonl(bp['answers']) if not e}
+    warm = {} if a.cold_only else {o.get('slug'): o.get('answers') for _, o, e in read_jsonl(bp['answers']) if not e}
     flags, n_q, guessed, guessable = [], 0, 0, 0
     for slug, t in tests.items():
         for i, q in enumerate(t.get('questions') or []):
@@ -1443,7 +1443,9 @@ def cmd_tests_compare(a):
             w = (warm.get(slug) or [None] * (i + 1))[i] if i < len(warm.get(slug) or []) else None
             c = (cold.get(slug) or [None] * (i + 1))[i] if i < len(cold.get(slug) or []) else None
             lab = f'{slug} q{i + 1} ({q.get("type")})'
-            if not isinstance(w, list):
+            if a.cold_only:
+                pass
+            elif not isinstance(w, list):
                 flags.append(f'{lab}: no answer with the passage')
             elif key not in w:
                 flags.append(f'{lab}: KEY REJECTED: key {key}, solver accepted {w}')
@@ -1717,8 +1719,9 @@ def main(argv=None):
     add('build', cmd_build, (('--check',), {'action': 'store_true'}), (('--static',), {'action': 'store_true'}))
     add('validate-test-plan', cmd_validate_test_plan, path)
     add('validate-tests', cmd_validate_tests, path)
-    add('tests-strip', cmd_tests_strip, path)
-    add('tests-compare', cmd_tests_compare, path)
+    tag = (('--tag',), {'default': ''})
+    add('tests-strip', cmd_tests_strip, path, tag)
+    add('tests-compare', cmd_tests_compare, path, tag, (('--cold-only',), {'action': 'store_true'}))
     add('tests-export', cmd_tests_export)
     add('lexicon-dedupe', cmd_lexicon_dedupe)
     add('archive', cmd_archive)

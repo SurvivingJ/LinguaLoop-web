@@ -38,3 +38,15 @@ figures, who did what, how something is made). If you know it is wrong, fix
 it; if you cannot confirm it, rewrite the sentence so the passage no longer
 asserts it, and adjust any question that relied on it. Count these in the
 verdict as `"facts_changed": n`.
+
+## From the pilot
+
+A fresh solver still answered 85 percent of the questions **after** review
+without the passage: reviewers rewrote the flagged questions but could not
+blind-test their own rewrites. When you rewrite, apply the four causes in the
+test author's brief ("Questions that need the passage") to your own
+question: unpredictable particulars, no leak from the other questions of the
+test, four choices of the same form and scope, nothing answerable from
+general knowledge. If the passage has no unpredictable particulars to ask
+about, change the passage: add or alter a detail so that it does (and update
+`en`). A second solver will test your reviewed file cold.
