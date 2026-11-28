@@ -52,6 +52,9 @@ _QUOTES = {
 
 _WHITESPACE = re.compile(r'\s+')
 
+# Languages whose answers are folded Traditional -> Simplified before comparing.
+_T2S_LANGUAGE_IDS = frozenset(language_registry.ids_with('traditional_variants'))
+
 _converter = None
 _converter_loaded = False
 
