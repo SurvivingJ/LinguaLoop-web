@@ -21,11 +21,13 @@ below.
 |--------|-------------------|------------------------------------------|
 | Not Started | 85 | 101 |
 | In Progress (`[~]`) | 18 | 25 |
-| Blocked / Deferred / Awaiting decision (`[?]`; includes "Done (repo), awaiting live apply") | 79 | 78 |
+| Blocked / Deferred / Awaiting decision (`[?]`; includes "Done (repo), awaiting live apply") | 78 | 77 |
 | Won't Do (obsolete) | 3 | 3 |
 | Superseded | 3 | 3 |
-| Done | 243 | 387 |
+| Done | 244 | 388 |
 | **Total distinct task ids** | **431** | **597** |
+
+*2026-11-28 (idiom full tier):* TASK-1290 Awaiting → Done (Awaiting −1, Done +1).
 
 *2026-11-28 (tracking migration applied):* TASK-1259 `[?]` awaiting live apply → Done (Awaiting −1, Done +1).
 
@@ -1662,7 +1664,7 @@ Full spec: [[tasklist/idiom-trainer.tasks]]. Feature: [[features/idiom-trainer]]
 | TASK-1287 | idiom-trainer | Idiom trainer: contract, engine, pages, tracking | [x] | L | TASK-1282 |
 | TASK-1288 | idiom-trainer | Author and review the core tier | [x] | XL | TASK-1287 |
 | TASK-1289 | idiom-trainer | Native-speaker check of the lists, cards and stories | [?] | M | TASK-1288 |
-| TASK-1290 | idiom-trainer | The full tier | [?] | XL | TASK-1288 |
+| TASK-1290 | idiom-trainer | The full tier | [x] | XL | TASK-1288 |
 
 ### Grammar Drill and Reading Drill (Japanese)
 

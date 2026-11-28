@@ -12,6 +12,15 @@ open_questions:
 
 # Idiom Trainer (Chinese and Japanese)
 
+> **2026-11-28, full tier** (owner: "Write the full tier"). The sets were extended after their core
+> entries, which kept their place and cards: Chinese **849** (成语 600, 惯用语 149, 俗语 100) and
+> Japanese **768** (慣用句 450, 四字熟語 200, ことわざ 118), **1,617 idioms** in all with 9,702
+> contexts and 3,234 misuses. **315 have a story** (zh 199: chengyu 162, sayings 22, colloquial
+> 15; ja 116: four-character 51, idioms 41, proverbs 24), a much higher share than in the core
+> because the idioms with classical origins sit in the second tier. New idioms are introduced by
+> their rank within each chosen set. Three expressions were listed in two sets (半斤八两; 背水の陣,
+> 漁夫の利) and are built once, in the earlier set. The counts in the text below are the core tier's.
+
 ## Purpose
 Idioms are learned one at a time, as small stories, and what has to be practised is recognising
 the situation that calls for one. This trainer gives every idiom a card and a short ladder of

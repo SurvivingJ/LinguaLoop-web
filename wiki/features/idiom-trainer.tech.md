@@ -18,6 +18,14 @@ breaking_change_risk: low
 
 # Idiom Trainer (Chinese and Japanese) — Technical Specification
 
+> **2026-11-28, full tier:** `idiom_trainer.FULL` gives each set's full size; the runner's
+> `list2-<lang>-<set>` job extends a reviewed list (entries that have cards may not move; checked
+> against the card files), and card jobs for the new entries follow its review. `build` gives every
+> idiom its `rank` in its set (`planRound` starts new idioms by rank) and builds an expression that
+> two sets list once. Built: zh 849, ja 768. Run: 103 jobs (6 list extensions, 97 card files), Opus
+> writer and reviewer, none failed; list reviewers changed 17 entries and swapped 6; card
+> reviewers recorded 392 fixes on the new cards, kept every story and added 3. Notional cost about $175.
+
 ## Architecture Overview
 ```
 data/idioms/<lang>/lists/<set>.json      ranked list: {id, t, r, mean, lvl, tag}

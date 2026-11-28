@@ -4,7 +4,7 @@ feature: idiom-trainer
 prose_page: ../features/idiom-trainer.md
 tech_page: ../features/idiom-trainer.tech.md
 total_tasks: 4
-done: 2
+done: 3
 ---
 
 # Idiom Trainer (Chinese and Japanese) — Task Breakdown
@@ -110,7 +110,7 @@ The evaluation page exists and its fixes are merged.
 
 ## TASK-1290: The full tier
 
-**Status:** [?] Awaiting owner decision
+**Status:** [x] Done (2026-11-28)
 **Feature:** idiom-trainer
 **Type:** feature
 **Complexity:** XL (>2d)
@@ -122,8 +122,8 @@ colloquial 150, sayings 100), Japanese about 770 (idioms 450, four-character 200
 The owner asked for the core first, to judge the format.
 
 **Acceptance Criteria:**
-- [ ] owner decision after trying the core
-- [ ] `SETS` sizes raised in `scripts/idiom_trainer.py`; the list jobs extend the lists; cards follow
+- [x] owner decision: "Write the full tier" (2026-11-28)
+- [x] `FULL` sizes in `scripts/idiom_trainer.py`; `list2` jobs extended the lists; cards followed: zh 849, ja 768 built, 315 with a story
 
 **Technical Notes:**
 The runner plans card jobs from the list length, so extending a reviewed list is enough; a

@@ -1,5 +1,7 @@
 # LinguaDojo Wiki Index
-Last updated: 2026-11-28 (**IDIOM TRAINER (CHINESE AND JAPANESE)** — `/idiom-trainer/zh`, `/idiom-trainer/ja`: 652 core idioms, each with a card (meaning, literal sense, the story behind it where one is certain: 98), six contexts and two misuses; five steps then spaced reviews; written and reviewed on Opus; progress in the shared tracking.)
+Last updated: 2026-11-28 (**IDIOM TRAINER FULL TIER; TRACKING MIGRATION LIVE** — idioms: Chinese 849, Japanese 768 (1,617; 315 with a sourced story); `grammar_drill_daily` / `grammar_drill_state` / `record_grammar_drill_round` applied to the live project and verified; the code that records Japanese drills and idioms is on the branch, not deployed.)
+
+Prior: 2026-11-28 (**IDIOM TRAINER (CHINESE AND JAPANESE)** — `/idiom-trainer/zh`, `/idiom-trainer/ja`: 652 core idioms, each with a card (meaning, literal sense, the story behind it where one is certain: 98), six contexts and two misuses; five steps then spaced reviews; written and reviewed on Opus; progress in the shared tracking.)
 
 Prior: 2026-11-28 (**MORE DRILLS FOR JAPANESE AND CHINESE** — Japanese: every skill at 50 sentences or more (particles 14,568; grammar 12,199 over 220 skills), 178 pattern packs, five new stages (collocations, idioms, casual contractions, compound verbs, loanword traps); Chinese: near-synonyms, collocations, look-alike characters, chengyu and a generated multi-reading-character drill (44 topics, 11,192 items). Listening drills not built (TASK-1286).)
 

@@ -112,6 +112,8 @@ def test_paths_and_sets():
     assert it.where_of(os.path.join(it.DATA, 'ja', 'cards', 'chengyu-01.json')) is None   # a Chinese set
     assert it.where_of(os.path.join(it.DATA, 'zh', 'lists', 'nope.json')) is None
     assert sum(r[4] for r in it.SETS['zh']) == 320 and sum(r[4] for r in it.SETS['ja']) == 330
+    assert sum(n for (lang, _k), n in it.FULL.items() if lang == 'zh') == 850
+    assert sum(n for (lang, _k), n in it.FULL.items() if lang == 'ja') == 770
     codes = [r[1] for rows in it.SETS.values() for r in rows]
     assert len(set(codes)) == len(codes)
 
@@ -138,7 +140,7 @@ def test_every_listed_idiom_has_a_card_and_a_review():
     for lang, sets in it.SETS.items():
         for key, _code, _title, _en, core in sets:
             entries = it.load_list(lang, key)
-            assert len(entries) >= int(core * swarm.LIST_FLOOR), (lang, key, len(entries))
+            assert len(entries) >= int(it.FULL[(lang, key)] * swarm.LIST_FLOOR), (lang, key, len(entries))
             carded = set()
             for path in it.card_files(lang, key):
                 carded.update(c['id'] for c in it.load_json(path))
@@ -157,7 +159,10 @@ def test_static_files_are_built_and_idioms_are_unique():
         ids = [i['id'] for i in manifest['idioms']]
         texts = [i['t'] for i in manifest['idioms']]
         assert len(set(ids)) == len(ids) and len(set(texts)) == len(texts)
-        assert manifest['total'] == len(ids) >= 270
+        assert manifest['total'] == len(ids) >= 750
+        # an expression that two sets list (半斤八两; 背水の陣) is built once, in the earlier set
+        listed = [e['t'] for key, *_ in it.SETS[lang] for e in it.load_list(lang, key)]
+        assert len(ids) == len(set(listed)) and 0 <= len(listed) - len(ids) <= 5
         assert manifest['language_id'] == it.LANGUAGE_IDS[lang]
         # the "complete" step needs every idiom's two halves in the manifest
         assert all(''.join(i['parts']) == i['t'] for i in manifest['idioms'])

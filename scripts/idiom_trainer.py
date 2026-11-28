@@ -314,6 +314,7 @@ def card_files(lang, key):
 def built_files(lang):
     """{relative name: text} of the static files for a language; cards that fail validation are left out."""
     out, idioms, sets, skipped = {}, [], [], 0
+    taken = set()        # an expression listed in two sets is built once, in the earlier set
     for key, _code, title, en, _core in SETS[lang]:
         entries = load_list(lang, key)
         cards = {}
@@ -323,7 +324,8 @@ def built_files(lang):
                 continue
             for card in load_json(path):
                 cards[card['id']] = card
-        rows = [cards[e['id']] for e in entries if e['id'] in cards]
+        rows = [cards[e['id']] for e in entries if e['id'] in cards and cards[e['id']]['t'] not in taken]
+        taken.update(c['t'] for c in rows)
         body = json.dumps({'set': key, 'cards': rows}, ensure_ascii=False, separators=(',', ':'))
         out[f'{key}.json'] = body
         sets.append({'key': key, 'title': title, 'en': en, 'count': len(rows),
