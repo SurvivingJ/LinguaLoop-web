@@ -36,6 +36,11 @@ PAGES = (
     ('/grammar-drill/ja', 'grammar_drill_ja_page', 'grammar_drill_ja.html'),
     # The address without a language sends the browser to its study language's page.
     ('/grammar-drill', 'grammar_drill_page', 'grammar_drill.html'),
+    # Idiom trainer, one page per study language (static/data/idioms/<lang>); progress
+    # through the same tracking, as topics idiom-<id>.
+    ('/idiom-trainer/zh', 'idiom_trainer_zh_page', 'idiom_trainer_zh.html'),
+    ('/idiom-trainer/ja', 'idiom_trainer_ja_page', 'idiom_trainer_ja.html'),
+    ('/idiom-trainer', 'idiom_trainer_page', 'idiom_trainer.html'),
     ('/dual-translation', 'dual_translation_page', 'dual_translation.html'),
     ('/dual-translation/profile', 'dual_translation_profile_page', 'dual_translation_profile.html'),
     # Knowledge Report ("My vocabulary"); always on.

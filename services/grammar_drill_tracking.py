@@ -12,7 +12,9 @@ may hold:
 * Japanese (3): every skill of the particle course and the grammar course
   (data/particle_drill/ja, ja-grammar; seven stages: six rungs and Instant),
   the conjugation forms (``conj-<form>``) and the reading categories
-  (``read-<category>``), four stages each. No per-answer and no per-item rows: database space is the
+  (``read-<category>``), four stages each.
+* Both: the idiom trainer. An idiom is the topic ``idiom-<id>`` (the ids of
+  static/data/idioms/<lang>/manifest.json), six stages: five steps and Mastered. No per-answer and no per-item rows: database space is the
 constraint (owner stop line 480 MB).
 
 The tables and the function live in migrations/grammar_drill_tracking.sql.
@@ -53,6 +55,10 @@ MAX_MS = 30000               # cap on one recall time
 MAX_STAGE = 4                # Chinese topics; conjugation and reading topics of Japanese
 JA_SKILL_STAGES = 7          # Japanese particle / grammar skills: six rungs and Instant
 DB_MAX_STAGE = 7             # what the table's CHECK and the function allow
+IDIOM_STAGES = 6             # idiom trainer: five steps and Mastered (static/js/idioms/ladder.js)
+IDIOM_PREFIX = 'idiom-'
+IDIOM_DIR = Path(__file__).resolve().parent.parent / 'static' / 'data' / 'idioms'
+IDIOM_LANG = {1: 'zh', 3: 'ja'}
 MAX_STATE_BYTES = 1500       # JSON text; the table's CHECK allows 4096 stored bytes
 MAX_SEQ = 10_000_000
 DEFAULT_DAYS = 180
@@ -69,6 +75,8 @@ _JA_STATE_KEYS = frozenset({'u', 'l', 's'})
 _JA_LADDER_KEYS = frozenset({'l', 'la', 'e', 'n', 'c', 'rt', 'due', 'iv', 'last', 'miss'})
 _JA_FAMILY_RE = re.compile(r'^(conj-[a-z0-9]+(-[a-z0-9]+){0,3}|read-[a-z0-9]{1,20})$')
 _MISS_ID_RE = re.compile(r'^[0-9a-f]{10}$')
+_IDIOM_LADDER_KEYS = frozenset({'l', 'k', 'n', 'c', 'due', 'iv', 'last'})
+_idiom_cache: dict[int, tuple[float, frozenset[str]]] = {}
 _TOPIC_KEYS = frozenset({'topic', 'answers', 'correct', 'timed', 'ms_sum', 'stage',
                          'instant', 'sub_misses', 'state'})
 
@@ -157,6 +165,53 @@ def _ja_state(value: Any, now: datetime, max_stage: int) -> Optional[dict]:
     return clean
 
 
+def idiom_ids(language_id: int) -> frozenset[str]:
+    """Ids of the built idioms of a language (cached; re-read when the manifest changes)."""
+    lang = IDIOM_LANG.get(language_id)
+    path = IDIOM_DIR / lang / 'manifest.json' if lang else None
+    if path is None or not path.exists():
+        return frozenset()
+    mtime = path.stat().st_mtime
+    cached = _idiom_cache.get(language_id)
+    if cached is None or cached[0] != mtime:
+        with path.open(encoding='utf-8') as fh:
+            ids = frozenset(str(i['id']) for i in json.load(fh).get('idioms') or [])
+        cached = _idiom_cache[language_id] = (mtime, ids)
+    return cached[1]
+
+
+def _idiom_state(value: Any, now: datetime) -> Optional[dict]:
+    """State of an idiom: {u: highest step reached, l: epoch seconds of the last
+    answer, s: the ladder state of static/js/idioms/ladder.js}."""
+    if value is None:
+        return None
+    if not isinstance(value, dict) or set(value) != _JA_STATE_KEYS:
+        raise ValidationError("state must have u, l and s")
+    ladder = value['s']
+    if not isinstance(ladder, dict) or set(ladder) - _IDIOM_LADDER_KEYS:
+        raise ValidationError("state.s has unknown fields")
+    horizon_ms = int((now + timedelta(days=400)).timestamp() * 1000)
+    return {
+        'u': _int(value['u'], 'state.u', 1, IDIOM_STAGES),
+        'l': _int(value['l'], 'state.l', 0, int((now + timedelta(days=1)).timestamp())),
+        's': {
+            'l': _int(ladder.get('l', 1), 'state.s.l', 1, IDIOM_STAGES),
+            'k': _int(ladder.get('k', 0), 'state.s.k', 0, 5),
+            'n': _int(ladder.get('n', 0), 'state.s.n', 0, MAX_SEQ),
+            'c': _int(ladder.get('c', 0), 'state.s.c', 0, MAX_SEQ),
+            'due': _number(ladder.get('due'), 'state.s.due', 0, horizon_ms),
+            'iv': _int(ladder.get('iv', 0), 'state.s.iv', 0, 400),
+            'last': _number(ladder.get('last'), 'state.s.last', 0, horizon_ms),
+        },
+    }
+
+
+def _idiom_topic(language_id: int, slug: str) -> Optional[tuple[frozenset[str], int]]:
+    if slug.startswith(IDIOM_PREFIX) and slug[len(IDIOM_PREFIX):] in idiom_ids(language_id):
+        return frozenset(), IDIOM_STAGES
+    return None
+
+
 class Profile:
     """What one language's drills may record."""
 
@@ -168,16 +223,20 @@ class Profile:
         """(sub-point keys, number of stages) of a topic, or None when unknown."""
         raise NotImplementedError
 
-    def state(self, value: Any, now: datetime, max_stage: int) -> Optional[dict]:
+    def state(self, value: Any, now: datetime, max_stage: int, slug: str = '') -> Optional[dict]:
         raise NotImplementedError
 
 
 class _ChineseProfile(Profile):
     def topic(self, slug):
         subs = topic_subs().get(slug)
-        return None if subs is None else (subs, MAX_STAGE)
+        if subs is None:
+            return _idiom_topic(self.language_id, slug)
+        return subs, MAX_STAGE
 
-    def state(self, value, now, max_stage):
+    def state(self, value, now, max_stage, slug=''):
+        if slug.startswith(IDIOM_PREFIX):
+            return _idiom_state(value, now)
         return _state(value, now)
 
 
@@ -200,9 +259,11 @@ class _JapaneseProfile(Profile):
             return frozenset(), JA_SKILL_STAGES
         if _JA_FAMILY_RE.match(slug) and len(slug) <= 40:
             return frozenset(), MAX_STAGE
-        return None
+        return _idiom_topic(self.language_id, slug)
 
-    def state(self, value, now, max_stage):
+    def state(self, value, now, max_stage, slug=''):
+        if slug.startswith(IDIOM_PREFIX):
+            return _idiom_state(value, now)
         return _ja_state(value, now, max_stage)
 
 
@@ -279,7 +340,7 @@ def _topic(entry: Any, mode: str, profile: Profile, now: datetime) -> dict:
     if sum(clean_misses.values()) > answers - correct:
         raise ValidationError("sub_misses exceed the missed answers")
 
-    state = profile.state(entry.get('state'), now, max_stage)
+    state = profile.state(entry.get('state'), now, max_stage, slug)
     if mode == 'sync' and state is None:
         raise ValidationError("a sync entry needs a state")
     return {
@@ -371,6 +432,7 @@ def reset() -> None:
     _missing_until = 0.0
     _manifest_cache = None
     _JapaneseProfile._skills = None
+    _idiom_cache.clear()
 
 
 def record_round(db, user_id: str, round_: dict) -> dict:

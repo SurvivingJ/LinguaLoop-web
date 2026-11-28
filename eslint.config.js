@@ -80,7 +80,12 @@ export default [
   },
   {
     // Particle drill: ES modules (engine in static/js/particles, page in pages/particle-drill.js).
-    files: ['static/js/particles/**/*.js', 'static/js/pages/particle-drill.js'],
+    files: [
+      'static/js/particles/**/*.js',
+      'static/js/pages/particle-drill.js',
+      'static/js/idioms/**/*.js',
+      'static/js/pages/idiom-trainer.js',
+    ],
     languageOptions: { sourceType: 'module', globals: { escapeHtml: 'off' } },
   },
   {
