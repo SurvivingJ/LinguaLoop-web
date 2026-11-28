@@ -280,3 +280,12 @@ def test_difficulty_scorer_knows_italian():
     from services.test_generation.difficulty_scorer import score_passage
     sig = score_passage('Oggi vado al mercato con mia nonna e compriamo la frutta.', 'it')
     assert sig.n_tokens > 0
+
+
+def test_upload_select_near_elo_and_one_per_topic():
+    rs = [dict(_record(f't{i % 3}:T{i}', str(i), 2, 1200 + 20 * i), topic_id=f't{i % 3}') for i in range(6)]
+    near = up.select(rs, near_elo=1260, limit=3)
+    assert near[0]['seeded_elo'] == 1260
+    assert {r['seeded_elo'] for r in near[1:]} == {1240, 1280}   # tie broken by slot key
+    one = up.select(rs, near_elo=1260, one_per_topic=True)
+    assert len(one) == 3 and len({r['topic_id'] for r in one}) == 3

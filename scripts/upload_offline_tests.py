@@ -54,17 +54,33 @@ def load_bundle(bundle: str) -> tuple[dict, list[dict]]:
     return manifest, records
 
 
-def select(records: list[dict], *, tiers=None, min_elo=None, max_elo=None, limit=None):
+def _elo(r: dict):
+    return r.get('seeded_elo') or r.get('initial_elo')
+
+
+def select(records: list[dict], *, tiers=None, min_elo=None, max_elo=None, limit=None,
+           near_elo=None, one_per_topic=False):
+    """Filter, then (``near_elo``) order by closeness to that ELO, then
+    (``one_per_topic``) keep the first record per topic, then cap at ``limit``."""
     out = []
     for r in records:
         if tiers and r.get('tier_id') not in tiers:
             continue
-        elo = r.get('seeded_elo') or r.get('initial_elo')
+        elo = _elo(r)
         if min_elo is not None and (elo is None or elo < min_elo):
             continue
         if max_elo is not None and (elo is None or elo > max_elo):
             continue
         out.append(r)
+    if near_elo is not None:
+        out.sort(key=lambda r: (abs((_elo(r) or 0) - near_elo), r.get('slot_key', '')))
+    if one_per_topic:
+        seen, unique = set(), []
+        for r in out:
+            if r['topic_id'] not in seen:
+                seen.add(r['topic_id'])
+                unique.append(r)
+        out = unique
     return out[:limit] if limit else out
 
 
@@ -92,6 +108,8 @@ def main(argv=None) -> int:
     p.add_argument('--tiers', help='comma list of assigned tiers to load, e.g. 2,3')
     p.add_argument('--min-elo', type=int)
     p.add_argument('--max-elo', type=int)
+    p.add_argument('--near-elo', type=int, help='take the records closest to this ELO first')
+    p.add_argument('--one-per-topic', action='store_true', help='at most one record per topic')
     from scripts.provider_arg import add_provider_arg, apply_provider
     add_provider_arg(p)
     args = p.parse_args(argv)
@@ -106,7 +124,8 @@ def main(argv=None) -> int:
     manifest, records = load_bundle(args.bundle)
     tiers = {int(t) for t in args.tiers.split(',')} if args.tiers else None
     chosen = select(records, tiers=tiers, min_elo=args.min_elo,
-                    max_elo=args.max_elo, limit=args.limit)
+                    max_elo=args.max_elo, limit=args.limit,
+                    near_elo=args.near_elo, one_per_topic=args.one_per_topic)
     logger.info('bundle: %d records (%s); selected %d; %s',
                 len(records), manifest.get('language'), len(chosen),
                 'APPLY' if args.apply else 'dry run')
