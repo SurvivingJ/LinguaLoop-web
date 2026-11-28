@@ -52,9 +52,11 @@ _LANG_MAP: dict[str, str] = {
     'en': 'en',
     'zh': 'zh',
     'ja': 'ja',
+    'it': 'it',
     'english': 'en',
     'chinese': 'zh',
     'japanese': 'ja',
+    'italian': 'it',
 }
 
 # Tokens with Zipf below this are treated as "unknown to wordfreq" in

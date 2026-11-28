@@ -168,6 +168,16 @@ def load_prior_bundles(paths) -> list[dict]:
     return out
 
 
+def load_template_dir(path: str) -> dict:
+    """``<task_name>.txt`` files -> {task_name: text} prompt overrides."""
+    out = {}
+    for name in sorted(os.listdir(path)):
+        if name.endswith('.txt'):
+            with open(os.path.join(path, name), encoding='utf-8') as f:
+                out[name[:-4]] = f.read()
+    return out
+
+
 def run_shard(args) -> int:
     from services.supabase_factory import SupabaseFactory
     from services.test_generation.orchestrator import TestGenerationOrchestrator
@@ -180,6 +190,24 @@ def run_shard(args) -> int:
     lang_config = orch.db.get_language_config_by_code(args.language)
     if not lang_config:
         raise SystemExit(f'unknown language {args.language!r}')
+    overlay = None
+    if args.content_language:
+        # A language the app does not have yet: run on --language's config,
+        # judges and question mix, with the content language's name, code and
+        # voices, and prompts from --template-dir.
+        import dataclasses
+        overlay = args.content_language
+        lang_config = dataclasses.replace(
+            lang_config,
+            language_code=args.content_language,
+            language_name=args.content_language_name or args.content_language,
+            native_name=args.native_name or args.content_language_name or args.content_language,
+            tts_voice_ids=[v for v in args.tts_voices.split(',') if v] or lang_config.tts_voice_ids,
+        )
+    if args.template_dir:
+        orch.db.template_overrides.update(load_template_dir(args.template_dir))
+        logger.info('prompt overrides from %s: %s', args.template_dir,
+                    sorted(orch.db.template_overrides))
 
     topic_ids = queue_topic_ids(orch.db, lang_config.id)
     tiers = [int(t) for t in args.tiers.split(',')]
@@ -251,6 +279,11 @@ def run_shard(args) -> int:
         # Slugs are topic + difficulty + second: two slots of one topic can
         # collide, so the bundle makes each unique with the test id.
         record['slug'] = f"{record['slug']}-{record['test_id'][:8]}"
+        if overlay:
+            # No dim_languages row yet: the upload assigns the id once the
+            # language exists (persist_exported_test refuses until then).
+            record['language_id'] = None
+            record['base_language_code'] = args.language
         record['slot_key'] = slot['key']
         record['slot_angle'] = slot['angle']
         write(out_path, record)
@@ -344,6 +377,14 @@ def main(argv=None) -> int:
     p.add_argument('--workers', type=int, default=2)
     p.add_argument('--exclude-bundle', action='append', default=[],
                    help='earlier bundle dir whose slots and passages to skip (repeatable)')
+    p.add_argument('--content-language', default='',
+                   help='ISO code of a language the app does not have yet (e.g. it); '
+                        'runs on --language as the base and stores records without a language id')
+    p.add_argument('--content-language-name', default='')
+    p.add_argument('--native-name', default='')
+    p.add_argument('--tts-voices', default='', help='comma list of Azure voices for the content language')
+    p.add_argument('--template-dir', default='',
+                   help='directory of <task_name>.txt prompt templates used instead of prompt_templates rows')
     p.add_argument('--prose-note', default='',
                    help='extra instruction appended to every prose prompt (e.g. a target exam level)')
     p.add_argument('--variant', type=int, default=0,

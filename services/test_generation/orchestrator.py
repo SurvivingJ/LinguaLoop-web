@@ -974,7 +974,11 @@ class TestGenerationOrchestrator:
             raise ValueError(f'unsupported export record_version {version!r}')
         lang_config = self.db.get_language_config_by_code(record['language_code'])
         if not lang_config:
-            raise ValueError(f"unknown language {record['language_code']!r}")
+            raise ValueError(
+                f"unknown language {record['language_code']!r}: add it to "
+                "dim_languages (and its prompt templates) before uploading")
+        # A bundle for a language the app did not have yet has no id.
+        record = {**record, 'language_id': lang_config.id}
         self._persist_test(
             record, lang_config=lang_config,
             passage_embedding=passage_embedding, stage_seconds={},

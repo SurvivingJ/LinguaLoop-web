@@ -221,3 +221,62 @@ def test_angle_instruction_appends_note():
     text = exp.angle_instruction(exp.ANGLES[0], ' Use HSK 7-9 vocabulary. ')
     assert text.endswith('\nUse HSK 7-9 vocabulary.')
     assert exp.angle_instruction(exp.ANGLES[0]).endswith('length given above.')
+
+
+def test_template_overrides_win_over_db(monkeypatch):
+    from services.test_generation import database_client as dbc
+    cls = next(v for v in vars(dbc).values()
+               if isinstance(v, type) and hasattr(v, 'get_prompt_template') and hasattr(v, 'insert_test'))
+    client = object.__new__(cls)
+    client.client = None
+    client.template_overrides = {'prose_generation': 'IT {topic_concept}'}
+    monkeypatch.setattr(dbc, 'load_template_text', lambda *a, **k: 'DB')
+    assert client.get_prompt_template('prose_generation', 2) == 'IT {topic_concept}'
+    assert client.get_prompt_template('title_generation', 2) == 'DB'
+
+
+def test_load_template_dir(tmp_path):
+    (tmp_path / 'prose_generation.txt').write_text('ciao {topic_concept}', encoding='utf-8')
+    (tmp_path / 'notes.md').write_text('ignored')
+    assert exp.load_template_dir(str(tmp_path)) == {'prose_generation': 'ciao {topic_concept}'}
+
+
+def test_italian_prompt_files_format_cleanly():
+    d = 'data/offline_tests/it-2026-11-28/prompts'
+    t = exp.load_template_dir(d)
+    t['prose_generation'].format(topic_concept='x', keywords='k', complexity_tier='T3',
+                                 min_words=1, max_words=2, language='Italian',
+                                 language_code='it', difficulty=5)
+    for name, text in t.items():
+        if name.startswith('question_'):
+            assert 'ITALIAN' in text
+            text.format(prose='p', difficulty=5, previous_questions='None', language='Italian')
+
+
+def test_persist_assigns_language_id_from_lookup(monkeypatch):
+    from services.test_generation import orchestrator as om
+    seen = {}
+    orch = object.__new__(om.TestGenerationOrchestrator)
+    orch.db = SimpleNamespace(get_language_config_by_code=lambda c: SimpleNamespace(id=9, language_code=c))
+    orch._persist_test = lambda record, **kw: seen.update(record)
+    orch.persist_exported_test({'record_version': 1, 'language_code': 'it', 'language_id': None})
+    assert seen['language_id'] == 9
+    orch.db = SimpleNamespace(get_language_config_by_code=lambda c: None)
+    with pytest.raises(ValueError, match='add it to'):
+        orch.persist_exported_test({'record_version': 1, 'language_code': 'it'})
+
+
+def test_claude_tier_falls_back_to_english_descriptions(monkeypatch):
+    import services.llm_service as svc
+    from services import tier_classifier
+    monkeypatch.setenv('LLM_FORCE_PROVIDER', 'claude_cli')
+    prompts = []
+    monkeypatch.setattr(svc, 'call_llm', lambda p, **kw: prompts.append(p) or kw['schema'](tier=4))
+    a = tier_classifier.classify_passage('Oggi vado al mercato con mia nonna.', 'it')
+    assert a.tier == 4 and 'ISO code "it"' in prompts[0]
+
+
+def test_difficulty_scorer_knows_italian():
+    from services.test_generation.difficulty_scorer import score_passage
+    sig = score_passage('Oggi vado al mercato con mia nonna e compriamo la frutta.', 'it')
+    assert sig.n_tokens > 0

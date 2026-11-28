@@ -251,16 +251,22 @@ def _classify_passage_claude(text: str, language_code: str) -> TierAssessment:
     class _TierRating(BaseModel):
         tier: int = Field(ge=1, le=N_TIERS)
 
-    if language_code not in LANG_IDS:
-        raise ValueError(f'unsupported language for tier assignment: {language_code!r}')
-    language_id = LANG_IDS[language_code]
+    # A language with no tier descriptions of its own (e.g. Italian before it
+    # is added to the app) is rated on the English descriptions.
+    desc_code = language_code if language_code in LANG_IDS else 'en'
+    language_id = LANG_IDS[desc_code]
     if len(text) > MAX_PASSAGE_CHARS:
         text = text[:MAX_PASSAGE_CHARS]
     scale = '\n'.join(
         f'{i}. {_describe(t, language_id)}' for i, t in enumerate(VALID_TIERS, start=1)
     )
+    language_line = (
+        '' if desc_code == language_code
+        else f'The passage is written in the language with ISO code "{language_code}"; '
+             'rate its difficulty for a learner of that language.\n\n'
+    )
     prompt = (
-        f'{_PASSAGE_INSTRUCTIONS[language_code]}\n\n'
+        f'{language_line}{_PASSAGE_INSTRUCTIONS[desc_code]}\n\n'
         f'Scale (1 = simplest, {N_TIERS} = most advanced):\n{scale}\n\n'
         f'Passage:\n"""\n{text}\n"""\n\n'
         'Judge the language only (vocabulary, grammar, sentence length), not the '

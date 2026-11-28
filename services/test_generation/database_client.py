@@ -173,6 +173,10 @@ class TestDatabaseClient:
         self._question_type_cache: Optional[Dict[str, QuestionType]] = None
         self._tier_distribution_cache: Optional[Dict[int, List[str]]] = None
         self._status_cache: Optional[Dict[str, int]] = None
+        # task_name -> template text, consulted before prompt_templates.
+        # Offline runs for a language with no rows yet set it (see
+        # scripts/export_offline_tests.py --template-dir).
+        self.template_overrides: Dict[str, str] = {}
 
     # ============================================================
     # QUEUE OPERATIONS
@@ -740,6 +744,8 @@ class TestDatabaseClient:
             RuntimeError: required=True and no active template for the task in the
                 requested language or the English fallback.
         """
+        if task_name in self.template_overrides:
+            return self.template_overrides[task_name]
         return load_template_text(
             self.client, task_name, language_id, required=required
         )

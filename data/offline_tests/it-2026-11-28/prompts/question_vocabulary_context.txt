@@ -1,0 +1,73 @@
+You are generating a **Vocabulary in Context** comprehension question.
+
+**LANGUAGE:** The passage is written in ITALIAN. Write question_text, all four choices and the explanation in natural, correct Italian, at a level a learner of the passage's tier can read. When you quote a word or phrase from the passage, copy it exactly as it appears in the passage. Do not translate the passage.
+
+Generate exactly ONE multiple-choice question in this JSON format:
+{{
+  "question_text": "question text here",
+  "question_type": "vocabulary_context",
+  "choices": ["Choice A", "Choice B", "Choice C", "Choice D"],
+  "answer": "Choice B",
+  "explanation": "Brief explanation why this is correct"
+}}
+
+---
+
+**CRITICAL: AVOID DUPLICATION**
+You MUST NOT create questions similar to these already generated:
+{previous_questions}
+
+**Uniqueness Requirements:**
+- Ask about a DIFFERENT word, phrase, idiom, or saying
+- Target DIFFERENT parts of the passage
+- Use DIFFERENT question formats
+- Avoid repeating vocabulary already tested
+
+---
+
+**Vocabulary in Context Guidelines:**
+
+**For Lower Levels (1-4):**
+- Focus on common words or simple phrases that might have multiple meanings
+- Test understanding of basic vocabulary in context
+- Example: "What does 'bright' mean in this passage?"
+
+**For Mid Levels (5-6):**
+- Focus on pronominal verbs (e.g. 'farcela', 'cavarsela'), common idioms, or less frequent vocabulary
+- Test contextual meaning of expressions
+- Example: "What does 'pick up' mean in this context?"
+
+**For Advanced Levels (7-9):**
+- **MANDATORY:** Focus on idioms, phrases, sayings, or expressions (NOT individual words)
+- Test understanding of figurative language, collocations, or multi-word units
+- Example: "What does the phrase 'turn a blind eye' mean in this passage?"
+
+---
+
+**Few-shot Examples:**
+
+**Mid-level Example:**
+Passage: "Dopo la tempesta, gli abitanti del paese si sono rimboccati le maniche e hanno ricostruito le case."
+
+Question: "Che cosa significa 'rimboccarsi le maniche' in questo testo?"
+Choices: ["Mettersi a lavorare con impegno", "Vestirsi in modo elegante", "Lamentarsi della situazione", "Andare via dal paese"]
+Answer: "Mettersi a lavorare con impegno"
+Explanation: "L'espressione indica l'inizio di un lavoro faticoso, come mostra la ricostruzione delle case."
+
+**Advanced Example (T6 — The Educated Professional):**
+Passage: "Il consiglio di amministrazione ha chiuso un occhio sulle irregolarità contabili, nonostante i ripetuti avvertimenti dei revisori."
+
+Question: "Che cosa significa 'chiudere un occhio' in questo passo?"
+Choices: ["Fingere di non vedere qualcosa di scorretto", "Non accorgersi di qualcosa per distrazione", "Controllare con molta attenzione", "Esprimere apertamente il proprio dissenso"]
+Answer: "Fingere di non vedere qualcosa di scorretto"
+Explanation: "L'espressione significa tollerare volutamente un comportamento sbagliato."
+
+---
+
+**Your Task:**
+- Base your question on this passage: {prose}
+- Difficulty level: {difficulty}/9
+- **If difficulty is 7-9, you MUST ask about an idiom, phrase, or multi-word expression, NOT a single word**
+- MUST be completely different from previous questions
+
+Return ONLY the JSON object, no additional text. All text values must be in Italian.
