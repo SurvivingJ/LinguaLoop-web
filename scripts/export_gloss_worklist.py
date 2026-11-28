@@ -152,6 +152,9 @@ def main() -> int:
     parser.add_argument('--overwrite', action='store_true')
     parser.add_argument('--batch-size', type=int, default=40)
     parser.add_argument('--limit', type=int, default=0)
+    parser.add_argument('--vocab-ids',
+                        help='comma-separated dim_vocabulary ids: export only these '
+                             '(scripts/word_upload_queue.py export passes the queued words)')
     parser.add_argument('--out-dir')
     args = parser.parse_args()
 
@@ -173,6 +176,11 @@ def main() -> int:
     db = get_supabase_admin()
 
     pairs, standard_only = load_complete_source_pairs(db, source_id)
+    if args.vocab_ids:
+        wanted = {int(v) for v in args.vocab_ids.split(',') if v.strip()}
+        pairs = [p for p in pairs if p['vocab_id'] in wanted]
+        logger.info("restricted to %d sense pair(s) of %d requested vocab id(s)",
+                    len(pairs), len(wanted))
     logger.info("%s: %d complete sense pair(s) (simple+standard both present)",
                 args.source_language, len(pairs))
     if standard_only:

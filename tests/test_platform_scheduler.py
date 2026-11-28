@@ -8,7 +8,7 @@ import pytest
 
 from web import scheduler as sched
 
-# id -> (day_of_week, hour, minute). The schedule production has always run.
+# id -> (day_of_week, hour, minute); hour '*' = hourly. The schedule production runs.
 EXPECTED = {
     'dt_error_synthesis_nightly': ('*', 3, 50),
     'irt_calibration_nightly': ('*', 4, 0),
@@ -16,6 +16,7 @@ EXPECTED = {
     'slug_health_nightly': ('*', 4, 10),
     'generation_queue_drain_nightly': ('*', 4, 15),
     'word_upload_watchlist_sweep_nightly': ('*', 4, 20),
+    'word_upload_queue_advance_hourly': ('*', '*', 35),
     'knowledge_snapshots_nightly': ('*', 4, 25),
     'placement_close_stale_nightly': ('*', 4, 30),
     'llm_calls_archive_weekly': ('sun', 3, 40),
@@ -48,7 +49,8 @@ def test_job_table_matches_the_production_schedule(started):
     assert set(jobs) == set(EXPECTED)
     for job_id, (day, hour, minute) in EXPECTED.items():
         fields = {f.name: str(f) for f in jobs[job_id].trigger.fields}
-        assert (fields['day_of_week'], int(fields['hour']), int(fields['minute'])) == (day, hour, minute)
+        got_hour = fields['hour'] if fields['hour'] == '*' else int(fields['hour'])
+        assert (fields['day_of_week'], got_hour, int(fields['minute'])) == (day, hour, minute)
         assert jobs[job_id].coalesce is True
         assert jobs[job_id].max_instances == 1
         assert str(jobs[job_id].trigger.timezone) in ('UTC', 'Etc/UTC')

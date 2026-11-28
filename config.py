@@ -353,6 +353,12 @@ class Config:
     # gate (TASK-1059). The report's stub seam ignores it (it can never deny).
     ENTITLEMENTS_ENFORCED = _env_bool('ENTITLEMENTS_ENFORCED', False)
 
+    # Word-list upload (ADR-069). Off (default): submitted words go to the
+    # word_upload_queue table and the operator builds their assets offline
+    # (scripts/word_upload_queue.py). On: the old path, which resolves each word
+    # and runs the ladder LLM pipeline in a web-process worker thread.
+    WORD_LIST_INLINE_GENERATION = _env_bool('WORD_LIST_INLINE_GENERATION', False)
+
     # ==========================================================================
     # ELO & GAME CONSTANTS
     # ==========================================================================

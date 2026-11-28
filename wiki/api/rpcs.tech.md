@@ -285,8 +285,8 @@ Body `{reproduction, idempotency_key?, primed_token?, active_ms?}`. Order of eve
 |---|---|---|---|---|---|
 | GET | `/api/test-intros/seen` | `test_intros.get_seen` | JWT | `user_test_intros_seen` | `test-intro.js` |
 | POST | `/api/test-intros/seen` | `test_intros.mark_seen` | JWT | `{test_type}` ∈ reading, listening, dictation, pinyin, pitch_accent, classifier_drill, counter_drill | yes |
-| POST | `/api/word-list/submit` | `word_list_import.submit` | JWT; 5/h, 20/day | `{words ≤ 50, language}`; validation, admission control (`batch_limits`), background `process_word_list_upload`; `202 {upload_batch_id}`; `429` over quota | `word_list.js` |
-| GET | `/api/word-list/watchlist` | `word_list_import.watchlist` | JWT | `user_word_watchlist` joined with lemmas (`dim_word_senses`, `dim_vocabulary`) | yes |
+| POST | `/api/word-list/submit` | `word_list_import.submit` | JWT; 5/h, 20/day | `{words ≤ 50, language}`; validation, daily batch cap. **Queue mode (default, ADR-069):** rows in `word_upload_queue`, background lookup-only `queue.advance`; `202 {upload_batch_id, mode:'queue', queued, already_queued}`; `503 WORD_QUEUE_UNAVAILABLE`. **Inline mode** (`WORD_LIST_INLINE_GENERATION=true`): admission control (`batch_limits`), background `process_word_list_upload`; `202 {upload_batch_id, mode:'inline'}`. `429` over quota | `word_list.js` |
+| GET | `/api/word-list/watchlist` | `word_list_import.watchlist` | JWT | `user_word_watchlist` joined with lemmas (`dim_word_senses`, `dim_vocabulary`), plus `queue`: the learner's open `word_upload_queue` rows (fail-soft `[]`) | yes |
 | POST | `/api/calibration/start` | `calibration.start` | JWT | `calibration_sessions` insert; `{word_language_id, definition_language_id, mode?}` | `calibration.js` |
 | GET | `/api/calibration/next` | `calibration.next_item` | JWT | RPC `calibration_build_items`; `count` ≤ `MAX_BATCH` | yes |
 | POST | `/api/calibration/answer` | `calibration.answer` | JWT | RPC `calibration_record_answer` (no session read first) | yes |

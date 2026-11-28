@@ -59,6 +59,8 @@ class Job:
     def when(self):
         day = self.cron.get('day_of_week')
         prefix = f"{day.capitalize()} " if day else ''
+        if 'hour' not in self.cron:
+            return f"{prefix}hourly at :{self.cron['minute']:02d} UTC"
         return f"{prefix}{self.cron['hour']:02d}:{self.cron['minute']:02d} UTC"
 
 
@@ -99,6 +101,13 @@ JOBS = (
     Job('placement_close_stale_nightly',
         'services.calibration_placement:run_nightly_close',
         {'hour': 4, 'minute': 30}, 'Placement close stale', _log_skippable),
+    # Hourly at :35, word-upload queue (ADR-069): lookup-only, no LLM. Finishes
+    # queued words whose assets now exist (writes their watchlist rows) and
+    # refreshes `missing` on the rest. Safe in every worker: finishing a row is
+    # a conditional building -> done update, so only one worker writes it.
+    Job('word_upload_queue_advance_hourly',
+        'services.word_list_import.queue:run_scheduled_advance',
+        {'minute': 35}, 'Word-upload queue advance'),
     # Sun 03:40 llm_calls archive: rows older than LLM_CALLS_ARCHIVE_KEEP_DAYS go
     # to Storage (llm-logs-archive) and leave the table; one worker claims the
     # week's cutoff with a Storage marker, the other skips.

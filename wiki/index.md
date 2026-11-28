@@ -1,5 +1,7 @@
 # LinguaDojo Wiki Index
-Last updated: 2026-11-28 (**LANGUAGE REGISTRY BUILT; ITALIAN DECISIONS RECORDED; OPUS CHECK APPLIED** — owner: "build out a language registry so it easy to add new languages": `services/language_registry.py` is the one declaration of the languages (Italian registered as planned), 106 files migrated off their own copies, browser copy generated, readiness check `scripts/check_language.py`, guard tests; owner accepted the Italian profile, chose Opus as language checker and keeps the pack in the repo; Opus findings applied; TASK-1269 / 1270 done, TASK-1275 new)
+Last updated: 2026-11-28 (**WORD-UPLOAD QUEUE BUILT, MIGRATION PENDING** — owner: "Ideally they get put into a queue db table and then I can run ai LLM over them to build the assets etc"; inline path kept behind a switch, every asset built, no credits: `POST /api/word-list/submit` now queues words in `word_upload_queue` with no LLM call, a lookup-only advance finishes words whose assets exist, `scripts/word_upload_queue.py export` hands the operator scoped worklists for the authoring skills; see [[features/word-upload-queue]], [[decisions/ADR-069-word-upload-queue]], [[tasklist/word-upload-queue.tasks]] (TASK-1276 awaiting live apply, TASK-1277 new); nothing applied live) | Pages: 326 (markdown files under wiki/)
+
+Prior: 2026-11-28 (**LANGUAGE REGISTRY BUILT; ITALIAN DECISIONS RECORDED; OPUS CHECK APPLIED** — owner: "build out a language registry so it easy to add new languages": `services/language_registry.py` is the one declaration of the languages (Italian registered as planned), 106 files migrated off their own copies, browser copy generated, readiness check `scripts/check_language.py`, guard tests; owner accepted the Italian profile, chose Opus as language checker and keeps the pack in the repo; Opus findings applied; TASK-1269 / 1270 done, TASK-1275 new)
 
 Prior: 2026-11-28 (**NEW-LANGUAGE SWARM SKILL BUILT, ITALIAN PILOT RUN** — owner: "create a skill to run an agent swarm team to build all of the unique exercises and content for a new language, and test it with Italian": skill `.claude/skills/new-language-swarm`, tool `scripts/language_pack.py`, Italian pack at pilot size in `data/language_packs/it/` (317 lemmas, 50 senses, 5 dictionaries, 37-topic grammar plan, 151 reviewed drill items, 6 exercise documents, wiring plan); nothing uploaded, no native-speaker check; TASK-1269–1274)
 
@@ -248,6 +250,8 @@ Prior: 2026-08-12 (**Exercise Generation v2 batch closed** — TASK-521 sense-em
 - [[features/new-language-content-packs.tech]] — pack layout, `scripts/language_pack.py` commands, workflow arguments, what is and is not checked
 - [[features/language-registry]] — **NEW 2026-11-28**: one declaration of the languages; active and planned; what it does and does not make easier; RQ1–RQ2 open
 - [[features/language-registry.tech]] — `services/language_registry.py` API, features, readiness checks, generated browser copy, "adding a language" steps, what was not migrated
+- [[features/word-upload-queue]] — **NEW 2026-11-28 (in progress)**: learners' uploaded words wait in a queue; the operator builds every asset offline with the authoring skills; words reach the watchlist when complete
+- [[features/word-upload-queue.tech]] — `word_upload_queue` table, asset checklist, submit/watchlist contract, `services/word_list_import/queue.py`, `scripts/word_upload_queue.py`, hourly advance job
 - [[features/model-arena]] — Admin tool: head-to-head OpenRouter model comparison (prose + questions, blind-judged)
 - [[features/model-arena.tech]] — Arena orchestrator, judge rubrics, OpenRouter pricing integration
 - [[features/dual-translation]] — **NEW 2026-06-23 (planned)**: L1→L2 back-translation practice; noticing/diff loop; explained errors + spaced remediation. **+2026-11-17**: all-done screen + explicit re-serve (repeats kept out of the error profile), passages from untaken tests after attempted ones, preview-page entry (`test-available`)
@@ -378,6 +382,7 @@ Prior: 2026-08-12 (**Exercise Generation v2 batch closed** — TASK-521 sense-em
 - [[decisions/ADR-065-grammar-drills-static-content-local-progress]] — **ACCEPTED 2026-11-27**: grammar drill content as static files, generators in the browser, progress in localStorage (provisional); no database rows while the database is at its 475 MB line **Point 3 (localStorage-only progress) superseded 2026-11-27 by ADR-066**
 - [[decisions/ADR-067-new-language-content-as-file-packs]] — **PROPOSED 2026-11-28**: a new language's content is built as validated local files before the language is wired
 - [[decisions/ADR-068-language-registry]] — **ACCEPTED 2026-11-28**: one registry in code, generated browser copy, guard test against literal language maps
+- [[decisions/ADR-069-word-upload-queue]] — **ACCEPTED 2026-11-28**: word-list uploads go to `word_upload_queue` and are built offline; no LLM and no new dictionary rows in the web process; inline path behind `WORD_LIST_INLINE_GENERATION`
 - [[decisions/ADR-066-grammar-drill-daily-tracking]] — **ACCEPTED 2026-11-27**: grammar-drill progress on the server as one summary row per learner, topic and day plus one state row per topic, written by one idempotent function; no per-answer rows; **the database stop line is 480 MB (was 475 MB)**; supersedes point 3 of ADR-065
 
 ## Task Lists
@@ -425,6 +430,7 @@ Prior: 2026-08-12 (**Exercise Generation v2 batch closed** — TASK-521 sense-em
 - [[tasklist/review-2026-11-22.tasks]] — **NEW 2026-11-23**: follow-ups from the codebase review, TASK-1200–1233 (34 tasks, 10 of them `[?]` owner decisions)
 - [[tasklist/grammar-drills.tasks]] — **NEW 2026-11-27** (TASK-1254–1268): 5 done (contract and script, guides, content, page, generators), 5 not started (server sync, native audit, UI string review, generator sentence quality, reuse for Japanese), 5 `[?]` owner decisions (session/ELO integration, explanation languages, Recall timing, audio, measure-word overlap) **+2026-11-27**: TASK-1259 built, `[?]` awaiting live apply
 - [[tasklist/new-language-content-packs.tasks]] — **NEW 2026-11-28** (TASK-1269–1275): 2 done, 5 Not Started; Italian wiring tasks (34, no ids yet) are in `data/language_packs/it/wiring/tasks.md`
+- [[tasklist/word-upload-queue.tasks]] — **NEW 2026-11-28** (TASK-1276–1277): queue built (awaiting live apply of `migrations/word_upload_queue.sql`); shared-resolver Japanese inflection fix Not Started
 - [[tasklist/content-pipeline-remediation.plan]] — Content pipeline remediation plan
 - [[tasklist/exercise-gen-cost.implementation-plan]] — Exercise generation cost reduction implementation plan (TASK-809..816)
 - [[tasklist/word-list-import.plan]] — Word-list upload to ladder exposure and matched-test queueing, implementation plan (v3)

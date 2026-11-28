@@ -3,7 +3,8 @@
  *
  * Backend contract (routes/word_list_import.py):
  *   POST /api/word-list/submit  { words: string[], language: 'en'|'zh'|'ja' }
- *     -> 202 { status: 'success', upload_batch_id }. Fields are flat at the
+ *     -> 202 { status: 'success', upload_batch_id, mode: 'queue'|'inline',
+ *              queued?, already_queued? }. Fields are flat at the
  *     top level (utils.responses.api_success spreads `data`, never nests it
  *     under a `data` key) -- processing continues in a background thread
  *     and is NOT reflected in this response.
@@ -16,6 +17,10 @@
  *     sense_id -> dim_word_senses.vocab_id -> dim_vocabulary.lemma; it may be
  *     null if that join can't resolve (deleted sense, orphaned row), in
  *     which case the "Word" column falls back to "Sense #<id>".
+ *              queue: [{ id, raw_word, language_id, upload_batch_id, status:
+ *                        'pending'|'building'|'failed', missing, requested_at }] }
+ *     `queue` (ADR-069) lists the words still waiting in word_upload_queue;
+ *     a word moves from `queue` to `watchlist` once all its assets exist.
  *     Every active/matched row for the authenticated user, in no guaranteed
  *     order, and NOT filterable by batch server-side -- "this upload's
  *     rows" is therefore a client-side filter on upload_batch_id.
@@ -61,7 +66,8 @@
   const el = {};
   let pollTimer = null;
   let currentIntervalMs = null;
-  let activeBatch = null; // { id, lastRowCount, startedAt }
+  let activeBatch = null; // { id, lastRowCount, startedAt, mode }
+  let lastQueueRows = []; // open word_upload_queue rows from the last load
   const testLinkCache = new Map(); // test_id -> slug string, or null if unresolved
 
   function tr(key, params) {
@@ -232,9 +238,15 @@
         // table (via polling) reveal progress; there is nothing more this
         // response can tell us (see module docstring).
         el.wlWords.value = '';
-        setStatus(tr('word_list.processing'), 'processing');
+        const queued = data.mode === 'queue';
+        setStatus(tr(queued ? 'word_list.queued_message' : 'word_list.processing'), 'processing');
 
-        activeBatch = { id: data.upload_batch_id, lastRowCount: 0, startedAt: Date.now() };
+        activeBatch = {
+          id: data.upload_batch_id,
+          lastRowCount: 0,
+          startedAt: Date.now(),
+          mode: data.mode || 'inline',
+        };
         await loadWatchlist();
         schedulePoll(FAST_POLL_MS);
       } catch (err) {
@@ -276,10 +288,11 @@
       return {};
     });
     const rows = data.watchlist || [];
+    lastQueueRows = data.queue || [];
 
     el.wlLoading.style.display = 'none';
     el.wlError.style.display = 'none';
-    evaluateBatchProgress(rows);
+    evaluateBatchProgress(rows.concat(lastQueueRows));
     render(rows);
     await resolveMatchLinks(rows);
   }
@@ -299,7 +312,8 @@
     const settled = (!stillGrowing && batchRowCount > 0) || elapsed >= FAST_POLL_MAX_MS;
 
     if (settled) {
-      setStatus('', null);
+      // A queued batch's message stays up: its words finish later, offline.
+      if (activeBatch.mode !== 'queue') setStatus('', null);
       activeBatch = null;
       if (currentIntervalMs !== SLOW_POLL_MS) schedulePoll(SLOW_POLL_MS);
     } else if (currentIntervalMs !== FAST_POLL_MS) {
@@ -335,7 +349,8 @@
   }
 
   function render(rows) {
-    if (!rows.length) {
+    const queueRows = lastQueueRows || [];
+    if (!rows.length && !queueRows.length) {
       el.wlEmpty.style.display = 'block';
       el.wlTable.style.display = 'none';
       return;
@@ -349,7 +364,50 @@
       return new Date(b.created_at) - new Date(a.created_at);
     });
 
-    el.wlTableBody.innerHTML = sorted.map(buildRow).join('');
+    const queueSorted = queueRows.slice().sort(function (a, b) {
+      return new Date(b.requested_at) - new Date(a.requested_at);
+    });
+
+    el.wlTableBody.innerHTML =
+      queueSorted.map(buildQueueRow).join('') + sorted.map(buildRow).join('');
+  }
+
+  // A word still in word_upload_queue: no sense yet, so no ladder or match.
+  function buildQueueRow(row) {
+    const isNew = Boolean(activeBatch) && row.upload_batch_id === activeBatch.id;
+    const badge =
+      row.status === 'failed'
+        ? '<span class="wl-badge inactive">' + escapeHtml(tr('word_list.failed')) + '</span>'
+        : row.status === 'building'
+          ? '<span class="wl-badge pending">' + escapeHtml(tr('word_list.building')) + '</span>'
+          : '<span class="wl-badge queued">' + escapeHtml(tr('word_list.queued')) + '</span>';
+    const uploaded =
+      window.LinguaUtils && window.LinguaUtils.formatDate
+        ? window.LinguaUtils.formatDate(row.requested_at)
+        : escapeHtml(row.requested_at || '');
+    return (
+      '<tr class="wl-row-queued' +
+      (isNew ? ' wl-row-new' : '') +
+      '">' +
+      '<td class="wl-word" lang="' +
+      escapeHtml(codeForLanguageId(row.language_id)) +
+      '">' +
+      escapeHtml(row.raw_word) +
+      '</td>' +
+      '<td>' +
+      languageDisplay(row.language_id) +
+      '</td>' +
+      '<td>' +
+      badge +
+      '</td>' +
+      '<td><span class="wl-muted">' +
+      escapeHtml(tr('word_list.not_yet')) +
+      '</span></td>' +
+      '<td>' +
+      uploaded +
+      '</td>' +
+      '</tr>'
+    );
   }
 
   function buildRow(row) {

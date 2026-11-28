@@ -2444,7 +2444,7 @@ Chinese tone-variant support for placement reading items. Both are service-role 
 ### Generation, queue and operations tables
 
 #### `generation_queue`
-Work queue of senses that need (re)generation of exercise assets, keyed by reason. Written by `services/vocabulary_ladder/queue_drain.py` (and `services/vocabulary/sense_quarantine.py`, `services/practice/new_word_admission.py`, `routes/word_list_import.py`, which enqueue); defined in `migrations/generation_queue.sql`. Service-role only (RLS on, no policy, no client grant).
+Work queue of senses that need (re)generation of exercise assets, keyed by reason. Written by `services/vocabulary_ladder/queue_drain.py` (and `services/vocabulary/sense_quarantine.py`, `services/practice/new_word_admission.py` and `scripts/backfill_exercise_audio.py`, which enqueue; corrected 2026-11-28: `routes/word_list_import.py` never wrote it — learner uploads use `word_upload_queue`, see section below); defined in `migrations/generation_queue.sql`. Service-role only (RLS on, no policy, no client grant).
 
 | Column | Type | Null | Default |
 |---|---|---|---|
@@ -2570,7 +2570,7 @@ The week's plan target and progress per learner and language (Monday-anchored). 
 PK `(user_id, language_id, week_start_date)`. FKs: `language_id` -> `dim_languages(id)`, `user_id` -> `auth.users(id)` ON DELETE CASCADE. Indexes `idx_weekly_plan_states_user_lang (user_id, language_id, week_start_date DESC)`, `idx_weekly_plan_states_week (week_start_date)`. RLS policy `weekly_plan_states_self_select` (SELECT, public role, own rows); authenticated has SELECT only.
 
 #### `user_word_watchlist`
-Words a learner uploaded to be matched against newly generated tests (word-list import). Written by `services/word_list_import/upload_handler.py` (insert) and `match_sweep.py` (match columns); read by `build_daily_session`, `knowledge_report_summary`, `knowledge_report_words`, `sweep_cron.py`, `batch_limits.py`. Service-role access in practice: policy `rls_select` (SELECT, public role: service_role, owner, or admin) exists but `authenticated` holds no table grant. See `migrations/security_watchlist_reports_no_client_writes.sql`.
+Words a learner uploaded to be matched against newly generated tests (word-list import). Written by `services/word_list_import/upload_handler.py` (insert, inline mode) and `services/word_list_import/queue.py` (insert when a queued word is finished, ADR-069) and `match_sweep.py` (match columns); read by `build_daily_session`, `knowledge_report_summary`, `knowledge_report_words`, `sweep_cron.py`, `batch_limits.py`. Service-role access in practice: policy `rls_select` (SELECT, public role: service_role, owner, or admin) exists but `authenticated` holds no table grant. See `migrations/security_watchlist_reports_no_client_writes.sql`.
 
 Columns: `id` bigint NN identity (ALWAYS), `user_id` uuid NN, `sense_id` integer NN, `language_id` smallint NN, `upload_batch_id` uuid NN, `created_at` timestamptz NN default `now()`, `ladder_exercises_generated` boolean NN default `false`, `last_matched_test_id` uuid, `last_matched_at` timestamptz, `active` boolean NN default `true`, `last_matched_surfaced_at` timestamptz. FKs: `language_id` -> `dim_languages(id)`, `last_matched_test_id` -> `tests(id)`, `sense_id` -> `dim_word_senses(id)`, `user_id` -> `users(id)` ON DELETE CASCADE. Indexes: `idx_user_word_watchlist_active_sense_id (sense_id) WHERE active = true`, `idx_user_word_watchlist_language_id (language_id)`, `idx_user_word_watchlist_last_matched_test_id (last_matched_test_id) WHERE last_matched_test_id IS NOT NULL`, `idx_user_word_watchlist_pending_word_upload (user_id, language_id) WHERE active = true AND last_matched_test_id IS NOT NULL`, `idx_user_word_watchlist_sense_id (sense_id)`, `idx_user_word_watchlist_upload_batch_id (upload_batch_id)`, `idx_user_word_watchlist_user_id (user_id)`. The watermark table for the nightly sweep (`word_upload_sweep_state`) is **not live**: see the Pending section.
 
@@ -2823,6 +2823,18 @@ Primary key `grammar_drill_state_pkey (user_id, language_id, topic)`; no other i
 **`record_grammar_drill_round(p_user_id uuid, p_language_id smallint, p_round_key uuid, p_practice_day date, p_topics jsonb) RETURNS jsonb`**: plpgsql, VOLATILE, SECURITY DEFINER, `search_path = public, pg_temp`, owner postgres, EXECUTE service_role only. One transaction per round; per topic (in slug order) it creates or locks the state row, skips the topic when `last_round_key = p_round_key`, otherwise adds the counts to the daily row (creating it; `stage` = GREATEST, `instant` = new value, `sub_misses` added per key; a day's row stops growing at 50,000 answers), skips the daily row when `answers = 0`, and merges the state (the side with the later `l` wins; `u` never goes down). Returns `{success, recorded, replayed}`. Caller: `services/grammar_drill_tracking.record_round` (route `POST /api/grammar-drill/round`, [[api/rpcs.tech]]).
 
 **Size (measured on a scratch PostgreSQL 16, 472,680 daily rows):** about 246 bytes per daily row including the primary key index (167 heap + 79 index); 665 bytes per state row for two stages of results, about 1,250 at the most; both tables empty 32 kB. Queries for the owner, including table sizes against the 480 MB line: [[tasklist/grammar-drill-tracking-runbook]].
+
+### Word-upload queue (PENDING, written 2026-11-28; not live)
+
+`migrations/word_upload_queue.sql` (TASK-1276, [[decisions/ADR-069-word-upload-queue]]; rollback `migrations/word_upload_queue_rollback.sql`; apply entry `migrations/PENDING-2026-11-28.md`). One new table, nothing existing changes. Full column list and lifecycle: [[features/word-upload-queue.tech]].
+
+**`word_upload_queue`**: one row per (learner, language, raw uploaded word). Written by `services/word_list_import/queue.py` (`enqueue_words` from `POST /api/word-list/submit`; `resolve_rows`, `advance` from the post-submit job, the hourly `word_upload_queue_advance_hourly` job and `scripts/word_upload_queue.py`); read by `GET /api/word-list/watchlist` and the daily batch cap.
+
+Columns: `id` bigint NN identity (ALWAYS) PK, `user_id` uuid NN FK `users(id)` ON DELETE CASCADE, `upload_batch_id` uuid NN, `language_id` smallint NN FK `dim_languages(id)`, `raw_word` text NN CHECK length 1..40, `gloss_language_id` smallint FK `dim_languages(id)` (CHECK distinct from `language_id`), `vocab_id` integer FK `dim_vocabulary(id)`, `sense_id` integer FK `dim_word_senses(id)`, `status` text NN default `'pending'` CHECK (`pending`,`building`,`done`,`failed`,`cancelled`), `missing` text[] NN default `'{}'`, `detail` jsonb, `requested_at` / `updated_at` timestamptz NN default `now()`, `completed_at` timestamptz. UNIQUE `word_upload_queue_user_lang_word_key (user_id, language_id, raw_word)`; indexes `idx_word_upload_queue_status_lang_requested (status, language_id, requested_at)`, `idx_word_upload_queue_user_requested (user_id, requested_at DESC)`.
+
+**RLS and grants:** RLS on, no policy; `REVOKE ALL FROM PUBLIC, anon, authenticated`; service role only.
+
+**Size:** 32 kB empty; about 250 to 400 bytes per row. Bounded by the submit caps (50 words, 5 batches a day per learner).
 
 ---
 

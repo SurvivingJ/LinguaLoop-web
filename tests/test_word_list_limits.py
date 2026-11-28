@@ -13,6 +13,14 @@ from services.word_list_import.validation import (
 from tests.test_word_list_import_routes import AUTH_HEADERS, FakeDBClient
 
 
+@pytest.fixture(autouse=True)
+def _inline_mode(monkeypatch):
+    """These tests cover the inline path (WORD_LIST_INLINE_GENERATION=true);
+    the queue path, the default, is tested in tests/test_word_upload_queue_routes.py."""
+    from config import Config
+    monkeypatch.setattr(Config, 'WORD_LIST_INLINE_GENERATION', True)
+
+
 # -- validation ---------------------------------------------------------------
 
 @pytest.mark.parametrize('word,language,expected', [

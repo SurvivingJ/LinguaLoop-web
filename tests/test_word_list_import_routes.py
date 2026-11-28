@@ -121,6 +121,14 @@ AUTH_HEADERS = {'Authorization': 'Bearer fake-jwt-token-for-testing'}
 
 
 @pytest.fixture(autouse=True)
+def _inline_mode(monkeypatch):
+    """These tests cover the inline path (WORD_LIST_INLINE_GENERATION=true);
+    the queue path, the default, is tested in tests/test_word_upload_queue_routes.py."""
+    from config import Config
+    monkeypatch.setattr(Config, 'WORD_LIST_INLINE_GENERATION', True)
+
+
+@pytest.fixture(autouse=True)
 def _fresh_limits(monkeypatch):
     """Submission quotas are process-wide; give each test its own."""
     from services.word_list_import import batch_limits

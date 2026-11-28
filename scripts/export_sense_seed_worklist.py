@@ -22,6 +22,7 @@ overwritten by generated ones.
 Usage:
     python scripts/export_sense_seed_worklist.py --language ja
     python scripts/export_sense_seed_worklist.py --language zh --batch-size 40 --limit 200
+    python scripts/export_sense_seed_worklist.py --language ja --vocab-ids 101,102 --out-dir RUN/senses
 
 Options:
     --language CODE    Required. zh | en | ja
@@ -140,6 +141,9 @@ def main() -> int:
     parser.add_argument('--language', required=True, choices=language_registry.codes())
     parser.add_argument('--batch-size', type=int, default=50)
     parser.add_argument('--limit', type=int, default=0)
+    parser.add_argument('--vocab-ids',
+                        help='comma-separated dim_vocabulary ids: export only these '
+                             '(scripts/word_upload_queue.py export passes the queued words)')
     parser.add_argument('--out-dir')
     args = parser.parse_args()
 
@@ -149,6 +153,10 @@ def main() -> int:
     worklist, already = load_worklist(db, language_id)
     logger.info("%s: %d lemma(s) need seeding (%d already have a simple level)",
                 args.language, len(worklist), already)
+    if args.vocab_ids:
+        wanted = {int(v) for v in args.vocab_ids.split(',') if v.strip()}
+        worklist = [w for w in worklist if w['vocab_id'] in wanted]
+        logger.info("  restricted to %d of %d requested vocab id(s)", len(worklist), len(wanted))
     if args.limit:
         worklist = worklist[:args.limit]
         logger.info("  limited to %d", len(worklist))

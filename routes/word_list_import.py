@@ -28,7 +28,17 @@ The nightly ``generation_queue`` drain
 (``services/vocabulary_ladder/queue_drain.py``) is not used here: a word
 uploaded at any other time of day would wait up to ~24h for its exercises.
 
-Instead a submission is handed to a small fixed worker pool
+Two modes (ADR-069), chosen per request by ``Config.WORD_LIST_INLINE_GENERATION``:
+
+* **Queue (default).** The words are inserted into ``word_upload_queue`` and
+  the route answers 202 at once. A pool job then runs
+  ``services.word_list_import.queue.advance`` for the batch: a dictionary
+  lookup only (no LLM, no new dictionary rows), which finishes words whose
+  assets all exist already. The rest wait for the operator's offline build
+  (``scripts/word_upload_queue.py``), which writes the watchlist rows.
+* **Inline** (``WORD_LIST_INLINE_GENERATION=true``). The original path below.
+
+Inline: a submission is handed to a small fixed worker pool
 (``services.word_list_import.batch_limits.WorkerPool``) and the route returns
 202 with a pre-generated ``upload_batch_id``. Progress is polled via
 ``GET /api/word-list/watchlist`` (filterable by the client on
@@ -47,11 +57,15 @@ and the same ``utils.responses`` success/error helpers.
 import logging
 from uuid import uuid4
 
+from datetime import datetime, timedelta, timezone
+
 from flask import Blueprint, g
 
+from config import Config
 from middleware.auth import jwt_required
 from services.word_list_import.upload_handler import process_word_list_upload
 from services.word_list_import import batch_limits
+from services.word_list_import import queue as upload_queue
 from services.word_list_import.validation import clean_words
 from utils.responses import (
     ApiResponse, api_error, api_success, bad_request,
@@ -215,11 +229,67 @@ def _run_upload_in_background(user_id, words, language_code, upload_batch_id):
         _limiter.release(user_id)
 
 
+def _advance_batch_in_background(upload_batch_id):
+    """Pool job for a queued batch: lookup-only advance (no LLM)."""
+    try:
+        db_client = _get_db_client()
+        upload_queue.advance(
+            db_client.client, upload_batch_id=upload_batch_id,
+            db_client=db_client,
+        )
+    except Exception:
+        logger.exception('Queue advance failed for batch %s', upload_batch_id)
+
+
+def _submit_to_queue(db_client, user_id, words, language_id) -> ApiResponse:
+    """Queue mode: store the words, answer 202, look them up in the
+    background. The daily batch cap counts queued batches from the table, so
+    it holds across workers and restarts."""
+    db = db_client.client
+    since = (datetime.now(timezone.utc) - timedelta(days=1)).isoformat()
+    rejection = _limiter.reserve(
+        user_id,
+        known_batches_today=max(
+            batch_limits.count_recent_batches(db, user_id),
+            upload_queue.count_recent_queue_batches(db, user_id, since),
+        ),
+    )
+    if rejection:
+        return _too_many(rejection)
+
+    upload_batch_id = str(uuid4())
+    try:
+        queued = upload_queue.enqueue_words(
+            db, user_id, language_id, words, upload_batch_id,
+            upload_queue.gloss_language_for(db, user_id, language_id),
+        )
+    except Exception:
+        logger.exception('Word-list enqueue failed for user %s', user_id)
+        _limiter.release(user_id, refund=True)
+        return api_error(
+            'Word-list uploads are unavailable right now. Please try again later.',
+            503, 'WORD_QUEUE_UNAVAILABLE',
+        )
+    # Nothing keeps running for this user, so the in-flight slot is freed now.
+    _limiter.release(user_id, refund=(queued == 0))
+
+    if queued:
+        # Best effort: the hourly scheduler job advances the batch otherwise.
+        _pool.submit(lambda: _advance_batch_in_background(upload_batch_id))
+
+    return api_success({
+        'upload_batch_id': upload_batch_id,
+        'mode': 'queue',
+        'queued': queued,
+        'already_queued': len(words) - queued,
+    }, status_code=202)
+
+
 @word_list_import_bp.route('/submit', methods=['POST'])
 @jwt_required
 def submit() -> ApiResponse:
-    """Validate words + language, start upload processing in the
-    background, return an ``upload_batch_id`` immediately."""
+    """Validate words + language, then queue them (default) or start inline
+    processing in the background; return an ``upload_batch_id`` immediately."""
     body = json_body(silent=True)
     words = body.get('words')
     language = body.get('language')
@@ -234,7 +304,8 @@ def submit() -> ApiResponse:
         return bad_request('language is required')
 
     db_client = _get_db_client()
-    if not db_client.get_language_config_by_code(language):
+    lang_config = db_client.get_language_config_by_code(language)
+    if not lang_config:
         return bad_request(f'Unsupported language: {language!r}')
 
     words, problem = clean_words(words, language)
@@ -242,6 +313,9 @@ def submit() -> ApiResponse:
         return bad_request(f'Invalid word list: {problem}')
 
     user_id = g.current_user_id
+    if not Config.WORD_LIST_INLINE_GENERATION:
+        return _submit_to_queue(db_client, user_id, words, lang_config.id)
+
     rejection = _limiter.reserve(
         user_id,
         known_batches_today=batch_limits.count_recent_batches(
@@ -261,7 +335,9 @@ def submit() -> ApiResponse:
         _limiter.release(user_id, refund=True)
         return _too_many(batch_limits.REJECT_BUSY)
 
-    return api_success({'upload_batch_id': upload_batch_id}, status_code=202)
+    return api_success(
+        {'upload_batch_id': upload_batch_id, 'mode': 'inline'}, status_code=202,
+    )
 
 
 @word_list_import_bp.route('/watchlist', methods=['GET'])
@@ -294,4 +370,14 @@ def watchlist() -> ApiResponse:
     for row in rows:
         row['lemma'] = lemma_by_sense_id.get(row.get('sense_id'))
 
-    return api_success({'watchlist': rows})
+    # Words still in the queue (pending / building / failed). Fail-soft: a
+    # missing table (migration not applied) must not break the watchlist.
+    try:
+        queue_rows = upload_queue.open_rows_for_user(
+            db_client.client, g.current_user_id,
+        )
+    except Exception as exc:
+        logger.warning('word_upload_queue read failed: %s', exc)
+        queue_rows = []
+
+    return api_success({'watchlist': rows, 'queue': queue_rows})

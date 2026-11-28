@@ -160,3 +160,13 @@
   text-align: center;
   color: var(--ink-2);
 }
+
+/* Words still in word_upload_queue (ADR-069). */
+.wl-page .wl-badge.queued {
+  background: var(--surface-2);
+  color: var(--ink-2);
+}
+
+.wl-page .wl-muted {
+  color: var(--ink-3, var(--ink-2));
+}

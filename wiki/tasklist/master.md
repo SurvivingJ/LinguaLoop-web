@@ -19,13 +19,15 @@ below.
 
 | Status | Rows in this file | All task files (union, file status wins) |
 |--------|-------------------|------------------------------------------|
-| Not Started | 88 | 104 |
+| Not Started | 89 | 105 |
 | In Progress (`[~]`) | 18 | 25 |
-| Blocked / Deferred / Awaiting decision (`[?]`; includes "Done (repo), awaiting live apply") | 73 | 72 |
+| Blocked / Deferred / Awaiting decision (`[?]`; includes "Done (repo), awaiting live apply") | 74 | 73 |
 | Won't Do (obsolete) | 3 | 3 |
 | Superseded | 2 | 2 |
 | Done | 230 | 374 |
-| **Total distinct task ids** | **409** | **575** |
+| **Total distinct task ids** | **411** | **577** |
+
+*2026-11-28 (word-upload queue built, TASK-1276–1277):* 2 new ids, each with a row here and a block in [[tasklist/word-upload-queue.tasks]]: TASK-1276 `[?]` Done (repo), awaiting live apply (Blocked / awaiting +1 in both columns); TASK-1277 Not Started (+1 in both columns).
 
 *2026-11-27 (merge of main into the grammar-drills branch):* both sides' rows kept; the summary above is the pre-merge base (71/87, 18/25, 59/58, 221/365, 374/540) plus both sides' changes (grammar drills: +4, +6, +5; main: +8, +8, +4). The grammar-drill ids were renumbered from TASK-1234–1248 to TASK-1254–1268 because main had taken TASK-1234–1253. Added by hand, not recounted with the checker.
 
@@ -1624,6 +1626,8 @@ Full spec: [[tasklist/grammar-drills.tasks]]. Feature: [[features/grammar-drills
 | TASK-1273 | new-language-content-packs | Drill page reads a pack's built files | [ ] | M | — |
 | TASK-1274 | new-language-content-packs | Cross-field checks for pack dictionaries | [ ] | S | — |
 | TASK-1275 | language-registry | Language registry follow-ups (glyph tables, dim_languages check, feature gates) | [ ] | M | — |
+| TASK-1276 | word-upload-queue | Queue uploaded words for offline asset building (ADR-069) — Done (repo) 2026-11-28, awaiting live apply of `migrations/word_upload_queue.sql` | [?] | L | — |
+| TASK-1277 | word-upload-queue | Japanese inflection and CJK compounds in the shared word resolver | [ ] | S | — |
 
 ### Language Packs (existing — unchanged)
 

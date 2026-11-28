@@ -1,5 +1,10 @@
 # Word List Upload → Ladder Exposure + Matched Test Queueing — Implementation Plan (v3)
 
+**2026-11-28 — superseded in part by [[decisions/ADR-069-word-upload-queue]]:** submit now
+queues words in `word_upload_queue` by default and the operator builds their assets offline
+([[features/word-upload-queue]]). The Step 3 inline pipeline below still runs when
+`WORD_LIST_INLINE_GENERATION=true`. Steps 1, 4–6 and 8 (watchlist, sweeps, slot scheduling, UI) are unchanged.
+
 **STATUS (2026-08-31): Implemented.** Steps 1-8 built and tested (each with its
 own TDD pass + full-suite regression check); Step 9 (dedicated end-to-end
 integration pass) was deliberately skipped as redundant given per-step
