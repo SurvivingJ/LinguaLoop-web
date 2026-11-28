@@ -1,0 +1,51 @@
+{
+  "code": "it",
+  "name": "Italian",
+  "native_name": "Italiano",
+  "proposed_language_id": null,
+  "variety": "the standard variety the pack is written in, one sentence",
+  "learner": "who the content is written for, e.g. an English speaker at CEFR A1 to B2",
+  "text": {
+    "allowed_regex": "^[A-Za-zÀ-ÿ' ,.;:?!()\"«»–-]+$",
+    "forbidden_regex": "[0-9]",
+    "punctuation": " ,.;:?!()\"«»–",
+    "token_joiner": " ",
+    "casefold_tokens": true,
+    "length_unit": "words",
+    "sentence_min": 3,
+    "sentence_max": 22,
+    "romanisation": null
+  },
+  "levels": {
+    "scheme": "CEFR",
+    "bands": [
+      "A1",
+      "A2",
+      "B1",
+      "B2",
+      "C1"
+    ],
+    "drill_levels": {
+      "1": "A1-A2 words, short sentence",
+      "2": "B1",
+      "3": "B2, longer or two clauses"
+    }
+  },
+  "gloss_languages": [
+    "en"
+  ],
+  "tts_voices": [],
+  "nlp": {
+    "tokeniser": null,
+    "lemmatiser": null,
+    "notes": null
+  },
+  "ladder": [],
+  "unique_features": [],
+  "dictionaries": [],
+  "targets": {
+    "lexicon": 5000,
+    "senses": 5000,
+    "grammar_items": 10000
+  }
+}
