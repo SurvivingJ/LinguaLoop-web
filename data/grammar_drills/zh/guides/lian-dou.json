@@ -1,0 +1,327 @@
+{
+  "topic": "lian-dou",
+  "summary": "连 X 都/也 means 'even X': it picks the most extreme case and says the statement holds even there. 连 goes right before the thing that is surprising, that thing moves in front of the verb, and 都 or 也 must follow it. Think of 连 and 都/也 as two halves of a frame: X sits inside, and everything else (不, 没, the verb) comes after 都/也.",
+  "subs": [
+    {
+      "key": "dou-ye-required",
+      "label": "都 / 也 cannot be left out",
+      "focus": "Learner must supply 都/也 after the 连 phrase (or 连 to open the frame). Classic error: 连 alone for 'even' (连他知道). Never set 都 against 也: both are right. Cloze distractors: 就, 才, 只, ∅; not 还, since 连…还 can occur."
+    },
+    {
+      "key": "focus-subject",
+      "label": "连 + subject",
+      "focus": "The doer is the surprise: 连 before the subject, 都/也 after it, before the predicate. Classic errors: 连 after the subject (他连也来了) or 都/也 before the subject. A topic may come first (这个字连老师都不认识). The English cue must show the subject is the surprise."
+    },
+    {
+      "key": "focus-object",
+      "label": "连 + fronted object",
+      "focus": "The object is the surprise: it must move with 连 in front of 都/也 and the verb. Classic error: English order (他没吃连早饭, 他连都没吃早饭). The 连 phrase may follow or precede the subject (他连早饭都没吃 / 连早饭他都没吃): order items need the other as alt."
+    },
+    {
+      "key": "focus-verb",
+      "label": "连 + verb + 都/也 + 没/不 + verb",
+      "focus": "'Didn't even look': bare verb after 连, repeated after 都/也 + 没/不; 了/过/object/就 clause go with the second copy. Learner must decide to repeat the verb. Classic errors: no repetition (他连没看就走了) or a positive predicate. Keep items negative."
+    },
+    {
+      "key": "yi-measure",
+      "label": "连 + 一 + measure + 都/也 + negative",
+      "focus": "'Not even one': 一 + measure (+ noun) before 都/也, predicate negative. Learner picks the fronted position, the negation, a fitting measure. Classic errors: phrase left after the verb (没有连一个人), 都/也 missing. 连 is optional here, so never make ∅ for 连 a wrong option."
+    },
+    {
+      "key": "negation-position",
+      "label": "不 / 没 comes after 都 / 也",
+      "focus": "Learner must put 不/没 directly after 都/也, before the verb or auxiliary. Classic errors: negating before 都 (他连手机没都带) or in front of 连. In order items cut 都/也 and 不/没 as separate tiles. Do not hinge an item on 不 versus 没 unless time reference clearly forces one."
+    },
+    {
+      "key": "yidianr",
+      "label": "一点儿也不 / 一点儿都没: not at all",
+      "focus": "'Not at all': 一点儿 + 也/都 + 不/没 + adjective/verb, or 一点儿 + noun + 也/都 + 没有. Learner must put 一点儿 before 也/都 and the negation and not confuse it with positive 有点儿. Classic errors: 我不累一点儿, 我有点儿也不累, positive use. Never set 也 against 都."
+    }
+  ],
+  "rules": [
+    {
+      "sub": "dou-ye-required",
+      "rule": "连 never works alone. Whatever follows 连 must be followed by 都 or 也, and only then comes the rest of the sentence.",
+      "pattern": "连 + X + 都/也 + Predicate",
+      "examples": [
+        {
+          "zh": "连我妈妈都知道这件事。",
+          "py": "lián wǒ mā ma dōu zhī dào zhè jiàn shì",
+          "en": "Even my mum knows about this."
+        },
+        {
+          "zh": "他连星期天也上班。",
+          "py": "tā lián xīng qī tiān yě shàng bān",
+          "en": "He works even on Sundays."
+        },
+        {
+          "zh": "我忙得连饭都忘了吃。",
+          "py": "wǒ máng de lián fàn dōu wàng le chī",
+          "en": "I was so busy I even forgot to eat."
+        }
+      ],
+      "note": "都 and 也 mean the same here and both are always acceptable; 也 is heard a little more often in negative sentences. Use one of them, never both together."
+    },
+    {
+      "sub": "focus-subject",
+      "rule": "If the surprising thing is who does it, put 连 in front of the subject and 都/也 right after the subject.",
+      "pattern": "连 + Subject + 都/也 + Verb / Adjective",
+      "examples": [
+        {
+          "zh": "连小孩子都知道。",
+          "py": "lián xiǎo hái zi dōu zhī dào",
+          "en": "Even little kids know that."
+        },
+        {
+          "zh": "连他也迟到了。",
+          "py": "lián tā yě chí dào le",
+          "en": "Even he was late."
+        },
+        {
+          "zh": "这个字连老师都不认识。",
+          "py": "zhè ge zì lián lǎo shī dōu bù rèn shi",
+          "en": "Even the teacher doesn't know this character."
+        }
+      ],
+      "note": "What the sentence is about can be stated first as a topic, as in the last example; 连 still stands directly before the surprising subject."
+    },
+    {
+      "sub": "focus-object",
+      "rule": "If the surprising thing is the object, it cannot stay after the verb. Move it in front of the verb together with 连, then add 都/也.",
+      "pattern": "Subject + 连 + Object + 都/也 + Verb",
+      "examples": [
+        {
+          "zh": "他连早饭都没吃。",
+          "py": "tā lián zǎo fàn dōu méi chī",
+          "en": "He didn't even eat breakfast."
+        },
+        {
+          "zh": "我连他的名字都忘了。",
+          "py": "wǒ lián tā de míng zi dōu wàng le",
+          "en": "I've even forgotten his name."
+        },
+        {
+          "zh": "她连自己的生日也不记得。",
+          "py": "tā lián zì jǐ de shēng rì yě bù jì de",
+          "en": "She doesn't even remember her own birthday."
+        }
+      ]
+    },
+    {
+      "sub": "focus-object",
+      "rule": "The 连 + object phrase may also go before the subject. The subject then stands between the object and 都/也.",
+      "pattern": "连 + Object + Subject + 都/也 + Verb",
+      "examples": [
+        {
+          "zh": "连这么简单的题他都不会。",
+          "py": "lián zhè me jiǎn dān de tí tā dōu bù huì",
+          "en": "He can't even do a question this simple."
+        },
+        {
+          "zh": "连早饭他都没吃。",
+          "py": "lián zǎo fàn tā dōu méi chī",
+          "en": "He didn't even eat breakfast."
+        }
+      ],
+      "note": "Both orders mean the same. Subject first is the more common one; object first puts a bit more weight on the object."
+    },
+    {
+      "sub": "focus-verb",
+      "rule": "To say someone did not even do the action, put the bare verb after 连 and say the verb again after 都/也 + 没/不. 了, 过, an object or a following 就 clause go with the second verb, never the first.",
+      "pattern": "Subject + 连 + Verb + 都/也 + 没/不 + Verb",
+      "examples": [
+        {
+          "zh": "他连看都没看就走了。",
+          "py": "tā lián kàn dōu méi kàn jiù zǒu le",
+          "en": "He left without even looking."
+        },
+        {
+          "zh": "这个地方我连听都没听说过。",
+          "py": "zhè ge dì fang wǒ lián tīng dōu méi tīng shuō guo",
+          "en": "I've never even heard of this place."
+        },
+        {
+          "zh": "他连问都不问就拿走了。",
+          "py": "tā lián wèn dōu bù wèn jiù ná zǒu le",
+          "en": "He took it without even asking."
+        }
+      ],
+      "note": "This verb-copying form is used almost only with a negative predicate."
+    },
+    {
+      "sub": "yi-measure",
+      "rule": "'Not even one': put 一 + measure word (+ noun) before 都/也, and make the predicate negative.",
+      "pattern": "连 + 一 + Measure + Noun + 都/也 + 没/不 + Verb",
+      "examples": [
+        {
+          "zh": "教室里连一个人都没有。",
+          "py": "jiào shì lǐ lián yī gè rén dōu méi yǒu",
+          "en": "There isn't even one person in the classroom."
+        },
+        {
+          "zh": "他连一句话也没说。",
+          "py": "tā lián yī jù huà yě méi shuō",
+          "en": "He didn't say even one word."
+        },
+        {
+          "zh": "我连一分钟都不想等。",
+          "py": "wǒ lián yī fēn zhōng dōu bù xiǎng děng",
+          "en": "I don't want to wait even one minute."
+        }
+      ],
+      "note": "With 一 + measure, 连 itself may be dropped with no change in meaning (教室里一个人都没有), but 都/也 and the negation must stay."
+    },
+    {
+      "sub": "negation-position",
+      "rule": "不 and 没 go after 都/也, directly before the verb or the auxiliary. Nothing negative goes between 连 and 都/也.",
+      "pattern": "连 + X + 都/也 + 不/没 + Verb",
+      "examples": [
+        {
+          "zh": "他连手机都没带。",
+          "py": "tā lián shǒu jī dōu méi dài",
+          "en": "He didn't even bring his phone."
+        },
+        {
+          "zh": "她连咖啡也不喝。",
+          "py": "tā lián kā fēi yě bù hē",
+          "en": "She doesn't even drink coffee."
+        },
+        {
+          "zh": "连经理都不知道这件事。",
+          "py": "lián jīng lǐ dōu bù zhī dào zhè jiàn shì",
+          "en": "Even the manager doesn't know about this."
+        }
+      ],
+      "note": "The choice between 不 and 没 follows the normal rules: 没 for something that did not happen, 不 for habits, wishes and states."
+    },
+    {
+      "sub": "yidianr",
+      "rule": "'Not at all': 一点儿 comes first, then 也/都, then 不/没, then the adjective or verb.",
+      "pattern": "Subject + 一点儿 + 也/都 + 不/没 + Adjective / Verb",
+      "examples": [
+        {
+          "zh": "我一点儿也不累。",
+          "py": "wǒ yī diǎn r yě bù lèi",
+          "en": "I'm not tired at all."
+        },
+        {
+          "zh": "这个菜一点儿都不辣。",
+          "py": "zhè ge cài yī diǎn r dōu bù là",
+          "en": "This dish isn't spicy at all."
+        },
+        {
+          "zh": "这么多年他一点儿都没变。",
+          "py": "zhè me duō nián tā yī diǎn r dōu méi biàn",
+          "en": "He hasn't changed a bit in all these years."
+        }
+      ],
+      "note": "This pattern is always negative. The positive 'a bit tired' is 有点儿累, a different word. In casual speech 也/都 is sometimes dropped (一点儿不累), but learn and write it with 也/都."
+    },
+    {
+      "sub": "yidianr",
+      "rule": "'Not even a little of something': 一点儿 + noun goes before 也/都 and the negative verb, like a fronted object.",
+      "pattern": "Subject + 一点儿 + Noun + 也/都 + 没/不 + Verb",
+      "examples": [
+        {
+          "zh": "我一点儿钱都没有。",
+          "py": "wǒ yī diǎn r qián dōu méi yǒu",
+          "en": "I don't have any money at all."
+        },
+        {
+          "zh": "他一点儿东西也没吃。",
+          "py": "tā yī diǎn r dōng xi yě méi chī",
+          "en": "He didn't eat anything at all."
+        },
+        {
+          "zh": "我今天一点儿时间都没有。",
+          "py": "wǒ jīn tiān yī diǎn r shí jiān dōu méi yǒu",
+          "en": "I don't have any time at all today."
+        }
+      ],
+      "note": "连 can be added in front for extra force: 我连一点儿钱都没有."
+    }
+  ],
+  "contrasts": [
+    {
+      "wrong": "连小孩子知道。",
+      "right": {
+        "zh": "连小孩子都知道。",
+        "py": "lián xiǎo hái zi dōu zhī dào",
+        "en": "Even little kids know that."
+      },
+      "why": "English 'even' is one word, but 连 needs its partner: 都 or 也 must follow the 连 phrase."
+    },
+    {
+      "wrong": "他没吃连早饭。",
+      "right": {
+        "zh": "他连早饭都没吃。",
+        "py": "tā lián zǎo fàn dōu méi chī",
+        "en": "He didn't even eat breakfast."
+      },
+      "why": "The object marked by 连 cannot stay after the verb. It moves in front of the verb and is followed by 都/也."
+    },
+    {
+      "wrong": "他连手机没都带。",
+      "right": {
+        "zh": "他连手机都没带。",
+        "py": "tā lián shǒu jī dōu méi dài",
+        "en": "He didn't even bring his phone."
+      },
+      "why": "The negation comes after 都/也, directly before the verb. 没都 breaks the 连…都 frame."
+    },
+    {
+      "wrong": "他连也迟到了。",
+      "right": {
+        "zh": "连他也迟到了。",
+        "py": "lián tā yě chí dào le",
+        "en": "Even he was late."
+      },
+      "why": "连 stands directly before the surprising element. Here that is the subject 他, so 连 comes first and 也 follows 他."
+    },
+    {
+      "wrong": "他连没看就走了。",
+      "right": {
+        "zh": "他连看都没看就走了。",
+        "py": "tā lián kàn dōu méi kàn jiù zǒu le",
+        "en": "He left without even looking."
+      },
+      "why": "When the verb is the focus, it appears twice: bare after 连, and again after 都 + 没."
+    },
+    {
+      "wrong": "教室里没有连一个人。",
+      "right": {
+        "zh": "教室里连一个人都没有。",
+        "py": "jiào shì lǐ lián yī gè rén dōu méi yǒu",
+        "en": "There isn't even one person in the classroom."
+      },
+      "why": "'Not even one' puts 一个人 before 都 and the negative verb, not after 没有."
+    },
+    {
+      "wrong": "我不累一点儿。",
+      "right": {
+        "zh": "我一点儿也不累。",
+        "py": "wǒ yī diǎn r yě bù lèi",
+        "en": "I'm not tired at all."
+      },
+      "why": "'At all' comes last in English, but 一点儿 goes first, followed by 也/都 and then 不."
+    },
+    {
+      "wrong": "我有点儿也不累。",
+      "right": {
+        "zh": "我一点儿也不累。",
+        "py": "wǒ yī diǎn r yě bù lèi",
+        "en": "I'm not tired at all."
+      },
+      "why": "有点儿 is the positive 'a bit' (有点儿累). The negative 'not at all' pattern uses 一点儿 + 也/都 + 不."
+    }
+  ],
+  "cheat": [
+    "See 连? 都 or 也 must follow its phrase. No partner, no sentence.",
+    "连 sits directly in front of the surprising thing: the subject, the object, the verb, or 一 + measure.",
+    "Surprising object: pull it in front of the verb. Nothing marked by 连 stays after the verb.",
+    "不 / 没 always comes after 都 / 也, right before the verb.",
+    "Didn't even do it: 连 + verb + 都 + 没 + same verb (连看都没看).",
+    "Not even one: 一 + measure + 都/也 + negative; 连 in front is optional.",
+    "Not at all: 一点儿 + 也/都 + 不/没. Positive 'a bit' is 有点儿, never mix them."
+  ]
+}

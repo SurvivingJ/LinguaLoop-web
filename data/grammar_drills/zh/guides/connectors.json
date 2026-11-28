@@ -1,0 +1,474 @@
+{
+  "topic": "connectors",
+  "summary": "Chinese links two clauses with a matched pair: an opener in the first clause (因为, 如果, 不管, 只有) and a fixed partner in the second (所以, 就, 都, 才). Learn each opener together with its partner, and remember that the partners 就, 才, 都, 也, 还 are adverbs: they come after the second subject, never in front of it.",
+  "subs": [
+    {
+      "key": "cause-purpose",
+      "label": "因为…所以, 由于…因此, 既然…就, 为了",
+      "focus": "Choose the right opener or partner for reason, known fact and purpose. Classic errors: 因为 where the clause is a goal (needs 为了), 所以 after 既然 (needs 就), and thinking 因为 and 所以 cannot both appear as in English. Do not make 因为 against 由于 the only decision; both give a reason."
+    },
+    {
+      "key": "concession",
+      "label": "虽然…但是, 尽管…还是, 即使/就算…也",
+      "focus": "Pick the partner (但是/可是, 还是, 也) and tell a real fact (虽然, 尽管) from a supposed case (即使, 就算). Classic error: dropping 但是 because English bans 'although ... but'. 即使/就算…但是 is said colloquially: never judge-wrong. Make the first clause clearly real (已经, 昨天) or supposed (明天, 再) so only one opener fits."
+    },
+    {
+      "key": "condition",
+      "label": "如果/要是…就, 只要…就, 只有…才",
+      "focus": "Decide 就 against 才: 如果, 要是 and 只要 take 就, 只有 takes 才. Also 只要 (this is enough) against 只有 (nothing else works), decided by the 就 or 才 already in the sentence. Classic error: 只有…就. Never offer 如果 and 要是 as competing options; they are interchangeable."
+    },
+    {
+      "key": "no-matter-except",
+      "label": "无论/不管…都, 除了…都/还/也",
+      "focus": "After 无论/不管: supply 都 and a question form (谁, 什么, 怎么, 多, verb-not-verb, 还是). After 除了: choose 都 (except) or 还/也 (besides), made clear by the English cue. Classic errors: 不管 + plain statement, 不管很忙, 还 where 'except' needs 都. Never set 无论 against 不管, or 还 against 也."
+    },
+    {
+      "key": "addition",
+      "label": "不但…而且/还, 又…又, 既…又/也, 一边…一边",
+      "focus": "Match the pair: 不但 with 而且/还, 又 with 又, 既 with 又/也, 一边 with 一边. 又…又 joins qualities; 一边…一边 joins two simultaneous actions. Classic errors: 一边…一边 with adjectives, 不但 before a subject both clauses share. 很 inside 又…又 is colloquial: never judge-wrong. Never set 而且 against 还, or 又 against 也 after 既."
+    },
+    {
+      "key": "sequence",
+      "label": "先…再/然后, 一…就",
+      "focus": "先 marks step one and 再/然后 the next; 一 right before the first verb plus 就 means 'as soon as' or 'whenever'. Classic errors: 一 before its own subject (一他下课), 就 missing or before the subject, 先…就 for plain steps. 一下课他就… (subject after the 一 clause) is correct: give that alt. Never set 再 against 然后."
+    },
+    {
+      "key": "yue",
+      "label": "越…越, 越来越",
+      "focus": "越来越 + adjective or feeling verb for change over time; 越 + verb + 越 + adjective when one thing grows with another. Classic errors: adding 很 or 非常 after 越来越, putting 越来越 before an action verb (越来越下雨), and using 越来越 where two linked changes need 越…越."
+    },
+    {
+      "key": "choice",
+      "label": "不是…而是, 不是…就是, 要么…要么",
+      "focus": "Decide by meaning: 不是 A 而是 B corrects (not A but B), 不是 A 就是 B says it is always one of the two, 要么 A 要么 B offers two options to choose from. Classic error: 就是 for 'not A but B', or 但是 in place of 而是. The English cue must make the meaning unmistakable."
+    },
+    {
+      "key": "adverb-position",
+      "label": "Partner after the second subject",
+      "focus": "Order items and judge items on where the partner sits. 就, 才, 都, 也, 还, 再 are adverbs and follow the subject of the second clause (我就去); 所以, 但是, 可是, 而且, 因此, 然后 are conjunctions and come before it (所以我去). Classic error: 就我去, 都我们喜欢, 也他来. The second clause must have its own stated subject."
+    }
+  ],
+  "rules": [
+    {
+      "sub": "cause-purpose",
+      "rule": "因为 pairs with 所以, formal 由于 with 因此; unlike English, using both halves is normal. 既然 (since, given that) takes 就 and leads to a suggestion or conclusion. 为了 gives a goal, not a cause.",
+      "pattern": "因为 + reason + 所以 + result / 既然 + fact + Subject + 就 + Verb / 为了 + goal + Subject + Verb",
+      "examples": [
+        {
+          "zh": "因为下雨，所以我们没去公园。",
+          "py": "yīn wèi xià yǔ suǒ yǐ wǒ men méi qù gōng yuán",
+          "en": "Because it rained, we didn't go to the park."
+        },
+        {
+          "zh": "由于天气不好，因此比赛改到了明天。",
+          "py": "yóu yú tiān qì bù hǎo yīn cǐ bǐ sài gǎi dào le míng tiān",
+          "en": "Owing to the bad weather, the match has been moved to tomorrow."
+        },
+        {
+          "zh": "既然你不舒服，就早点儿回家休息吧。",
+          "py": "jì rán nǐ bù shū fu jiù zǎo diǎn r huí jiā xiū xi ba",
+          "en": "Since you're not feeling well, go home early and rest."
+        },
+        {
+          "zh": "为了学好中文，她每天都听中文新闻。",
+          "py": "wèi le xué hǎo zhōng wén tā měi tiān dōu tīng zhōng wén xīn wén",
+          "en": "In order to learn Chinese well, she listens to the Chinese news every day."
+        }
+      ],
+      "note": "Either half of 因为…所以 can be left out in speech, and 由于 is also heard with 所以. Only the choice of partner and the reason/goal difference are safe to test."
+    },
+    {
+      "sub": "concession",
+      "rule": "For a real fact use 虽然 with 但是/可是, or 尽管 with 还是. For a supposed case (even if) use 即使 or 就算 with 也. Keep the partner in the second clause even though English drops 'but'.",
+      "pattern": "虽然 + fact + 但是 + result / 尽管 + fact + Subject + 还是 + Verb / 即使 + case + Subject + 也 + Verb",
+      "examples": [
+        {
+          "zh": "虽然这件衣服很贵，但是我很喜欢。",
+          "py": "suī rán zhè jiàn yī fu hěn guì dàn shì wǒ hěn xǐ huan",
+          "en": "Although this piece of clothing is expensive, I really like it."
+        },
+        {
+          "zh": "尽管外面很冷，他还是出去跑步了。",
+          "py": "jǐn guǎn wài miàn hěn lěng tā hái shi chū qù pǎo bù le",
+          "en": "Even though it was cold outside, he still went out for a run."
+        },
+        {
+          "zh": "即使明天下雨，我也要去。",
+          "py": "jí shǐ míng tiān xià yǔ wǒ yě yào qù",
+          "en": "Even if it rains tomorrow, I'm going."
+        },
+        {
+          "zh": "就算你不告诉我，我也知道。",
+          "py": "jiù suàn nǐ bù gào su wǒ wǒ yě zhī dào",
+          "en": "Even if you don't tell me, I know anyway."
+        }
+      ],
+      "note": "虽然 may stand before or after the first subject (虽然他很忙 / 他虽然很忙). 虽然 itself can be dropped; 但是 or 可是 is normally kept. 尽管 can also be followed by 但是, and in speech so can 即使 / 就算; their standard partner is 也."
+    },
+    {
+      "sub": "condition",
+      "rule": "如果 and 要是 (if) pair with 就; 的话 may close the if-clause. 就 comes after the second subject.",
+      "pattern": "如果/要是 + condition + (的话) + Subject + 就 + result",
+      "examples": [
+        {
+          "zh": "如果你有时间，我们就一起吃饭吧。",
+          "py": "rú guǒ nǐ yǒu shí jiān wǒ men jiù yī qǐ chī fàn ba",
+          "en": "If you have time, let's eat together."
+        },
+        {
+          "zh": "要是明天不下雨的话，我就去爬山。",
+          "py": "yào shi míng tiān bù xià yǔ de huà wǒ jiù qù pá shān",
+          "en": "If it doesn't rain tomorrow, I'll go hiking."
+        },
+        {
+          "zh": "如果太贵，我就不买了。",
+          "py": "rú guǒ tài guì wǒ jiù bù mǎi le",
+          "en": "If it's too expensive, I won't buy it."
+        }
+      ],
+      "note": "就 is very common but not required: 如果你有问题,可以问我 is fine. A sentence without 就 is not an error; a sentence with 才 in its place changes the meaning to 'only then'."
+    },
+    {
+      "sub": "condition",
+      "rule": "只要 (as long as: this one condition is enough) takes 就. 只有 (only if: no other condition works) takes 才. See 就, choose 只要; see 才, choose 只有.",
+      "pattern": "只要 + condition + Subject + 就 + result / 只有 + condition + Subject + 才 + result",
+      "examples": [
+        {
+          "zh": "只要你努力，就一定能学好。",
+          "py": "zhǐ yào nǐ nǔ lì jiù yī dìng néng xué hǎo",
+          "en": "As long as you work hard, you will certainly learn it well."
+        },
+        {
+          "zh": "只要不下雨，我们就去。",
+          "py": "zhǐ yào bù xià yǔ wǒ men jiù qù",
+          "en": "As long as it doesn't rain, we'll go."
+        },
+        {
+          "zh": "只有多听多说，才能学好中文。",
+          "py": "zhǐ yǒu duō tīng duō shuō cái néng xué hǎo zhōng wén",
+          "en": "Only by listening and speaking a lot can you learn Chinese well."
+        },
+        {
+          "zh": "只有你去请他，他才会来。",
+          "py": "zhǐ yǒu nǐ qù qǐng tā tā cái huì lái",
+          "en": "He will only come if you go and invite him."
+        }
+      ]
+    },
+    {
+      "sub": "no-matter-except",
+      "rule": "无论 and 不管 (no matter) take a question form after them (question word, verb-not-verb, or A 还是 B) and 都 in the second clause. Standard usage has no plain statement or 很 + adjective after them.",
+      "pattern": "无论/不管 + question form + Subject + 都 + Verb",
+      "examples": [
+        {
+          "zh": "不管天气怎么样，我都去跑步。",
+          "py": "bù guǎn tiān qì zěn me yàng wǒ dōu qù pǎo bù",
+          "en": "Whatever the weather is like, I go running."
+        },
+        {
+          "zh": "无论你去不去，我都要去。",
+          "py": "wú lùn nǐ qù bu qù wǒ dōu yào qù",
+          "en": "Whether you go or not, I'm going."
+        },
+        {
+          "zh": "不管是大人还是孩子，都喜欢这个电影。",
+          "py": "bù guǎn shì dà rén hái shi hái zi dōu xǐ huan zhè ge diàn yǐng",
+          "en": "Adults and children alike love this film."
+        }
+      ],
+      "note": "也 is also possible after 无论/不管, mostly in negative sentences (不管我怎么说，他也不听), so do not use 也 as a wrong option. 不管 is more colloquial than 无论. A bare adjective after 不管 is sometimes heard in casual speech, so it is not a safe judge-wrong sentence."
+    },
+    {
+      "sub": "no-matter-except",
+      "rule": "除了 A (以外) with 都 leaves A out: everyone or everything except A. 除了 A (以外) with 还 or 也 adds to A: besides A, also B.",
+      "pattern": "除了 + A + (以外) + Subject + 都 + Verb / 除了 + A + (以外) + Subject + 还/也 + Verb + B",
+      "examples": [
+        {
+          "zh": "除了小王，我们都去过北京。",
+          "py": "chú le xiǎo wáng wǒ men dōu qù guo běi jīng",
+          "en": "All of us except Xiao Wang have been to Beijing."
+        },
+        {
+          "zh": "除了周末，我每天都上班。",
+          "py": "chú le zhōu mò wǒ měi tiān dōu shàng bān",
+          "en": "I work every day except weekends."
+        },
+        {
+          "zh": "除了中文以外，他还会说日语。",
+          "py": "chú le zhōng wén yǐ wài tā hái huì shuō rì yǔ",
+          "en": "Besides Chinese, he can also speak Japanese."
+        },
+        {
+          "zh": "除了游泳，我也喜欢打篮球。",
+          "py": "chú le yóu yǒng wǒ yě xǐ huan dǎ lán qiú",
+          "en": "Besides swimming, I also like playing basketball."
+        }
+      ],
+      "note": "以外 is optional in both meanings. In a negative sentence 'except' can also take 也 (除了他,谁也不知道), so keep 都 items positive."
+    },
+    {
+      "sub": "addition",
+      "rule": "不但 (not only) pairs with 而且, 还 or 也. If both clauses have the same subject, the subject comes before 不但; if the subjects differ, 不但 comes before the first subject and the second clause usually has 也.",
+      "pattern": "Subject + 不但 + A + 而且/还 + B / 不但 + Subject one + Verb + 而且 + Subject two + 也 + Verb",
+      "examples": [
+        {
+          "zh": "她不但会说中文，而且说得很流利。",
+          "py": "tā bù dàn huì shuō zhōng wén ér qiě shuō de hěn liú lì",
+          "en": "She not only speaks Chinese, she speaks it fluently."
+        },
+        {
+          "zh": "这家饭馆不但便宜，还很好吃。",
+          "py": "zhè jiā fàn guǎn bù dàn pián yi hái hěn hǎo chī",
+          "en": "This restaurant is not only cheap, the food is good too."
+        },
+        {
+          "zh": "不但学生喜欢她，而且老师也喜欢她。",
+          "py": "bù dàn xué sheng xǐ huan tā ér qiě lǎo shī yě xǐ huan tā",
+          "en": "Not only the students like her; the teachers like her too."
+        }
+      ],
+      "note": "而且 is a conjunction (before a subject); 还 and 也 are adverbs (after it). 而且还 and 而且也 together are also common."
+    },
+    {
+      "sub": "addition",
+      "rule": "又…又 joins two qualities of the same thing, normally with bare adjectives. 既…又 or 既…也 (both ... and) is the more formal version and also joins verb phrases. 一边…一边 is only for two actions going on at the same time.",
+      "pattern": "Subject + 又 + Adj + 又 + Adj / Subject + 既 + A + 又/也 + B / Subject + 一边 + Verb + 一边 + Verb",
+      "examples": [
+        {
+          "zh": "这个苹果又大又甜。",
+          "py": "zhè ge píng guǒ yòu dà yòu tián",
+          "en": "This apple is both big and sweet."
+        },
+        {
+          "zh": "他既会唱歌，又会跳舞。",
+          "py": "tā jì huì chàng gē yòu huì tiào wǔ",
+          "en": "He can both sing and dance."
+        },
+        {
+          "zh": "她既是我的老师，也是我的朋友。",
+          "py": "tā jì shì wǒ de lǎo shī yě shì wǒ de péng you",
+          "en": "She is both my teacher and my friend."
+        },
+        {
+          "zh": "他一边吃饭，一边看手机。",
+          "py": "tā yī biān chī fàn yī biān kàn shǒu jī",
+          "en": "He looks at his phone while eating."
+        }
+      ],
+      "note": "又…又 can also join verbs (又唱又跳), and 又很A又很B is heard in casual speech, so only adjectives with 一边 are a safe wrong sentence."
+    },
+    {
+      "sub": "sequence",
+      "rule": "先 + first step, 再 or 然后 + next step. 一 + first action + 就 + second action means the second follows at once, or every time. 先, 再, 一 and 就 all stand after the subject, directly before the verb.",
+      "pattern": "Subject + 先 + Verb + 再/然后 + Verb / Subject + 一 + Verb + (Subject) + 就 + Verb",
+      "examples": [
+        {
+          "zh": "你先洗手，再吃饭。",
+          "py": "nǐ xiān xǐ shǒu zài chī fàn",
+          "en": "Wash your hands first, then eat."
+        },
+        {
+          "zh": "我们先去银行，然后去超市。",
+          "py": "wǒ men xiān qù yín háng rán hòu qù chāo shì",
+          "en": "We'll go to the bank first, and then to the supermarket."
+        },
+        {
+          "zh": "我一到家就给你打电话。",
+          "py": "wǒ yī dào jiā jiù gěi nǐ dǎ diàn huà",
+          "en": "I'll call you as soon as I get home."
+        },
+        {
+          "zh": "他一喝咖啡就睡不着。",
+          "py": "tā yī hē kā fēi jiù shuì bu zháo",
+          "en": "Whenever he drinks coffee he can't sleep."
+        }
+      ],
+      "note": "再 and 然后 are both right after 先, and 然后再 is common too, so never set them against each other. 然后 is a conjunction and can precede a subject; 再 cannot. A shared subject may also follow the 一 clause: 一下课他就回家了."
+    },
+    {
+      "sub": "yue",
+      "rule": "越来越 + adjective or feeling verb: more and more over time, often with 了 at the end. 越 A 越 B: the more A, the more B. No 很, 非常 or 更 after 越 or 越来越.",
+      "pattern": "Subject + 越来越 + Adjective + (了) / Subject + 越 + Verb + 越 + Adjective",
+      "examples": [
+        {
+          "zh": "天气越来越冷了。",
+          "py": "tiān qì yuè lái yuè lěng le",
+          "en": "The weather is getting colder and colder."
+        },
+        {
+          "zh": "我越来越喜欢这个城市了。",
+          "py": "wǒ yuè lái yuè xǐ huan zhè ge chéng shì le",
+          "en": "I like this city more and more."
+        },
+        {
+          "zh": "雨越下越大。",
+          "py": "yǔ yuè xià yuè dà",
+          "en": "The rain is getting heavier and heavier."
+        },
+        {
+          "zh": "你越着急，越容易出错。",
+          "py": "nǐ yuè zháo jí yuè róng yì chū cuò",
+          "en": "The more anxious you are, the more easily you make mistakes."
+        }
+      ],
+      "note": "越来越 cannot go straight before an action verb: say 雨越下越大, not 越来越下雨."
+    },
+    {
+      "sub": "choice",
+      "rule": "不是 A 而是 B: not A but B (a correction). 不是 A 就是 B: if it is not A, it is B (always one of the two). 要么 A 要么 B: either A or B, as options to choose between.",
+      "pattern": "不是 + A + 而是 + B / 不是 + A + 就是 + B / 要么 + A + 要么 + B",
+      "examples": [
+        {
+          "zh": "他不是老师，而是学生。",
+          "py": "tā bù shì lǎo shī ér shì xué sheng",
+          "en": "He is not a teacher but a student."
+        },
+        {
+          "zh": "我不是不想去，而是没有时间。",
+          "py": "wǒ bù shì bù xiǎng qù ér shì méi yǒu shí jiān",
+          "en": "It's not that I don't want to go; I just don't have time."
+        },
+        {
+          "zh": "他周末不是睡觉，就是玩游戏。",
+          "py": "tā zhōu mò bù shì shuì jiào jiù shì wán yóu xì",
+          "en": "At weekends he is either sleeping or playing games."
+        },
+        {
+          "zh": "要么你来我家，要么我去找你。",
+          "py": "yào me nǐ lái wǒ jiā yào me wǒ qù zhǎo nǐ",
+          "en": "Either you come to my place or I come to you."
+        }
+      ],
+      "note": "不是…就是 describes how things are; 要么…要么 proposes alternatives. They overlap in some sentences, so set 而是 against 就是, and give 要么 items a clear 'you choose' context."
+    },
+    {
+      "sub": "adverb-position",
+      "rule": "When the second clause has its own subject, the adverb partners 就, 才, 都, 也, 还 go after that subject. The conjunction partners 所以, 但是, 可是, 而且, 因此 go before it.",
+      "pattern": "Opener + clause + Subject + 就/才/都/也/还 + Verb / Opener + clause + 所以/但是 + Subject + Verb",
+      "examples": [
+        {
+          "zh": "如果你不去，我就不去了。",
+          "py": "rú guǒ nǐ bù qù wǒ jiù bù qù le",
+          "en": "If you don't go, I won't go either."
+        },
+        {
+          "zh": "不管多忙，他都给妈妈打电话。",
+          "py": "bù guǎn duō máng tā dōu gěi mā ma dǎ diàn huà",
+          "en": "However busy he is, he phones his mum."
+        },
+        {
+          "zh": "虽然他很年轻，但是他的经验很丰富。",
+          "py": "suī rán tā hěn nián qīng dàn shì tā de jīng yàn hěn fēng fù",
+          "en": "Although he is young, he has a lot of experience."
+        },
+        {
+          "zh": "因为路上堵车，所以我迟到了。",
+          "py": "yīn wèi lù shang dǔ chē suǒ yǐ wǒ chí dào le",
+          "en": "Because of the traffic jam, I was late."
+        }
+      ],
+      "note": "If the second clause has no subject of its own, the adverb simply opens it: 只要你努力，就一定能学好. In speech 所以 is occasionally heard after the subject (我所以没去), so that is not a safe wrong sentence."
+    }
+  ],
+  "contrasts": [
+    {
+      "wrong": "如果你不去，就我不去了。",
+      "right": {
+        "zh": "如果你不去，我就不去了。",
+        "py": "rú guǒ nǐ bù qù wǒ jiù bù qù le",
+        "en": "If you don't go, I won't go either."
+      },
+      "why": "就 is an adverb, not a word like 'then' that opens the clause. It must follow the second subject 我."
+    },
+    {
+      "wrong": "只有你来，我就放心。",
+      "right": {
+        "zh": "只有你来，我才放心。",
+        "py": "zhǐ yǒu nǐ lái wǒ cái fàng xīn",
+        "en": "Only if you come will I stop worrying."
+      },
+      "why": "只有 names the one condition that works, so its partner is 才. 就 belongs with 只要 and 如果."
+    },
+    {
+      "wrong": "不管下雨，我都去。",
+      "right": {
+        "zh": "不管下不下雨，我都去。",
+        "py": "bù guǎn xià bu xià yǔ wǒ dōu qù",
+        "en": "I'm going whether it rains or not."
+      },
+      "why": "In standard usage 不管 and 无论 are followed by a question form that leaves the answer open, here 下不下雨, not by a plain statement."
+    },
+    {
+      "wrong": "因为找到好工作，他学了中文。",
+      "right": {
+        "zh": "为了找到好工作，他学了中文。",
+        "py": "wèi le zhǎo dào hǎo gōng zuò tā xué le zhōng wén",
+        "en": "He learned Chinese in order to find a good job."
+      },
+      "why": "Finding a job is the goal, not something that already caused the action. A goal takes 为了; 因为 gives a cause."
+    },
+    {
+      "wrong": "除了星期天，我每天还上班。",
+      "right": {
+        "zh": "除了星期天，我每天都上班。",
+        "py": "chú le xīng qī tiān wǒ měi tiān dōu shàng bān",
+        "en": "I work every day except Sunday."
+      },
+      "why": "Sunday is left out, so the partner is 都. 还 would mean 'in addition to Sunday', which does not fit 每天."
+    },
+    {
+      "wrong": "天气越来越很热了。",
+      "right": {
+        "zh": "天气越来越热了。",
+        "py": "tiān qì yuè lái yuè rè le",
+        "en": "The weather is getting hotter and hotter."
+      },
+      "why": "越来越 already expresses degree. 很, 非常 and 更 cannot follow it."
+    },
+    {
+      "wrong": "他一边高一边帅。",
+      "right": {
+        "zh": "他又高又帅。",
+        "py": "tā yòu gāo yòu shuài",
+        "en": "He is both tall and handsome."
+      },
+      "why": "一边…一边 is for two actions done at the same time. Two qualities are joined with 又…又."
+    },
+    {
+      "wrong": "这个菜又便宜和好吃。",
+      "right": {
+        "zh": "这个菜又便宜又好吃。",
+        "py": "zhè ge cài yòu pián yi yòu hǎo chī",
+        "en": "This dish is both cheap and tasty."
+      },
+      "why": "Each quality takes its own 又; 和 cannot replace the second one. Keep the adjectives bare: 又很便宜又很好吃 is heard in speech, but the standard pattern has no 很."
+    },
+    {
+      "wrong": "一他下课就回家了。",
+      "right": {
+        "zh": "他一下课就回家了。",
+        "py": "tā yī xià kè jiù huí jiā le",
+        "en": "He went home as soon as class ended."
+      },
+      "why": "一 is not 'as soon as' in front of its own subject. It goes after the subject, directly before the first verb. (一下课他就回家了, with the subject after the 一 clause, is also correct.)"
+    },
+    {
+      "wrong": "即使明天下雨，也我要去。",
+      "right": {
+        "zh": "即使明天下雨，我也要去。",
+        "py": "jí shǐ míng tiān xià yǔ wǒ yě yào qù",
+        "en": "Even if it rains tomorrow, I'm going."
+      },
+      "why": "即使 (even if) pairs with 也, and 也 is an adverb: it follows the subject 我. (即使…但是 is heard in speech; 也 is the standard partner.)"
+    }
+  ],
+  "cheat": [
+    "就, 才, 都, 也, 还 go after the second subject; 所以, 但是, 而且 go before it.",
+    "如果, 要是, 只要, 既然, 一 take 就. 只有 takes 才.",
+    "无论 or 不管: put a question form after it and 都 in the second clause.",
+    "虽然 and 尽管 state a fact (但是, 还是); 即使 and 就算 suppose one (也).",
+    "除了 with 都 means except; 除了 with 还 or 也 means besides.",
+    "No 很 after 越来越; bare adjectives inside 又…又; 一边…一边 is for actions only.",
+    "Not A but B is 不是…而是; always A or B is 不是…就是; goal is 为了, cause is 因为."
+  ]
+}

@@ -1,0 +1,604 @@
+{
+ "language": "zh",
+ "batch_size": 100,
+ "categories": [
+  {
+   "key": "aspect",
+   "title": "Aspect and time"
+  },
+  {
+   "key": "structural",
+   "title": "的 得 地"
+  },
+  {
+   "key": "complement",
+   "title": "Complements"
+  },
+  {
+   "key": "order",
+   "title": "Word order and constructions"
+  },
+  {
+   "key": "pairs",
+   "title": "Easily confused pairs"
+  },
+  {
+   "key": "final",
+   "title": "Particles and questions"
+  },
+  {
+   "key": "other",
+   "title": "Measures, verbs and connectors"
+  }
+ ],
+ "themes": [
+  "food and restaurants",
+  "travel and transport",
+  "school and study",
+  "office work",
+  "family and home",
+  "shopping and money",
+  "health and the body",
+  "weather and seasons",
+  "sports and hobbies",
+  "city life and directions",
+  "friends and social plans",
+  "phones, internet and technology",
+  "housing and neighbours",
+  "holidays and festivals",
+  "pets and nature",
+  "music, films and books",
+  "daily routine",
+  "clothes and appearance",
+  "feelings and opinions",
+  "errands, post and bank"
+ ],
+ "topics": [
+  {
+   "slug": "le",
+   "title": "了: completed action and change of state",
+   "zh": "了",
+   "cat": "aspect",
+   "batches": 7,
+   "mix": {
+    "cloze": 55,
+    "order": 15,
+    "rewrite": 10,
+    "judge": 20
+   },
+   "scope": "Verbal 了 after the verb for a completed/bounded action (esp. with quantified objects), sentence-final 了 for a new situation, double 了 (已经…了 so far), 了 in sequences (吃了饭就走), when 了 must NOT appear (habitual, 没 negation, stative verbs, after 是/在/觉得, with 每天/常常), 太…了, 不…了 (no longer)."
+  },
+  {
+   "slug": "guo",
+   "title": "过: experience",
+   "zh": "过",
+   "cat": "aspect",
+   "batches": 3,
+   "mix": {
+    "cloze": 55,
+    "order": 15,
+    "rewrite": 10,
+    "judge": 20
+   },
+   "scope": "Experiential 过 (have ever done), 没…过, 过 vs 了 (experience vs specific completed event), 过 with 次/遍, V过了 (already done routine action), question forms (…过吗 / …过没有), 从来没…过."
+  },
+  {
+   "slug": "zhe",
+   "title": "着: ongoing state",
+   "zh": "着",
+   "cat": "aspect",
+   "batches": 3,
+   "mix": {
+    "cloze": 55,
+    "order": 15,
+    "rewrite": 10,
+    "judge": 20
+   },
+   "scope": "着 for a continuing state after the verb (门开着, 穿着), V1着V2 manner (站着说, 笑着回答), 着 vs 在 (state vs action in progress), existential Place+V着+N (墙上挂着画), 着 in imperatives (拿着, 听着), 没…着, verbs that do not take 着."
+  },
+  {
+   "slug": "zai-progressive",
+   "title": "在 / 正在 / 呢: action in progress",
+   "zh": "在 正在",
+   "cat": "aspect",
+   "batches": 2,
+   "mix": {
+    "cloze": 55,
+    "order": 15,
+    "rewrite": 10,
+    "judge": 20
+   },
+   "scope": "在/正在 + verb for action in progress, sentence-final 呢 for ongoing, 正在…呢, negation with 没(在), progressive in the past (昨天你来的时候我正在…), 在 as progressive vs 在 as location coverb vs 在 as main verb, verbs that cannot be progressive (知道, 是, 有, 喜欢)."
+  },
+  {
+   "slug": "yao-le",
+   "title": "要…了 / 快…了 / 就要…了: about to happen",
+   "zh": "要…了",
+   "cat": "aspect",
+   "batches": 1,
+   "mix": {
+    "cloze": 55,
+    "order": 15,
+    "rewrite": 10,
+    "judge": 20
+   },
+   "scope": "要…了, 快…了, 快要…了, 就要…了; which of them accept a specific time word (only 就要…了: 明天就要…了), 快…了 with nouns/numbers (快十点了), obligatory final 了, contrast with plain 要 (want/will) and with completed 了."
+  },
+  {
+   "slug": "shi-de",
+   "title": "是…的: stressing when, where, how",
+   "zh": "是…的",
+   "cat": "aspect",
+   "batches": 2,
+   "mix": {
+    "cloze": 40,
+    "order": 20,
+    "rewrite": 20,
+    "judge": 20
+   },
+   "scope": "是…的 to stress time/place/manner/agent/purpose of a KNOWN past event; 的 after the verb or after the object (我是在北京学的中文); omitting 是 in affirmatives but never in negatives (不是…的); contrast with 了 (new event vs detail of known event); questions 你是怎么来的?; not used for future events."
+  },
+  {
+   "slug": "de-three",
+   "title": "的 / 得 / 地",
+   "zh": "的 得 地",
+   "cat": "structural",
+   "batches": 5,
+   "mix": {
+    "cloze": 70,
+    "order": 5,
+    "rewrite": 0,
+    "judge": 25
+   },
+   "scope": "Choosing among 的 (modifier + noun), 得 (verb/adj + complement of degree or potential), 地 (adverbial + verb). Typical frames: adj+的+noun, clause+的+noun, verb+得+adj, adj+得+clause, 高兴地说, reduplicated adj+地, 得 after verb-object needs verb repetition. Each item must be decidable from syntax."
+  },
+  {
+   "slug": "de-attributive",
+   "title": "的: when to use it and when to drop it",
+   "zh": "的",
+   "cat": "structural",
+   "batches": 2,
+   "mix": {
+    "cloze": 55,
+    "order": 15,
+    "rewrite": 10,
+    "judge": 20
+   },
+   "scope": "的 for possession and modification; dropping 的 with close kin/institutions (我妈妈, 我们学校), with single-syllable adjectives (好朋友, 新书) vs 很+adj+的 (很好的朋友); relative clauses before the noun (我昨天买的书); 的 nominalisation (红的, 我的, 吃的); number/measure before or after the 的-phrase; no 的 between measure word and noun."
+  },
+  {
+   "slug": "result-complement",
+   "title": "Result complements",
+   "zh": "结果补语",
+   "cat": "complement",
+   "batches": 5,
+   "mix": {
+    "cloze": 50,
+    "order": 15,
+    "rewrite": 15,
+    "judge": 20
+   },
+   "scope": "Verb + result: 完 好 到 见 懂 会 错 对 清楚 干净 住 开 掉 走 光 着(zháo) 给 在 成. Choosing the right result for the meaning (看见 vs 看到 vs 看懂 vs 看完), negation with 没 (没听懂, not 不听懂 for a past event), object placement after the whole V+R, 了 after V+R, question forms (…了没有)."
+  },
+  {
+   "slug": "directional-complement",
+   "title": "Directional complements",
+   "zh": "趋向补语",
+   "cat": "complement",
+   "batches": 3,
+   "mix": {
+    "cloze": 55,
+    "order": 15,
+    "rewrite": 10,
+    "judge": 20
+   },
+   "scope": "Simple 来/去 after verbs of motion (进来, 回去), compound (走进来, 拿出去, 站起来, 坐下来), object placement (place objects go before 来/去: 回家去, 走进教室来; things may go before or after), 把 with directionals, extended meanings: 起来 (begin / judging: 看起来), 下去 (continue), 出来 (figure out/produce), 下来 (settle, record), 上 (attach/achieve), 过来/过去."
+  },
+  {
+   "slug": "potential-complement",
+   "title": "Potential complements: can / cannot manage",
+   "zh": "可能补语",
+   "cat": "complement",
+   "batches": 4,
+   "mix": {
+    "cloze": 45,
+    "order": 10,
+    "rewrite": 25,
+    "judge": 20
+   },
+   "scope": "V得R / V不R (看得懂/看不懂, 听得见/听不见, 买得到/买不到, 进得去/进不去, 想不起来), fixed forms (来得及/来不及, 吃得下, 买不起, 对不起, 受不了, V不了/V得了), potential vs 能 (不能进去 = not allowed vs 进不去 = unable), potential vs degree complement (写得好 ambiguous forms: questions 写得好写不好 vs 写得好不好), object placement, question forms."
+  },
+  {
+   "slug": "degree-complement",
+   "title": "Degree complements with 得",
+   "zh": "程度补语",
+   "cat": "complement",
+   "batches": 3,
+   "mix": {
+    "cloze": 55,
+    "order": 15,
+    "rewrite": 10,
+    "judge": 20
+   },
+   "scope": "V+得+(很)adj to evaluate how an action is done (跑得很快); with an object: repeat the verb or front the object (他说中文说得很好 / 他中文说得很好), never V+O+得; negation goes after 得 (说得不好, not 不说得好); questions (说得怎么样 / 说得好不好); adj+得+很/不得了/要命; contrast with adverbial 地 and with 很+adj predicates."
+  },
+  {
+   "slug": "duration-frequency",
+   "title": "Duration and frequency",
+   "zh": "时量 动量",
+   "cat": "complement",
+   "batches": 3,
+   "mix": {
+    "cloze": 35,
+    "order": 30,
+    "rewrite": 10,
+    "judge": 25
+   },
+   "scope": "Duration after the verb (学了两年), with object: V+了+duration+(的)+O or repeat verb (学中文学了两年), pronoun/person object before duration (等了他半天), double 了 for still ongoing (学了两年了), negative: duration BEFORE the verb (两年没见), 次/遍/趟/回/下 after the verb, place/pronoun object ordering (去过两次北京 / 去过北京两次 / 见过他一次), time-when before verb vs duration after."
+  },
+  {
+   "slug": "word-order",
+   "title": "Core word order",
+   "zh": "语序",
+   "cat": "order",
+   "batches": 3,
+   "mix": {
+    "cloze": 15,
+    "order": 50,
+    "rewrite": 10,
+    "judge": 25
+   },
+   "scope": "Subject + time + place + manner/with-whom + verb + object; time and place never at the end; adverbs (也 都 还 就 才 常常 已经 一直) after the subject and before the verb; 也 before 都 before 不; modifiers before the noun; question words stay in place (no fronting); topic-comment fronting; 先…再; position of 一起, 跟…一起."
+  },
+  {
+   "slug": "coverbs",
+   "title": "Coverbs (prepositions)",
+   "zh": "介词",
+   "cat": "order",
+   "batches": 5,
+   "mix": {
+    "cloze": 55,
+    "order": 15,
+    "rewrite": 10,
+    "judge": 20
+   },
+   "scope": "Choosing and placing 在 给 跟 和 对 向 往 从 到 离 为 替 用 坐 朝. Coverb phrase goes BEFORE the verb (我在家吃饭, 给他打电话, 跟朋友见面, 对我很好, 从北京到上海, 离这儿很远, 往左拐, 向他学习, 为你高兴, 用筷子吃); 从 vs 离; 对 vs 跟 vs 给; 往 vs 向; negation and adverbs before the coverb; post-verbal 在/到/给 with placement verbs (放在, 送到, 寄给)."
+  },
+  {
+   "slug": "ba",
+   "title": "把 construction",
+   "zh": "把",
+   "cat": "order",
+   "batches": 4,
+   "mix": {
+    "cloze": 25,
+    "order": 25,
+    "rewrite": 30,
+    "judge": 20
+   },
+   "scope": "S + 把 + definite object + V + something more (result/direction/了/在+place/给+person/reduplication); a bare verb is not allowed; obligatory 把 with 放在/送到/翻译成/当作/交给; negation and modals BEFORE 把 (没把, 不要把, 可以把); verbs that cannot take 把 (是 有 喜欢 知道 觉得 来 去, perception without result); indefinite objects resist 把; 把 vs plain SVO."
+  },
+  {
+   "slug": "bei",
+   "title": "被 passive",
+   "zh": "被",
+   "cat": "order",
+   "batches": 2,
+   "mix": {
+    "cloze": 25,
+    "order": 20,
+    "rewrite": 35,
+    "judge": 20
+   },
+   "scope": "Receiver + 被 (+ agent) + V + result/了; agent may be dropped after 被 but not after 叫/让; negation and modals before 被 (没被, 不会被); needs a result or 了 after the verb; colloquial 叫/让; unmarked passives (作业写完了, 饭做好了) where 被 is unnatural; 把 ⇄ 被 conversion."
+  },
+  {
+   "slug": "comparison",
+   "title": "Comparisons",
+   "zh": "比较",
+   "cat": "order",
+   "batches": 3,
+   "mix": {
+    "cloze": 35,
+    "order": 25,
+    "rewrite": 20,
+    "judge": 20
+   },
+   "scope": "A 比 B + adj (no 很: 比他很高 is wrong; use 更/还 or a quantity after: 高一点儿 / 高得多 / 高三厘米 / 大两岁); negative with 没有 (A 没有 B 高) vs 不比; A 跟/和 B 一样 (+adj), 不一样; 最; 更; 比 with verbs + degree complement (他比我跑得快 / 他跑得比我快); 越来越; 比较 as adverb; 不如."
+  },
+  {
+   "slug": "existential",
+   "title": "有 / 在 / 是 and existence sentences",
+   "zh": "存现句",
+   "cat": "order",
+   "batches": 2,
+   "mix": {
+    "cloze": 40,
+    "order": 25,
+    "rewrite": 15,
+    "judge": 20
+   },
+   "scope": "Place + 有 + indefinite thing (桌子上有一本书), definite thing + 在 + place (书在桌子上), place + 是 + thing (identifying what occupies it), location nouns (上 下 里 外 旁边 前面 后面 中间 对面 附近) and when 里/上 is needed (在桌子上, but 在北京 without 里), Place + V着/V了 + indefinite N (门口站着一个人, 来了一位客人), negation 没有 / 不在."
+  },
+  {
+   "slug": "lian-dou",
+   "title": "连…都 / 也: even",
+   "zh": "连…都",
+   "cat": "order",
+   "batches": 1,
+   "mix": {
+    "cloze": 30,
+    "order": 25,
+    "rewrite": 25,
+    "judge": 20
+   },
+   "scope": "连 + focus + 都/也 + predicate; focus can be subject, fronted object, verb (连看都没看), 一 + measure (连一个人都没有); 都/也 is obligatory; position of the fronted object before the verb; negation follows 都/也; 一点儿也不 / 一点儿都没 as the related 'not even a little' pattern."
+  },
+  {
+   "slug": "bu-mei",
+   "title": "不 vs 没",
+   "zh": "不 没",
+   "cat": "pairs",
+   "batches": 4,
+   "mix": {
+    "cloze": 65,
+    "order": 10,
+    "rewrite": 5,
+    "judge": 20
+   },
+   "scope": "不 for habits, present/future, willingness, adjectives, 是/在/知道/认识 and modals (不会, 不能, 不想); 没(有) for past non-occurrence, not-yet, 有 (never 不有), with 过, and progressive; 没 never with 了 for completed action; 不 vs 没 change of meaning (他不来 vs 他没来); result complements negated with 没, potential with 不; 别 / 不要 / 不用 for commands."
+  },
+  {
+   "slug": "hui-neng-keyi",
+   "title": "会 / 能 / 可以",
+   "zh": "会 能 可以",
+   "cat": "pairs",
+   "batches": 3,
+   "mix": {
+    "cloze": 65,
+    "order": 10,
+    "rewrite": 5,
+    "judge": 20
+   },
+   "scope": "会 learned skill and predicted future (会下雨); 能 ability/capacity under circumstances, physical possibility, quantity achieved (能吃三碗); 可以 permission and feasibility; negatives 不会 / 不能 / 不可以 and that 'may I?' is answered 不行/不能; 能 for recovered or specific ability; 会 + 的 certainty; 很会/很能; overlap cases must be excluded by context."
+  },
+  {
+   "slug": "jiu-cai",
+   "title": "就 vs 才",
+   "zh": "就 才",
+   "cat": "pairs",
+   "batches": 3,
+   "mix": {
+    "cloze": 65,
+    "order": 10,
+    "rewrite": 5,
+    "judge": 20
+   },
+   "scope": "就 = earlier/sooner/easier than expected, 才 = later/harder than expected (八点就来了 / 八点才来); 了 appears with 就 but not with 才; 才 = only (才三岁, 才五块钱); 就 = right then / precisely (我就是, 这儿就是); 一…就; 只有…才, 只要…就, 如果…就; 就 = only (就他一个人); position after subject and time."
+  },
+  {
+   "slug": "you-zai-hai",
+   "title": "又 / 再 / 还",
+   "zh": "又 再 还",
+   "cat": "pairs",
+   "batches": 2,
+   "mix": {
+    "cloze": 65,
+    "order": 10,
+    "rewrite": 5,
+    "judge": 20
+   },
+   "scope": "又 = again, already happened (他又来了) or sure-to-recur; 再 = again, not yet happened (明天再来, 再说一遍); 还 = still / in addition / again in questions and with modals (还想去, 还要一个); 先…再; 再也不 / 再也没; 又…又; 还是 (still); 还没…呢; 再 + adj (再大一点儿); position relative to modals (还想 but 想再)."
+  },
+  {
+   "slug": "dou-ye",
+   "title": "都 and 也",
+   "zh": "都 也",
+   "cat": "pairs",
+   "batches": 2,
+   "mix": {
+    "cloze": 45,
+    "order": 30,
+    "rewrite": 5,
+    "judge": 20
+   },
+   "scope": "都 after the things it totals (我们都去; 这些书我都看了: object must be fronted for 都 to cover it); 也 after the subject, before 都 (我们也都去); 也/都 before 不/没 and partial vs total negation (都不 vs 不都); 每…都, 什么/谁/哪儿…都, 一点儿也不; 也 never sentence-initial or sentence-final; 都 for 'already' (都十二点了)."
+  },
+  {
+   "slug": "er-liang",
+   "title": "二 vs 两",
+   "zh": "二 两",
+   "cat": "pairs",
+   "batches": 1,
+   "mix": {
+    "cloze": 75,
+    "order": 0,
+    "rewrite": 0,
+    "judge": 25
+   },
+   "scope": "两 before measure words and for quantities (两个, 两本, 两天, 两点, 两年, 两块钱, 两次, 两位); 二 for counting, digits, ordinals and dates (第二, 二月, 二号, 二楼, 十二, 二十, 零点二, 二分之一); 两 or 二 before 百 (both), 两 before 千/万/亿 by preference; 二 in 十二个, 二十个 even before measures; 两 = a couple (过两天); 俩 = 两个."
+  },
+  {
+   "slug": "haishi-huozhe",
+   "title": "还是 vs 或者",
+   "zh": "还是 或者",
+   "cat": "pairs",
+   "batches": 1,
+   "mix": {
+    "cloze": 65,
+    "order": 10,
+    "rewrite": 5,
+    "judge": 20
+   },
+   "scope": "还是 for 'or' in questions offering a choice (你喝茶还是咖啡?) and in embedded questions (我不知道他去还是不去); 或者 for 'or' in statements (周六或者周日都行); 还是 = 'had better' (还是坐地铁吧) and 'still'; 无论/不管…还是…都; no 吗 with 还是 questions."
+  },
+  {
+   "slug": "gang-gangcai",
+   "title": "刚 / 刚刚 vs 刚才",
+   "zh": "刚 刚才",
+   "cat": "pairs",
+   "batches": 1,
+   "mix": {
+    "cloze": 65,
+    "order": 10,
+    "rewrite": 5,
+    "judge": 20
+   },
+   "scope": "刚才 is a time noun (a moment ago): can stand before the subject, modify a noun (刚才的事), go with 没/不 negation and with final 了; 刚/刚刚 is an adverb (only just): after the subject, directly before the verb, compatible with a time span (刚来两天), usually no final 了, can be followed by 就; relative recency of 刚 (去年刚毕业) vs 刚才 limited to minutes ago."
+  },
+  {
+   "slug": "yidianr-youdianr",
+   "title": "一点儿 vs 有点儿",
+   "zh": "一点儿 有点儿",
+   "cat": "pairs",
+   "batches": 1,
+   "mix": {
+    "cloze": 65,
+    "order": 10,
+    "rewrite": 5,
+    "judge": 20
+   },
+   "scope": "有点儿 + adj/verb = 'a bit (too)', usually for something undesired (有点儿贵, 有点儿累); adj + 一点儿 = 'a bit more', comparison or request (便宜一点儿, 快一点儿); 一点儿 + noun = a little of (喝一点儿水); 一点儿也不/都不 + adj = not at all; 有(一)点儿 before the adjective vs 一点儿 after it; 一下 vs 一点儿; 一些."
+  },
+  {
+   "slug": "xiang-yao",
+   "title": "想 / 要 / 想要 / 愿意 / 得(děi)",
+   "zh": "想 要",
+   "cat": "pairs",
+   "batches": 1,
+   "mix": {
+    "cloze": 65,
+    "order": 10,
+    "rewrite": 5,
+    "judge": 20
+   },
+   "scope": "想 = would like to / think of / miss; 要 = want firmly, going to, need to, must; 不想 vs 不要 (don't want vs don't!) vs 不用 (need not: the negative of 要/得 'must'); 得(děi) must, negative 不用 not 不得; 想要 + noun/verb; 愿意 willing; 要 for ordering (我要一杯咖啡); 要 for time needed (要两个小时); 应该; 打算."
+  },
+  {
+   "slug": "time-words",
+   "title": "以前 / 以后 / 的时候 / 后来 / 然后",
+   "zh": "时间词",
+   "cat": "pairs",
+   "batches": 1,
+   "mix": {
+    "cloze": 65,
+    "order": 10,
+    "rewrite": 5,
+    "judge": 20
+   },
+   "scope": "X + 以前/以后/的时候 come AFTER the clause or time amount they attach to (吃饭以前, 三年以后, 上课的时候); 以后 (after/future) vs 后来 (afterwards, past only) vs 然后 (and then, next step); 以前 vs 从前 vs 之前; 时候 vs 时间; 什么时候 vs 多长时间; 先…然后…; 最近; 刚才/现在/马上 ordering before the verb."
+  },
+  {
+   "slug": "final-particles",
+   "title": "Sentence-final particles",
+   "zh": "语气助词",
+   "cat": "final",
+   "batches": 5,
+   "mix": {
+    "cloze": 70,
+    "order": 5,
+    "rewrite": 5,
+    "judge": 20
+   },
+   "scope": "吗 yes/no question (never with a question word, A-not-A or 还是); 呢 follow-up question (你呢?), wh-question softener, ongoing state, 还没…呢, 才…呢; 吧 suggestion, mild command, presumption seeking agreement (你是老师吧?); 啊 and its warmth/exclamation; 嘛 obviousness; 的 assurance (会好的); 了 change of state; 呗; choosing by speaker intent given in the English."
+  },
+  {
+   "slug": "questions",
+   "title": "Question forms",
+   "zh": "疑问句",
+   "cat": "final",
+   "batches": 3,
+   "mix": {
+    "cloze": 45,
+    "order": 25,
+    "rewrite": 10,
+    "judge": 20
+   },
+   "scope": "吗 vs A-not-A (去不去, 有没有, 是不是, 喜不喜欢) vs 还是 choice vs question words (谁 什么 哪 哪儿 怎么 怎么样 为什么 几 多少 多+adj 什么时候) left in place; 几 vs 多少; 怎么 vs 怎么样 vs 为什么; 多长/多大/多远; tag questions (好吗, 对不对, 是不是); 呢 with question words; question words as indefinites (什么都, 谁也不, 没什么); rhetorical 不是…吗."
+  },
+  {
+   "slug": "measure-words",
+   "title": "Measure words in sentences",
+   "zh": "量词",
+   "cat": "other",
+   "batches": 4,
+   "mix": {
+    "cloze": 70,
+    "order": 10,
+    "rewrite": 0,
+    "judge": 20
+   },
+   "scope": "Number/这/那/每/几/哪 + measure + noun; frequent classifiers: 个 本 张 条 只 件 辆 位 杯 瓶 碗 块 双 家 间 把 支 台 部 棵 朵 封 首 节 门 层 座 种 些 套 份 口 头 匹 片 顿 场 次 遍 趟; choosing by noun class inside a full sentence; 一些/一点儿 take no other measure; no measure with 天/年 (两天, 三年) but 两个月/两个星期/两个小时; 位 politeness; 这本书 not 这书 in standard usage."
+  },
+  {
+   "slug": "separable-verbs",
+   "title": "Separable verbs",
+   "zh": "离合词",
+   "cat": "other",
+   "batches": 3,
+   "mix": {
+    "cloze": 40,
+    "order": 20,
+    "rewrite": 10,
+    "judge": 30
+   },
+   "scope": "Verb-object compounds: 见面 睡觉 结婚 毕业 帮忙 生气 洗澡 游泳 跑步 唱歌 跳舞 聊天 上课 上班 请假 吃饭 说话 散步 道歉 打架 担心 出差 理发 开会 考试 放假 离婚 握手 鼓掌. They take no further object (跟他见面, not 见面他; 帮他的忙 / 给他帮忙); 了/过/duration/次 go INSIDE (见过面, 睡了八个小时觉, 洗了一个澡, 结过两次婚); reduplicate only the verb (散散步, 聊聊天); 生我的气; degree complement repeats the verb (唱歌唱得很好)."
+  },
+  {
+   "slug": "connectors",
+   "title": "Paired connectors",
+   "zh": "关联词",
+   "cat": "other",
+   "batches": 4,
+   "mix": {
+    "cloze": 55,
+    "order": 20,
+    "rewrite": 5,
+    "judge": 20
+   },
+   "scope": "因为…所以, 虽然…但是/可是, 不但…而且/还, 如果/要是…(的话)…就, 只要…就, 只有…才, 一…就, 一边…一边, 又…又, 既…又/也, 先…再/然后, 除了…(以外)…都/还/也, 无论/不管…都, 即使/就算…也, 越…越, 越来越, 不是…而是, 不是…就是, 要么…要么, 既然…就, 尽管…还是, 为了, 由于…因此; which adverb (就/才/都/也/还) pairs with which opener, and that it sits after the second subject."
+  },
+  {
+   "slug": "reduplication",
+   "title": "Reduplication and V 一下",
+   "zh": "重叠",
+   "cat": "other",
+   "batches": 1,
+   "mix": {
+    "cloze": 55,
+    "order": 15,
+    "rewrite": 10,
+    "judge": 20
+   },
+   "scope": "Verb reduplication for brief/tentative action: 看看, 看一看, 看了看 (past), 休息休息 (ABAB), separable 散散步 (AAB); V + 一下 as equivalent; not with 正在/着/过, not with result complements or duration; adjective reduplication AA的 (大大的), AABB (高高兴兴), ABAB for compound colour-type (雪白雪白), no 很 before reduplicated adjectives; 慢慢地 + verb."
+  },
+  {
+   "slug": "numbers-time",
+   "title": "Numbers, dates, clock time and money in sentences",
+   "zh": "数字 时间",
+   "cat": "other",
+   "batches": 2,
+   "mix": {
+    "cloze": 60,
+    "order": 20,
+    "rewrite": 0,
+    "judge": 20
+   },
+   "scope": "Large-to-small order: 年月日 星期 上午/下午 点 分; 号 vs 日; 点/分/刻/半/差; 两点 not 二点; 零 inside numbers (一百零五), 万/亿 units; 块/毛/分 and 元; 多 placement (十多个 vs 三个多月), 左右, 几 for small unknown numbers, 第 ordinals and when 第 is dropped (二月, 三楼); 半 (半个小时, 一个半小时, 两天半); phone/room numbers digit by digit with 幺; 岁; percentages 百分之; fractions."
+  },
+  {
+   "slug": "tone-sandhi",
+   "title": "Tone changes: 不, 一 and third tones",
+   "zh": "变调",
+   "cat": "other",
+   "batches": 0,
+   "mix": {
+    "cloze": 55,
+    "order": 15,
+    "rewrite": 10,
+    "judge": 20
+   },
+   "scope": "不 is bù but bú before a 4th tone (bú shì, bú qù); 一 is yī alone, in counting and as ordinal/last digit, yí before a 4th tone (yí gè, yí yàng), yì before 1st/2nd/3rd tones (yì tiān, yì nián, yì qǐ); two 3rd tones: the first becomes 2nd (nǐ hǎo -> ní hǎo), three in a row grouped by phrase; half-third tone before other tones; neutral tone after reduplication and in particles. GUIDE ONLY: drilled by a generator, no authored items."
+  }
+ ]
+}

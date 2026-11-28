@@ -1,0 +1,440 @@
+{
+  "topic": "zai-progressive",
+  "summary": "在 or 正在 before a verb, or 呢 at the end of the sentence, says the action is going on at the moment you are talking about. It is not a tense: the time word decides whether that moment is now, yesterday or tomorrow. The click: 在 + verb = in the middle of doing; 在 + place = located at. No 了, no 'to be', and no 在 with states like 知道 or 喜欢.",
+  "subs": [
+    {
+      "key": "zai-verb",
+      "label": "在 / 正在 + verb",
+      "focus": "Force 在 / 正在 straight before the verb, after subject, time word and 也 / 都, with no 是 for 'am/is'. Classic errors: 我是吃饭, 我在现在吃饭, marker at the end, or no marker for a clear '-ing right now'. Never offer 在 and 正在 as rival options here."
+    },
+    {
+      "key": "ne-final",
+      "label": "Sentence-final 呢 and 正在…呢",
+      "focus": "Force 呢 at the very end of a statement as the ongoing marker, alone (他睡觉呢) or with 在 / 正在 (我正在吃饭呢). Classic errors: 呢 mid-sentence, picking 吗 / 吧 / 了 / 的, or believing 正在 and 呢 cannot co-occur. Use statements only, never 'and you?' questions."
+    },
+    {
+      "key": "negation",
+      "label": "Negating with 没(在)",
+      "focus": "Force 没(有) to negate an action in progress (我没在看电视), dropping 正 and 呢; short answer 没有. Classic errors: keeping 了, answering 不是, 不正在. 没正在 is sometimes said: cloze distractor only, never the sole error in a judge item. Bare 不在 + verb is accepted by some: never the only wrong thing in an item."
+    },
+    {
+      "key": "past-frame",
+      "label": "In progress in the past or future",
+      "focus": "Force unchanged 在 / 正在 for an action in progress at a past or future moment set by a time word or …的时候 clause, with no 了 / 过. Classic errors: 你来的时候我洗澡了 or 我正在看了电视 for 'was doing', and doubting 正在 can go with 昨天 or 明天."
+    },
+    {
+      "key": "zai-vs-zhengzai",
+      "label": "在 or 正在?",
+      "focus": "Force plain 在 after 一直, 还, 总是, 经常, 每天 (continuing or repeated activity); 正在 fits only one exact moment. Classic errors: 他一直正在等你, 她还正在睡觉. Each item needs such an adverb so 正在 is clearly out; do not test 最近 / 这几天, where both are heard."
+    },
+    {
+      "key": "three-zai",
+      "label": "在: in progress, place phrase, or main verb",
+      "focus": "Force the reading of 在 from what follows: verb = in progress, place + verb = where, place alone = 'be at' (negated 不在). Place goes before the verb; one 在 only when place and progressive meet. Classic errors: 我看书在图书馆, 他正在在家看电视, 他是在家. Do not mark 没在 + place wrong."
+    },
+    {
+      "key": "stative-verbs",
+      "label": "Verbs that cannot be in progress",
+      "focus": "Force leaving 在 / 正在 out with state verbs: 知道, 是, 有, 喜欢, 认识, 觉得, 姓, 像. Classic errors from English '-ing' or 'right now': 我在知道, 我正在喜欢他, 他正在有时间. Use ∅ options or judge items. Do not treat 想, 考虑 or 忙 as banned: they can take 在."
+    },
+    {
+      "key": "no-le-result",
+      "label": "No 了, 过, result or duration with 在",
+      "focus": "Force a bare verb after 在 / 正在: no verb 了 / 过, no result complement, no duration; 'have been doing for X' becomes verb + 了 + duration + 了. Classic errors: 我正在看了书, 我在写完作业, 我在学中文两年. Do not test 已经在…了 (correct) or treat 着 as wrong."
+    }
+  ],
+  "rules": [
+    {
+      "sub": "zai-verb",
+      "rule": "Put 在 or 正在 right before the verb to say the action is under way. There is no word for 'am/is/are' here: do not add 是.",
+      "pattern": "Subject + 在 / 正在 + Verb + Object",
+      "examples": [
+        {
+          "zh": "我在吃饭。",
+          "py": "wǒ zài chī fàn",
+          "en": "I'm eating."
+        },
+        {
+          "zh": "他正在打电话。",
+          "py": "tā zhèng zài dǎ diàn huà",
+          "en": "He's on the phone right now."
+        },
+        {
+          "zh": "你在做什么？",
+          "py": "nǐ zài zuò shén me",
+          "en": "What are you doing?"
+        },
+        {
+          "zh": "妈妈正在做晚饭。",
+          "py": "mā ma zhèng zài zuò wǎn fàn",
+          "en": "Mum is making dinner right now."
+        }
+      ],
+      "note": "Chinese often leaves the marker out when the context is clear, but when the English cue says '-ing right now', use it."
+    },
+    {
+      "sub": "zai-verb",
+      "rule": "Time words and adverbs such as 也, 都 and 现在 come before 在 / 正在, never between it and the verb.",
+      "pattern": "Subject + time / 也 / 都 + 在 / 正在 + Verb + Object",
+      "examples": [
+        {
+          "zh": "我现在在写作业。",
+          "py": "wǒ xiàn zài zài xiě zuò yè",
+          "en": "I'm doing my homework now."
+        },
+        {
+          "zh": "他们也在等公共汽车。",
+          "py": "tā men yě zài děng gōng gòng qì chē",
+          "en": "They are waiting for the bus too."
+        },
+        {
+          "zh": "同学们都在准备考试。",
+          "py": "tóng xué men dōu zài zhǔn bèi kǎo shì",
+          "en": "The students are all preparing for the exam."
+        }
+      ]
+    },
+    {
+      "sub": "ne-final",
+      "rule": "In speech, 呢 at the very end of a statement can show the action is going on, even with no 在.",
+      "pattern": "Subject + Verb + Object + 呢",
+      "examples": [
+        {
+          "zh": "我吃饭呢。",
+          "py": "wǒ chī fàn ne",
+          "en": "I'm eating."
+        },
+        {
+          "zh": "他睡觉呢，你小声一点儿。",
+          "py": "tā shuì jiào ne nǐ xiǎo shēng yī diǎn r",
+          "en": "He's sleeping, keep your voice down."
+        },
+        {
+          "zh": "别进去，他们开会呢。",
+          "py": "bié jìn qù tā men kāi huì ne",
+          "en": "Don't go in, they're in a meeting."
+        }
+      ],
+      "note": "This 呢 is casual and spoken. It is a different use from the question 呢 in 你呢？"
+    },
+    {
+      "sub": "ne-final",
+      "rule": "呢 combines freely with 在 or 正在; the marker goes before the verb and 呢 stays at the end.",
+      "pattern": "Subject + 在 / 正在 + Verb + Object + 呢",
+      "examples": [
+        {
+          "zh": "我正在洗澡呢。",
+          "py": "wǒ zhèng zài xǐ zǎo ne",
+          "en": "I'm in the middle of a shower."
+        },
+        {
+          "zh": "孩子们在看电视呢。",
+          "py": "hái zi men zài kàn diàn shì ne",
+          "en": "The kids are watching television."
+        },
+        {
+          "zh": "等一下，我正在找钥匙呢。",
+          "py": "děng yī xià wǒ zhèng zài zhǎo yào shi ne",
+          "en": "Hang on, I'm looking for my keys."
+        }
+      ]
+    },
+    {
+      "sub": "negation",
+      "rule": "To say an action is not in progress, use 没 or 没有, with or without 在. 正 and 呢 disappear. The short answer is 没有.",
+      "pattern": "Subject + 没(有) + (在) + Verb + Object",
+      "examples": [
+        {
+          "zh": "我没在看电视。",
+          "py": "wǒ méi zài kàn diàn shì",
+          "en": "I'm not watching television."
+        },
+        {
+          "zh": "他没在睡觉，他在玩手机。",
+          "py": "tā méi zài shuì jiào tā zài wán shǒu jī",
+          "en": "He isn't sleeping, he's on his phone."
+        },
+        {
+          "zh": "没有，我在写作业。",
+          "py": "méi yǒu wǒ zài xiě zuò yè",
+          "en": "No, I'm doing my homework."
+        }
+      ],
+      "note": "正 normally drops in the negative: 不正在 is not used, and 没正在 is occasionally heard but is not standard. To correct what someone thinks you are doing, 不是在 is also used: 我不是在玩，我是在工作. Some speakers say 不在 + verb, but 没在 is the safe form."
+    },
+    {
+      "sub": "past-frame",
+      "rule": "在 / 正在 has no tense. Set the moment with a time word or a …的时候 clause and keep the verb exactly as for 'now': no 了.",
+      "pattern": "Time / Clause + 的时候 + Subject + 在 / 正在 + Verb + Object",
+      "examples": [
+        {
+          "zh": "昨天你来的时候，我正在洗澡。",
+          "py": "zuó tiān nǐ lái de shí hou wǒ zhèng zài xǐ zǎo",
+          "en": "When you came by yesterday, I was in the shower."
+        },
+        {
+          "zh": "昨天晚上八点我在写作业。",
+          "py": "zuó tiān wǎn shang bā diǎn wǒ zài xiě zuò yè",
+          "en": "At eight last night I was doing my homework."
+        },
+        {
+          "zh": "他进来的时候，我们正在吃晚饭。",
+          "py": "tā jìn lái de shí hou wǒ men zhèng zài chī wǎn fàn",
+          "en": "When he came in, we were having dinner."
+        },
+        {
+          "zh": "明天这个时候我可能正在开会。",
+          "py": "míng tiān zhè ge shí hou wǒ kě néng zhèng zài kāi huì",
+          "en": "This time tomorrow I'll probably be in a meeting."
+        }
+      ]
+    },
+    {
+      "sub": "zai-vs-zhengzai",
+      "rule": "正在 points at one exact moment. For something that keeps going or keeps happening (一直, 还, 总是, 经常, 每天), use plain 在.",
+      "pattern": "Subject + 一直 / 还 / 总是 + 在 + Verb + Object",
+      "examples": [
+        {
+          "zh": "他一直在等你。",
+          "py": "tā yī zhí zài děng nǐ",
+          "en": "He has been waiting for you the whole time."
+        },
+        {
+          "zh": "已经十点了，她还在睡觉。",
+          "py": "yǐ jīng shí diǎn le tā hái zài shuì jiào",
+          "en": "It's already ten and she is still sleeping."
+        },
+        {
+          "zh": "我弟弟总是在玩游戏。",
+          "py": "wǒ dì di zǒng shì zài wán yóu xì",
+          "en": "My little brother is always playing games."
+        }
+      ],
+      "note": "With no such adverb, 在 and 正在 are usually both fine; 正在 just adds 'right at this moment'. With 最近 or 这几天 both are heard."
+    },
+    {
+      "sub": "three-zai",
+      "rule": "Look at what follows 在. A verb: in progress. A place and then a verb: where the action happens. A place and nothing more: 在 is the main verb 'to be at', negated with 不.",
+      "pattern": "在 + Verb / 在 + Place + Verb / 在 + Place",
+      "examples": [
+        {
+          "zh": "他在看书。",
+          "py": "tā zài kàn shū",
+          "en": "He is reading."
+        },
+        {
+          "zh": "他在图书馆看书。",
+          "py": "tā zài tú shū guǎn kàn shū",
+          "en": "He reads / is reading in the library."
+        },
+        {
+          "zh": "他在图书馆。",
+          "py": "tā zài tú shū guǎn",
+          "en": "He is at the library."
+        },
+        {
+          "zh": "李老师不在办公室。",
+          "py": "lǐ lǎo shī bù zài bàn gōng shì",
+          "en": "Teacher Li is not in the office."
+        }
+      ],
+      "note": "在 + place + verb by itself can be a habit or right now. Add 正 or 呢 to make 'right now' unmistakable."
+    },
+    {
+      "sub": "three-zai",
+      "rule": "The place phrase goes before the verb, and one 在 does both jobs: never 在在 or 正在在. Use 正在 + place, or add 呢.",
+      "pattern": "Subject + (正)在 + Place + Verb + Object + (呢)",
+      "examples": [
+        {
+          "zh": "我正在超市买东西。",
+          "py": "wǒ zhèng zài chāo shì mǎi dōng xi",
+          "en": "I'm at the supermarket buying things right now."
+        },
+        {
+          "zh": "她在厨房做饭呢。",
+          "py": "tā zài chú fáng zuò fàn ne",
+          "en": "She is cooking in the kitchen."
+        },
+        {
+          "zh": "孩子们正在公园里踢足球。",
+          "py": "hái zi men zhèng zài gōng yuán lǐ tī zú qiú",
+          "en": "The children are playing football in the park right now."
+        }
+      ]
+    },
+    {
+      "sub": "stative-verbs",
+      "rule": "Verbs for states, not activities, never take 在 / 正在: 知道, 是, 有, 喜欢, 认识, 觉得. English '-ing' or 'right now' does not change this; use 现在 if you need 'now'.",
+      "pattern": "Subject + (现在) + state verb + Object",
+      "examples": [
+        {
+          "zh": "我知道他的名字。",
+          "py": "wǒ zhī dào tā de míng zi",
+          "en": "I know his name."
+        },
+        {
+          "zh": "我很喜欢这个电影。",
+          "py": "wǒ hěn xǐ huan zhè ge diàn yǐng",
+          "en": "I'm really liking this film."
+        },
+        {
+          "zh": "他现在有时间。",
+          "py": "tā xiàn zài yǒu shí jiān",
+          "en": "He has time right now."
+        },
+        {
+          "zh": "她现在是老师。",
+          "py": "tā xiàn zài shì lǎo shī",
+          "en": "She is a teacher now."
+        }
+      ],
+      "note": "Thinking as an activity is fine with 在: 我在想一个问题 (I'm thinking about a problem)."
+    },
+    {
+      "sub": "no-le-result",
+      "rule": "After 在 / 正在 the verb stays bare: no 了 or 过 on the verb and no result complement, because the action is not finished yet.",
+      "pattern": "Subject + 在 / 正在 + bare Verb + Object",
+      "examples": [
+        {
+          "zh": "我正在看书。",
+          "py": "wǒ zhèng zài kàn shū",
+          "en": "I'm reading."
+        },
+        {
+          "zh": "我在找我的手机。",
+          "py": "wǒ zài zhǎo wǒ de shǒu jī",
+          "en": "I'm looking for my phone."
+        },
+        {
+          "zh": "他在写作业，还没写完。",
+          "py": "tā zài xiě zuò yè hái méi xiě wán",
+          "en": "He is doing his homework and hasn't finished yet."
+        }
+      ],
+      "note": "着 is allowed after the verb (他正在等着你呢), and sentence-final 了 can follow 已经在 to mean 'already at it' (他已经在睡觉了)."
+    },
+    {
+      "sub": "no-le-result",
+      "rule": "在 cannot take a 'how long' phrase. For 'have been doing for X', say verb + 了 + duration (+ object) + 了.",
+      "pattern": "Subject + Verb + 了 + duration + (的) + Object + 了",
+      "examples": [
+        {
+          "zh": "我学了两年中文了。",
+          "py": "wǒ xué le liǎng nián zhōng wén le",
+          "en": "I have been studying Chinese for two years."
+        },
+        {
+          "zh": "我等了你半个小时了。",
+          "py": "wǒ děng le nǐ bàn ge xiǎo shí le",
+          "en": "I've been waiting for you for half an hour."
+        },
+        {
+          "zh": "他看了三个小时的电视了。",
+          "py": "tā kàn le sān ge xiǎo shí de diàn shì le",
+          "en": "He has been watching television for three hours."
+        }
+      ]
+    }
+  ],
+  "contrasts": [
+    {
+      "wrong": "我是吃饭。",
+      "right": {
+        "zh": "我在吃饭。",
+        "py": "wǒ zài chī fàn",
+        "en": "I'm eating."
+      },
+      "why": "English 'am' is not 是 here. The '-ing' meaning is carried by 在 before the verb."
+    },
+    {
+      "wrong": "我不正在看电视。",
+      "right": {
+        "zh": "我没在看电视。",
+        "py": "wǒ méi zài kàn diàn shì",
+        "en": "I'm not watching television."
+      },
+      "why": "An action in progress is negated with 没, and 正 drops out. 不正在 is not a form speakers use."
+    },
+    {
+      "wrong": "昨天你来的时候，我洗澡了。",
+      "right": {
+        "zh": "昨天你来的时候，我正在洗澡。",
+        "py": "zuó tiān nǐ lái de shí hou wǒ zhèng zài xǐ zǎo",
+        "en": "When you came by yesterday, I was in the shower."
+      },
+      "why": "'Was showering' is in progress at a past moment, so it takes 正在. 了 would say the shower happened, not that it was under way when you arrived."
+    },
+    {
+      "wrong": "我正在看了一本书。",
+      "right": {
+        "zh": "我正在看一本书。",
+        "py": "wǒ zhèng zài kàn yī běn shū",
+        "en": "I'm reading a book."
+      },
+      "why": "正在 means not finished; 了 after the verb means completed. They cannot share one verb."
+    },
+    {
+      "wrong": "他一直正在等你。",
+      "right": {
+        "zh": "他一直在等你。",
+        "py": "tā yī zhí zài děng nǐ",
+        "en": "He has been waiting for you the whole time."
+      },
+      "why": "正在 marks one exact moment and clashes with 一直 'all along'. Plain 在 is used for something that keeps going."
+    },
+    {
+      "wrong": "我看书在图书馆。",
+      "right": {
+        "zh": "我在图书馆看书。",
+        "py": "wǒ zài tú shū guǎn kàn shū",
+        "en": "I'm reading in the library."
+      },
+      "why": "The place phrase with 在 goes before the verb, not at the end as in English."
+    },
+    {
+      "wrong": "他正在在家看电视。",
+      "right": {
+        "zh": "他正在家看电视。",
+        "py": "tā zhèng zài jiā kàn diàn shì",
+        "en": "He is watching television at home right now."
+      },
+      "why": "One 在 serves as both 'at' and 'in progress'. Two in a row are never said; 正 or a final 呢 shows it is happening now."
+    },
+    {
+      "wrong": "我在知道他的名字。",
+      "right": {
+        "zh": "我知道他的名字。",
+        "py": "wǒ zhī dào tā de míng zi",
+        "en": "I know his name."
+      },
+      "why": "知道 is a state, not an activity you are in the middle of, so it cannot take 在."
+    },
+    {
+      "wrong": "我在学中文两年。",
+      "right": {
+        "zh": "我学了两年中文了。",
+        "py": "wǒ xué le liǎng nián zhōng wén le",
+        "en": "I have been studying Chinese for two years."
+      },
+      "why": "在 cannot carry a duration. 'Have been doing for X' is verb + 了 + duration + 了."
+    },
+    {
+      "wrong": "我正在很喜欢这个电影。",
+      "right": {
+        "zh": "我很喜欢这个电影。",
+        "py": "wǒ hěn xǐ huan zhè ge diàn yǐng",
+        "en": "I'm really liking this film."
+      },
+      "why": "喜欢 is a state, so 'I'm liking it' is just 喜欢 with no 正在."
+    }
+  ],
+  "cheat": [
+    "'-ing right now'? 在 or 正在 straight before the verb. No 是.",
+    "After 在: verb = doing it; place + verb = where; place alone = is there.",
+    "Not doing it: 没(在) + verb. Not there: 不在 + place. Drop 正 in the negative.",
+    "'Was doing' = time word + 正在. Do not add 了.",
+    "一直 / 还 / 总是 in the sentence? Plain 在, not 正在.",
+    "知道, 是, 有, 喜欢, 认识: no 在, ever.",
+    "After 在 the verb is bare: no 了, no 过, no 完 / 到, no 'for two years'."
+  ]
+}

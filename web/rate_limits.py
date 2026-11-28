@@ -74,6 +74,9 @@ ENDPOINT_LIMITS = {
     # 3 starts a day is enforced in services/calibration_placement.start().
     'calibration.placement_start': (('10 per day', user_or_ip),),
     'calibration.placement_answer': (('120 per minute', user_or_ip),),
+    # Grammar-drill tracking (ADR-066): one small write per finished round.
+    'grammar_drill.record_round': (('30 per minute; 600 per hour', user_or_ip),),
+    'grammar_drill.get_progress': (('30 per minute', user_or_ip),),
 }
 
 EXEMPT_ENDPOINTS = ('health_check',)

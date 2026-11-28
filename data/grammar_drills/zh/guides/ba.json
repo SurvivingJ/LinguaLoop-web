@@ -1,0 +1,437 @@
+{
+  "topic": "ba",
+  "summary": "把 pulls a known, specific object in front of the verb so the sentence can say what was done TO it: where it ended up, what state it is in now, who got it. So the verb can never stand bare after 把: something must follow it (a result, a direction, 了, 在/到/给 + destination, 一下). Think 'take X and do-something-to-completion'. No change to the object, no 把.",
+  "subs": [
+    {
+      "key": "ba-result",
+      "label": "把 + object + verb + result",
+      "focus": "Learner must place the object between 把 and the verb and keep verb + result (完, 好, 坏, 干净, 上, 掉, 错) together, with 了 last. Errors: object left after the verb (我把喝完了咖啡), result split off, 把 before the subject. Rewrites go from SVO + result to 把 and back."
+    },
+    {
+      "key": "ba-direction",
+      "label": "把 + object + verb + direction",
+      "focus": "把 with directional complements (拿出来, 带回去, 搬进去, 拿走, 带来). Learner must keep the object before the verb and the whole direction after it. Errors: object inside or after the complement (把拿书出来, 把拿出来书), or dropping the direction so the verb is bare."
+    },
+    {
+      "key": "ba-destination",
+      "label": "Obligatory 把: 放在 / 送到 / 交给 / 翻译成 / 当作",
+      "focus": "Verb + 在 / 到 / 给 / 成 / 作 + place, person or new form, with a specific object: the object must go forward with 把. Force 把 over English order (我放书在桌子上, 他翻译这句话成中文) and test which of 在 / 到 / 给 / 成 fits the verb."
+    },
+    {
+      "key": "no-bare-verb",
+      "label": "No bare verb after 把",
+      "focus": "Minimal endings when there is no result or direction: 了 (with 吃, 喝, 卖, 扔, 忘, 丢, 脱), reduplication (擦一擦), 一下. Learner must reject a bare verb (我把作业做, 请把门关) and pick a fitting ending. Cloze should offer ∅ as the tempting wrong option."
+    },
+    {
+      "key": "neg-modal-position",
+      "label": "没 / 别 / modals / adverbs go before 把",
+      "focus": "没, 别, 不要, modals (可以, 能, 要, 想, 应该) and time adverbs (已经, 还没, 马上) go before 把, not between object and verb. Errors: 你把车可以停在这儿, 我把没作业做完. 把…没 + verb is said colloquially: never judge-wrong. Also test 没 (not 不, and no 了) for an action not done. Keep 把 and the negator or modal as separate tiles."
+    },
+    {
+      "key": "no-ba-verbs",
+      "label": "Verbs that cannot take 把",
+      "focus": "Verbs that do nothing to the object take plain SVO: 是, 有, 在; 喜欢, 知道, 觉得, 认识; 来, 去, 到, 回; perception with only 见 / 到 (看见, 听到). Learner must reject 我把他喜欢, 我把他看见了. Mix in correct look-alikes for judge items (把字看清楚了, 把这件事忘了)."
+    },
+    {
+      "key": "definite-object",
+      "label": "The 把 object is specific",
+      "focus": "The 把 object is identifiable (这 / 那, 我的, pronoun, bare noun = 'the ...'); a new counted object (一本书, 两杯咖啡) stays after the verb. Learner chooses 把那本书看完了 or 看完了一本书 from the cue ('the / that / my' or 'a / some / two'). 把 + 一 + measure is accepted colloquially: never use it as a judge-wrong sentence."
+    },
+    {
+      "key": "ba-vs-svo",
+      "label": "把 or plain SVO?",
+      "focus": "Is 把 possible at all? Plain SVO for habits, ongoing actions and statements with no outcome (我每天喝咖啡), and for potential complements (做不完, 看得懂). Errors: 我把这些作业做不完, 我每天把咖啡喝. Definite object + result allows both orders: use rewrites, never judge one as wrong."
+    }
+  ],
+  "rules": [
+    {
+      "sub": "ba-result",
+      "rule": "Put the specific object right after 把, then the verb with its result. Verb and result stay glued together; 了 comes after them.",
+      "pattern": "Subject + 把 + Object + Verb + Result + (了)",
+      "examples": [
+        {
+          "zh": "我把作业写完了。",
+          "py": "wǒ bǎ zuò yè xiě wán le",
+          "en": "I've finished my homework."
+        },
+        {
+          "zh": "弟弟把我的手机弄坏了。",
+          "py": "dì di bǎ wǒ de shǒu jī nòng huài le",
+          "en": "My little brother broke my phone."
+        },
+        {
+          "zh": "请把门关上。",
+          "py": "qǐng bǎ mén guān shàng",
+          "en": "Please close the door."
+        },
+        {
+          "zh": "妈妈把衣服洗干净了。",
+          "py": "mā ma bǎ yī fu xǐ gān jìng le",
+          "en": "Mum washed the clothes clean."
+        }
+      ],
+      "note": "Requests and plans (请把门关上, 我想把房间打扫干净) have no 了 because nothing has happened yet."
+    },
+    {
+      "sub": "ba-direction",
+      "rule": "With a direction after the verb (出来, 回去, 进去, 走, 下), the object goes before the verb with 把 and the whole direction follows the verb.",
+      "pattern": "Subject + 把 + Object + Verb + Direction + (了)",
+      "examples": [
+        {
+          "zh": "请把书拿出来。",
+          "py": "qǐng bǎ shū ná chū lái",
+          "en": "Please take your books out."
+        },
+        {
+          "zh": "他把椅子搬进去了。",
+          "py": "tā bǎ yǐ zi bān jìn qù le",
+          "en": "He carried the chair inside."
+        },
+        {
+          "zh": "你把伞带回去吧。",
+          "py": "nǐ bǎ sǎn dài huí qù ba",
+          "en": "Take the umbrella back with you."
+        },
+        {
+          "zh": "谁把我的自行车骑走了？",
+          "py": "shéi bǎ wǒ de zì xíng chē qí zǒu le",
+          "en": "Who rode off on my bike?"
+        }
+      ],
+      "note": "Without 把, other orders exist (拿出一本书来), but once 把 is used the object can only be in front of the verb."
+    },
+    {
+      "sub": "ba-destination",
+      "rule": "If the verb is followed by 在 / 到 + place, or has 给 + person attached to it, in standard Mandarin a specific object does not stay after the verb. Move it forward with 把.",
+      "pattern": "Subject + 把 + Object + Verb + 在 / 到 / 给 + Place / Person",
+      "examples": [
+        {
+          "zh": "我把手机放在桌子上了。",
+          "py": "wǒ bǎ shǒu jī fàng zài zhuō zi shàng le",
+          "en": "I put my phone on the table."
+        },
+        {
+          "zh": "司机把我们送到了机场。",
+          "py": "sī jī bǎ wǒ men sòng dào le jī chǎng",
+          "en": "The driver took us to the airport."
+        },
+        {
+          "zh": "请把这封信交给李老师。",
+          "py": "qǐng bǎ zhè fēng xìn jiāo gěi lǐ lǎo shī",
+          "en": "Please hand this letter to Teacher Li."
+        },
+        {
+          "zh": "你什么时候把书还给我？",
+          "py": "nǐ shén me shí hou bǎ shū huán gěi wǒ",
+          "en": "When are you giving the book back to me?"
+        }
+      ],
+      "note": "在 is for where the thing rests (放在, 写在, 挂在, 停在); 到 is for where it is moved to (送到, 搬到, 带到, 拿到). Giving verbs have other orders without 把 when the object is new or counted (他还了我一本书, 我寄了一封信给他), so only test 把 + specific object + 交给 / 还给 / 送给 + person against clearly wrong orders."
+    },
+    {
+      "sub": "ba-destination",
+      "rule": "Turning something into something else, or treating it as something, also needs 把: verb + 成 / 作 must be followed directly by the new form.",
+      "pattern": "Subject + 把 + Object + Verb + 成 / 作 + New form",
+      "examples": [
+        {
+          "zh": "他把这个句子翻译成了中文。",
+          "py": "tā bǎ zhè ge jù zi fān yì chéng le zhōng wén",
+          "en": "He translated this sentence into Chinese."
+        },
+        {
+          "zh": "我一直把他当作好朋友。",
+          "py": "wǒ yī zhí bǎ tā dàng zuò hǎo péng you",
+          "en": "I have always thought of him as a good friend."
+        },
+        {
+          "zh": "对不起，我把十看成了七。",
+          "py": "duì bu qǐ wǒ bǎ shí kàn chéng le qī",
+          "en": "Sorry, I misread ten as seven."
+        }
+      ],
+      "note": "当作 and 当成 mean the same here. 把…当作… describes an attitude, so it can be negated with 不 and takes no 了."
+    },
+    {
+      "sub": "no-bare-verb",
+      "rule": "A 把 sentence cannot end in a bare verb. If there is no result or direction, add at least 了, a reduplicated verb, or 一下.",
+      "pattern": "Subject + 把 + Object + Verb + 了 / Verb + 一 + Verb / Verb + 一下",
+      "examples": [
+        {
+          "zh": "你把这杯水喝了吧。",
+          "py": "nǐ bǎ zhè bēi shuǐ hē le ba",
+          "en": "Drink this glass of water."
+        },
+        {
+          "zh": "我把这件事忘了。",
+          "py": "wǒ bǎ zhè jiàn shì wàng le",
+          "en": "I forgot about this."
+        },
+        {
+          "zh": "你把桌子擦一擦。",
+          "py": "nǐ bǎ zhuō zi cā yī cā",
+          "en": "Give the table a wipe."
+        },
+        {
+          "zh": "请把房间打扫一下。",
+          "py": "qǐng bǎ fáng jiān dǎ sǎo yī xià",
+          "en": "Please tidy the room up a bit."
+        }
+      ],
+      "note": "了 alone is enough mainly with verbs whose action uses up, removes or loses the object (吃, 喝, 卖, 扔, 丢, 忘, 脱, 关). With other verbs a result is safer: 把作业做完了 rather than 把作业做了, though the short form is heard in casual speech."
+    },
+    {
+      "sub": "neg-modal-position",
+      "rule": "Negation goes before 把, not before the verb. Use 没 for something that did not get done (and drop 了); use 别 or 不要 for 'don't'.",
+      "pattern": "Subject + 没 / 别 / 不要 + 把 + Object + Verb + more",
+      "examples": [
+        {
+          "zh": "我没把作业带来。",
+          "py": "wǒ méi bǎ zuò yè dài lái",
+          "en": "I didn't bring my homework."
+        },
+        {
+          "zh": "别把手机放在床上。",
+          "py": "bié bǎ shǒu jī fàng zài chuáng shàng",
+          "en": "Don't put your phone on the bed."
+        },
+        {
+          "zh": "他还没把钱还给我。",
+          "py": "tā hái méi bǎ qián huán gěi wǒ",
+          "en": "He still hasn't paid me back."
+        },
+        {
+          "zh": "不要把这件事告诉他。",
+          "py": "bù yào bǎ zhè jiàn shì gào su tā",
+          "en": "Don't tell him about this."
+        }
+      ],
+      "note": "Plain 不 before 把 is for attitudes, conditions and refusals (他不把我当朋友; 你不把饭吃完，就不能出去玩). A past event that did not happen takes 没把. 把…没 + verb (他把作业没做完) is heard in casual speech but is not the standard order."
+    },
+    {
+      "sub": "neg-modal-position",
+      "rule": "Modal verbs and time adverbs also go before 把.",
+      "pattern": "Subject + 可以 / 要 / 想 / 应该 / 已经 / 马上 + 把 + Object + Verb + more",
+      "examples": [
+        {
+          "zh": "你可以把车停在这儿。",
+          "py": "nǐ kě yǐ bǎ chē tíng zài zhè r",
+          "en": "You can park the car here."
+        },
+        {
+          "zh": "我想把这本书看完。",
+          "py": "wǒ xiǎng bǎ zhè běn shū kàn wán",
+          "en": "I want to finish reading this book."
+        },
+        {
+          "zh": "我已经把票买好了。",
+          "py": "wǒ yǐ jīng bǎ piào mǎi hǎo le",
+          "en": "I've already bought the tickets."
+        },
+        {
+          "zh": "你应该把药吃了。",
+          "py": "nǐ yīng gāi bǎ yào chī le",
+          "en": "You should take your medicine."
+        }
+      ],
+      "note": "One regular exception: 都 and 全, when they sum up the object, come after it: 我把作业都做完了."
+    },
+    {
+      "sub": "no-ba-verbs",
+      "rule": "No 把 with verbs that do nothing to the object: 是, 有, 在; liking and knowing (喜欢, 知道, 觉得, 认识); coming and going (来, 去, 到, 回); and seeing or hearing with only 见 / 到 (看见, 听到). Use plain SVO.",
+      "pattern": "Subject + Verb + Object",
+      "examples": [
+        {
+          "zh": "我很喜欢这个电影。",
+          "py": "wǒ hěn xǐ huan zhè ge diàn yǐng",
+          "en": "I really like this film."
+        },
+        {
+          "zh": "我在路上看见他了。",
+          "py": "wǒ zài lù shàng kàn jiàn tā le",
+          "en": "I saw him on the way."
+        },
+        {
+          "zh": "这件事我早就知道了。",
+          "py": "zhè jiàn shì wǒ zǎo jiù zhī dào le",
+          "en": "I've known about this for a long time."
+        },
+        {
+          "zh": "他去年去了北京。",
+          "py": "tā qù nián qù le běi jīng",
+          "en": "He went to Beijing last year."
+        }
+      ],
+      "note": "看 and 听 do take 把 when a real result follows (我把黑板上的字看清楚了, 把这首歌听完). 忘 is also fine with 把 (把这件事忘了) even though it is a mental verb."
+    },
+    {
+      "sub": "definite-object",
+      "rule": "The object of 把 is normally something specific that the listener can identify (这 / 那, 我的, a pronoun, or a bare noun meaning 'the ...'). A new object counted with 一 / 两 / 几 stays after the verb.",
+      "pattern": "把 + 这 / 那 / 我的 / bare noun ...   BUT   Verb + Result + 了 + number + measure + Object",
+      "examples": [
+        {
+          "zh": "我把那本书看完了。",
+          "py": "wǒ bǎ nà běn shū kàn wán le",
+          "en": "I finished that book."
+        },
+        {
+          "zh": "我昨天看完了一本书。",
+          "py": "wǒ zuó tiān kàn wán le yī běn shū",
+          "en": "I finished a book yesterday."
+        },
+        {
+          "zh": "他把咖啡喝完了。",
+          "py": "tā bǎ kā fēi hē wán le",
+          "en": "He finished the coffee."
+        },
+        {
+          "zh": "我在商店买了两件衣服。",
+          "py": "wǒ zài shāng diàn mǎi le liǎng jiàn yī fu",
+          "en": "I bought two pieces of clothing at the shop."
+        }
+      ],
+      "note": "一 + measure does occur after 把 when the speaker has one particular thing in mind (我把一件重要的事忘了), and casual speech allows more (我把一杯咖啡喝完了). As a working rule: 'a / some' in English means no 把."
+    },
+    {
+      "sub": "ba-vs-svo",
+      "rule": "Habits, actions in progress and plain statements with no outcome take ordinary SVO. 把 needs a specific thing and something that happens to it.",
+      "pattern": "Subject + (time / 在) + Verb + Object",
+      "examples": [
+        {
+          "zh": "我每天早上喝咖啡。",
+          "py": "wǒ měi tiān zǎo shang hē kā fēi",
+          "en": "I drink coffee every morning."
+        },
+        {
+          "zh": "他在房间里看书。",
+          "py": "tā zài fáng jiān lǐ kàn shū",
+          "en": "He is reading in his room."
+        },
+        {
+          "zh": "我喝完了那杯咖啡。",
+          "py": "wǒ hē wán le nà bēi kā fēi",
+          "en": "I finished that cup of coffee."
+        },
+        {
+          "zh": "我把那杯咖啡喝完了。",
+          "py": "wǒ bǎ nà bēi kā fēi hē wán le",
+          "en": "I finished that cup of coffee."
+        }
+      ],
+      "note": "With a specific object and a simple result, both orders are correct; 把 puts the attention on what became of the object and is the more usual choice in requests (请把门关上)."
+    },
+    {
+      "sub": "ba-vs-svo",
+      "rule": "'Can / cannot manage to' complements (verb + 得 / 不 + result) never combine with 把. Keep the object after the verb, or say 能把 / 没把 with a normal result instead.",
+      "pattern": "Subject + Verb + 得 / 不 + Result + Object",
+      "examples": [
+        {
+          "zh": "我今天做不完这些作业。",
+          "py": "wǒ jīn tiān zuò bù wán zhè xiē zuò yè",
+          "en": "I can't finish this homework today."
+        },
+        {
+          "zh": "你看得懂这封信吗？",
+          "py": "nǐ kàn de dǒng zhè fēng xìn ma",
+          "en": "Can you understand this letter?"
+        },
+        {
+          "zh": "我今天能把这些作业做完。",
+          "py": "wǒ jīn tiān néng bǎ zhè xiē zuò yè zuò wán",
+          "en": "I can get this homework finished today."
+        }
+      ]
+    }
+  ],
+  "contrasts": [
+    {
+      "wrong": "我把作业做。",
+      "right": {
+        "zh": "我把作业做完了。",
+        "py": "wǒ bǎ zuò yè zuò wán le",
+        "en": "I've done my homework."
+      },
+      "why": "The verb cannot be bare after 把. Say what became of the homework: 做完了."
+    },
+    {
+      "wrong": "我放手机在桌子上了。",
+      "right": {
+        "zh": "我把手机放在桌子上了。",
+        "py": "wǒ bǎ shǒu jī fàng zài zhuō zi shàng le",
+        "en": "I put my phone on the table."
+      },
+      "why": "English order 'put the phone on the table' does not work in standard Mandarin: 放 and 在 stay together, so the object moves forward with 把. (放手机在桌子上 is heard in some regional speech.)"
+    },
+    {
+      "wrong": "他翻译这个句子成中文了。",
+      "right": {
+        "zh": "他把这个句子翻译成中文了。",
+        "py": "tā bǎ zhè ge jù zi fān yì chéng zhōng wén le",
+        "en": "He translated this sentence into Chinese."
+      },
+      "why": "翻译成 must be followed straight away by the new form (中文), so the thing translated goes before the verb with 把."
+    },
+    {
+      "wrong": "我把没作业做完。",
+      "right": {
+        "zh": "我没把作业做完。",
+        "py": "wǒ méi bǎ zuò yè zuò wán",
+        "en": "I didn't finish my homework."
+      },
+      "why": "没 goes before 把, not after it, and 了 is dropped after 没. (把作业没做完 is heard in casual speech, but 没把 is the standard order.)"
+    },
+    {
+      "wrong": "你把车可以停在这儿。",
+      "right": {
+        "zh": "你可以把车停在这儿。",
+        "py": "nǐ kě yǐ bǎ chē tíng zài zhè r",
+        "en": "You can park the car here."
+      },
+      "why": "Modal verbs such as 可以 stand before 把, never between the object and the verb."
+    },
+    {
+      "wrong": "我把这个电影很喜欢。",
+      "right": {
+        "zh": "我很喜欢这个电影。",
+        "py": "wǒ hěn xǐ huan zhè ge diàn yǐng",
+        "en": "I really like this film."
+      },
+      "why": "Liking something does nothing to it, so 喜欢 cannot be used with 把."
+    },
+    {
+      "wrong": "我把他看见了。",
+      "right": {
+        "zh": "我看见他了。",
+        "py": "wǒ kàn jiàn tā le",
+        "en": "I saw him."
+      },
+      "why": "Seeing someone does not change or move them. 看见 takes its object after the verb."
+    },
+    {
+      "wrong": "我把这些作业做不完。",
+      "right": {
+        "zh": "我做不完这些作业。",
+        "py": "wǒ zuò bù wán zhè xiē zuò yè",
+        "en": "I can't finish this homework."
+      },
+      "why": "做不完 says the result cannot be reached, and 把 needs a result that is reached. The two never combine."
+    },
+    {
+      "wrong": "请把拿出来书。",
+      "right": {
+        "zh": "请把书拿出来。",
+        "py": "qǐng bǎ shū ná chū lái",
+        "en": "Please take your books out."
+      },
+      "why": "The object comes directly after 把; the verb and its direction follow as one block."
+    }
+  ],
+  "cheat": [
+    "把 + the thing + verb + what happened to it. Never stop at the bare verb.",
+    "放在 / 送到 / 交给 / 翻译成 / 当作 with a specific object: 把 is the standard way.",
+    "没, 别, 不要, 可以, 想, 要, 已经 all go BEFORE 把. Didn't happen = 没把, with no 了.",
+    "English 'a / some / two ...' object: no 把, plain SVO. 'The / that / my ...': 把 is open.",
+    "是, 有, 喜欢, 知道, 觉得, 来, 去, 看见, 听到: no 把.",
+    "做不完 / 看得懂 (can or can't manage): no 把.",
+    "Nothing happens to the object (habit, ongoing action)? Plain SVO."
+  ]
+}
