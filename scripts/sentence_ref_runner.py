@@ -162,7 +162,8 @@ So every sentence must be faithful and tight, not pretty.
    either). Loanwords go back to their source form (カタログ -> catalogue).
 5. Proper nouns: use the standard {l1_name} form if one exists, else a
    transliteration. Write numbers the way {l1_name} naturally would, as digits or
-   words (three apples; 102万 -> 1,020,000 or 1.02 million; 70年代 -> the 1970s).
+   words (three apples; 102万 -> 1,020,000 or 1.02 million; 70年代 -> the 1970s;
+   10代 -> teens or teenage, 20代 -> in their twenties).
    The number check compares values, so separators, million/万/亿, month names
    and number words (three, 三) all match; the value itself must be right.
 6. Terminators: end each `l1` with the punctuation the sentence type needs in

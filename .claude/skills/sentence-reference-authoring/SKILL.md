@@ -82,7 +82,8 @@ follow the gloss conventions in the `cross-language-glosses` skill.
 `count_mismatch`, `idx_order`, `l2_changed`, `empty_l1`, `l2_script_leak:<chars>`,
 `missing_number:<n>`, `preamble`, `length_ratio:<r>`, `duplicate_sentence`.
 `missing_number` compares values, not digit strings: 102万 is carried by
-"1,020,000" or "1.02 million", 11月 by "November", 70年代 by "the 1970s"; a "5" is
+"1,020,000" or "1.02 million", 11月 by "November", 70年代 by "the 1970s", 10代 by
+"teens"/"teenage" and 20代 by "twenties"; a "5" is
 not carried by "15". Numbers written as words count ("three", "twenty-five",
 "one and a half", 三, 两百); the value must still match.
 Warnings (go to the reviewer, do not block): `author_note_in_l1`.

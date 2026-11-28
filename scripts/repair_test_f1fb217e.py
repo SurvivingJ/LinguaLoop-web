@@ -43,6 +43,11 @@ sys.path.insert(0, ROOT)
 
 from dotenv import load_dotenv  # noqa: E402
 
+try:
+    from _common import base_parser  # noqa: E402
+except ImportError:  # imported as scripts.<name>
+    from scripts._common import base_parser  # noqa: E402
+
 load_dotenv(os.path.join(ROOT, '.env'))
 
 logging.basicConfig(level=logging.INFO, format='%(levelname)s %(message)s')
@@ -94,11 +99,7 @@ def cut_audio(src: str, dst: str) -> None:
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser()
-    g = ap.add_mutually_exclusive_group(required=True)
-    g.add_argument('--dry-run', action='store_true')
-    g.add_argument('--apply', action='store_true')
-    a = ap.parse_args()
+    a = base_parser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter).parse_args()
 
     from services.supabase_factory import SupabaseFactory, get_supabase_admin
     from services.test_generation.orchestrator import build_token_map_for_test
@@ -156,7 +157,7 @@ def main() -> int:
     log.info('audio: %.2fs -> %.2fs', duration(old_mp3), duration(new_mp3))
     log.info('junk to delete: %d vocabulary rows (%s), %d senses', len(junk_vocab), ', '.join(lemmas), len(junk_senses))
 
-    if a.dry_run:
+    if not a.apply:
         dst = os.path.join(tempfile.gettempdir(), 'claude-0', 'f1fb217e_new.mp3')
         os.makedirs(os.path.dirname(dst), exist_ok=True)
         os.replace(new_mp3, dst)
