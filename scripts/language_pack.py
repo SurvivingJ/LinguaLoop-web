@@ -20,7 +20,11 @@ or the network (only `lexicon-candidates` needs the wordfreq package).
   python scripts/language_pack.py strip it <batch>      # blind copy for the reviewer
   python scripts/language_pack.py compare it <batch>    # blind answers against the key
   python scripts/language_pack.py validate-fatseed it <doc.json>
-  python scripts/language_pack.py build it [--check]    # -> static/data/grammar/<lang>/
+  python scripts/language_pack.py validate-test-plan it <tests/plan/tN.json>
+  python scripts/language_pack.py validate-tests it <tests/batches/tN-NN.jsonl>
+  python scripts/language_pack.py tests-strip it <batch> ; tests-compare it <batch> ; tests-export it
+  python scripts/language_pack.py build it [--check] [--static]   # -> <pack>/grammar/built/ (or static/data/grammar/<lang>/)
+  python scripts/language_pack.py archive it ; unarchive it [--force]   # bulky parts <-> archive/*.tar.gz
   python scripts/language_pack.py status it [--json]
 
 Every validate command exits 0 when the file is clean and 1 otherwise.
@@ -48,8 +52,9 @@ POS = ('noun', 'verb', 'adjective', 'adverb', 'pronoun', 'determiner', 'preposit
        'numeral', 'interjection', 'particle', 'auxiliary', 'idiom', 'other')
 LADDER_STATUS = ('reuse', 'adapt', 'new', 'not_applicable')
 GENERATORS = ('llm', 'deterministic')
-SUBDIRS = ('lexicon', 'senses', 'dictionaries', 'grammar/guides', 'grammar/batches', 'grammar/reviewed',
-           'grammar/blind', 'grammar/verdicts', 'fat_seed/words', 'fat_seed/reviewed', 'wiring', 'reports')
+SUBDIRS = ('lexicon', 'senses', 'dictionaries', 'dictionaries/reviewed', 'grammar/guides', 'grammar/batches',
+           'grammar/reviewed', 'grammar/blind', 'grammar/verdicts', 'tests/plan', 'tests/batches', 'tests/reviewed',
+           'tests/blind', 'tests/verdicts', 'fat_seed/words', 'fat_seed/reviewed', 'wiring', 'reports', 'archive')
 
 
 def pack_dir(lang):
@@ -667,7 +672,8 @@ def source_files(lang, plan):
 def cmd_build(a):
     prof, plan = load_profile(a.lang), load_plan(a.lang)
     tx = Text(prof)
-    out_dir = os.path.join(ROOT, 'static', 'data', 'grammar', a.lang)
+    # Built files stay in the pack (and its archive) until the language is served; --static writes the app's path.
+    out_dir = os.path.join(ROOT, 'static', 'data', 'grammar', a.lang) if a.static else P(a.lang, 'grammar', 'built')
     by_topic = {t['slug']: [] for t in plan['topics']}
     seen, dropped, invalid = set(), 0, 0
     for path in source_files(a.lang, plan):
@@ -1155,6 +1161,444 @@ def cmd_validate_fatseed(a):
 
 
 # --------------------------------------------------------------------------
+# comprehension tests (contract: .claude/skills/new-language-swarm/TEST_SPEC.md)
+
+TEST_TIERS = {1: (35, 70), 2: (70, 120), 3: (120, 190), 4: (190, 280), 5: (280, 400), 6: (400, 650)}
+TIER_DIFFICULTY = {1: 1, 2: 3, 3: 5, 4: 6, 5: 7, 6: 9}
+QUESTION_TYPES = ('literal_detail', 'vocabulary_context', 'main_idea', 'supporting_detail', 'inference',
+                  'author_purpose')
+TIER_QUESTION_TYPES = {1: QUESTION_TYPES[:2], 2: QUESTION_TYPES[:4]}
+HIGHER_ORDER = ('main_idea', 'inference', 'author_purpose')
+CATEGORIES = ('Business & Commerce', 'Cuisine & Food', 'Family', 'Education', 'Work & Careers', 'Health & Medicine',
+              'Transportation', 'Architecture', 'Environment', 'Sports & Recreation', 'Language & Literature',
+              'Science & Technology', 'Fashion', 'Music & Performance', 'Art & Design', 'History', 'Agriculture')
+STYLES = ('academic', 'conversational')
+TEST_EXTRA_CHARS = '0123456789%€°/'
+SLUG_RE = re.compile(r'^[a-z]{2}-t[1-6]-[a-z0-9]+(?:-[a-z0-9]+)*$')
+
+
+def test_text(tx, s, label, errs):
+    """Passage text: the profile's characters plus digits and a few symbols (passages are read aloud by TTS)."""
+    if not isinstance(s, str) or not s.strip():
+        errs.append(f'{label}: missing')
+        return
+    if s != s.strip() or '  ' in s:
+        errs.append(f'{label}: stray spaces')
+    if unicodedata.normalize('NFC', s) != s:
+        errs.append(f'{label}: not NFC-normalised')
+    bad = sorted({c for c in s if c not in TEST_EXTRA_CHARS and not tx.allowed.match(c)})
+    if bad:
+        errs.append(f'{label}: characters outside the profile: {"".join(bad)!r}')
+
+
+def test_plan_path(lang, tier):
+    return P(lang, 'tests', 'plan', f't{tier}.json')
+
+
+def test_plan_problems(lang, path):
+    errs = []
+    try:
+        plan = load_json(path)
+    except ValueError as e:
+        return [f'not JSON: {e}'], 0
+    m = re.match(r'^t([1-6])\.json$', os.path.basename(path))
+    tier = int(m.group(1)) if m else None
+    if not m or plan.get('tier') != tier:
+        errs.append('file name must be t<tier>.json and "tier" must match')
+    slugs, topics, n = set(), set(), 0
+    cats = Counter()
+    for b in plan.get('batches') or []:
+        if not re.match(rf'^t{tier}-\d{{2}}$', str(b.get('id'))):
+            errs.append(f'batch id {b.get("id")!r}: must be t{tier}-NN')
+        if not b.get('tests'):
+            errs.append(f'batch {b.get("id")}: no tests')
+        for t in b.get('tests') or []:
+            n += 1
+            lab = f'{b.get("id")} {t.get("slug")}'
+            slug = t.get('slug')
+            if not isinstance(slug, str) or not SLUG_RE.match(slug) or not slug.startswith(f'{lang}-t{tier}-'):
+                errs.append(f'{lab}: slug must look like {lang}-t{tier}-short-topic')
+            if slug in slugs:
+                errs.append(f'{lab}: slug used twice')
+            slugs.add(slug)
+            if t.get('category') not in CATEGORIES:
+                errs.append(f'{lab}: category must be one of the 17 app categories')
+            cats[t.get('category')] += 1
+            if t.get('style') not in STYLES:
+                errs.append(f'{lab}: style must be one of {STYLES}')
+            topic = str(t.get('topic') or '')
+            if len(topic) < 40:
+                errs.append(f'{lab}: topic must say what the passage is about (40+ characters)')
+            if topic.lower() in topics:
+                errs.append(f'{lab}: same topic text as another test')
+            topics.add(topic.lower())
+    if n >= 12 and len(cats) < min(17, max(6, n // 4)):
+        errs.append(f'only {len(cats)} categories used; spread the tests over the app categories')
+    if n >= 12 and max(cats.values()) > max(3, 0.15 * n):
+        errs.append(f'category {cats.most_common(1)[0][0]!r} has {cats.most_common(1)[0][1]} of {n} tests; spread them')
+    return errs, n
+
+
+def cmd_validate_test_plan(a):
+    path = resolve(a.lang, a.path, 'tests/plan')
+    errs, n = test_plan_problems(a.lang, path)
+    return report(path, errs, n, 'tests')
+
+
+def planned_tests(lang, batch_id):
+    tier = int(batch_id[1])
+    path = test_plan_path(lang, tier)
+    if not os.path.exists(path):
+        return None
+    for b in load_json(path).get('batches') or []:
+        if b.get('id') == batch_id:
+            return b.get('tests') or []
+    return None
+
+
+def one_test_problems(t, tx, lang):
+    errs = []
+    if not isinstance(t, dict):
+        return ['not an object']
+    slug, tier = t.get('slug'), t.get('tier')
+    if not isinstance(slug, str) or not SLUG_RE.match(slug):
+        errs.append('slug: must look like <lang>-t<tier>-short-topic')
+    if tier not in TEST_TIERS:
+        return errs + ['tier: 1 to 6']
+    if isinstance(slug, str) and not slug.startswith(f'{lang}-t{tier}-'):
+        errs.append(f'slug: must start with {lang}-t{tier}-')
+    if t.get('category') not in CATEGORIES:
+        errs.append('category: one of the 17 app categories')
+    if t.get('style') not in STYLES:
+        errs.append(f'style: one of {STYLES}')
+    test_text(tx, t.get('title'), 'title', errs)
+    for f in ('title_en', 'topic'):
+        if not str(t.get(f) or '').strip():
+            errs.append(f'{f}: missing')
+    sents = t.get('sentences') or []
+    words = 0
+    for i, s in enumerate(sents):
+        if not isinstance(s, dict):
+            errs.append(f'sentences[{i}]: an object with tl and en')
+            continue
+        test_text(tx, s.get('tl'), f'sentences[{i}].tl', errs)
+        if not str(s.get('en') or '').strip():
+            errs.append(f'sentences[{i}].en: missing')
+        if set(s) - {'tl', 'en', 'speaker'}:
+            errs.append(f'sentences[{i}]: unknown fields {sorted(set(s) - {"tl", "en", "speaker"})}')
+        if t.get('style') == 'conversational' and not str(s.get('speaker') or '').strip():
+            errs.append(f'sentences[{i}]: a conversational passage names the speaker of every sentence')
+        words += len(str(s.get('tl') or '').split())
+    lo, hi = TEST_TIERS[tier]
+    if not lo <= words <= hi:
+        errs.append(f'passage: {words} words (tier {tier} takes {lo} to {hi})')
+    if len(sents) < 4:
+        errs.append('sentences: at least 4')
+    qs = t.get('questions') or []
+    want = 4 if tier == 1 else 5
+    if len(qs) != want:
+        errs.append(f'questions: {len(qs)} (tier {tier} takes exactly {want})')
+    allowed_types = TIER_QUESTION_TYPES.get(tier, QUESTION_TYPES)
+    types = []
+    for i, q in enumerate(qs):
+        lab = f'questions[{i}]'
+        if not isinstance(q, dict):
+            errs.append(f'{lab}: an object')
+            continue
+        if q.get('type') not in allowed_types:
+            errs.append(f'{lab}: type must be one of {allowed_types} at tier {tier}')
+        types.append(q.get('type'))
+        test_text(tx, q.get('text'), f'{lab}.text', errs)
+        ch = q.get('choices')
+        if not (isinstance(ch, list) and len(ch) == 4 and all(isinstance(c, str) and c.strip() for c in ch)):
+            errs.append(f'{lab}: exactly 4 choices')
+        else:
+            for c in ch:
+                test_text(tx, c, f'{lab}.choices', errs)
+            if len({tx.norm(c) for c in ch}) != 4:
+                errs.append(f'{lab}: two choices are the same')
+            lens = [len(c) for c in ch]
+            ans = q.get('answer')
+            if isinstance(ans, int) and 0 <= ans < 4 and lens[ans] > 1.6 * max(x for j, x in enumerate(lens) if j != ans) \
+                    and lens[ans] > 25:
+                errs.append(f'{lab}: the correct choice is much longer than every other; it gives itself away')
+        ans = q.get('answer')
+        if not (isinstance(ans, int) and not isinstance(ans, bool) and 0 <= ans < 4):
+            errs.append(f'{lab}: answer is the index (0-3) of the correct choice')
+        ev = q.get('evidence')
+        if not (isinstance(ev, list) and all(isinstance(x, int) and 0 <= x < len(sents) for x in ev)):
+            errs.append(f'{lab}: evidence is a list of sentence indexes')
+        elif not ev and q.get('type') not in ('main_idea', 'author_purpose'):
+            errs.append(f'{lab}: name the sentence(s) that decide the answer')
+        if len(str(q.get('explanation') or '')) < 40:
+            errs.append(f'{lab}: explanation (English, 40+ characters: why the key is right and the others are not)')
+        if set(q) - {'type', 'text', 'choices', 'answer', 'evidence', 'explanation'}:
+            errs.append(f'{lab}: unknown fields')
+    if len(set(types)) < 2:
+        errs.append('questions: at least two question types')
+    if tier >= 3 and not set(types) & set(HIGHER_ORDER):
+        errs.append('questions: from tier 3 at least one of main_idea, inference, author_purpose')
+    vocab = t.get('vocab') or []
+    if not 5 <= len(vocab) <= 14:
+        errs.append(f'vocab: {len(vocab)} entries (5 to 14 teachable words of the passage)')
+    for i, v in enumerate(vocab):
+        if not isinstance(v, dict) or not str(v.get('lemma') or '').strip() or v.get('pos') not in POS \
+                or not str(v.get('en') or '').strip():
+            errs.append(f'vocab[{i}]: lemma, pos (the tool\'s list) and en')
+    extra = set(t) - {'slug', 'tier', 'category', 'topic', 'style', 'title', 'title_en', 'sentences', 'questions',
+                      'vocab'}
+    if extra:
+        errs.append('unknown fields: ' + ', '.join(sorted(extra)))
+    return errs
+
+
+def test_batch_problems(lang, path, tx):
+    m = re.match(r'^(t[1-6]-\d{2})\.jsonl$', os.path.basename(path))
+    problems, tests = [], []
+    if not m:
+        problems.append('file name must be t<tier>-NN.jsonl')
+    planned = planned_tests(lang, m.group(1)) if m else None
+    if m and planned is None:
+        problems.append(f'batch {m.group(1)} is not in tests/plan/')
+    seen, answers = {}, Counter()
+    for n, obj, err in read_jsonl(path):
+        if err:
+            problems.append(f'line {n}: {err}')
+            continue
+        slug = obj.get('slug', '?') if isinstance(obj, dict) else '?'
+        errs = one_test_problems(obj, tx, lang)
+        if slug in seen:
+            errs.append(f'slug: duplicate of line {seen[slug]}')
+        seen.setdefault(slug, n)
+        if isinstance(obj, dict):
+            tests.append(obj)
+            if m and obj.get('tier') != int(m.group(1)[1]):
+                errs.append('tier: does not match the batch')
+            for q in obj.get('questions') or []:
+                if isinstance(q, dict) and isinstance(q.get('answer'), int):
+                    answers[q['answer']] += 1
+        problems += [f'line {n} ({slug}): {e}' for e in errs]
+    if planned is not None:
+        want, got = [t['slug'] for t in planned], [t.get('slug') for t in tests]
+        missing = [s for s in want if s not in got]
+        extra = [s for s in got if s not in want]
+        if extra:
+            problems.append('slugs not in the plan: ' + ', '.join(map(str, extra)))
+        if len(missing) > max(1, len(want) // 5):
+            problems.append('planned tests missing: ' + ', '.join(missing))
+    total = sum(answers.values())
+    if total >= 16 and answers.most_common(1)[0][1] > 0.4 * total:
+        problems.append(f'answer positions: index {answers.most_common(1)[0][0]} is the key in '
+                        f'{answers.most_common(1)[0][1]} of {total} questions; spread them')
+    return tests, problems
+
+
+def cmd_validate_tests(a):
+    prof = load_profile(a.lang)
+    path = resolve(a.lang, a.path, 'tests/batches')
+    tests, problems = test_batch_problems(a.lang, path, Text(prof))
+    return report(path, problems, len(tests), 'tests')
+
+
+def tests_blind_paths(lang, path):
+    name = os.path.basename(path)[:-6]
+    d = P(lang, 'tests', 'blind')
+    return {k: os.path.join(d, f'{name}.{k}.jsonl') for k in ('nopassage', 'passage', 'answers_nopassage', 'answers')}
+
+
+def cmd_tests_strip(a):
+    path = resolve(a.lang, a.path, 'tests/batches')
+    bp = tests_blind_paths(a.lang, path)
+    os.makedirs(os.path.dirname(bp['passage']), exist_ok=True)
+    rows = [o for _, o, e in read_jsonl(path) if not e and isinstance(o, dict)]
+    with open(bp['nopassage'], 'w', encoding='utf-8') as f1, open(bp['passage'], 'w', encoding='utf-8') as f2:
+        for t in rows:
+            qs = [{'text': q.get('text'), 'choices': q.get('choices')} for q in t.get('questions') or []]
+            f1.write(json.dumps({'slug': t.get('slug'), 'questions': qs}, ensure_ascii=False) + '\n')
+            f2.write(json.dumps({'slug': t.get('slug'), 'title': t.get('title'),
+                                 'passage': [s.get('tl') for s in t.get('sentences') or []], 'questions': qs},
+                                ensure_ascii=False) + '\n')
+    for k in ('nopassage', 'passage'):
+        print(f'wrote {os.path.relpath(bp[k], ROOT)}')
+    print(f'answers without the passage -> {os.path.relpath(bp["answers_nopassage"], ROOT)}')
+    print(f'answers with the passage    -> {os.path.relpath(bp["answers"], ROOT)}')
+    return 0
+
+
+def cmd_tests_compare(a):
+    path = resolve(a.lang, a.path, 'tests/batches')
+    bp = tests_blind_paths(a.lang, path)
+    for k in ('answers_nopassage', 'answers'):
+        if not os.path.exists(bp[k]):
+            print(f'no answers file at {os.path.relpath(bp[k], ROOT)}')
+            return 2
+    tests = {o['slug']: o for _, o, e in read_jsonl(path) if not e and isinstance(o, dict) and 'slug' in o}
+    cold = {o.get('slug'): o.get('answers') for _, o, e in read_jsonl(bp['answers_nopassage']) if not e}
+    warm = {o.get('slug'): o.get('answers') for _, o, e in read_jsonl(bp['answers']) if not e}
+    flags, n_q, guessed, guessable = [], 0, 0, 0
+    for slug, t in tests.items():
+        for i, q in enumerate(t.get('questions') or []):
+            n_q += 1
+            key = q.get('answer')
+            w = (warm.get(slug) or [None] * (i + 1))[i] if i < len(warm.get(slug) or []) else None
+            c = (cold.get(slug) or [None] * (i + 1))[i] if i < len(cold.get(slug) or []) else None
+            lab = f'{slug} q{i + 1} ({q.get("type")})'
+            if not isinstance(w, list):
+                flags.append(f'{lab}: no answer with the passage')
+            elif key not in w:
+                flags.append(f'{lab}: KEY REJECTED: key {key}, solver accepted {w}')
+            elif len(w) > 1:
+                flags.append(f'{lab}: AMBIGUOUS: solver also accepted {[x for x in w if x != key]}')
+            if q.get('type') != 'vocabulary_context':
+                guessable += 1
+                if c == key:
+                    guessed += 1
+                    flags.append(f'{lab}: GUESSABLE: answered right without the passage')
+    print(f'{len(tests)} tests, {n_q} questions, {len(flags)} flags; answered right without the passage: '
+          f'{guessed} of {guessable} (chance is 25%)')
+    for f in flags:
+        print('  ' + f)
+    return 0
+
+
+def reviewed_tests(lang):
+    d = P(lang, 'tests', 'reviewed')
+    out = []
+    for name in sorted(os.listdir(d)) if os.path.isdir(d) else []:
+        if re.match(r'^t[1-6]-\d{2}\.jsonl$', name):
+            out += [(name, o) for _, o, e in read_jsonl(os.path.join(d, name)) if not e and isinstance(o, dict)]
+    return out
+
+
+def cmd_tests_export(a):
+    """tests/final.jsonl: every reviewed test that passes, once per slug, with the derived fields the app stores."""
+    tx = Text(load_profile(a.lang))
+    seen, out, bad, dup = set(), [], 0, 0
+    for _, t in reviewed_tests(a.lang):
+        if one_test_problems(t, tx, a.lang):
+            bad += 1
+            continue
+        if t['slug'] in seen:
+            dup += 1
+            continue
+        seen.add(t['slug'])
+        row = dict(t)
+        row['difficulty'] = TIER_DIFFICULTY[t['tier']]
+        row['transcript'] = ' '.join(s['tl'] for s in t['sentences'])
+        out.append(row)
+    with open(P(a.lang, 'tests', 'final.jsonl'), 'w', encoding='utf-8') as fh:
+        for row in out:
+            fh.write(json.dumps(row, ensure_ascii=False) + '\n')
+    tiers = Counter(r['tier'] for r in out)
+    print(f'{len(out)} tests in tests/final.jsonl ({", ".join(f"T{k}: {tiers[k]}" for k in sorted(tiers))}); '
+          f'{bad} invalid and {dup} repeated slugs left out')
+    return 0
+
+
+def cmd_lexicon_dedupe(a):
+    """Parallel curators repeat lemmas: keep the first (lowest file, then line) of each lemma + pos, drop the rest."""
+    d = P(a.lang, 'lexicon')
+    seen, changed = {}, 0
+    for name in sorted(os.listdir(d)):
+        if not re.match(r'^lexicon(_\d+)?\.jsonl$', name):
+            continue
+        path, lines, touched = os.path.join(d, name), [], False
+        for n, o, e in read_jsonl(path):
+            if e:
+                continue
+            if isinstance(o, dict) and not o.get('drop'):
+                key = (str(o.get('lemma')).lower(), o.get('pos'))
+                if key in seen:
+                    o = {'lemma': o.get('lemma'), 'drop': True, 'reason': f'already in {seen[key]}'}
+                    touched = True
+                    changed += 1
+                else:
+                    seen[key] = name
+            lines.append(json.dumps(o, ensure_ascii=False))
+        if touched:
+            with open(path, 'w', encoding='utf-8') as fh:
+                fh.write('\n'.join(lines) + '\n')
+    print(f'{changed} repeated lemma + pos rows marked dropped; {len(seen)} lemmas kept')
+    return 0
+
+
+# --------------------------------------------------------------------------
+# archive: the bulky parts of a pack are committed as compressed tarballs
+
+ARCHIVE_PARTS = {
+    'lexicon': ['lexicon'],
+    'senses': ['senses'],
+    'dictionaries': ['dictionaries'],
+    'grammar_work': ['grammar/batches', 'grammar/blind', 'grammar/verdicts'],
+    'grammar_reviewed': ['grammar/reviewed'],
+    'grammar_built': ['grammar/built'],
+    'tests_work': ['tests/batches', 'tests/blind', 'tests/verdicts'],
+    'tests_reviewed': ['tests/reviewed', 'tests/final.jsonl'],
+    'fat_seed': ['fat_seed'],
+}
+
+
+def cmd_archive(a):
+    """Write archive/<part>.tar.gz for each bulky part. Same content gives the same bytes (sorted, no timestamps)."""
+    import gzip
+    import io
+    import tarfile
+    out_dir = P(a.lang, 'archive')
+    os.makedirs(out_dir, exist_ok=True)
+    manifest = {}
+    for part, rels in ARCHIVE_PARTS.items():
+        files = []
+        for rel in rels:
+            path = P(a.lang, *rel.split('/'))
+            if os.path.isfile(path):
+                files.append(path)
+            for base, dirs, names in os.walk(path) if os.path.isdir(path) else []:
+                dirs.sort()
+                files += [os.path.join(base, n) for n in sorted(names)]
+        if not files:
+            continue
+        raw = io.BytesIO()
+        with tarfile.open(fileobj=raw, mode='w') as tar:
+            for f in sorted(files):
+                info = tarfile.TarInfo(os.path.relpath(f, pack_dir(a.lang)).replace(os.sep, '/'))
+                data = open(f, 'rb').read()
+                info.size, info.mtime, info.mode = len(data), 0, 0o644
+                tar.addfile(info, io.BytesIO(data))
+        target = os.path.join(out_dir, part + '.tar.gz')
+        with open(target, 'wb') as fh, gzip.GzipFile(fileobj=fh, mode='wb', mtime=0, compresslevel=9, filename='') as gz:
+            gz.write(raw.getvalue())
+        manifest[part] = {'files': len(files), 'bytes': raw.getbuffer().nbytes, 'gz_bytes': os.path.getsize(target)}
+        print(f'{part}: {len(files)} files, {raw.getbuffer().nbytes / 1e6:.2f} MB -> {os.path.getsize(target) / 1e6:.2f} MB')
+    with open(os.path.join(out_dir, 'MANIFEST.json'), 'w', encoding='utf-8') as fh:
+        json.dump(manifest, fh, indent=1, sort_keys=True)
+    return 0
+
+
+def cmd_unarchive(a):
+    """Extract archive/*.tar.gz into the pack. Existing files are kept unless --force."""
+    import tarfile
+    d = P(a.lang, 'archive')
+    wrote = kept = 0
+    for name in sorted(os.listdir(d)) if os.path.isdir(d) else []:
+        if not name.endswith('.tar.gz'):
+            continue
+        with tarfile.open(os.path.join(d, name)) as tar:
+            for m in tar.getmembers():
+                target = os.path.normpath(os.path.join(pack_dir(a.lang), m.name))
+                if not target.startswith(os.path.normpath(pack_dir(a.lang)) + os.sep) or not m.isfile():
+                    continue
+                if os.path.exists(target) and not a.force:
+                    kept += 1
+                    continue
+                os.makedirs(os.path.dirname(target), exist_ok=True)
+                with open(target, 'wb') as fh:
+                    fh.write(tar.extractfile(m).read())
+                wrote += 1
+    print(f'extracted {wrote} files; {kept} existing files kept')
+    return 0
+
+
+# --------------------------------------------------------------------------
 # status
 
 def count_lines(paths):
@@ -1203,6 +1647,14 @@ def status(lang):
         fs[sub] = len(docs)
         fs[sub + '_valid'] = sum(1 for n in docs if not fatseed_problems(prof, load_json(os.path.join(d, n))))
     out['fat_seed'] = fs
+    tx_t = Text(prof)
+    rv = reviewed_tests(lang)
+    valid = [t for _, t in rv if not one_test_problems(t, tx_t, lang)]
+    td = P(lang, 'tests', 'batches')
+    out['tests'] = {'batches_written': len([n for n in os.listdir(td) if n.endswith('.jsonl')]) if os.path.isdir(td) else 0,
+                    'batches_reviewed': len({n for n, _ in rv}), 'reviewed': len(rv), 'valid': len(valid),
+                    'by_tier': dict(sorted(Counter(t['tier'] for t in valid).items())),
+                    'target': prof.get('targets', {}).get('tests')}
     wd = P(lang, 'wiring')
     out['wiring_files'] = sorted(os.listdir(wd)) if os.path.isdir(wd) else []
     return out
@@ -1225,6 +1677,9 @@ def cmd_status(a):
           f'reviewed items (target {g["target"]})')
     print(f'  fat seed     {fs["words"]} authored ({fs["words_valid"]} valid), {fs["reviewed"]} reviewed '
           f'({fs["reviewed_valid"]} valid)')
+    t = st['tests']
+    print(f'  tests        {t["valid"]} valid reviewed tests {t["by_tier"]}; batches written {t["batches_written"]}, '
+          f'reviewed {t["batches_reviewed"]} (target {t["target"]})')
     print(f'  wiring       {", ".join(st["wiring_files"]) or "nothing yet"}')
     return 0
 
@@ -1259,7 +1714,15 @@ def main(argv=None):
     add('strip', cmd_strip, path)
     add('compare', cmd_compare, path)
     add('validate-fatseed', cmd_validate_fatseed, path)
-    add('build', cmd_build, (('--check',), {'action': 'store_true'}))
+    add('build', cmd_build, (('--check',), {'action': 'store_true'}), (('--static',), {'action': 'store_true'}))
+    add('validate-test-plan', cmd_validate_test_plan, path)
+    add('validate-tests', cmd_validate_tests, path)
+    add('tests-strip', cmd_tests_strip, path)
+    add('tests-compare', cmd_tests_compare, path)
+    add('tests-export', cmd_tests_export)
+    add('lexicon-dedupe', cmd_lexicon_dedupe)
+    add('archive', cmd_archive)
+    add('unarchive', cmd_unarchive, (('--force',), {'action': 'store_true'}))
     add('status', cmd_status, (('--json',), {'action': 'store_true'}))
     a = ap.parse_args(argv)
     return a.fn(a)

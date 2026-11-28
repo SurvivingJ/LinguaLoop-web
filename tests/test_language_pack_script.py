@@ -271,7 +271,7 @@ def test_build_serves_reviewed_batches_only(pack, capsys):
     assert '0 items in 0 topics' in capsys.readouterr().out
     write_batch('reviewed', batch_items())
     assert lp.main(['build', 'xx']) == 0
-    out_dir = os.path.join(str(pack), 'static', 'data', 'grammar', 'xx')
+    out_dir = lp.P('xx', 'grammar', 'built')
     manifest = json.load(open(os.path.join(out_dir, 'manifest.json'), encoding='utf-8'))
     assert manifest['total'] == 10 and manifest['fields']['sentence'] == 'tl' and manifest['token_joiner'] == ' '
     assert manifest['topics'][0]['types'] == {'cloze': 4, 'order': 3, 'judge': 3}
@@ -339,7 +339,7 @@ def test_dictionary_rows_follow_the_profile_spec(pack, capsys):
     out = capsys.readouterr().out
     for needle in ("'x' is not one of", 'does not match', 'a list of at least 1', "unknown fields ['extra']", 'same lemma as'):
         assert needle in out
-    os.makedirs(lp.P('xx', 'dictionaries', 'reviewed'))
+    os.makedirs(lp.P('xx', 'dictionaries', 'reviewed'), exist_ok=True)
     with open(lp.P('xx', 'dictionaries', 'reviewed', 'noun_gender_01.jsonl'), 'w', encoding='utf-8') as fh:
         fh.write(json.dumps(rows[0]))
     assert lp.main(['validate-dict', 'xx', 'noun_gender', '--reviewed']) == 0
@@ -388,3 +388,89 @@ def test_status_counts(pack):
     assert st['profile_problems'] == 0
     assert st['grammar']['batches_written'] == 1 and st['grammar']['items_reviewed_valid'] == 10
     assert st['dictionaries']['noun_gender'] == {'rows': 0, 'reviewed_rows': 0, 'target': 100}
+
+
+# ---- comprehension tests ------------------------------------------------------
+
+def a_test(**over):
+    sents = [{'tl': 'Marta abita a Bologna con la sua famiglia.', 'en': 'Marta lives in Bologna with her family.'},
+             {'tl': 'Ogni mattina prende il treno delle 7 per andare al lavoro.', 'en': 'Every morning she takes the 7 o\'clock train to work.'},
+             {'tl': 'In ufficio beve un caffè e parla con i colleghi.', 'en': 'At the office she drinks a coffee and talks with her colleagues.'},
+             {'tl': 'La sera torna a casa stanca ma contenta, e prepara la cena.', 'en': 'In the evening she comes home tired but happy, and makes dinner.'},
+             {'tl': 'Dopo cena legge un libro sul divano e poi va a letto presto.', 'en': 'After dinner she reads a book on the sofa and then goes to bed early.'}]
+    def q(i, typ, ans):
+        return {'type': typ, 'text': f'Che cosa fa Marta nella frase {"uno due tre quattro".split()[i]}?',
+                'choices': [f'Risposta {w}' for w in ('prima', 'seconda', 'terza', 'quarta')], 'answer': ans,
+                'evidence': [i], 'explanation': 'The passage says this directly; the other choices are not mentioned at all.'}
+    t = {'slug': 'xx-t1-marta-day', 'tier': 1, 'category': 'Family', 'topic': 'An ordinary working day of a woman who lives in Bologna.',
+         'style': 'academic', 'title': 'La giornata di Marta', 'title_en': "Marta's day", 'sentences': sents,
+         'questions': [q(0, 'literal_detail', 0), q(1, 'literal_detail', 1), q(2, 'vocabulary_context', 2), q(3, 'literal_detail', 3)],
+         'vocab': [{'lemma': w, 'pos': 'noun', 'en': 'x'} for w in ('famiglia', 'treno', 'lavoro', 'ufficio', 'cena')]}
+    t.update(over)
+    return t
+
+
+def test_a_valid_test_and_its_main_faults(tx):
+    assert lp.one_test_problems(a_test(), tx, 'xx') == []
+    t = a_test(tier=2)
+    errs = lp.one_test_problems(t, tx, 'xx')
+    assert any('takes 70 to 120' in e for e in errs) and any('exactly 5' in e for e in errs) and any('slug' in e for e in errs)
+    t = a_test()
+    t['questions'][0]['type'] = 'inference'
+    t['questions'][1]['choices'][1] = t['questions'][1]['choices'][0]
+    t['questions'][2]['evidence'] = [9]
+    t['questions'][3]['answer'] = 4
+    errs = lp.one_test_problems(t, tx, 'xx')
+    for needle in ('type must be one of', 'two choices are the same', 'evidence is a list', 'answer is the index'):
+        assert any(needle in e for e in errs)
+    conv = a_test(style='conversational')
+    assert any('names the speaker' in e for e in lp.one_test_problems(conv, tx, 'xx'))
+    assert any('outside the profile' in e for e in lp.one_test_problems(a_test(title='我的一天'), tx, 'xx'))
+
+
+def test_test_plan_batch_blind_compare_and_export(pack, capsys):
+    plan = {'tier': 1, 'batches': [{'id': 't1-01', 'tests': [
+        {'slug': 'xx-t1-marta-day', 'category': 'Family', 'style': 'academic', 'topic': 'An ordinary working day of a woman who lives in Bologna.'}]}]}
+    with open(lp.P('xx', 'tests', 'plan', 't1.json'), 'w', encoding='utf-8') as fh:
+        json.dump(plan, fh)
+    assert lp.main(['validate-test-plan', 'xx', 't1.json']) == 0
+    for sub in ('batches', 'reviewed'):
+        with open(lp.P('xx', 'tests', sub, 't1-01.jsonl'), 'w', encoding='utf-8') as fh:
+            fh.write(json.dumps(a_test(), ensure_ascii=False))
+    assert lp.main(['validate-tests', 'xx', 't1-01.jsonl']) == 0
+    assert lp.main(['tests-strip', 'xx', 't1-01.jsonl']) == 0
+    blind = open(lp.P('xx', 'tests', 'blind', 't1-01.nopassage.jsonl'), encoding='utf-8').read()
+    assert 'answer' not in blind and 'Bologna' not in blind
+    assert 'Bologna' in open(lp.P('xx', 'tests', 'blind', 't1-01.passage.jsonl'), encoding='utf-8').read()
+    with open(lp.P('xx', 'tests', 'blind', 't1-01.answers_nopassage.jsonl'), 'w') as fh:
+        fh.write(json.dumps({'slug': 'xx-t1-marta-day', 'answers': [0, 3, 2, 0]}))
+    with open(lp.P('xx', 'tests', 'blind', 't1-01.answers.jsonl'), 'w') as fh:
+        fh.write(json.dumps({'slug': 'xx-t1-marta-day', 'answers': [[0], [1, 2], [2], [0]]}))
+    capsys.readouterr()
+    assert lp.main(['tests-compare', 'xx', 't1-01.jsonl']) == 0
+    out = capsys.readouterr().out
+    assert 'GUESSABLE' in out and 'AMBIGUOUS' in out and 'KEY REJECTED' in out
+    assert 'without the passage: 1 of 3' in out          # the vocabulary question is not counted
+    assert lp.main(['tests-export', 'xx']) == 0
+    row = json.loads(open(lp.P('xx', 'tests', 'final.jsonl'), encoding='utf-8').read())
+    assert row['difficulty'] == 1 and row['transcript'].startswith('Marta abita') and row['transcript'].endswith('presto.')
+    assert lp.status('xx')['tests']['valid'] == 1
+
+
+def test_lexicon_dedupe_and_archive_round_trip(pack, capsys):
+    for n, rows in (('lexicon_01.jsonl', [{'lemma': 'casa', 'pos': 'noun', 'level': 'A1', 'zipf': 6.0, 'hint': 'house'}]),
+                    ('lexicon_02.jsonl', [{'lemma': 'Casa', 'pos': 'noun', 'level': 'A1', 'zipf': 6.0, 'hint': 'house'},
+                                          {'lemma': 'casa', 'pos': 'verb', 'level': 'B2', 'zipf': 3.0, 'hint': 'x'}])):
+        with open(lp.P('xx', 'lexicon', n), 'w', encoding='utf-8') as fh:
+            fh.write('\n'.join(json.dumps(r) for r in rows))
+    assert lp.main(['lexicon-dedupe', 'xx']) == 0
+    assert '1 repeated' in capsys.readouterr().out
+    assert lp.main(['validate-lexicon', 'xx']) == 0
+    assert lp.main(['archive', 'xx']) == 0
+    first = open(lp.P('xx', 'archive', 'lexicon.tar.gz'), 'rb').read()
+    assert lp.main(['archive', 'xx']) == 0
+    assert open(lp.P('xx', 'archive', 'lexicon.tar.gz'), 'rb').read() == first      # same content, same bytes
+    os.remove(lp.P('xx', 'lexicon', 'lexicon_02.jsonl'))
+    assert lp.main(['unarchive', 'xx']) == 0
+    assert os.path.exists(lp.P('xx', 'lexicon', 'lexicon_02.jsonl'))
+    assert json.load(open(lp.P('xx', 'archive', 'MANIFEST.json')))['lexicon']['files'] == 2
