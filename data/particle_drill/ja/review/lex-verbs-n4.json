@@ -1,0 +1,10 @@
+{"batch":"lex-verbs-n4","files":["conjugation/verbs_n4.json"],"checked":181,"fixed":36,"deleted":0,"issues":[
+{"entry":"all 181","problem":"none of class/reading wrong: every -iru/-eru verb checked (godan: 決まる 変わる 始まる 閉まる 入る 直る 治る 集まる 止まる 上がる 下がる 減る 掛かる 当たる 折る 割る 破る 戻る 通る 渡る 寄る 回る 曲がる 踊る 光る 怒る 触る 謝る 要る 太る 困る 残る 鳴る 断る 無くなる 召し上がる; all -eru/-iru others ichidan)","action":"none"},
+{"entry":"honorific/irregular verbs","problem":"no いらっしゃる/おっしゃる/くださる/なさる/ござる present; 召し上がる conjugates as regular godan (召し上がります)","action":"kept 召し上がる"},
+{"entry":"触る","problem":"t marked t; takes に (〜に触る), intransitive","action":"t -> i"},
+{"entry":"注意する","problem":"t marked t; takes に (車に注意する, 人に注意する), intransitive","action":"t -> i"},
+{"entry":"卒業する","problem":"t marked t; 〜を卒業する uses を of departure like 家を出る, intransitive","action":"t -> i"},
+{"entry":"覚える 始まる 開く 閉める 閉まる 付ける 止める 止まる 上がる 疲れる 生まれる 掛ける 掛かる 渡る 曲がる 要る 弾く 急ぐ 死ぬ 吸う 勤める 浴びる 結婚する","problem":"lv 4 but N5 vocabulary; verbs_n5.json lists the same verbs at lv 5","action":"lv -> 5"},
+{"entry":"忘れる 消える 吹く 磨く 飛ぶ 並ぶ 並べる 渡す 困る 頼む","problem":"lv 4 but standard N5 vocabulary","action":"lv -> 5"},
+{"entry":"cross-file duplicates","problem":"32 entries also in verbs_n5.json and 55 also in verbs_n3.json; class/reading/transitivity agree, but verbs_n3.json gives N4 verbs (決める 変わる 続く 届く 迎える lv2 ...) lv 3","action":"not changed (outside this file); flag for the verbs_n3 reviewer / dedupe decision"}
+]}

@@ -1,0 +1,7 @@
+{"batch":"items-029","files":["items/de-means__1.jsonl"],"checked":47,"fixed":4,"deleted":1,"replaced":1,"issues":[
+{"file":"items/de-means__1.jsonl","jp_before":"留学生[りゅうがくせい]{は/が|wa-topic}毎朝[まいあさ]母[はは]{と|to-with}日本語[にほんご]{で|de-means}話[はな]します。","problem":"Distractor を is acceptable: 日本語を話します ('speaks Japanese with my mother') fits the English almost exactly.","action":"Replaced distractor を with と (母と日本語と話す is nonsensical)."},
+{"file":"items/de-means__1.jsonl","jp_before":"赤[あか]ちゃん{は/が|wa-topic}スプーン{で|de-means}ご飯[はん]{を|o-object}食[た]べます。","problem":"English dropped the object ご飯を.","action":"English changed to 'The baby eats its food with a spoon.'"},
+{"file":"items/de-means__1.jsonl","jp_before":"今日[きょう]{は/が|wa-topic}バス{で|de-means}学校[がっこう]{に/へ|ni-destination}来[き]ましたか。","problem":"が is not a valid alternative on 今日 here (今日が…来ましたか is wrong); 今日 is a contrastive time topic.","action":"Slot changed to {は|wa-topic}."},
+{"file":"items/de-means__1.jsonl","jp_before":"昨日[きのう]、家族[かぞく]{と|to-with}車[くるま]{で|de-means}温泉[おんせん]{に/へ|ni-destination}出[で]かけました。","problem":"Awkward English 'we went out ... with my family'.","action":"English changed to 'Yesterday I went to a hot spring by car with my family.'"},
+{"file":"items/de-means__1.jsonl","jp_before":"学校[がっこう]{から|kara-from}家[いえ]{まで|made-until}自転車[じてんしゃ]{で|de-means}二十分[にじゅっぷん]かかります。","problem":"Near-duplicate of the 祖母の家までバスで三十分かかります item (same frame and structure).","action":"Deleted and replaced with 父[ちち]{は/が|wa-topic}カメラ{で|de-means}家族[かぞく]{の|no-possessive}写真[しゃしん]{を|o-object}撮[と]りました。"}
+]}

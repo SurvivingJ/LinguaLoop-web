@@ -1,0 +1,16 @@
+{# /idiom-trainer without a language: each study language has its own page
+   (/idiom-trainer/zh, /idiom-trainer/ja). The script sends the browser to the
+   page of its study language; without a script, the two links below. #}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Idioms | LinguaDojo</title>
+    <script src="{{ url_for('static', filename='js/pages/grammar-drill-redirect.js') }}" data-base="/idiom-trainer"></script>
+</head>
+<body>
+    <p><a href="{{ url_for('idiom_trainer_zh_page') }}" lang="zh">中文 成语</a></p>
+    <p><a href="{{ url_for('idiom_trainer_ja_page') }}" lang="ja">日本語 慣用句</a></p>
+</body>
+</html>

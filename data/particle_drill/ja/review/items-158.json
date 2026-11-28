@@ -1,0 +1,128 @@
+{
+ "batch": "items-158",
+ "files": [
+  "items/toshitemo.jsonl",
+  "items/nishitemo.jsonl",
+  "items/toiuyori.jsonl"
+ ],
+ "checked": 74,
+ "fixed": 49,
+ "deleted": 0,
+ "replaced": 0,
+ "issues": [
+  {
+   "file": "items/nishitemo.jsonl",
+   "jp_before": "(all 27 lines) {にしても/にしろ|nishitemo}",
+   "problem": "にせよ is an equally natural alternative to にしても/にしろ in every focus slot but was not listed.",
+   "action": "Added にせよ as an alternative in every nishitemo slot."
+  },
+  {
+   "file": "items/nishitemo.jsonl",
+   "jp_before": "和食[わしょく]{にしても/にしろ|nishitemo}洋食[ようしょく]{にしても/にしろ|nishitemo}、この店[みせ]の料理…",
+   "problem": "Distractor としても after a noun pair (AとしてもBとしても, 'both as A and as B') gives a nearly acceptable sentence.",
+   "action": "Replaced distractor としても with としては."
+  },
+  {
+   "file": "items/nishitemo.jsonl",
+   "jp_before": "親[おや]{にしても/にしろ|nishitemo}子[こ]{にしても/にしろ|nishitemo}、相手[あいて]の気持[きも]ちを考[かんが]えること…",
+   "problem": "Distractor としても: 親としても子としても is natural and means nearly the same.",
+   "action": "Replaced distractor としても with としては."
+  },
+  {
+   "file": "items/nishitemo.jsonl",
+   "jp_before": "日本[にほん]{にしても/にしろ|nishitemo}韓国[かんこく]{にしても/にしろ|nishitemo}、少子化[しょうしか]…",
+   "problem": "Distractor としても: 日本としても ('for Japan as a nation') is natural and means nearly the same.",
+   "action": "Replaced distractor としても with としては."
+  },
+  {
+   "file": "items/nishitemo.jsonl",
+   "jp_before": "英語[えいご]{にしても/にしろ|nishitemo}中国語[ちゅうごくご]{にしても/にしろ|nishitemo}、毎日[まいにち]…",
+   "problem": "Distractor としても is borderline acceptable with a noun pair.",
+   "action": "Replaced distractor としても with としては."
+  },
+  {
+   "file": "items/nishitemo.jsonl",
+   "jp_before": "電車[でんしゃ]{にしても/にしろ|nishitemo}バス{にしても/にしろ|nishitemo}、朝[あさ]は込[こ]んでいます。",
+   "problem": "Distractor としても is borderline acceptable with a noun pair.",
+   "action": "Replaced distractor としても with としては."
+  },
+  {
+   "file": "items/nishitemo.jsonl",
+   "jp_before": "彼[かれ]{にしても/にしろ|nishitemo}、この問題[もんだい]の答[こた]えは分[わ]からなかったそうです。",
+   "problem": "Distractor にしては ('unusually for him, he didn't know') is natural and close to 'even he didn't know'.",
+   "action": "Distractors changed to ても, として, にとって."
+  },
+  {
+   "file": "items/nishitemo.jsonl",
+   "jp_before": "先生[せんせい]{にしても/にしろ|nishitemo}、すべての質問[しつもん]に答[こた]えることは難[むずか]しいでしょう。",
+   "problem": "Distractor としては ('as a teacher, it is hard to answer every question') is natural and close in meaning.",
+   "action": "Replaced distractor としては with について."
+  },
+  {
+   "file": "items/nishitemo.jsonl",
+   "jp_before": "事情[じじょう]{が|ga-existence}ある{にしても/にしろ|nishitemo}、無断欠勤[むだんけっきん]…",
+   "problem": "The English is in the past tense ('there were') but ある is present.",
+   "action": "English changed to 'Even granting there are circumstances, ...'."
+  },
+  {
+   "file": "items/nishitemo.jsonl",
+   "jp_before": "仕事[しごと]{が|ga-subject}終[お]わらない{にしても/にしろ|nishitemo}、今日[きょう]はもう帰[かえ]った方[ほう]…",
+   "problem": "Unnatural English 'go home now today'.",
+   "action": "English changed to 'go home for today'."
+  },
+  {
+   "file": "items/nishitemo.jsonl",
+   "jp_before": "どこ{に|ni-destination}行[い]く{にしても/にしろ|nishitemo}、財布[さいふ]を忘[わす]れないでください。",
+   "problem": "A non-focus slot is missing the equally natural alternative へ.",
+   "action": "Slot changed to {に/へ|ni-destination}."
+  },
+  {
+   "file": "items/toiuyori.jsonl",
+   "jp_before": "(20 of 21 lines) d contains といっても",
+   "problem": "Distractor といっても ('though I call it X, it is really Y') is natural in most of these label-correction sentences (e.g. レストランといっても居酒屋です, 好きといっても慣れているだけです) and close to the English.",
+   "action": "Replaced といっても with the plainly wrong とすれば in every line except 今日の雨は雨というより嵐ですね. In that line といっても downplays, so it cannot lead to the stronger word."
+  },
+  {
+   "file": "items/toiuyori.jsonl",
+   "jp_before": "彼[かれ]の説明[せつめい]はわかりやすい{というより|toiuyori}、単純[たんじゅん]すぎます。",
+   "problem": "The English 'less clear than oversimplified' is unnatural.",
+   "action": "English changed to \"His explanation isn't so much easy to follow as too simple.\""
+  },
+  {
+   "file": "items/toiuyori.jsonl",
+   "jp_before": "山田[やまだ]さんは真面目[まじめ]{というより|toiuyori}、堅苦[かたくる]しい人[ひと]です。",
+   "problem": "The English 'less serious than stiff' is unnatural.",
+   "action": "English changed to \"Mr. Yamada isn't so much serious as stiff.\""
+  },
+  {
+   "file": "items/toiuyori.jsonl",
+   "jp_before": "母[はは]の料理[りょうり]はおいしい{というより|toiuyori}、なつかしい味[あじ]です。",
+   "problem": "The English 'less delicious than nostalgic in flavour' is unnatural.",
+   "action": "English changed to \"My mother's cooking isn't so much delicious as a taste of home.\""
+  },
+  {
+   "file": "items/toiuyori.jsonl",
+   "jp_before": "雨[あめ]{で|de-cause}この道[みち]{は|wa-topic}、道[みち]{というより|toiuyori}川[かわ]のようです。",
+   "problem": "Awkward word order and repetition (この道は、道というより). It is also close to the 雨は雨というより嵐 item.",
+   "action": "Rewritten as 大雨[おおあめ]{で|de-cause}、道路[どうろ]{は|wa-topic}道[みち]{というより|toiuyori}川[かわ]のようになっていました。 with matching English."
+  },
+  {
+   "file": "items/toiuyori.jsonl",
+   "jp_before": "子供[こども]たちは練習[れんしゅう]{というより|toiuyori}、遊[あそ]んでいるだけです。",
+   "problem": "The bare noun 練習 is set against the verb phrase 遊んでいる. It should be 練習している.",
+   "action": "Changed to 練習[れんしゅう]している{というより|toiuyori}."
+  },
+  {
+   "file": "items/toshitemo.jsonl",
+   "jp_before": "今[いま]{から|kara-from}走[はし]った{としても|toshitemo}、もう間[ま]に合[あ]わないでしょう。",
+   "problem": "The English 'ran from now ... any more' is unnatural.",
+   "action": "English changed to \"Even if you started running now, you probably wouldn't make it in time.\""
+  },
+  {
+   "file": "items/toshitemo.jsonl",
+   "jp_before": "彼女[かのじょ]{は|wa-topic}忙[いそが]しい{としても|toshitemo}、メールの返事[へんじ]…",
+   "problem": "Non-focus slot: が is equally natural inside the としても clause but was not listed.",
+   "action": "Slot changed to {は/が|wa-topic}."
+  }
+ ]
+}

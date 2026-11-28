@@ -1,0 +1,9 @@
+{"batch":"items-073","files":["items/x-mo-wa.jsonl"],"checked":45,"fixed":7,"deleted":0,"replaced":0,"issues":[
+{"file":"items/x-mo-wa.jsonl","jp_before":"私[わたし]{の|no-possessive}父[ちち]{も|mo-both}母[はは]{も|mo-both}先生[せんせい]です。","problem":"Clinic item used を/に as distractors; clinic distractors must be the other member of the set (は).","action":"d changed to [\"は\"], why rewritten."},
+{"file":"items/x-mo-wa.jsonl","jp_before":"英語[えいご]{も|mo-both}日本語[にほんご]{も|mo-both}話[はな]せます。","problem":"Clinic item used を/に as distractors instead of は.","action":"d changed to [\"は\"], why rewritten."},
+{"file":"items/x-mo-wa.jsonl","jp_before":"弟[おとうと]{も|mo-both}妹[いもうと]{も|mo-both}犬[いぬ]{が|ga-stative}好[す]きです。","problem":"Clinic item used を/に as distractors instead of は.","action":"d changed to [\"は\"], why rewritten."},
+{"file":"items/x-mo-wa.jsonl","jp_before":"夏休[なつやす]み{に|ni-time}北海道[ほっかいどう]{に/へ|ni-destination}行[い]きました。沖縄[おきなわ]{も|mo-also}行[い]きました。","problem":"沖縄も行きました drops the destination particle (colloquial); standard model is 沖縄にも. The why wrongly said も replaces the particle.","action":"Rewrote to 沖縄[おきなわ]{に/へ|ni-destination}{も|mo-also}行[い]きました, f 2->3, why corrected."},
+{"file":"items/x-mo-wa.jsonl","jp_before":"田中[たなか]さん{は|wa-topic}ピアノ{を|o-object}弾[ひ]きます。ギター{も|mo-also}弾[ひ]きます。","problem":"lv 2 is implausible; hardest word 弾く is about N4.","action":"lv changed to 4."},
+{"file":"items/x-mo-wa.jsonl","jp_before":"今[いま]、お金[かね]{が|ga-existence}ありません。時間[じかん]{も|mo-also}ありません。","problem":"Non-focus slot missing the equally natural alternative は (お金はありません is natural with a negative).","action":"Slot changed to {が/は|ga-existence}."},
+{"file":"items/x-mo-wa.jsonl","jp_before":"学校[がっこう]{は|wa-topic}九時[くじ]{に|ni-time}始[はじ]まります。会社[かいしゃ]{も|mo-also}九時[くじ]{に|ni-time}始[はじ]まります。","problem":"English 'The company starts at nine' is unnatural for 会社が始まる (the workday starts).","action":"en changed to 'School starts at nine. Work at the company starts at nine too.'"}
+]}

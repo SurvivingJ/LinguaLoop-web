@@ -1,0 +1,21 @@
+{
+ "batch": "items-099",
+ "files": ["items/pt-youda.jsonl", "items/pt-rashii.jsonl"],
+ "checked": 80,
+ "fixed": 11,
+ "deleted": 0,
+ "replaced": 0,
+ "issues": [
+  {"file": "items/pt-youda.jsonl", "jp_before": "部屋[へや]の電気[でんき]が消[き]えています。誰[だれ]も{いないようです/いないみたいです|pt-youda}。", "problem": "lv 5 but ようだ/みたいだ is N4 grammar.", "action": "Set lv to 4."},
+  {"file": "items/pt-youda.jsonl", "jp_before": "鳥[とり]{のように/みたいに|pt-youda}空[そら]を自由[じゆう]に飛[と]んでみたいです。", "problem": "Distractor ために gives the malformed 鳥ために.", "action": "Changed the distractor to のために."},
+  {"file": "items/pt-youda.jsonl", "jp_before": "山[やま]の上[うえ]は寒[さむ]い{ようです/みたいです|pt-youda}。みんな厚[あつ]いコートを着[き]ています。", "problem": "The slot held only the ending, but the distractors are whole words (寒くないです etc.), so filling them in gave 寒い寒くないです.", "action": "Made the slot the whole word {寒[さむ]いようです/寒[さむ]いみたいです}."},
+  {"file": "items/pt-youda.jsonl", "jp_before": "この写真[しゃしん]は、絵[え]{のように/みたいに|pt-youda}きれいです。", "problem": "Distractor ために gives the malformed 絵ために.", "action": "Changed the distractor to のために."},
+  {"file": "items/pt-youda.jsonl", "jp_before": "休[やす]みの日[ひ]の{ように/みたいに|pt-youda}、ゆっくり朝[あさ]ごはんを食[た]べました。", "problem": "The alternative みたいに after the fixed の gives the ungrammatical 休みの日のみたいに. Distractor ために is also malformed after a noun.", "action": "Moved の into the slot ({のように/みたいに}) and changed the distractor ために to のために."},
+  {"file": "items/pt-youda.jsonl", "jp_before": "今日[きょう]は、{お祭[まつ]りのように/お祭[まつ]りみたいに|pt-youda}にぎやかな町[まち]です。", "problem": "今日は…にぎやかな町です is unnatural. The slot is a whole word but the distractors were bare endings (ために etc.).", "action": "Rewrote it as 今日[きょう]の町[まち]は、{…}にぎやかです。, changed the distractors to お祭[まつ]りのために / お祭[まつ]りまでに / お祭[まつ]りごとに and adjusted the English."},
+  {"file": "items/pt-rashii.jsonl", "jp_before": "学生[がくせい]なら、学生[がくせい]{らしく|pt-rashii}ちゃんと勉強[べんきょう]しなさい。", "problem": "lv 5 but らしい is N4 grammar.", "action": "Set lv to 4."},
+  {"file": "items/pt-rashii.jsonl", "jp_before": "ニュースによると、明日[あした]は大雪[おおゆき]が{降[ふ]るらしいです|pt-rashii}。", "problem": "The English 'it apparently will snow' is awkward.", "action": "Changed the English to 'it is apparently going to snow heavily tomorrow'."},
+  {"file": "items/pt-rashii.jsonl", "jp_before": "友達[ともだち]の話[はなし]では、あの食堂[しょくどう]は安[やす]くて{おいしいらしいです|pt-rashii}。", "problem": "Distractor おいしがっています is not a well-formed, usable word.", "action": "Replaced it with おいしいはずがありません."},
+  {"file": "items/pt-rashii.jsonl", "jp_before": "兄[あに]の話[はなし]では、あの映画[えいが]は{泣[な]けるらしい|pt-rashii}。", "problem": "Distractor 泣けたい (potential + たい) is ill-formed.", "action": "Replaced it with 泣[な]きたい."},
+  {"file": "items/pt-rashii.jsonl", "jp_before": "(30 hearsay items, e.g. 田中[たなか]さんは来月[らいげつ]、大阪[おおさか]に{引[ひ]っ越[こ]すらしいです|pt-rashii}。…)", "problem": "The why text called hearsay らしい a 'guess' and said the distractors were '(wish, plan, ban)', which is wrong for most items.", "action": "Rewrote the why text in all 30 lines: 'らしい passes on what the speaker has heard from someone else; the other endings do not report hearsay.'"}
+ ]
+}

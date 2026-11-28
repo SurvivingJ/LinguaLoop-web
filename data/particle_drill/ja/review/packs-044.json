@@ -1,0 +1,9 @@
+{"batch":"packs-044",
+ "files":["packs/niyoruto.json","packs/x-compound-core.json","packs/kawarini.json","packs/okagede.json","packs/seide.json","packs/nikurabete.json"],
+ "checked":6,
+ "fixed":2,
+ "deleted":0,
+ "issues":[
+  {"file":"packs/okagede.json","pack":"okagede-1","problem":"Result value 作文が上手に書けるようになりました marked the adverbial に of the na-adjective 上手 as a ni-change particle slot; it is not a separate particle (only 上手になる is ni-change).","action":"Removed the slot markup: 上手[じょうず]に書[か]けるようになりました."},
+  {"file":"packs/x-compound-core.json","pack":"x-compound-core-1","problem":"Focus slot accepted only にとって, but には is equally natural with the same meaning in every combination (この辞書は子供には難しいです), so a learner typing it would be marked wrong.","action":"Added には as an alternative to the nitotte focus slot. Distractors unchanged."}
+ ]}

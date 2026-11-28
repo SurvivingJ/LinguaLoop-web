@@ -1,0 +1,7 @@
+{"batch":"items-011","files":["items/ga-sense.jsonl"],"checked":50,"fixed":5,"deleted":0,"replaced":0,"issues":[
+ {"file":"items/ga-sense.jsonl","jp_before":"ここ{は|wa-topic}静[しず]かな{ので|node-because}、小[ちい]さな声[こえ]{が|ga-sense}よく聞[き]こえます。","problem":"English 'even quiet voices' implies も, which would then fit the focus blank.","action":"Rewrote English to 'It's quiet here, so you can hear soft voices clearly.'"},
+ {"file":"items/ga-sense.jsonl","jp_before":"今夜[こんや]{は|wa-topic}月[つき]{が|ga-sense}とてもきれいに見[み]えます。","problem":"Unnatural English translation.","action":"English changed to 'Tonight you can see the moon beautifully.'"},
+ {"file":"items/ga-sense.jsonl","jp_before":"この部屋[へや]{に|ni-destination}入[はい]る{と|to-conditional}、ペンキ{の|no-possessive}におい{が|ga-sense}します。","problem":"に with 入る is catalogued as ni-target, not ni-destination.","action":"Changed the slot's skill id to ni-target."},
+ {"file":"items/ga-sense.jsonl","jp_before":"彼[かれ]{は|wa-topic}もう帰[かえ]った気[き]{が|ga-sense}します。","problem":"Inside the 気がする complement, が is equally natural for 彼; alternative missing.","action":"Slot changed to {は/が|wa-topic}."},
+ {"file":"items/ga-sense.jsonl","jp_before":"この店[みせ]{は|wa-topic}高[たか]そうな感[かん]じ{が|ga-sense}します{が|ga-but}、安[やす]いです。","problem":"Second clause abrupt without 意外と; けど equally natural in the ga-but slot.","action":"Added 意外[いがい]と, slot changed to {が/けど|ga-but}, English updated to 'but it's surprisingly cheap'."}
+]}

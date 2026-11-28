@@ -1,0 +1,14 @@
+{"batch":"items-175","files":["items/cv-au.jsonl"],"checked":47,"fixed":10,"deleted":2,"replaced":2,"issues":[
+{"file":"items/cv-au.jsonl","jp_before":"新しいルールを話し合ったあとで、会議を終わりました。","problem":"会議を終わりました uses intransitive 終わる with を; non-standard model sentence.","action":"Changed to 会議を終えました."},
+{"file":"items/cv-au.jsonl","jp_before":"夫婦でよく話し合わないと、お金の問題が大きくなります。","problem":"Distractor 話し込まない (talk at length) is semantically close to 'talk things over'; not plainly wrong.","action":"Replaced distractor with 知り合わない."},
+{"file":"items/cv-au.jsonl","jp_before":"困ったとき、これからも助け合っていきたいと思います。","problem":"English 'I think we should' mistranslates 〜ていきたいと思います (wish/hope).","action":"English rewritten: 'I hope we can keep helping each other from now on whenever we are in trouble.'"},
+{"file":"items/cv-au.jsonl","jp_before":"重い荷物は、みんなで助け合ったので、早く運べました。","problem":"荷物は…助け合った is an awkward construction (help each other the luggage).","action":"Rewrote as 引っ越しのとき、みんなで助け合ったので、早く終わりました。 with matching English."},
+{"file":"items/cv-au.jsonl","jp_before":"町の人たちは雪かきを助け合っていました。","problem":"助け合う does not naturally take the chore as を-object.","action":"Changed 雪かきを to 雪かきで."},
+{"file":"items/cv-au.jsonl","jp_before":"旅行で知り合った外国人と、今でも手紙を書きます。","problem":"〜と手紙を書きます is unnatural; English 'write letters to' does not match と.","action":"Changed to 今でも手紙のやりとりをしています / 'exchange letters with'."},
+{"file":"items/cv-au.jsonl","jp_before":"留学して、世界中の友だちと知り合えたのがうれしいです。","problem":"友だちと知り合う is semantically odd (people become friends after meeting).","action":"Changed 友だち to 人 and smoothed the English."},
+{"file":"items/cv-au.jsonl","jp_before":"近所の人とは、まだ知り合っていません。","problem":"Unnatural; natives would say 知り合いがいない / 付き合いがない. Not repairable with this frame.","action":"Deleted and replaced with あの二人がどこで知り合ったのか、誰もわかりません。 (d: 知り尽くした, 知り抜いた, 助け合った)."},
+{"file":"items/cv-au.jsonl","jp_before":"上司との付き合いで、断れずに飲みに行きました。","problem":"English 'Because of socialising with my boss' is unnatural.","action":"English changed to 'To keep on good terms with my boss, I couldn't refuse and went out drinking.'"},
+{"file":"items/cv-au.jsonl","jp_before":"忙しくて、友だちの誘いに付き合えません。","problem":"誘いに付き合う is an unnatural collocation (誘いに乗る/応じる).","action":"Deleted and replaced with 最近は忙しくて、友だちと付き合う時間がありません。 (d: 助け合う, 知り合う, 間に合う)."},
+{"file":"items/cv-au.jsonl","jp_before":"寝坊したので、バスに間に合いませんでした。","problem":"why cites 間に合わなかった while the answer is 間に合いませんでした.","action":"why reworded to match the answer form."},
+{"file":"items/cv-au.jsonl","jp_before":"今から走っても、映画に間に合いますか。","problem":"Concessive ても with a yes/no question is unnatural.","action":"Rewrote as タクシーで行けば、映画に間に合いますか。 / 'If I take a taxi, will I make it in time for the movie?'"}
+]}

@@ -1,0 +1,9 @@
+{"batch":"items-m50012","files":["items/on-laugh__m50.jsonl","items/on-weather__m50.jsonl","items/on-texture__m50.jsonl","items/on-sound__m50.jsonl","items/cd-to__m50.jsonl"],"checked":34,"fixed":7,"deleted":0,"replaced":0,"issues":[
+{"file":"items/on-weather__m50.jsonl","jp_before":"洗濯物[せんたくもの]を干[ほ]そうとしたら、雨[あめ]が{ざあざあ|on-weather}降[ふ]り出[だ]して、母[はは]が慌[あわ]てて取[と]り込[こ]んだ。","problem":"Logic error: the laundry had not been hung out yet, so it could not be taken in.","action":"Rewrote as 外に干していたら、雨が急にざあざあ降り出して… with matching English."},
+{"file":"items/on-texture__m50.jsonl","jp_before":"社員[しゃいん]食堂[しょくどう]の天[てん]ぷらは、衣[ころも]が{ぱりぱり|on-texture}で人気[にんき]がある。","problem":"Tempura batter is normally さくさく, not ぱりぱり; the collocation is unnatural.","action":"Changed to 春巻きは、皮がぱりぱりで…; English and why updated (wrapper, not coating)."},
+{"file":"items/on-sound__m50.jsonl","jp_before":"疲[つか]れて、ホテルのベッドに{ばたん|on-sound}と倒[たお]れ込[こ]んだ。","problem":"Near-duplicate of an existing on-sound.jsonl item (疲れて、帰るなりベッドにばたんと倒れ込んだ).","action":"Rewrote: 運転手さんは、タクシーのトランクをばたんと閉めて、車に戻った。"},
+{"file":"items/on-sound__m50.jsonl","jp_before":"隣[となり]の席[せき]の人[ひと]が本[ほん]を{ばたん|on-sound}と閉[と]じて、電車[でんしゃ]を降[お]りていった。","problem":"Near-duplicate of an existing item (本をばたんと閉じて、立ち上がりました); ぱたん is also more typical for a book.","action":"Rewrote: 駅の階段で、前の人のスーツケースがばたんと倒れた。"},
+{"file":"items/cd-to__m50.jsonl","jp_before":"水[みず]を{入[い]れると/入[い]れれば|cd-to}、この粉[こな]はすぐにスープになります。","problem":"入れたら is equally natural with the same meaning but was not listed.","action":"Added 入れたら as an alternative."},
+{"file":"items/cd-to__m50.jsonl","jp_before":"春[はる]に{なると/なれば|cd-to}、近所[きんじょ]の店[みせ]にいちごがたくさん並[なら]びます。","problem":"なったら is equally natural but was not listed.","action":"Added なったら as an alternative."},
+{"file":"items/cd-to__m50.jsonl","jp_before":"ポイントカードを{出[だ]すと/出[だ]せば|cd-to}、会計[かいけい]が一割[いちわり]安[やす]くなる。","problem":"出したら is equally natural but was not listed.","action":"Added 出したら as an alternative."}
+]}

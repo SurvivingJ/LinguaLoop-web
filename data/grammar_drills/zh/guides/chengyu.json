@@ -1,0 +1,105 @@
+{
+  "topic": "chengyu",
+  "summary": "A chengyu is a fixed four-character phrase that packs a whole situation into one unit. The idea that makes it click: first pick the idiom by the situation (careless, hard-working, nervous, amazed), then use it the way its type allows. Most behave like adjectives that already mean 'very': predicate, 的 before a noun, 地 before a verb, no 很 in front. None of these takes a direct object.",
+  "subs": [
+    {"key": "careless", "label": "Careless, messy, flustered", "focus": "马马虎虎 (careless; also 'so-so'), 乱七八糟 (a total mess), 丢三落四 (always forgetting things), 手忙脚乱 (flustered rush), 三心二意 (half-hearted), 张冠李戴 (mixing up who did what). Items test which kind of carelessness the context describes."},
+    {"key": "effort", "label": "Effort, focus and giving up", "focus": "聚精会神, 全力以赴, 一丝不苟, 废寝忘食, 千方百计, 实事求是, and the opposite 半途而废. Typical errors: 半途而废 where 全力以赴 is meant; 一丝不苟 means meticulous about details, not just 'hard-working'."},
+    {"key": "feelings", "label": "Feelings and manner", "focus": "兴高采烈 (in high spirits), 津津有味 (with relish), 迫不及待 (can't wait), 小心翼翼 (very carefully), 七上八下 (anxious), 恍然大悟 (sudden understanding), 一见钟情 (love at first sight). Typical error: 七上八下 used for excitement or joy."},
+    {"key": "attitude", "label": "Judgments and attitudes", "focus": "莫名其妙 (baffling, no reason), 不可思议 (astonishing), 理所当然 (only natural), 无所谓 (I don't mind), 无论如何 (no matter what), 十全十美 (perfect), 九牛一毛 (a drop in the ocean). Typical error: confusing 莫名其妙 with 不可思议."},
+    {"key": "fables", "label": "Story idioms", "focus": "画蛇添足, 对牛弹琴, 井底之蛙, 守株待兔, 亡羊补牢, 自相矛盾: each judges a situation by an old story. Typical errors: reading 亡羊补牢 as 'too late' (it means fixing it is still worth it), and mixing it up with 守株待兔."},
+    {"key": "sayings", "label": "Wishes and proverbs", "focus": "一路平安, 万事如意 (wishes after 祝你), 百闻不如一见, 熟能生巧, 入乡随俗, 一举两得 (said as a whole comment on a situation). Typical error: 一路平安 to someone who is not travelling."},
+    {"key": "daily", "label": "Everyday description", "focus": "讨价还价 (haggle), 各种各样 (all kinds of), 自言自语 (talk to oneself), 一模一样 (exactly the same), 脱口而出 (blurt out). Items test the situation and that 各种各样 goes before 的 + noun."},
+    {"key": "grammar", "label": "Using an idiom in the sentence", "focus": "Wrong grammatical use: 很 before 一模一样, 兴高采烈 or 十全十美; a direct object after 一见钟情 or 讨价还价 (needs 对 / 跟); 很 before noun idioms like 井底之蛙. Do not build errors on 的 vs 地 alone (natives mix them) or on 很乱七八糟. 不好意思 is not a chengyu: exclude it."}
+  ],
+  "rules": [
+    {"sub": "careless", "rule": "For a mess or a scramble: 乱七八糟 is a total mess, 丢三落四 is always forgetting things, 手忙脚乱 is a flustered rush, 张冠李戴 is mixing up who did or said what.", "pattern": "Subject + idiom (+ 的) / idiom + 地 + Verb", "examples": [
+      {"zh": "他的房间乱七八糟的。", "py": "tā de fáng jiān luàn qī bā zāo de", "en": "His room is a total mess."},
+      {"zh": "我总是丢三落四的，今天又忘了带钥匙。", "py": "wǒ zǒng shì diū sān là sì de jīn tiān yòu wàng le dài yào shi", "en": "I'm always forgetting things; today I forgot my keys again."},
+      {"zh": "早上起晚了，我手忙脚乱地出了门。", "py": "zǎo shang qǐ wǎn le wǒ shǒu máng jiǎo luàn de chū le mén", "en": "I overslept and rushed out of the house in a panic."},
+      {"zh": "这句话不是李老师说的，你张冠李戴了。", "py": "zhè jù huà bù shì lǐ lǎo shī shuō de nǐ zhāng guān lǐ dài le", "en": "Teacher Li didn't say that; you've mixed people up."}
+    ], "note": "丢三落四 is read diū sān là sì: 落 is là here, not luò. 张冠李戴 is about wrong attribution, not general carelessness."},
+    {"sub": "careless", "rule": "马马虎虎 has two jobs: careless work (做事马马虎虎), and a modest 'so-so' answer about how something is. 三心二意 means not putting your whole mind on one thing.", "pattern": "做事马马虎虎 / X 马马虎虎 (so-so) / 不能三心二意", "examples": [
+      {"zh": "他写作业总是马马虎虎的。", "py": "tā xiě zuò yè zǒng shì mǎ mǎ hǔ hǔ de", "en": "He always does his homework carelessly."},
+      {"zh": "我的汉语马马虎虎，还要多练习。", "py": "wǒ de hàn yǔ mǎ mǎ hǔ hǔ hái yào duō liàn xí", "en": "My Chinese is so-so; I need more practice."},
+      {"zh": "学习不能三心二意。", "py": "xué xí bù néng sān xīn èr yì", "en": "You can't study half-heartedly."}
+    ], "note": "As 'so-so' it is modest, not an insult; about someone's work it is a criticism. The context decides which. Pinyin is mǎ mǎ hǔ hǔ (the dictionary reading: second syllable neutral, last two first tone), although 马虎 alone is mǎ hu."},
+    {"sub": "effort", "rule": "Focused hard work: 聚精会神 is full concentration, 一丝不苟 is meticulous to the last detail, 废寝忘食 is so absorbed you skip meals and sleep, 千方百计 is trying every possible way.", "pattern": "idiom + 地 + Verb / Subject + 做事·工作 + idiom", "examples": [
+      {"zh": "学生们聚精会神地听老师讲课。", "py": "xué sheng men jù jīng huì shén de tīng lǎo shī jiǎng kè", "en": "The students listened to the teacher with full attention."},
+      {"zh": "她工作一丝不苟。", "py": "tā gōng zuò yī sī bù gǒu", "en": "She is meticulous in her work."},
+      {"zh": "他废寝忘食地准备考试。", "py": "tā fèi qǐn wàng shí de zhǔn bèi kǎo shì", "en": "He is preparing for the exam so hard he forgets to eat and sleep."},
+      {"zh": "他千方百计地想找到那本书。", "py": "tā qiān fāng bǎi jì de xiǎng zhǎo dào nà běn shū", "en": "He tried every way he could to find that book."}
+    ]},
+    {"sub": "effort", "rule": "全力以赴 is giving everything to a task ahead; 实事求是 is sticking to the facts; 半途而废 is the opposite of effort: giving up halfway.", "pattern": "一定全力以赴 / 不要半途而废 / 要实事求是", "examples": [
+      {"zh": "明天的比赛，我们一定全力以赴。", "py": "míng tiān de bǐ sài wǒ men yī dìng quán lì yǐ fù", "en": "We'll give everything we've got in tomorrow's match."},
+      {"zh": "学了一年了，不要半途而废。", "py": "xué le yī nián le bù yào bàn tú ér fèi", "en": "You've studied for a year now; don't give up halfway."},
+      {"zh": "写报告要实事求是。", "py": "xiě bào gào yào shí shì qiú shì", "en": "A report should stick to the facts."}
+    ], "note": "None of these takes an object: put the task first (明天的比赛，我们全力以赴), never after the idiom."},
+    {"sub": "feelings", "rule": "How someone does something: 兴高采烈 is in high spirits, 津津有味 is with relish (eating, reading, watching), 迫不及待 is unable to wait, 小心翼翼 is very carefully.", "pattern": "idiom + 地 + Verb / Verb + 得 + 津津有味", "examples": [
+      {"zh": "孩子们兴高采烈地去公园了。", "py": "hái zi men xìng gāo cǎi liè de qù gōng yuán le", "en": "The children went off to the park in high spirits."},
+      {"zh": "他吃得津津有味。", "py": "tā chī de jīn jīn yǒu wèi", "en": "He ate with obvious relish."},
+      {"zh": "她迫不及待地打开了礼物。", "py": "tā pò bù jí dài de dǎ kāi le lǐ wù", "en": "She couldn't wait to open the present."},
+      {"zh": "他小心翼翼地把杯子放在桌子上。", "py": "tā xiǎo xīn yì yì de bǎ bēi zi fàng zài zhuō zi shàng", "en": "He very carefully put the cup on the table."}
+    ], "note": "兴 in 兴高采烈 is xìng, not xīng. 津津有味 very often follows 得 (看得津津有味)."},
+    {"sub": "feelings", "rule": "Inner states: 七上八下 is anxious, heart pounding, never happy; 恍然大悟 is the sudden 'oh, now I get it'; 一见钟情 is love at first sight.", "pattern": "心里七上八下的 / 才·终于恍然大悟 / 对 + someone + 一见钟情", "examples": [
+      {"zh": "成绩还没出来，我心里七上八下的。", "py": "chéng jì hái méi chū lái wǒ xīn li qī shàng bā xià de", "en": "My results aren't out yet and I'm on edge."},
+      {"zh": "听了他的话，我才恍然大悟。", "py": "tīng le tā de huà wǒ cái huǎng rán dà wù", "en": "Only when I heard what he said did it suddenly click."},
+      {"zh": "他们俩是一见钟情。", "py": "tā men liǎ shì yī jiàn zhōng qíng", "en": "The two of them fell in love at first sight."}
+    ], "note": "七上八下 almost always comes with 心里. 恍然大悟 needs something that caused the understanding (an explanation, a hint)."},
+    {"sub": "attitude", "rule": "莫名其妙: baffling, for no reason; 不可思议: astonishing, hard to believe; 理所当然: only natural, goes without saying; 无所谓: I don't mind, it makes no difference.", "pattern": "莫名其妙地 + Verb / 真不可思议 / 是理所当然的 / 都无所谓", "examples": [
+      {"zh": "他莫名其妙地生气了。", "py": "tā mò míng qí miào de shēng qì le", "en": "He got angry for no apparent reason."},
+      {"zh": "这么小的孩子会说三种语言，真不可思议。", "py": "zhè me xiǎo de hái zi huì shuō sān zhǒng yǔ yán zhēn bù kě sī yì", "en": "A child this small speaks three languages; it's incredible."},
+      {"zh": "父母照顾孩子是理所当然的。", "py": "fù mǔ zhào gù hái zi shì lǐ suǒ dāng rán de", "en": "It's only natural for parents to look after their children."},
+      {"zh": "去哪里吃饭我都无所谓。", "py": "qù nǎ lǐ chī fàn wǒ dōu wú suǒ wèi", "en": "I don't mind where we eat."}
+    ], "note": "莫名其妙 is negative (makes no sense); 不可思议 is amazement, often admiring. Answering 对不起 with 无所谓 sounds like 'whatever': say 没关系."},
+    {"sub": "fables", "rule": "Story idioms judge a situation: 画蛇添足 is adding something unneeded that spoils it, 对牛弹琴 is talking to someone who can't appreciate it, 守株待兔 is waiting for luck, 亡羊补牢 is fixing things after a loss.", "pattern": "就是·简直是 + idiom / 不能 + idiom / 也算 + idiom", "examples": [
+      {"zh": "文章已经很好了，再加这句就是画蛇添足。", "py": "wén zhāng yǐ jīng hěn hǎo le zài jiā zhè jù jiù shì huà shé tiān zú", "en": "The essay is already good; adding this sentence would only spoil it."},
+      {"zh": "跟他讲音乐就是对牛弹琴。", "py": "gēn tā jiǎng yīn yuè jiù shì duì niú tán qín", "en": "Talking about music with him is a waste of breath."},
+      {"zh": "想赚钱不能守株待兔。", "py": "xiǎng zhuàn qián bù néng shǒu zhū dài tù", "en": "If you want to make money, you can't just sit and wait for luck."},
+      {"zh": "被偷了一次以后，他才换了门锁，也算亡羊补牢。", "py": "bèi tōu le yī cì yǐ hòu tā cái huàn le mén suǒ yě suàn wáng yáng bǔ láo", "en": "He only changed the lock after being burgled, but better late than never."}
+    ], "note": "亡羊补牢 is encouraging: it is not too late to fix. The other two story idioms, 井底之蛙 (a person with a narrow view, a noun) and 自相矛盾 (contradict oneself), are under the grammar rules."},
+    {"sub": "sayings", "rule": "Wishes and proverbs are said whole. Wishes follow 祝你: 一路平安 only to a traveller, 万事如意 for all the best. 百闻不如一见, 熟能生巧, 入乡随俗 comment on a situation.", "pattern": "祝你 + wish / proverb，+ advice", "examples": [
+      {"zh": "祝你一路平安，万事如意！", "py": "zhù nǐ yī lù píng ān wàn shì rú yì", "en": "Have a safe journey, and all the best!"},
+      {"zh": "百闻不如一见，你应该自己去看看。", "py": "bǎi wén bù rú yī jiàn nǐ yīng gāi zì jǐ qù kàn kan", "en": "Seeing is believing; you should go and see for yourself."},
+      {"zh": "别着急，熟能生巧。", "py": "bié zháo jí shú néng shēng qiǎo", "en": "Don't worry, practice makes perfect."},
+      {"zh": "入乡随俗，在中国我们也用筷子吃饭。", "py": "rù xiāng suí sú zài zhōng guó wǒ men yě yòng kuài zi chī fàn", "en": "When in Rome: in China we eat with chopsticks too."}
+    ], "note": "一举两得 (one action, two gains) usually follows 真是 or 这样: 骑车上班又省钱又锻炼身体，真是一举两得."},
+    {"sub": "daily", "rule": "讨价还价 is haggling, 各种各样 is all kinds of (before 的 + noun), 自言自语 is talking to yourself, 脱口而出 is blurting something out without thinking.", "pattern": "跟 + person + 讨价还价 / 各种各样的 + Noun / 自言自语 / 脱口而出", "examples": [
+      {"zh": "在市场买东西可以讨价还价。", "py": "zài shì chǎng mǎi dōng xi kě yǐ tǎo jià huán jià", "en": "You can haggle when you shop at the market."},
+      {"zh": "商店里有各种各样的水果。", "py": "shāng diàn lǐ yǒu gè zhǒng gè yàng de shuǐ guǒ", "en": "The shop has all kinds of fruit."},
+      {"zh": "他一边走一边自言自语。", "py": "tā yī biān zǒu yī biān zì yán zì yǔ", "en": "He talked to himself as he walked."},
+      {"zh": "那句话我没想就脱口而出了。", "py": "nà jù huà wǒ méi xiǎng jiù tuō kǒu ér chū le", "en": "I blurted that out without thinking."}
+    ], "note": "还 in 讨价还价 is huán (give back), not hái. 模 in 一模一样 is mú."},
+    {"sub": "grammar", "rule": "Descriptive idioms act like adjectives that already mean 'very': use them as the predicate, with 的 before a noun, with 地 before a verb, or after 得. Do not put 很 in front of them.", "pattern": "Subj + idiom / idiom + 的 + Noun / idiom + 地 + Verb / Verb + 得 + idiom", "examples": [
+      {"zh": "这两张照片一模一样。", "py": "zhè liǎng zhāng zhào piàn yī mú yī yàng", "en": "These two photos are exactly the same."},
+      {"zh": "世界上没有十全十美的人。", "py": "shì jiè shàng méi yǒu shí quán shí měi de rén", "en": "Nobody in the world is perfect."},
+      {"zh": "大家兴高采烈地唱起歌来。", "py": "dà jiā xìng gāo cǎi liè de chàng qǐ gē lái", "en": "Everyone happily burst into song."},
+      {"zh": "这对双胞胎长得一模一样。", "py": "zhè duì shuāng bāo tāi zhǎng de yī mú yī yàng", "en": "These twins look exactly alike."}
+    ], "note": "Exceptions: judgment idioms like 不可思议 and 莫名其妙 do take 真, 太…了 or 很 (太不可思议了). 完全 may strengthen 一模一样."},
+    {"sub": "grammar", "rule": "Not every idiom is an adjective. Noun idioms follow 是 or 成为; 无论如何 comes before the verb phrase, with 都 or 也 after it; and none of these takes a direct object: the person goes in front with 对 or 跟.", "pattern": "是 + noun idiom / 无论如何 + 都 / 对·跟 + person + idiom", "examples": [
+      {"zh": "不出去看看，就会成为井底之蛙。", "py": "bù chū qù kàn kan jiù huì chéng wéi jǐng dǐ zhī wā", "en": "If you never go out and see the world, you'll end up like a frog in a well."},
+      {"zh": "无论如何你都要来参加我的生日会。", "py": "wú lùn rú hé nǐ dōu yào lái cān jiā wǒ de shēng rì huì", "en": "You must come to my birthday party, no matter what."},
+      {"zh": "他说的话前后自相矛盾。", "py": "tā shuō de huà qián hòu zì xiāng máo dùn", "en": "What he says contradicts itself."},
+      {"zh": "我对这个城市一见钟情。", "py": "wǒ duì zhè ge chéng shì yī jiàn zhōng qíng", "en": "I fell in love with this city at first sight."}
+    ], "note": "不好意思 is an everyday phrase, not a chengyu, and is not drilled here."}
+  ],
+  "contrasts": [
+    {"wrong": "我一见钟情了她。", "right": {"zh": "我对她一见钟情了。", "py": "wǒ duì tā yī jiàn zhōng qíng le", "en": "I fell for her at first sight."}, "why": "一见钟情 cannot take an object. The person you fall for goes in front with 对."},
+    {"wrong": "这两件衣服很一模一样。", "right": {"zh": "这两件衣服一模一样。", "py": "zhè liǎng jiàn yī fu yī mú yī yàng", "en": "These two pieces of clothing are exactly the same."}, "why": "一模一样 already means 'exactly the same'; 很 cannot be added. Use it bare, or strengthen it with 完全."},
+    {"wrong": "她讨价还价了老板半天。", "right": {"zh": "她跟老板讨价还价了半天。", "py": "tā gēn lǎo bǎn tǎo jià huán jià le bàn tiān", "en": "She haggled with the shop owner for ages."}, "why": "讨价还价 takes no object; the person you haggle with is introduced by 跟 before it."},
+    {"wrong": "他很井底之蛙。", "right": {"zh": "他就是一只井底之蛙。", "py": "tā jiù shì yī zhī jǐng dǐ zhī wā", "en": "He's a real frog in a well."}, "why": "井底之蛙 is a noun (a frog at the bottom of a well), not an adjective: use 是 and the measure 只, not 很."},
+    {"wrong": "这次比赛很重要，我们一定要半途而废。", "right": {"zh": "这次比赛很重要，我们一定要全力以赴。", "py": "zhè cì bǐ sài hěn zhòng yào wǒ men yī dìng yào quán lì yǐ fù", "en": "This match matters; we must give it everything."}, "why": "半途而废 means giving up halfway, the opposite of what an important match calls for. Going all out is 全力以赴."},
+    {"wrong": "听了老师的解释，我终于莫名其妙了。", "right": {"zh": "听了老师的解释，我终于恍然大悟了。", "py": "tīng le lǎo shī de jiě shì wǒ zhōng yú huǎng rán dà wù le", "en": "After the teacher's explanation, it finally clicked."}, "why": "An explanation leads to sudden understanding, 恍然大悟. 莫名其妙 means something makes no sense, the opposite result."},
+    {"wrong": "这点钱对他来说只是十全十美。", "right": {"zh": "这点钱对他来说只是九牛一毛。", "py": "zhè diǎn qián duì tā lái shuō zhǐ shì jiǔ niú yī máo", "en": "That bit of money is a drop in the ocean to him."}, "why": "A tiny amount compared with what someone has is 九牛一毛 (one hair from nine oxen). 十全十美 means perfect."},
+    {"wrong": "找工作不能亡羊补牢，要主动去找。", "right": {"zh": "找工作不能守株待兔，要主动去找。", "py": "zhǎo gōng zuò bù néng shǒu zhū dài tù yào zhǔ dòng qù zhǎo", "en": "You can't just wait for a job to come to you; you have to go looking."}, "why": "Waiting passively for luck is 守株待兔. 亡羊补牢 is fixing a problem after a loss, which is a good thing to do."},
+    {"wrong": "帮助朋友是莫名其妙的事。", "right": {"zh": "帮助朋友是理所当然的事。", "py": "bāng zhù péng you shì lǐ suǒ dāng rán de shì", "en": "Helping your friends goes without saying."}, "why": "Something only natural is 理所当然. 莫名其妙 calls it baffling and senseless, which contradicts the meaning."}
+  ],
+  "cheat": [
+    "Messy or careless? 乱七八糟, 马马虎虎, 丢三落四. Working hard? 聚精会神, 一丝不苟, 全力以赴.",
+    "Idiom before a verb: 地. Before a noun: 的. After 得 is fine too.",
+    "No 很 before 一模一样, 兴高采烈, 十全十美: they are already extreme.",
+    "No object after an idiom: 对她一见钟情, 跟老板讨价还价.",
+    "亡羊补牢 = fix it, it's not too late. 守株待兔 = sitting waiting for luck.",
+    "莫名其妙 = makes no sense. 不可思议 = amazing. 理所当然 = of course.",
+    "一路平安 only to a traveller; answer 对不起 with 没关系, not 无所谓."
+  ]
+}

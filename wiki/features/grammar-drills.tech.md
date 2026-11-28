@@ -25,6 +25,20 @@ breaking_change_risk: medium
 
 # Chinese Grammar Drills — Technical Specification
 
+> **2026-11-28, five more topics** (owner: "build all for Chinese and Japanese"): **near-synonyms**
+> (近义词: 知道 / 认识 / 了解, 再 / 又 …), **collocations** (搭配: 打电话, 戴 / 穿, 骑 / 坐 / 开 …),
+> **look-alike characters** (形近字: 己 / 已, 买 / 卖, 请 / 清 / 情 …), **chengyu** (成语) and
+> **multi-reading characters** (多音字: 行, 长, 得, 了 …). The first four are authored batches (10
+> batches, blind-reviewed as before); 多音字 is a generator over a reviewed table of 294 words
+> (`data/grammar_drills/zh/words/polyphones.json` → `static/js/grammar/generators/polyphones-data.js`),
+> where every reading offered, right or wrong, is checked to be a real reading of the character.
+> Built content: **44 topics, 11,192 items** (was 39 and 10,209). New in the tooling:
+> `scripts/grammar_drills_swarm.py` (headless `claude -p` author and blind reviewer per job; it
+> only plans topics that carry `"added"` in `plan.json`), and `"free_levels": true` on a plan
+> topic (chengyu) to skip the level-mix check. Counts elsewhere on this page are from the first build.
+
+> **2026-11-28:** this drill's page is now `/grammar-drill/zh` (each language has its own; `/grammar-drill` sends the browser to its study language's page), and its tracking tables are shared with the Japanese drills ([[decisions/ADR-070-one-tracking-structure-for-every-language]]). Where this page says `/grammar-drill`, read `/grammar-drill/zh`.
+
 Verified against the code on branch `claude/happy-gates-qp9ifs` on 2026-11-27. Not deployed.
 Progress tracking (ADR-066) was added the same day in the working tree; its migration is not applied.
 Prose page: [[features/grammar-drills]]. Decision record:

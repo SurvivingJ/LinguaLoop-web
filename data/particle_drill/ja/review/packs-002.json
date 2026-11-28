@@ -1,0 +1,4 @@
+{"batch":"packs-002","files":["packs/ga-existence.json","packs/ga-stative.json","packs/ga-sub-clause.json"],"checked":7,"fixed":2,"deleted":0,"issues":[
+{"file":"packs/ga-existence.json","pack":"ga-existence-1","problem":"Negative 'ex' values (ありません, ありませんでした, もうありません) make は at least as natural as が in negative existentials (この町に銀行はありません), but the slot accepted only が, so a learner answering は would be marked wrong.","action":"Replaced the negative values with positive ones where が is clearly the best answer: もうあります (There is already), 昔ありました (There used to be), ちゃんとあります (There really is). Kept あります, ありました, まだあります. Rewrote 'why' so it no longer claims negatives too, and set lv to 4 because of 昔. Still 378 combinations."},
+{"file":"packs/ga-stative.json","pack":"ga-stative-3","problem":"よくできます was translated 'speaks excellent', which overstates よく (well).","action":"Changed the English to 'speaks good' (e.g. 'My father speaks good Korean')."}
+]}

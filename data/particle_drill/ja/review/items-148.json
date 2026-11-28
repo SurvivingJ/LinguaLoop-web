@@ -1,0 +1,6 @@
+{"batch":"items-148","files":["items/no-compound.jsonl"],"checked":52,"fixed":4,"deleted":0,"replaced":0,"issues":[
+{"file":"items/no-compound.jsonl","jp_before":"卒業[そつぎょう]{までの|no-compound}一年間[いちねんかん]{は|wa-topic}すぐに過[す]ぎました。","problem":"Non-focus slot: が is equally natural here but was not listed as an alternative.","action":"Changed the slot to {は/が|wa-topic}."},
+{"file":"items/no-compound.jsonl","jp_before":"弟[おとうと]{への|no-compound}プレゼント{は|wa-topic}もう買[か]いました{か|ka-question}。","problem":"The English said 'brother', but 弟 means younger brother.","action":"Changed the English to 'little brother'."},
+{"file":"items/no-compound.jsonl","jp_before":"クラス全員[ぜんいん]{で|de-scope}先生[せんせい]{への|no-compound}お礼[れい]{を|o-object}書[か]きました。","problem":"お礼を書く is unnatural; the natural phrasing is お礼の手紙を書く.","action":"Rewrote it as お礼{の|no-possessive}手紙{を|o-object}書きました, with English 'a thank-you letter'. The focus slot index is unchanged."},
+{"file":"items/no-compound.jsonl","jp_before":"祭[まつ]り{での|no-compound}子[こ]どもたち{の|no-possessive}笑顔[えがお]{が|ga-subject}印象的[いんしょうてき]でした。","problem":"Translating 印象的でした as 'were impressive' is a poor fit.","action":"Changed the English to 'left a strong impression'."}
+]}

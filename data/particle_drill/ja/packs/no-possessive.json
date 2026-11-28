@@ -1,0 +1,29 @@
+[
+ {"id":"no-possessive-1","lv":5,
+  "tpl":"<owner>{の|no-possessive}<thing>{は/が|wa-topic}<place>{に|ni-location}ありました。",
+  "en":"<owner> <thing> was <place>.",
+  "f":0,"d":["が","を","で"],
+  "why":"の links the owner to the thing it owns: AのB means A's B.",
+  "vars":{
+   "owner":[["田中[たなか]さん","Mr. Tanaka's"],["母[はは]","My mother's"],["父[ちち]","My father's"],["兄[あに]","My older brother's"],["姉[あね]","My older sister's"],["先生[せんせい]","The teacher's"],["山田[やまだ]さん","Ms. Yamada's"],["友達[ともだち]","My friend's"]],
+   "thing":[["鍵[かぎ]","key"],["財布[さいふ]","wallet"],["時計[とけい]","watch"],["本[ほん]","book"],["辞書[じしょ]","dictionary"],["ノート","notebook"],["手紙[てがみ]","letter"],["写真[しゃしん]","photo"],["ペン","pen"]],
+   "place":[["机[つくえ]{の|no-possessive}上[うえ]","on the desk"],["テーブル{の|no-possessive}上[うえ]","on the table"],["車[くるま]{の|no-possessive}中[なか]","in the car"],["かばん{の|no-possessive}中[なか]","in the bag"],["ベッド{の|no-possessive}下[した]","under the bed"],["ソファー{の|no-possessive}上[うえ]","on the sofa"],["箱[はこ]{の|no-possessive}中[なか]","in the box"],["棚[たな]{の|no-possessive}上[うえ]","on the shelf"]]}},
+ {"id":"no-possessive-2","lv":5,
+  "tpl":"<owner>{の|no-possessive}<thing>{は|wa-topic}<adj>ですか。",
+  "en":"Is <owner> <thing> <adj>?",
+  "f":0,"d":["が","を","で"],
+  "why":"To say whose thing it is, put の between the owner and the thing.",
+  "vars":{
+   "owner":[["佐藤[さとう]さん","Mr. Sato's"],["鈴木[すずき]さん","Ms. Suzuki's"],["先生[せんせい]","the teacher's"],["お父[とう]さん","your father's"],["お母[かあ]さん","your mother's"],["妹[いもうと]さん","your younger sister's"],["弟[おとうと]さん","your younger brother's"],["お兄[にい]さん","your older brother's"]],
+   "thing":[["傘[かさ]","umbrella"],["かばん","bag"],["帽子[ぼうし]","hat"],["自転車[じてんしゃ]","bicycle"],["本[ほん]","book"],["車[くるま]","car"],["コート","coat"],["時計[とけい]","watch"]],
+   "adj":[["新[あたら]しい","new"],["古[ふる]い","old"],["大[おお]きい","big"],["小[ちい]さい","small"],["高[たか]い","expensive"],["黒[くろ]い","black"],["白[しろ]い","white"],["赤[あか]い","red"]]}},
+ {"id":"no-possessive-3","lv":5,
+  "tpl":"<who>{は|wa-topic}<origin>{の|no-possessive}<thing>{を|o-object}買[か]いました。",
+  "en":"<who> bought <origin> <thing>.",
+  "f":1,"d":["が","を","と"],
+  "why":"A noun that describes another noun, such as a country of origin, joins it with の.",
+  "vars":{
+   "who":[["兄[あに]","My older brother"],["姉[あね]","My older sister"],["田中[たなか]さん","Mr. Tanaka"],["母[はは]","My mother"],["友達[ともだち]","My friend"],["父[ちち]","My father"],["山本[やまもと]さん","Ms. Yamamoto"]],
+   "origin":[["日本[にほん]","a Japanese"],["イタリア","an Italian"],["フランス","a French"],["ドイツ","a German"],["中国[ちゅうごく]","a Chinese"],["韓国[かんこく]","a Korean"],["アメリカ","an American"],["スペイン","a Spanish"]],
+   "thing":[["車[くるま]","car"],["時計[とけい]","watch"],["かばん","bag"],["自転車[じてんしゃ]","bicycle"],["カメラ","camera"],["シャツ","shirt"],["皿[さら]","plate"],["コート","coat"]]}}
+]

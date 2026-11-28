@@ -1,0 +1,8 @@
+{"batch":"items-012","files":["items/o-object__1.jsonl"],"checked":60,"fixed":6,"deleted":0,"replaced":0,"issues":[
+{"file":"items/o-object__1.jsonl","jp_before":"父[ちち]{と|to-and}母[はは]{は/が|wa-topic}土曜日[どようび]{に|ni-time}部屋[へや]{を|o-object}掃除[そうじ]しました。","problem":"Distractor で is acceptable: 部屋で掃除しました ('did the cleaning in the room') still fits 'cleaned the room'.","action":"Replaced distractor で with に (d: が, に, へ)."},
+{"file":"items/o-object__1.jsonl","jp_before":"寒[さむ]い{ので|node-because}、ストーブ{を|o-object}つけました。","problem":"Non-focus slot missing the equally natural alternative から.","action":"Slot changed to {ので/から|node-because}."},
+{"file":"items/o-object__1.jsonl","jp_before":"母[はは]{と|to-and}姉[あね]{が|ga-subject}テーブル{を|o-object}拭[ふ]きました。","problem":"Non-focus subject slot missing the natural alternative は (listed everywhere else in the file).","action":"Slot changed to {が/は|ga-subject}."},
+{"file":"items/o-object__1.jsonl","jp_before":"父[ちち]{は/が|wa-topic}夜[よる]、玄関[げんかん]{の|no-possessive}かぎ{を|o-object}かけます。","problem":"why says the key is 'turned'; かぎをかける is the set phrase for locking.","action":"Rewrote why."},
+{"file":"items/o-object__1.jsonl","jp_before":"姉[あね]{は/が|wa-topic}夜[よる]、日記[にっき]{を|o-object}書[か]きます。","problem":"English 'writes a diary' is unidiomatic.","action":"en changed to 'My older sister writes in her diary at night.'"},
+{"file":"items/o-object__1.jsonl","jp_before":"祖父[そふ]{は/が|wa-topic}毎日[まいにち]散歩[さんぽ]{を|o-object}します。","problem":"lv 4 too high: 散歩 and all other words are N5.","action":"lv changed to 5."}
+]}

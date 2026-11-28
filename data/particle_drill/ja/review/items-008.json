@@ -1,0 +1,7 @@
+{"batch":"items-008","files":["items/ga-stative__1.jsonl"],"checked":50,"fixed":5,"deleted":0,"replaced":0,"issues":[
+{"file":"items/ga-stative__1.jsonl","jp_before":"私[わたし]{は|wa-topic}ゆっくり休[やす]む時間[じかん]{が|ga-stative}欲[ほ]しいです。","problem":"English 'time to rest slowly' is an unnatural literal rendering of ゆっくり.","action":"Changed en to 'I want some time to relax and rest properly.'"},
+{"file":"items/ga-stative__1.jsonl","jp_before":"家族[かぞく]{は|wa-topic}みんな魚[さかな]{が|ga-stative}好[す]きです。","problem":"Near-duplicate of the 'our cat loves fish' item (魚が好き/大好き).","action":"Rewrote with 旅行が好き ('Everyone in my family likes travelling.')."},
+{"file":"items/ga-stative__1.jsonl","jp_before":"夏[なつ]{と|to-and}冬[ふゆ]{と|to-and}どちら{が|ga-stative}好[す]きですか。","problem":"Near-duplicate of the 猫と犬とどちらが好きですか item (identical frame).","action":"Rewrote as a 分かる item: 宿題の答えが分かりますか。"},
+{"file":"items/ga-stative__1.jsonl","jp_before":"毎晩[まいばん]、私[わたし]{は|wa-topic}静[しず]かな時間[じかん]{が|ga-stative}欲[ほ]しいです。","problem":"Near-duplicate of the ゆっくり休む時間が欲しい item, slightly odd with 毎晩, and pushed 私は over one in ten.","action":"Rewrote as 夫は新しい車が欲しいと言っています。 with a to-quote slot."},
+{"file":"items/ga-stative__1.jsonl","jp_before":"兄[あに]{は|wa-topic}料理[りょうり]{が|ga-stative}できません{が/けど|ga-but}、掃除[そうじ]{は|wa-contrast}得意[とくい]です。","problem":"In this contrastive 'A can't, but B is good' frame, 料理はできません is equally natural and was not listed.","action":"Added は as an alternative ({が/は|ga-stative}) and noted it in why."}
+]}

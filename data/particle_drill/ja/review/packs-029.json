@@ -1,0 +1,9 @@
+{"batch":"packs-029",
+ "files":["packs/demo-suggestion.json","packs/demo-any.json","packs/sae-even.json","packs/sae-ba.json","packs/koso-emphasis.json"],
+ "checked":6,"fixed":3,"deleted":0,
+ "issues":[
+  {"file":"packs/demo-any.json","pack":"demo-any-2","problem":"act value 頼って: with distractor も, いつも頼ってください ('always count on me') is near-synonymous with 'count on me any time', so the distractor is not plainly wrong for that combination.","action":"Removed the 頼って value (6 act values remain, 288 combinations)."},
+  {"file":"packs/sae-even.json","pack":"sae-even-1","problem":"すら is an equally natural alternative with the same meaning (お粥すら食べられませんでした) but was not listed, so a correct answer would be marked wrong.","action":"Focus slot changed to {さえ/すら|sae-even}."},
+  {"file":"packs/sae-even.json","pack":"sae-even-1","problem":"English for 入院中 read 'couldn't even eat soup in hospital', which is awkward at the end of the sentence.","action":"English changed to 'while in hospital'."},
+  {"file":"packs/sae-ba.json","pack":"sae-ba-1","problem":"result value 元気です ('is cheerful') sounds unnatural after ～さえあれば for many things (ゲームさえあれば元気です).","action":"Replaced it with 退屈しません / 'never gets bored'."}
+ ]}

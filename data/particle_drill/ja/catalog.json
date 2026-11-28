@@ -1,0 +1,5195 @@
+{
+ "language": "ja",
+ "version": 1,
+ "stages": [
+  {
+   "id": "core1",
+   "title": "Core case particles",
+   "blurb": "Who, what, where, when: the particles every sentence needs.",
+   "groups": [
+    {
+     "id": "wa",
+     "p": "は",
+     "name": "Topic marker",
+     "skills": [
+      "wa-topic",
+      "wa-contrast",
+      "wa-negative"
+     ]
+    },
+    {
+     "id": "ga",
+     "p": "が",
+     "name": "Subject marker",
+     "skills": [
+      "ga-subject",
+      "ga-question",
+      "ga-existence",
+      "ga-stative",
+      "ga-sub-clause",
+      "ga-sense"
+     ]
+    },
+    {
+     "id": "o",
+     "p": "を",
+     "name": "Object marker",
+     "skills": [
+      "o-object",
+      "o-path",
+      "o-departure"
+     ]
+    },
+    {
+     "id": "ni",
+     "p": "に",
+     "name": "Point of contact: time, place, target",
+     "skills": [
+      "ni-time",
+      "ni-destination",
+      "ni-location",
+      "ni-recipient",
+      "ni-target",
+      "ni-purpose",
+      "ni-frequency",
+      "ni-change",
+      "ni-source",
+      "ni-reason"
+     ]
+    },
+    {
+     "id": "e",
+     "p": "へ",
+     "name": "Direction marker",
+     "skills": [
+      "e-direction",
+      "e-no"
+     ]
+    },
+    {
+     "id": "de",
+     "p": "で",
+     "name": "Setting: place of action, means, cause",
+     "skills": [
+      "de-place",
+      "de-means",
+      "de-material",
+      "de-cause",
+      "de-scope",
+      "de-time-limit"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "core2",
+   "title": "Linking, listing and limits",
+   "blurb": "Joining nouns, marking start and end points, comparing, and ending a sentence.",
+   "groups": [
+    {
+     "id": "no",
+     "p": "の",
+     "name": "Noun linker",
+     "skills": [
+      "no-possessive",
+      "no-nominalizer",
+      "no-pronoun",
+      "no-subject",
+      "no-explanatory"
+     ]
+    },
+    {
+     "id": "to",
+     "p": "と",
+     "name": "And, with, quote",
+     "skills": [
+      "to-and",
+      "to-with",
+      "to-quote",
+      "to-reciprocal"
+     ]
+    },
+    {
+     "id": "mo",
+     "p": "も",
+     "name": "Also / even",
+     "skills": [
+      "mo-also",
+      "mo-both",
+      "mo-total-negation",
+      "mo-emphasis"
+     ]
+    },
+    {
+     "id": "ya",
+     "p": "や",
+     "name": "Partial list",
+     "skills": [
+      "ya-list"
+     ]
+    },
+    {
+     "id": "ka",
+     "p": "か",
+     "name": "Question / or",
+     "skills": [
+      "ka-question",
+      "ka-or",
+      "ka-indefinite",
+      "ka-embedded"
+     ]
+    },
+    {
+     "id": "kara",
+     "p": "から",
+     "name": "From",
+     "skills": [
+      "kara-from",
+      "kara-source"
+     ]
+    },
+    {
+     "id": "made",
+     "p": "まで",
+     "name": "Until / as far as",
+     "skills": [
+      "made-until",
+      "madeni-deadline"
+     ]
+    },
+    {
+     "id": "yori",
+     "p": "より",
+     "name": "Than",
+     "skills": [
+      "yori-comparison",
+      "yori-formal-from"
+     ]
+    },
+    {
+     "id": "final-basic",
+     "p": "ね・よ",
+     "name": "Basic sentence endings",
+     "skills": [
+      "ne-agreement",
+      "yo-assertion",
+      "yone-confirm"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "clinic",
+   "title": "Contrast clinics",
+   "blurb": "Minimal pairs for the choices learners get wrong most. Pure drilling.",
+   "groups": [
+    {
+     "id": "clinic-wa-ga",
+     "p": "は vs が",
+     "name": "Topic or subject?",
+     "skills": [
+      "x-wa-ga"
+     ]
+    },
+    {
+     "id": "clinic-ni-de",
+     "p": "に vs で",
+     "name": "Being somewhere or doing something there?",
+     "skills": [
+      "x-ni-de"
+     ]
+    },
+    {
+     "id": "clinic-o-ga",
+     "p": "を vs が",
+     "name": "Object or the thing that is liked, wanted, possible?",
+     "skills": [
+      "x-o-ga",
+      "x-trans-intrans"
+     ]
+    },
+    {
+     "id": "clinic-o-ni",
+     "p": "を vs に",
+     "name": "Which verbs take に, not を?",
+     "skills": [
+      "x-o-ni"
+     ]
+    },
+    {
+     "id": "clinic-ni-e-made",
+     "p": "に・へ・まで",
+     "name": "Destination, direction or limit?",
+     "skills": [
+      "x-ni-e-made"
+     ]
+    },
+    {
+     "id": "clinic-to-ni",
+     "p": "と vs に",
+     "name": "Mutual or one-way?",
+     "skills": [
+      "x-to-ni"
+     ]
+    },
+    {
+     "id": "clinic-to-ya-ka",
+     "p": "と・や・か",
+     "name": "Which kind of list?",
+     "skills": [
+      "x-to-ya-ka"
+     ]
+    },
+    {
+     "id": "clinic-kara-made",
+     "p": "から・まで・までに",
+     "name": "Start, end or deadline?",
+     "skills": [
+      "x-made-madeni"
+     ]
+    },
+    {
+     "id": "clinic-mo-wa",
+     "p": "も vs は",
+     "name": "Adding or contrasting?",
+     "skills": [
+      "x-mo-wa"
+     ]
+    },
+    {
+     "id": "clinic-mixed-n5",
+     "p": "Mixed N5",
+     "name": "Every core particle in one sentence.",
+     "skills": [
+      "x-mixed-n5"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "focus",
+   "title": "Focus and limit particles",
+   "blurb": "Only, even, about, such as: particles that add an attitude to a word.",
+   "groups": [
+    {
+     "id": "dake",
+     "p": "だけ",
+     "name": "Only",
+     "skills": [
+      "dake-only",
+      "dake-extent"
+     ]
+    },
+    {
+     "id": "shika",
+     "p": "しか",
+     "name": "Nothing but",
+     "skills": [
+      "shika-nai"
+     ]
+    },
+    {
+     "id": "bakari",
+     "p": "ばかり",
+     "name": "Nothing but / just did",
+     "skills": [
+      "bakari-only",
+      "bakari-just"
+     ]
+    },
+    {
+     "id": "hodo",
+     "p": "ほど",
+     "name": "Extent",
+     "skills": [
+      "hodo-extent",
+      "hodo-nai",
+      "ba-hodo"
+     ]
+    },
+    {
+     "id": "kurai",
+     "p": "くらい",
+     "name": "About",
+     "skills": [
+      "kurai-about",
+      "kurai-extent"
+     ]
+    },
+    {
+     "id": "goro",
+     "p": "ごろ",
+     "name": "Around a time",
+     "skills": [
+      "goro-time"
+     ]
+    },
+    {
+     "id": "nado",
+     "p": "など",
+     "name": "Such as",
+     "skills": [
+      "nado-etc",
+      "nanka-nante"
+     ]
+    },
+    {
+     "id": "toka",
+     "p": "とか",
+     "name": "Things like",
+     "skills": [
+      "toka-list"
+     ]
+    },
+    {
+     "id": "demo",
+     "p": "でも",
+     "name": "Even / or something",
+     "skills": [
+      "demo-even",
+      "demo-suggestion",
+      "demo-any"
+     ]
+    },
+    {
+     "id": "sae",
+     "p": "さえ",
+     "name": "Even / if only",
+     "skills": [
+      "sae-even",
+      "sae-ba"
+     ]
+    },
+    {
+     "id": "koso",
+     "p": "こそ",
+     "name": "Precisely",
+     "skills": [
+      "koso-emphasis"
+     ]
+    },
+    {
+     "id": "made-even",
+     "p": "まで",
+     "name": "Even (extreme case)",
+     "skills": [
+      "made-even"
+     ]
+    },
+    {
+     "id": "zutsu",
+     "p": "ずつ",
+     "name": "Each",
+     "skills": [
+      "zutsu-each"
+     ]
+    },
+    {
+     "id": "tte",
+     "p": "って",
+     "name": "Casual quote / topic",
+     "skills": [
+      "tte-quote",
+      "tte-topic"
+     ]
+    },
+    {
+     "id": "toiu",
+     "p": "という",
+     "name": "Called / that",
+     "skills": [
+      "toiu-called"
+     ]
+    },
+    {
+     "id": "goto",
+     "p": "ごと",
+     "name": "Every",
+     "skills": [
+      "goto-every"
+     ]
+    },
+    {
+     "id": "nomi",
+     "p": "のみ",
+     "name": "Only (formal)",
+     "skills": [
+      "nomi-only"
+     ]
+    },
+    {
+     "id": "kiri",
+     "p": "きり",
+     "name": "Only / since",
+     "skills": [
+      "kiri-only"
+     ]
+    },
+    {
+     "id": "sura",
+     "p": "すら",
+     "name": "Even (formal)",
+     "skills": [
+      "sura-even"
+     ]
+    },
+    {
+     "id": "yara-dano",
+     "p": "やら",
+     "name": "Listing with feeling",
+     "skills": [
+      "yara-list",
+      "dano-list"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "clause",
+   "title": "Connecting clauses",
+   "blurb": "Because, although, while, if: particles that join one clause to the next.",
+   "groups": [
+    {
+     "id": "kara-reason",
+     "p": "から",
+     "name": "Because",
+     "skills": [
+      "kara-because",
+      "te-kara"
+     ]
+    },
+    {
+     "id": "node",
+     "p": "ので",
+     "name": "Since",
+     "skills": [
+      "node-because"
+     ]
+    },
+    {
+     "id": "noni",
+     "p": "のに",
+     "name": "Although / in order to",
+     "skills": [
+      "noni-although",
+      "noni-purpose"
+     ]
+    },
+    {
+     "id": "kedo",
+     "p": "けど・が",
+     "name": "But",
+     "skills": [
+      "kedo-but",
+      "ga-but"
+     ]
+    },
+    {
+     "id": "shi",
+     "p": "し",
+     "name": "And what is more",
+     "skills": [
+      "shi-listing"
+     ]
+    },
+    {
+     "id": "te-form-links",
+     "p": "て",
+     "name": "て-form links",
+     "skills": [
+      "te-sequence",
+      "te-mo",
+      "te-wa"
+     ]
+    },
+    {
+     "id": "nagara",
+     "p": "ながら",
+     "name": "While",
+     "skills": [
+      "nagara-while",
+      "nagara-although"
+     ]
+    },
+    {
+     "id": "tari",
+     "p": "たり",
+     "name": "Things like doing",
+     "skills": [
+      "tari-tari"
+     ]
+    },
+    {
+     "id": "conditionals",
+     "p": "と・ば・たら・なら",
+     "name": "If / when",
+     "skills": [
+      "to-conditional",
+      "ba-conditional",
+      "tara-conditional",
+      "nara-conditional",
+      "x-conditionals"
+     ]
+    },
+    {
+     "id": "tame",
+     "p": "ために・ように",
+     "name": "Purpose",
+     "skills": [
+      "tameni-purpose",
+      "youni-purpose",
+      "x-tameni-youni"
+     ]
+    },
+    {
+     "id": "aida",
+     "p": "あいだ・うちに",
+     "name": "While / before it changes",
+     "skills": [
+      "aida-ni",
+      "uchi-ni"
+     ]
+    },
+    {
+     "id": "mae-ato",
+     "p": "まえに・あとで",
+     "name": "Before / after",
+     "skills": [
+      "maeni-atode"
+     ]
+    },
+    {
+     "id": "toki",
+     "p": "とき",
+     "name": "When",
+     "skills": [
+      "toki-when"
+     ]
+    },
+    {
+     "id": "mono-no",
+     "p": "ものの",
+     "name": "Although (written)",
+     "skills": [
+      "monono-although"
+     ]
+    },
+    {
+     "id": "tsutsu",
+     "p": "つつ",
+     "name": "While (written)",
+     "skills": [
+      "tsutsu-while"
+     ]
+    },
+    {
+     "id": "kuse-ni",
+     "p": "くせに",
+     "name": "And yet",
+     "skills": [
+      "kuseni-despite"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "voice",
+   "title": "Who does what to whom",
+   "blurb": "Particles that change when the verb changes: giving, passive, causative, potential.",
+   "groups": [
+    {
+     "id": "giving",
+     "p": "あげる・くれる・もらう",
+     "name": "Giving and receiving",
+     "skills": [
+      "give-ageru",
+      "give-kureru",
+      "give-morau",
+      "give-te-forms"
+     ]
+    },
+    {
+     "id": "passive",
+     "p": "受身",
+     "name": "Passive",
+     "skills": [
+      "passive-agent",
+      "passive-suffering",
+      "passive-niyotte"
+     ]
+    },
+    {
+     "id": "causative",
+     "p": "使役",
+     "name": "Causative",
+     "skills": [
+      "causative-o-ni",
+      "causative-passive"
+     ]
+    },
+    {
+     "id": "potential",
+     "p": "可能",
+     "name": "Potential",
+     "skills": [
+      "potential-ga"
+     ]
+    },
+    {
+     "id": "desire",
+     "p": "～たい・欲しい",
+     "name": "Wanting",
+     "skills": [
+      "tai-ga-o",
+      "te-hoshii"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "final",
+   "title": "Sentence-final particles",
+   "blurb": "The last syllable carries the tone of voice.",
+   "groups": [
+    {
+     "id": "final-na",
+     "p": "な",
+     "name": "な",
+     "skills": [
+      "na-musing",
+      "na-prohibition"
+     ]
+    },
+    {
+     "id": "final-kana",
+     "p": "かな",
+     "name": "I wonder",
+     "skills": [
+      "kana-wonder"
+     ]
+    },
+    {
+     "id": "final-no",
+     "p": "の",
+     "name": "Soft question / explanation",
+     "skills": [
+      "no-final"
+     ]
+    },
+    {
+     "id": "final-kke",
+     "p": "っけ",
+     "name": "What was it again?",
+     "skills": [
+      "kke-recall"
+     ]
+    },
+    {
+     "id": "final-zo-ze",
+     "p": "ぞ・ぜ",
+     "name": "Rough emphasis",
+     "skills": [
+      "zo-ze"
+     ]
+    },
+    {
+     "id": "final-wa-sa",
+     "p": "わ・さ",
+     "name": "わ and さ",
+     "skills": [
+      "wa-final",
+      "sa-final"
+     ]
+    },
+    {
+     "id": "final-mono",
+     "p": "もの",
+     "name": "Because, you see",
+     "skills": [
+      "mono-reason"
+     ]
+    },
+    {
+     "id": "final-tomo",
+     "p": "とも",
+     "name": "Of course",
+     "skills": [
+      "tomo-certainly"
+     ]
+    },
+    {
+     "id": "final-ja-nai",
+     "p": "じゃない",
+     "name": "Isn't it",
+     "skills": [
+      "janai-ka"
+     ]
+    },
+    {
+     "id": "final-tte",
+     "p": "って",
+     "name": "I hear",
+     "skills": [
+      "tte-hearsay"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "compound1",
+   "title": "Compound particles I",
+   "blurb": "Two or three words acting as one particle. Everyday and exam staples.",
+   "groups": [
+    {
+     "id": "nitsuite",
+     "p": "について",
+     "name": "About",
+     "skills": [
+      "nitsuite"
+     ]
+    },
+    {
+     "id": "nitotte",
+     "p": "にとって",
+     "name": "For / from the viewpoint of",
+     "skills": [
+      "nitotte"
+     ]
+    },
+    {
+     "id": "nitaishite",
+     "p": "に対して",
+     "name": "Towards / in contrast to",
+     "skills": [
+      "nitaishite"
+     ]
+    },
+    {
+     "id": "toshite",
+     "p": "として",
+     "name": "As",
+     "skills": [
+      "toshite"
+     ]
+    },
+    {
+     "id": "niyotte",
+     "p": "によって",
+     "name": "By / depending on",
+     "skills": [
+      "niyotte-means",
+      "niyotte-depending"
+     ]
+    },
+    {
+     "id": "niyoruto",
+     "p": "によると",
+     "name": "According to",
+     "skills": [
+      "niyoruto"
+     ]
+    },
+    {
+     "id": "x-compound-core",
+     "p": "について／にとって／に対して／として／によって",
+     "name": "Which compound?",
+     "skills": [
+      "x-compound-core"
+     ]
+    },
+    {
+     "id": "nokawarini",
+     "p": "のかわりに",
+     "name": "Instead of",
+     "skills": [
+      "kawarini"
+     ]
+    },
+    {
+     "id": "okagede-seide",
+     "p": "おかげで・せいで",
+     "name": "Thanks to / because of",
+     "skills": [
+      "okagede",
+      "seide"
+     ]
+    },
+    {
+     "id": "nikurabete",
+     "p": "に比べて",
+     "name": "Compared with",
+     "skills": [
+      "nikurabete"
+     ]
+    },
+    {
+     "id": "toissho",
+     "p": "といっしょに",
+     "name": "Together with",
+     "skills": [
+      "toisshoni"
+     ]
+    },
+    {
+     "id": "nokotode",
+     "p": "のことで",
+     "name": "About the matter of",
+     "skills": [
+      "nokoto"
+     ]
+    },
+    {
+     "id": "toshitewa",
+     "p": "にしては",
+     "name": "For (a) …",
+     "skills": [
+      "nishitewa",
+      "wari-ni"
+     ]
+    },
+    {
+     "id": "wo-tooshite",
+     "p": "を通して",
+     "name": "Through",
+     "skills": [
+      "wotooshite"
+     ]
+    },
+    {
+     "id": "ni-kakete",
+     "p": "にかけて",
+     "name": "Over a span",
+     "skills": [
+      "nikakete"
+     ]
+    },
+    {
+     "id": "ni-wa",
+     "p": "には",
+     "name": "In order to / for",
+     "skills": [
+      "niwa-purpose"
+     ]
+    },
+    {
+     "id": "to-wa",
+     "p": "とは",
+     "name": "Definition / surprise",
+     "skills": [
+      "towa"
+     ]
+    },
+    {
+     "id": "dewa",
+     "p": "では",
+     "name": "In / as for (scope)",
+     "skills": [
+      "dewa-scope"
+     ]
+    },
+    {
+     "id": "double",
+     "p": "二重助詞",
+     "name": "Stacked particles",
+     "skills": [
+      "double-particles",
+      "double-mo",
+      "no-compound"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "compound2",
+   "title": "Compound particles II",
+   "blurb": "The N2 written-style set.",
+   "groups": [
+    {
+     "id": "nikanshite",
+     "p": "に関して",
+     "name": "Regarding",
+     "skills": [
+      "nikanshite"
+     ]
+    },
+    {
+     "id": "nioite",
+     "p": "において",
+     "name": "In / at (formal)",
+     "skills": [
+      "nioite"
+     ]
+    },
+    {
+     "id": "niwatatte",
+     "p": "にわたって",
+     "name": "Across",
+     "skills": [
+      "niwatatte"
+     ]
+    },
+    {
+     "id": "nisotte",
+     "p": "に沿って",
+     "name": "Along",
+     "skills": [
+      "nisotte"
+     ]
+    },
+    {
+     "id": "nimotozuite",
+     "p": "に基づいて",
+     "name": "Based on",
+     "skills": [
+      "nimotozuite",
+      "womotoni"
+     ]
+    },
+    {
+     "id": "womegutte",
+     "p": "をめぐって",
+     "name": "Over (a dispute)",
+     "skills": [
+      "womegutte"
+     ]
+    },
+    {
+     "id": "nikuwaete",
+     "p": "に加えて",
+     "name": "In addition to",
+     "skills": [
+      "nikuwaete"
+     ]
+    },
+    {
+     "id": "nitsurete",
+     "p": "につれて",
+     "name": "As … changes",
+     "skills": [
+      "nitsurete",
+      "nishitagatte",
+      "nitomonatte",
+      "totomoni"
+     ]
+    },
+    {
+     "id": "nioujite",
+     "p": "に応じて",
+     "name": "In response to",
+     "skills": [
+      "nioujite"
+     ]
+    },
+    {
+     "id": "nihanshite",
+     "p": "に反して",
+     "name": "Contrary to",
+     "skills": [
+      "nihanshite"
+     ]
+    },
+    {
+     "id": "wotowazu",
+     "p": "を問わず",
+     "name": "Regardless of",
+     "skills": [
+      "wotowazu",
+      "nikakawarazu",
+      "nimokakawarazu"
+     ]
+    },
+    {
+     "id": "nikagirazu",
+     "p": "に限らず",
+     "name": "Not limited to",
+     "skills": [
+      "nikagirazu",
+      "nikagitte"
+     ]
+    },
+    {
+     "id": "bakarika",
+     "p": "ばかりか",
+     "name": "Not only … but",
+     "skills": [
+      "bakarika",
+      "dokoroka",
+      "wamochiron"
+     ]
+    },
+    {
+     "id": "wohajime",
+     "p": "をはじめ",
+     "name": "Starting with",
+     "skills": [
+      "wohajime"
+     ]
+    },
+    {
+     "id": "wochuushinni",
+     "p": "を中心に",
+     "name": "Centred on",
+     "skills": [
+      "wochuushinni"
+     ]
+    },
+    {
+     "id": "karaniwa",
+     "p": "からには",
+     "name": "Now that",
+     "skills": [
+      "karaniwa",
+      "karakoso",
+      "karatoitte"
+     ]
+    },
+    {
+     "id": "toshitemo",
+     "p": "としても",
+     "name": "Even supposing",
+     "skills": [
+      "toshitemo",
+      "nishitemo"
+     ]
+    },
+    {
+     "id": "toiuyori",
+     "p": "というより",
+     "name": "Rather than",
+     "skills": [
+      "toiuyori",
+      "toittemo",
+      "toieba"
+     ]
+    },
+    {
+     "id": "nikawatte",
+     "p": "にかわって",
+     "name": "In place of",
+     "skills": [
+      "nikawatte"
+     ]
+    },
+    {
+     "id": "nisaishite",
+     "p": "に際して",
+     "name": "On the occasion of",
+     "skills": [
+      "nisaishite",
+      "nisakidatte"
+     ]
+    },
+    {
+     "id": "uede",
+     "p": "うえで",
+     "name": "Upon / in terms of",
+     "skills": [
+      "uede",
+      "ueni"
+     ]
+    },
+    {
+     "id": "monodakara",
+     "p": "ものだから",
+     "name": "Because (excuse)",
+     "skills": [
+      "monodakara"
+     ]
+    },
+    {
+     "id": "x-compound-n2",
+     "p": "複合 N2",
+     "name": "N2 mixed review",
+     "skills": [
+      "x-compound-n2"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "literary",
+   "title": "Formal and literary",
+   "blurb": "The N1 layer: stiff, written, and unmistakable once drilled.",
+   "groups": [
+    {
+     "id": "yainaya",
+     "p": "や否や",
+     "name": "The moment",
+     "skills": [
+      "yainaya",
+      "gahayaika",
+      "nari",
+      "sobakara"
+     ]
+    },
+    {
+     "id": "womotte",
+     "p": "をもって",
+     "name": "By means of / as of",
+     "skills": [
+      "womotte"
+     ]
+    },
+    {
+     "id": "niatte",
+     "p": "にあって",
+     "name": "In (a situation)",
+     "skills": [
+      "niatte"
+     ]
+    },
+    {
+     "id": "woyosoni",
+     "p": "をよそに",
+     "name": "Ignoring",
+     "skills": [
+      "woyosoni"
+     ]
+    },
+    {
+     "id": "womonotomosezu",
+     "p": "をものともせず",
+     "name": "Undaunted by",
+     "skills": [
+      "womonotomosezu"
+     ]
+    },
+    {
+     "id": "wokawakirini",
+     "p": "を皮切りに",
+     "name": "Starting with",
+     "skills": [
+      "wokawakirini",
+      "wokagirini",
+      "wokini"
+     ]
+    },
+    {
+     "id": "naradewa",
+     "p": "ならでは",
+     "name": "Unique to",
+     "skills": [
+      "naradewa"
+     ]
+    },
+    {
+     "id": "wooite",
+     "p": "をおいて",
+     "name": "Other than",
+     "skills": [
+      "wooite"
+     ]
+    },
+    {
+     "id": "waoroka",
+     "p": "はおろか",
+     "name": "Let alone",
+     "skills": [
+      "waoroka"
+     ]
+    },
+    {
+     "id": "tomonaruto",
+     "p": "ともなると",
+     "name": "When it comes to",
+     "skills": [
+      "tomonaruto",
+      "toatte"
+     ]
+    },
+    {
+     "id": "toiedomo",
+     "p": "といえども",
+     "name": "Even though",
+     "skills": [
+      "toiedomo",
+      "towaie"
+     ]
+    },
+    {
+     "id": "deare",
+     "p": "であれ",
+     "name": "Whether … or",
+     "skills": [
+      "deare",
+      "toii",
+      "nari-nari"
+     ]
+    },
+    {
+     "id": "yueni",
+     "p": "ゆえに",
+     "name": "Because (literary)",
+     "skills": [
+      "yueni"
+     ]
+    },
+    {
+     "id": "bakoso",
+     "p": "ばこそ",
+     "name": "Precisely because",
+     "skills": [
+      "bakoso"
+     ]
+    },
+    {
+     "id": "nishite",
+     "p": "にして",
+     "name": "Only at / both",
+     "skills": [
+      "nishite"
+     ]
+    },
+    {
+     "id": "tote",
+     "p": "とて",
+     "name": "Even / just because",
+     "skills": [
+      "tote"
+     ]
+    },
+    {
+     "id": "dani",
+     "p": "だに",
+     "name": "Even (archaic)",
+     "skills": [
+      "dani"
+     ]
+    },
+    {
+     "id": "zukume",
+     "p": "ながらに",
+     "name": "While remaining",
+     "skills": [
+      "nagarani"
+     ]
+    },
+    {
+     "id": "gatera",
+     "p": "がてら",
+     "name": "While at it",
+     "skills": [
+      "gatera",
+      "katawara"
+     ]
+    },
+    {
+     "id": "x-literary",
+     "p": "文語",
+     "name": "N1 mixed review",
+     "skills": [
+      "x-literary-n1"
+     ]
+    }
+   ]
+  }
+ ],
+ "skills": [
+  {
+   "id": "wa-topic",
+   "group": "wa",
+   "stage": "core1",
+   "p": "は",
+   "title": "Topic: \"as for X\"",
+   "lv": 5,
+   "n": 90,
+   "conf": [
+    "が",
+    "を",
+    "に",
+    "も"
+   ],
+   "packs": 3
+  },
+  {
+   "id": "wa-contrast",
+   "group": "wa",
+   "stage": "core1",
+   "p": "は",
+   "title": "Contrast: \"X (but not Y)\"",
+   "lv": 5,
+   "n": 65,
+   "conf": [
+    "が",
+    "を",
+    "も",
+    "に"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "wa-negative",
+   "group": "wa",
+   "stage": "core1",
+   "p": "は",
+   "title": "は with negatives and limits",
+   "lv": 4,
+   "n": 40,
+   "conf": [
+    "が",
+    "を",
+    "も",
+    "で"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "ga-subject",
+   "group": "ga",
+   "stage": "core1",
+   "p": "が",
+   "title": "Subject / new information",
+   "lv": 5,
+   "n": 90,
+   "conf": [
+    "は",
+    "を",
+    "に",
+    "の"
+   ],
+   "packs": 3
+  },
+  {
+   "id": "ga-question",
+   "group": "ga",
+   "stage": "core1",
+   "p": "が",
+   "title": "Question words and their answers",
+   "lv": 5,
+   "n": 50,
+   "conf": [
+    "は",
+    "を",
+    "に",
+    "も"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "ga-existence",
+   "group": "ga",
+   "stage": "core1",
+   "p": "が",
+   "title": "Existence with ある / いる",
+   "lv": 5,
+   "n": 65,
+   "conf": [
+    "は",
+    "を",
+    "に",
+    "で"
+   ],
+   "packs": 3
+  },
+  {
+   "id": "ga-stative",
+   "group": "ga",
+   "stage": "core1",
+   "p": "が",
+   "title": "Object of 好き・上手・分かる・欲しい・できる",
+   "lv": 5,
+   "n": 90,
+   "conf": [
+    "を",
+    "は",
+    "に",
+    "で"
+   ],
+   "packs": 3
+  },
+  {
+   "id": "ga-sub-clause",
+   "group": "ga",
+   "stage": "core1",
+   "p": "が",
+   "title": "Subject inside a sub-clause",
+   "lv": 4,
+   "n": 50,
+   "conf": [
+    "は",
+    "を",
+    "の",
+    "に"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "ga-sense",
+   "group": "ga",
+   "stage": "core1",
+   "p": "が",
+   "title": "Perception and spontaneous states (見える・聞こえる・音がする)",
+   "lv": 4,
+   "n": 45,
+   "conf": [
+    "を",
+    "は",
+    "に",
+    "で"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "o-object",
+   "group": "o",
+   "stage": "core1",
+   "p": "を",
+   "title": "Direct object",
+   "lv": 5,
+   "n": 120,
+   "conf": [
+    "が",
+    "に",
+    "は",
+    "で"
+   ],
+   "packs": 3
+  },
+  {
+   "id": "o-path",
+   "group": "o",
+   "stage": "core1",
+   "p": "を",
+   "title": "Path travelled (道を歩く・公園を散歩する)",
+   "lv": 5,
+   "n": 55,
+   "conf": [
+    "で",
+    "に",
+    "が",
+    "へ"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "o-departure",
+   "group": "o",
+   "stage": "core1",
+   "p": "を",
+   "title": "Point left (家を出る・電車を降りる)",
+   "lv": 4,
+   "n": 50,
+   "conf": [
+    "に",
+    "から",
+    "で",
+    "が"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "ni-time",
+   "group": "ni",
+   "stage": "core1",
+   "p": "に",
+   "title": "Point in time",
+   "lv": 5,
+   "n": 70,
+   "conf": [
+    "で",
+    "を",
+    "は",
+    "が"
+   ],
+   "packs": 3
+  },
+  {
+   "id": "ni-destination",
+   "group": "ni",
+   "stage": "core1",
+   "p": "に",
+   "title": "Destination of movement",
+   "lv": 5,
+   "n": 65,
+   "conf": [
+    "で",
+    "を",
+    "が",
+    "と"
+   ],
+   "packs": 3
+  },
+  {
+   "id": "ni-location",
+   "group": "ni",
+   "stage": "core1",
+   "p": "に",
+   "title": "Where something is (ある・いる・住む)",
+   "lv": 5,
+   "n": 85,
+   "conf": [
+    "で",
+    "を",
+    "が",
+    "へ"
+   ],
+   "packs": 3
+  },
+  {
+   "id": "ni-recipient",
+   "group": "ni",
+   "stage": "core1",
+   "p": "に",
+   "title": "Recipient / indirect object",
+   "lv": 5,
+   "n": 65,
+   "conf": [
+    "を",
+    "が",
+    "で",
+    "と"
+   ],
+   "packs": 3
+  },
+  {
+   "id": "ni-target",
+   "group": "ni",
+   "stage": "core1",
+   "p": "に",
+   "title": "Target of contact (会う・乗る・入る・触る)",
+   "lv": 5,
+   "n": 85,
+   "conf": [
+    "を",
+    "で",
+    "が",
+    "と"
+   ],
+   "packs": 3
+  },
+  {
+   "id": "ni-purpose",
+   "group": "ni",
+   "stage": "core1",
+   "p": "に",
+   "title": "Purpose of going (食べに行く)",
+   "lv": 5,
+   "n": 45,
+   "conf": [
+    "を",
+    "で",
+    "へ",
+    "が"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "ni-frequency",
+   "group": "ni",
+   "stage": "core1",
+   "p": "に",
+   "title": "Per unit (週に二回)",
+   "lv": 5,
+   "n": 30,
+   "conf": [
+    "で",
+    "を",
+    "は",
+    "が"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "ni-change",
+   "group": "ni",
+   "stage": "core1",
+   "p": "に",
+   "title": "Result of change (～になる・～にする)",
+   "lv": 5,
+   "n": 65,
+   "conf": [
+    "を",
+    "が",
+    "で",
+    "と"
+   ],
+   "packs": 3
+  },
+  {
+   "id": "ni-source",
+   "group": "ni",
+   "stage": "core1",
+   "p": "に",
+   "title": "Source with もらう・借りる・習う",
+   "lv": 4,
+   "n": 45,
+   "conf": [
+    "を",
+    "が",
+    "で",
+    "へ"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "ni-reason",
+   "group": "ni",
+   "stage": "core1",
+   "p": "に",
+   "title": "Cause of emotion (驚く・困る・感動する)",
+   "lv": 3,
+   "n": 30,
+   "conf": [
+    "を",
+    "で",
+    "が",
+    "と"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "e-direction",
+   "group": "e",
+   "stage": "core1",
+   "p": "へ",
+   "title": "Direction \"towards\"",
+   "lv": 5,
+   "n": 45,
+   "conf": [
+    "を",
+    "で",
+    "が",
+    "と"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "e-no",
+   "group": "e",
+   "stage": "core1",
+   "p": "への",
+   "title": "への before a noun (友達への手紙)",
+   "lv": 3,
+   "n": 25,
+   "conf": [
+    "にの",
+    "での",
+    "との",
+    "から"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "de-place",
+   "group": "de",
+   "stage": "core1",
+   "p": "で",
+   "title": "Place where an action happens",
+   "lv": 5,
+   "n": 115,
+   "conf": [
+    "に",
+    "を",
+    "が",
+    "へ"
+   ],
+   "packs": 3
+  },
+  {
+   "id": "de-means",
+   "group": "de",
+   "stage": "core1",
+   "p": "で",
+   "title": "Means, tool, transport, language",
+   "lv": 5,
+   "n": 85,
+   "conf": [
+    "に",
+    "を",
+    "が",
+    "と"
+   ],
+   "packs": 3
+  },
+  {
+   "id": "de-material",
+   "group": "de",
+   "stage": "core1",
+   "p": "で",
+   "title": "Material / ingredients",
+   "lv": 5,
+   "n": 30,
+   "conf": [
+    "に",
+    "を",
+    "から",
+    "が"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "de-cause",
+   "group": "de",
+   "stage": "core1",
+   "p": "で",
+   "title": "Cause or reason",
+   "lv": 4,
+   "n": 50,
+   "conf": [
+    "に",
+    "を",
+    "が",
+    "から"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "de-scope",
+   "group": "de",
+   "stage": "core1",
+   "p": "で",
+   "title": "Scope and totals (世界で一番・三人で・全部で)",
+   "lv": 5,
+   "n": 55,
+   "conf": [
+    "に",
+    "を",
+    "が",
+    "の"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "de-time-limit",
+   "group": "de",
+   "stage": "core1",
+   "p": "で",
+   "title": "Time or amount needed / end point (一時間で・これで)",
+   "lv": 4,
+   "n": 40,
+   "conf": [
+    "に",
+    "を",
+    "まで",
+    "が"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "no-possessive",
+   "group": "no",
+   "stage": "core2",
+   "p": "の",
+   "title": "Possession and noun modification",
+   "lv": 5,
+   "n": 85,
+   "conf": [
+    "は",
+    "が",
+    "を",
+    "に"
+   ],
+   "packs": 3
+  },
+  {
+   "id": "no-nominalizer",
+   "group": "no",
+   "stage": "core2",
+   "p": "の",
+   "title": "Turning a verb into a noun (のが好き・のは)",
+   "lv": 4,
+   "n": 65,
+   "conf": [
+    "こと",
+    "を",
+    "が",
+    "に"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "no-pronoun",
+   "group": "no",
+   "stage": "core2",
+   "p": "の",
+   "title": "の as \"one\" (赤いの)",
+   "lv": 5,
+   "n": 30,
+   "conf": [
+    "もの",
+    "こと",
+    "が",
+    "を"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "no-subject",
+   "group": "no",
+   "stage": "core2",
+   "p": "の",
+   "title": "の as subject in a relative clause",
+   "lv": 3,
+   "n": 25,
+   "conf": [
+    "は",
+    "を",
+    "に",
+    "で"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "no-explanatory",
+   "group": "no",
+   "stage": "core2",
+   "p": "のだ",
+   "title": "Explanatory んです / のです",
+   "lv": 4,
+   "n": 50,
+   "conf": [
+    "です",
+    "だ",
+    "か",
+    "よ"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "to-and",
+   "group": "to",
+   "stage": "core2",
+   "p": "と",
+   "title": "Complete list \"A and B\"",
+   "lv": 5,
+   "n": 45,
+   "conf": [
+    "や",
+    "も",
+    "か",
+    "に"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "to-with",
+   "group": "to",
+   "stage": "core2",
+   "p": "と",
+   "title": "Together with",
+   "lv": 5,
+   "n": 55,
+   "conf": [
+    "に",
+    "を",
+    "で",
+    "が"
+   ],
+   "packs": 3
+  },
+  {
+   "id": "to-quote",
+   "group": "to",
+   "stage": "core2",
+   "p": "と",
+   "title": "Quoting speech and thought",
+   "lv": 4,
+   "n": 65,
+   "conf": [
+    "を",
+    "に",
+    "が",
+    "で"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "to-reciprocal",
+   "group": "to",
+   "stage": "core2",
+   "p": "と",
+   "title": "Reciprocal and comparison (と結婚する・と同じ・と違う)",
+   "lv": 4,
+   "n": 50,
+   "conf": [
+    "に",
+    "を",
+    "が",
+    "で"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "mo-also",
+   "group": "mo",
+   "stage": "core2",
+   "p": "も",
+   "title": "Also, too",
+   "lv": 5,
+   "n": 65,
+   "conf": [
+    "は",
+    "が",
+    "を",
+    "と"
+   ],
+   "packs": 3
+  },
+  {
+   "id": "mo-both",
+   "group": "mo",
+   "stage": "core2",
+   "p": "も",
+   "title": "AもBも \"both / neither\"",
+   "lv": 5,
+   "n": 30,
+   "conf": [
+    "と",
+    "や",
+    "は",
+    "が"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "mo-total-negation",
+   "group": "mo",
+   "stage": "core2",
+   "p": "も",
+   "title": "Question word + も + negative (何も・誰も)",
+   "lv": 5,
+   "n": 45,
+   "conf": [
+    "か",
+    "が",
+    "を",
+    "は"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "mo-emphasis",
+   "group": "mo",
+   "stage": "core2",
+   "p": "も",
+   "title": "Emphasis on amounts (三時間も・一つも)",
+   "lv": 4,
+   "n": 45,
+   "conf": [
+    "は",
+    "が",
+    "を",
+    "で"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "ya-list",
+   "group": "ya",
+   "stage": "core2",
+   "p": "や",
+   "title": "Incomplete list \"A, B and so on\"",
+   "lv": 5,
+   "n": 45,
+   "conf": [
+    "と",
+    "も",
+    "か",
+    "に"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "ka-question",
+   "group": "ka",
+   "stage": "core2",
+   "p": "か",
+   "title": "Question marker",
+   "lv": 5,
+   "n": 30,
+   "conf": [
+    "よ",
+    "ね",
+    "も",
+    "が"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "ka-or",
+   "group": "ka",
+   "stage": "core2",
+   "p": "か",
+   "title": "A or B",
+   "lv": 5,
+   "n": 30,
+   "conf": [
+    "と",
+    "や",
+    "も",
+    "に"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "ka-indefinite",
+   "group": "ka",
+   "stage": "core2",
+   "p": "か",
+   "title": "Question word + か (何か・誰か・どこか)",
+   "lv": 5,
+   "n": 45,
+   "conf": [
+    "も",
+    "が",
+    "を",
+    "は"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "ka-embedded",
+   "group": "ka",
+   "stage": "core2",
+   "p": "か",
+   "title": "Embedded questions (か・かどうか)",
+   "lv": 4,
+   "n": 55,
+   "conf": [
+    "と",
+    "を",
+    "が",
+    "の"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "kara-from",
+   "group": "kara",
+   "stage": "core2",
+   "p": "から",
+   "title": "Starting point in place or time",
+   "lv": 5,
+   "n": 70,
+   "conf": [
+    "まで",
+    "に",
+    "で",
+    "を"
+   ],
+   "packs": 3
+  },
+  {
+   "id": "kara-source",
+   "group": "kara",
+   "stage": "core2",
+   "p": "から",
+   "title": "From a person or source / made from",
+   "lv": 4,
+   "n": 40,
+   "conf": [
+    "に",
+    "で",
+    "を",
+    "が"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "made-until",
+   "group": "made",
+   "stage": "core2",
+   "p": "まで",
+   "title": "End point in place or time",
+   "lv": 5,
+   "n": 65,
+   "conf": [
+    "から",
+    "に",
+    "で",
+    "までに"
+   ],
+   "packs": 3
+  },
+  {
+   "id": "madeni-deadline",
+   "group": "made",
+   "stage": "core2",
+   "p": "までに",
+   "title": "Deadline \"by\"",
+   "lv": 4,
+   "n": 50,
+   "conf": [
+    "まで",
+    "に",
+    "で",
+    "から"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "yori-comparison",
+   "group": "yori",
+   "stage": "core2",
+   "p": "より",
+   "title": "Comparison \"than\"",
+   "lv": 5,
+   "n": 55,
+   "conf": [
+    "ほど",
+    "から",
+    "まで",
+    "と"
+   ],
+   "packs": 3
+  },
+  {
+   "id": "yori-formal-from",
+   "group": "yori",
+   "stage": "core2",
+   "p": "より",
+   "title": "Formal \"from\" (午後一時より)",
+   "lv": 2,
+   "n": 20,
+   "conf": [
+    "から",
+    "まで",
+    "に",
+    "で"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "ne-agreement",
+   "group": "final-basic",
+   "stage": "core2",
+   "p": "ね",
+   "title": "Seeking agreement / shared feeling",
+   "lv": 5,
+   "n": 40,
+   "conf": [
+    "よ",
+    "か",
+    "が",
+    "を"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "yo-assertion",
+   "group": "final-basic",
+   "stage": "core2",
+   "p": "よ",
+   "title": "Telling the listener something new",
+   "lv": 5,
+   "n": 40,
+   "conf": [
+    "ね",
+    "か",
+    "が",
+    "を"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "yone-confirm",
+   "group": "final-basic",
+   "stage": "core2",
+   "p": "よね",
+   "title": "Confirming \"right?\"",
+   "lv": 4,
+   "n": 25,
+   "conf": [
+    "よ",
+    "ね",
+    "か",
+    "な"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "x-wa-ga",
+   "group": "clinic-wa-ga",
+   "stage": "clinic",
+   "p": "は／が",
+   "title": "は or が",
+   "lv": 5,
+   "n": 195,
+   "conf": [
+    "は",
+    "が"
+   ],
+   "packs": 4
+  },
+  {
+   "id": "x-ni-de",
+   "group": "clinic-ni-de",
+   "stage": "clinic",
+   "p": "に／で",
+   "title": "に or で (place)",
+   "lv": 5,
+   "n": 135,
+   "conf": [
+    "に",
+    "で"
+   ],
+   "packs": 4
+  },
+  {
+   "id": "x-o-ga",
+   "group": "clinic-o-ga",
+   "stage": "clinic",
+   "p": "を／が",
+   "title": "を or が",
+   "lv": 5,
+   "n": 95,
+   "conf": [
+    "を",
+    "が"
+   ],
+   "packs": 3
+  },
+  {
+   "id": "x-trans-intrans",
+   "group": "clinic-o-ga",
+   "stage": "clinic",
+   "p": "を／が",
+   "title": "Transitive / intransitive pairs (開ける・開く)",
+   "lv": 4,
+   "n": 135,
+   "conf": [
+    "を",
+    "が"
+   ],
+   "packs": 4
+  },
+  {
+   "id": "x-o-ni",
+   "group": "clinic-o-ni",
+   "stage": "clinic",
+   "p": "を／に",
+   "title": "を or に with verbs",
+   "lv": 5,
+   "n": 95,
+   "conf": [
+    "を",
+    "に"
+   ],
+   "packs": 3
+  },
+  {
+   "id": "x-ni-e-made",
+   "group": "clinic-ni-e-made",
+   "stage": "clinic",
+   "p": "に／へ／まで",
+   "title": "に, へ or まで",
+   "lv": 5,
+   "n": 45,
+   "conf": [
+    "に",
+    "へ",
+    "まで"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "x-to-ni",
+   "group": "clinic-to-ni",
+   "stage": "clinic",
+   "p": "と／に",
+   "title": "と or に (会う・話す・相談する)",
+   "lv": 4,
+   "n": 50,
+   "conf": [
+    "と",
+    "に"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "x-to-ya-ka",
+   "group": "clinic-to-ya-ka",
+   "stage": "clinic",
+   "p": "と／や／か",
+   "title": "と, や or か",
+   "lv": 5,
+   "n": 40,
+   "conf": [
+    "と",
+    "や",
+    "か"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "x-made-madeni",
+   "group": "clinic-kara-made",
+   "stage": "clinic",
+   "p": "まで／までに",
+   "title": "まで or までに",
+   "lv": 4,
+   "n": 55,
+   "conf": [
+    "まで",
+    "までに"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "x-mo-wa",
+   "group": "clinic-mo-wa",
+   "stage": "clinic",
+   "p": "も／は",
+   "title": "も or は",
+   "lv": 5,
+   "n": 40,
+   "conf": [
+    "も",
+    "は"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "x-mixed-n5",
+   "group": "clinic-mixed-n5",
+   "stage": "clinic",
+   "p": "混合",
+   "title": "Mixed core particles",
+   "lv": 5,
+   "n": 185,
+   "conf": [
+    "は",
+    "が",
+    "を",
+    "に",
+    "で",
+    "と",
+    "も",
+    "の"
+   ],
+   "packs": 6
+  },
+  {
+   "id": "dake-only",
+   "group": "dake",
+   "stage": "focus",
+   "p": "だけ",
+   "title": "Only / just",
+   "lv": 4,
+   "n": 50,
+   "conf": [
+    "しか",
+    "ばかり",
+    "も",
+    "ほど"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "dake-extent",
+   "group": "dake",
+   "stage": "focus",
+   "p": "だけ",
+   "title": "As much as (できるだけ・好きなだけ)",
+   "lv": 3,
+   "n": 25,
+   "conf": [
+    "ほど",
+    "しか",
+    "ばかり",
+    "まで"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "shika-nai",
+   "group": "shika",
+   "stage": "focus",
+   "p": "しか",
+   "title": "しか + negative \"only\"",
+   "lv": 4,
+   "n": 65,
+   "conf": [
+    "だけ",
+    "も",
+    "ばかり",
+    "は"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "bakari-only",
+   "group": "bakari",
+   "stage": "focus",
+   "p": "ばかり",
+   "title": "Nothing but, always",
+   "lv": 4,
+   "n": 45,
+   "conf": [
+    "だけ",
+    "しか",
+    "ほど",
+    "も"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "bakari-just",
+   "group": "bakari",
+   "stage": "focus",
+   "p": "ばかり",
+   "title": "Just did (～たばかり)",
+   "lv": 4,
+   "n": 30,
+   "conf": [
+    "ところ",
+    "だけ",
+    "まで",
+    "ながら"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "hodo-extent",
+   "group": "hodo",
+   "stage": "focus",
+   "p": "ほど",
+   "title": "To the extent that / about",
+   "lv": 3,
+   "n": 40,
+   "conf": [
+    "くらい",
+    "だけ",
+    "より",
+    "まで"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "hodo-nai",
+   "group": "hodo",
+   "stage": "focus",
+   "p": "ほど",
+   "title": "Not as … as (ほど～ない)",
+   "lv": 4,
+   "n": 45,
+   "conf": [
+    "より",
+    "だけ",
+    "くらい",
+    "しか"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "ba-hodo",
+   "group": "hodo",
+   "stage": "focus",
+   "p": "ほど",
+   "title": "The more … the more (～ば～ほど)",
+   "lv": 3,
+   "n": 25,
+   "conf": [
+    "より",
+    "だけ",
+    "まで",
+    "くらい"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "kurai-about",
+   "group": "kurai",
+   "stage": "focus",
+   "p": "くらい",
+   "title": "Approximately (くらい・ぐらい)",
+   "lv": 5,
+   "n": 40,
+   "conf": [
+    "ごろ",
+    "ほど",
+    "だけ",
+    "まで"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "kurai-extent",
+   "group": "kurai",
+   "stage": "focus",
+   "p": "くらい",
+   "title": "To the extent / at least",
+   "lv": 3,
+   "n": 30,
+   "conf": [
+    "ほど",
+    "だけ",
+    "しか",
+    "まで"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "goro-time",
+   "group": "goro",
+   "stage": "focus",
+   "p": "ごろ",
+   "title": "Around (a point in time)",
+   "lv": 5,
+   "n": 25,
+   "conf": [
+    "くらい",
+    "に",
+    "まで",
+    "ほど"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "nado-etc",
+   "group": "nado",
+   "stage": "focus",
+   "p": "など",
+   "title": "And so on / such as",
+   "lv": 4,
+   "n": 30,
+   "conf": [
+    "とか",
+    "や",
+    "も",
+    "だけ"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "nanka-nante",
+   "group": "nado",
+   "stage": "focus",
+   "p": "なんか",
+   "title": "なんか・なんて: belittling or surprise",
+   "lv": 3,
+   "n": 45,
+   "conf": [
+    "など",
+    "こそ",
+    "さえ",
+    "だけ"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "toka-list",
+   "group": "toka",
+   "stage": "focus",
+   "p": "とか",
+   "title": "Casual examples",
+   "lv": 4,
+   "n": 30,
+   "conf": [
+    "や",
+    "と",
+    "など",
+    "も"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "demo-even",
+   "group": "demo",
+   "stage": "focus",
+   "p": "でも",
+   "title": "Even",
+   "lv": 4,
+   "n": 40,
+   "conf": [
+    "も",
+    "さえ",
+    "は",
+    "が"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "demo-suggestion",
+   "group": "demo",
+   "stage": "focus",
+   "p": "でも",
+   "title": "Or something (お茶でも)",
+   "lv": 4,
+   "n": 30,
+   "conf": [
+    "を",
+    "も",
+    "が",
+    "や"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "demo-any",
+   "group": "demo",
+   "stage": "focus",
+   "p": "でも",
+   "title": "Question word + でも (何でも・いつでも)",
+   "lv": 4,
+   "n": 45,
+   "conf": [
+    "も",
+    "か",
+    "が",
+    "は"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "sae-even",
+   "group": "sae",
+   "stage": "focus",
+   "p": "さえ",
+   "title": "Even",
+   "lv": 3,
+   "n": 30,
+   "conf": [
+    "も",
+    "でも",
+    "こそ",
+    "だけ"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "sae-ba",
+   "group": "sae",
+   "stage": "focus",
+   "p": "さえ",
+   "title": "If only (～さえ～ば)",
+   "lv": 3,
+   "n": 25,
+   "conf": [
+    "だけ",
+    "こそ",
+    "でも",
+    "しか"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "koso-emphasis",
+   "group": "koso",
+   "stage": "focus",
+   "p": "こそ",
+   "title": "This very one",
+   "lv": 3,
+   "n": 40,
+   "conf": [
+    "さえ",
+    "も",
+    "は",
+    "だけ"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "made-even",
+   "group": "made-even",
+   "stage": "focus",
+   "p": "まで",
+   "title": "Even, as far as",
+   "lv": 3,
+   "n": 25,
+   "conf": [
+    "さえ",
+    "も",
+    "だけ",
+    "こそ"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "zutsu-each",
+   "group": "zutsu",
+   "stage": "focus",
+   "p": "ずつ",
+   "title": "Each / at a time",
+   "lv": 4,
+   "n": 30,
+   "conf": [
+    "だけ",
+    "ごと",
+    "も",
+    "ほど"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "tte-quote",
+   "group": "tte",
+   "stage": "focus",
+   "p": "って",
+   "title": "Casual と / という",
+   "lv": 4,
+   "n": 40,
+   "conf": [
+    "と",
+    "は",
+    "を",
+    "が"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "tte-topic",
+   "group": "tte",
+   "stage": "focus",
+   "p": "って",
+   "title": "Casual topic \"what about X\"",
+   "lv": 3,
+   "n": 25,
+   "conf": [
+    "は",
+    "が",
+    "を",
+    "と"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "toiu-called",
+   "group": "toiu",
+   "stage": "focus",
+   "p": "という",
+   "title": "Called, named, the fact that",
+   "lv": 4,
+   "n": 45,
+   "conf": [
+    "の",
+    "と",
+    "って",
+    "が"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "goto-every",
+   "group": "goto",
+   "stage": "focus",
+   "p": "ごとに",
+   "title": "Every / each time (ごとに・おきに)",
+   "lv": 3,
+   "n": 25,
+   "conf": [
+    "ずつ",
+    "まで",
+    "ほど",
+    "だけ"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "nomi-only",
+   "group": "nomi",
+   "stage": "focus",
+   "p": "のみ",
+   "title": "Formal \"only\"",
+   "lv": 2,
+   "n": 20,
+   "conf": [
+    "だけ",
+    "しか",
+    "ばかり",
+    "こそ"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "kiri-only",
+   "group": "kiri",
+   "stage": "focus",
+   "p": "きり",
+   "title": "Only; since then (～たきり)",
+   "lv": 2,
+   "n": 25,
+   "conf": [
+    "だけ",
+    "まで",
+    "ばかり",
+    "しか"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "sura-even",
+   "group": "sura",
+   "stage": "focus",
+   "p": "すら",
+   "title": "Even",
+   "lv": 1,
+   "n": 20,
+   "conf": [
+    "さえ",
+    "こそ",
+    "も",
+    "だけ"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "yara-list",
+   "group": "yara-dano",
+   "stage": "focus",
+   "p": "やら",
+   "title": "AやらBやら",
+   "lv": 2,
+   "n": 20,
+   "conf": [
+    "とか",
+    "や",
+    "だの",
+    "も"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "dano-list",
+   "group": "yara-dano",
+   "stage": "focus",
+   "p": "だの",
+   "title": "AだのBだの (complaining)",
+   "lv": 1,
+   "n": 20,
+   "conf": [
+    "やら",
+    "とか",
+    "や",
+    "も"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "kara-because",
+   "group": "kara-reason",
+   "stage": "clause",
+   "p": "から",
+   "title": "Reason \"because\"",
+   "lv": 5,
+   "n": 70,
+   "conf": [
+    "ので",
+    "のに",
+    "けど",
+    "と"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "te-kara",
+   "group": "kara-reason",
+   "stage": "clause",
+   "p": "てから",
+   "title": "After doing",
+   "lv": 5,
+   "n": 40,
+   "conf": [
+    "まえに",
+    "ながら",
+    "たら",
+    "と"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "node-because",
+   "group": "node",
+   "stage": "clause",
+   "p": "ので",
+   "title": "Reason (soft, objective)",
+   "lv": 4,
+   "n": 55,
+   "conf": [
+    "のに",
+    "から",
+    "けど",
+    "ても"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "noni-although",
+   "group": "noni",
+   "stage": "clause",
+   "p": "のに",
+   "title": "Even though (unexpected)",
+   "lv": 4,
+   "n": 65,
+   "conf": [
+    "ので",
+    "から",
+    "ても",
+    "けど"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "noni-purpose",
+   "group": "noni",
+   "stage": "clause",
+   "p": "のに",
+   "title": "For the purpose of (～のに使う)",
+   "lv": 4,
+   "n": 25,
+   "conf": [
+    "ために",
+    "ので",
+    "には",
+    "で"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "kedo-but",
+   "group": "kedo",
+   "stage": "clause",
+   "p": "けど",
+   "title": "But (けど・けれども)",
+   "lv": 5,
+   "n": 50,
+   "conf": [
+    "から",
+    "ので",
+    "し",
+    "のに"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "ga-but",
+   "group": "kedo",
+   "stage": "clause",
+   "p": "が",
+   "title": "But / soft lead-in",
+   "lv": 5,
+   "n": 50,
+   "conf": [
+    "から",
+    "ので",
+    "し",
+    "と"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "shi-listing",
+   "group": "shi",
+   "stage": "clause",
+   "p": "し",
+   "title": "Listing reasons",
+   "lv": 4,
+   "n": 45,
+   "conf": [
+    "から",
+    "て",
+    "と",
+    "たり"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "te-sequence",
+   "group": "te-form-links",
+   "stage": "clause",
+   "p": "て",
+   "title": "And then / and (て・で)",
+   "lv": 5,
+   "n": 65,
+   "conf": [
+    "と",
+    "から",
+    "ながら",
+    "し"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "te-mo",
+   "group": "te-form-links",
+   "stage": "clause",
+   "p": "ても",
+   "title": "Even if",
+   "lv": 4,
+   "n": 55,
+   "conf": [
+    "たら",
+    "のに",
+    "ば",
+    "と"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "te-wa",
+   "group": "te-form-links",
+   "stage": "clause",
+   "p": "ては",
+   "title": "ては (てはいけない・ては)",
+   "lv": 4,
+   "n": 40,
+   "conf": [
+    "ても",
+    "たら",
+    "て",
+    "と"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "nagara-while",
+   "group": "nagara",
+   "stage": "clause",
+   "p": "ながら",
+   "title": "While doing",
+   "lv": 4,
+   "n": 45,
+   "conf": [
+    "て",
+    "たり",
+    "から",
+    "し"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "nagara-although",
+   "group": "nagara",
+   "stage": "clause",
+   "p": "ながら",
+   "title": "Although (ながらも)",
+   "lv": 2,
+   "n": 20,
+   "conf": [
+    "のに",
+    "つつ",
+    "ても",
+    "けど"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "tari-tari",
+   "group": "tari",
+   "stage": "clause",
+   "p": "たり",
+   "title": "～たり～たりする",
+   "lv": 5,
+   "n": 45,
+   "conf": [
+    "て",
+    "し",
+    "ながら",
+    "と"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "to-conditional",
+   "group": "conditionals",
+   "stage": "clause",
+   "p": "と",
+   "title": "Whenever / natural result",
+   "lv": 4,
+   "n": 55,
+   "conf": [
+    "ば",
+    "たら",
+    "なら",
+    "ても"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "ba-conditional",
+   "group": "conditionals",
+   "stage": "clause",
+   "p": "ば",
+   "title": "If (ば)",
+   "lv": 4,
+   "n": 55,
+   "conf": [
+    "と",
+    "たら",
+    "なら",
+    "ても"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "tara-conditional",
+   "group": "conditionals",
+   "stage": "clause",
+   "p": "たら",
+   "title": "If / when (たら)",
+   "lv": 4,
+   "n": 65,
+   "conf": [
+    "と",
+    "ば",
+    "なら",
+    "ても"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "nara-conditional",
+   "group": "conditionals",
+   "stage": "clause",
+   "p": "なら",
+   "title": "If that is the case (なら)",
+   "lv": 4,
+   "n": 55,
+   "conf": [
+    "と",
+    "ば",
+    "たら",
+    "ても"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "x-conditionals",
+   "group": "conditionals",
+   "stage": "clause",
+   "p": "と／ば／たら／なら",
+   "title": "Which conditional?",
+   "lv": 3,
+   "n": 95,
+   "conf": [
+    "と",
+    "ば",
+    "たら",
+    "なら"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "tameni-purpose",
+   "group": "tame",
+   "stage": "clause",
+   "p": "ために",
+   "title": "In order to / for the sake of",
+   "lv": 4,
+   "n": 45,
+   "conf": [
+    "ように",
+    "のに",
+    "ので",
+    "から"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "youni-purpose",
+   "group": "tame",
+   "stage": "clause",
+   "p": "ように",
+   "title": "So that (ように)",
+   "lv": 4,
+   "n": 45,
+   "conf": [
+    "ために",
+    "のに",
+    "から",
+    "と"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "x-tameni-youni",
+   "group": "tame",
+   "stage": "clause",
+   "p": "ために／ように",
+   "title": "ために or ように",
+   "lv": 3,
+   "n": 50,
+   "conf": [
+    "ために",
+    "ように"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "aida-ni",
+   "group": "aida",
+   "stage": "clause",
+   "p": "あいだに",
+   "title": "あいだ vs あいだに",
+   "lv": 4,
+   "n": 40,
+   "conf": [
+    "うちに",
+    "まで",
+    "までに",
+    "ながら"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "uchi-ni",
+   "group": "aida",
+   "stage": "clause",
+   "p": "うちに",
+   "title": "While still (うちに)",
+   "lv": 3,
+   "n": 30,
+   "conf": [
+    "あいだに",
+    "までに",
+    "ながら",
+    "まえに"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "maeni-atode",
+   "group": "mae-ato",
+   "stage": "clause",
+   "p": "まえに",
+   "title": "まえに・あとで",
+   "lv": 5,
+   "n": 40,
+   "conf": [
+    "てから",
+    "ながら",
+    "とき",
+    "まで"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "toki-when",
+   "group": "toki",
+   "stage": "clause",
+   "p": "とき",
+   "title": "とき・ときに・ときは",
+   "lv": 5,
+   "n": 40,
+   "conf": [
+    "たら",
+    "と",
+    "まえに",
+    "あいだ"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "monono-although",
+   "group": "mono-no",
+   "stage": "clause",
+   "p": "ものの",
+   "title": "Although",
+   "lv": 2,
+   "n": 20,
+   "conf": [
+    "のに",
+    "ので",
+    "から",
+    "ながら"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "tsutsu-while",
+   "group": "tsutsu",
+   "stage": "clause",
+   "p": "つつ",
+   "title": "While / つつある",
+   "lv": 2,
+   "n": 20,
+   "conf": [
+    "ながら",
+    "て",
+    "たり",
+    "ものの"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "kuseni-despite",
+   "group": "kuse-ni",
+   "stage": "clause",
+   "p": "くせに",
+   "title": "Despite (critical)",
+   "lv": 3,
+   "n": 25,
+   "conf": [
+    "のに",
+    "ので",
+    "から",
+    "ものの"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "give-ageru",
+   "group": "giving",
+   "stage": "voice",
+   "p": "に",
+   "title": "あげる: giver が/は, receiver に",
+   "lv": 5,
+   "n": 50,
+   "conf": [
+    "を",
+    "が",
+    "から",
+    "で"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "give-kureru",
+   "group": "giving",
+   "stage": "voice",
+   "p": "が",
+   "title": "くれる: giver が, to me に",
+   "lv": 4,
+   "n": 50,
+   "conf": [
+    "に",
+    "を",
+    "から",
+    "で"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "give-morau",
+   "group": "giving",
+   "stage": "voice",
+   "p": "に",
+   "title": "もらう: receiver が/は, giver に/から",
+   "lv": 4,
+   "n": 50,
+   "conf": [
+    "を",
+    "が",
+    "で",
+    "へ"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "give-te-forms",
+   "group": "giving",
+   "stage": "voice",
+   "p": "に",
+   "title": "～てあげる・～てくれる・～てもらう",
+   "lv": 4,
+   "n": 70,
+   "conf": [
+    "を",
+    "が",
+    "から",
+    "で"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "passive-agent",
+   "group": "passive",
+   "stage": "voice",
+   "p": "に",
+   "title": "Passive: doer marked with に",
+   "lv": 4,
+   "n": 70,
+   "conf": [
+    "を",
+    "が",
+    "で",
+    "から"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "passive-suffering",
+   "group": "passive",
+   "stage": "voice",
+   "p": "を",
+   "title": "Indirect passive (財布を盗まれた)",
+   "lv": 4,
+   "n": 45,
+   "conf": [
+    "が",
+    "に",
+    "で",
+    "は"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "passive-niyotte",
+   "group": "passive",
+   "stage": "voice",
+   "p": "によって",
+   "title": "Created by (によって)",
+   "lv": 3,
+   "n": 25,
+   "conf": [
+    "に",
+    "で",
+    "から",
+    "を"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "causative-o-ni",
+   "group": "causative",
+   "stage": "voice",
+   "p": "に",
+   "title": "Causative: を or に for the person made to act",
+   "lv": 4,
+   "n": 70,
+   "conf": [
+    "を",
+    "が",
+    "で",
+    "と"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "causative-passive",
+   "group": "causative",
+   "stage": "voice",
+   "p": "に",
+   "title": "Causative-passive: made to do",
+   "lv": 3,
+   "n": 40,
+   "conf": [
+    "を",
+    "が",
+    "で",
+    "から"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "potential-ga",
+   "group": "potential",
+   "stage": "voice",
+   "p": "が",
+   "title": "Potential verbs: が (and を)",
+   "lv": 4,
+   "n": 55,
+   "conf": [
+    "に",
+    "で",
+    "は",
+    "の"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "tai-ga-o",
+   "group": "desire",
+   "stage": "voice",
+   "p": "が",
+   "title": "～たい with が / を; 欲しい with が",
+   "lv": 5,
+   "n": 45,
+   "conf": [
+    "に",
+    "で",
+    "は",
+    "の"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "te-hoshii",
+   "group": "desire",
+   "stage": "voice",
+   "p": "に",
+   "title": "～てほしい: person marked with に",
+   "lv": 4,
+   "n": 30,
+   "conf": [
+    "を",
+    "が",
+    "で",
+    "と"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "na-musing",
+   "group": "final-na",
+   "stage": "final",
+   "p": "な",
+   "title": "Musing / emotion (な・なあ)",
+   "lv": 4,
+   "n": 30,
+   "conf": [
+    "ね",
+    "よ",
+    "か",
+    "ぞ"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "na-prohibition",
+   "group": "final-na",
+   "stage": "final",
+   "p": "な",
+   "title": "Prohibition (するな)",
+   "lv": 4,
+   "n": 25,
+   "conf": [
+    "ね",
+    "よ",
+    "か",
+    "ぞ"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "kana-wonder",
+   "group": "final-kana",
+   "stage": "final",
+   "p": "かな",
+   "title": "かな・かしら",
+   "lv": 4,
+   "n": 40,
+   "conf": [
+    "よね",
+    "よ",
+    "ね",
+    "ぞ"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "no-final",
+   "group": "final-no",
+   "stage": "final",
+   "p": "の",
+   "title": "Sentence-final の",
+   "lv": 4,
+   "n": 30,
+   "conf": [
+    "か",
+    "よ",
+    "ね",
+    "な"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "kke-recall",
+   "group": "final-kke",
+   "stage": "final",
+   "p": "っけ",
+   "title": "Trying to recall",
+   "lv": 3,
+   "n": 25,
+   "conf": [
+    "かな",
+    "よね",
+    "か",
+    "の"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "zo-ze",
+   "group": "final-zo-ze",
+   "stage": "final",
+   "p": "ぞ",
+   "title": "ぞ・ぜ",
+   "lv": 3,
+   "n": 25,
+   "conf": [
+    "わ",
+    "ね",
+    "かな",
+    "の"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "wa-final",
+   "group": "final-wa-sa",
+   "stage": "final",
+   "p": "わ",
+   "title": "Sentence-final わ",
+   "lv": 3,
+   "n": 20,
+   "conf": [
+    "ぞ",
+    "か",
+    "な",
+    "ぜ"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "sa-final",
+   "group": "final-wa-sa",
+   "stage": "final",
+   "p": "さ",
+   "title": "Sentence-final さ",
+   "lv": 3,
+   "n": 20,
+   "conf": [
+    "か",
+    "わ",
+    "かな",
+    "っけ"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "mono-reason",
+   "group": "final-mono",
+   "stage": "final",
+   "p": "もの",
+   "title": "もの・もん",
+   "lv": 3,
+   "n": 25,
+   "conf": [
+    "から",
+    "よ",
+    "ね",
+    "かな"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "tomo-certainly",
+   "group": "final-tomo",
+   "stage": "final",
+   "p": "とも",
+   "title": "Emphatic agreement",
+   "lv": 2,
+   "n": 20,
+   "conf": [
+    "よ",
+    "ね",
+    "かな",
+    "っけ"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "janai-ka",
+   "group": "final-ja-nai",
+   "stage": "final",
+   "p": "じゃないか",
+   "title": "じゃない・ではないか",
+   "lv": 3,
+   "n": 30,
+   "conf": [
+    "だろう",
+    "かな",
+    "よね",
+    "っけ"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "tte-hearsay",
+   "group": "final-tte",
+   "stage": "final",
+   "p": "って",
+   "title": "Sentence-final って / だって",
+   "lv": 3,
+   "n": 25,
+   "conf": [
+    "よ",
+    "ね",
+    "かな",
+    "っけ"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "nitsuite",
+   "group": "nitsuite",
+   "stage": "compound1",
+   "p": "について",
+   "title": "Concerning",
+   "lv": 4,
+   "n": 40,
+   "conf": [
+    "にとって",
+    "に対して",
+    "によって",
+    "として"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "nitotte",
+   "group": "nitotte",
+   "stage": "compound1",
+   "p": "にとって",
+   "title": "From the standpoint of",
+   "lv": 3,
+   "n": 45,
+   "conf": [
+    "について",
+    "に対して",
+    "として",
+    "によって"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "nitaishite",
+   "group": "nitaishite",
+   "stage": "compound1",
+   "p": "に対して",
+   "title": "Towards; in contrast",
+   "lv": 3,
+   "n": 45,
+   "conf": [
+    "にとって",
+    "について",
+    "として",
+    "によって"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "toshite",
+   "group": "toshite",
+   "stage": "compound1",
+   "p": "として",
+   "title": "In the role of",
+   "lv": 3,
+   "n": 45,
+   "conf": [
+    "にとって",
+    "に対して",
+    "について",
+    "によって"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "niyotte-means",
+   "group": "niyotte",
+   "stage": "compound1",
+   "p": "によって",
+   "title": "By means of / due to",
+   "lv": 3,
+   "n": 30,
+   "conf": [
+    "について",
+    "にとって",
+    "として",
+    "に対して"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "niyotte-depending",
+   "group": "niyotte",
+   "stage": "compound1",
+   "p": "によって",
+   "title": "Depending on",
+   "lv": 3,
+   "n": 30,
+   "conf": [
+    "について",
+    "にとって",
+    "として",
+    "に対して"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "niyoruto",
+   "group": "niyoruto",
+   "stage": "compound1",
+   "p": "によると",
+   "title": "According to (hearsay)",
+   "lv": 4,
+   "n": 30,
+   "conf": [
+    "によって",
+    "について",
+    "にとって",
+    "として"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "x-compound-core",
+   "group": "x-compound-core",
+   "stage": "compound1",
+   "p": "複合",
+   "title": "について・にとって・に対して・として・によって",
+   "lv": 3,
+   "n": 95,
+   "conf": [
+    "について",
+    "にとって",
+    "に対して",
+    "として",
+    "によって"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "kawarini",
+   "group": "nokawarini",
+   "stage": "compound1",
+   "p": "かわりに",
+   "title": "Instead of / in exchange",
+   "lv": 3,
+   "n": 30,
+   "conf": [
+    "のために",
+    "のおかげで",
+    "について",
+    "として"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "okagede",
+   "group": "okagede-seide",
+   "stage": "compound1",
+   "p": "おかげで",
+   "title": "Thanks to",
+   "lv": 3,
+   "n": 30,
+   "conf": [
+    "せいで",
+    "ために",
+    "かわりに",
+    "について"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "seide",
+   "group": "okagede-seide",
+   "stage": "compound1",
+   "p": "せいで",
+   "title": "Because of (blame)",
+   "lv": 3,
+   "n": 30,
+   "conf": [
+    "おかげで",
+    "ために",
+    "かわりに",
+    "について"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "nikurabete",
+   "group": "nikurabete",
+   "stage": "compound1",
+   "p": "に比べて",
+   "title": "Compared with",
+   "lv": 3,
+   "n": 30,
+   "conf": [
+    "に対して",
+    "について",
+    "によって",
+    "として"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "toisshoni",
+   "group": "toissho",
+   "stage": "compound1",
+   "p": "といっしょに",
+   "title": "Together with",
+   "lv": 5,
+   "n": 25,
+   "conf": [
+    "のために",
+    "について",
+    "として",
+    "かわりに"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "nokoto",
+   "group": "nokotode",
+   "stage": "compound1",
+   "p": "のこと",
+   "title": "のこと: about (好き・心配・話す)",
+   "lv": 4,
+   "n": 30,
+   "conf": [
+    "について",
+    "のため",
+    "として",
+    "にとって"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "nishitewa",
+   "group": "toshitewa",
+   "stage": "compound1",
+   "p": "にしては",
+   "title": "Considering that",
+   "lv": 3,
+   "n": 30,
+   "conf": [
+    "わりに",
+    "として",
+    "にとって",
+    "にしても"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "wari-ni",
+   "group": "toshitewa",
+   "stage": "compound1",
+   "p": "わりに",
+   "title": "In proportion to / unexpectedly",
+   "lv": 3,
+   "n": 30,
+   "conf": [
+    "にしては",
+    "くせに",
+    "として",
+    "かわりに"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "wotooshite",
+   "group": "wo-tooshite",
+   "stage": "compound1",
+   "p": "を通して",
+   "title": "Through / via (を通して・を通じて)",
+   "lv": 3,
+   "n": 30,
+   "conf": [
+    "によって",
+    "について",
+    "にわたって",
+    "として"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "nikakete",
+   "group": "ni-kakete",
+   "stage": "compound1",
+   "p": "にかけて",
+   "title": "From … through to",
+   "lv": 3,
+   "n": 25,
+   "conf": [
+    "にわたって",
+    "まで",
+    "までに",
+    "を通して"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "niwa-purpose",
+   "group": "ni-wa",
+   "stage": "compound1",
+   "p": "には",
+   "title": "には: in order to; for (someone)",
+   "lv": 3,
+   "n": 30,
+   "conf": [
+    "ために",
+    "のに",
+    "では",
+    "とは"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "towa",
+   "group": "to-wa",
+   "stage": "compound1",
+   "p": "とは",
+   "title": "とは・というのは",
+   "lv": 3,
+   "n": 25,
+   "conf": [
+    "には",
+    "では",
+    "とも",
+    "って"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "dewa-scope",
+   "group": "dewa",
+   "stage": "compound1",
+   "p": "では",
+   "title": "では: within; judging by",
+   "lv": 4,
+   "n": 30,
+   "conf": [
+    "には",
+    "とは",
+    "にも",
+    "でも"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "double-particles",
+   "group": "double",
+   "stage": "compound1",
+   "p": "には",
+   "title": "には・では・とは・からは・までは・へは",
+   "lv": 4,
+   "n": 70,
+   "conf": [
+    "には",
+    "では",
+    "とは",
+    "からは"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "double-mo",
+   "group": "double",
+   "stage": "compound1",
+   "p": "にも",
+   "title": "にも・でも・とも・からも",
+   "lv": 4,
+   "n": 45,
+   "conf": [
+    "にも",
+    "でも",
+    "とも",
+    "からも"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "no-compound",
+   "group": "double",
+   "stage": "compound1",
+   "p": "での",
+   "title": "での・との・からの・までの・への before a noun",
+   "lv": 3,
+   "n": 50,
+   "conf": [
+    "での",
+    "との",
+    "からの",
+    "までの",
+    "への"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "nikanshite",
+   "group": "nikanshite",
+   "stage": "compound2",
+   "p": "に関して",
+   "title": "Regarding (formal)",
+   "lv": 2,
+   "n": 25,
+   "conf": [
+    "に対して",
+    "にとって",
+    "において",
+    "に基づいて"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "nioite",
+   "group": "nioite",
+   "stage": "compound2",
+   "p": "において",
+   "title": "At, in (formal place/time/field)",
+   "lv": 2,
+   "n": 30,
+   "conf": [
+    "に関して",
+    "に対して",
+    "によって",
+    "にとって"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "niwatatte",
+   "group": "niwatatte",
+   "stage": "compound2",
+   "p": "にわたって",
+   "title": "Throughout a span",
+   "lv": 2,
+   "n": 25,
+   "conf": [
+    "にかけて",
+    "を通じて",
+    "において",
+    "に沿って"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "nisotte",
+   "group": "nisotte",
+   "stage": "compound2",
+   "p": "に沿って",
+   "title": "Along / in line with",
+   "lv": 2,
+   "n": 20,
+   "conf": [
+    "に基づいて",
+    "に従って",
+    "にわたって",
+    "に応じて"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "nimotozuite",
+   "group": "nimotozuite",
+   "stage": "compound2",
+   "p": "に基づいて",
+   "title": "On the basis of",
+   "lv": 2,
+   "n": 25,
+   "conf": [
+    "に沿って",
+    "に従って",
+    "をもとに",
+    "に応じて"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "womotoni",
+   "group": "nimotozuite",
+   "stage": "compound2",
+   "p": "をもとに",
+   "title": "Using as material",
+   "lv": 2,
+   "n": 20,
+   "conf": [
+    "に基づいて",
+    "を中心に",
+    "をめぐって",
+    "に沿って"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "womegutte",
+   "group": "womegutte",
+   "stage": "compound2",
+   "p": "をめぐって",
+   "title": "Concerning (contested issue)",
+   "lv": 2,
+   "n": 20,
+   "conf": [
+    "に関して",
+    "について",
+    "を中心に",
+    "をもとに"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "nikuwaete",
+   "group": "nikuwaete",
+   "stage": "compound2",
+   "p": "に加えて",
+   "title": "In addition to",
+   "lv": 2,
+   "n": 20,
+   "conf": [
+    "に対して",
+    "に比べて",
+    "に応じて",
+    "にかわって"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "nitsurete",
+   "group": "nitsurete",
+   "stage": "compound2",
+   "p": "につれて",
+   "title": "As (gradual change)",
+   "lv": 2,
+   "n": 25,
+   "conf": [
+    "に従って",
+    "に伴って",
+    "とともに",
+    "に応じて"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "nishitagatte",
+   "group": "nitsurete",
+   "stage": "compound2",
+   "p": "に従って",
+   "title": "In accordance with / as",
+   "lv": 2,
+   "n": 25,
+   "conf": [
+    "につれて",
+    "に伴って",
+    "に沿って",
+    "に基づいて"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "nitomonatte",
+   "group": "nitsurete",
+   "stage": "compound2",
+   "p": "に伴って",
+   "title": "Along with",
+   "lv": 2,
+   "n": 20,
+   "conf": [
+    "につれて",
+    "に従って",
+    "とともに",
+    "に応じて"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "totomoni",
+   "group": "nitsurete",
+   "stage": "compound2",
+   "p": "とともに",
+   "title": "Together with / as",
+   "lv": 2,
+   "n": 25,
+   "conf": [
+    "につれて",
+    "に伴って",
+    "に従って",
+    "に加えて"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "nioujite",
+   "group": "nioujite",
+   "stage": "compound2",
+   "p": "に応じて",
+   "title": "According to / in proportion",
+   "lv": 2,
+   "n": 20,
+   "conf": [
+    "に従って",
+    "によって",
+    "に沿って",
+    "に基づいて"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "nihanshite",
+   "group": "nihanshite",
+   "stage": "compound2",
+   "p": "に反して",
+   "title": "Contrary to",
+   "lv": 2,
+   "n": 20,
+   "conf": [
+    "に対して",
+    "に比べて",
+    "に応じて",
+    "に従って"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "wotowazu",
+   "group": "wotowazu",
+   "stage": "compound2",
+   "p": "を問わず",
+   "title": "Regardless of",
+   "lv": 2,
+   "n": 25,
+   "conf": [
+    "にかかわらず",
+    "にもかかわらず",
+    "に限らず",
+    "はもちろん"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "nikakawarazu",
+   "group": "wotowazu",
+   "stage": "compound2",
+   "p": "にかかわらず",
+   "title": "Regardless / whether or not",
+   "lv": 2,
+   "n": 25,
+   "conf": [
+    "を問わず",
+    "にもかかわらず",
+    "に限らず",
+    "に応じて"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "nimokakawarazu",
+   "group": "wotowazu",
+   "stage": "compound2",
+   "p": "にもかかわらず",
+   "title": "In spite of",
+   "lv": 2,
+   "n": 25,
+   "conf": [
+    "にかかわらず",
+    "を問わず",
+    "のに",
+    "ものの"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "nikagirazu",
+   "group": "nikagirazu",
+   "stage": "compound2",
+   "p": "に限らず",
+   "title": "Not only",
+   "lv": 2,
+   "n": 20,
+   "conf": [
+    "を問わず",
+    "に限って",
+    "にかかわらず",
+    "はもちろん"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "nikagitte",
+   "group": "nikagirazu",
+   "stage": "compound2",
+   "p": "に限って",
+   "title": "Only in the case of",
+   "lv": 2,
+   "n": 20,
+   "conf": [
+    "に限らず",
+    "に限り",
+    "だけ",
+    "こそ"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "bakarika",
+   "group": "bakarika",
+   "stage": "compound2",
+   "p": "ばかりか",
+   "title": "Not only (ばかりか・ばかりでなく)",
+   "lv": 2,
+   "n": 25,
+   "conf": [
+    "どころか",
+    "はもちろん",
+    "だけ",
+    "に限らず"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "dokoroka",
+   "group": "bakarika",
+   "stage": "compound2",
+   "p": "どころか",
+   "title": "Far from",
+   "lv": 2,
+   "n": 25,
+   "conf": [
+    "ばかりか",
+    "はもちろん",
+    "に限らず",
+    "だけ"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "wamochiron",
+   "group": "bakarika",
+   "stage": "compound2",
+   "p": "はもちろん",
+   "title": "Let alone / of course",
+   "lv": 2,
+   "n": 20,
+   "conf": [
+    "ばかりか",
+    "どころか",
+    "に限らず",
+    "をはじめ"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "wohajime",
+   "group": "wohajime",
+   "stage": "compound2",
+   "p": "をはじめ",
+   "title": "Beginning with (representative example)",
+   "lv": 2,
+   "n": 20,
+   "conf": [
+    "を中心に",
+    "はもちろん",
+    "に加えて",
+    "をもとに"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "wochuushinni",
+   "group": "wochuushinni",
+   "stage": "compound2",
+   "p": "を中心に",
+   "title": "Centring on",
+   "lv": 2,
+   "n": 20,
+   "conf": [
+    "をはじめ",
+    "をもとに",
+    "をめぐって",
+    "に沿って"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "karaniwa",
+   "group": "karaniwa",
+   "stage": "compound2",
+   "p": "からには",
+   "title": "Now that / since",
+   "lv": 2,
+   "n": 25,
+   "conf": [
+    "からこそ",
+    "からといって",
+    "ものの",
+    "くせに"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "karakoso",
+   "group": "karaniwa",
+   "stage": "compound2",
+   "p": "からこそ",
+   "title": "Precisely because",
+   "lv": 2,
+   "n": 20,
+   "conf": [
+    "からには",
+    "からといって",
+    "ので",
+    "のに"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "karatoitte",
+   "group": "karaniwa",
+   "stage": "compound2",
+   "p": "からといって",
+   "title": "Just because",
+   "lv": 2,
+   "n": 25,
+   "conf": [
+    "からには",
+    "からこそ",
+    "のに",
+    "ので"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "toshitemo",
+   "group": "toshitemo",
+   "stage": "compound2",
+   "p": "としても",
+   "title": "Even if (hypothetical)",
+   "lv": 2,
+   "n": 25,
+   "conf": [
+    "にしても",
+    "としては",
+    "にしては",
+    "ても"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "nishitemo",
+   "group": "toshitemo",
+   "stage": "compound2",
+   "p": "にしても",
+   "title": "Even granting / whether",
+   "lv": 2,
+   "n": 25,
+   "conf": [
+    "としても",
+    "にしては",
+    "にせよ",
+    "ても"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "toiuyori",
+   "group": "toiuyori",
+   "stage": "compound2",
+   "p": "というより",
+   "title": "Rather than say",
+   "lv": 2,
+   "n": 20,
+   "conf": [
+    "といっても",
+    "といえば",
+    "としても",
+    "どころか"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "toittemo",
+   "group": "toiuyori",
+   "stage": "compound2",
+   "p": "といっても",
+   "title": "Although one says",
+   "lv": 2,
+   "n": 20,
+   "conf": [
+    "というより",
+    "といえば",
+    "としても",
+    "からといって"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "toieba",
+   "group": "toiuyori",
+   "stage": "compound2",
+   "p": "といえば",
+   "title": "Speaking of",
+   "lv": 2,
+   "n": 20,
+   "conf": [
+    "というより",
+    "といっても",
+    "としては",
+    "にとって"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "nikawatte",
+   "group": "nikawatte",
+   "stage": "compound2",
+   "p": "にかわって",
+   "title": "In place of (a person)",
+   "lv": 2,
+   "n": 20,
+   "conf": [
+    "に対して",
+    "に加えて",
+    "に応じて",
+    "として"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "nisaishite",
+   "group": "nisaishite",
+   "stage": "compound2",
+   "p": "に際して",
+   "title": "On the occasion of",
+   "lv": 2,
+   "n": 20,
+   "conf": [
+    "において",
+    "にあたって",
+    "に先立って",
+    "に応じて"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "nisakidatte",
+   "group": "nisaishite",
+   "stage": "compound2",
+   "p": "に先立って",
+   "title": "Prior to",
+   "lv": 2,
+   "n": 20,
+   "conf": [
+    "に際して",
+    "にあたって",
+    "において",
+    "に続いて"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "uede",
+   "group": "uede",
+   "stage": "compound2",
+   "p": "上で",
+   "title": "After doing; in doing",
+   "lv": 2,
+   "n": 25,
+   "conf": [
+    "上に",
+    "上は",
+    "うちに",
+    "際に"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "ueni",
+   "group": "uede",
+   "stage": "compound2",
+   "p": "上に",
+   "title": "On top of that",
+   "lv": 2,
+   "n": 20,
+   "conf": [
+    "上で",
+    "上は",
+    "ばかりか",
+    "くせに"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "monodakara",
+   "group": "monodakara",
+   "stage": "compound2",
+   "p": "ものだから",
+   "title": "Because (personal excuse)",
+   "lv": 2,
+   "n": 20,
+   "conf": [
+    "からには",
+    "からこそ",
+    "ものの",
+    "くせに"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "x-compound-n2",
+   "group": "x-compound-n2",
+   "stage": "compound2",
+   "p": "複合",
+   "title": "N2 compound particles mixed",
+   "lv": 2,
+   "n": 110,
+   "conf": [
+    "に関して",
+    "において",
+    "に基づいて",
+    "に応じて"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "yainaya",
+   "group": "yainaya",
+   "stage": "literary",
+   "p": "や否や",
+   "title": "As soon as (や・や否や)",
+   "lv": 1,
+   "n": 20,
+   "conf": [
+    "が早いか",
+    "なり",
+    "そばから",
+    "とたんに"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "gahayaika",
+   "group": "yainaya",
+   "stage": "literary",
+   "p": "が早いか",
+   "title": "No sooner than",
+   "lv": 1,
+   "n": 20,
+   "conf": [
+    "や否や",
+    "なり",
+    "そばから",
+    "とたんに"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "nari",
+   "group": "yainaya",
+   "stage": "literary",
+   "p": "なり",
+   "title": "As soon as (なり)",
+   "lv": 1,
+   "n": 20,
+   "conf": [
+    "や否や",
+    "が早いか",
+    "そばから",
+    "ながら"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "sobakara",
+   "group": "yainaya",
+   "stage": "literary",
+   "p": "そばから",
+   "title": "As soon as, again and again",
+   "lv": 1,
+   "n": 20,
+   "conf": [
+    "や否や",
+    "が早いか",
+    "なり",
+    "とたんに"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "womotte",
+   "group": "womotte",
+   "stage": "literary",
+   "p": "をもって",
+   "title": "With; as of (formal)",
+   "lv": 1,
+   "n": 20,
+   "conf": [
+    "において",
+    "にあって",
+    "をよそに",
+    "を機に"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "niatte",
+   "group": "niatte",
+   "stage": "literary",
+   "p": "にあって",
+   "title": "In, under (circumstances)",
+   "lv": 1,
+   "n": 20,
+   "conf": [
+    "において",
+    "をもって",
+    "として",
+    "にして"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "woyosoni",
+   "group": "woyosoni",
+   "stage": "literary",
+   "p": "をよそに",
+   "title": "In disregard of",
+   "lv": 1,
+   "n": 20,
+   "conf": [
+    "をものともせず",
+    "にもかかわらず",
+    "を問わず",
+    "に反して"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "womonotomosezu",
+   "group": "womonotomosezu",
+   "stage": "literary",
+   "p": "をものともせず",
+   "title": "In defiance of",
+   "lv": 1,
+   "n": 20,
+   "conf": [
+    "をよそに",
+    "にもかかわらず",
+    "を問わず",
+    "に反して"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "wokawakirini",
+   "group": "wokawakirini",
+   "stage": "literary",
+   "p": "を皮切りに",
+   "title": "Starting with (a series)",
+   "lv": 1,
+   "n": 20,
+   "conf": [
+    "を機に",
+    "をはじめ",
+    "を限りに",
+    "をもって"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "wokagirini",
+   "group": "wokawakirini",
+   "stage": "literary",
+   "p": "を限りに",
+   "title": "As the last time",
+   "lv": 1,
+   "n": 20,
+   "conf": [
+    "を皮切りに",
+    "をもって",
+    "を機に",
+    "を境に"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "wokini",
+   "group": "wokawakirini",
+   "stage": "literary",
+   "p": "を機に",
+   "title": "Taking the opportunity of",
+   "lv": 1,
+   "n": 20,
+   "conf": [
+    "を皮切りに",
+    "を限りに",
+    "をもって",
+    "を境に"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "naradewa",
+   "group": "naradewa",
+   "stage": "literary",
+   "p": "ならでは",
+   "title": "Only possible with",
+   "lv": 1,
+   "n": 20,
+   "conf": [
+    "にして",
+    "こそ",
+    "だけ",
+    "をおいて"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "wooite",
+   "group": "wooite",
+   "stage": "literary",
+   "p": "をおいて",
+   "title": "No one but (をおいて～ない)",
+   "lv": 1,
+   "n": 20,
+   "conf": [
+    "ならでは",
+    "を除いて",
+    "に限らず",
+    "はおろか"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "waoroka",
+   "group": "waoroka",
+   "stage": "literary",
+   "p": "はおろか",
+   "title": "Let alone",
+   "lv": 1,
+   "n": 20,
+   "conf": [
+    "はもちろん",
+    "どころか",
+    "ばかりか",
+    "をおいて"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "tomonaruto",
+   "group": "tomonaruto",
+   "stage": "literary",
+   "p": "ともなると",
+   "title": "Once one reaches (ともなると・ともなれば)",
+   "lv": 1,
+   "n": 20,
+   "conf": [
+    "とあって",
+    "にして",
+    "として",
+    "といえども"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "toatte",
+   "group": "tomonaruto",
+   "stage": "literary",
+   "p": "とあって",
+   "title": "Because of the special situation",
+   "lv": 1,
+   "n": 20,
+   "conf": [
+    "ともなると",
+    "にして",
+    "ゆえに",
+    "といえども"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "toiedomo",
+   "group": "toiedomo",
+   "stage": "literary",
+   "p": "といえども",
+   "title": "Even (a) …",
+   "lv": 1,
+   "n": 20,
+   "conf": [
+    "とあって",
+    "ともなると",
+    "ながらも",
+    "とはいえ"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "towaie",
+   "group": "toiedomo",
+   "stage": "literary",
+   "p": "とはいえ",
+   "title": "That said",
+   "lv": 1,
+   "n": 20,
+   "conf": [
+    "といえども",
+    "ものの",
+    "ながらも",
+    "とあって"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "deare",
+   "group": "deare",
+   "stage": "literary",
+   "p": "であれ",
+   "title": "AであれBであれ / にせよ・にしろ",
+   "lv": 1,
+   "n": 20,
+   "conf": [
+    "といい",
+    "なり",
+    "やら",
+    "だの"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "toii",
+   "group": "deare",
+   "stage": "literary",
+   "p": "といい",
+   "title": "AといいBといい",
+   "lv": 1,
+   "n": 20,
+   "conf": [
+    "であれ",
+    "なり",
+    "やら",
+    "だの"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "nari-nari",
+   "group": "deare",
+   "stage": "literary",
+   "p": "なり",
+   "title": "AなりBなり (either)",
+   "lv": 1,
+   "n": 20,
+   "conf": [
+    "であれ",
+    "といい",
+    "やら",
+    "とか"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "yueni",
+   "group": "yueni",
+   "stage": "literary",
+   "p": "ゆえに",
+   "title": "On account of",
+   "lv": 1,
+   "n": 20,
+   "conf": [
+    "とあって",
+    "こととて",
+    "ばこそ",
+    "をもって"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "bakoso",
+   "group": "bakoso",
+   "stage": "literary",
+   "p": "ばこそ",
+   "title": "～ばこそ",
+   "lv": 1,
+   "n": 20,
+   "conf": [
+    "ゆえに",
+    "からこそ",
+    "とあって",
+    "こととて"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "nishite",
+   "group": "nishite",
+   "stage": "literary",
+   "p": "にして",
+   "title": "Only at (that level); in just",
+   "lv": 1,
+   "n": 20,
+   "conf": [
+    "にあって",
+    "として",
+    "ならでは",
+    "をもって"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "tote",
+   "group": "tote",
+   "stage": "literary",
+   "p": "とて",
+   "title": "Even (とて・としたところで)",
+   "lv": 1,
+   "n": 20,
+   "conf": [
+    "といえども",
+    "すら",
+    "だに",
+    "こそ"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "dani",
+   "group": "dani",
+   "stage": "literary",
+   "p": "だに",
+   "title": "Even to (imagine)",
+   "lv": 1,
+   "n": 20,
+   "conf": [
+    "すら",
+    "さえ",
+    "とて",
+    "こそ"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "nagarani",
+   "group": "zukume",
+   "stage": "literary",
+   "p": "ながらに",
+   "title": "In the state of (生まれながらに)",
+   "lv": 1,
+   "n": 20,
+   "conf": [
+    "つつ",
+    "ながらも",
+    "がてら",
+    "かたわら"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "gatera",
+   "group": "gatera",
+   "stage": "literary",
+   "p": "がてら",
+   "title": "On the same occasion",
+   "lv": 1,
+   "n": 20,
+   "conf": [
+    "かたわら",
+    "ながらに",
+    "つつ",
+    "かたがた"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "katawara",
+   "group": "gatera",
+   "stage": "literary",
+   "p": "かたわら",
+   "title": "Alongside (a main activity)",
+   "lv": 1,
+   "n": 20,
+   "conf": [
+    "がてら",
+    "ながらに",
+    "つつ",
+    "かたがた"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "x-literary-n1",
+   "group": "x-literary",
+   "stage": "literary",
+   "p": "混合",
+   "title": "N1 particles mixed",
+   "lv": 1,
+   "n": 90,
+   "conf": [
+    "をもって",
+    "にあって",
+    "とあって",
+    "といえども"
+   ],
+   "packs": 0
+  }
+ ]
+}

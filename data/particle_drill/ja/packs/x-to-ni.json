@@ -1,0 +1,20 @@
+[
+ {"id":"x-to-ni-1","lv":4,
+  "tpl":"<who>{は|wa-topic}<partner>{と|to-with}<act>。",
+  "en":"<who> <act> <partner>.",
+  "f":1,"d":["に"],
+  "why":"Both people take part in the action together, so the partner takes と; に cannot mark a partner here.",
+  "vars":{
+   "who":[["兄[あに]","My older brother"],["姉[あね]","My older sister"],["弟[おとうと]","My younger brother"],["妹[いもうと]","My younger sister"],["田中[たなか]さん","Mr. Tanaka"],["鈴木[すずき]さん","Ms. Suzuki"],["山本[やまもと]さん","Mr. Yamamoto"]],
+   "partner":[["友達[ともだち]","a friend"],["クラスメート","a classmate"],["いとこ","a cousin"],["留学生[りゅうがくせい]","an exchange student"],["ルームメート","a roommate"],["同僚[どうりょう]","a colleague"]],
+   "act":[["一緒[いっしょ]に昼[ひる]ご飯[はん]{を|o-object}食[た]べました","had lunch with"],["テニス{を|o-object}しました","played tennis with"],["写真[しゃしん]{を|o-object}撮[と]りました","took photos with"],["映画[えいが]{を|o-object}見[み]{に|ni-purpose}行[い]きました","went to see a film with"],["買[か]い物[もの]{に|ni-purpose}行[い]きました","went shopping with"],["けんかしました","had a fight with"],["遊[あそ]びました","spent the day with"]]}},
+ {"id":"x-to-ni-2","lv":4,
+  "tpl":"<who>{は|wa-topic}<listener>{に|ni-recipient}<act>。",
+  "en":"<who> <act> <listener>.",
+  "f":1,"d":["と"],
+  "why":"The action goes one way, from the subject to the other person, so that person takes に; と would mean doing it together.",
+  "vars":{
+   "who":[["田中[たなか]さん","Mr. Tanaka"],["鈴木[すずき]さん","Ms. Suzuki"],["山本[やまもと]さん","Mr. Yamamoto"],["佐藤[さとう]さん","Ms. Sato"],["中村[なかむら]さん","Mr. Nakamura"],["小林[こばやし]さん","Ms. Kobayashi"]],
+   "listener":[["先生[せんせい]","the teacher"],["友達[ともだち]","a friend"],["留学生[りゅうがくせい]","an exchange student"],["新[あたら]しい社員[しゃいん]","a new employee"],["クラスメート","a classmate"],["いとこ","a cousin"],["店長[てんちょう]","the shop manager"]],
+   "act":[["話[はな]しかけました","spoke to"],["写真[しゃしん]{を|o-object}見[み]せました","showed the photos to"],["お礼[れい]{を|o-object}言[い]いました","thanked"],["電話[でんわ]しました","phoned"],["本[ほん]{を|o-object}貸[か]しました","lent a book to"],["計画[けいかく]{を|o-object}説明[せつめい]しました","explained the plan to"],["お土産[みやげ]{を|o-object}渡[わた]しました","handed a souvenir to"]]}}
+]

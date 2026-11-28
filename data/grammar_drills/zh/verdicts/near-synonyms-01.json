@@ -1,0 +1,20 @@
+{
+ "flagged": 1,
+ "fixed": 11,
+ "dropped": 0,
+ "added": 0,
+ "summary": "The blind compare flagged only 007 (AMBIGUOUS): 适合的房子 is common colloquially, so 我想找一个___的房子 did not force 合适. I rewrote it as 大小正___ with no object, so only the adjective fits. The rest of the review found no wrong keys but fixed unnatural sentences (063 我的感冒一个星期了, 070 看不出来 for handwriting), a proper name the spec does not allow (077 爱迪生), a stiff level-3 sentence (028), weak or incomplete why notes (047, 073, 080), awkward English (039, 043) and one neutral tone (075 走走). Judgement calls left as they are: 037 keeps 觉得 as the distractor against 以为 because 其实 is there; 081 keeps 我是学生以前 as the wrong sentence; 015 relies on the English cue to rule out 没听懂.",
+ "items": {
+  "near-synonyms-01-007": {"v": "fixed", "note": "AMBIGUOUS: 适合的房子 is widely accepted. Rewrote as 这套房子大小正___，离地铁站也不远。 With no object, 正适合 fails and 正合适 is forced. Changed to level 2, swapped the option order, and wrote new pinyin, English and why."},
+  "near-synonyms-01-028": {"v": "fixed", "note": "Replaced the stiff 将…并与几家企业见面 (HSK 5+ vocabulary) with 下个月市长要访问日本，跟几家大公司的老板见面。 The key is unchanged."},
+  "near-synonyms-01-039": {"v": "fixed", "note": "The English 'I feel that my head no longer hurts' was unidiomatic."},
+  "near-synonyms-01-043": {"v": "fixed", "note": "The English 'I feel too tired' was unidiomatic."},
+  "near-synonyms-01-047": {"v": "fixed", "note": "The why did not mention the distractor 后来; added it."},
+  "near-synonyms-01-063": {"v": "fixed", "note": "我的感冒一个星期了 is unnatural; changed to 我感冒一个星期了."},
+  "near-synonyms-01-070": {"v": "fixed", "note": "看不出来 means 'can't tell' and does not fit illegible writing; changed to 认不出来."},
+  "near-synonyms-01-073": {"v": "fixed", "note": "The why claimed a bare 以后 can only mean 'from now on'. Restated it: 先 calls for 然后."},
+  "near-synonyms-01-075": {"v": "fixed", "note": "Pinyin: reduplicated 走走 takes a neutral tone on the second syllable (zǒu zou)."},
+  "near-synonyms-01-077": {"v": "fixed", "note": "爱迪生 is a proper name the spec does not allow. Replaced with the judge 纸是中国人发现的 -> 发明的 (level 1). It is still a false item."},
+  "near-synonyms-01-080": {"v": "fixed", "note": "The why ('再在 is not a pattern') gave no reason; rewrote it to explain 还在 against 再."}
+ }
+}

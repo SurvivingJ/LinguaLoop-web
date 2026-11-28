@@ -1,0 +1,204 @@
+[
+ {
+  "id": "give-kureru-1",
+  "lv": 4,
+  "tpl": "<giver>{が/の|give-kureru}くれた<obj>{は/が|wa-topic}<desc>。",
+  "en": "The <obj> that <giver> gave me <desc>.",
+  "f": 0,
+  "d": [
+   "に",
+   "を",
+   "で"
+  ],
+  "why": "With くれる the giver is the subject and takes が (の inside a noun-modifying clause); に would make them the receiver.",
+  "vars": {
+   "giver": [
+    [
+     "祖母[そぼ]",
+     "my grandmother"
+    ],
+    [
+     "母[はは]",
+     "my mother"
+    ],
+    [
+     "友達[ともだち]",
+     "a friend"
+    ],
+    [
+     "田中[たなか]さん",
+     "Mr. Tanaka"
+    ],
+    [
+     "兄[あに]",
+     "my older brother"
+    ],
+    [
+     "姉[あね]",
+     "my older sister"
+    ],
+    [
+     "鈴木[すずき]さん",
+     "Ms. Suzuki"
+    ]
+   ],
+   "obj": [
+    [
+     "時計[とけい]",
+     "watch"
+    ],
+    [
+     "マフラー",
+     "scarf"
+    ],
+    [
+     "傘[かさ]",
+     "umbrella"
+    ],
+    [
+     "かばん",
+     "bag"
+    ],
+    [
+     "指輪[ゆびわ]",
+     "ring"
+    ],
+    [
+     "万年筆[まんねんひつ]",
+     "fountain pen"
+    ],
+    [
+     "財布[さいふ]",
+     "wallet"
+    ]
+   ],
+   "desc": [
+    [
+     "とても気[き]に入[い]っています",
+     "is a real favourite of mine"
+    ],
+    [
+     "宝物[たからもの]です",
+     "is a treasure to me"
+    ],
+    [
+     "少[すこ]し古[ふる]くなりました",
+     "has got a little old"
+    ],
+    [
+     "見[み]つかりません",
+     "can't be found"
+    ],
+    [
+     "高[たか]かったそうです",
+     "was apparently expensive"
+    ],
+    [
+     "なくなりました",
+     "has gone missing"
+    ]
+   ]
+  }
+ },
+ {
+  "id": "give-kureru-2",
+  "lv": 4,
+  "tpl": "<obj>{は|wa-topic}<giver>{が|give-kureru}<when>くれました。",
+  "en": "<giver> gave me <obj> <when>.",
+  "f": 1,
+  "d": [
+   "に",
+   "を",
+   "で"
+  ],
+  "why": "The person who gave the thing to me is the subject of くれる and takes が.",
+  "vars": {
+   "obj": [
+    [
+     "この時計[とけい]",
+     "this watch"
+    ],
+    [
+     "このマフラー",
+     "this scarf"
+    ],
+    [
+     "この傘[かさ]",
+     "this umbrella"
+    ],
+    [
+     "このかばん",
+     "this bag"
+    ],
+    [
+     "この財布[さいふ]",
+     "this wallet"
+    ],
+    [
+     "このペン",
+     "this pen"
+    ],
+    [
+     "この本[ほん]",
+     "this book"
+    ]
+   ],
+   "giver": [
+    [
+     "祖母[そぼ]",
+     "My grandmother"
+    ],
+    [
+     "兄[あに]",
+     "My older brother"
+    ],
+    [
+     "友達[ともだち]",
+     "A friend"
+    ],
+    [
+     "田中[たなか]さん",
+     "Mr. Tanaka"
+    ],
+    [
+     "姉[あね]",
+     "My older sister"
+    ],
+    [
+     "叔父[おじ]",
+     "My uncle"
+    ],
+    [
+     "鈴木[すずき]さん",
+     "Ms. Suzuki"
+    ]
+   ],
+   "when": [
+    [
+     "去年[きょねん]",
+     "last year"
+    ],
+    [
+     "先週[せんしゅう]",
+     "last week"
+    ],
+    [
+     "昨日[きのう]",
+     "yesterday"
+    ],
+    [
+     "この前[まえ]",
+     "the other day"
+    ],
+    [
+     "先月[せんげつ]",
+     "last month"
+    ],
+    [
+     "おととい",
+     "the day before yesterday"
+    ]
+   ]
+  }
+ }
+]

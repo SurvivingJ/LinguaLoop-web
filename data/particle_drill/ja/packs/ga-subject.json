@@ -1,0 +1,29 @@
+[
+ {"id":"ga-subject-1","lv":3,
+  "tpl":"<place>{で|de-place}<who>{が|ga-subject}<act>。",
+  "en":"<who> were <act> <place>.",
+  "f":1,"d":["を","に","の"],
+  "why":"Describing a scene you are reporting, the people doing the action are new information and take が.",
+  "vars":{
+   "place":[["公園[こうえん]","in the park"],["海[うみ]","at the beach"],["庭[にわ]","in the garden"],["広場[ひろば]","in the square"],["山[やま]","in the mountains"],["森[もり]","in the woods"]],
+   "who":[["子供[こども]たち","Children"],["学生[がくせい]たち","Students"],["若[わか]い人[ひと]たち","Young people"],["小学生[しょうがくせい]たち","Schoolchildren"],["大学生[だいがくせい]たち","University students"],["高校生[こうこうせい]たち","High school students"]],
+   "act":[["遊[あそ]んでいました","playing"],["写真[しゃしん]{を|o-object}撮[と]っていました","taking photos"],["歌[うた]{を|o-object}歌[うた]っていました","singing songs"],["休[やす]んでいました","resting"],["おしゃべりしていました","chatting"],["お弁当[べんとう]{を|o-object}食[た]べていました","eating packed lunches"],["走[はし]り回[まわ]っていました","running around"]]}},
+ {"id":"ga-subject-2","lv":4,
+  "tpl":"<this>{は|wa-topic}<who>{が/の|ga-subject}<thing>です。",
+  "en":"<this> is <thing> by <who>.",
+  "f":1,"d":["は","で","を"],
+  "why":"Inside a clause that describes a noun, the doer is marked with が (or の), never は.",
+  "vars":{
+   "this":[["これ","This"],["それ","That"],["あれ","That"],["こちら","This"],["そちら","That"],["あちら","That"]],
+   "who":[["父[ちち]","my father"],["母[はは]","my mother"],["兄[あに]","my older brother"],["姉[あね]","my older sister"],["妹[いもうと]","my younger sister"],["祖父[そふ]","my grandfather"],["祖母[そぼ]","my grandmother"],["田中[たなか]さん","Mr. Tanaka"]],
+   "thing":[["撮[と]った写真[しゃしん]","a photo taken"],["描[か]いた絵[え]","a picture painted"],["書[か]いた手紙[てがみ]","a letter written"],["選[えら]んだ本[ほん]","a book chosen"],["買[か]ってきたお土産[みやげ]","a souvenir brought back"],["植[う]えた木[き]","a tree planted"],["焼[や]いたケーキ","a cake baked"]]}},
+ {"id":"ga-subject-3","lv":4,
+  "tpl":"<who>{が|ga-subject}<event>とき、私[わたし]{は|wa-topic}<doing>。",
+  "en":"When <who> <event>, I was <doing>.",
+  "f":0,"d":["は","を","に"],
+  "why":"The subject of a とき clause takes が; は would wrongly make it the topic of the whole sentence.",
+  "vars":{
+   "who":[["父[ちち]","my father"],["母[はは]","my mother"],["兄[あに]","my older brother"],["姉[あね]","my older sister"],["弟[おとうと]","my younger brother"],["妹[いもうと]","my younger sister"],["祖母[そぼ]","my grandmother"],["夫[おっと]","my husband"]],
+   "event":[["帰[かえ]ってきた","came home"],["起[お]きた","woke up"],["出[で]かけた","went out"],["電話[でんわ]してきた","called"],["着[つ]いた","arrived"],["戻[もど]ってきた","came back"]],
+   "doing":[["寝[ね]ていました","sleeping"],["料理[りょうり]{を|o-object}していました","cooking"],["洗濯[せんたく]{を|o-object}していました","doing the laundry"],["テレビ{を|o-object}見[み]ていました","watching TV"],["本[ほん]{を|o-object}読[よ]んでいました","reading a book"],["掃除[そうじ]{を|o-object}していました","cleaning"],["シャワー{を|o-object}浴[あ]びていました","taking a shower"]]}}
+]

@@ -1,0 +1,228 @@
+[
+ {
+  "id": "cd-nara-1",
+  "lv": 3,
+  "tpl": "<when><place>へ{行[い]くなら|cd-nara}、<prep>ほうがいいですよ。",
+  "en": "If you're going to <place> <when>, you should <prep>.",
+  "f": 0,
+  "d": [
+   "行[い]くと",
+   "行[い]けば",
+   "行[い]ったら"
+  ],
+  "why": "The advice is something to do before the trip, so the plan is taken up with なら; 〜たら would mean after arriving, and と or ば cannot carry advice.",
+  "vars": {
+   "when": [
+    [
+     "夏休[なつやす]みに",
+     "during the summer holidays"
+    ],
+    [
+     "冬[ふゆ]に",
+     "in winter"
+    ],
+    [
+     "来月[らいげつ]",
+     "next month"
+    ],
+    [
+     "年末[ねんまつ]に",
+     "at the end of the year"
+    ],
+    [
+     "春休[はるやす]みに",
+     "during the spring holidays"
+    ],
+    [
+     "ゴールデンウィークに",
+     "during Golden Week"
+    ],
+    [
+     "連休[れんきゅう]に",
+     "over the long weekend"
+    ]
+   ],
+   "place": [
+    [
+     "北海道[ほっかいどう]",
+     "Hokkaido"
+    ],
+    [
+     "沖縄[おきなわ]",
+     "Okinawa"
+    ],
+    [
+     "京都[きょうと]",
+     "Kyoto"
+    ],
+    [
+     "九州[きゅうしゅう]",
+     "Kyushu"
+    ],
+    [
+     "大阪[おおさか]",
+     "Osaka"
+    ],
+    [
+     "長崎[ながさき]",
+     "Nagasaki"
+    ],
+    [
+     "広島[ひろしま]",
+     "Hiroshima"
+    ],
+    [
+     "東北[とうほく]",
+     "the Tohoku region"
+    ]
+   ],
+   "prep": [
+    [
+     "早[はや]めにホテルを予約[よやく]した",
+     "book a hotel early"
+    ],
+    [
+     "出発[しゅっぱつ]の前[まえ]に天気予報[てんきよほう]を見[み]た",
+     "check the weather forecast before you leave"
+    ],
+    [
+     "先[さき]にガイドブックを読[よ]んでおいた",
+     "read a guidebook beforehand"
+    ],
+    [
+     "荷物[にもつ]を少[すく]なくした",
+     "pack light"
+    ],
+    [
+     "行[い]ったことがある人[ひと]に話[はなし]を聞[き]いておいた",
+     "talk to someone who has been there first"
+    ],
+    [
+     "旅行[りょこう]の計画[けいかく]をしっかり立[た]てておいた",
+     "plan the trip carefully in advance"
+    ],
+    [
+     "早[はや]めに休[やす]みを取[と]っておいた",
+     "arrange your time off early"
+    ],
+    [
+     "歩[ある]きやすい靴[くつ]を用意[ようい]した",
+     "get some comfortable walking shoes ready"
+    ]
+   ]
+  }
+ },
+ {
+  "id": "cd-nara-2",
+  "lv": 4,
+  "tpl": "<item>、どこにあるか知[し]りませんか。<item>{なら/だったら|cd-nara}、<when><place>にありましたよ。",
+  "en": "\"Do you know where the <item> is?\" \"The <item>? It was <place> <when>.\"",
+  "f": 0,
+  "d": [
+   "と",
+   "ば",
+   "でも"
+  ],
+  "why": "The speaker picks up the thing the other person just mentioned and says something about it: noun plus なら (or だったら).",
+  "vars": {
+   "item": [
+    [
+     "鍵[かぎ]",
+     "key"
+    ],
+    [
+     "財布[さいふ]",
+     "wallet"
+    ],
+    [
+     "時計[とけい]",
+     "watch"
+    ],
+    [
+     "辞書[じしょ]",
+     "dictionary"
+    ],
+    [
+     "リモコン",
+     "remote control"
+    ],
+    [
+     "スマホ",
+     "smartphone"
+    ],
+    [
+     "ハンカチ",
+     "handkerchief"
+    ],
+    [
+     "ボールペン",
+     "ballpoint pen"
+    ],
+    [
+     "カメラ",
+     "camera"
+    ]
+   ],
+   "when": [
+    [
+     "さっき",
+     "a moment ago"
+    ],
+    [
+     "今朝[けさ]",
+     "this morning"
+    ],
+    [
+     "昨日[きのう]の夜[よる]",
+     "last night"
+    ],
+    [
+     "十分前[じゅっぷんまえ]に",
+     "ten minutes ago"
+    ],
+    [
+     "お昼[ひる]ごろ",
+     "around lunchtime"
+    ],
+    [
+     "一時間前[いちじかんまえ]に",
+     "an hour ago"
+    ]
+   ],
+   "place": [
+    [
+     "机[つくえ]の上[うえ]",
+     "on the desk"
+    ],
+    [
+     "テーブルの上[うえ]",
+     "on the table"
+    ],
+    [
+     "ソファの上[うえ]",
+     "on the sofa"
+    ],
+    [
+     "棚[たな]の上[うえ]",
+     "on the shelf"
+    ],
+    [
+     "テレビの前[まえ]",
+     "in front of the TV"
+    ],
+    [
+     "台所[だいどころ]",
+     "in the kitchen"
+    ],
+    [
+     "玄関[げんかん]",
+     "in the entrance hall"
+    ],
+    [
+     "寝室[しんしつ]",
+     "in the bedroom"
+    ]
+   ]
+  }
+ }
+]

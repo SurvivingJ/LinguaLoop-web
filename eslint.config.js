@@ -80,6 +80,16 @@ export default [
     languageOptions: { sourceType: 'module', globals: { escapeHtml: 'off' } },
   },
   {
+    // Particle drill: ES modules (engine in static/js/particles, page in pages/particle-drill.js).
+    files: [
+      'static/js/particles/**/*.js',
+      'static/js/pages/particle-drill.js',
+      'static/js/idioms/**/*.js',
+      'static/js/pages/idiom-trainer.js',
+    ],
+    languageOptions: { sourceType: 'module', globals: { escapeHtml: 'off' } },
+  },
+  {
     // Tooling and tests run under Node / vitest (jsdom), not the browser-script environment.
     files: ['playwright.config.js', 'tests/**/*.js'],
     languageOptions: {

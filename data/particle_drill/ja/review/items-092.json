@@ -1,0 +1,6 @@
+{"batch":"items-092","files":["items/yara-list.jsonl","items/dano-list.jsonl"],"checked":43,"fixed":4,"deleted":0,"replaced":0,"issues":[
+{"file":"items/yara-list.jsonl","jp_before":"嬉[うれ]しい{やら|yara-list}恥[は]ずかしい{やら|yara-list}で、どんな顔[かお]{を|o-object}していい{か|ka-embedded}分[わ]からなかった。","problem":"The cause particle で after the やら list was not marked as a slot.","action":"Marked it as {で|de-cause}."},
+{"file":"items/yara-list.jsonl","jp_before":"夏祭[なつまつ]り{の|no-possessive}屋台[やたい]{で|de-place}、かき氷[ごおり]{やら/とか|yara-list}焼[や]きそば{やら/とか|yara-list}{を|o-object}食[た]べすぎた。","problem":"Distractor に is a real listing particle (AにB), so かき氷に… is not plainly wrong.","action":"Replaced distractor に with で."},
+{"file":"items/yara-list.jsonl","jp_before":"運動会[うんどうかい]{の|no-possessive}日[ひ]、応援[おうえん]{やら/とか|yara-list}撮影[さつえい]{やら/とか|yara-list}{で|de-cause}父[ちち]{は|wa-topic}大忙[おおいそが]しだった。","problem":"In a non-focus slot, が is as natural as は after the cause phrase, but it was not listed.","action":"Changed the slot to {は/が|wa-topic}."},
+{"file":"items/yara-list.jsonl","jp_before":"日本[にほん]{に|ni-destination}来[き]た頃[ころ]{は|wa-topic}、言葉[ことば]{やら/とか|yara-list}習慣[しゅうかん]{やら/とか|yara-list}、分[わ]からないことだらけだった。","problem":"In a non-focus slot, へ is also natural with 来る, but it was not listed.","action":"Changed the slot to {に/へ|ni-destination}."}
+]}

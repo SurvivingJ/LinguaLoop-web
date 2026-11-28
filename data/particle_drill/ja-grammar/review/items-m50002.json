@@ -1,0 +1,12 @@
+{"batch":"items-m50002",
+ "files":["items/gv-yaru__m50.jsonl","items/tr-n2__m50.jsonl","items/kg-o-ninaru__m50.jsonl","items/kg-rareru__m50.jsonl","items/kg-o-kudasai__m50.jsonl"],
+ "checked":69,"fixed":7,"deleted":0,"replaced":0,
+ "issues":[
+  {"file":"items/gv-yaru__m50.jsonl","jp_before":"水[みず]を{やらない|gv-yaru}と、教室[きょうしつ]のひまわりが枯[か]れてしまいます。","problem":"No giver stated, so distractor もらわない reads as 'if the sunflowers don't get water' with the same meaning.","action":"Added 私たちが as the giver so もらわない is impossible."},
+  {"file":"items/gv-yaru__m50.jsonl","jp_before":"実験[じっけん]用[よう]の稲[いね]に、決[き]まった時間[じかん]に栄養液[えいようえき]を{やります|gv-yaru}。","problem":"why named いただく, which is not among the distractors.","action":"Rewrote why to refer to the actual distractors."},
+  {"file":"items/gv-yaru__m50.jsonl","jp_before":"出張[しゅっちょう]中[ちゅう]、うちの猫[ねこ]に毎日[まいにち]えさを{やって|gv-yaru}ほしいと、隣[となり]の人[ひと]にお願[ねが]いしました。","problem":"English put the asking during the trip; 出張中 scopes over the feeding.","action":"English changed to 'I asked my neighbour to feed my cat every day while I was away on business.'"},
+  {"file":"items/gv-yaru__m50.jsonl","jp_before":"後輩[こうはい]に、がんばったごほうびのジュースを{やった|gv-yaru}。","problem":"English assumed the junior's gender ('his').","action":"English changed to 'as a reward for working hard'."},
+  {"file":"items/tr-n2__m50.jsonl","jp_before":"空港[くうこう]のカウンターで、チェックインの手続[てつづ]きを{済[す]ませました|tr-n2}。","problem":"Distractor 済ませられました ('was able to complete') nearly fits the English; 済ませませんでした was wrong only through the English.","action":"Distractors replaced with 済みました, 済まされました, 済んでいました."},
+  {"file":"items/tr-n2__m50.jsonl","jp_before":"旅先[たびさき]で地元[じもと]の人[ひと]と話[はな]して、その町[まち]への理解[りかい]を{深[ふか]めました|tr-n2}。","problem":"why assumed the speaker's gender ('his').","action":"why changed to 'their own understanding'."},
+  {"file":"items/kg-o-kudasai__m50.jsonl","jp_before":"席[せき]が満席[まんせき]になることもありますので、あらかじめ{ご了承[りょうしょう]ください|kg-o-kudasai}。","problem":"席が満席 is a redundant, unnatural phrase.","action":"Removed 席が: 満席になることもありますので、…"}
+ ]}

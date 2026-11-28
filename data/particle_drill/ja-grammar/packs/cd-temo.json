@@ -1,0 +1,212 @@
+[
+ {
+  "id": "cd-temo-1",
+  "lv": 3,
+  "tpl": "たとえ<cond>{ても|cd-temo}、<who>は<event>。",
+  "en": "Even if <cond>, <who> will <event>.",
+  "f": 0,
+  "d": [
+   "たら",
+   "て",
+   "たのに"
+  ],
+  "why": "たとえ…ても means even if: the plan goes ahead whatever happens, so 〜たら (if) and 〜たのに (although it did) do not fit.",
+  "vars": {
+   "cond": [
+    [
+     "雨[あめ]が降[ふ]っ",
+     "it rains"
+    ],
+    [
+     "雪[ゆき]が降[ふ]っ",
+     "it snows"
+    ],
+    [
+     "風[かぜ]が強[つよ]くなっ",
+     "the wind gets strong"
+    ],
+    [
+     "気温[きおん]がかなり下[さ]がっ",
+     "the temperature drops a lot"
+    ],
+    [
+     "少[すこ]し寒[さむ]くなっ",
+     "it gets a little cold"
+    ],
+    [
+     "天気[てんき]が悪[わる]くなっ",
+     "the weather turns bad"
+    ],
+    [
+     "少[すこ]し雨[あめ]が降[ふ]り出[だ]し",
+     "it starts to drizzle"
+    ],
+    [
+     "空[そら]が曇[くも]っ",
+     "the sky clouds over"
+    ]
+   ],
+   "who": [
+    [
+     "私[わたし]",
+     "I"
+    ],
+    [
+     "祖父[そふ]",
+     "my grandfather"
+    ],
+    [
+     "父[ちち]",
+     "my father"
+    ],
+    [
+     "兄[あに]",
+     "my older brother"
+    ],
+    [
+     "田中[たなか]さん",
+     "Mr. Tanaka"
+    ],
+    [
+     "山田[やまだ]さん",
+     "Ms. Yamada"
+    ],
+    [
+     "姉[あね]",
+     "my older sister"
+    ]
+   ],
+   "event": [
+    [
+     "明日[あした]の試合[しあい]を見[み]に行[い]きます",
+     "go and watch tomorrow's match"
+    ],
+    [
+     "お祭[まつ]りに行[い]きます",
+     "go to the festival"
+    ],
+    [
+     "買[か]い物[もの]に行[い]きます",
+     "go shopping"
+    ],
+    [
+     "散歩[さんぽ]に出[で]かけます",
+     "go out for a walk"
+    ],
+    [
+     "釣[つ]りに行[い]きます",
+     "go fishing"
+    ],
+    [
+     "待[ま]ち合[あ]わせの場所[ばしょ]に行[い]きます",
+     "go to the meeting place"
+    ]
+   ]
+  }
+ },
+ {
+  "id": "cd-temo-2",
+  "lv": 3,
+  "tpl": "<who>は<day>{でも|cd-temo}<habit>。",
+  "en": "<who> <habit> even <day>.",
+  "f": 0,
+  "d": [
+   "なら",
+   "だったら",
+   "だと"
+  ],
+  "why": "After a noun, でも means even (if it is): the habit holds on days off too; なら or だったら would mean only on those days.",
+  "vars": {
+   "who": [
+    [
+     "父[ちち]",
+     "My father"
+    ],
+    [
+     "兄[あに]",
+     "My older brother"
+    ],
+    [
+     "田中[たなか]さん",
+     "Mr. Tanaka"
+    ],
+    [
+     "山田[やまだ]さん",
+     "Ms. Yamada"
+    ],
+    [
+     "姉[あね]",
+     "My older sister"
+    ],
+    [
+     "部長[ぶちょう]",
+     "Our department manager"
+    ],
+    [
+     "鈴木[すずき]さん",
+     "Mr. Suzuki"
+    ],
+    [
+     "母[はは]",
+     "My mother"
+    ]
+   ],
+   "day": [
+    [
+     "日曜日[にちようび]",
+     "on Sundays"
+    ],
+    [
+     "土曜日[どようび]",
+     "on Saturdays"
+    ],
+    [
+     "祝日[しゅくじつ]",
+     "on public holidays"
+    ],
+    [
+     "休[やす]みの日[ひ]",
+     "on days off"
+    ],
+    [
+     "お正月[しょうがつ]",
+     "at New Year"
+    ],
+    [
+     "連休中[れんきゅうちゅう]",
+     "during long holidays"
+    ],
+    [
+     "夏休[なつやす]み中[ちゅう]",
+     "during the summer holidays"
+    ]
+   ],
+   "habit": [
+    [
+     "朝[あさ]六時[ろくじ]に起[お]きます",
+     "gets up at six in the morning"
+    ],
+    [
+     "会社[かいしゃ]に行[い]きます",
+     "goes to the office"
+    ],
+    [
+     "仕事[しごと]のメールを確認[かくにん]します",
+     "checks work email"
+    ],
+    [
+     "朝[あさ]から勉強[べんきょう]します",
+     "studies from the morning"
+    ],
+    [
+     "スーツを着[き]て出[で]かけます",
+     "goes out in a suit"
+    ],
+    [
+     "七時[しちじ]に朝[あさ]ご飯[はん]を食[た]べます",
+     "eats breakfast at seven"
+    ]
+   ]
+  }
+ }
+]

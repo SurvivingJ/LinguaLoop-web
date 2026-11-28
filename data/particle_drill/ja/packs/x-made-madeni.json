@@ -1,0 +1,20 @@
+[
+ {"id":"x-made-madeni-1","lv":4,
+  "tpl":"<pre><time>{まで|made-until}ここ{で|de-place}<act>ください。",
+  "en":"<pre> please <act> here until <time>.",
+  "f":0,"d":["までに"],
+  "why":"Waiting, resting or studying goes on continuously and stops at that time, so it takes まで; までに would set a deadline for a one-off action.",
+  "vars":{
+   "pre":[["すみませんが、","Sorry, but"],["すみません、","Excuse me,"],["申[もう]し訳[わけ]ありませんが、","I'm sorry, but"],["じゃあ、","OK then,"],["それでは、","Well then,"],["では、","Right then,"]],
+   "time":[["三時[さんじ]","three"],["四時[よじ]","four"],["五時[ごじ]","five"],["六時[ろくじ]","six"],["五時半[ごじはん]","half past five"],["十二時[じゅうにじ]","twelve"],["昼[ひる]","noon"],["夕方[ゆうがた]","the evening"]],
+   "act":[["待[ま]っていて","wait"],["休[やす]んでいて","rest"],["座[すわ]っていて","stay seated"],["静[しず]かにしていて","keep quiet"],["勉強[べんきょう]していて","study"],["練習[れんしゅう]していて","practise"],["本[ほん]{を|o-object}読[よ]んでいて","read"]]}},
+ {"id":"x-made-madeni-2","lv":4,
+  "tpl":"<who>{は|wa-topic}<time>{までに|madeni-deadline}<act>なければなりません。",
+  "en":"<who> has to <act> by <time>.",
+  "f":1,"d":["まで"],
+  "why":"Handing in, paying or sending is a one-off action that must happen before the cut-off, so the deadline takes までに; まで would mean doing it continuously until then.",
+  "vars":{
+   "who":[["田中[たなか]さん","Mr. Tanaka"],["鈴木[すずき]さん","Ms. Suzuki"],["山本[やまもと]さん","Mr. Yamamoto"],["兄[あに]","My older brother"],["姉[あね]","My older sister"],["父[ちち]","My father"],["母[はは]","My mother"],["中村[なかむら]さん","Ms. Nakamura"]],
+   "time":[["金曜日[きんようび]","Friday"],["明日[あした]","tomorrow"],["月末[げつまつ]","the end of the month"],["週末[しゅうまつ]","the weekend"],["十時[じゅうじ]","ten o'clock"],["五時[ごじ]","five o'clock"],["月曜日[げつようび]","Monday"],["来週[らいしゅう]","next week"]],
+   "act":[["レポート{を|o-object}出[だ]さ","hand in the report"],["書類[しょるい]{を|o-object}送[おく]ら","send the documents"],["家賃[やちん]{を|o-object}払[はら]わ","pay the rent"],["図書館[としょかん]{に|ni-recipient}本[ほん]{を|o-object}返[かえ]さ","return the books to the library"],["宿題[しゅくだい]{を|o-object}終[お]わらせ","finish the homework"],["日程[にってい]{を|o-object}決[き]め","decide on the schedule"],["ホテル{の|no-possessive}予約[よやく]{を|o-object}し","book the hotel"]]}}
+]

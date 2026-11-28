@@ -1,0 +1,109 @@
+{
+  "topic": "look-alike-characters",
+  "summary": "Many characters differ by one stroke or one radical, and a slip turns one word into another: 已经 is not 自己, 周末 is not 未来. The idea that makes it click: the radical (the left or top part) carries the meaning, so ask what the word is about. Eyes take 目 (眼睛), the sun takes 日 (晴天), water takes 氵 (清楚), speech takes 讠 (请). Where no radical differs, learn the one stroke that differs as a picture: a crow 乌 has no eye.",
+  "subs": [
+    {"key": "stroke-length", "label": "Open or closed, long or short stroke", "focus": "己 / 已 / 巳, 未 / 末, 土 / 士, 干 / 千 / 于, 午 / 牛. Items test 自己 vs 已经, 周末 vs 未来, 护士, 干净 / 一千 / 终于, 下午 vs 牛奶. Typical error: 己经 for 已经, 周未 for 周末."},
+    {"key": "basic-shapes", "label": "Strokes added to 人, 大 and 日", "focus": "人 / 入 / 八, 大 / 太 / 犬 / 天 / 夫, 日 / 目 / 白 / 自. Items test 入口, 太热, 今天, 丈夫, 生日, 题目, 明白, 自己. Typical error: 人口 for 入口, 大热了 for 太热了, 目己 for 自己."},
+    {"key": "one-extra-stroke", "label": "One dot or piece more", "focus": "买 / 卖, 我 / 找, 牛 / 半, 刀 / 力, 鸟 / 乌, 贝 / 见, 今 / 令. Items test buy vs sell (the sentence must force which), 找东西, 七点半, 努力, 小鸟 vs 乌云, 再见, 今天 vs 令人. Typical error: 卖 for 买, 我 for 找."},
+    {"key": "qing-zhu", "label": "Families of 青 and 主", "focus": "请 / 清 / 情 / 晴 / 睛 / 精 and 住 / 往 / 注 / 主. Items test the radical chosen by meaning: 请问, 清楚, 心情, 晴天, 眼睛, 精彩; 住在, 往前走, 注意, 主要. Typical error: 眼晴 for 眼睛, 住前走 for 往前走."},
+    {"key": "radical-swap", "label": "Same right part, radical decides", "focus": "他 / 她 / 它 / 地 / 池, 那 / 哪, 很 / 根 / 跟 / 狠, 喝 / 渴, 快 / 块 / 筷, 蓝 / 篮. Items test the meaning radical: 她 for a woman, 哪 in questions, 跟 for 'with', 渴 for thirst, 一块钱, 筷子, 篮球. Typical error: 那国人 for 哪国人, 渴水 for 喝水."},
+    {"key": "inner-parts", "label": "What sits inside or below", "focus": "问 / 间 / 闻 / 们 / 闪, 休 / 体, 洒 / 酒, 泪 / 汨, 爱 / 受, 外 / 处, 乐 / 东 / 车. Items test 问题, 时间, 新闻, 我们, 休息, 身体, 喝酒, 眼泪, 难受, 外面, 好处, 快乐, 东西, 汽车. Typical error: 体息 for 休息, 喝洒 for 喝酒."},
+    {"key": "hsk4-radicals", "label": "HSK 4 pairs split by radical", "focus": "拔 / 拨, 辩 / 辨 / 辫, 练 / 炼, 历 / 厉, 候 / 侯. Items test 锻炼 vs 练习, 辩论 vs 分辨 vs 辫子, 历史 vs 厉害, 时候, 拔牙 vs 拨电话. Typical error: 锻练 for 锻炼, 历害 for 厉害, 时侯 for 时候."},
+    {"key": "hsk4-words", "label": "HSK 4 pairs fixed by the word", "focus": "既 / 即, 竟 / 竞, 须 / 需, 象 / 像 / 向. Items test 既然 vs 立即, 竟然 vs 竞争, 必须 vs 需要, 好像 / 像 vs 大象 / 印象 vs 方向 / 向. Typical error: 竞然 for 竟然, 必需 for 必须 before a verb, 好象 for 好像."}
+  ],
+  "rules": [
+    {"sub": "stroke-length", "rule": "己 jǐ (self) is open at the top left, 已 yǐ (already) is half closed, 巳 sì is fully closed. 末 mò (end) and 士 shì have the long line on top; 未 wèi (not yet) and 土 tǔ have it at the bottom.", "pattern": "自己 · 已经 · 周末 · 未来 · 护士 · 土豆", "examples": [
+      {"zh": "我自己做饭。", "py": "wǒ zì jǐ zuò fàn", "en": "I cook for myself."},
+      {"zh": "他已经走了。", "py": "tā yǐ jīng zǒu le", "en": "He has already left."},
+      {"zh": "这个周末你忙吗？", "py": "zhè ge zhōu mò nǐ máng ma", "en": "Are you busy this weekend?"},
+      {"zh": "她是一位护士。", "py": "tā shì yī wèi hù shi", "en": "She is a nurse."}
+    ], "note": "Rhyme: 己 open, 已 half, 巳 full. 巳 is almost never in HSK words; if you think you need it, you want 已. 末 is a tree 木 with its tip marked by the long top line: the end. 土 is the wide ground at the bottom."},
+    {"sub": "stroke-length", "rule": "干 gān has two flat lines and a straight stroke down; 千 qiān starts with a slanted stroke on top; 于 yú ends in a hook. 午 wǔ stops at the top line; 牛 niú pokes through it, like a horn.", "pattern": "干净 · 一千 · 终于 · 关于 · 下午 · 牛奶", "examples": [
+      {"zh": "房间很干净。", "py": "fáng jiān hěn gān jìng", "en": "The room is very clean."},
+      {"zh": "他终于来了。", "py": "tā zhōng yú lái le", "en": "He finally came."},
+      {"zh": "我们下午见。", "py": "wǒ men xià wǔ jiàn", "en": "See you in the afternoon."},
+      {"zh": "我每天喝牛奶。", "py": "wǒ měi tiān hē niú nǎi", "en": "I drink milk every day."}
+    ], "note": "At this level 千 means 'thousand' (一千, 两千). 于 is in 终于, 关于, 对于, 由于. 干 is in 干净 and 干什么 (gàn)."},
+    {"sub": "basic-shapes", "rule": "人 rén leans on its long left stroke, 入 rù (enter) on its long right one; 八 bā's strokes do not touch. 大 plus a top line is 天; plus a dot below is 太. 夫 has two lines and its slant pokes out above both.", "pattern": "入口 · 今天 · 太好了 · 丈夫 · 生日 · 题目 · 明白 · 自己", "examples": [
+      {"zh": "入口在哪儿？", "py": "rù kǒu zài nǎ r", "en": "Where is the entrance?"},
+      {"zh": "今天太热了。", "py": "jīn tiān tài rè le", "en": "It's too hot today."},
+      {"zh": "她丈夫是医生。", "py": "tā zhàng fu shì yī shēng", "en": "Her husband is a doctor."},
+      {"zh": "这个题目很难。", "py": "zhè ge tí mù hěn nán", "en": "This question is hard."}
+    ], "note": "日 rì (sun, day) has one line inside, 目 mù (eye) two and is taller. A dot on top turns 日 into 白 (明白, 白色) and 目 into 自 (自己). 犬 quǎn (dog) has its dot at the top right; it is rare at HSK 1 to 4."},
+    {"sub": "one-extra-stroke", "rule": "One extra piece flips the word. 卖 mài (sell) is 买 mǎi (buy) with 十 on top. 找 zhǎo has a plain hand 扌; 我 adds a slant on top of it. 力 lì pokes above its top line, 刀 dāo does not. 鸟 niǎo has an eye dot, 乌 wū none.", "pattern": "买东西 · 卖菜 · 找手机 · 努力 · 一把刀 · 小鸟 · 乌云", "examples": [
+      {"zh": "他在市场卖菜。", "py": "tā zài shì chǎng mài cài", "en": "He sells vegetables at the market."},
+      {"zh": "我在找我的手机。", "py": "wǒ zài zhǎo wǒ de shǒu jī", "en": "I'm looking for my phone."},
+      {"zh": "他学习很努力。", "py": "tā xué xí hěn nǔ lì", "en": "He studies very hard."},
+      {"zh": "天上有很多乌云。", "py": "tiān shàng yǒu hěn duō wū yún", "en": "There are a lot of dark clouds in the sky."}
+    ], "note": "多了就卖，少了就买: with more on top (十) you sell. The crow is black, so you cannot see its eye. 半 bàn (half) has two dots on top, 牛 one slanted stroke. 见 jiàn ends in a hooked foot, 贝 bèi in a dot. 今 jīn (今天) ends like a 7, 令 lìng (令人) in 卩."},
+    {"sub": "qing-zhu", "rule": "青 gives the sound qing or jing; the radical gives the meaning: 讠 speech 请 (please, invite), 氵 water 清 (clear), 忄 heart 情 (feeling), 日 sun 晴 (sunny), 目 eye 睛 (eye), 米 rice 精 (refined; 精彩 brilliant).", "pattern": "请 · 清楚 · 心情 · 晴天 · 眼睛 · 精彩", "examples": [
+      {"zh": "我请你喝茶。", "py": "wǒ qǐng nǐ hē chá", "en": "I'll treat you to tea."},
+      {"zh": "今天是晴天。", "py": "jīn tiān shì qíng tiān", "en": "It's a sunny day today."},
+      {"zh": "她的眼睛很大。", "py": "tā de yǎn jing hěn dà", "en": "She has big eyes."},
+      {"zh": "我听不清楚。", "py": "wǒ tīng bù qīng chu", "en": "I can't hear clearly."}
+    ], "note": "情 and 晴 are both qíng, 睛 and 精 both jīng, so the sound will not save you; only the meaning will. Weather is the sun: 晴. Eyes are the eye: 睛."},
+    {"sub": "qing-zhu", "rule": "主 is the base. With 亻 person: 住 zhù (live, stay). With 彳 step: 往 wǎng (toward). With 氵 water: 注 zhù (pour, as in 注意). Alone: 主 zhǔ (主要, 主意).", "pattern": "住在 · 往前走 · 注意 · 主要 · 主意", "examples": [
+      {"zh": "我住在北京。", "py": "wǒ zhù zài běi jīng", "en": "I live in Beijing."},
+      {"zh": "往左拐就到了。", "py": "wǎng zuǒ guǎi jiù dào le", "en": "Turn left and you're there."},
+      {"zh": "过马路要注意安全。", "py": "guò mǎ lù yào zhù yì ān quán", "en": "Be careful when you cross the road."},
+      {"zh": "这是我的主意。", "py": "zhè shì wǒ de zhǔ yi", "en": "This was my idea."}
+    ], "note": "住 and 往 differ only on the left: 亻 has one slanted stroke, 彳 two. A person lives somewhere (住); steps go somewhere (往). 住 and 注 sound the same, zhù: 注意 is attention poured like water."},
+    {"sub": "radical-swap", "rule": "The left part tells the meaning: 他 (he) person 亻, 她 (she) woman 女, 它 (it) for animals and things, 地 (ground; de before a verb) earth 土, 池 (pool) water 氵. 哪 nǎ (which) is 那 nà (that) plus an asking mouth 口.", "pattern": "他 · 她 · 它 · 高兴地 · 游泳池 · 那儿 / 哪儿", "examples": [
+      {"zh": "我家有一只狗，它很可爱。", "py": "wǒ jiā yǒu yī zhī gǒu tā hěn kě ài", "en": "We have a dog at home; it's very cute."},
+      {"zh": "他高兴地笑了。", "py": "tā gāo xìng de xiào le", "en": "He smiled happily."},
+      {"zh": "你住在哪儿？", "py": "nǐ zhù zài nǎ r", "en": "Where do you live?"},
+      {"zh": "我们去游泳池游泳吧。", "py": "wǒ men qù yóu yǒng chí yóu yǒng ba", "en": "Let's go swimming at the pool."}
+    ], "note": "他, 她 and 它 all sound tā; only the English cue (he, she, it) decides. In a question asking which or where, write 哪; when pointing (that, there), write 那."},
+    {"sub": "radical-swap", "rule": "Same right part, the radical decides: 跟 gēn (with, follow) has a foot, 根 gēn (root; measure for sticks) wood 木, 很 hěn (very) the step 彳, 狠 hěn (ruthless) the animal 犭. 喝 hē (drink) has a mouth, 渴 kě (thirsty) water.", "pattern": "跟 · 一根 · 很好 · 喝水 · 口渴 · 一块钱 · 筷子 · 篮球", "examples": [
+      {"zh": "我跟妈妈去超市。", "py": "wǒ gēn mā ma qù chāo shì", "en": "I'm going to the supermarket with Mum."},
+      {"zh": "他口渴了，喝了一大杯水。", "py": "tā kǒu kě le hē le yī dà bēi shuǐ", "en": "He was thirsty and drank a big glass of water."},
+      {"zh": "我用筷子吃饭。", "py": "wǒ yòng kuài zi chī fàn", "en": "I eat with chopsticks."},
+      {"zh": "我喜欢打篮球。", "py": "wǒ xǐ huan dǎ lán qiú", "en": "I like playing basketball."}
+    ], "note": "快 kuài (fast, happy) has the heart 忄, 块 kuài (piece; yuan) earth 土, 筷 kuài (chopstick) bamboo on top. 蓝 lán (blue) has grass 艹, from a dye plant; 篮 lán (basket) has bamboo: a basket is woven from bamboo."},
+    {"sub": "inner-parts", "rule": "What sits inside 门 decides: mouth 口 问 wèn (ask), sun 日 间 jiān (time, room), ear 耳 闻 wén (news, smell), person 人 闪 shǎn (flash). 们 men has 亻 beside 门. 休 xiū (rest) is 亻+木, 体 tǐ (body) 亻+本.", "pattern": "问题 · 时间 · 房间 · 新闻 · 我们 · 休息 · 身体", "examples": [
+      {"zh": "我可以问你一个问题吗？", "py": "wǒ kě yǐ wèn nǐ yī ge wèn tí ma", "en": "Can I ask you a question?"},
+      {"zh": "你有时间吗？", "py": "nǐ yǒu shí jiān ma", "en": "Do you have time?"},
+      {"zh": "我每天看新闻。", "py": "wǒ měi tiān kàn xīn wén", "en": "I watch the news every day."},
+      {"zh": "他身体很好。", "py": "tā shēn tǐ hěn hǎo", "en": "He's in very good health."}
+    ], "note": "A mouth at the door asks (问); sunlight through the door gap is a space or a stretch of time (间); an ear at the door hears (闻). A person leaning on a tree 木 rests (休); 体 has the extra line of 本."},
+    {"sub": "inner-parts", "rule": "Small inner differences: 酒 jiǔ (alcohol) has 酉, a jar with an extra line inside; 洒 sǎ (sprinkle) only 西. 泪 lèi (tears) is water from the eye 目; 汨 has 日. 爱 ài (love) has 友 at the bottom, 受 shòu (bear, receive) only 又.", "pattern": "喝酒 · 眼泪 · 爱 · 难受 · 外面 · 好处 · 快乐 · 东西 · 汽车", "examples": [
+      {"zh": "爸爸不喝酒。", "py": "bà ba bù hē jiǔ", "en": "Dad doesn't drink alcohol."},
+      {"zh": "她流下了眼泪。", "py": "tā liú xià le yǎn lèi", "en": "Tears ran down her face."},
+      {"zh": "我爱我的家。", "py": "wǒ ài wǒ de jiā", "en": "I love my family."},
+      {"zh": "学汉语有很多好处。", "py": "xué hàn yǔ yǒu hěn duō hǎo chù", "en": "Learning Chinese has many benefits."}
+    ], "note": "外 wài starts with 夕; 处 chù starts with 夂, whose long sweep runs under 卜. 乐 lè starts with a slanted stroke, 东 dōng with a flat line; both have two small feet. 车 chē has no feet and a line at the bottom. 汨 mì is only in the river name 汨罗."},
+    {"sub": "hsk4-radicals", "rule": "Same sound, the radical gives the meaning. 炼 liàn has fire 火 (锻炼, work out), 练 liàn silk 纟 (练习, practise). 辩 biàn has speech 讠 (辩论, debate), 辨 a dot and slash like a knife (分辨, tell apart), 辫 silk 纟 (辫子, braid).", "pattern": "锻炼 · 练习 · 辩论 · 分辨 · 厉害 · 历史 · 时候", "examples": [
+      {"zh": "我每天早上锻炼身体。", "py": "wǒ měi tiān zǎo shang duàn liàn shēn tǐ", "en": "I work out every morning."},
+      {"zh": "他的汉语很厉害。", "py": "tā de hàn yǔ hěn lì hai", "en": "His Chinese is really impressive."},
+      {"zh": "他们在辩论这个问题。", "py": "tā men zài biàn lùn zhè ge wèn tí", "en": "They are debating this question."},
+      {"zh": "你什么时候回来？", "py": "nǐ shén me shí hou huí lái", "en": "When are you coming back?"}
+    ], "note": "历 lì (历史, 经历) has 力 under 厂; 厉 lì (厉害) has 万. 拔 bá (pull out: 拔牙) differs from 拨 bō (dial, push aside), whose right side is 发. 候 hòu (时候, 问候) has a short vertical after 亻 that 侯 hóu, a surname, lacks."},
+    {"sub": "hsk4-words", "rule": "必须 xū (must) has hair 彡 and head 页; 需要 xū (need) has rain 雨 on top. 竟然 jìng has 音 over 儿; 竞争 jìng has 立 over 兄. 像 xiàng (resemble, seem) has a person 亻; 象 is the elephant; 向 means toward.", "pattern": "必须 · 需要 · 竟然 · 竞争 · 好像 · 大象 · 方向", "examples": [
+      {"zh": "我们必须马上出发。", "py": "wǒ men bì xū mǎ shàng chū fā", "en": "We must set off right away."},
+      {"zh": "你需要帮忙吗？", "py": "nǐ xū yào bāng máng ma", "en": "Do you need help?"},
+      {"zh": "他竟然忘了我的生日。", "py": "tā jìng rán wàng le wǒ de shēng rì", "en": "He actually forgot my birthday."},
+      {"zh": "她长得很像她妈妈。", "py": "tā zhǎng de hěn xiàng tā mā ma", "en": "She looks a lot like her mother."}
+    ], "note": "象 also writes the 'image' words 印象, 现象, 形象. 必需 (necessary: 必需品) exists, but 'must' before a verb is 必须. 既 jì (既然) ends in 旡: the eater has turned away, done. 即 jí (立即, 即使) ends in 卩: kneeling to eat now."}
+  ],
+  "contrasts": [
+    {"wrong": "我己经吃饭了。", "right": {"zh": "我已经吃饭了。", "py": "wǒ yǐ jīng chī fàn le", "en": "I've already eaten."}, "why": "已经 (already) needs 已, whose left stroke rises halfway. 己 (fully open) is 'self', as in 自己."},
+    {"wrong": "这个周未你有空吗？", "right": {"zh": "这个周末你有空吗？", "py": "zhè ge zhōu mò nǐ yǒu kòng ma", "en": "Are you free this weekend?"}, "why": "周末 is the end of the week: 末 has the long line on top, the tip of the tree. 未 (short top line) means 'not yet', as in 未来."},
+    {"wrong": "你是那国人？", "right": {"zh": "你是哪国人？", "py": "nǐ shì nǎ guó rén", "en": "Which country are you from?"}, "why": "A question about which needs 哪 nǎ, with the asking mouth 口. 那 nà only points: that."},
+    {"wrong": "她的眼晴很漂亮。", "right": {"zh": "她的眼睛很漂亮。", "py": "tā de yǎn jing hěn piào liang", "en": "Her eyes are beautiful."}, "why": "眼睛 is about eyes, so it takes the eye radical 目: 睛. 晴 with the sun 日 is sunny weather, as in 晴天."},
+    {"wrong": "我渴了，想渴水。", "right": {"zh": "我渴了，想喝水。", "py": "wǒ kě le xiǎng hē shuǐ", "en": "I'm thirsty; I want to drink some water."}, "why": "Drinking is done with the mouth: 喝 has 口. 渴 with water 氵 is the feeling of thirst."},
+    {"wrong": "你累了就体息一下吧。", "right": {"zh": "你累了就休息一下吧。", "py": "nǐ lèi le jiù xiū xi yī xià ba", "en": "If you're tired, take a rest."}, "why": "休息 is a person 亻 leaning on a tree 木: 休. 体 (亻 + 本, with an extra line) is the body, as in 身体."},
+    {"wrong": "一直住前走就到了。", "right": {"zh": "一直往前走就到了。", "py": "yī zhí wǎng qián zǒu jiù dào le", "en": "Go straight ahead and you'll get there."}, "why": "Toward is 往, with the step radical 彳 (two slanted strokes). 住 with a single 亻 means to live somewhere."},
+    {"wrong": "他每天下午去公园锻练。", "right": {"zh": "他每天下午去公园锻炼。", "py": "tā měi tiān xià wǔ qù gōng yuán duàn liàn", "en": "He works out in the park every afternoon."}, "why": "锻炼 comes from forging metal, so it takes fire 火: 炼. 练 with silk 纟 is for 练习, practising."},
+    {"wrong": "我想卖一本书送给妈妈。", "right": {"zh": "我想买一本书送给妈妈。", "py": "wǒ xiǎng mǎi yī běn shū sòng gěi mā ma", "en": "I want to buy a book to give to my mum."}, "why": "You get a book in order to give it, so it is 买, buy. 卖 has the extra 十 on top: with more, you sell."},
+    {"wrong": "他竞然没来。", "right": {"zh": "他竟然没来。", "py": "tā jìng rán méi lái", "en": "He actually didn't come."}, "why": "竟然 (unexpectedly) is 竟, with 音 (日 in the middle) over 儿. 竞 with 口 in the middle (兄) is for 竞争, compete."}
+  ],
+  "cheat": [
+    "已经: half shut 已. 自己: wide open 己. Fully closed 巳 is almost never what you want.",
+    "Long line on top: 末 (周末), 士 (护士). Long line at the bottom: 未 (未来), 土.",
+    "青 family by meaning: speech 请, water 清, heart 情, sun 晴, eye 睛, rice 精.",
+    "Asking? Add a mouth: 哪, 问. Pointing? 那.",
+    "Mouth drinks 喝, water is thirst 渴. Fire works out 锻炼, silk practises 练习.",
+    "Rest is a person by a tree: 休. Toward is two steps: 往. Live is one person: 住.",
+    "More on top sells: 卖. The black crow 乌 has no eye."
+  ]
+}

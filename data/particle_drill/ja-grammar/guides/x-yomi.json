@@ -1,0 +1,24 @@
+{"group":"x-yomi",
+ "intro":"In the mixed drill any kanji word can turn up, so instead of recalling a list you run a short check, in a fixed order, on the word in front of you. The order matters: whole-word readings beat every rule, okurigana beats the compound rule, and the meaning of the sentence settles the cases where the spelling is the same. Each question below takes under a second once you have practised it.",
+ "skills":[
+  {"id":"x-yomi",
+   "rule":"Ask in order: is it a whole-word reading; does it have okurigana; does it stand alone; is it a compound (on, unless it is an everyday native word); what happens at the seam?",
+   "explain":"1. Whole word? 今日 きょう, 大人 おとな, 一人 ひとり, 風邪 かぜ, 行方 ゆくえ: say the word you know and stop.\n\n2. Okurigana? Then a kun reading, and the ending picks which: 着る きる / 着く つく, 降りる おりる / 降る ふる, 苦い にがい / 苦しい くるしい. If two verbs share the ending (通って, 空いて), the sentence decides: 学校に通って is かよって, お腹が空いて is すいて.\n\n3. Alone as a noun? Usually kun: 山 やま, 空 そら, 角 かど, 日 ひ. Some are on words even alone: 本, 駅, 肉, 気.\n\n4. A compound? On by default: 交通 こうつう, 動物 どうぶつ, 毎日 まいにち. But everyday native words keep kun: 夕方 ゆうがた, 台所 だいどころ, 場合 ばあい, 日付 ひづけ.\n\n5. The seam: native words often voice (手紙 てがみ); an on reading ending in つ or ち doubles before k, s, t, h (発表 はっぴょう, 一緒 いっしょ); one ending in く or き doubles only before k (学校 がっこう, but 学生 がくせい). Dates are their own system: 三日 みっか, 一日 ついたち.",
+   "patterns":["whole word: 今日 きょう / 大人 おとな / 行方 ゆくえ","okurigana → kun, ending decides: 着る きる / 着く つく","alone → kun: 日 ひ / compound → on: 毎日 まいにち","native compound → kun: 夕方 ゆうがた / 台所 だいどころ","dates: 三日 みっか / 一日 ついたち"],
+   "examples":[
+    {"jp":"雨[あめ]の{日[ひ]}は家[いえ]で本[ほん]を読[よ]みます。","en":"On rainy days I read at home."},
+    {"jp":"{毎日[まいにち]}日本語[にほんご]を勉強[べんきょう]しています。","en":"I study Japanese every day."},
+    {"jp":"三月[さんがつ]{三日[みっか]}に引[ひ]っ越[こ]します。","en":"I'm moving on the third of March."},
+    {"jp":"お腹[なか]が{空[す]いた}ので、何[なに]か食[た]べましょう。","en":"I'm hungry, so let's eat something."},
+    {"jp":"{夕方[ゆうがた]}になると、町[まち]が静[しず]かになります。","en":"When evening comes, the town gets quiet."},
+    {"jp":"彼[かれ]はとても{正直[しょうじき]}な人[ひと]です。","en":"He is a very honest person."}],
+   "contrast":[
+    {"vs":"ひ / にち / か (日)","note":"ひ alone ('day'), にち in compounds (毎日, 日曜日), か in the dates 二日 to 十日, 十四日, 二十日 はつか and 二十四日."},
+    {"vs":"kun / on","note":"Okurigana or a kanji standing alone points to kun; two kanji together point to on, unless the word is an everyday native one such as 台所."},
+    {"vs":"whole-word readings","note":"Words such as 今日, 大人, 風邪 and 行方 ignore every rule: never assemble them from the parts."}],
+   "mistakes":[
+    {"bad":"四月[しがつ]{一日[いちにち]}は日曜日[にちようび]です。","good":"四月[しがつ]{一日[ついたち]}は日曜日[にちようび]です。","note":"The first of the month is ついたち; いちにち means 'one day' as a length of time."},
+    {"bad":"駅[えき]に{着[き]いた}ら電話[でんわ]します。","good":"駅[えき]に{着[つ]いた}ら電話[でんわ]します。","note":"The okurigana is that of 着く 'arrive', read つく; き belongs to 着る 'wear'."},
+    {"bad":"{台所[だいしょ]}で皿[さら]を洗[あら]いました。","good":"{台所[だいどころ]}で皿[さら]を洗[あら]いました。","note":"An everyday native word keeps the kun reading ところ, voiced to どころ."}],
+   "tip":"Whole word, then ending, then alone or compound, then the seam: stop at the first question that gives an answer."}
+ ]}

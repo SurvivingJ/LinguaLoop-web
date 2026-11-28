@@ -1,0 +1,42 @@
+{"group":"x-give",
+ "intro":"Japanese has three verbs for one English 'give', and the choice depends on two things: who is the grammatical subject, and which way the thing travels relative to you. Do not translate; ask the questions below in order and the verb falls out. The same procedure chooses between ～てあげる, ～てくれる and ～てもらう for favours. Respect only changes the level afterwards (さしあげる, くださる, いただく), never the direction.",
+ "skills":[
+  {"id":"x-give",
+   "rule":"Receiver as subject: もらう. Giver as subject and the thing comes to me or my side: くれる. Anything else: あげる.",
+   "explain":"Ask in order.\n\n1. Who is the subject (は/が)? If it is the receiver, the verb is もらう, and the giver is marked に or から: 私は友達に本をもらった.\n\n2. The subject is the giver. Does the thing come toward me, or toward someone on my side (my family, my team when talking to outsiders)? Then くれる: 友達が(私に)本をくれた.\n\n3. Otherwise, when I give or one outsider gives to another, it is あげる: 私は友達に本をあげた, 田中さんは鈴木さんに本をあげた.\n\nTwo hard limits: 私 is never the receiver of あげる, and never the giver of くれる. Note that に is ambiguous: with あげる/くれる it marks the receiver, with もらう the giver. 私は友達に本を___ is completed by both あげた and もらった with opposite meanings, so read the English or the context, not the particle.",
+   "patterns":["[giver] は/が [receiver] に [thing] を あげる (thing moves away from me)","[giver] が (私 / my side に) [thing] を くれる","[receiver] は/が [giver] に/から [thing] を もらう"],
+   "examples":[
+    {"jp":"私[わたし]は友達[ともだち]に本[ほん]を{あげました}。","en":"I gave my friend a book."},
+    {"jp":"友達[ともだち]が私[わたし]に本[ほん]を{くれました}。","en":"My friend gave me a book."},
+    {"jp":"私[わたし]は友達[ともだち]に本[ほん]を{もらいました}。","en":"I got a book from my friend."},
+    {"jp":"田中[たなか]さんが妹[いもうと]にお土産[みやげ]を{くれました}。","en":"Tanaka-san gave my little sister a souvenir."},
+    {"jp":"山田[やまだ]さんは鈴木[すずき]さんにチョコレートを{あげました}。","en":"Yamada-san gave Suzuki-san some chocolate."},
+    {"jp":"誕生日[たんじょうび]に父[ちち]から時計[とけい]を{もらいました}。","en":"I got a watch from my father for my birthday."}],
+   "contrast":[
+    {"vs":"あげる ↔ くれる","note":"Both have the giver as subject. Only the direction differs: toward me or my side is くれる, everything else is あげる."},
+    {"vs":"くれる ↔ もらう","note":"Same event from two angles: 友達がくれた (friend is subject) = 友達にもらった (I am subject). Choose by the subject."}],
+   "mistakes":[
+    {"bad":"友達[ともだち]が私[わたし]にペンを{あげました}。","good":"友達[ともだち]が私[わたし]にペンを{くれました}。","note":"あげる cannot move toward me. When I am the receiver and the giver is the subject, use くれる."},
+    {"bad":"私[わたし]は姉[あね]からかばんを{くれました}。","good":"私[わたし]は姉[あね]からかばんを{もらいました}。","note":"から marks the giver, so 私 is the receiver and the subject: もらう. くれる needs the giver as subject."},
+    {"bad":"私[わたし]は友達[ともだち]に誕生日[たんじょうび]のプレゼントを{くれました}。","good":"私[わたし]は友達[ともだち]に誕生日[たんじょうび]のプレゼントを{あげました}。","note":"私 is never the giver of くれる. When I give, the verb is あげる."}],
+   "tip":"Point it out: an arrow toward me is くれる, my open hand is もらう, every other arrow is あげる."},
+  {"id":"x-give-te",
+   "rule":"Choose the helper verb by the direction of the favour, exactly as with the bare verbs: toward me ～てくれる, I receive it ～てもらう, outward ～てあげる.",
+   "explain":"Ask the same three questions. Who is the subject? If it is the person who benefits, ～てもらう, with the helper marked に. If the helper is the subject and the favour comes to me or my side, ～てくれる. Otherwise ～てあげる.\n\nThe verb before て keeps its own particles: 友達を駅まで送ってあげた (送る takes を), not 友達に. Only verbs that already take に (教える, 貸す, 見せる) have the beneficiary with に.\n\nBeyond direction: ～てくれる presents a kindness someone did for you, often unasked. ～てもらう suggests you asked for it or arranged it. When someone helps you, leaving the helper verb off sounds cold: say 手伝ってくれた, not 手伝った. ～てあげる said to the person's face can sound like 'I'll do you a favour'; to superiors use お～します instead. Requests use the listener-side forms: ～てくれない？, ～てもらえませんか. ～てあげる never asks for something for yourself.",
+   "patterns":["[helper] が [verb]て くれる (favour comes to me / my side)","[beneficiary] は [helper] に [verb]て もらう","[helper] が [verb]て あげる (favour goes outward)","[verb]て くれない？ / [verb]て もらえませんか (requests)"],
+   "examples":[
+    {"jp":"友達[ともだち]が駅[えき]まで送[おく]って{くれました}。","en":"My friend took me to the station."},
+    {"jp":"友達[ともだち]に駅[えき]まで送[おく]って{もらいました}。","en":"I had my friend take me to the station."},
+    {"jp":"私[わたし]は妹[いもうと]に英語[えいご]を教[おし]えて{あげました}。","en":"I taught my little sister some English."},
+    {"jp":"母[はは]が弁当[べんとう]を作[つく]って{くれた}。","en":"My mother made me a packed lunch."},
+    {"jp":"兄[あに]に自転車[じてんしゃ]を直[なお]して{もらった}。","en":"I had my older brother fix my bicycle."},
+    {"jp":"ちょっと窓[まど]を開[あ]けて{くれない}？","en":"Could you open the window a bit?"}],
+   "contrast":[
+    {"vs":"てくれる ↔ てもらう","note":"Same favour, different subject: the helper with が takes てくれる; I as subject with the helper に takes てもらう. てもらう also hints that I asked."},
+    {"vs":"てあげる ↔ てくれる","note":"The helper is the subject in both. Favour to me or my side: てくれる. Favour from me or between outsiders: てあげる."}],
+   "mistakes":[
+    {"bad":"私[わたし]は友達[ともだち]に宿題[しゅくだい]を手伝[てつだ]って{くれました}。","good":"私[わたし]は友達[ともだち]に宿題[しゅくだい]を手伝[てつだ]って{もらいました}。","note":"With 私 as subject and the helper marked に, the verb must be てもらう."},
+    {"bad":"隣[となり]の人[ひと]が私[わたし]に傘[かさ]を{貸[か]しました}。","good":"隣[となり]の人[ひと]が私[わたし]に傘[かさ]を{貸[か]してくれました}。","note":"A kindness done to you needs てくれる; the bare verb with 私に sounds cold and unnatural."},
+    {"bad":"先生[せんせい]、かばんを持[も]って{あげましょうか}。","good":"先生[せんせい]、かばんを{お持[も]ちしましょうか}。","note":"てあげる to a superior's face sounds condescending; offer with humble お～しましょうか."}],
+   "tip":"Ignore the action verb and ask only: who is the subject, and which way does the favour flow?"}
+ ]}

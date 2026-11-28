@@ -1,0 +1,20 @@
+[
+ {"id":"pt-youda-1","lv":4,
+  "tpl":"<sign>。<who>は{出[で]かけているようです/出[で]かけているみたいです|pt-youda}。<next>。",
+  "en":"<sign>. <who> seems to be out. <next>.",
+  "f":0,"d":["出[で]かけそうです","出[で]かけているそうです","出[で]かけるつもりです"],
+  "why":"A guess drawn from what you can see right now takes ようです or, more casually, みたいです.",
+  "vars":{
+   "sign":[["家[いえ]の電気[でんき]が全部[ぜんぶ]消[き]えています","All the lights in the house are off"],["駐車場[ちゅうしゃじょう]に車[くるま]がありません","The car isn't in the car park"],["チャイムを鳴[な]らしても誰[だれ]も出[で]てきません","Nobody comes to the door when I ring the bell"],["玄関[げんかん]の鍵[かぎ]がかかっています","The front door is locked"],["窓[まど]もカーテンも閉[し]まっています","The windows and curtains are all closed"],["いつもの自転車[じてんしゃ]がありません","The usual bicycle isn't there"]],
+   "who":[["田中[たなか]さん","Mr. Tanaka"],["隣[となり]の人[ひと]","The neighbour"],["大家[おおや]さん","The landlord"],["山田[やまだ]さんの家族[かぞく]","The Yamada family"],["おじいちゃん","Grandpa"],["鈴木[すずき]さん","Ms. Suzuki"],["佐藤[さとう]さん","Mr. Sato"]],
+   "next":[["また後[あと]で来[き]ましょう","Let's come back later"],["明日[あした]また来[き]ます","I'll come again tomorrow"],["メモを残[のこ]しておきます","I'll leave a note"],["少[すこ]し待[ま]ってみましょう","Let's wait a little"],["後[あと]で電話[でんわ]してみます","I'll try phoning later"],["今日[きょう]は帰[かえ]りましょう","Let's go home for today"]]}},
+ {"id":"pt-youda-2","lv":4,
+  "tpl":"<view>は<adj>、まるで<sim>{のようでした/みたいでした|pt-youda}。",
+  "en":"<view> was <adj>, just like <sim>.",
+  "f":0,"d":["らしかったです","だったそうです","のはずでした"],
+  "why":"After まるで, a noun + のようだ / みたいだ makes a comparison: 'just like'. らしい, そうだ and はずだ do not compare.",
+  "vars":{
+   "view":[["山[やま]の上[うえ]から見[み]た景色[けしき]","The view from the mountaintop"],["窓[まど]から見[み]えた海[うみ]","The sea I saw from the window"],["秋[あき]の京都[きょうと]","Kyoto in autumn"],["雪[ゆき]の朝[あさ]の村[むら]","The village on a snowy morning"],["満開[まんかい]の桜並木[さくらなみき]","The avenue of cherry trees in full bloom"],["朝[あさ]の富士山[ふじさん]","Mt. Fuji in the morning"],["タワーから見[み]た夜景[やけい]","The night view from the tower"],["この島[しま]の砂浜[すなはま]","The beach on this island"]],
+   "adj":[["とてもきれいで","so beautiful"],["本当[ほんとう]に美[うつく]しくて","truly beautiful"],["想像[そうぞう]以上[いじょう]に美[うつく]しくて","more beautiful than I had imagined"],["言葉[ことば]にできないほどきれいで","beautiful beyond words"],["息[いき]をのむほど美[うつく]しくて","breathtakingly beautiful"],["一生[いっしょう]忘[わす]れられないほど美[うつく]しくて","so beautiful that I will never forget it"]],
+   "sim":[["絵[え]","a painting"],["夢[ゆめ]","a dream"],["絵[え]はがき","a postcard"],["映画[えいが]の一場面[いちばめん]","a scene from a film"],["別[べつ]の世界[せかい]","another world"],["写真[しゃしん]","a photograph"]]}}
+]

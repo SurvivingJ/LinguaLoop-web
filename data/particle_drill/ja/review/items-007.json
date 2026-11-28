@@ -1,0 +1,7 @@
+{"batch":"items-007","files":["items/ga-existence.jsonl"],"checked":68,"fixed":5,"deleted":0,"replaced":0,"issues":[
+{"file":"items/ga-existence.jsonl","jp_before":"机[つくえ]{の|no-possessive}上[うえ]{に|ni-location}何[なに]{が|ga-existence}ありますか。","problem":"Sentence-final question particle か not marked as a slot.","action":"Marked as {か|ka-question}."},
+{"file":"items/ga-existence.jsonl","jp_before":"この会社[かいしゃ]{に|ni-location}外国人[がいこくじん]{が|ga-existence}何人[なんにん]いますか。","problem":"Sentence-final question particle か not marked as a slot.","action":"Marked as {か|ka-question}."},
+{"file":"items/ga-existence.jsonl","jp_before":"教室[きょうしつ]{に|ni-location}先生[せんせい]{が|ga-existence}いませんでした。","problem":"English 'The teacher was not in the classroom' treats a known teacher as the topic, which calls for 先生は; with に…が the sentence says no teacher was there.","action":"English changed to 'There was no teacher in the classroom.'"},
+{"file":"items/ga-existence.jsonl","jp_before":"机[つくえ]{の|no-possessive}下[した]{に|ni-location}かばん{が|ga-existence}あります。","problem":"Near-duplicate of the desk sentences (机の上に本があります and others); the file had four desk-location frames.","action":"Rewrote as ドア{の}横[よこ]{に}自転車[じてんしゃ]{が}あります。 / 'There is a bicycle beside the door.'"},
+{"file":"items/ga-existence.jsonl","jp_before":"公園[こうえん]{に|ni-location}犬[いぬ]{が|ga-existence}います。","problem":"lv 4 is too high: 公園, 犬 and います are all N5.","action":"lv set to 5."}
+]}

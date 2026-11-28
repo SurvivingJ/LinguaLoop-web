@@ -1,0 +1,20 @@
+[
+ {"id":"gv-kudasaru-1","lv":3,
+  "tpl":"<superior>が<receiver>に<thing>を{くださいました|gv-kudasaru}。",
+  "en":"<superior> gave <receiver> <thing>.",
+  "f":0,"d":["さしあげました","いただきました","あげました"],
+  "why":"A respected person is the giver and the receiver is me or my family, so the gift comes down to our side: くださる.",
+  "vars":{
+   "superior":[["先生[せんせい]","Our teacher"],["社長[しゃちょう]","The company president"],["部長[ぶちょう]","The department manager"],["課長[かちょう]","The section chief"],["校長先生[こうちょうせんせい]","The principal"],["お客様[きゃくさま]","A customer"],["先生[せんせい]の奥様[おくさま]","My teacher's wife"]],
+   "receiver":[["私[わたし]","me"],["娘[むすめ]","my daughter"],["息子[むすこ]","my son"],["弟[おとうと]","my younger brother"],["妹[いもうと]","my younger sister"],["母[はは]","my mother"]],
+   "thing":[["お花[はな]","some flowers"],["お菓子[かし]","some sweets"],["お土産[みやげ]","a souvenir"],["本[ほん]","a book"],["手紙[てがみ]","a letter"],["カレンダー","a calendar"],["果物[くだもの]","some fruit"]]}},
+ {"id":"gv-kudasaru-2","lv":3,
+  "tpl":"これは<when><superior>が私[わたし]に{くださった|gv-kudasaru}<thing>です。",
+  "en":"This is the <thing> <superior> gave me <when>.",
+  "f":0,"d":["さしあげた","いただいた","あげた"],
+  "why":"The respected person is the subject and 私に is the receiver, so the gift comes to me: くださった. さしあげる and あげる would send it away from me.",
+  "vars":{
+   "when":[["誕生日[たんじょうび]に","for my birthday"],["結婚[けっこん]のお祝[いわ]いに","as a wedding present"],["お正月[しょうがつ]に","at New Year"],["お礼[れい]に","as a thank-you"],["先月[せんげつ]","last month"],["去年[きょねん]","last year"]],
+   "superior":[["先生[せんせい]","my teacher"],["校長先生[こうちょうせんせい]","the principal"],["社長[しゃちょう]","the company president"],["部長[ぶちょう]","my manager"],["課長[かちょう]","the section chief"],["先生[せんせい]の奥様[おくさま]","my teacher's wife"]],
+   "thing":[["本[ほん]","book"],["万年筆[まんねんひつ]","fountain pen"],["ハンカチ","handkerchief"],["時計[とけい]","watch"],["花瓶[かびん]","vase"],["写真立[しゃしんた]て","photo frame"],["ネクタイ","tie"],["カップ","cup"]]}}
+]

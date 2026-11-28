@@ -1,0 +1,19 @@
+{
+ "batch": "items-053",
+ "files": ["items/yori-comparison.jsonl", "items/yori-formal-from.jsonl"],
+ "checked": 81,
+ "fixed": 9,
+ "deleted": 0,
+ "replaced": 0,
+ "issues": [
+  {"file": "items/yori-comparison.jsonl", "jp_before": "学生[がくせい]{の|no-possessive}とき{は/が|wa-topic}今[いま]{より|yori-comparison}ずっと時間[じかん]{が/は|ga-existence}ありました。", "problem": "が on the time-frame topic 学生のとき is unnatural, but it was listed as an alternative", "action": "Removed が; the slot is now {は|wa-topic}"},
+  {"file": "items/yori-comparison.jsonl", "jp_before": "林[はやし]さん{は/が|wa-topic}私[わたし]{より|yori-comparison}ずっと多[おお]く本[ほん]{を|o-object}読[よ]みます。", "problem": "ずっと多く本を読みます is stiff and awkward", "action": "Changed to ずっとたくさん本を読みます"},
+  {"file": "items/yori-comparison.jsonl", "jp_before": "夏休[なつやす]み{は/が|wa-topic}思[おも]った{より|yori-comparison}短[みじか]かったです。", "problem": "Third 思ったより〜かった item in the file (near-duplicate of lines 11 and 14)", "action": "Rewritten as 予想より短かったです / 'shorter than expected', lv 3"},
+  {"file": "items/yori-comparison.jsonl", "jp_before": "私[わたし]{は/が|wa-topic}姉[あね]{より|yori-comparison}背[せ]{が/は|ga-subject}低[ひく]いです。", "problem": "Near-duplicate of line 15 (妹は私より背が高い)", "action": "Replaced with 私は姉より遅く寝ます / 'I go to bed later than my older sister.'"},
+  {"file": "items/yori-comparison.jsonl", "jp_before": "雨[あめ]{の|no-possessive}日[ひ]{は/が|wa-topic}晴[は]れ{の|no-possessive}日[ひ]{より|yori-comparison}電車[でんしゃ]{が/は|ga-subject}込[こ]みます。", "problem": "雨の日が is unnatural here and was listed as an alternative; 込みます is a nonstandard spelling of 混みます", "action": "Removed が from the topic slot; changed the spelling to 混[こ]みます"},
+  {"file": "items/yori-comparison.jsonl", "jp_before": "海[うみ]{より|yori-comparison}山[やま]{の|no-possessive}ほう{が/は|ga-subject}涼[すず]しい{ので|node-because}、山[やま]{へ/に|e-direction}行[い]きましょう。", "problem": "から is just as natural (or more so) before a suggestion like 〜ましょう, but it was not listed as an alternative", "action": "Slot is now {ので/から|node-because}"},
+  {"file": "items/yori-comparison.jsonl", "jp_before": "子供[こども]{の|no-possessive}ころ{は/が|wa-topic}今[いま]{より|yori-comparison}よく外[そと]{で|de-place}遊[あそ]びました。", "problem": "が on the time-frame topic 子供のころ is unnatural, but it was listed as an alternative", "action": "Removed が; the slot is now {は|wa-topic}"},
+  {"file": "items/yori-comparison.jsonl", "jp_before": "今夜[こんや]{は/が|wa-topic}昨夜[ゆうべ]{より|yori-comparison}星[ほし]{が/は|ga-sense}よく見[み]えます。", "problem": "今夜が is unnatural here and was listed as an alternative", "action": "Removed が; the slot is now {は|wa-topic}"},
+  {"file": "items/yori-formal-from.jsonl", "jp_before": "参加者[さんかしゃ]{は/が|wa-topic}午前[ごぜん]八時[はちじ]{より/から|yori-formal-from}受付[うけつけ]{で|de-place}名前[なまえ]{を|o-object}記入[きにゅう]してください。", "problem": "参加者が is unnatural as the addressee of a request, but it was listed as an alternative", "action": "Removed が; the slot is now {は|wa-topic}"}
+ ]
+}

@@ -1,0 +1,21 @@
+[
+ {"id":"ni-frequency-1","lv":5,
+  "tpl":"<who>{は|wa-topic}<unit>{に|ni-frequency}<count><act>。",
+  "en":"<who> <act> <count> <unit>.",
+  "f":1,"d":["を","が","と"],
+  "why":"A rate per period is [period]に[count]: 週に二回 means 'twice a week'.",
+  "vars":{
+   "who":[["田中[たなか]さん","Mr. Tanaka"],["母[はは]","My mother"],["父[ちち]","My father"],["兄[あに]","My older brother"],["姉[あね]","My older sister"],["鈴木[すずき]さん","Ms. Suzuki"]],
+   "unit":[["週[しゅう]","a week"],["一週間[いっしゅうかん]","a week"],["年[ねん]","a year"],["月[つき]","a month"],["一[いっ]か月[げつ]","a month"],["一年[いちねん]","a year"]],
+   "count":[["一回[いっかい]","once"],["二回[にかい]","twice"],["三回[さんかい]","three times"],["一度[いちど]","once"],["二度[にど]","twice"],["一[いち]、二回[にかい]","once or twice"]],
+   "act":[["プール{で|de-place}泳[およ]ぎます","swims at the pool"],["図書館[としょかん]{に/へ|ni-destination}行[い]きます","goes to the library"],["美術館[びじゅつかん]{に/へ|ni-destination}行[い]きます","goes to the art museum"],["カレー{を|o-object}作[つく]ります","makes curry"],["映画館[えいがかん]{に/へ|ni-destination}行[い]きます","goes to the cinema"],["テニス{を|o-object}します","plays tennis"],["ケーキ{を|o-object}焼[や]きます","bakes a cake"],["ジョギング{を|o-object}します","goes jogging"]]}},
+ {"id":"ni-frequency-2","lv":5,
+  "tpl":"<who>{は|wa-topic}<unit>{に|ni-frequency}何回[なんかい]<act>か。",
+  "en":"How many times <unit> does <who> <act>?",
+  "f":1,"d":["を","が","と"],
+  "why":"Asking a rate per period uses [period]に何回: 一日に何回 means 'how many times a day'.",
+  "vars":{
+   "who":[["田中[たなか]さん","Mr. Tanaka"],["山田[やまだ]さん","Ms. Yamada"],["鈴木[すずき]さん","Mr. Suzuki"],["お父[とう]さん","your father"],["お母[かあ]さん","your mother"],["佐藤[さとう]さん","Ms. Sato"],["弟[おとうと]さん","your younger brother"],["お姉[ねえ]さん","your older sister"]],
+   "unit":[["一日[いちにち]","a day"],["日[ひ]","a day"],["週[しゅう]","a week"],["一週間[いっしゅうかん]","a week"],["月[つき]","a month"],["一[いっ]か月[げつ]","a month"]],
+   "act":[["コーヒー{を|o-object}飲[の]みます","drink coffee"],["運動[うんどう]します","exercise"],["お茶[ちゃ]{を|o-object}飲[の]みます","drink tea"],["ゲーム{を|o-object}します","play video games"],["料理[りょうり]{を|o-object}します","cook"],["掃除[そうじ]{を|o-object}します","clean"],["メール{を|o-object}チェックします","check email"],["甘[あま]い物[もの]{を|o-object}食[た]べます","eat sweets"]]}}
+]

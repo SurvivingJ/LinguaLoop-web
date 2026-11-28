@@ -1,0 +1,42 @@
+[
+ {
+  "id": "no-subject-1",
+  "lv": 3,
+  "tpl": "<who>{の/が|no-subject}<verb>レストラン{は/が|wa-topic}<desc>。",
+  "en": "The restaurant <who> <verb> <desc>.",
+  "f": 0,
+  "d": ["は", "を", "で"],
+  "why": "Inside a clause that describes a noun, the doer can be marked with の instead of が.",
+  "vars": {
+   "who": [
+    ["母[はは]", "my mother"],
+    ["父[ちち]", "my father"],
+    ["兄[あに]", "my older brother"],
+    ["姉[あね]", "my older sister"],
+    ["田中[たなか]さん", "Mr. Tanaka"],
+    ["佐藤[さとう]さん", "Ms. Sato"],
+    ["友達[ともだち]", "my friend"],
+    ["叔父[おじ]", "my uncle"]
+   ],
+   "verb": [
+    ["勧[すす]めてくれた", "recommended to me"],
+    ["教[おし]えてくれた", "told me about"],
+    ["見[み]つけた", "found"],
+    ["よく行[い]く", "often goes to"],
+    ["働[はたら]いている", "works at"],
+    ["好[す]きな", "likes"],
+    ["予約[よやく]した", "booked"],
+    ["行[い]きたがっていた", "wanted to go to"]
+   ],
+   "desc": [
+    ["とても安[やす]かったです", "was very cheap"],
+    ["休[やす]みでした", "was closed"],
+    ["込[こ]んでいました", "was crowded"],
+    ["静[しず]かでした", "was quiet"],
+    ["思[おも]ったより高[たか]かったです", "was more expensive than I expected"],
+    ["新[あたら]しくてきれいでした", "was new and clean"],
+    ["少[すこ]し遠[とお]かったです", "was a bit far away"]
+   ]
+  }
+ }
+]

@@ -1,0 +1,8 @@
+{"batch":"items-m50022","files":["items/zo-ze__m50.jsonl","items/wa-final__m50.jsonl"],"checked":59,"fixed":6,"deleted":0,"replaced":0,"issues":[
+{"file":"items/zo-ze__m50.jsonl","jp_before":"ちゃんと食[た]べない{と|to-conditional}、倒[たお]れる{ぞ/ぜ|zo-ze}。","problem":"Fifth 〜ないと…ぞ warning in the batch and close to the existing そんなに食べると太るぞ item; poor variety.","action":"Rewritten as その靴で山に登るのは危ないぞ (f=4), same skill and distractors."},
+{"file":"items/zo-ze__m50.jsonl","jp_before":"夕方[ゆうがた]{に|ni-change}なる{と|to-conditional}、虫[むし]{が|ga-subject}増[ふ]える{ぞ/ぜ|zo-ze}。","problem":"English 'the bugs increase' is unnatural.","action":"English changed to 'Once evening comes, there'll be a lot more bugs, I'm telling you.'"},
+{"file":"items/zo-ze__m50.jsonl","jp_before":"公園[こうえん]{で|de-place}キャンプ{を|o-object}しよう{ぜ|zo-ze}。","problem":"Camping in a public park is implausible in Japan.","action":"Changed 公園 to 湖; English 'Let's go camping at the lake.'"},
+{"file":"items/wa-final__m50.jsonl","jp_before":"来週[らいしゅう]{の|no-possessive}旅行[りょこう]{が|ga-subject}楽[たの]しみだ{わ|wa-final}。","problem":"Non-focus slot: は is equally natural (旅行は楽しみだわ) but not listed.","action":"Slot changed to {が/は|ga-subject}."},
+{"file":"items/wa-final__m50.jsonl","jp_before":"あなた{の|no-possessive}気持[きも]ち{は|wa-topic}よく分[わ]かる{わ|wa-final}。","problem":"Non-focus slot: が is equally natural with 分かる but not listed.","action":"Slot changed to {は/が|wa-topic}."},
+{"file":"items/wa-final__m50.jsonl","jp_before":"駅前[えきまえ]{に|ni-location}新[あたら]しいカフェ{が|ga-existence}できた{わ|wa-final}。","problem":"できる (to open, come into being) marks a subject of an event, not existence; wrong skill id.","action":"Skill id changed to ga-subject."}
+]}

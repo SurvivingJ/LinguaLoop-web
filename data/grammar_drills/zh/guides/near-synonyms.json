@@ -1,0 +1,460 @@
+{
+ "topic": "near-synonyms",
+ "summary": "English uses one word where Chinese has two or three, and the Chinese words are not interchangeable: they differ in what they take as object, in word class, or in time. Never choose by the English. Ask the question that splits the set: a fact or a person? already happened or not yet? a place or a person? does an object follow? The grammar around the blank decides.",
+ "subs": [
+  {
+   "key": "know",
+   "label": "知道 / 认识 / 了解: know",
+   "focus": "知道 + a fact, name or clause (知道他住在哪儿); 认识 + a person, character or road (be acquainted, recognise; 很高兴认识你); 了解 = know in depth and takes 很 / 不太. Classic mistakes: 很知道, 知道 for 'we have met'. With a person object, the cue must force 'met'."
+  },
+  {
+   "key": "understand",
+   "label": "明白 / 懂 / 清楚: understand, clear",
+   "focus": "清楚 = clear to eye or ear (看清楚, 说得很清楚, 我不清楚 = not sure); 懂 = grasp meaning, know a language or skill (听懂, 懂法语); 明白 = see the point (明白你的意思). Classic mistakes: 说得很懂, 听清楚 for 'understood'. Never cloze 懂 vs 明白 in 我___了 or 听___了."
+  },
+  {
+   "key": "again",
+   "label": "又 / 再 / 还: again, still",
+   "focus": "又 = a repeat that already happened (昨天又迟到了); 再 = one still to come (请再说一遍, 明天再来); 还 = still or in addition (还在下雨, 还要一杯). A time cue must decide. Do not cloze 还 vs 再 in yes/no questions or next to 想 / 要; the 又 / 再 / 还 topic drills those."
+  },
+  {
+   "key": "afterwards",
+   "label": "以后 / 后来 / 然后: afterwards",
+   "focus": "Clause + 以后 = after X, past or future, and 以后 alone = from now on; 后来 = later on, past story only, stands alone, never after a clause; 然后 = and then, the next step, often after 先. Classic mistakes: 后来 for the future, 下课后来, 然后 attached to a clause."
+  },
+  {
+   "key": "when-before",
+   "label": "的时候 / 时 / 以前: when, before",
+   "focus": "Clause + 的时候 = when / while; clause + 时 = the same in written or formal style, with no 的; clause + 以前 = before; 以前 alone = in the past. The time clause comes first. Classic mistakes: English order (main clause first), 以前 in front of its clause, 以前 for 'when I was a student'."
+  },
+  {
+   "key": "help",
+   "label": "帮 / 帮助 / 帮忙: help",
+   "focus": "帮 + person + verb is everyday help (帮我拿一下); 帮助 takes a person and is also the noun (谢谢你的帮助); 帮忙 is verb + object and takes no object of its own (帮个忙, 帮我一个忙). Classic mistakes: 帮忙我, 谢谢你的帮. Do not cloze 帮 vs 帮助 before person + verb: both work."
+  },
+  {
+   "key": "think",
+   "label": "以为 / 认为 / 觉得: think",
+   "focus": "以为 = believed something that turned out false; the sentence must show the reversal (原来, 其实, 没想到). 觉得 = feel or find, opinions and body sensations; 认为 = considered judgement, more formal, never body feelings. Classic mistakes: 认为 with 原来, 认为很饿. Never cloze 觉得 vs 认为 on a plain opinion."
+  },
+  {
+   "key": "visit-travel",
+   "label": "参观 / 访问 / 看望, 旅行 / 旅游",
+   "focus": "参观 + a place you look round (博物馆, 工厂); 看望 + a person you care about; 访问 = official visit to a country or organisation, or a website. 旅行 / 旅游 take no place object: 去 + place + 旅游. Classic mistakes: 参观奶奶, 访问北京 for a holiday. Never cloze 旅行 vs 旅游."
+  },
+  {
+   "key": "word-class",
+   "label": "合适 / 适合, 突然 / 忽然, 经验 / 经历",
+   "focus": "合适 is an adjective with no object (很合适, 合适的工作); 适合 is a verb that needs one (适合你). 突然 is also an adjective (太突然了), 忽然 only an adverb. 经验 is know-how (有经验); 经历 is what you went through, noun or verb. Never cloze 突然 vs 忽然 before a verb."
+  },
+  {
+   "key": "find-via-about",
+   "label": "发现 / 发明, 通过 / 经过, 关于 / 对于",
+   "focus": "发现 = find or notice what exists, 发明 = invent. 经过 = go past a place; 通过 = by means of, pass an exam. 关于 = about a topic (关于熊猫的书); 对于 = towards, as for (对于我来说). Classic mistakes: 发明 for noticing, 通过 a shop, 关于我来说. Never cloze 通过 vs 经过 before 努力."
+  }
+ ],
+ "rules": [
+  {
+   "sub": "know",
+   "rule": "知道 a fact, 认识 a person (or a character, a road), 了解 something or someone in depth.",
+   "pattern": "知道 + fact / clause; 认识 + person; 很 / 不太 + 了解 + topic",
+   "examples": [
+    {
+     "zh": "你知道他住在哪儿吗？",
+     "py": "nǐ zhī dào tā zhù zài nǎ r ma",
+     "en": "Do you know where he lives?"
+    },
+    {
+     "zh": "我认识他，我们是大学同学。",
+     "py": "wǒ rèn shi tā wǒ men shì dà xué tóng xué",
+     "en": "I know him; we were at university together."
+    },
+    {
+     "zh": "我不太了解中国历史。",
+     "py": "wǒ bù tài liǎo jiě zhōng guó lì shǐ",
+     "en": "I don't know much about Chinese history."
+    }
+   ],
+   "note": "知道 and 认识 never take 很; 了解 does (我很了解他 = I know him well). 我知道他 means 'I know who he is' (heard of him), not that you have met."
+  },
+  {
+   "sub": "understand",
+   "rule": "清楚 = clear to the eye or ear; 懂 = grasp the meaning, or know a language or skill; 明白 = see the point.",
+   "pattern": "Verb + 清楚 / 懂; Verb + 得 + 很清楚; 懂 + language; 明白 + 意思",
+   "examples": [
+    {
+     "zh": "我听清楚了，可是没听懂。",
+     "py": "wǒ tīng qīng chu le kě shì méi tīng dǒng",
+     "en": "I heard it clearly, but I didn't understand it."
+    },
+    {
+     "zh": "老师说得很清楚。",
+     "py": "lǎo shī shuō de hěn qīng chu",
+     "en": "The teacher explained it very clearly."
+    },
+    {
+     "zh": "我明白你的意思了。",
+     "py": "wǒ míng bai nǐ de yì si le",
+     "en": "I see what you mean."
+    },
+    {
+     "zh": "他懂法语。",
+     "py": "tā dǒng fǎ yǔ",
+     "en": "He knows French."
+    }
+   ],
+   "note": "我不清楚 means 'I'm not sure'. 我懂了 and 我明白了 both mean 'I get it', and 听懂 / 听明白 are both fine. 清楚 can also mean 'know full well' about a situation: 这件事我很清楚."
+  },
+  {
+   "sub": "again",
+   "rule": "又 = again, already happened; 再 = again, not yet happened; 还 = still, or something more.",
+   "pattern": "又 + verb + 了; 再 + verb (request, plan); 还 + 在 / 没 / 要",
+   "examples": [
+    {
+     "zh": "他今天又迟到了。",
+     "py": "tā jīn tiān yòu chí dào le",
+     "en": "He was late again today."
+    },
+    {
+     "zh": "请再说一遍。",
+     "py": "qǐng zài shuō yí biàn",
+     "en": "Please say it again."
+    },
+    {
+     "zh": "外面还在下雨。",
+     "py": "wài miàn hái zài xià yǔ",
+     "en": "It's still raining outside."
+    }
+   ],
+   "note": "还 goes before 想 / 要 (我还想去), 再 after them (我想再去一次). The 又 / 再 / 还 topic covers the full set. Exception: 又 can look ahead to a repeat that is certain, usually 又是…了 (明天又是星期一了)."
+  },
+  {
+   "sub": "afterwards",
+   "rule": "以后 follows a clause or means 'from now on'; 后来 opens a later part of a past story; 然后 is the next step.",
+   "pattern": "Clause + 以后; 后来 + past event; 先 A，然后 B",
+   "examples": [
+    {
+     "zh": "下课以后我们去吃饭吧。",
+     "py": "xià kè yǐ hòu wǒ men qù chī fàn ba",
+     "en": "Let's go and eat after class."
+    },
+    {
+     "zh": "我们以前是同事，后来他去了上海。",
+     "py": "wǒ men yǐ qián shì tóng shì hòu lái tā qù le shàng hǎi",
+     "en": "We used to be colleagues; later he went to Shanghai."
+    },
+    {
+     "zh": "你先洗手，然后吃饭。",
+     "py": "nǐ xiān xǐ shǒu rán hòu chī fàn",
+     "en": "Wash your hands first, then eat."
+    },
+    {
+     "zh": "以后我每天都会早起。",
+     "py": "yǐ hòu wǒ měi tiān dōu huì zǎo qǐ",
+     "en": "From now on I'll get up early every day."
+    }
+   ],
+   "note": "后来 never looks forward: for the future say 以后. 后来 cannot follow a clause: 下课以后, not 下课后来."
+  },
+  {
+   "sub": "when-before",
+   "rule": "Put the time clause first: clause + 的时候 for 'when', clause + 以前 for 'before'.",
+   "pattern": "Clause + 的时候 / 时 / 以前，main clause",
+   "examples": [
+    {
+     "zh": "我小的时候住在北京。",
+     "py": "wǒ xiǎo de shí hou zhù zài běi jīng",
+     "en": "When I was little I lived in Beijing."
+    },
+    {
+     "zh": "睡觉以前别喝咖啡。",
+     "py": "shuì jiào yǐ qián bié hē kā fēi",
+     "en": "Don't drink coffee before bed."
+    },
+    {
+     "zh": "上课时请关手机。",
+     "py": "shàng kè shí qǐng guān shǒu jī",
+     "en": "Please switch off your phone in class."
+    }
+   ],
+   "note": "时 is the written form of 的时候 and attaches straight to the verb phrase: 上课时, 离开时. 以前 alone means 'in the past': 我以前不喝咖啡."
+  },
+  {
+   "sub": "help",
+   "rule": "帮 + person + verb for everyday help; 帮助 for helping a person or as the noun 'help'; 帮忙 never takes an object.",
+   "pattern": "帮 + person + verb; 帮助 + person; 帮 + person + 的忙 / 帮个忙",
+   "examples": [
+    {
+     "zh": "你能帮我拿一下吗？",
+     "py": "nǐ néng bāng wǒ ná yí xià ma",
+     "en": "Could you hold this for me for a moment?"
+    },
+    {
+     "zh": "谢谢你的帮助。",
+     "py": "xiè xie nǐ de bāng zhù",
+     "en": "Thank you for your help."
+    },
+    {
+     "zh": "你能帮我一个忙吗？",
+     "py": "nǐ néng bāng wǒ yí gè máng ma",
+     "en": "Could you do me a favour?"
+    },
+    {
+     "zh": "他帮了我很大的忙。",
+     "py": "tā bāng le wǒ hěn dà de máng",
+     "en": "He was a great help to me."
+    }
+   ],
+   "note": "帮忙 splits around what is added: 帮我的忙, 帮了一个忙. With no object it stands whole: 他常常来帮忙."
+  },
+  {
+   "sub": "think",
+   "rule": "以为 = I thought, but I was wrong; 觉得 = I feel or find; 认为 = I consider, after thinking it through.",
+   "pattern": "以为 + belief，原来 / 其实 + truth; 觉得 + feeling; 认为 + judgement",
+   "examples": [
+    {
+     "zh": "我以为你走了，原来你还在这儿。",
+     "py": "wǒ yǐ wéi nǐ zǒu le yuán lái nǐ hái zài zhè r",
+     "en": "I thought you'd left, but you're still here."
+    },
+    {
+     "zh": "我觉得今天很冷。",
+     "py": "wǒ jué de jīn tiān hěn lěng",
+     "en": "I find it cold today."
+    },
+    {
+     "zh": "专家认为这个办法不行。",
+     "py": "zhuān jiā rèn wéi zhè ge bàn fǎ bù xíng",
+     "en": "Experts think this method won't work."
+    }
+   ],
+   "note": "With 觉得 or 认为 the belief may be true; 以为 tells the listener it was not. 认为 is never used for body feelings: 我觉得饿, not 我认为饿."
+  },
+  {
+   "sub": "visit-travel",
+   "rule": "参观 a place you look round, 看望 a person you care about, 访问 for an official visit; 旅游 / 旅行 take no place object.",
+   "pattern": "参观 + place; 去 + 看望 + person; 去 + place + 旅游 / 旅行",
+   "examples": [
+    {
+     "zh": "我们下午去参观博物馆。",
+     "py": "wǒ men xià wǔ qù cān guān bó wù guǎn",
+     "en": "We're visiting the museum this afternoon."
+    },
+    {
+     "zh": "周末我去医院看望奶奶。",
+     "py": "zhōu mò wǒ qù yī yuàn kàn wàng nǎi nai",
+     "en": "At the weekend I'm going to the hospital to see grandma."
+    },
+    {
+     "zh": "我们暑假去云南旅游。",
+     "py": "wǒ men shǔ jià qù yún nán lǚ yóu",
+     "en": "We're going to Yunnan on holiday this summer."
+    }
+   ],
+   "note": "访问 is official (a head of state, a school delegation) or a website (访问网站). 旅游 leans to sightseeing (旅游景点), 旅行 to the journey (旅行箱); in 去 + place + ___ both are fine."
+  },
+  {
+   "sub": "word-class",
+   "rule": "合适 is an adjective and takes no object; 适合 is a verb and needs one.",
+   "pattern": "很合适 / 合适的 + noun; 适合 + person or thing",
+   "examples": [
+    {
+     "zh": "这件衣服大小很合适。",
+     "py": "zhè jiàn yī fu dà xiǎo hěn hé shì",
+     "en": "This top is just the right size."
+    },
+    {
+     "zh": "这个工作很适合你。",
+     "py": "zhè ge gōng zuò hěn shì hé nǐ",
+     "en": "This job really suits you."
+    },
+    {
+     "zh": "我还没找到合适的房子。",
+     "py": "wǒ hái méi zhǎo dào hé shì de fáng zi",
+     "en": "I haven't found a suitable flat yet."
+    }
+   ],
+   "note": "Say 适合你 or 对你很合适, never 合适你."
+  },
+  {
+   "sub": "word-class",
+   "rule": "突然 and 经历 do two jobs, 忽然 and 经验 one: 突然 is also an adjective, 忽然 only an adverb; 经历 is also a verb, 经验 only a noun.",
+   "pattern": "太突然了; 忽然 + verb; 经历了 + events; 有 / 没有 + 经验",
+   "examples": [
+    {
+     "zh": "这个消息太突然了。",
+     "py": "zhè ge xiāo xi tài tū rán le",
+     "en": "This news is so sudden."
+    },
+    {
+     "zh": "天忽然黑了。",
+     "py": "tiān hū rán hēi le",
+     "en": "The sky suddenly went dark."
+    },
+    {
+     "zh": "他经历了很多困难。",
+     "py": "tā jīng lì le hěn duō kùn nan",
+     "en": "He has been through a lot of hardship."
+    },
+    {
+     "zh": "她很有经验。",
+     "py": "tā hěn yǒu jīng yàn",
+     "en": "She is very experienced."
+    }
+   ],
+   "note": "Before a verb 突然 and 忽然 are both fine (他突然哭了 / 他忽然哭了). 经验 is what you learned; 经历 is what happened to you (一次难忘的经历)."
+  },
+  {
+   "sub": "find-via-about",
+   "rule": "发现 = find or notice what is already there; 发明 = create something new. 经过 = go past a place; 通过 = by means of, or pass a test.",
+   "pattern": "发现 + fact; 发明 + new thing; 经过 + place; 通过 + means / 考试",
+   "examples": [
+    {
+     "zh": "我发现钱包不见了。",
+     "py": "wǒ fā xiàn qián bāo bú jiàn le",
+     "en": "I found my wallet was missing."
+    },
+    {
+     "zh": "纸是中国人发明的。",
+     "py": "zhǐ shì zhōng guó rén fā míng de",
+     "en": "Paper was invented by the Chinese."
+    },
+    {
+     "zh": "我每天上班都经过这家银行。",
+     "py": "wǒ měi tiān shàng bān dōu jīng guò zhè jiā yín háng",
+     "en": "I pass this bank every day on my way to work."
+    },
+    {
+     "zh": "她通过了这次考试。",
+     "py": "tā tōng guò le zhè cì kǎo shì",
+     "en": "She passed this exam."
+    }
+   ],
+   "note": "经过 also means 'after going through' (经过三年的努力), where 通过 is also heard: do not contrast them there. 通过 can also mean 'pass through' (火车通过大桥): use 经过 for going past a shop or a person's door."
+  },
+  {
+   "sub": "find-via-about",
+   "rule": "关于 introduces a topic (about); 对于 introduces what an attitude or effect is aimed at (towards, as for).",
+   "pattern": "关于 + topic + 的 + noun; 对于 + person + 来说",
+   "examples": [
+    {
+     "zh": "这是一本关于熊猫的书。",
+     "py": "zhè shì yì běn guān yú xióng māo de shū",
+     "en": "This is a book about pandas."
+    },
+    {
+     "zh": "对于我来说，汉字最难。",
+     "py": "duì yú wǒ lái shuō hàn zì zuì nán",
+     "en": "For me, characters are the hardest part."
+    },
+    {
+     "zh": "关于这件事，我们明天再谈。",
+     "py": "guān yú zhè jiàn shì wǒ men míng tiān zài tán",
+     "en": "Let's talk about this tomorrow."
+    }
+   ],
+   "note": "A 关于 phrase normally opens the sentence or comes before 的 + noun. 对于 can also follow the subject, and everyday speech often shortens it to 对."
+  }
+ ],
+ "contrasts": [
+  {
+   "wrong": "我很知道中国文化。",
+   "right": {
+    "zh": "我很了解中国文化。",
+    "py": "wǒ hěn liǎo jiě zhōng guó wén huà",
+    "en": "I know Chinese culture well."
+   },
+   "why": "知道 never takes 很. Knowing something in depth is 了解."
+  },
+  {
+   "wrong": "他说得很懂。",
+   "right": {
+    "zh": "他说得很清楚。",
+    "py": "tā shuō de hěn qīng chu",
+    "en": "He explained it very clearly."
+   },
+   "why": "How clearly someone speaks is 清楚. 懂 is what the listener does; it never describes the speaking."
+  },
+  {
+   "wrong": "下课后来我们去打球。",
+   "right": {
+    "zh": "下课以后我们去打球。",
+    "py": "xià kè yǐ hòu wǒ men qù dǎ qiú",
+    "en": "After class we're going to play ball."
+   },
+   "why": "后来 stands alone and only looks back on a past story; it never attaches to a clause. 'After class' is 下课以后."
+  },
+  {
+   "wrong": "我帮忙你搬家。",
+   "right": {
+    "zh": "我帮你搬家。",
+    "py": "wǒ bāng nǐ bān jiā",
+    "en": "I'll help you move house."
+   },
+   "why": "帮忙 already contains its object 忙 and cannot take another. Use 帮 + person + verb, or 帮你的忙."
+  },
+  {
+   "wrong": "我认为你已经回家了，原来你还在这儿。",
+   "right": {
+    "zh": "我以为你已经回家了，原来你还在这儿。",
+    "py": "wǒ yǐ wéi nǐ yǐ jīng huí jiā le yuán lái nǐ hái zài zhè r",
+    "en": "I thought you'd gone home, but you're still here."
+   },
+   "why": "原来 shows the belief was false, so it must be 以为. 认为 states a judgement you still hold."
+  },
+  {
+   "wrong": "周末我去参观奶奶。",
+   "right": {
+    "zh": "周末我去看望奶奶。",
+    "py": "zhōu mò wǒ qù kàn wàng nǎi nai",
+    "en": "At the weekend I'm going to see grandma."
+   },
+   "why": "参观 is for places you look round. A person you go to see is 看望, or simply 看."
+  },
+  {
+   "wrong": "这件衣服很合适我。",
+   "right": {
+    "zh": "这件衣服很适合我。",
+    "py": "zhè jiàn yī fu hěn shì hé wǒ",
+    "en": "This top really suits me."
+   },
+   "why": "合适 is an adjective and cannot take an object. With an object, use the verb 适合."
+  },
+  {
+   "wrong": "我经验了很多困难。",
+   "right": {
+    "zh": "我经历了很多困难。",
+    "py": "wǒ jīng lì le hěn duō kùn nan",
+    "en": "I've been through a lot of hardship."
+   },
+   "why": "经验 is only a noun (know-how). The verb 'go through' is 经历."
+  },
+  {
+   "wrong": "我发明我的手机不见了。",
+   "right": {
+    "zh": "我发现我的手机不见了。",
+    "py": "wǒ fā xiàn wǒ de shǒu jī bú jiàn le",
+    "en": "I found my phone was missing."
+   },
+   "why": "Noticing something that is already true is 发现. 发明 is inventing a new thing, like paper or the telephone."
+  },
+  {
+   "wrong": "关于我来说，这个问题很难。",
+   "right": {
+    "zh": "对于我来说，这个问题很难。",
+    "py": "duì yú wǒ lái shuō zhè ge wèn tí hěn nán",
+    "en": "For me, this question is hard."
+   },
+   "why": "'As for me' is 对于…来说. 关于 only names a topic (about) and never pairs with 来说."
+  }
+ ],
+ "cheat": [
+  "A fact: 知道. A person you've met: 认识. Know it well, with 很: 了解.",
+  "Already happened again: 又. Not yet: 再. Still or more: 还.",
+  "After a clause: 以后. Later in a past story: 后来. Next step: 然后.",
+  "帮忙 takes no object: 帮我, 帮我的忙, never 帮忙我.",
+  "Turned out wrong: 以为. A feeling: 觉得. A judgement: 认为.",
+  "A place: 参观. A person: 看望. Object follows: 适合, not 合适.",
+  "Before 来说: 对于. Before 的 + noun, a topic: 关于."
+ ]
+}

@@ -1,0 +1,29 @@
+[
+ {"id":"x-o-ni-1","lv":3,
+  "tpl":"<who>{は/が|wa-topic}<target>{に|ni-recipient}<verb>。",
+  "en":"<who> <verb> <target>.",
+  "f":1,"d":["を"],
+  "why":"With 電話する, 連絡する, 謝る, 相談する and similar verbs, the person the action is aimed at takes に, not を.",
+  "vars":{
+   "who":[["私[わたし]","I"],["兄[あに]","My older brother"],["母[はは]","My mother"],["鈴木[すずき]さん","Ms. Suzuki"],["姉[あね]","My older sister"],["父[ちち]","My father"],["山田[やまだ]さん","Mr. Yamada"]],
+   "target":[["先生[せんせい]","the teacher"],["部長[ぶちょう]","the department manager"],["医者[いしゃ]","the doctor"],["大家[おおや]さん","the landlord"],["田中[たなか]さん","Mr. Tanaka"],["店長[てんちょう]","the store manager"],["祖父[そふ]","my grandfather"],["先輩[せんぱい]","a senior colleague"]],
+   "verb":[["電話[でんわ]しました","phoned"],["連絡[れんらく]しました","contacted"],["謝[あやま]りました","apologised to"],["相談[そうだん]しました","asked for advice from"],["話[はな]しかけました","spoke to"],["挨拶[あいさつ]しました","greeted"],["お礼[れい]{を|o-object}言[い]いました","thanked"],["聞[き]きました","asked"]]}},
+ {"id":"x-o-ni-2","lv":3,
+  "tpl":"<who>{は/が|wa-topic}<vehicle>{に|ni-target}<verb>。",
+  "en":"<who> <verb> <vehicle>.",
+  "f":1,"d":["を"],
+  "why":"乗る marks the vehicle you get on with に; it takes no direct object, so を is wrong.",
+  "vars":{
+   "who":[["父[ちち]","My father"],["母[はは]","My mother"],["兄[あに]","My older brother"],["姉[あね]","My older sister"],["田中[たなか]さん","Mr. Tanaka"],["山田[やまだ]さん","Ms. Yamada"],["祖母[そぼ]","My grandmother"],["弟[おとうと]","My younger brother"]],
+   "vehicle":[["バス","the bus"],["電車[でんしゃ]","the train"],["飛行機[ひこうき]","the plane"],["新幹線[しんかんせん]","the bullet train"],["地下鉄[ちかてつ]","the subway"],["最終[さいしゅう]電車[でんしゃ]","the last train"],["夜行[やこう]バス","the night bus"],["船[ふね]","the boat"]],
+   "verb":[["乗[の]りました","took"],["乗[の]り遅[おく]れました","missed"],["乗[の]れませんでした","could not get on"],["急[いそ]いで乗[の]りました","hurried onto"],["乗[の]るつもりでした","had meant to take"],["乗[の]らなかったそうです","apparently did not take"]]}},
+ {"id":"x-o-ni-3","lv":3,
+  "tpl":"<who>{は/が|wa-topic}<person>{を|o-object}<verb>。",
+  "en":"<who> <verb> <person>.",
+  "f":1,"d":["に"],
+  "why":"待つ, 手伝う, 誘う and similar verbs act directly on the person, so the person is the object and takes を, not に.",
+  "vars":{
+   "who":[["私[わたし]","I"],["母[はは]","My mother"],["父[ちち]","My father"],["兄[あに]","My older brother"],["姉[あね]","My older sister"],["山田[やまだ]さん","Ms. Yamada"],["夫[おっと]","My husband"],["妻[つま]","My wife"]],
+   "person":[["妹[いもうと]","my younger sister"],["弟[おとうと]","my younger brother"],["祖父[そふ]","my grandfather"],["祖母[そぼ]","my grandmother"],["子供[こども]たち","the children"],["田中[たなか]さん","Mr. Tanaka"],["鈴木[すずき]さん","Ms. Suzuki"],["娘[むすめ]","my daughter"]],
+   "verb":[["待[ま]ちました","waited for"],["手伝[てつだ]いました","helped"],["応援[おうえん]しました","cheered on"],["迎[むか]え{に|ni-purpose}行[い]きました","went to pick up"],["見送[みおく]りました","saw off"],["誘[さそ]いました","invited"],["起[お]こしました","woke up"]]}}
+]

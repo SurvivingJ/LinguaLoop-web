@@ -1,0 +1,187 @@
+{
+ "batch": "items-146",
+ "files": [
+  "items/cl-play.jsonl",
+  "items/cl-weather.jsonl"
+ ],
+ "checked": 87,
+ "fixed": 27,
+ "deleted": 0,
+ "replaced": 2,
+ "issues": [
+  {
+   "file": "items/cl-play.jsonl",
+   "jp_before": "妹[いもうと]は毎日[まいにち]ピアノを{弾[ひ]きます|cl-play}。",
+   "problem": "Distractor する/した with an instrument is colloquially acceptable for a hobby (ピアノをしている ~ ピアノをやっている), so it is not plainly wrong.",
+   "action": "Replaced the する-form distractor with the 遊ぶ form."
+  },
+  {
+   "file": "items/cl-play.jsonl",
+   "jp_before": "ウクレレを{弾[ひ]きたい|cl-play}です。",
+   "problem": "Distractor する/した with an instrument is colloquially acceptable for a hobby (ピアノをしている ~ ピアノをやっている), so it is not plainly wrong.",
+   "action": "Replaced the する-form distractor with the 遊ぶ form."
+  },
+  {
+   "file": "items/cl-play.jsonl",
+   "jp_before": "来月[らいげつ]のコンサートで、ハープを{弾[ひ]きます|cl-play}。",
+   "problem": "Distractor する/した with an instrument is colloquially acceptable for a hobby (ピアノをしている ~ ピアノをやっている), so it is not plainly wrong.",
+   "action": "Replaced the する-form distractor with the 遊ぶ form."
+  },
+  {
+   "file": "items/cl-play.jsonl",
+   "jp_before": "ピアノは習[なら]いましたが、今[いま]はあまり{弾[ひ]きません|cl-play}。",
+   "problem": "Distractor する/した with an instrument is colloquially acceptable for a hobby (ピアノをしている ~ ピアノをやっている), so it is not plainly wrong.",
+   "action": "Replaced the する-form distractor with the 遊ぶ form."
+  },
+  {
+   "file": "items/cl-play.jsonl",
+   "jp_before": "ベースを{弾[ひ]く|cl-play}のが好[す]きです。",
+   "problem": "Distractor する/した with an instrument is colloquially acceptable for a hobby (ピアノをしている ~ ピアノをやっている), so it is not plainly wrong.",
+   "action": "Replaced the する-form distractor with the 遊ぶ form."
+  },
+  {
+   "file": "items/cl-play.jsonl",
+   "jp_before": "小学校[しょうがっこう]でリコーダーを{吹[ふ]きました|cl-play}。",
+   "problem": "Distractor する/した with an instrument is colloquially acceptable for a hobby (ピアノをしている ~ ピアノをやっている), so it is not plainly wrong.",
+   "action": "Replaced the する-form distractor with the 遊ぶ form."
+  },
+  {
+   "file": "items/cl-play.jsonl",
+   "jp_before": "山[やま]の上[うえ]でハーモニカを{吹[ふ]きたい|cl-play}です。",
+   "problem": "Distractor する/した with an instrument is colloquially acceptable for a hobby (ピアノをしている ~ ピアノをやっている), so it is not plainly wrong.",
+   "action": "Replaced the する-form distractor with the 遊ぶ form."
+  },
+  {
+   "file": "items/cl-play.jsonl",
+   "jp_before": "フルートを{吹[ふ]く|cl-play}ときは、姿勢[しせい]に気[き]をつけます。",
+   "problem": "Distractor する/した with an instrument is colloquially acceptable for a hobby (ピアノをしている ~ ピアノをやっている), so it is not plainly wrong.",
+   "action": "Replaced the する-form distractor with the 遊ぶ form."
+  },
+  {
+   "file": "items/cl-play.jsonl",
+   "jp_before": "夜[よる]、サックスを{吹[ふ]かない|cl-play}でください。",
+   "problem": "Distractor する/した with an instrument is colloquially acceptable for a hobby (ピアノをしている ~ ピアノをやっている), so it is not plainly wrong.",
+   "action": "Replaced the する-form distractor with the 遊ぶ form."
+  },
+  {
+   "file": "items/cl-play.jsonl",
+   "jp_before": "オカリナを{吹[ふ]いた|cl-play}ことがありますか。",
+   "problem": "Distractor する/した with an instrument is colloquially acceptable for a hobby (ピアノをしている ~ ピアノをやっている), so it is not plainly wrong.",
+   "action": "Replaced the する-form distractor with the 遊ぶ form."
+  },
+  {
+   "file": "items/cl-play.jsonl",
+   "jp_before": "太鼓[たいこ]を{たたく|cl-play}のは、思[おも]ったより力[ちから]が要[い]ります。",
+   "problem": "Distractor する/した with an instrument is colloquially acceptable for a hobby (ピアノをしている ~ ピアノをやっている), so it is not plainly wrong.",
+   "action": "Replaced the する-form distractor with the 遊ぶ form."
+  },
+  {
+   "file": "items/cl-play.jsonl",
+   "jp_before": "父[ちち]は今[いま]、居間[いま]でギターを{弾[ひ]いています|cl-play}。",
+   "problem": "今[いま]、居間[いま]で is a clumsy repeated いま; unnatural to read aloud.",
+   "action": "Changed 居間 to 部屋 and adjusted the English."
+  },
+  {
+   "file": "items/cl-play.jsonl",
+   "jp_before": "音楽[おんがく]の時間[じかん]に、みんなでリコーダーを{吹[ふ]きます|cl-play}。",
+   "problem": "Near-duplicate of the other recorder item at school.",
+   "action": "Replaced with a trombone sentence using the potential 吹ける (new distractors, why, lv 4)."
+  },
+  {
+   "file": "items/cl-play.jsonl",
+   "jp_before": "あの人[ひと]は大[おお]きな太鼓[たいこ]を{たたく|cl-play}のが上手[じょうず]です。",
+   "problem": "Near-duplicate wording of the festival 大きな太鼓 item.",
+   "action": "Dropped 大きな; English adjusted."
+  },
+  {
+   "file": "items/cl-play.jsonl",
+   "jp_before": "夜[よる]、よく弟[おとうと]とゲームを{します|cl-play}。",
+   "problem": "Distractor ゲームを遊ぶ is in real use (game publishers, players), so it is not plainly wrong; the why claimed 'never 遊ぶ with を', which is inaccurate.",
+   "action": "Replaced the 遊ぶ distractor with 吹く/たたく and rewrote the why."
+  },
+  {
+   "file": "items/cl-play.jsonl",
+   "jp_before": "友[とも]だちとオンラインゲームを{したい|cl-play}です。",
+   "problem": "Distractor ゲームを遊ぶ is in real use (game publishers, players), so it is not plainly wrong; the why claimed 'never 遊ぶ with を', which is inaccurate.",
+   "action": "Replaced the 遊ぶ distractor with 吹く/たたく and rewrote the why."
+  },
+  {
+   "file": "items/cl-play.jsonl",
+   "jp_before": "ゲームを{する|cl-play}のは、一日[いちにち]一時間[いちじかん]までです。",
+   "problem": "Distractor ゲームを遊ぶ is in real use (game publishers, players), so it is not plainly wrong; the why claimed 'never 遊ぶ with を', which is inaccurate.",
+   "action": "Replaced the 遊ぶ distractor with 吹く/たたく and rewrote the why."
+  },
+  {
+   "file": "items/cl-play.jsonl",
+   "jp_before": "昨日[きのう]は、家族[かぞく]でトランプを{しました|cl-play}。",
+   "problem": "トランプを遊ぶ is marginal but heard; risky distractor.",
+   "action": "Replaced 遊びました with 吹きました."
+  },
+  {
+   "file": "items/cl-play.jsonl",
+   "jp_before": "今夜[こんや]はビデオゲームを{しません|cl-play}。",
+   "problem": "Fifth near-identical ゲームをする item.",
+   "action": "Replaced with スキーをする sentence (冬になると、家族でスキーをします)."
+  },
+  {
+   "file": "items/cl-weather.jsonl",
+   "jp_before": "雨[あめ]が{降[ふ]らない|cl-weather}ので、畑[はたけ]の水[みず]が足[た]りません。",
+   "problem": "English 'Since it doesn't rain' is unnatural.",
+   "action": "English changed to 'Since it hasn't been raining'."
+  },
+  {
+   "file": "items/cl-weather.jsonl",
+   "jp_before": "夕方[ゆうがた]から雨[あめ]が{降[ふ]りそう|cl-weather}です。",
+   "problem": "English 'It looks like rain from the evening' is awkward.",
+   "action": "English rewritten."
+  },
+  {
+   "file": "items/cl-weather.jsonl",
+   "jp_before": "山[やま]の上[うえ]では、いつも強[つよ]い風[かぜ]が{吹[ふ]いて|cl-weather}、とても寒[さむ]かったです。",
+   "problem": "いつも sits badly with a single past experience (とても寒かったです).",
+   "action": "Removed いつも (山の上は強い風が吹いて…); English adjusted."
+  },
+  {
+   "file": "items/cl-weather.jsonl",
+   "jp_before": "午後[ごご]から風[かぜ]が{吹[ふ]きそう|cl-weather}です。",
+   "problem": "Bare 風が吹きそう is odd (there is always some wind).",
+   "action": "Added 強い; English adjusted."
+  },
+  {
+   "file": "items/cl-weather.jsonl",
+   "jp_before": "日[ひ]が{暮[く]れない|cl-weather}うちに、山[やま]を下[お]りましょう。",
+   "problem": "why had a stray space inside 暮れないうちに.",
+   "action": "Rewrote why."
+  },
+  {
+   "file": "items/cl-weather.jsonl",
+   "jp_before": "今朝[けさ]は濃[こ]い霧[きり]が{出[で]ました|cl-weather}。",
+   "problem": "Distractor 降る with 霧 is too close to the real collocation 霧が降りる (written 降りる) and 霧が降る is used literarily; not plainly wrong.",
+   "action": "Replaced the 降る-form distractor with the 鳴る form; English 'came down' changed to 'There was thick fog'."
+  },
+  {
+   "file": "items/cl-weather.jsonl",
+   "jp_before": "山[やま]に霧[きり]が{出[で]ている|cl-weather}ので、運転[うんてん]に気[き]をつけてください。",
+   "problem": "Distractor 降る with 霧 is too close to the real collocation 霧が降りる (written 降りる) and 霧が降る is used literarily; not plainly wrong.",
+   "action": "Replaced the 降る-form distractor with the 鳴る form."
+  },
+  {
+   "file": "items/cl-weather.jsonl",
+   "jp_before": "夕方[ゆうがた]になると、よく霧[きり]が{出[で]る|cl-weather}。",
+   "problem": "Distractor 降る with 霧 is too close to the real collocation 霧が降りる (written 降りる) and 霧が降る is used literarily; not plainly wrong.",
+   "action": "Replaced the 降る-form distractor with the 鳴る form."
+  },
+  {
+   "file": "items/cl-weather.jsonl",
+   "jp_before": "明日[あした]の朝[あさ]は霧[きり]が{出[で]そう|cl-weather}です。",
+   "problem": "Distractor 降る with 霧 is too close to the real collocation 霧が降りる (written 降りる) and 霧が降る is used literarily; not plainly wrong.",
+   "action": "Replaced the 降る-form distractor with the 鳴る form."
+  },
+  {
+   "file": "items/cl-weather.jsonl",
+   "jp_before": "寒[さむ]い日[ひ]が続[つづ]いて、花[はな]が{咲[さ]かない|cl-weather}。",
+   "problem": "Bare 花が咲かない after 続いて reads abruptly.",
+   "action": "Added なかなか; English adjusted."
+  }
+ ]
+}

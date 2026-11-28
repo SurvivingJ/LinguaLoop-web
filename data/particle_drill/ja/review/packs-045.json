@@ -1,0 +1,9 @@
+{"batch":"packs-045",
+ "files":["packs/toisshoni.json","packs/nokoto.json","packs/dewa-scope.json","packs/double-particles.json","packs/double-mo.json","packs/no-compound.json"],
+ "checked":7,
+ "fixed":2,
+ "deleted":0,
+ "issues":[
+  {"file":"packs/nokoto.json","pack":"nokoto-1","problem":"pred value '{が}気になっています' / 'keeps thinking about': with a person 気になる reads as romantic interest, which is odd or wrong for combinations like 母は祖父のこと / 母は私のこと, and the English gloss does not fit every combination.","action":"Replaced with '{を|o-object}心配[しんぱい]しています' / 'is worried about', natural for every who/person combination; 8 pred values kept."},
+  {"file":"packs/dewa-scope.json","pack":"dewa-scope-1","problem":"English 'According to <source>' makes によると (天気予報によると、明日は雨だそうです) an equally natural answer with the same meaning, but it was not listed, so a learner typing it would be marked wrong.","action":"Slot changed to {では/によると|dewa-scope}; distractors には/とは/にも remain plainly wrong with そうです."}
+ ]}

@@ -1,0 +1,60 @@
+{"group":"wa",
+ "intro":"は (always pronounced wa) lifts one element out of the sentence and puts it on a stage: \"as for X...\". Everything after it is a comment about X. What goes on stage is either something both speakers already have in mind (the topic) or something set against other things (contrast), and negative sentences naturally pull the denied item onto the stage. は never says who did what to whom; that is the job of が, を, に and the other case particles, which は either replaces (が, を) or follows (には, では).",
+ "skills":[
+  {"id":"wa-topic",
+   "rule":"は marks what the sentence is about, something already known; the rest of the sentence says something about it.",
+   "explain":"Think of Xは as a heading: \"As for X: ...\". The topic is old information, something in view or already mentioned, and the new information comes after it. That is why self-introductions, descriptions and answers about a known person all start with は: 私は学生です, 今日は暑いです.\n\nThe topic does not have to be the subject. An object can be the topic too: この本は読みました (\"this book, I have read\"). は then replaces が or を; you never write がは or をは. After other particles it is added instead: 東京には, 学校では, 友達とは.\n\nTwo hard limits. A question word can never be a topic, because it is by definition unknown: 誰が来ましたか, not 誰は; the answer also takes が (田中さんが来ました). And inside a modifying clause the subject takes が, not は: 私が作ったケーキ, \"the cake I made\".",
+   "patterns":["[known topic] は [comment]","[noun] は [noun] です","[topic] は [part] が [adjective]"],
+   "examples":[
+    {"jp":"私[わたし]{は}学生[がくせい]です。","en":"I am a student."},
+    {"jp":"今日[きょう]{は}暑[あつ]いですね。","en":"It's hot today, isn't it?"},
+    {"jp":"田中[たなか]さん{は}どこですか。","en":"Where is Mr Tanaka?"},
+    {"jp":"この本[ほん]{は}もう読[よ]みました。","en":"I have already read this book."},
+    {"jp":"象[ぞう]{は}鼻[はな]が長[なが]い。","en":"Elephants have long trunks."}],
+   "contrast":[
+    {"vs":"が","note":"が presents the subject as new information, the answer to \"who?\" or \"what?\": 田中さんが来ました, \"Mr Tanaka is the one who came\". は presents a known topic and puts the weight on what follows: 田中さんは来ました, \"as for Mr Tanaka, he came\"."},
+    {"vs":"も","note":"も means \"X too\" and only works if something else has already been said to fit the comment. は sets up X on its own, with no comparison."},
+    {"vs":"を","note":"を marks an object inside the comment. When the object itself becomes the topic, を disappears and は takes its place: 本は読みました. There is no をは."}],
+   "mistakes":[
+    {"bad":"誰[だれ]{は}来[き]ましたか。","good":"誰[だれ]{が}来[き]ましたか。","note":"Question words are unknown, so they cannot be topics; they take が."},
+    {"bad":"これは私[わたし]{は}作[つく]ったケーキです。","good":"これは私[わたし]{が}作[つく]ったケーキです。","note":"The subject of a clause that describes a noun takes が, never は."},
+    {"bad":"この本[ほん]を{は}読[よ]みました。","good":"この本[ほん]{は}読[よ]みました。","note":"は replaces を and が; it is only added after other particles such as に and で."}],
+   "tip":"Can you say \"As for X, ...\" and do both of you already know what X is? Then は. If X answers \"who?\" or \"what?\", use が."},
+  {"id":"wa-contrast",
+   "rule":"は on an element sets it against other things: \"X (as opposed to the others)\".",
+   "explain":"The same は that marks a topic also marks contrast: X is put on stage so that it can be compared with something else. With two items the pattern is Aは〜が、Bは〜: 犬は好きですが、猫は苦手です. Both sides take は.\n\nThe other side can also stay unsaid. ひらがなは読めます means \"I can read hiragana\" with an audible \"but kanji is another story\". In speech contrastive は is often stressed.\n\nContrastive は attaches to almost anything: subjects, objects, times, places. It replaces が and を, but after any other particle it is added and the first particle stays: 学校では, 友達には, 駅からは. Dropping that particle usually changes the meaning, because Xは alone reads as the subject or plain topic. Time words are the exception: 日曜日は and 日曜日には both work. Two は in one clause, or は stacked on another particle, are strong signs of contrast.",
+   "patterns":["A は [comment] が、B は [different comment]","[noun] [particle] は [comment]  (には, では, とは, からは)","X は [verb]  (others: not necessarily)"],
+   "examples":[
+    {"jp":"犬[いぬ]{は}好[す]きですが、猫[ねこ]{は}苦手[にがて]です。","en":"I like dogs, but I'm not keen on cats."},
+    {"jp":"兄[あに]{は}背[せ]が高[たか]いですが、私[わたし]{は}低[ひく]いです。","en":"My older brother is tall, but I am short."},
+    {"jp":"ひらがな{は}読[よ]めます。","en":"Hiragana I can read (kanji is another matter)."},
+    {"jp":"平日[へいじつ]{は}忙[いそが]しいけど、週末[しゅうまつ]{は}暇[ひま]だよ。","en":"I'm busy on weekdays, but I'm free at weekends."},
+    {"jp":"学校[がっこう]で{は}日本語[にほんご]を話[はな]します。","en":"At school I speak Japanese (elsewhere I may not)."}],
+   "contrast":[
+    {"vs":"が","note":"犬が好きです simply states what you like. 犬は好きです hints that something else is not liked. Use が when you are just reporting, は when you are comparing."},
+    {"vs":"も","note":"も includes X with the others (魚も食べます, \"I eat fish too\"); contrastive は separates X from them (魚は食べます, \"fish, I do eat\")."},
+    {"vs":"に","note":"に marks a recipient or place; it does not disappear before contrastive は. 友達には means \"to my friend (at least)\"; 友達は makes the friend the one doing the action."}],
+   "mistakes":[
+    {"bad":"肉[にく]{が}食[た]べますが、魚[さかな]{が}食[た]べません。","good":"肉[にく]{は}食[た]べますが、魚[さかな]{は}食[た]べません。","note":"Two things set against each other both take は; が cannot mark the object of 食べる anyway."},
+    {"bad":"友達[ともだち]{は}手紙[てがみ]を書[か]きました。","good":"友達[ともだち]に{は}手紙[てがみ]を書[か]きました。","note":"For \"to my friend, I wrote a letter\", keep に and add は. Without に the friend becomes the writer."}],
+   "tip":"Hear an unspoken \"but...\" after it? That is contrastive は. Two は in a sentence, or は glued to another particle, is almost always contrast."},
+  {"id":"wa-negative",
+   "rule":"In a negative sentence, the thing being denied takes は; with an amount, は means \"at least\".",
+   "explain":"Negatives pull は in. When you deny something that is already in the conversation, it moves from が or を to は: 肉は食べません, コーヒーはあまり飲みません. The は limits the denial to X, often with an unspoken \"but other things, yes\". が stays when you simply report a fact as news, with no contrast: 時間がありません, 雨が降っていません. Once there is a contrast, it is は: 時間はありますが、お金はありません.\n\nThe は inside ではありません and じゃない (じゃ is short for では) is this same particle. So is the は in 〜てはいけません, \"must not\". In a main clause neither can be left out; only inside a noun-modifying clause is でない normal (学生でない人).\n\nWith a number or amount, は sets a minimum: 六時間は寝たい, \"I want at least six hours of sleep\"; 一度は, \"at least once\". One firm exception: a question word with a negative takes も, not は: 何も食べません, 誰も来ませんでした.",
+   "patterns":["X は [negative verb]","[noun] で は ありません / じゃ ありません","[verb て-form] は いけません","[amount] は [verb]  (\"at least\")"],
+   "examples":[
+    {"jp":"肉[にく]{は}食[た]べません。","en":"I don't eat meat."},
+    {"jp":"学生[がくせい]で{は}ありません。","en":"I'm not a student."},
+    {"jp":"コーヒー{は}あまり飲[の]みません。","en":"I don't drink much coffee."},
+    {"jp":"ここで写真[しゃしん]を撮[と]って{は}いけません。","en":"You must not take photos here."},
+    {"jp":"毎日[まいにち]六時間[ろくじかん]{は}寝[ね]たいです。","en":"I want to sleep at least six hours every day."},
+    {"jp":"一度[いちど]{は}富士山[ふじさん]に登[のぼ]ってみたいです。","en":"I would like to climb Mount Fuji at least once."}],
+   "contrast":[
+    {"vs":"が","note":"時間がありません reports a fact as news. 時間はありません singles time out as the thing lacking, usually against something else that is there."},
+    {"vs":"も","note":"After a question word, a negative takes も: 何も, 誰も, どこにも mean \"nothing, nobody, nowhere\". は is impossible there."},
+    {"vs":"で","note":"In ではありません, で and は are both needed; で alone is wrong. In casual speech the pair contracts to じゃ."}],
+   "mistakes":[
+    {"bad":"何[なに]{は}食[た]べませんでした。","good":"何[なに]{も}食[た]べませんでした。","note":"\"I didn't eat anything\": question word plus negative takes も."},
+    {"bad":"学生[がくせい]{で}ありません。","good":"学生[がくせい]で{は}ありません。","note":"In everyday Japanese the negative of です is ではありません (or じゃありません); the は cannot be dropped."}],
+   "tip":"Negative ending? Look back at what is denied: if you could add \"but...\" after it, mark it は. If it is a question word, use も."}
+ ]}

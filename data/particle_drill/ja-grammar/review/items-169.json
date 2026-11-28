@@ -1,0 +1,84 @@
+{
+ "batch": "items-169",
+ "files": [
+  "items/x-casual__1.jsonl"
+ ],
+ "checked": 45,
+ "fixed": 12,
+ "deleted": 0,
+ "replaced": 0,
+ "issues": [
+  {
+   "file": "items/x-casual__1.jsonl",
+   "jp_before": "明日[あした]までにこの本[ほん]を読[よ]ん{どく|cs-teru}よ。",
+   "problem": "Distractor じゃう gives 読んじゃう 'I'll get it read', which fits 'read this book through by tomorrow'.",
+   "action": "Replaced じゃう with ちゃう (wrong sound after ん); English reworded to stress preparation."
+  },
+  {
+   "file": "items/x-casual__1.jsonl",
+   "jp_before": "母[はは]は今[いま]、台所[だいどころ]で夕食[ゆうしょく]を作[つく]っ{ています|cs-teru}。",
+   "problem": "Distractor なきゃいけません gives the malformed 作っなきゃ.",
+   "action": "Replaced with ちゃいました (completed, wrong meaning)."
+  },
+  {
+   "file": "items/x-casual__1.jsonl",
+   "jp_before": "母[はは]の大事[だいじ]なお皿[さら]を割[わ]っ{ちゃった|cs-chau}！",
+   "problem": "Distractor てた gives 割ってた, usable as 'I've gone and broken it!' on discovery.",
+   "action": "Replaced てた with ちゃう (future, wrong tense)."
+  },
+  {
+   "file": "items/x-casual__1.jsonl",
+   "jp_before": "弟[おとうと]は私[わたし]のプリンを全部[ぜんぶ]食[た]べ{ちゃった|cs-chau}。",
+   "problem": "Distractor てた gives 全部食べてた 'had eaten all of it', acceptable for the English.",
+   "action": "Replaced てた with なきゃ."
+  },
+  {
+   "file": "items/x-casual__1.jsonl",
+   "jp_before": "弟[おとうと]が私[わたし]のジュースを全部[ぜんぶ]飲[の]ん{じゃった|cs-chau}。",
+   "problem": "Distractor でた gives 全部飲んでた 'had drunk all of it', acceptable for the English.",
+   "action": "Replaced でた with じゃう (future, wrong tense)."
+  },
+  {
+   "file": "items/x-casual__1.jsonl",
+   "jp_before": "母[はは]が楽[たの]しみにしていたケーキを、父[ちち]が{食[た]べてしまいました|cs-chau}。",
+   "problem": "Distractor 食べてました ('had eaten it', discovered) is close to the English.",
+   "action": "Replaced with 食べちゃいます (future, wrong tense)."
+  },
+  {
+   "file": "items/x-casual__1.jsonl",
+   "jp_before": "廊下[ろうか]で走[はし]っ{てはいけません|cs-nakya}。",
+   "problem": "why gives 走っちゃだめ, not the direct contraction of てはいけません.",
+   "action": "why now names 走っちゃいけません."
+  },
+  {
+   "file": "items/x-casual__1.jsonl",
+   "jp_before": "どうして泣[な]いてる{の|cs-nda}？",
+   "problem": "Distractor んです gives どうして泣いてるんです？, a natural question with the same meaning.",
+   "action": "Replaced んです with じゃん."
+  },
+  {
+   "file": "items/x-casual__1.jsonl",
+   "jp_before": "母[はは]は「もう寝[ね]なさい。」と言[い]った。子[こ]は「だって、このドラマが見[み]たかった{もん|cs-nda}。」と言[い]った。",
+   "problem": "Distractor んです gives だって、見たかったんです, an acceptable excuse with the same meaning.",
+   "action": "Replaced んです with って (reported speech, wrong meaning)."
+  },
+  {
+   "file": "items/x-casual__1.jsonl",
+   "jp_before": "もう宿題[しゅくだい]、終[お]わった{の|cs-nda}？",
+   "problem": "Distractor っけ gives もう宿題、終わったっけ？, an acceptable way to ask the same thing.",
+   "action": "Replaced っけ with って (asks what someone said)."
+  },
+  {
+   "file": "items/x-casual__1.jsonl",
+   "jp_before": "あれ、鍵[かぎ]はどこに置[お]いた{っけ|cs-tte}？",
+   "problem": "Distractor んだ gives どこに置いたんだ？, natural self-talk with the same meaning.",
+   "action": "Replaced んだ with もん."
+  },
+  {
+   "file": "items/x-casual__1.jsonl",
+   "jp_before": "{やはり|cs-sound}家[いえ]で食[た]べるのが一番[いちばん]です。",
+   "problem": "Near-duplicate of the やっぱり line (eating at home is best).",
+   "action": "Rewrote the sentence with a new context; same answer and distractors."
+  }
+ ]
+}

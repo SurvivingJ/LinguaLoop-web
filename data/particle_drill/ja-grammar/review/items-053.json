@@ -1,0 +1,9 @@
+{"batch":"items-053","files":["items/av-moshi.jsonl","items/av-tatoe.jsonl"],"checked":74,"fixed":7,"deleted":0,"replaced":0,"issues":[
+{"file":"items/av-moshi.jsonl","jp_before":"{万一[まんいち]/もし|av-moshi}ここで事故[じこ]が起[お]きたら、大[おお]きな問題[もんだい]になる。","problem":"Distractor きっと can be read as a sentence adverb on the main clause ('surely, if an accident happens here, it will be a big problem'), so it is not plainly wrong.","action":"Replaced distractor きっと with ぜひ."},
+{"file":"items/av-moshi.jsonl","jp_before":"{仮[かり]に/もし|av-moshi}この話[はなし]が本当[ほんとう]だとしたら、大[おお]きな問題[もんだい]になる。","problem":"Near-duplicate of the 万一 accident item (same main clause 大きな問題になる).","action":"Rewrote main clause to すぐに調べる必要がある and updated the English."},
+{"file":"items/av-moshi.jsonl","jp_before":"{仮[かり]に/もし|av-moshi}給料[きゅうりょう]が二倍[にばい]になれば、生活[せいかつ]はずっと楽[らく]になるだろう。","problem":"Distractor きっと is acceptable here: きっと…だろう co-occurs naturally as a sentence adverb on the main clause.","action":"Replaced distractor きっと with ぜひ."},
+{"file":"items/av-moshi.jsonl","jp_before":"{仮[かり]に/もし|av-moshi}計画[けいかく]が失敗[しっぱい]したら、責任[せきにん]は誰[だれ]が取[と]るのですか。","problem":"万一 (an unwelcome possibility) is equally natural with the same English but was not listed.","action":"Added 万一 as an alternative."},
+{"file":"items/av-moshi.jsonl","jp_before":"もし車[くるま]を{買[か]うなら/買[か]ったら|av-moshi}、小[ちい]さいのがいいです。","problem":"買ったら is not natural here: the preference about which car to choose comes before buying, so only なら fits.","action":"Removed the alternative 買ったら."},
+{"file":"items/av-tatoe.jsonl","jp_before":"{たとえ|av-tatoe}冗談[じょうだん]でも、そんなことを言[い]ってはいけません。","problem":"いくら冗談でも is just as natural with the same meaning but was not listed.","action":"Added いくら as an alternative."},
+{"file":"items/av-tatoe.jsonl","jp_before":"たとえ天気[てんき]が{悪[わる]くても|av-tatoe}、遠足[えんそく]は予定[よてい]どおり行[い]きます。","problem":"遠足は…行きます is unnatural; holding a school trip as planned is 遠足は予定どおり行います.","action":"Changed 行[い]きます to 行[おこな]います."}
+]}

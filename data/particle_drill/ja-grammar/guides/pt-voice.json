@@ -1,0 +1,124 @@
+{
+ "group": "pt-voice",
+ "intro": "Voice decides who stands at the front of the sentence and who really acts. In the passive (れる / られる) the subject undergoes an action that someone else does; in the causative (せる / させる) the subject makes or lets someone else act; in the causative-passive (させられる) the subject is made to act. させてください and させてもらう use the causative to ask for, or receive, permission to act yourself. The last skill of the group, ないで / なくて / ずに, is how a negative verb links to the next clause. Before choosing, ask one question: who actually does the action of the verb?",
+ "skills": [
+  {
+   "id": "pt-passive",
+   "rule": "Passive = the subject undergoes the action and the doer takes に; godan -u becomes -areru, ichidan adds られる, する becomes される, 来る becomes 来られる.",
+   "explain": "The passive puts the one who undergoes the action at the front and marks the doer with に. Godan verbs change the final -u to -areru (書く→書かれる, 言う→言われる, 盗む→盗まれる); ichidan verbs add られる (見る→見られる); する→される; 来る→来られる. The result conjugates like an ichidan verb.\n\nJapanese uses the passive mainly when something happens to a person, and very often the effect is unwelcome. Even intransitive verbs make this 'it happened to me' passive: 雨に降られた, 'I got caught in the rain'; 赤ちゃんに泣かれた, 'the baby cried and I suffered for it'. When the thing affected is your belonging or body part, you stay the subject and the thing keeps を: 財布を盗まれた, 足を踏まれた.\n\nFacts about things also take the passive: この寺は八百年前に建てられた. A maker or author takes によって, not に: この本は有名な作家によって書かれた. For ichidan verbs the passive looks the same as the potential (食べられる); a doer marked with に shows it is passive.",
+   "patterns": [
+    "[person] は [doer] に [passive verb]",
+    "[person] は [doer] に [thing] を [passive verb]",
+    "[doer] に [intransitive verb, passive] (it happened to me)",
+    "[thing] が / は [passive verb] (fact)"
+   ],
+   "examples": [
+    {"jp": "私[わたし]は先生[せんせい]に{褒[ほ]められました}。", "en": "I was praised by my teacher."},
+    {"jp": "弟[おとうと]は犬[いぬ]に{かまれました}。", "en": "My younger brother was bitten by a dog."},
+    {"jp": "電車[でんしゃ]で財布[さいふ]を{盗[ぬす]まれました}。", "en": "I had my wallet stolen on the train."},
+    {"jp": "帰[かえ]りに雨[あめ]に{降[ふ]られて}、びしょびしょになった。", "en": "I got caught in the rain on the way home and got soaked."},
+    {"jp": "この寺[てら]は八百年前[はっぴゃくねんまえ]に{建[た]てられました}。", "en": "This temple was built eight hundred years ago."},
+    {"jp": "夜中[よなか]に赤[あか]ちゃんに{泣[な]かれて}、全然[ぜんぜん]寝[ね]られなかった。", "en": "The baby cried in the night, and I couldn't sleep at all."}
+   ],
+   "contrast": [
+    {"vs": "causative (させる)", "note": "書かれた is 'it was written (by someone)'; 書かせた is 'I made or let someone write'. The passive receives; the causative sends."},
+    {"vs": "potential", "note": "For godan verbs the shapes differ: 書かれる is passive, 書ける is 'can write'. For ichidan verbs 食べられる is both; a doer with に means passive; an object with が or を and no doer means 'can'."},
+    {"vs": "causative-passive (させられる)", "note": "待たれた is 'someone waited for me' (and it bothered me); 待たされた is 'I was kept waiting'."}
+   ],
+   "mistakes": [
+    {"bad": "先生[せんせい]が私[わたし]に{褒[ほ]められました}。", "good": "私[わたし]は先生[せんせい]に{褒[ほ]められました}。", "note": "The one who receives the action is the subject; the doer takes に. The bad sentence says the teacher was praised by me."},
+    {"bad": "電車[でんしゃ]で私[わたし]の足[あし]が{踏[ふ]まれました}。", "good": "電車[でんしゃ]で足[あし]を{踏[ふ]まれました}。", "note": "When your body or belongings are affected, you are the subject and the part keeps を."},
+    {"bad": "帰[かえ]りに雨[あめ]が{降[ふ]られました}。", "good": "帰[かえ]りに雨[あめ]に{降[ふ]られました}。", "note": "In the 'it happened to me' passive the rain is the doer, so it takes に; the unstated subject is you."}
+   ],
+   "tip": "Find the doer: if it is marked with に and the subject just suffers or receives, use the passive."
+  },
+  {
+   "id": "pt-causative",
+   "rule": "Causative (せる / させる) = the subject makes or lets someone act; causative-passive (させられる, short godan form -asareru) = the subject is made to act by someone marked with に.",
+   "explain": "Godan: -u → -aseru (書く→書かせる, 待つ→待たせる, 言う→言わせる); ichidan: る→させる (食べさせる); する→させる; 来る→来させる. The person made to act takes を with an intransitive verb (弟を買い物に行かせた) and に when the verb already has a を object (子どもに野菜を食べさせた). 'Make' or 'let' comes from context: 好きなだけ遊ばせた is 'let'. Feelings work too: 母を心配させた, 'I worried my mother'.\n\nThe causative-passive turns this round: the subject is made to do something, usually unwillingly. Add られる to the causative: 食べさせられる, させられる, 来させられる. Godan verbs normally contract -aserareru to -asareru: 書かされる, 待たされる, 飲まされる. Verbs ending in す cannot contract: 話させられる, never 話さされる. The one who forced you takes に: 先輩にお酒を飲まされた.",
+   "patterns": [
+    "[causer] は [person] を [intransitive verb, causative]",
+    "[causer] は [person] に [object] を [causative verb]",
+    "[person] は [causer] に [object] を [causative-passive verb]"
+   ],
+   "examples": [
+    {"jp": "母[はは]は弟[おとうと]に部屋[へや]を{掃除[そうじ]させました}。", "en": "My mother made my younger brother clean his room."},
+    {"jp": "子[こ]どもを一人[ひとり]で買[か]い物[もの]に{行[い]かせました}。", "en": "I sent my child shopping alone."},
+    {"jp": "遅[おく]れて、友達[ともだち]を三十分[さんじゅっぷん]も{待[ま]たせてしまった}。", "en": "I was late and kept my friend waiting for thirty minutes."},
+    {"jp": "駅[えき]で一時間[いちじかん]も{待[ま]たされた}。", "en": "I was kept waiting at the station for a whole hour."},
+    {"jp": "子[こ]どものころ、母[はは]に毎日[まいにち]ピアノを{練習[れんしゅう]させられました}。", "en": "When I was a child, my mother made me practise the piano every day."},
+    {"jp": "飲[の]み会[かい]で先輩[せんぱい]にお酒[さけ]を{飲[の]まされた}。", "en": "At the drinking party, a senior colleague made me drink."}
+   ],
+   "contrast": [
+    {"vs": "passive (れる / られる)", "note": "書かせた: I made someone write. 書かれた: someone wrote it, and it was done to me or to the thing."},
+    {"vs": "causative vs causative-passive", "note": "食べさせた: I made someone eat. 食べさせられた: I was made to eat. Check who is the subject and who takes に."},
+    {"vs": "potential", "note": "行かせる is 'make or let go'; 行ける is 'can go'. Neither replaces the other."}
+   ],
+   "mistakes": [
+    {"bad": "私[わたし]は母[はは]に野菜[やさい]を{食[た]べさせました}。", "good": "私[わたし]は母[はは]に野菜[やさい]を{食[た]べさせられました}。", "note": "For 'I was made to eat', the subject is the one forced, so the verb needs causative + られる."},
+    {"bad": "友達[ともだち]を一時間[いちじかん]{待[ま]たれてしまった}。", "good": "友達[ともだち]を一時間[いちじかん]{待[ま]たせてしまった}。", "note": "'I kept my friend waiting' is the causative: I caused my friend to wait."},
+    {"bad": "部長[ぶちょう]に長[なが]い時間[じかん]{話[はな]さされました}。", "good": "部長[ぶちょう]に長[なが]い時間[じかん]{話[はな]させられました}。", "note": "Verbs ending in す never take the short -asareru form."}
+   ],
+   "tip": "Two people, one action: the causer is the subject (させる), or the one forced is the subject (させられる). Ask who wanted it."
+  },
+  {
+   "id": "pt-sasete",
+   "rule": "Causative て-form + ください = 'please let me do it' (I act, you allow); + もらう = 'I was allowed to, and I am grateful'.",
+   "explain": "させてください is the causative て-form + ください: literally 'please let me'. The speaker acts; the listener only gives permission. 私に払わせてください, 'let me pay'; 少し考えさせてください, 'let me think about it'. Compare 払ってください, which asks the listener to pay.\n\nさせてもらう says you were given permission and are grateful: 父に車を使わせてもらった, 'my father let me use the car'. The one who allows takes に. With the allower as subject it is させてくれる: 父が車を使わせてくれた. In polite speech, させていただく announces your own action humbly: 明日は休ませていただきます. This is different from させられる, which means you were forced.\n\nBuild the causative correctly: godan 休む→休ませて, 帰る→帰らせて, 言う→言わせて; ichidan 考える→考えさせて; する→させて. 休みさせて and 帰りさせて are wrong.",
+   "patterns": [
+    "[causative て-form] ください",
+    "[allower] に [causative て-form] もらう / いただく",
+    "[allower] が [causative て-form] くれる"
+   ],
+   "examples": [
+    {"jp": "ここは私[わたし]に{払[はら]わせてください}。", "en": "Please let me pay this time."},
+    {"jp": "少[すこ]し{考[かんが]えさせてください}。", "en": "Please let me think about it a little."},
+    {"jp": "気分[きぶん]が悪[わる]いので、早[はや]く{帰[かえ]らせてください}。", "en": "I feel unwell, so please let me go home early."},
+    {"jp": "父[ちち]に車[くるま]を{使[つか]わせてもらいました}。", "en": "My father let me use his car."},
+    {"jp": "店長[てんちょう]に頼[たの]んで、一日[いちにち]{休[やす]ませてもらいました}。", "en": "I asked the manager and was allowed to take a day off."},
+    {"jp": "それでは、新[あたら]しい計画[けいかく]について説明[せつめい]{させていただきます}。", "en": "Now, allow me to explain the new plan."}
+   ],
+   "contrast": [
+    {"vs": "てください", "note": "払ってください: you pay. 払わせてください: let me pay."},
+    {"vs": "させられる", "note": "使わせてもらった: I was allowed to use it (glad). 使わせられた: I was made to use it (not glad)."},
+    {"vs": "てもらう", "note": "父に車を洗ってもらった: my father washed the car for me. 父に車を洗わせてもらった: my father let me wash it."}
+   ],
+   "mistakes": [
+    {"bad": "ここは私[わたし]が{払[はら]ってください}。", "good": "ここは私[わたし]に{払[はら]わせてください}。", "note": "てください asks the listener to act; to ask to act yourself, use the causative."},
+    {"bad": "父[ちち]に車[くるま]を{使[つか]わせられました}。", "good": "父[ちち]に車[くるま]を{使[つか]わせてもらいました}。", "note": "させられる means you were forced; for a favour you were allowed, use させてもらう."},
+    {"bad": "先生[せんせい]、明日[あした]{休[やす]みさせてください}。", "good": "先生[せんせい]、明日[あした]{休[やす]ませてください}。", "note": "休む is godan: its causative is 休ませる. Do not attach させる to the stem."}
+   ],
+   "tip": "Who does the verb? If it is me and I need someone's OK, use させてください (asking) or させてもらった (received)."
+  },
+  {
+   "id": "pt-zuni",
+   "rule": "ないで / ずに = without doing, instead of doing (how the next action is done); なくて = because of not doing (a cause or a feeling follows).",
+   "explain": "All three negate a verb and join it to what follows, but they are not interchangeable. ないで tells how the next action is done or what is done instead: 朝ご飯を食べないで出かけた, 'I went out without eating breakfast'; バスに乗らないで歩いた, 'I walked instead of taking the bus'. It also makes negative requests: 触らないでください.\n\nずに means the same as this ないで and sounds more written or formal: 何も言わずに帰った. Form it from the ない stem: 食べずに, 行かずに; する becomes せずに, never しずに. It does not replace なくて for a cause (written style uses ず alone: 分からず、困った), and there is no ずにください.\n\nなくて gives a cause: the first clause is why the second happened, or why you feel as you do: 意味が分からなくて困った; バスが来なくて遅刻した. Adjectives and nouns have only なくて (高くなくて, 学生じゃなくて), and the set patterns なくてもいい and なくてはいけない always use なくて.",
+   "patterns": [
+    "[ない form] で [main action] (without / instead of)",
+    "[ない stem] ずに [main action] (formal)",
+    "[ない stem] なくて、[result / feeling] (because not)",
+    "[ない form] でください (please don't)"
+   ],
+   "examples": [
+    {"jp": "朝[あさ]ご飯[はん]を{食[た]べないで}学校[がっこう]に行[い]きました。", "en": "I went to school without eating breakfast."},
+    {"jp": "ここで写真[しゃしん]を{撮[と]らないでください}。", "en": "Please don't take photos here."},
+    {"jp": "漢字[かんじ]が{読[よ]めなくて}、困[こま]りました。", "en": "I couldn't read the kanji, so I was stuck."},
+    {"jp": "宿題[しゅくだい]が{終[お]わらなくて}、昨夜[ゆうべ]は遅[おそ]くまで起[お]きていた。", "en": "I couldn't finish my homework, so I stayed up late last night."},
+    {"jp": "辞書[じしょ]を{使[つか]わずに}、この本[ほん]を読[よ]みました。", "en": "I read this book without using a dictionary."},
+    {"jp": "兄[あに]は何[なに]も{言[い]わずに}部屋[へや]を出[で]ていった。", "en": "My older brother left the room without saying anything."}
+   ],
+   "contrast": [
+    {"vs": "ないで vs なくて", "note": "傘を持たないで出かけた: I went out without an umbrella (manner). 傘がなくて濡れた: I had no umbrella, so I got wet (cause)."},
+    {"vs": "ずに vs ないで", "note": "Same meaning (without / instead of); ずに is more written. For a cause use なくて, not ずに; ずに cannot end a request."},
+    {"vs": "なくても", "note": "なくても is 'even if not': 行かなくてもいい, 'you don't have to go'. It concedes; it is not a cause."}
+   ],
+   "mistakes": [
+    {"bad": "意味[いみ]が{分[わ]からないで}、困[こま]りました。", "good": "意味[いみ]が{分[わ]からなくて}、困[こま]りました。", "note": "Not understanding is the cause of the trouble, so use なくて."},
+    {"bad": "傘[かさ]を{持[も]たなくて}出[で]かけました。", "good": "傘[かさ]を{持[も]たないで}出[で]かけました。", "note": "This says how you went out (without an umbrella), so use ないで or ずに."},
+    {"bad": "何[なに]も{しずに}帰[かえ]りました。", "good": "何[なに]も{せずに}帰[かえ]りました。", "note": "The ずに form of する is せずに."}
+   ],
+   "tip": "Can you put 'without' in the English? ないで or ずに. Can you put 'so' between the clauses? なくて."
+  }
+ ]
+}

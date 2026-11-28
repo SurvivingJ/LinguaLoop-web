@@ -1,0 +1,20 @@
+[
+ {"id":"madeni-deadline-1","lv":4,
+  "tpl":"<who>{は|wa-topic}<time>{までに|madeni-deadline}<task>。",
+  "en":"<who> has to <task> by <time>.",
+  "f":1,"d":["まで","に","から"],
+  "why":"A one-off action that must be done before a deadline takes までに, not まで.",
+  "vars":{
+   "who":[["兄[あに]","My older brother"],["姉[あね]","My older sister"],["田中[たなか]さん","Mr. Tanaka"],["鈴木[すずき]さん","Ms. Suzuki"],["山本[やまもと]さん","Mr. Yamamoto"],["弟[おとうと]","My younger brother"],["妹[いもうと]","My younger sister"],["佐藤[さとう]さん","Ms. Sato"]],
+   "time":[["明日[あした]","tomorrow"],["金曜日[きんようび]","Friday"],["月曜日[げつようび]","Monday"],["来週[らいしゅう]","next week"],["五時[ごじ]","five o'clock"],["三時[さんじ]","three o'clock"],["月末[げつまつ]","the end of the month"],["水曜日[すいようび]","Wednesday"]],
+   "task":[["レポート{を|o-object}出[だ]さなければなりません","hand in the report"],["本[ほん]{を|o-object}返[かえ]さなければなりません","return the book"],["書類[しょるい]{を|o-object}送[おく]らなければなりません","send the documents"],["お金[かね]{を|o-object}払[はら]わなければなりません","pay the money"],["部屋[へや]{を|o-object}片付[かたづ]けなければなりません","tidy the room"],["宿題[しゅくだい]{を|o-object}終[お]わらせなければなりません","finish the homework"],["返事[へんじ]{を|o-object}しなければなりません","give an answer"]]}},
+ {"id":"madeni-deadline-2","lv":4,
+  "tpl":"<who>{は|wa-topic}<time>{までに|madeni-deadline}<place>{に|ni-destination}着[つ]きました。",
+  "en":"<who> got to <place> by <time>.",
+  "f":1,"d":["まで","に","から"],
+  "why":"Arriving happens once, before the time limit, so the limit takes までに.",
+  "vars":{
+   "who":[["父[ちち]","My father"],["母[はは]","My mother"],["田中[たなか]さん","Mr. Tanaka"],["鈴木[すずき]さん","Ms. Suzuki"],["兄[あに]","My older brother"],["姉[あね]","My older sister"],["山本[やまもと]さん","Mr. Yamamoto"],["中村[なかむら]さん","Ms. Nakamura"]],
+   "time":[["六時[ろくじ]","six"],["七時[しちじ]","seven"],["八時半[はちじはん]","half past eight"],["九時[くじ]","nine"],["十時[じゅうじ]","ten"],["昼[ひる]","noon"],["夕方[ゆうがた]","the evening"]],
+   "place":[["駅[えき]","the station"],["会社[かいしゃ]","the office"],["空港[くうこう]","the airport"],["学校[がっこう]","school"],["会場[かいじょう]","the venue"],["ホテル","the hotel"],["病院[びょういん]","the hospital"]]}}
+]

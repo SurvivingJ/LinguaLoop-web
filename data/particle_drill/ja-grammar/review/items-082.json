@@ -1,0 +1,7 @@
+{"batch":"items-082","files":["items/pt-tai.jsonl","items/pt-hoshii.jsonl"],"checked":71,"fixed":5,"deleted":0,"replaced":0,"issues":[
+{"file":"items/pt-tai.jsonl","jp_before":"週末[しゅうまつ]は家[いえ]でゆっくり{休[やす]みたいです|pt-tai}。","problem":"Set rotation uneven: 23 たい items against 13 たがる items.","action":"Rewrote as a third-person たがる item (父は週末、家でゆっくり休みたがっています) with 休みたいです as a distractor."},
+{"file":"items/pt-tai.jsonl","jp_before":"将来[しょうらい]、外国[がいこく]で{働[はたら]きたいです|pt-tai}。","problem":"Set rotation uneven (too many たい items).","action":"Rewrote as a third-person たがる item (姉は将来、外国で働きたがっています); distractors adjusted."},
+{"file":"items/pt-tai.jsonl","jp_before":"来年[らいねん]は車[くるま]の免許[めんきょ]を{取[と]りたい|pt-tai}と思[おも]っています。","problem":"Unnatural English ('..., I think').","action":"English changed to \"I'm thinking I'd like to get a driver's license next year.\""},
+{"file":"items/pt-tai.jsonl","jp_before":"人[ひと]の前[まえ]で歌[うた]うのは{したくないです|pt-tai}。","problem":"歌うのはしたくない is unnatural Japanese; the distractor したいです was only the opposite meaning.","action":"Rewrote as 恥ずかしいので、人の前では{歌いたくないです}, distractors 歌いたがりません / 歌ってほしくないです / 歌いましょう, lv 4."},
+{"file":"items/pt-hoshii.jsonl","jp_before":"医者[いしゃ]には、病気[びょうき]の原因[げんいん]を{はっきり教[おし]えてほしい|pt-hoshii}と思[おも]った。","problem":"Awkward English ('I thought I wanted ...').","action":"English changed to \"I felt I wanted the doctor to tell me clearly what was causing the illness.\""}
+]}

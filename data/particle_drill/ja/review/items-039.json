@@ -1,0 +1,11 @@
+{"batch":"items-039","files":["items/to-and.jsonl"],"checked":47,"fixed":7,"deleted":2,"replaced":2,"issues":[
+{"file":"items/to-and.jsonl","jp_before":"今朝[けさ]パン{と|to-and}卵[たまご]{を|o-object}食[た]べました。","problem":"Distractor に is acceptable: additive AにB (パンに卵) is natural for food combinations.","action":"Replaced distractor に with を."},
+{"file":"items/to-and.jsonl","jp_before":"毎日[まいにち]ご飯[はん]{と|to-and}みそ汁[しる]{を|o-object}食[た]べます。","problem":"Distractor に is natural: ご飯にみそ汁 is a stock combination phrase.","action":"Replaced distractor に with を."},
+{"file":"items/to-and.jsonl","jp_before":"晩[ばん]ご飯[はん]{は|wa-topic}カレー{と|to-and}サラダです。","problem":"Distractor に is natural: カレーにサラダ (curry with salad) means the same.","action":"Replaced distractor に with を."},
+{"file":"items/to-and.jsonl","jp_before":"机[つくえ]{の|no-possessive}上[うえ]{に|ni-location}本[ほん]{と|to-and}ノート{が|ga-existence}あります。","problem":"English 'There are a book and a notebook' is unnatural.","action":"Changed to 'There is a book and a notebook on the desk.'"},
+{"file":"items/to-and.jsonl","jp_before":"田中[たなか]さん{は|wa-topic}日本語[にほんご]{と|to-and}英語[えいご]{を|o-object}教[おし]えています。","problem":"why said 'two subjects', confusable with grammatical subject.","action":"Changed to 'the two languages'."},
+{"file":"items/to-and.jsonl","jp_before":"誕生日[たんじょうび]{に|ni-time}友達[ともだち]{に/から|kara-source}本[ほん]{と|to-and}花[はな]{を|o-object}もらいました。","problem":"First answer is に but skill id was kara-source.","action":"Changed skill id to ni-source."},
+{"file":"items/to-and.jsonl","jp_before":"店[みせ]{で|de-place}傘[かさ]{と|to-and}かばん{を|o-object}買[か]いたいです。","problem":"買う used four times in the batch (limit three).","action":"Rewrote with 探しています / 'I am looking for an umbrella and a bag at the store.'"},
+{"file":"items/to-and.jsonl","jp_before":"土曜日[どようび]{と|to-and}日曜日[にちようび]{は|wa-topic}学校[がっこう]{が|ga-subject}休[やす]みです。","problem":"Near-duplicate of the item 'この店は土曜日と日曜日は休みです'.","action":"Deleted; replaced with 毎朝[まいあさ]顔[かお]{と|to-and}手[て]{を|o-object}洗[あら]います。"},
+{"file":"items/to-and.jsonl","jp_before":"家[いえ]{に|ni-location}辞書[じしょ]{と|to-and}ペン{を|o-object}忘[わす]れました。","problem":"Near-duplicate of 'かばんに辞書とペンを入れました' (same noun pair).","action":"Deleted; replaced with 家[いえ]{に|ni-location}財布[さいふ]{と|to-and}鍵[かぎ]{を|o-object}忘[わす]れました。"}
+]}

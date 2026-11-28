@@ -1,0 +1,20 @@
+[
+ {"id":"pt-deshou-1","lv":4,
+  "tpl":"明日[あした]の<time>、<place>では<weather>{でしょう|pt-deshou}。",
+  "en":"<time>, <weather> in <place>.",
+  "f":0,"d":["つもりです","ところでした","ことにしました"],
+  "why":"A forecast is the speaker's probable guess about the future, so the plain form takes でしょう; weather cannot intend or decide, and a past ending cannot refer to tomorrow.",
+  "vars":{
+   "time":[["朝[あさ]","Tomorrow morning"],["午後[ごご]","Tomorrow afternoon"],["夜[よる]","Tomorrow night"],["夕方[ゆうがた]","Tomorrow evening"],["午前中[ごぜんちゅう]","During the morning tomorrow"],["昼過[ひるす]ぎ","Early tomorrow afternoon"]],
+   "place":[["東京[とうきょう]","Tokyo"],["大阪[おおさか]","Osaka"],["北海道[ほっかいどう]","Hokkaido"],["京都[きょうと]","Kyoto"],["名古屋[なごや]","Nagoya"],["九州[きゅうしゅう]","Kyushu"],["東北[とうほく]","the Tohoku region"]],
+   "weather":[["雨[あめ]が降[ふ]る","it will probably rain"],["雪[ゆき]が降[ふ]る","it will probably snow"],["強[つよ]い風[かぜ]が吹[ふ]く","there will probably be strong winds"],["晴[は]れる","it will probably be sunny"],["曇[くも]る","it will probably be cloudy"],["雨[あめ]がやむ","the rain will probably stop"],["雷[かみなり]が鳴[な]る","there will probably be thunder"]]}},
+ {"id":"pt-deshou-2","lv":4,
+  "tpl":"<since>電話[でんわ]に出[で]ないので、<who>はもしかしたら<state>{かもしれません|pt-deshou}。",
+  "en":"There has been no answer on the phone <since>, so <who> may <state>.",
+  "f":0,"d":["はずがありません","つもりです","ところでした"],
+  "why":"もしかしたら signals a real but uncertain possibility, 'may', which is かもしれません; はずがありません denies it and the others are not guesses.",
+  "vars":{
+   "since":[["朝[あさ]から","since this morning"],["昼[ひる]から","since noon"],["一時間前[いちじかんまえ]から","for an hour"],["二時間[にじかん]ぐらい","for about two hours"],["さっきから","for a while now"],["三十分[さんじゅっぷん]ぐらい","for about thirty minutes"]],
+   "who":[["田中[たなか]さん","Mr. Tanaka"],["山田[やまだ]さん","Ms. Yamada"],["母[はは]","my mother"],["父[ちち]","my father"],["兄[あに]","my older brother"],["姉[あね]","my older sister"],["鈴木[すずき]さん","Mr. Suzuki"],["部長[ぶちょう]","the manager"]],
+   "state":[["まだ寝[ね]ている","still be asleep"],["電車[でんしゃ]に乗[の]っている","be on a train"],["車[くるま]を運転[うんてん]している","be driving"],["会議[かいぎ]に出[で]ている","be in a meeting"],["映画館[えいがかん]にいる","be at the cinema"],["病院[びょういん]にいる","be at the hospital"],["携帯[けいたい]を家[いえ]に忘[わす]れた","have left the phone at home"],["飛行機[ひこうき]に乗[の]っている","be on a plane"]]}}
+]

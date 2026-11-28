@@ -1,0 +1,4167 @@
+{
+ "language": "ja",
+ "version": 1,
+ "stages": [
+  {
+   "id": "give",
+   "title": "Giving and receiving",
+   "blurb": "Who gives to whom: the verb changes with the direction.",
+   "groups": [
+    {
+     "id": "gv-basic",
+     "p": "あげる・くれる・もらう",
+     "name": "Give and receive",
+     "skills": [
+      "gv-ageru",
+      "gv-kureru",
+      "gv-morau"
+     ]
+    },
+    {
+     "id": "gv-te",
+     "p": "てあげる・てくれる・てもらう",
+     "name": "Doing favours",
+     "skills": [
+      "gv-teageru",
+      "gv-tekureru",
+      "gv-temorau"
+     ]
+    },
+    {
+     "id": "gv-polite",
+     "p": "さしあげる・くださる・いただく",
+     "name": "Polite and downward forms",
+     "skills": [
+      "gv-sashiageru",
+      "gv-kudasaru",
+      "gv-itadaku",
+      "gv-yaru"
+     ]
+    },
+    {
+     "id": "x-give",
+     "p": "授受",
+     "name": "Giving and receiving mixed",
+     "skills": [
+      "x-give",
+      "x-give-te"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "trans",
+   "title": "Transitive and intransitive pairs",
+   "blurb": "It opens / I open it: two verbs, two particles.",
+   "groups": [
+    {
+     "id": "tr-pairs1",
+     "p": "自動詞・他動詞 I",
+     "name": "Everyday pairs",
+     "skills": [
+      "tr-aku",
+      "tr-hajimaru",
+      "tr-hairu",
+      "tr-kowareru"
+     ]
+    },
+    {
+     "id": "tr-pairs2",
+     "p": "自動詞・他動詞 II",
+     "name": "More pairs",
+     "skills": [
+      "tr-kimaru",
+      "tr-narabu",
+      "tr-okiru",
+      "tr-n2"
+     ]
+    },
+    {
+     "id": "tr-state",
+     "p": "ている・てある",
+     "name": "Resulting states",
+     "skills": [
+      "tr-teiru-tearu"
+     ]
+    },
+    {
+     "id": "x-trans",
+     "p": "自他",
+     "name": "Pairs mixed",
+     "skills": [
+      "x-trans"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "keigo",
+   "title": "Keigo",
+   "blurb": "Raising the listener, lowering yourself.",
+   "groups": [
+    {
+     "id": "kg-son",
+     "p": "尊敬語",
+     "name": "Honorific: the other person's actions",
+     "skills": [
+      "kg-son-special",
+      "kg-o-ninaru",
+      "kg-rareru",
+      "kg-o-kudasai"
+     ]
+    },
+    {
+     "id": "kg-ken",
+     "p": "謙譲語",
+     "name": "Humble: my own actions",
+     "skills": [
+      "kg-ken-special",
+      "kg-o-suru",
+      "kg-sasete",
+      "kg-teitadaku"
+     ]
+    },
+    {
+     "id": "kg-tei",
+     "p": "丁寧語",
+     "name": "Polite words and set phrases",
+     "skills": [
+      "kg-gozaimasu",
+      "kg-bika",
+      "kg-set"
+     ]
+    },
+    {
+     "id": "x-keigo",
+     "p": "敬語",
+     "name": "Keigo mixed",
+     "skills": [
+      "x-keigo",
+      "x-keigo-biz"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "kosoado",
+   "title": "こ・そ・あ・ど and question words",
+   "blurb": "Pointing at things, and asking about them.",
+   "groups": [
+    {
+     "id": "ko-point",
+     "p": "こ・そ・あ",
+     "name": "This, that, that over there",
+     "skills": [
+      "ko-kore",
+      "ko-kono",
+      "ko-koko",
+      "ko-konna",
+      "ko-context"
+     ]
+    },
+    {
+     "id": "ko-q",
+     "p": "疑問詞",
+     "name": "Question words",
+     "skills": [
+      "ko-dore",
+      "ko-nani",
+      "ko-ka",
+      "ko-mo",
+      "ko-demo",
+      "x-ko-kamodemo"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "connect",
+   "title": "Connectors",
+   "blurb": "The word between two sentences that says how they relate.",
+   "groups": [
+    {
+     "id": "cn-basic",
+     "p": "接続詞 I",
+     "name": "Everyday connectors",
+     "skills": [
+      "cn-soshite",
+      "cn-shikashi",
+      "cn-dakara",
+      "cn-mataha",
+      "cn-soredewa"
+     ]
+    },
+    {
+     "id": "cn-logic",
+     "p": "接続詞 II",
+     "name": "Connectors of reasoning",
+     "skills": [
+      "cn-nazenara",
+      "cn-sorenanoni",
+      "cn-suruto",
+      "cn-tsumari",
+      "cn-tatoeba"
+     ]
+    },
+    {
+     "id": "cn-formal",
+     "p": "接続詞 III",
+     "name": "Formal connectors",
+     "skills": [
+      "cn-tadashi",
+      "cn-shitagatte"
+     ]
+    },
+    {
+     "id": "x-connect",
+     "p": "接続",
+     "name": "Connectors mixed",
+     "skills": [
+      "x-connect"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "adverb",
+   "title": "Adverbs that set up the ending",
+   "blurb": "The adverb promises an ending; the ending must keep the promise.",
+   "groups": [
+    {
+     "id": "av-neg",
+     "p": "〜ない副詞",
+     "name": "Adverbs that need a negative",
+     "skills": [
+      "av-zenzen",
+      "av-mettani",
+      "av-nakanaka",
+      "av-masaka"
+     ]
+    },
+    {
+     "id": "av-modal",
+     "p": "陳述副詞",
+     "name": "Adverbs of guessing, wishing, supposing",
+     "skills": [
+      "av-kitto",
+      "av-doumo",
+      "av-zehi",
+      "av-moshi",
+      "av-tatoe",
+      "av-marude",
+      "av-sekkaku"
+     ]
+    },
+    {
+     "id": "av-common",
+     "p": "程度・時間",
+     "name": "Degree and time adverbs",
+     "skills": [
+      "av-degree",
+      "av-mou-mada",
+      "av-time"
+     ]
+    },
+    {
+     "id": "x-adverb",
+     "p": "副詞",
+     "name": "Adverbs mixed",
+     "skills": [
+      "x-adverb"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "ono",
+   "title": "Sound and manner words",
+   "blurb": "ぺらぺら, どきどき, ぐっすり: one word for a whole feeling.",
+   "groups": [
+    {
+     "id": "on-people",
+     "p": "擬態語 I",
+     "name": "People",
+     "skills": [
+      "on-feel",
+      "on-body",
+      "on-talk",
+      "on-laugh",
+      "on-move"
+     ]
+    },
+    {
+     "id": "on-things",
+     "p": "擬態語 II",
+     "name": "Things",
+     "skills": [
+      "on-weather",
+      "on-texture",
+      "on-sound",
+      "on-look"
+     ]
+    },
+    {
+     "id": "x-ono",
+     "p": "擬音語・擬態語",
+     "name": "Sound and manner words mixed",
+     "skills": [
+      "x-ono"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "cond",
+   "title": "Conditionals in depth",
+   "blurb": "と, ば, たら, なら: four ways to say \"if\", each with its own limits.",
+   "groups": [
+    {
+     "id": "cd-four",
+     "p": "と・ば・たら・なら",
+     "name": "The four conditionals",
+     "skills": [
+      "cd-to",
+      "cd-ba",
+      "cd-tara",
+      "cd-nara"
+     ]
+    },
+    {
+     "id": "cd-more",
+     "p": "条件 II",
+     "name": "Edges of the conditionals",
+     "skills": [
+      "cd-volition",
+      "cd-regret",
+      "cd-temo",
+      "cd-n2"
+     ]
+    },
+    {
+     "id": "x-cond",
+     "p": "条件",
+     "name": "Conditionals mixed",
+     "skills": [
+      "x-cond"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "pattern1",
+   "title": "Sentence patterns I (N5 to N4)",
+   "blurb": "What the end of the verb says: request, wish, plan, experience.",
+   "groups": [
+    {
+     "id": "pt-request",
+     "p": "依頼・許可・義務",
+     "name": "Requests, permission, obligation",
+     "skills": [
+      "pt-tekudasai",
+      "pt-temoii",
+      "pt-tewaikenai",
+      "pt-nakutemoii",
+      "pt-nakereba",
+      "pt-mashou"
+     ]
+    },
+    {
+     "id": "pt-desire",
+     "p": "希望・意志・予定",
+     "name": "Wishes, intentions, plans",
+     "skills": [
+      "pt-tai",
+      "pt-hoshii",
+      "pt-tsumori",
+      "pt-youtoomou",
+      "pt-kotonisuru"
+     ]
+    },
+    {
+     "id": "pt-aspect",
+     "p": "経験・状態・完了",
+     "name": "Experience, state, completion",
+     "skills": [
+      "pt-takotogaaru",
+      "pt-teiru",
+      "pt-teshimau",
+      "pt-teoku",
+      "pt-temiru",
+      "pt-tekuru",
+      "pt-tokoro",
+      "pt-hajimeru"
+     ]
+    },
+    {
+     "id": "pt-ability",
+     "p": "可能・変化・程度",
+     "name": "Ability, change, degree",
+     "skills": [
+      "pt-dekiru",
+      "pt-youninaru",
+      "pt-yasui",
+      "pt-sugiru",
+      "pt-kata"
+     ]
+    },
+    {
+     "id": "pt-advice",
+     "p": "助言・命令",
+     "name": "Advice and commands",
+     "skills": [
+      "pt-hougaii",
+      "pt-tarado",
+      "pt-nasai",
+      "pt-beki"
+     ]
+    },
+    {
+     "id": "pt-time",
+     "p": "時間",
+     "name": "Time clauses",
+     "skills": [
+      "pt-maeni",
+      "pt-toki",
+      "pt-aida",
+      "pt-tabini",
+      "pt-totan"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "pattern2",
+   "title": "Sentence patterns II (N4 to N2)",
+   "blurb": "Guessing, explaining, comparing, and the patterns of N3 and N2.",
+   "groups": [
+    {
+     "id": "pt-conject",
+     "p": "推量・伝聞",
+     "name": "Seeming, hearsay, likelihood",
+     "skills": [
+      "pt-sou-look",
+      "pt-sou-hear",
+      "pt-youda",
+      "pt-rashii",
+      "pt-deshou",
+      "pt-hazu",
+      "pt-nichigainai",
+      "x-pt-conject"
+     ]
+    },
+    {
+     "id": "pt-explain",
+     "p": "説明",
+     "name": "Explaining and concluding",
+     "skills": [
+      "pt-nda",
+      "pt-wake",
+      "pt-mono",
+      "pt-koto",
+      "x-pt-wake"
+     ]
+    },
+    {
+     "id": "pt-purpose",
+     "p": "目的・原因",
+     "name": "Purpose and cause",
+     "skills": [
+      "pt-tame",
+      "pt-youni",
+      "pt-okagede",
+      "pt-kuseni"
+     ]
+    },
+    {
+     "id": "pt-nominal",
+     "p": "名詞化・引用・比較",
+     "name": "Nominalising, quoting, comparing",
+     "skills": [
+      "pt-no-koto",
+      "pt-kadouka",
+      "pt-quote",
+      "pt-toiu",
+      "pt-hikaku"
+     ]
+    },
+    {
+     "id": "pt-voice",
+     "p": "受身・使役",
+     "name": "Passive and causative forms",
+     "skills": [
+      "pt-passive",
+      "pt-causative",
+      "pt-sasete",
+      "pt-zuni"
+     ]
+    },
+    {
+     "id": "pt-n3",
+     "p": "N3〜N2 文型 I",
+     "name": "Tendency, extent, inevitability",
+     "skills": [
+      "pt-gachi",
+      "pt-kiru",
+      "pt-ippou",
+      "pt-zaruwoenai",
+      "pt-kanenai"
+     ]
+    },
+    {
+     "id": "pt-n2",
+     "p": "N3〜N2 文型 II",
+     "name": "Concession and impossibility",
+     "skills": [
+      "pt-toshitemo",
+      "pt-younai",
+      "pt-bayokatta",
+      "pt-dokoroka"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "yomi",
+   "title": "Kanji readings in context",
+   "blurb": "One kanji, several readings: the word decides.",
+   "groups": [
+    {
+     "id": "ym-n5",
+     "p": "読み N5",
+     "name": "First kanji",
+     "skills": [
+      "ym-n5-days",
+      "ym-n5-size",
+      "ym-n5-move",
+      "ym-n5-time"
+     ]
+    },
+    {
+     "id": "ym-special",
+     "p": "特別な読み",
+     "name": "Special readings",
+     "skills": [
+      "ym-jukuji",
+      "ym-onkun",
+      "ym-rendaku"
+     ]
+    },
+    {
+     "id": "ym-n4",
+     "p": "読み N4〜N3",
+     "name": "More readings",
+     "skills": [
+      "ym-n4-a",
+      "ym-n4-b",
+      "ym-n3-a",
+      "ym-n3-b",
+      "ym-n2"
+     ]
+    },
+    {
+     "id": "x-yomi",
+     "p": "読み",
+     "name": "Readings mixed",
+     "skills": [
+      "x-yomi"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "nita",
+   "title": "Look-alike kanji and spelling",
+   "blurb": "Kanji that differ by a stroke, words that sound the same.",
+   "groups": [
+    {
+     "id": "nt-shape",
+     "p": "似ている漢字",
+     "name": "Similar shapes",
+     "skills": [
+      "nt-n5",
+      "nt-n4-a",
+      "nt-n4-b",
+      "nt-n3-a",
+      "nt-n3-b"
+     ]
+    },
+    {
+     "id": "nt-spell",
+     "p": "同音・送り仮名",
+     "name": "Same sound, and okurigana",
+     "skills": [
+      "nt-homophone",
+      "nt-okurigana"
+     ]
+    },
+    {
+     "id": "x-nita",
+     "p": "似た漢字",
+     "name": "Look-alikes mixed",
+     "skills": [
+      "x-nita"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "colloc",
+   "title": "Collocations",
+   "blurb": "Which verb goes with which noun: the pairs English gets wrong.",
+   "groups": [
+    {
+     "id": "cl-daily",
+     "p": "日常の組み合わせ",
+     "name": "Everyday pairs",
+     "skills": [
+      "cl-wear",
+      "cl-take",
+      "cl-play",
+      "cl-weather",
+      "cl-life"
+     ]
+    },
+    {
+     "id": "cl-verbs",
+     "p": "多義の動詞",
+     "name": "One verb, many partners",
+     "skills": [
+      "cl-kakeru",
+      "cl-tsukeru",
+      "cl-dasu",
+      "cl-toru",
+      "cl-hiku"
+     ]
+    },
+    {
+     "id": "cl-sense",
+     "p": "〜がする・形容詞",
+     "name": "Senses and adjectives",
+     "skills": [
+      "cl-gasuru",
+      "cl-adj"
+     ]
+    },
+    {
+     "id": "x-colloc",
+     "p": "連語",
+     "name": "Collocations mixed",
+     "skills": [
+      "x-colloc"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "idiom",
+   "title": "Idioms",
+   "blurb": "気 and body-part expressions, and four-character idioms.",
+   "groups": [
+    {
+     "id": "id-ki",
+     "p": "気",
+     "name": "気 expressions",
+     "skills": [
+      "id-ki1",
+      "id-ki2"
+     ]
+    },
+    {
+     "id": "id-body",
+     "p": "体の慣用句",
+     "name": "Body-part idioms",
+     "skills": [
+      "id-head",
+      "id-hand"
+     ]
+    },
+    {
+     "id": "id-yoji",
+     "p": "四字熟語",
+     "name": "Four-character idioms",
+     "skills": [
+      "id-yoji1"
+     ]
+    },
+    {
+     "id": "x-idiom",
+     "p": "慣用句",
+     "name": "Idioms mixed",
+     "skills": [
+      "x-idiom"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "casual",
+   "title": "Casual contractions",
+   "blurb": "What spoken Japanese does to the textbook forms.",
+   "groups": [
+    {
+     "id": "cs-verb",
+     "p": "縮約形 I",
+     "name": "Verb endings",
+     "skills": [
+      "cs-teru",
+      "cs-chau",
+      "cs-nakya"
+     ]
+    },
+    {
+     "id": "cs-end",
+     "p": "縮約形 II",
+     "name": "Sentence endings and quoting",
+     "skills": [
+      "cs-nda",
+      "cs-tte",
+      "cs-sound"
+     ]
+    },
+    {
+     "id": "x-casual",
+     "p": "話し言葉",
+     "name": "Contractions mixed",
+     "skills": [
+      "x-casual"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "compound",
+   "title": "Compound verbs",
+   "blurb": "A second verb on the stem changes direction, degree or completion.",
+   "groups": [
+    {
+     "id": "cv-dir",
+     "p": "複合動詞 I",
+     "name": "Direction",
+     "skills": [
+      "cv-komu",
+      "cv-dasu",
+      "cv-ageru"
+     ]
+    },
+    {
+     "id": "cv-deg",
+     "p": "複合動詞 II",
+     "name": "Completion and repetition",
+     "skills": [
+      "cv-kiru",
+      "cv-au",
+      "cv-naosu",
+      "cv-kakeru"
+     ]
+    },
+    {
+     "id": "x-compound",
+     "p": "複合動詞",
+     "name": "Compound verbs mixed",
+     "skills": [
+      "x-compound"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "gairaigo",
+   "title": "Loanword traps",
+   "blurb": "Katakana words that do not mean what the English word means.",
+   "groups": [
+    {
+     "id": "gr-traps",
+     "p": "外来語",
+     "name": "False friends and made-in-Japan English",
+     "skills": [
+      "gr-false",
+      "gr-wasei",
+      "gr-short"
+     ]
+    },
+    {
+     "id": "x-gairaigo",
+     "p": "カタカナ語",
+     "name": "Loanwords mixed",
+     "skills": [
+      "x-gairaigo"
+     ]
+    }
+   ]
+  }
+ ],
+ "skills": [
+  {
+   "id": "gv-ageru",
+   "group": "gv-basic",
+   "stage": "give",
+   "p": "あげる",
+   "title": "あげる: giving away from me",
+   "lv": 5,
+   "n": 45,
+   "conf": [
+    "くれる",
+    "もらう",
+    "くださる"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "gv-kureru",
+   "group": "gv-basic",
+   "stage": "give",
+   "p": "くれる",
+   "title": "くれる: someone gives to me or mine",
+   "lv": 5,
+   "n": 45,
+   "conf": [
+    "あげる",
+    "もらう",
+    "やる"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "gv-morau",
+   "group": "gv-basic",
+   "stage": "give",
+   "p": "もらう",
+   "title": "もらう: receiving",
+   "lv": 5,
+   "n": 45,
+   "conf": [
+    "あげる",
+    "くれる",
+    "いただく"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "gv-teageru",
+   "group": "gv-te",
+   "stage": "give",
+   "p": "てあげる",
+   "title": "〜てあげる: I do it for someone",
+   "lv": 4,
+   "n": 40,
+   "conf": [
+    "てくれる",
+    "てもらう",
+    "てやる"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "gv-tekureru",
+   "group": "gv-te",
+   "stage": "give",
+   "p": "てくれる",
+   "title": "〜てくれる: someone does it for me",
+   "lv": 4,
+   "n": 45,
+   "conf": [
+    "てあげる",
+    "てもらう",
+    "ていただく"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "gv-temorau",
+   "group": "gv-te",
+   "stage": "give",
+   "p": "てもらう",
+   "title": "〜てもらう: I have someone do it",
+   "lv": 4,
+   "n": 45,
+   "conf": [
+    "てくれる",
+    "てあげる",
+    "てくださる"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "gv-sashiageru",
+   "group": "gv-polite",
+   "stage": "give",
+   "p": "さしあげる",
+   "title": "さしあげる: giving to a superior",
+   "lv": 3,
+   "n": 30,
+   "conf": [
+    "くださる",
+    "いただく",
+    "あげる"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "gv-kudasaru",
+   "group": "gv-polite",
+   "stage": "give",
+   "p": "くださる",
+   "title": "くださる: a superior gives to me",
+   "lv": 3,
+   "n": 30,
+   "conf": [
+    "さしあげる",
+    "いただく",
+    "くれる"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "gv-itadaku",
+   "group": "gv-polite",
+   "stage": "give",
+   "p": "いただく",
+   "title": "いただく: receiving from a superior",
+   "lv": 3,
+   "n": 30,
+   "conf": [
+    "くださる",
+    "さしあげる",
+    "もらう"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "gv-yaru",
+   "group": "gv-polite",
+   "stage": "give",
+   "p": "やる",
+   "title": "やる: giving to pets, plants, juniors",
+   "lv": 4,
+   "n": 20,
+   "conf": [
+    "くれる",
+    "もらう",
+    "さしあげる"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "x-give",
+   "group": "x-give",
+   "stage": "give",
+   "p": "授受",
+   "title": "あげる / くれる / もらう: choose by direction",
+   "lv": 4,
+   "n": 75,
+   "conf": [
+    "あげる",
+    "くれる",
+    "もらう"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "x-give-te",
+   "group": "x-give",
+   "stage": "give",
+   "p": "授受て",
+   "title": "てあげる / てくれる / てもらう: choose by direction",
+   "lv": 4,
+   "n": 65,
+   "conf": [
+    "てあげる",
+    "てくれる",
+    "てもらう"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "tr-aku",
+   "group": "tr-pairs1",
+   "stage": "trans",
+   "p": "開く・開ける",
+   "title": "Doors, lights, switches (開く・開ける, 閉まる・閉める, つく・つける, 消える・消す)",
+   "lv": 4,
+   "n": 55,
+   "conf": [
+    "開ける",
+    "開く",
+    "開けられる"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "tr-hajimaru",
+   "group": "tr-pairs1",
+   "stage": "trans",
+   "p": "始まる・始める",
+   "title": "Start, stop, continue (始まる・始める, 終わる・終える, 止まる・止める, 続く・続ける)",
+   "lv": 4,
+   "n": 55,
+   "conf": [
+    "始める",
+    "始まる",
+    "始められる"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "tr-hairu",
+   "group": "tr-pairs1",
+   "stage": "trans",
+   "p": "入る・入れる",
+   "title": "In, out, up, down (入る・入れる, 出る・出す, 上がる・上げる, 下がる・下げる, 落ちる・落とす)",
+   "lv": 4,
+   "n": 55,
+   "conf": [
+    "入れる",
+    "入る",
+    "入られる"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "tr-kowareru",
+   "group": "tr-pairs1",
+   "stage": "trans",
+   "p": "壊れる・壊す",
+   "title": "Damage and repair (壊れる・壊す, 割れる・割る, 切れる・切る, 折れる・折る, 直る・直す, 汚れる・汚す)",
+   "lv": 4,
+   "n": 55,
+   "conf": [
+    "壊す",
+    "壊れる",
+    "壊される"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "tr-kimaru",
+   "group": "tr-pairs2",
+   "stage": "trans",
+   "p": "決まる・決める",
+   "title": "Decisions and change (決まる・決める, 変わる・変える, 集まる・集める, 見つかる・見つける, 伝わる・伝える)",
+   "lv": 3,
+   "n": 55,
+   "conf": [
+    "決める",
+    "決まる",
+    "決められる"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "tr-narabu",
+   "group": "tr-pairs2",
+   "stage": "trans",
+   "p": "並ぶ・並べる",
+   "title": "Placement and delivery (並ぶ・並べる, かかる・かける, 乗る・乗せる, 届く・届ける, 残る・残す, 渡る・渡す)",
+   "lv": 3,
+   "n": 55,
+   "conf": [
+    "並べる",
+    "並ぶ",
+    "並ばれる"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "tr-okiru",
+   "group": "tr-pairs2",
+   "stage": "trans",
+   "p": "起きる・起こす",
+   "title": "People and amounts (起きる・起こす, 育つ・育てる, 増える・増やす, 減る・減らす, 冷える・冷やす, 温まる・温める)",
+   "lv": 3,
+   "n": 55,
+   "conf": [
+    "起こす",
+    "起きる",
+    "起こされる"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "tr-n2",
+   "group": "tr-pairs2",
+   "stage": "trans",
+   "p": "高まる・高める",
+   "title": "N2 pairs (高まる・高める, 深まる・深める, 広がる・広げる, 済む・済ませる, 片付く・片付ける, 溶ける・溶かす)",
+   "lv": 2,
+   "n": 45,
+   "conf": [
+    "高める",
+    "高まる",
+    "高められる"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "tr-teiru-tearu",
+   "group": "tr-state",
+   "stage": "trans",
+   "p": "ている・てある",
+   "title": "窓が開いている vs 窓が開けてある",
+   "lv": 4,
+   "n": 55,
+   "conf": [
+    "ている",
+    "てある",
+    "ておく"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "x-trans",
+   "group": "x-trans",
+   "stage": "trans",
+   "p": "自他",
+   "title": "Transitive or intransitive? Read the particle",
+   "lv": 3,
+   "n": 85,
+   "conf": [
+    "自動詞",
+    "他動詞"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "kg-son-special",
+   "group": "kg-son",
+   "stage": "keigo",
+   "p": "尊敬語 (特別)",
+   "title": "Special honorific verbs (いらっしゃる・おっしゃる・召し上がる・ご覧になる・なさる・ご存じ)",
+   "lv": 3,
+   "n": 60,
+   "conf": [
+    "参る",
+    "申す",
+    "いただく"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "kg-o-ninaru",
+   "group": "kg-son",
+   "stage": "keigo",
+   "p": "お〜になる",
+   "title": "お〜になる",
+   "lv": 3,
+   "n": 45,
+   "conf": [
+    "お〜する",
+    "〜られる",
+    "お〜いたす"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "kg-rareru",
+   "group": "kg-son",
+   "stage": "keigo",
+   "p": "〜られる (尊敬)",
+   "title": "〜れる / 〜られる as an honorific",
+   "lv": 3,
+   "n": 35,
+   "conf": [
+    "お〜する",
+    "〜させる",
+    "お〜になる"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "kg-o-kudasai",
+   "group": "kg-son",
+   "stage": "keigo",
+   "p": "お〜ください",
+   "title": "お〜ください / ご〜ください",
+   "lv": 3,
+   "n": 35,
+   "conf": [
+    "お〜します",
+    "お〜になります",
+    "〜てくれ"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "kg-ken-special",
+   "group": "kg-ken",
+   "stage": "keigo",
+   "p": "謙譲語 (特別)",
+   "title": "Special humble verbs (参る・申す・いただく・拝見する・いたす・おる・伺う・存じる)",
+   "lv": 3,
+   "n": 60,
+   "conf": [
+    "いらっしゃる",
+    "おっしゃる",
+    "召し上がる"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "kg-o-suru",
+   "group": "kg-ken",
+   "stage": "keigo",
+   "p": "お〜する",
+   "title": "お〜する / ご〜する",
+   "lv": 3,
+   "n": 45,
+   "conf": [
+    "お〜になる",
+    "〜られる",
+    "お〜ください"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "kg-sasete",
+   "group": "kg-ken",
+   "stage": "keigo",
+   "p": "させていただく",
+   "title": "〜させていただく",
+   "lv": 3,
+   "n": 35,
+   "conf": [
+    "てくださる",
+    "ていただく",
+    "させてくださる"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "kg-teitadaku",
+   "group": "kg-ken",
+   "stage": "keigo",
+   "p": "ていただく",
+   "title": "〜ていただく / 〜ていただけませんか",
+   "lv": 3,
+   "n": 35,
+   "conf": [
+    "てくださる",
+    "てさしあげる",
+    "させていただく"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "kg-gozaimasu",
+   "group": "kg-tei",
+   "stage": "keigo",
+   "p": "ございます",
+   "title": "ございます / でございます",
+   "lv": 3,
+   "n": 30,
+   "conf": [
+    "いらっしゃいます",
+    "おります",
+    "あります"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "kg-bika",
+   "group": "kg-tei",
+   "stage": "keigo",
+   "p": "お・ご",
+   "title": "お or ご before a noun",
+   "lv": 3,
+   "n": 30,
+   "conf": [
+    "お",
+    "ご"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "kg-set",
+   "group": "kg-tei",
+   "stage": "keigo",
+   "p": "決まり文句",
+   "title": "Set phrases at work and in shops",
+   "lv": 3,
+   "n": 35,
+   "conf": [
+    "かしこまりました",
+    "恐れ入ります",
+    "少々お待ちください"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "x-keigo",
+   "group": "x-keigo",
+   "stage": "keigo",
+   "p": "敬語",
+   "title": "Honorific or humble? Whose action is it",
+   "lv": 3,
+   "n": 85,
+   "conf": [
+    "尊敬語",
+    "謙譲語"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "x-keigo-biz",
+   "group": "x-keigo",
+   "stage": "keigo",
+   "p": "ビジネス敬語",
+   "title": "Business keigo mixed",
+   "lv": 2,
+   "n": 55,
+   "conf": [
+    "尊敬語",
+    "謙譲語",
+    "丁寧語"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "ko-kore",
+   "group": "ko-point",
+   "stage": "kosoado",
+   "p": "これ・それ・あれ",
+   "title": "これ / それ / あれ",
+   "lv": 5,
+   "n": 45,
+   "conf": [
+    "これ",
+    "それ",
+    "あれ",
+    "どれ"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "ko-kono",
+   "group": "ko-point",
+   "stage": "kosoado",
+   "p": "この・その・あの",
+   "title": "この / その / あの + noun",
+   "lv": 5,
+   "n": 40,
+   "conf": [
+    "これ",
+    "この",
+    "その",
+    "あの"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "ko-koko",
+   "group": "ko-point",
+   "stage": "kosoado",
+   "p": "ここ・そこ・あそこ",
+   "title": "ここ / そこ / あそこ, こちら / そちら / あちら",
+   "lv": 5,
+   "n": 40,
+   "conf": [
+    "ここ",
+    "そこ",
+    "あそこ",
+    "どこ"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "ko-konna",
+   "group": "ko-point",
+   "stage": "kosoado",
+   "p": "こんな・そう",
+   "title": "こんな / そんな / あんな, こう / そう / ああ",
+   "lv": 4,
+   "n": 40,
+   "conf": [
+    "こんな",
+    "そんな",
+    "あんな",
+    "どんな"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "ko-context",
+   "group": "ko-point",
+   "stage": "kosoado",
+   "p": "それ・あれ (文脈)",
+   "title": "それ or あれ for things mentioned: shared or not",
+   "lv": 3,
+   "n": 45,
+   "conf": [
+    "それ",
+    "あれ",
+    "これ"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "ko-dore",
+   "group": "ko-q",
+   "stage": "kosoado",
+   "p": "どれ・どの・どちら",
+   "title": "どれ / どの / どちら / どんな",
+   "lv": 5,
+   "n": 45,
+   "conf": [
+    "どれ",
+    "どの",
+    "どちら",
+    "どんな"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "ko-nani",
+   "group": "ko-q",
+   "stage": "kosoado",
+   "p": "何・誰・どこ・いつ",
+   "title": "Which question word? 何・誰・どこ・いつ・どう・なぜ・いくら・いくつ",
+   "lv": 5,
+   "n": 55,
+   "conf": [
+    "何",
+    "誰",
+    "どこ",
+    "いつ"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "ko-ka",
+   "group": "ko-q",
+   "stage": "kosoado",
+   "p": "何か・誰か",
+   "title": "何か / 誰か / どこか / いつか (some-)",
+   "lv": 5,
+   "n": 35,
+   "conf": [
+    "何も",
+    "何でも",
+    "何が"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "ko-mo",
+   "group": "ko-q",
+   "stage": "kosoado",
+   "p": "何も・誰も",
+   "title": "何も / 誰も / どこも + negative (no-)",
+   "lv": 5,
+   "n": 35,
+   "conf": [
+    "何か",
+    "何でも",
+    "何を"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "ko-demo",
+   "group": "ko-q",
+   "stage": "kosoado",
+   "p": "何でも・誰でも",
+   "title": "何でも / 誰でも / いつでも / どこでも (any-)",
+   "lv": 4,
+   "n": 35,
+   "conf": [
+    "何か",
+    "何も",
+    "何が"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "x-ko-kamodemo",
+   "group": "ko-q",
+   "stage": "kosoado",
+   "p": "か・も・でも",
+   "title": "〜か / 〜も / 〜でも mixed",
+   "lv": 4,
+   "n": 60,
+   "conf": [
+    "何か",
+    "何も",
+    "何でも"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "cn-soshite",
+   "group": "cn-basic",
+   "stage": "connect",
+   "p": "そして・それから",
+   "title": "Addition and sequence (そして・それから・それに・その上)",
+   "lv": 5,
+   "n": 45,
+   "conf": [
+    "しかし",
+    "だから",
+    "それとも"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "cn-shikashi",
+   "group": "cn-basic",
+   "stage": "connect",
+   "p": "でも・しかし",
+   "title": "Contrast (でも・しかし・けれども・ところが)",
+   "lv": 4,
+   "n": 45,
+   "conf": [
+    "だから",
+    "そして",
+    "つまり"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "cn-dakara",
+   "group": "cn-basic",
+   "stage": "connect",
+   "p": "だから・それで",
+   "title": "Result (だから・それで・そのため)",
+   "lv": 4,
+   "n": 40,
+   "conf": [
+    "しかし",
+    "それに",
+    "ところで"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "cn-mataha",
+   "group": "cn-basic",
+   "stage": "connect",
+   "p": "または・それとも",
+   "title": "Alternatives (または・それとも・あるいは)",
+   "lv": 4,
+   "n": 35,
+   "conf": [
+    "そして",
+    "だから",
+    "しかし"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "cn-soredewa",
+   "group": "cn-basic",
+   "stage": "connect",
+   "p": "それでは・ところで",
+   "title": "Changing the subject (それでは・じゃ・ところで・さて)",
+   "lv": 4,
+   "n": 35,
+   "conf": [
+    "だから",
+    "しかし",
+    "それに"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "cn-nazenara",
+   "group": "cn-logic",
+   "stage": "connect",
+   "p": "なぜなら・というのは",
+   "title": "Giving the reason afterwards (なぜなら・というのは・だって)",
+   "lv": 3,
+   "n": 35,
+   "conf": [
+    "だから",
+    "すると",
+    "ところが"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "cn-sorenanoni",
+   "group": "cn-logic",
+   "stage": "connect",
+   "p": "それなのに・それでも",
+   "title": "Despite that (それなのに・それでも・にもかかわらず)",
+   "lv": 3,
+   "n": 40,
+   "conf": [
+    "だから",
+    "そのうえ",
+    "つまり"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "cn-suruto",
+   "group": "cn-logic",
+   "stage": "connect",
+   "p": "すると・そこで",
+   "title": "Then, so, in that case (すると・そこで・それなら)",
+   "lv": 3,
+   "n": 40,
+   "conf": [
+    "しかし",
+    "つまり",
+    "または"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "cn-tsumari",
+   "group": "cn-logic",
+   "stage": "connect",
+   "p": "つまり・要するに",
+   "title": "Restating (つまり・要するに・すなわち)",
+   "lv": 3,
+   "n": 35,
+   "conf": [
+    "しかし",
+    "すると",
+    "ところで"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "cn-tatoeba",
+   "group": "cn-logic",
+   "stage": "connect",
+   "p": "たとえば・特に",
+   "title": "Examples and emphasis (たとえば・特に・とりわけ)",
+   "lv": 3,
+   "n": 30,
+   "conf": [
+    "つまり",
+    "しかし",
+    "それで"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "cn-tadashi",
+   "group": "cn-formal",
+   "stage": "connect",
+   "p": "ただし・なお",
+   "title": "Provisos and notes (ただし・ただ・もっとも・なお)",
+   "lv": 2,
+   "n": 35,
+   "conf": [
+    "したがって",
+    "つまり",
+    "すると"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "cn-shitagatte",
+   "group": "cn-formal",
+   "stage": "connect",
+   "p": "したがって",
+   "title": "Formal consequence (したがって・それゆえ・よって)",
+   "lv": 2,
+   "n": 30,
+   "conf": [
+    "ただし",
+    "ところが",
+    "あるいは"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "x-connect",
+   "group": "x-connect",
+   "stage": "connect",
+   "p": "接続",
+   "title": "Choose the connector by the logic of the two sentences",
+   "lv": 3,
+   "n": 100,
+   "conf": [
+    "しかし",
+    "だから",
+    "そして"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "av-zenzen",
+   "group": "av-neg",
+   "stage": "adverb",
+   "p": "全然・あまり",
+   "title": "全然 / あまり / ちっとも / 決して + ない",
+   "lv": 5,
+   "n": 45,
+   "conf": [
+    "とても",
+    "よく",
+    "きっと"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "av-mettani",
+   "group": "av-neg",
+   "stage": "adverb",
+   "p": "めったに・必ずしも",
+   "title": "めったに / ろくに / 必ずしも / 一切 + ない",
+   "lv": 3,
+   "n": 40,
+   "conf": [
+    "よく",
+    "いつも",
+    "きっと"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "av-nakanaka",
+   "group": "av-neg",
+   "stage": "adverb",
+   "p": "なかなか",
+   "title": "なかなか + ない, and なかなか + praise",
+   "lv": 4,
+   "n": 35,
+   "conf": [
+    "すぐ",
+    "とても",
+    "全然"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "av-masaka",
+   "group": "av-neg",
+   "stage": "adverb",
+   "p": "まさか",
+   "title": "まさか + ないだろう / とは",
+   "lv": 3,
+   "n": 30,
+   "conf": [
+    "きっと",
+    "ぜひ",
+    "たぶん"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "av-kitto",
+   "group": "av-modal",
+   "stage": "adverb",
+   "p": "きっと・たぶん",
+   "title": "きっと / たぶん / おそらく + だろう / でしょう",
+   "lv": 4,
+   "n": 40,
+   "conf": [
+    "ぜひ",
+    "まさか",
+    "全然"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "av-doumo",
+   "group": "av-modal",
+   "stage": "adverb",
+   "p": "どうも・どうやら",
+   "title": "どうも / どうやら + らしい / ようだ",
+   "lv": 3,
+   "n": 35,
+   "conf": [
+    "ぜひ",
+    "きっと",
+    "もし"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "av-zehi",
+   "group": "av-modal",
+   "stage": "adverb",
+   "p": "ぜひ・どうか",
+   "title": "ぜひ / どうか / どうぞ + たい / ください",
+   "lv": 4,
+   "n": 35,
+   "conf": [
+    "たぶん",
+    "まさか",
+    "どうも"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "av-moshi",
+   "group": "av-modal",
+   "stage": "adverb",
+   "p": "もし・万一",
+   "title": "もし / 万一 / 仮に + たら / ば / なら",
+   "lv": 4,
+   "n": 35,
+   "conf": [
+    "たとえ",
+    "まるで",
+    "きっと"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "av-tatoe",
+   "group": "av-modal",
+   "stage": "adverb",
+   "p": "たとえ・いくら",
+   "title": "たとえ / いくら / どんなに + ても",
+   "lv": 3,
+   "n": 40,
+   "conf": [
+    "もし",
+    "まるで",
+    "きっと"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "av-marude",
+   "group": "av-modal",
+   "stage": "adverb",
+   "p": "まるで",
+   "title": "まるで / あたかも + よう / みたい",
+   "lv": 3,
+   "n": 35,
+   "conf": [
+    "たとえ",
+    "もし",
+    "どうも"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "av-sekkaku",
+   "group": "av-modal",
+   "stage": "adverb",
+   "p": "せっかく",
+   "title": "せっかく + のに / のだから",
+   "lv": 3,
+   "n": 30,
+   "conf": [
+    "わざわざ",
+    "たとえ",
+    "まさか"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "av-degree",
+   "group": "av-common",
+   "stage": "adverb",
+   "p": "とても・かなり",
+   "title": "Degree (とても・かなり・ずいぶん・少し・ちょっと・あまり)",
+   "lv": 5,
+   "n": 45,
+   "conf": [
+    "とても",
+    "あまり",
+    "少し"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "av-mou-mada",
+   "group": "av-common",
+   "stage": "adverb",
+   "p": "もう・まだ",
+   "title": "もう or まだ",
+   "lv": 5,
+   "n": 45,
+   "conf": [
+    "もう",
+    "まだ",
+    "また"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "av-time",
+   "group": "av-common",
+   "stage": "adverb",
+   "p": "やっと・とうとう",
+   "title": "Time (すぐ・やっと・とうとう・ついに・そろそろ・さっき・たまに)",
+   "lv": 4,
+   "n": 55,
+   "conf": [
+    "やっと",
+    "そろそろ",
+    "さっき"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "x-adverb",
+   "group": "x-adverb",
+   "stage": "adverb",
+   "p": "副詞",
+   "title": "Which adverb fits this ending?",
+   "lv": 3,
+   "n": 75,
+   "conf": [
+    "きっと",
+    "まさか",
+    "たとえ"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "on-feel",
+   "group": "on-people",
+   "stage": "ono",
+   "p": "どきどき・わくわく",
+   "title": "Feelings (どきどき・わくわく・いらいら・はらはら・がっかり・ほっと・うきうき・びっくり)",
+   "lv": 3,
+   "n": 50,
+   "conf": [
+    "どきどき",
+    "いらいら",
+    "がっかり"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "on-body",
+   "group": "on-people",
+   "stage": "ono",
+   "p": "ぺこぺこ・くたくた",
+   "title": "Body states (ぺこぺこ・からから・へとへと・くたくた・ふらふら・ぐっすり・うとうと)",
+   "lv": 3,
+   "n": 45,
+   "conf": [
+    "ぺこぺこ",
+    "くたくた",
+    "ぐっすり"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "on-talk",
+   "group": "on-people",
+   "stage": "ono",
+   "p": "ぺらぺら・はっきり",
+   "title": "Speech and manner (ぺらぺら・はっきり・ゆっくり・こっそり・のんびり・しっかり・うっかり・ぼんやり)",
+   "lv": 3,
+   "n": 55,
+   "conf": [
+    "ぺらぺら",
+    "こっそり",
+    "うっかり"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "on-laugh",
+   "group": "on-people",
+   "stage": "ono",
+   "p": "にこにこ・しくしく",
+   "title": "Laughing, crying, looking (にこにこ・げらげら・くすくす・しくしく・わんわん・じろじろ・きょろきょろ)",
+   "lv": 3,
+   "n": 45,
+   "conf": [
+    "にこにこ",
+    "げらげら",
+    "じろじろ"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "on-move",
+   "group": "on-people",
+   "stage": "ono",
+   "p": "ぶらぶら・どんどん",
+   "title": "Movement and pace (ぶらぶら・うろうろ・ばたばた・のろのろ・さっさと・どんどん・ぐんぐん・ぞろぞろ)",
+   "lv": 3,
+   "n": 50,
+   "conf": [
+    "ぶらぶら",
+    "のろのろ",
+    "どんどん"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "on-weather",
+   "group": "on-things",
+   "stage": "ono",
+   "p": "ざあざあ・ぴかぴか",
+   "title": "Weather and light (ざあざあ・しとしと・ぽつぽつ・びゅうびゅう・ぴかぴか・きらきら・ごろごろ)",
+   "lv": 3,
+   "n": 45,
+   "conf": [
+    "ざあざあ",
+    "しとしと",
+    "きらきら"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "on-texture",
+   "group": "on-things",
+   "stage": "ono",
+   "p": "ふわふわ・つるつる",
+   "title": "Texture and food (ふわふわ・さらさら・べたべた・つるつる・ざらざら・ぬるぬる・ぱりぱり・もちもち)",
+   "lv": 2,
+   "n": 45,
+   "conf": [
+    "ふわふわ",
+    "べたべた",
+    "ざらざら"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "on-sound",
+   "group": "on-things",
+   "stage": "ono",
+   "p": "とんとん・がたがた",
+   "title": "Sounds (とんとん・がたがた・がちゃん・ばたん・ざわざわ・しいんと)",
+   "lv": 2,
+   "n": 40,
+   "conf": [
+    "とんとん",
+    "がたがた",
+    "ざわざわ"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "on-look",
+   "group": "on-things",
+   "stage": "ono",
+   "p": "ぴったり・そっくり",
+   "title": "Fit and amount (ぴったり・そっくり・ぎりぎり・ばらばら・めちゃくちゃ・ぎっしり・たっぷり・すっきり)",
+   "lv": 3,
+   "n": 50,
+   "conf": [
+    "ぴったり",
+    "ばらばら",
+    "たっぷり"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "x-ono",
+   "group": "x-ono",
+   "stage": "ono",
+   "p": "擬音語・擬態語",
+   "title": "Which word fits the scene?",
+   "lv": 3,
+   "n": 65,
+   "conf": [
+    "どきどき",
+    "ぺらぺら",
+    "ぴかぴか"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "cd-to",
+   "group": "cd-four",
+   "stage": "cond",
+   "p": "〜と",
+   "title": "と: natural consequences, habits, discoveries",
+   "lv": 4,
+   "n": 45,
+   "conf": [
+    "たら",
+    "ば",
+    "なら"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "cd-ba",
+   "group": "cd-four",
+   "stage": "cond",
+   "p": "〜ば",
+   "title": "ば: general conditions, 〜ばいい, 〜ば〜ほど",
+   "lv": 4,
+   "n": 45,
+   "conf": [
+    "と",
+    "たら",
+    "なら"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "cd-tara",
+   "group": "cd-four",
+   "stage": "cond",
+   "p": "〜たら",
+   "title": "たら: one-off events, \"once\", discoveries, 〜たらどう",
+   "lv": 4,
+   "n": 45,
+   "conf": [
+    "と",
+    "ば",
+    "なら"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "cd-nara",
+   "group": "cd-four",
+   "stage": "cond",
+   "p": "〜なら",
+   "title": "なら: taking up what was said; advice",
+   "lv": 4,
+   "n": 45,
+   "conf": [
+    "と",
+    "ば",
+    "たら"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "cd-volition",
+   "group": "cd-more",
+   "stage": "cond",
+   "p": "意志と条件",
+   "title": "A request or intention follows: which conditional is allowed?",
+   "lv": 3,
+   "n": 55,
+   "conf": [
+    "と",
+    "ば",
+    "たら",
+    "なら"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "cd-regret",
+   "group": "cd-more",
+   "stage": "cond",
+   "p": "〜ばよかった",
+   "title": "Unreal conditions and regret (〜ば…のに, 〜ばよかった, 〜たらいいのに)",
+   "lv": 3,
+   "n": 40,
+   "conf": [
+    "と",
+    "なら",
+    "ても"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "cd-temo",
+   "group": "cd-more",
+   "stage": "cond",
+   "p": "〜ても",
+   "title": "ても / でも (even if) against たら",
+   "lv": 4,
+   "n": 40,
+   "conf": [
+    "たら",
+    "ば",
+    "と"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "cd-n2",
+   "group": "cd-more",
+   "stage": "cond",
+   "p": "〜としたら・〜限り",
+   "title": "としたら / とすれば / ものなら / ない限り",
+   "lv": 2,
+   "n": 45,
+   "conf": [
+    "としたら",
+    "ものなら",
+    "ない限り"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "x-cond",
+   "group": "x-cond",
+   "stage": "cond",
+   "p": "条件",
+   "title": "と / ば / たら / なら: choose by context",
+   "lv": 3,
+   "n": 85,
+   "conf": [
+    "と",
+    "ば",
+    "たら",
+    "なら"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "pt-tekudasai",
+   "group": "pt-request",
+   "stage": "pattern1",
+   "p": "てください",
+   "title": "〜てください / 〜ないでください",
+   "lv": 5,
+   "n": 40,
+   "conf": [
+    "てもいいです",
+    "てはいけません",
+    "ましょう"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "pt-temoii",
+   "group": "pt-request",
+   "stage": "pattern1",
+   "p": "てもいい",
+   "title": "〜てもいい",
+   "lv": 5,
+   "n": 35,
+   "conf": [
+    "てはいけない",
+    "なくてもいい",
+    "てください"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "pt-tewaikenai",
+   "group": "pt-request",
+   "stage": "pattern1",
+   "p": "てはいけない",
+   "title": "〜てはいけない",
+   "lv": 5,
+   "n": 35,
+   "conf": [
+    "てもいい",
+    "なくてもいい",
+    "なければならない"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "pt-nakutemoii",
+   "group": "pt-request",
+   "stage": "pattern1",
+   "p": "なくてもいい",
+   "title": "〜なくてもいい",
+   "lv": 5,
+   "n": 30,
+   "conf": [
+    "てはいけない",
+    "なければならない",
+    "てもいい"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "pt-nakereba",
+   "group": "pt-request",
+   "stage": "pattern1",
+   "p": "なければならない",
+   "title": "〜なければならない / 〜なくてはいけない / 〜ないと",
+   "lv": 5,
+   "n": 40,
+   "conf": [
+    "なくてもいい",
+    "てはいけない",
+    "てもいい"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "pt-mashou",
+   "group": "pt-request",
+   "stage": "pattern1",
+   "p": "ましょう・ませんか",
+   "title": "〜ましょう / 〜ませんか / 〜ましょうか",
+   "lv": 5,
+   "n": 35,
+   "conf": [
+    "てください",
+    "たいです",
+    "ています"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "pt-tai",
+   "group": "pt-desire",
+   "stage": "pattern1",
+   "p": "たい",
+   "title": "〜たい / 〜たがる",
+   "lv": 5,
+   "n": 35,
+   "conf": [
+    "ほしい",
+    "つもり",
+    "ましょう"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "pt-hoshii",
+   "group": "pt-desire",
+   "stage": "pattern1",
+   "p": "ほしい・てほしい",
+   "title": "〜がほしい / 〜てほしい",
+   "lv": 4,
+   "n": 35,
+   "conf": [
+    "たい",
+    "てもらう",
+    "てあげる"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "pt-tsumori",
+   "group": "pt-desire",
+   "stage": "pattern1",
+   "p": "つもり",
+   "title": "〜つもりだ",
+   "lv": 4,
+   "n": 35,
+   "conf": [
+    "予定",
+    "はず",
+    "たい"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "pt-youtoomou",
+   "group": "pt-desire",
+   "stage": "pattern1",
+   "p": "〜ようと思う",
+   "title": "Volitional + と思う / 〜ようとする",
+   "lv": 4,
+   "n": 40,
+   "conf": [
+    "つもり",
+    "たい",
+    "そうだ"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "pt-kotonisuru",
+   "group": "pt-desire",
+   "stage": "pattern1",
+   "p": "ことにする・ことになる",
+   "title": "〜ことにする / 〜ことになる / 〜予定だ",
+   "lv": 4,
+   "n": 45,
+   "conf": [
+    "ことがある",
+    "ようにする",
+    "ようになる"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "pt-takotogaaru",
+   "group": "pt-aspect",
+   "stage": "pattern1",
+   "p": "たことがある",
+   "title": "〜たことがある",
+   "lv": 5,
+   "n": 35,
+   "conf": [
+    "ことができる",
+    "ことにする",
+    "たほうがいい"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "pt-teiru",
+   "group": "pt-aspect",
+   "stage": "pattern1",
+   "p": "ている",
+   "title": "〜ている: in progress, resulting state, habit",
+   "lv": 5,
+   "n": 45,
+   "conf": [
+    "てある",
+    "ておく",
+    "た"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "pt-teshimau",
+   "group": "pt-aspect",
+   "stage": "pattern1",
+   "p": "てしまう",
+   "title": "〜てしまう / 〜ちゃう",
+   "lv": 4,
+   "n": 35,
+   "conf": [
+    "ておく",
+    "てみる",
+    "てある"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "pt-teoku",
+   "group": "pt-aspect",
+   "stage": "pattern1",
+   "p": "ておく",
+   "title": "〜ておく",
+   "lv": 4,
+   "n": 35,
+   "conf": [
+    "てしまう",
+    "てみる",
+    "てある"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "pt-temiru",
+   "group": "pt-aspect",
+   "stage": "pattern1",
+   "p": "てみる",
+   "title": "〜てみる",
+   "lv": 4,
+   "n": 30,
+   "conf": [
+    "ておく",
+    "てしまう",
+    "てくる"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "pt-tekuru",
+   "group": "pt-aspect",
+   "stage": "pattern1",
+   "p": "てくる・ていく",
+   "title": "〜てくる / 〜ていく",
+   "lv": 3,
+   "n": 40,
+   "conf": [
+    "てみる",
+    "ておく",
+    "てしまう"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "pt-tokoro",
+   "group": "pt-aspect",
+   "stage": "pattern1",
+   "p": "ところ・ばかり",
+   "title": "〜るところ / 〜ているところ / 〜たところ / 〜たばかり",
+   "lv": 4,
+   "n": 50,
+   "conf": [
+    "るところ",
+    "ているところ",
+    "たところ"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "pt-hajimeru",
+   "group": "pt-aspect",
+   "stage": "pattern1",
+   "p": "〜始める・〜続ける",
+   "title": "〜始める / 〜出す / 〜続ける / 〜終わる",
+   "lv": 4,
+   "n": 40,
+   "conf": [
+    "始める",
+    "出す",
+    "続ける",
+    "終わる"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "pt-dekiru",
+   "group": "pt-ability",
+   "stage": "pattern1",
+   "p": "ことができる",
+   "title": "〜ことができる / potential form",
+   "lv": 4,
+   "n": 35,
+   "conf": [
+    "ことがある",
+    "ことにする",
+    "ようになる"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "pt-youninaru",
+   "group": "pt-ability",
+   "stage": "pattern1",
+   "p": "ようになる・ようにする",
+   "title": "〜ようになる / 〜ようにする",
+   "lv": 4,
+   "n": 45,
+   "conf": [
+    "ことになる",
+    "ことにする",
+    "ことができる"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "pt-yasui",
+   "group": "pt-ability",
+   "stage": "pattern1",
+   "p": "やすい・にくい",
+   "title": "〜やすい / 〜にくい",
+   "lv": 4,
+   "n": 30,
+   "conf": [
+    "やすい",
+    "にくい",
+    "すぎる"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "pt-sugiru",
+   "group": "pt-ability",
+   "stage": "pattern1",
+   "p": "すぎる",
+   "title": "〜すぎる",
+   "lv": 4,
+   "n": 30,
+   "conf": [
+    "やすい",
+    "にくい",
+    "たがる"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "pt-kata",
+   "group": "pt-ability",
+   "stage": "pattern1",
+   "p": "〜方",
+   "title": "〜方: the way of doing",
+   "lv": 5,
+   "n": 25,
+   "conf": [
+    "こと",
+    "もの",
+    "ところ"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "pt-hougaii",
+   "group": "pt-advice",
+   "stage": "pattern1",
+   "p": "たほうがいい",
+   "title": "〜たほうがいい / 〜ないほうがいい",
+   "lv": 4,
+   "n": 35,
+   "conf": [
+    "てもいい",
+    "たことがある",
+    "なければならない"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "pt-tarado",
+   "group": "pt-advice",
+   "stage": "pattern1",
+   "p": "たらどう・といい",
+   "title": "〜たらどうですか / 〜といい / 〜ばいい",
+   "lv": 4,
+   "n": 30,
+   "conf": [
+    "たほうがいい",
+    "てもいい",
+    "てください"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "pt-nasai",
+   "group": "pt-advice",
+   "stage": "pattern1",
+   "p": "なさい・命令形",
+   "title": "〜なさい / command forms / 〜な (don't)",
+   "lv": 4,
+   "n": 40,
+   "conf": [
+    "てください",
+    "ましょう",
+    "てもいい"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "pt-beki",
+   "group": "pt-advice",
+   "stage": "pattern1",
+   "p": "べき",
+   "title": "〜べきだ / 〜べきではない",
+   "lv": 3,
+   "n": 35,
+   "conf": [
+    "はず",
+    "わけ",
+    "つもり"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "pt-maeni",
+   "group": "pt-time",
+   "stage": "pattern1",
+   "p": "前に・後で・てから",
+   "title": "〜前に / 〜た後で / 〜てから",
+   "lv": 5,
+   "n": 45,
+   "conf": [
+    "前に",
+    "後で",
+    "てから"
+   ],
+   "packs": 1
+  },
+  {
+   "id": "pt-toki",
+   "group": "pt-time",
+   "stage": "pattern1",
+   "p": "〜とき",
+   "title": "〜るとき or 〜たとき",
+   "lv": 4,
+   "n": 40,
+   "conf": [
+    "るとき",
+    "たとき",
+    "ているとき"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "pt-aida",
+   "group": "pt-time",
+   "stage": "pattern1",
+   "p": "間・間に・うちに",
+   "title": "〜間 / 〜間に / 〜うちに",
+   "lv": 3,
+   "n": 45,
+   "conf": [
+    "間",
+    "間に",
+    "うちに"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "pt-tabini",
+   "group": "pt-time",
+   "stage": "pattern1",
+   "p": "たびに・ついでに",
+   "title": "〜たびに / 〜ついでに / 〜最中に",
+   "lv": 3,
+   "n": 40,
+   "conf": [
+    "たびに",
+    "ついでに",
+    "最中に"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "pt-totan",
+   "group": "pt-time",
+   "stage": "pattern1",
+   "p": "たとたん・次第",
+   "title": "〜たとたん / 〜かと思うと / 〜次第",
+   "lv": 2,
+   "n": 40,
+   "conf": [
+    "たとたん",
+    "次第",
+    "うちに"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "pt-sou-look",
+   "group": "pt-conject",
+   "stage": "pattern2",
+   "p": "そうだ (様態)",
+   "title": "〜そうだ: looks as if",
+   "lv": 4,
+   "n": 40,
+   "conf": [
+    "ようだ",
+    "らしい",
+    "そうだ(伝聞)"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "pt-sou-hear",
+   "group": "pt-conject",
+   "stage": "pattern2",
+   "p": "そうだ (伝聞)",
+   "title": "〜そうだ: I hear that",
+   "lv": 4,
+   "n": 35,
+   "conf": [
+    "ようだ",
+    "らしい",
+    "そうだ(様態)"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "pt-youda",
+   "group": "pt-conject",
+   "stage": "pattern2",
+   "p": "ようだ・みたいだ",
+   "title": "〜ようだ / 〜みたいだ",
+   "lv": 4,
+   "n": 40,
+   "conf": [
+    "そうだ",
+    "らしい",
+    "はずだ"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "pt-rashii",
+   "group": "pt-conject",
+   "stage": "pattern2",
+   "p": "らしい",
+   "title": "〜らしい: hearsay-based guess, and \"typical of\"",
+   "lv": 4,
+   "n": 35,
+   "conf": [
+    "そうだ",
+    "ようだ",
+    "みたいだ"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "pt-deshou",
+   "group": "pt-conject",
+   "stage": "pattern2",
+   "p": "でしょう・かもしれない",
+   "title": "〜でしょう / 〜だろう / 〜かもしれない",
+   "lv": 4,
+   "n": 45,
+   "conf": [
+    "はずだ",
+    "らしい",
+    "そうだ"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "pt-hazu",
+   "group": "pt-conject",
+   "stage": "pattern2",
+   "p": "はずだ",
+   "title": "〜はずだ / 〜はずがない",
+   "lv": 4,
+   "n": 40,
+   "conf": [
+    "べきだ",
+    "わけだ",
+    "つもりだ"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "pt-nichigainai",
+   "group": "pt-conject",
+   "stage": "pattern2",
+   "p": "に違いない",
+   "title": "〜に違いない / 〜に決まっている",
+   "lv": 3,
+   "n": 35,
+   "conf": [
+    "かもしれない",
+    "はずがない",
+    "わけがない"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "x-pt-conject",
+   "group": "pt-conject",
+   "stage": "pattern2",
+   "p": "推量",
+   "title": "そう / よう / らしい / みたい mixed",
+   "lv": 3,
+   "n": 65,
+   "conf": [
+    "そうだ",
+    "ようだ",
+    "らしい",
+    "みたいだ"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "pt-nda",
+   "group": "pt-explain",
+   "stage": "pattern2",
+   "p": "んです",
+   "title": "〜んです / 〜のだ",
+   "lv": 4,
+   "n": 40,
+   "conf": [
+    "です",
+    "でしょう",
+    "そうです"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "pt-wake",
+   "group": "pt-explain",
+   "stage": "pattern2",
+   "p": "わけ",
+   "title": "〜わけだ / 〜わけがない / 〜わけではない / 〜わけにはいかない",
+   "lv": 3,
+   "n": 60,
+   "conf": [
+    "わけだ",
+    "わけがない",
+    "わけではない",
+    "わけにはいかない"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "pt-mono",
+   "group": "pt-explain",
+   "stage": "pattern2",
+   "p": "ものだ",
+   "title": "〜ものだ / 〜ものではない / 〜もの (because)",
+   "lv": 3,
+   "n": 45,
+   "conf": [
+    "ことだ",
+    "わけだ",
+    "はずだ"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "pt-koto",
+   "group": "pt-explain",
+   "stage": "pattern2",
+   "p": "ことだ",
+   "title": "〜ことだ / 〜ことはない / 〜ということだ",
+   "lv": 3,
+   "n": 45,
+   "conf": [
+    "ものだ",
+    "わけだ",
+    "はずだ"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "x-pt-wake",
+   "group": "pt-explain",
+   "stage": "pattern2",
+   "p": "わけ・はず・もの・こと",
+   "title": "わけ / はず / もの / こと mixed",
+   "lv": 2,
+   "n": 60,
+   "conf": [
+    "わけだ",
+    "はずだ",
+    "ものだ",
+    "ことだ"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "pt-tame",
+   "group": "pt-purpose",
+   "stage": "pattern2",
+   "p": "ために",
+   "title": "〜ために: purpose, and cause",
+   "lv": 4,
+   "n": 40,
+   "conf": [
+    "ように",
+    "のに",
+    "には"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "pt-youni",
+   "group": "pt-purpose",
+   "stage": "pattern2",
+   "p": "ように",
+   "title": "〜ように (so that) against 〜ために",
+   "lv": 4,
+   "n": 45,
+   "conf": [
+    "ために",
+    "のに",
+    "には"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "pt-okagede",
+   "group": "pt-purpose",
+   "stage": "pattern2",
+   "p": "おかげで・せいで",
+   "title": "〜おかげで / 〜せいで / 〜ばかりに",
+   "lv": 3,
+   "n": 40,
+   "conf": [
+    "おかげで",
+    "せいで",
+    "ために"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "pt-kuseni",
+   "group": "pt-purpose",
+   "stage": "pattern2",
+   "p": "くせに・わりに",
+   "title": "〜くせに / 〜わりに / 〜にしては",
+   "lv": 3,
+   "n": 40,
+   "conf": [
+    "くせに",
+    "わりに",
+    "にしては"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "pt-no-koto",
+   "group": "pt-nominal",
+   "stage": "pattern2",
+   "p": "の・こと",
+   "title": "の or こと to turn a clause into a noun",
+   "lv": 4,
+   "n": 45,
+   "conf": [
+    "の",
+    "こと",
+    "もの"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "pt-kadouka",
+   "group": "pt-nominal",
+   "stage": "pattern2",
+   "p": "かどうか",
+   "title": "〜かどうか / questions inside a sentence",
+   "lv": 4,
+   "n": 35,
+   "conf": [
+    "かどうか",
+    "か",
+    "と"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "pt-quote",
+   "group": "pt-nominal",
+   "stage": "pattern2",
+   "p": "と言う・ように言う",
+   "title": "〜と言う / 〜と思う / 〜ように言う",
+   "lv": 4,
+   "n": 40,
+   "conf": [
+    "と",
+    "ように",
+    "ことを"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "pt-toiu",
+   "group": "pt-nominal",
+   "stage": "pattern2",
+   "p": "という",
+   "title": "〜という + noun / 〜というのは / 〜といっても",
+   "lv": 3,
+   "n": 40,
+   "conf": [
+    "という",
+    "というのは",
+    "といっても"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "pt-hikaku",
+   "group": "pt-nominal",
+   "stage": "pattern2",
+   "p": "より・ほど・一番",
+   "title": "AよりBのほうが / AほどBない / 〜の中で一番",
+   "lv": 4,
+   "n": 50,
+   "conf": [
+    "より",
+    "ほど",
+    "一番"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "pt-passive",
+   "group": "pt-voice",
+   "stage": "pattern2",
+   "p": "受身",
+   "title": "Passive, including the \"it happened to me\" passive",
+   "lv": 4,
+   "n": 45,
+   "conf": [
+    "使役",
+    "可能",
+    "使役受身"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "pt-causative",
+   "group": "pt-voice",
+   "stage": "pattern2",
+   "p": "使役・使役受身",
+   "title": "Causative and causative-passive",
+   "lv": 3,
+   "n": 50,
+   "conf": [
+    "受身",
+    "可能",
+    "使役受身"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "pt-sasete",
+   "group": "pt-voice",
+   "stage": "pattern2",
+   "p": "させてください",
+   "title": "〜させてください / 〜させてもらう",
+   "lv": 3,
+   "n": 30,
+   "conf": [
+    "てください",
+    "させられる",
+    "てもらう"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "pt-zuni",
+   "group": "pt-voice",
+   "stage": "pattern2",
+   "p": "ないで・なくて・ずに",
+   "title": "〜ないで / 〜なくて / 〜ずに",
+   "lv": 3,
+   "n": 45,
+   "conf": [
+    "ないで",
+    "なくて",
+    "ずに"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "pt-gachi",
+   "group": "pt-n3",
+   "stage": "pattern2",
+   "p": "がち・気味・っぽい",
+   "title": "〜がち / 〜気味 / 〜っぽい / 〜だらけ",
+   "lv": 3,
+   "n": 45,
+   "conf": [
+    "がち",
+    "気味",
+    "っぽい",
+    "だらけ"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "pt-kiru",
+   "group": "pt-n3",
+   "stage": "pattern2",
+   "p": "きる・かけ・っぱなし",
+   "title": "〜きる / 〜かけ / 〜っぱなし / 〜ぬく",
+   "lv": 2,
+   "n": 45,
+   "conf": [
+    "きる",
+    "かけ",
+    "っぱなし",
+    "ぬく"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "pt-ippou",
+   "group": "pt-n3",
+   "stage": "pattern2",
+   "p": "一方だ・つつある",
+   "title": "〜一方だ / 〜つつある / 〜ばかりだ",
+   "lv": 2,
+   "n": 40,
+   "conf": [
+    "一方だ",
+    "つつある",
+    "ばかりだ"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "pt-zaruwoenai",
+   "group": "pt-n3",
+   "stage": "pattern2",
+   "p": "ざるを得ない",
+   "title": "〜ざるを得ない / 〜ないわけにはいかない / 〜ずにはいられない",
+   "lv": 2,
+   "n": 45,
+   "conf": [
+    "ざるを得ない",
+    "ずにはいられない",
+    "わけにはいかない"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "pt-kanenai",
+   "group": "pt-n3",
+   "stage": "pattern2",
+   "p": "かねない・かねる",
+   "title": "〜かねない / 〜かねる / 〜得る / 〜がたい",
+   "lv": 2,
+   "n": 45,
+   "conf": [
+    "かねない",
+    "かねる",
+    "得る",
+    "がたい"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "pt-toshitemo",
+   "group": "pt-n2",
+   "stage": "pattern2",
+   "p": "としても・にしても",
+   "title": "〜としても / 〜にしても / 〜にせよ",
+   "lv": 2,
+   "n": 40,
+   "conf": [
+    "としても",
+    "にしては",
+    "としたら"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "pt-younai",
+   "group": "pt-n2",
+   "stage": "pattern2",
+   "p": "ようがない・っこない",
+   "title": "〜ようがない / 〜っこない / 〜わけがない",
+   "lv": 2,
+   "n": 40,
+   "conf": [
+    "ようがない",
+    "っこない",
+    "かねない"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "pt-bayokatta",
+   "group": "pt-n2",
+   "stage": "pattern2",
+   "p": "ばよかった・てよかった",
+   "title": "〜ばよかった / 〜てよかった / 〜なければよかった",
+   "lv": 3,
+   "n": 35,
+   "conf": [
+    "ばよかった",
+    "てよかった",
+    "たらいい"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "pt-dokoroka",
+   "group": "pt-n2",
+   "stage": "pattern2",
+   "p": "どころか・ばかりか",
+   "title": "〜どころか / 〜ばかりか / 〜はもちろん",
+   "lv": 2,
+   "n": 40,
+   "conf": [
+    "どころか",
+    "ばかりか",
+    "はもちろん"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "ym-n5-days",
+   "group": "ym-n5",
+   "stage": "yomi",
+   "p": "日・月・火・水・木・金・土",
+   "title": "日・月・火・水・木・金・土 in words (日曜日, 三日, 毎日, 今月, 月曜日, 水道, お金)",
+   "lv": 5,
+   "n": 45,
+   "conf": [
+    "にち",
+    "ひ",
+    "か"
+   ],
+   "packs": 0,
+   "ask": "reading"
+  },
+  {
+   "id": "ym-n5-size",
+   "group": "ym-n5",
+   "stage": "yomi",
+   "p": "人・大・小・中・上・下",
+   "title": "人・大・小・中・上・下 (大人, 一人, 三人, 大きい, 大学, 上手, 上がる, 一日中)",
+   "lv": 5,
+   "n": 50,
+   "conf": [
+    "じん",
+    "にん",
+    "ひと"
+   ],
+   "packs": 0,
+   "ask": "reading"
+  },
+  {
+   "id": "ym-n5-move",
+   "group": "ym-n5",
+   "stage": "yomi",
+   "p": "生・行・来・出・入・分",
+   "title": "生・行・来・出・入・分 (生まれる, 学生, 行く, 行う, 来月, 出す, 入口, 五分, 自分)",
+   "lv": 5,
+   "n": 50,
+   "conf": [
+    "せい",
+    "なま",
+    "い"
+   ],
+   "packs": 0,
+   "ask": "reading"
+  },
+  {
+   "id": "ym-n5-time",
+   "group": "ym-n5",
+   "stage": "yomi",
+   "p": "今・何・年・時・間・後・前",
+   "title": "今・何・年・時・間・後・前 (今年, 今朝, 何人, 何曜日, 時々, 時間, 人間, 後ろ, 午後)",
+   "lv": 5,
+   "n": 50,
+   "conf": [
+    "いま",
+    "こん",
+    "なん"
+   ],
+   "packs": 0,
+   "ask": "reading"
+  },
+  {
+   "id": "ym-jukuji",
+   "group": "ym-special",
+   "stage": "yomi",
+   "p": "熟字訓",
+   "title": "Whole-word readings (今日・明日・昨日・大人・一人・二人・二十歳・上手・下手・果物・部屋・時計)",
+   "lv": 4,
+   "n": 55,
+   "conf": [
+    "こんにち",
+    "みょうにち",
+    "おとな"
+   ],
+   "packs": 0,
+   "ask": "reading"
+  },
+  {
+   "id": "ym-onkun",
+   "group": "ym-special",
+   "stage": "yomi",
+   "p": "音読み・訓読み",
+   "title": "On or kun? Alone against in a compound (山・登山, 水・水道, 車・電車, 花・花火)",
+   "lv": 4,
+   "n": 50,
+   "conf": [
+    "さん",
+    "やま",
+    "すい"
+   ],
+   "packs": 0,
+   "ask": "reading"
+  },
+  {
+   "id": "ym-rendaku",
+   "group": "ym-special",
+   "stage": "yomi",
+   "p": "連濁・促音",
+   "title": "Sound changes in compounds (手紙, 時々, 青空, 学校, 発表, 出発, 雑誌)",
+   "lv": 3,
+   "n": 45,
+   "conf": [
+    "てかみ",
+    "ときとき",
+    "がくこう"
+   ],
+   "packs": 0,
+   "ask": "reading"
+  },
+  {
+   "id": "ym-n4-a",
+   "group": "ym-n4",
+   "stage": "yomi",
+   "p": "明・通・開・着・重・楽",
+   "title": "明・通・開・着・重・楽 (明るい, 明日, 説明, 通る, 通う, 交通, 着る, 着く, 重い, 体重, 楽しい, 音楽)",
+   "lv": 4,
+   "n": 50,
+   "conf": [
+    "めい",
+    "あか",
+    "つう"
+   ],
+   "packs": 0,
+   "ask": "reading"
+  },
+  {
+   "id": "ym-n4-b",
+   "group": "ym-n4",
+   "stage": "yomi",
+   "p": "物・事・方・家・場・所",
+   "title": "物・事・方・家・場・所 (食べ物, 荷物, 動物, 仕事, 食事, 夕方, 方法, 家族, 大家, 場所, 台所)",
+   "lv": 4,
+   "n": 50,
+   "conf": [
+    "もの",
+    "ぶつ",
+    "もつ"
+   ],
+   "packs": 0,
+   "ask": "reading"
+  },
+  {
+   "id": "ym-n3-a",
+   "group": "ym-n4",
+   "stage": "yomi",
+   "p": "直・降・空・苦・治・止",
+   "title": "直・降・空・苦・治・止 (直す, 正直, 降りる, 降る, 空, 空く, 空気, 苦い, 苦しい, 治る, 政治)",
+   "lv": 3,
+   "n": 50,
+   "conf": [
+    "なお",
+    "ちょく",
+    "じき"
+   ],
+   "packs": 0,
+   "ask": "reading"
+  },
+  {
+   "id": "ym-n3-b",
+   "group": "ym-n4",
+   "stage": "yomi",
+   "p": "代・風・手・目・角・背",
+   "title": "代・風・手・目・角・背 (時代, 代わり, 風邪, 和風, 選手, 手伝う, 目的, 三角, 角, 背中)",
+   "lv": 3,
+   "n": 45,
+   "conf": [
+    "だい",
+    "か",
+    "しろ"
+   ],
+   "packs": 0,
+   "ask": "reading"
+  },
+  {
+   "id": "ym-n2",
+   "group": "ym-n4",
+   "stage": "yomi",
+   "p": "N2 の読み",
+   "title": "N2 words that are often misread (大勢, 行方, 相手, 場合, 手続き, 合図, 見本, 日付, 割合)",
+   "lv": 2,
+   "n": 45,
+   "conf": [
+    "たいせい",
+    "こうほう",
+    "あいて"
+   ],
+   "packs": 0,
+   "ask": "reading"
+  },
+  {
+   "id": "x-yomi",
+   "group": "x-yomi",
+   "stage": "yomi",
+   "p": "読み",
+   "title": "Read the word in its sentence",
+   "lv": 3,
+   "n": 65,
+   "conf": [
+    "にち",
+    "ひ",
+    "か"
+   ],
+   "packs": 0,
+   "ask": "reading"
+  },
+  {
+   "id": "nt-n5",
+   "group": "nt-shape",
+   "stage": "nita",
+   "p": "待・持・特",
+   "title": "First look-alikes (待・持・特, 大・太・犬, 右・石, 木・本, 人・入, 千・干, 土・士)",
+   "lv": 5,
+   "n": 40,
+   "conf": [
+    "持",
+    "特",
+    "侍"
+   ],
+   "packs": 0,
+   "ask": "kanji"
+  },
+  {
+   "id": "nt-n4-a",
+   "group": "nt-shape",
+   "stage": "nita",
+   "p": "買・貸・借",
+   "title": "買・貸・質, 牛・午, 鳥・島, 末・未, 白・百・自, 体・休",
+   "lv": 4,
+   "n": 40,
+   "conf": [
+    "貸",
+    "質",
+    "貨"
+   ],
+   "packs": 0,
+   "ask": "kanji"
+  },
+  {
+   "id": "nt-n4-b",
+   "group": "nt-shape",
+   "stage": "nita",
+   "p": "住・注・主",
+   "title": "住・往・注・主, 送・迷・逃, 開・閉・間・聞・問・関",
+   "lv": 4,
+   "n": 45,
+   "conf": [
+    "注",
+    "往",
+    "主"
+   ],
+   "packs": 0,
+   "ask": "kanji"
+  },
+  {
+   "id": "nt-n3-a",
+   "group": "nt-shape",
+   "stage": "nita",
+   "p": "復・複・腹",
+   "title": "復・複・腹, 験・検・険, 績・積・責, 適・敵・滴",
+   "lv": 3,
+   "n": 45,
+   "conf": [
+    "複",
+    "腹",
+    "複"
+   ],
+   "packs": 0,
+   "ask": "kanji"
+  },
+  {
+   "id": "nt-n3-b",
+   "group": "nt-shape",
+   "stage": "nita",
+   "p": "微・徴",
+   "title": "微・徴, 緑・録・縁, 幸・辛, 困・因, 輸・輪, 墓・暮・募・幕",
+   "lv": 3,
+   "n": 45,
+   "conf": [
+    "徴",
+    "微",
+    "緑"
+   ],
+   "packs": 0,
+   "ask": "kanji"
+  },
+  {
+   "id": "nt-homophone",
+   "group": "nt-spell",
+   "stage": "nita",
+   "p": "会う・合う",
+   "title": "Same sound, different kanji (会う・合う, 暑い・熱い・厚い, 早い・速い, 聞く・効く, 着る・切る, 帰る・変える)",
+   "lv": 3,
+   "n": 55,
+   "conf": [
+    "合う",
+    "遭う",
+    "逢う"
+   ],
+   "packs": 0,
+   "ask": "kanji"
+  },
+  {
+   "id": "nt-okurigana",
+   "group": "nt-spell",
+   "stage": "nita",
+   "p": "送り仮名",
+   "title": "Okurigana (少ない・少し, 細い・細かい, 行う, 短い, 新しい, 冷たい・冷える・冷やす)",
+   "lv": 3,
+   "n": 45,
+   "conf": [
+    "少い",
+    "少ない",
+    "少くない"
+   ],
+   "packs": 0,
+   "ask": "kanji"
+  },
+  {
+   "id": "x-nita",
+   "group": "x-nita",
+   "stage": "nita",
+   "p": "似た漢字",
+   "title": "Choose the right kanji for the word",
+   "lv": 3,
+   "n": 55,
+   "conf": [
+    "持",
+    "待",
+    "特"
+   ],
+   "packs": 0,
+   "ask": "kanji"
+  },
+  {
+   "id": "cl-wear",
+   "group": "cl-daily",
+   "stage": "colloc",
+   "p": "着る・履く・かぶる",
+   "title": "Wearing: 着る, 履く, かぶる, かける, する, つける (服, 靴, 帽子, 眼鏡, ネクタイ, 指輪)",
+   "lv": 5,
+   "n": 45,
+   "conf": [
+    "着る",
+    "履く",
+    "かぶる",
+    "かける"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "cl-take",
+   "group": "cl-daily",
+   "stage": "colloc",
+   "p": "飲む・浴びる・撮る",
+   "title": "Not \"take\": 薬を飲む, シャワーを浴びる, 写真を撮る, 電話をかける, 風邪を引く, 試験を受ける",
+   "lv": 5,
+   "n": 50,
+   "conf": [
+    "取る",
+    "飲む",
+    "浴びる",
+    "撮る"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "cl-play",
+   "group": "cl-daily",
+   "stage": "colloc",
+   "p": "弾く・吹く・する",
+   "title": "Not \"play\": ピアノを弾く, 笛を吹く, 太鼓をたたく, サッカーをする, ゲームをする",
+   "lv": 5,
+   "n": 40,
+   "conf": [
+    "弾く",
+    "吹く",
+    "する",
+    "遊ぶ"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "cl-weather",
+   "group": "cl-daily",
+   "stage": "colloc",
+   "p": "降る・吹く・鳴る",
+   "title": "Weather and nature: 雨が降る, 風が吹く, 雷が鳴る, 日が暮れる, 霧が出る, 花が咲く",
+   "lv": 4,
+   "n": 40,
+   "conf": [
+    "降る",
+    "吹く",
+    "鳴る",
+    "出る"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "cl-life",
+   "group": "cl-daily",
+   "stage": "colloc",
+   "p": "入る・出る・取る",
+   "title": "Life events: お風呂に入る, 大学を出る, 年を取る, 休みを取る, 約束を守る, 予約を入れる",
+   "lv": 4,
+   "n": 45,
+   "conf": [
+    "入る",
+    "出る",
+    "取る",
+    "守る"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "cl-kakeru",
+   "group": "cl-verbs",
+   "stage": "colloc",
+   "p": "かける",
+   "title": "かける: 電話, 眼鏡, 鍵, 時間, 迷惑, 声, 音楽, 塩",
+   "lv": 4,
+   "n": 50,
+   "conf": [
+    "つける",
+    "する",
+    "取る",
+    "出す"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "cl-tsukeru",
+   "group": "cl-verbs",
+   "stage": "colloc",
+   "p": "つける",
+   "title": "つける: 電気, 名前, 気, 味, 日記, 薬, 力",
+   "lv": 4,
+   "n": 45,
+   "conf": [
+    "かける",
+    "する",
+    "入れる",
+    "出す"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "cl-dasu",
+   "group": "cl-verbs",
+   "stage": "colloc",
+   "p": "出す",
+   "title": "出す: 手紙, 宿題, 声, 元気, 結論, ごみ, お金",
+   "lv": 4,
+   "n": 45,
+   "conf": [
+    "送る",
+    "上げる",
+    "かける",
+    "つける"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "cl-toru",
+   "group": "cl-verbs",
+   "stage": "colloc",
+   "p": "取る",
+   "title": "取る: 年, 休み, 連絡, 責任, 点, メモ, 予約, 食事",
+   "lv": 3,
+   "n": 45,
+   "conf": [
+    "する",
+    "持つ",
+    "かける",
+    "出す"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "cl-hiku",
+   "group": "cl-verbs",
+   "stage": "colloc",
+   "p": "引く",
+   "title": "引く: 風邪, 辞書, 線, 興味, 手, くじ",
+   "lv": 3,
+   "n": 35,
+   "conf": [
+    "取る",
+    "かける",
+    "見る",
+    "する"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "cl-gasuru",
+   "group": "cl-sense",
+   "stage": "colloc",
+   "p": "〜がする",
+   "title": "〜がする: 音, 声, 味, 匂い, 香り, 気, 感じ, 頭痛, 寒気",
+   "lv": 4,
+   "n": 45,
+   "conf": [
+    "がある",
+    "がいる",
+    "をする",
+    "になる"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "cl-adj",
+   "group": "cl-sense",
+   "stage": "colloc",
+   "p": "濃い・薄い・強い",
+   "title": "Adjective partners: 濃い / 薄い (味, 色, お茶), 強い / 弱い (風, 酒), 重い / 軽い (病気, 責任), 高い / 低い (声, 熱), 激しい (雨, 運動)",
+   "lv": 3,
+   "n": 50,
+   "conf": [
+    "濃い",
+    "強い",
+    "重い",
+    "高い"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "x-colloc",
+   "group": "x-colloc",
+   "stage": "colloc",
+   "p": "連語",
+   "title": "Choose the verb this noun takes",
+   "lv": 4,
+   "n": 90,
+   "conf": [
+    "する",
+    "取る",
+    "かける",
+    "出す"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "id-ki1",
+   "group": "id-ki",
+   "stage": "idiom",
+   "p": "気がする・気になる",
+   "title": "気がする, 気になる, 気にする, 気をつける, 気がつく, 気に入る, 気が合う",
+   "lv": 3,
+   "n": 70,
+   "conf": [
+    "気がする",
+    "気になる",
+    "気にする",
+    "気をつける"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "id-ki2",
+   "group": "id-ki",
+   "stage": "idiom",
+   "p": "気が重い・気を遣う",
+   "title": "気が重い, 気が短い, 気が利く, 気が散る, 気が済む, 気を遣う, 気が向く, 気が楽",
+   "lv": 2,
+   "n": 55,
+   "conf": [
+    "気が重い",
+    "気が利く",
+    "気が散る",
+    "気を遣う"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "id-head",
+   "group": "id-body",
+   "stage": "idiom",
+   "p": "頭・顔・目・耳・口・鼻",
+   "title": "Head: 頭に来る, 頭が固い, 顔が広い, 顔を出す, 目がない, 目を通す, 耳が痛い, 口が堅い, 口に合う, 鼻が高い",
+   "lv": 2,
+   "n": 65,
+   "conf": [
+    "頭に来る",
+    "顔が広い",
+    "目がない",
+    "口が堅い"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "id-hand",
+   "group": "id-body",
+   "stage": "idiom",
+   "p": "手・足・腹・腕・首・胸",
+   "title": "Body: 手を貸す, 手が空く, 手に入れる, 足を引っ張る, 足が出る, 腹が立つ, 腕がいい, 首になる, 胸がいっぱい, 肩を持つ",
+   "lv": 2,
+   "n": 65,
+   "conf": [
+    "手を貸す",
+    "腹が立つ",
+    "首になる",
+    "足を引っ張る"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "id-yoji1",
+   "group": "id-yoji",
+   "stage": "idiom",
+   "p": "四字熟語",
+   "title": "Common ones: 一生懸命, 一石二鳥, 十人十色, 一期一会, 自業自得, 四苦八苦, 以心伝心, 三日坊主, 半信半疑, 試行錯誤",
+   "lv": 2,
+   "n": 60,
+   "conf": [
+    "一石二鳥",
+    "十人十色",
+    "自業自得",
+    "三日坊主"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "x-idiom",
+   "group": "x-idiom",
+   "stage": "idiom",
+   "p": "慣用句",
+   "title": "Which expression fits the situation?",
+   "lv": 2,
+   "n": 80,
+   "conf": [
+    "気になる",
+    "腹が立つ",
+    "一石二鳥",
+    "手を貸す"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "cs-teru",
+   "group": "cs-verb",
+   "stage": "casual",
+   "p": "〜てる・〜とく",
+   "title": "〜ている → 〜てる, 〜ておく → 〜とく, 〜でいる → 〜でる, 〜でおく → 〜どく",
+   "lv": 4,
+   "n": 50,
+   "conf": [
+    "てる",
+    "とく",
+    "でる",
+    "どく"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "cs-chau",
+   "group": "cs-verb",
+   "stage": "casual",
+   "p": "〜ちゃう・〜じゃう",
+   "title": "〜てしまう → 〜ちゃう, 〜でしまう → 〜じゃう, 〜ちゃった, 〜じゃった",
+   "lv": 4,
+   "n": 50,
+   "conf": [
+    "ちゃう",
+    "じゃう",
+    "ちゃった",
+    "とく"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "cs-nakya",
+   "group": "cs-verb",
+   "stage": "casual",
+   "p": "〜なきゃ・〜なくちゃ",
+   "title": "〜なければ → 〜なきゃ, 〜なくては → 〜なくちゃ, 〜ては → 〜ちゃ, 〜では → 〜じゃ",
+   "lv": 4,
+   "n": 45,
+   "conf": [
+    "なきゃ",
+    "なくちゃ",
+    "ちゃ",
+    "じゃ"
+   ],
+   "packs": 2
+  },
+  {
+   "id": "cs-nda",
+   "group": "cs-end",
+   "stage": "casual",
+   "p": "〜んだ・〜の",
+   "title": "〜のだ → 〜んだ, 〜のです → 〜んです, questions with 〜の？, 〜もの → 〜もん",
+   "lv": 4,
+   "n": 45,
+   "conf": [
+    "んだ",
+    "の",
+    "もん",
+    "んです"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "cs-tte",
+   "group": "cs-end",
+   "stage": "casual",
+   "p": "〜って・〜っけ",
+   "title": "〜と / 〜という / 〜は → 〜って, 〜っけ, 〜じゃん, 〜かな",
+   "lv": 3,
+   "n": 50,
+   "conf": [
+    "って",
+    "っけ",
+    "じゃん",
+    "かな"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "cs-sound",
+   "group": "cs-end",
+   "stage": "casual",
+   "p": "音の変化",
+   "title": "Sound changes: すみません → すいません, 〜ところ → 〜とこ, やはり → やっぱり, あまり → あんまり, 〜らない → 〜んない",
+   "lv": 3,
+   "n": 40,
+   "conf": [
+    "とこ",
+    "やっぱり",
+    "あんまり",
+    "すいません"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "x-casual",
+   "group": "x-casual",
+   "stage": "casual",
+   "p": "話し言葉",
+   "title": "Full form and spoken form: match them",
+   "lv": 3,
+   "n": 80,
+   "conf": [
+    "てる",
+    "ちゃう",
+    "なきゃ",
+    "って"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "cv-komu",
+   "group": "cv-dir",
+   "stage": "compound",
+   "p": "〜込む",
+   "title": "〜込む: into, deeply (飛び込む, 申し込む, 思い込む, 持ち込む, 落ち込む)",
+   "lv": 3,
+   "n": 50,
+   "conf": [
+    "出す",
+    "上げる",
+    "切る",
+    "合う"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "cv-dasu",
+   "group": "cv-dir",
+   "stage": "compound",
+   "p": "〜出す",
+   "title": "〜出す: out, and suddenly starting (取り出す, 思い出す, 飛び出す, 泣き出す, 走り出す)",
+   "lv": 3,
+   "n": 50,
+   "conf": [
+    "込む",
+    "上げる",
+    "切る",
+    "始める"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "cv-ageru",
+   "group": "cv-dir",
+   "stage": "compound",
+   "p": "〜上げる・〜上がる",
+   "title": "〜上げる / 〜上がる: up, completely (持ち上げる, 立ち上がる, 仕上げる, 出来上がる, 取り上げる)",
+   "lv": 3,
+   "n": 45,
+   "conf": [
+    "込む",
+    "出す",
+    "下げる",
+    "切る"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "cv-kiru",
+   "group": "cv-deg",
+   "stage": "compound",
+   "p": "〜切る・〜切れる",
+   "title": "〜切る / 〜切れる: to the end, cannot finish (使い切る, 食べ切れない, 疲れ切る, 言い切る)",
+   "lv": 2,
+   "n": 45,
+   "conf": [
+    "込む",
+    "出す",
+    "終わる",
+    "過ぎる"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "cv-au",
+   "group": "cv-deg",
+   "stage": "compound",
+   "p": "〜合う",
+   "title": "〜合う: each other (話し合う, 助け合う, 知り合う, 付き合う, 間に合う)",
+   "lv": 3,
+   "n": 45,
+   "conf": [
+    "込む",
+    "出す",
+    "切る",
+    "直す"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "cv-naosu",
+   "group": "cv-deg",
+   "stage": "compound",
+   "p": "〜直す・〜返す",
+   "title": "〜直す / 〜返す: again, back (やり直す, 書き直す, 考え直す, 繰り返す, 言い返す, 取り返す)",
+   "lv": 3,
+   "n": 45,
+   "conf": [
+    "切る",
+    "合う",
+    "出す",
+    "込む"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "cv-kakeru",
+   "group": "cv-deg",
+   "stage": "compound",
+   "p": "〜かける・〜かかる",
+   "title": "〜かける / 〜かかる: towards, about to (話しかける, 出かける, 通りかかる, 取りかかる, 言いかける)",
+   "lv": 2,
+   "n": 40,
+   "conf": [
+    "込む",
+    "出す",
+    "合う",
+    "切る"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "x-compound",
+   "group": "x-compound",
+   "stage": "compound",
+   "p": "複合動詞",
+   "title": "Which second verb completes it?",
+   "lv": 3,
+   "n": 80,
+   "conf": [
+    "込む",
+    "出す",
+    "切る",
+    "合う"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "gr-false",
+   "group": "gr-traps",
+   "stage": "gairaigo",
+   "p": "意味のずれ",
+   "title": "False friends: マンション, バイキング, サービス, クレーム, スマート, テンション, ナイーブ, カンニング, トランプ, ジュース",
+   "lv": 3,
+   "n": 60,
+   "conf": [
+    "マンション",
+    "サービス",
+    "クレーム",
+    "スマート"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "gr-wasei",
+   "group": "gr-traps",
+   "stage": "gairaigo",
+   "p": "和製英語",
+   "title": "Made-in-Japan English: サラリーマン, コンセント, ノートパソコン, ガソリンスタンド, フロント, レンジ, ホッチキス, ペーパードライバー",
+   "lv": 3,
+   "n": 55,
+   "conf": [
+    "コンセント",
+    "フロント",
+    "レンジ",
+    "サラリーマン"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "gr-short",
+   "group": "gr-traps",
+   "stage": "gairaigo",
+   "p": "略語",
+   "title": "Shortened words: コンビニ, パソコン, スマホ, リモコン, エアコン, アプリ, バイト, デパート, アニメ",
+   "lv": 4,
+   "n": 50,
+   "conf": [
+    "コンビニ",
+    "パソコン",
+    "リモコン",
+    "エアコン"
+   ],
+   "packs": 0
+  },
+  {
+   "id": "x-gairaigo",
+   "group": "x-gairaigo",
+   "stage": "gairaigo",
+   "p": "カタカナ語",
+   "title": "Which katakana word is meant?",
+   "lv": 3,
+   "n": 55,
+   "conf": [
+    "マンション",
+    "コンセント",
+    "コンビニ",
+    "サービス"
+   ],
+   "packs": 0
+  }
+ ],
+ "course": "grammar"
+}

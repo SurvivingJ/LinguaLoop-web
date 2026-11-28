@@ -1,0 +1,29 @@
+[
+ {"id":"kara-from-1","lv":5,
+  "tpl":"<a>{から|kara-from}<b>{まで|made-until}<t>かかります。",
+  "en":"It takes <t> from <a> to <b>.",
+  "f":0,"d":["まで","に","で"],
+  "why":"から marks the starting point of the trip; まで marks where it ends.",
+  "vars":{
+   "a":[["家[いえ]","my house"],["駅[えき]","the station"],["ホテル","the hotel"],["大学[だいがく]","the university"],["病院[びょういん]","the hospital"],["図書館[としょかん]","the library"],["公園[こうえん]","the park"]],
+   "b":[["会社[かいしゃ]","the office"],["空港[くうこう]","the airport"],["美術館[びじゅつかん]","the art museum"],["港[みなと]","the port"],["動物園[どうぶつえん]","the zoo"],["市役所[しやくしょ]","city hall"],["海[うみ]","the sea"]],
+   "t":[["五分[ごふん]","five minutes"],["十五分[じゅうごふん]","fifteen minutes"],["二十分[にじゅっぷん]","twenty minutes"],["三十分[さんじゅっぷん]","thirty minutes"],["四十分[よんじゅっぷん]","forty minutes"],["一時間[いちじかん]","an hour"],["一時間半[いちじかんはん]","an hour and a half"]]}},
+ {"id":"kara-from-2","lv":5,
+  "tpl":"<who>{は|wa-topic}毎日[まいにち]<time>{から|kara-from}<act>。",
+  "en":"<who> <act> every day from <time>.",
+  "f":1,"d":["まで","で","を"],
+  "why":"The time an activity starts from takes から.",
+  "vars":{
+   "who":[["兄[あに]","My older brother"],["姉[あね]","My older sister"],["父[ちち]","My father"],["母[はは]","My mother"],["田中[たなか]さん","Mr. Tanaka"],["山田[やまだ]さん","Ms. Yamada"],["その学生[がくせい]","That student"]],
+   "time":[["朝[あさ]六時[ろくじ]","six in the morning"],["七時半[しちじはん]","half past seven"],["八時[はちじ]","eight"],["九時[くじ]","nine"],["十時[じゅうじ]","ten"],["午後[ごご]一時[いちじ]","one in the afternoon"],["朝[あさ]早[はや]く","early in the morning"]],
+   "act":[["働[はたら]きます","works"],["勉強[べんきょう]します","studies"],["練習[れんしゅう]します","practises"],["ピアノ{を|o-object}弾[ひ]きます","plays the piano"],["家事[かじ]{を|o-object}します","does the housework"],["本[ほん]{を|o-object}読[よ]みます","reads"]]}},
+ {"id":"kara-from-3","lv":4,
+  "tpl":"<when>{から|kara-from}<who><verb>。",
+  "en":"I haven't <verb> <who> since <when>.",
+  "f":0,"d":["まで","で","を"],
+  "why":"から after a past point in time with a negative ~ていません means \"since then\".",
+  "vars":{
+   "when":[["去年[きょねん]","last year"],["先月[せんげつ]","last month"],["先週[せんしゅう]","last week"],["夏休[なつやす]み","the summer holidays"],["お正月[しょうがつ]","New Year"],["春[はる]","the spring"],["三月[さんがつ]","March"]],
+   "who":[["田中[たなか]さん","Mr. Tanaka"],["山田[やまだ]さん","Ms. Yamada"],["祖母[そぼ]","my grandmother"],["叔父[おじ]","my uncle"],["いとこ","my cousin"],["先生[せんせい]","the teacher"],["兄[あに]","my older brother"]],
+   "verb":[["{に|ni-target}会[あ]っていません","seen"],["{と|to-with}話[はな]していません","talked to"],["{に|ni-recipient}連絡[れんらく]していません","contacted"],["{に|ni-recipient}電話[でんわ]していません","phoned"],["{と|to-with}食事[しょくじ]していません","had a meal with"],["{に|ni-recipient}手紙[てがみ]{を|o-object}書[か]いていません","written to"]]}}
+]

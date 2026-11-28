@@ -1,0 +1,98 @@
+{"group":"conditionals",
+ "intro":"All four join a condition A to a result B, and all four can be translated \"if\" or \"when\". What differs is the link between A and B. と: B follows A automatically, every time. ば: A is the condition B depends on (\"as long as A\"). たら: once A has happened, B; the all-purpose \"if / when\". なら: \"if that is the case\": A is taken as given, often from what someone just said, and B is your comment on it.",
+ "skills":[
+  {"id":"to-conditional",
+   "rule":"Plain non-past + と: whenever A happens, B follows as a matter of course, and B is never a request, wish or plan.",
+   "explain":"と attaches to the dictionary form or the ない-form, never to the past: 押すと, 行かないと, 安いと, 静かだと, 雨だと. The tense of the whole sentence is carried by the last verb.\n\nと states a fixed link that the speaker has no say in: machines (このボタンを押すと), nature (春になると), habits (父は飲むとすぐ寝る) and directions (角を曲がると、駅があります).\n\nThat is its hard edge: the main clause cannot be a request, command, invitation, wish or decision. 駅に着くと電話してください is wrong; use たら. With a past main clause, と reports what you found or what happened next in a story: 外に出ると、雨が降っていた \"when I went outside, it was raining\".",
+   "patterns":["[plain non-past] と、[automatic result]","[verb dictionary form] と、[discovery in the past]"],
+   "examples":[
+    {"jp":"春[はる]になる{と}、暖[あたた]かくなります。","en":"When spring comes, it gets warm."},
+    {"jp":"このボタンを押[お]す{と}、お湯[ゆ]が出[で]ます。","en":"If you press this button, hot water comes out."},
+    {"jp":"まっすぐ行[い]く{と}、右[みぎ]に銀行[ぎんこう]があります。","en":"If you go straight on, there's a bank on the right."},
+    {"jp":"父[ちち]はお酒[さけ]を飲[の]む{と}、すぐ寝[ね]てしまいます。","en":"Whenever my father drinks, he falls asleep right away."},
+    {"jp":"窓[まど]を開[あ]ける{と}、外[そと]は雪[ゆき]だった。","en":"When I opened the window, it was snowing outside."}],
+   "contrast":[
+    {"vs":"たら","note":"たら also means \"when / if\" and can be followed by a request or plan: 着いたら電話して. Choose と only when B is an automatic or habitual outcome."},
+    {"vs":"ば","note":"For general truths ば is also correct (押せば開く). ば puts the weight on the condition (\"as long as you press\"); と simply links cause and outcome."},
+    {"vs":"ても","note":"ても is the opposite link: \"even if\". 押すと開く \"press it and it opens\"; 押しても開かない \"even if you press it, it won't open\"."}],
+   "mistakes":[
+    {"bad":"駅[えき]に着[つ]く{と}、電話[でんわ]してください。","good":"駅[えき]に着[つ]い{たら}、電話[でんわ]してください。","note":"と cannot be followed by a request. Use たら."},
+    {"bad":"雨[あめ]が降[ふ]った{と}、道[みち]が滑[すべ]りやすくなります。","good":"雨[あめ]が降[ふ]る{と}、道[みち]が滑[すべ]りやすくなります。","note":"と never follows the past form: 降ると, not 降ったと. The last verb carries the tense."}],
+   "tip":"Can you add \"every time, automatically\"? Then と. Is the second half a request or a plan? Then not と."},
+  {"id":"ba-conditional",
+   "rule":"The ば-form says \"if A holds, B\": it singles out A as the condition that B depends on.",
+   "explain":"Forms: godan verbs change the final -u to -e + ば (行けば, 飲めば, あれば); ichidan verbs take れば (食べれば); する → すれば, 来る → 来れば; い-adjectives take ければ (安ければ, and いい → よければ); ない → なければ. Nouns and na-adjectives use であれば, or more often なら.\n\nば focuses on what it takes: \"as long as A\", \"all you need is A\". It is the form of advice and regret: 薬を飲めばよくなる, どうすればいいですか, 聞けばよかった \"I should have asked\". ～ば～ほど means \"the more ..., the more ...\".\n\nThe edge: if the ば-clause is your listener's or your own action, the main clause cannot be a request, invitation or intention: say 着いたら電話して, not 着けば. (Someone else's action is fine: 君が行けば僕も行く.) If A is a state (ある, いる, できる, an adjective, a negative), requests are fine: 時間があれば来てください. With a past main clause, ば usually describes what did not happen: 早く出れば間に合ったのに.",
+   "patterns":["[ば-form]、[result]","[ば-form] いい / よかった","[ば-form] [same word, dictionary form] ほど"],
+   "examples":[
+    {"jp":"安[やす]けれ{ば}、買[か]います。","en":"If it's cheap, I'll buy it."},
+    {"jp":"時間[じかん]があれ{ば}、手伝[てつだ]ってください。","en":"If you have time, please help."},
+    {"jp":"この薬[くすり]を飲[の]め{ば}、熱[ねつ]が下[さ]がりますよ。","en":"If you take this medicine, your fever will go down."},
+    {"jp":"駅[えき]へはどう行[い]け{ば}いいですか。","en":"How do I get to the station?"},
+    {"jp":"もっと勉強[べんきょう]すれ{ば}よかった。","en":"I should have studied more."},
+    {"jp":"練習[れんしゅう]すれ{ば}するほど上手[じょうず]になります。","en":"The more you practise, the better you get."}],
+   "contrast":[
+    {"vs":"たら","note":"In conversation たら can replace most ば. It must replace it when an action is followed by a request or plan: 着いたら電話して, not 着けば."},
+    {"vs":"なら","note":"なら reacts to a premise already on the table (\"if you're going, then ...\"). ば asks what condition brings B about. Nouns take なら, not ば."}],
+   "mistakes":[
+    {"bad":"安[やす]いれ{ば}、買[か]います。","good":"安[やす]けれ{ば}、買[か]います。","note":"An い-adjective drops い and adds ければ."},
+    {"bad":"駅[えき]に着[つ]け{ば}、電話[でんわ]してください。","good":"駅[えき]に着[つ]い{たら}、電話[でんわ]してください。","note":"After an action in the ば-clause, a request sounds wrong. Use たら."},
+    {"bad":"学生[がくせい]{ば}、安[やす]くなります。","good":"学生[がくせい]{なら}、安[やす]くなります。","note":"A noun cannot take ば directly. Use なら (or であれば)."}],
+   "tip":"Think \"as long as A\" or \"all it takes is A\". Before a request, check that A is a state; if it is an action, switch to たら."},
+  {"id":"tara-conditional",
+   "rule":"Plain past + ら: once A has happened, B; the all-purpose \"if\" and \"when\".",
+   "explain":"Make the plain past and add ら: 行ったら, 食べたら, 来たら, 安かったら, 暇だったら, 雨だったら, 行かなかったら. The past form does not mean past time; it means A is complete before B starts.\n\nたら covers \"if\" (雨だったら行きません) and \"when\" for something sure to happen (家に着いたら電話します). Unlike と, and unlike ば after an action, it freely takes any main clause: requests, invitations, wishes, decisions. In conversation it is the safe default.\n\nWith a past main clause, B is something you found or that happened outside your control: 箱を開けたら、空だった \"when I opened the box, it was empty\". It cannot narrate your own next deliberate act: \"I got home and did my homework\" is 帰ってから宿題をしました. And because A must come first, \"if you're going to Kyoto, take the shinkansen\" needs なら, not 行ったら.",
+   "patterns":["[plain past] ら、[any main clause]","[plain past] ら、[discovery] た"],
+   "examples":[
+    {"jp":"雨[あめ]だっ{たら}、行[い]きません。","en":"If it rains, I won't go."},
+    {"jp":"家[いえ]に着[つ]い{たら}、電話[でんわ]してください。","en":"Please call me when you get home."},
+    {"jp":"暇[ひま]だっ{たら}、一緒[いっしょ]に映画[えいが]を見[み]ませんか。","en":"If you're free, would you like to see a film together?"},
+    {"jp":"読[よ]み終[お]わっ{たら}、貸[か]してください。","en":"When you've finished reading it, please lend it to me."},
+    {"jp":"宝[たから]くじが当[あ]たっ{たら}、何[なに]をしますか。","en":"What would you do if you won the lottery?"},
+    {"jp":"箱[はこ]を開[あ]け{たら}、中[なか]は空[から]だった。","en":"When I opened the box, it was empty."}],
+   "contrast":[
+    {"vs":"と","note":"と cannot take a request or plan; たら can. For machines and nature both work, but と sounds more like a fixed rule."},
+    {"vs":"なら","note":"たら: B happens after A. なら: B can come first. 日本に行ったら買う is \"buy it there\"; 日本に行くなら買う is \"buy it before the trip\"."},
+    {"vs":"てから","note":"For your own actions in sequence in the past, use て or てから. A past main clause after たら means B was a discovery or not your doing."}],
+   "mistakes":[
+    {"bad":"家[いえ]に帰[かえ]っ{たら}、宿題[しゅくだい]をしました。","good":"家[いえ]に帰[かえ]っ{てから}、宿題[しゅくだい]をしました。","note":"たら plus a past main clause implies something unexpected. For your own next action, use てから."},
+    {"bad":"京都[きょうと]へ行[い]っ{たら}、新幹線[しんかんせん]が便利[べんり]ですよ。","good":"京都[きょうと]へ行[い]く{なら}、新幹線[しんかんせん]が便利[べんり]ですよ。","note":"The shinkansen is how you get there, so B comes before A. Use なら."},
+    {"bad":"安[やす]い{たら}、買[か]います。","good":"安[やす]かっ{たら}、買[か]います。","note":"たら attaches to the plain past: 安い → 安かった → 安かったら."}],
+   "tip":"Can you say \"once A has happened, then B\"? たら fits. If B has to happen first, use なら."},
+  {"id":"nara-conditional",
+   "rule":"Noun or plain form + なら: \"if that is the case\"; take A as given, often from what someone just said, and say what follows.",
+   "explain":"なら attaches directly to nouns and na-adjective stems (雨なら, 静かなら, 学生なら) and to plain verb and い-adjective forms (行くなら, 行ったなら, 高いなら). No だ goes in front of it: 雨なら, not 雨だなら.\n\nなら picks up a topic or a supposition and gives advice, an opinion or a decision about it. 「カメラを買いたい」「カメラなら、あの店が安いよ」. After a noun it often means \"if it's X you're talking about\".\n\nUnlike the other three, なら imposes no time order. 日本へ行くなら、円に両替しておいたほうがいい: change money before you go. 行ったら would mean once you are there. なら is not for automatic or general results: \"when spring comes, the cherry trees bloom\" is 春になると, never 春になるなら. In speech you will also hear のなら and んなら with the same meaning.",
+   "patterns":["[noun / na-adjective] なら、[comment or advice]","[plain verb / い-adjective] なら、[comment or advice]"],
+   "examples":[
+    {"jp":"寿司[すし]{なら}、駅前[えきまえ]の店[みせ]がおいしいですよ。","en":"If it's sushi you want, the place by the station is good."},
+    {"jp":"雨[あめ]{なら}、試合[しあい]は中止[ちゅうし]です。","en":"If it rains, the match is off."},
+    {"jp":"疲[つか]れている{なら}、早[はや]く寝[ね]たほうがいいよ。","en":"If you're tired, you should go to bed early."},
+    {"jp":"山[やま]に行[い]く{なら}、暖[あたた]かい服[ふく]を持[も]って行[い]ってね。","en":"If you're going to the mountains, take warm clothes."},
+    {"jp":"日本[にほん]へ行[い]く{なら}、円[えん]に両替[りょうがえ]しておいたほうがいいです。","en":"If you're going to Japan, you should change money into yen first."}],
+   "contrast":[
+    {"vs":"たら","note":"たら needs A to happen first. なら does not: 行くなら傘を持って行って means take the umbrella with you from the start."},
+    {"vs":"ば","note":"ば states the condition that brings B about (薬を飲めば治る). なら takes A as a given premise and comments on it (薬を飲むなら、食後にしてね)."}],
+   "mistakes":[
+    {"bad":"雨[あめ]だ{なら}、行[い]きません。","good":"雨[あめ]{なら}、行[い]きません。","note":"なら follows a noun directly, with no だ."},
+    {"bad":"春[はる]になる{なら}、桜[さくら]が咲[さ]きます。","good":"春[はる]になる{と}、桜[さくら]が咲[さ]きます。","note":"An automatic seasonal result takes と, not なら."},
+    {"bad":"日本[にほん]に着[つ]く{なら}、電話[でんわ]してください。","good":"日本[にほん]に着[つ]い{たら}、電話[でんわ]してください。","note":"The call comes after arriving, so use たら. なら would ask for the call before you land."}],
+   "tip":"Can you begin with \"if that's the case\" or \"if it's X you mean\"? なら. It is the only one where B can happen before A."},
+  {"id":"x-conditionals",
+   "rule":"Ask in order: B before A, or reacting to a given topic? なら. B a request, wish or plan? たら. Automatic result? と. Advice or regret with いい / よかった? ば. Otherwise たら.",
+   "explain":"Q1. Does B happen before A, or are you reacting to a topic someone has raised? なら: 行くなら傘を持って行って, 寿司なら駅前の店.\n\nQ2. Is B a request, invitation, wish or decision? たら: 着いたら電話して. と is impossible here, and ば works only if A is a state: 時間があれば来て.\n\nQ3. Is B an automatic or repeated result (machines, nature, habits, directions)? と: 押すとお湯が出る. ば and たら are also correct; と sounds most like a fixed rule.\n\nQ4. Advice or regret with いい / よかった, or ～ば～ほど? ば: どうすればいい, 聞けばよかった.\n\nQ5. Is B in the past? A discovery or surprise takes たら or と: 開けたら空だった. Your own next deliberate act takes none of them: use て or てから.\n\nOtherwise, たら: it is the default in conversation.",
+   "patterns":["B before A / given topic → なら","request, wish, plan → たら","automatic result → と","いい / よかった / ほど → ば","anything else → たら"],
+   "examples":[
+    {"jp":"日本[にほん]へ行[い]く{なら}、カメラを買[か]います。","en":"If I'm going to Japan, I'll buy a camera (before I go)."},
+    {"jp":"日本[にほん]へ行[い]っ{たら}、カメラを買[か]います。","en":"When I get to Japan, I'll buy a camera (there)."},
+    {"jp":"春[はる]になる{と}、桜[さくら]が咲[さ]きます。","en":"When spring comes, the cherry trees bloom."},
+    {"jp":"駅[えき]に着[つ]い{たら}、電話[でんわ]してください。","en":"Please call me when you get to the station."},
+    {"jp":"どうすれ{ば}いいですか。","en":"What should I do?"},
+    {"jp":"ドアを開[あ]け{たら}、猫[ねこ]がいた。","en":"When I opened the door, there was a cat."}],
+   "contrast":[
+    {"vs":"と / たら","note":"Both can describe an automatic result, but only たら can be followed by a request, wish or plan."},
+    {"vs":"ば / たら","note":"Both mean \"if\"; after an action, only たら can be followed by a request. ば owns いい / よかった advice and regret."},
+    {"vs":"なら / たら","note":"たら: A first, then B. なら: B may come first, and A is a premise taken from the context."}],
+   "mistakes":[
+    {"bad":"駅[えき]に着[つ]く{と}、電話[でんわ]してください。","good":"駅[えき]に着[つ]い{たら}、電話[でんわ]してください。","note":"A request cannot follow と. Use たら."},
+    {"bad":"「パソコンを買[か]いたい。」「パソコンを買[か]っ{たら}、秋葉原[あきはばら]がいいよ。」","good":"「パソコンを買[か]いたい。」「パソコンを買[か]う{なら}、秋葉原[あきはばら]がいいよ。」","note":"You are reacting to the other person's plan, and the shop comes before the purchase: なら."}],
+   "tip":"Does B come first or answer a given topic? なら. Is B a request? たら. Otherwise ask whether B is automatic (と) or advice (ば), and fall back on たら."}
+ ]}

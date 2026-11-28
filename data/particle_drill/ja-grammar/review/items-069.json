@@ -1,0 +1,7 @@
+{"batch":"items-069","files":["items/x-ono.jsonl"],"checked":69,"fixed":5,"deleted":0,"replaced":0,"issues":[
+{"file":"items/x-ono.jsonl","jp_before":"子[こ]どもが高[たか]い木[き]に登[のぼ]るのを、母[はは]は{はらはら|on-feel}しながら見[み]ていた。","problem":"母 means 'my mother', which does not match the English 'The mother watched her child'.","action":"Changed 母 to 母親[ははおや] so the Japanese matches the generic English."},
+{"file":"items/x-ono.jsonl","jp_before":"通訳[つうやく]の山田[やまだ]さんは、三[みっ]つの言葉[ことば]を{ぺらぺら|on-talk}話[はな]す。","problem":"Near-duplicate of the other ぺらぺら fluency item; 三つの言葉 is unnatural for 'three languages' (三か国語); an interpreter being fluent is tautological.","action":"Rewrote as a はっきり断る item: 嫌[いや]な頼[たの]みは、{はっきり|on-talk}断[ことわ]ったほうがいいよ。"},
+{"file":"items/x-ono.jsonl","jp_before":"質問[しつもん]があれば、遠慮[えんりょ]せずに{どんどん|on-move}聞[き]いてください。","problem":"English 'ask one after another' is a stiff, literal rendering of どんどん.","action":"English changed to 'don't hold back: ask as many as you like.'"},
+{"file":"items/x-ono.jsonl","jp_before":"掃除[そうじ]をしたら、窓[まど]が{ぴかぴか|on-weather}になった。","problem":"Near-duplicate frame of the すっきり item (掃除をしたら、部屋が…した).","action":"Rewrote as 窓[まど]をよく拭[ふ]いたら、{ぴかぴか|on-weather}になった。 with matching English."},
+{"file":"items/x-ono.jsonl","jp_before":"お風呂[ふろ]上[あ]がり、髪[かみ]が{さらさら|on-texture}になった。","problem":"Hair straight out of the bath is wet, so 'became smooth and silky' is an odd scene; the bare お風呂上がり、 phrasing is also abrupt.","action":"Rewrote as シャンプーを変[か]えたら、髪[かみ]が{さらさら|on-texture}になった。 with matching English."}
+]}

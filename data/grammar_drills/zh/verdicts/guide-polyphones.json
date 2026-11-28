@@ -1,0 +1,14 @@
+{
+  "file": "guides/polyphones.json",
+  "checked": 8,
+  "fixed": 6,
+  "issues": [
+    {"problem": "rules[0]: '了, 得, 着 right after a verb are light' would give huò de for 获得 / 取得 (得 right after a verb but read dé); the pattern 'Verb + 得了 → liǎo' read as clashing with the example 得了第一名 dé le.", "action": "Rephrased as 'as particles after a verb' vs 'with their own meaning', added 获得 to dé, glossed 不了/得了 as can/can't manage; cheat line updated to 得到 / 获得 dé."},
+    {"problem": "rules[1] pattern '地 + noun syllable → dì' misses 地 at the end of a word (本地, 土地).", "action": "Pattern now says 地 in a word for ground or place (地方, 地铁, 本地) → dì."},
+    {"problem": "rules[2]: '都 dū = capital city' does not cover 成都, which the sub focus lists.", "action": "Changed to 'capital or big city (首都, 成都)'."},
+    {"problem": "rules[7], verb-pairs focus and contrasts[7]: '教 jiào in nouns' is false as a mechanical test: 教育 is also a verb and 请教 is a verb, both jiào.", "action": "Restated as jiāo for 'teach + person or subject' (教我们, 教书), jiào in set words (教室, 教育, 教练, 请教)."},
+    {"problem": "rules[8]: the yìng list omitted 应用, a common word that the 'everyday tone' default would misread as yīng yòng.", "action": "Added 应用 to the yìng words."},
+    {"problem": "rules[9]: 差 chā listed only 差别 / 时差, so 差距 would default to chà; 倒 omitted the common adverb 倒是 (dào), so 'dǎo elsewhere' reasoning fails.", "action": "chā glossed as 'difference' with 差距 added; 倒 dào now includes 'actually' (倒是)."},
+    {"problem": "Validator could not run: opencc and pypinyin not installed in the environment.", "action": "Ran validate-guide with pypinyin extracted from the repo wheel and an identity opencc stub in the scratchpad (repo untouched); checked the traditional-character test by hand: all characters are simplified. Reports OK."}
+  ]
+}

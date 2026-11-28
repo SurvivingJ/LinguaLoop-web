@@ -1,0 +1,43 @@
+{"group":"x-keigo",
+ "intro":"Keigo is a choice between three directions. Honorific (尊敬語) raises the person who does the action. Humble (謙譲語) lowers the doer, who must be you or your side. Polite (丁寧語: です, ます, ございます) is aimed only at the listener. So you never start from the verb; you start from the doer. These two clinics are the decision procedure: who acts, which side they are on, and whether the verb has a special keigo form.",
+ "skills":[
+  {"id":"x-keigo",
+   "rule":"First find the doer: the respected person's action takes honorific, my own action takes humble; then use the special verb if one exists.",
+   "explain":"Ask in this order.\n\n1. Who does the action? Find the subject, even when it is unspoken. ください, ませんか and a question about the listener usually mean the listener acts; a statement about plans usually means I act.\n\n2. Is the doer someone I respect (teacher, customer, the listener)? Honorific: いらっしゃる, おっしゃる, 召し上がる, ご覧になる, なさる, ご存じ, or お〜になる, 〜られる. Is it me or my side? Humble: 参る, 申す, いただく, 拝見する, いたす, おる, 伺う, 存じる, or お〜する.\n\n3. Does the verb have a special form? Use it before any general pattern: ご覧になる, not お見になる; 拝見する, not お見する.\n\n4. Never cross the wires. A humble verb with an honorific ending (申される, 参られる) is still humble, and a humble verb about the respected person lowers them. Requests are honorific too: ご覧ください, 召し上がってください.",
+   "patterns":["Q1 Who acts?  Q2 Respected person → 尊敬語 / me or my side → 謙譲語  Q3 Special verb? Use it.","先生が いらっしゃる ⇔ 私が 参る","先生が おっしゃる ⇔ 私が 申す","先生が 召し上がる ⇔ 私が いただく","先生が ご覧になる ⇔ 私が 拝見する"],
+   "examples":[
+    {"jp":"先生[せんせい]は明日[あした]、何時[なんじ]に{いらっしゃいますか}。","en":"What time will you be coming tomorrow, sir?"},
+    {"jp":"私[わたし]は三時[さんじ]ごろ{参[まい]ります}。","en":"I will come at about three."},
+    {"jp":"どうぞ、温[あたた]かいうちに{召[め]し上[あ]がってください}。","en":"Please eat it while it is warm."},
+    {"jp":"では、遠慮[えんりょ]なく{いただきます}。","en":"Then I'll gladly have some."},
+    {"jp":"先生[せんせい]がそう{おっしゃいました}。","en":"That is what the teacher said."},
+    {"jp":"先生[せんせい]のご本[ほん]を{拝見[はいけん]しました}。","en":"I read your book, sir."}],
+   "contrast":[
+    {"vs":"尊敬語","note":"For the respected person's action, including requests to them: ご覧ください, お座りください, お使いになりますか."},
+    {"vs":"謙譲語","note":"For my own action, or my side's: 拝見します, お送りします, 母がそう申しておりました."},
+    {"vs":"丁寧語","note":"です / ます alone. Correct but neutral; it raises nobody in the sentence."}],
+   "mistakes":[
+    {"bad":"どうぞ、こちらの資料[しりょう]を{拝見[はいけん]してください}。","good":"どうぞ、こちらの資料[しりょう]を{ご覧[らん]ください}。","note":"The listener does the looking, so it must be honorific; 拝見 is only for your own looking."},
+    {"bad":"先生[せんせい]、そのことを{存[ぞん]じていますか}。","good":"先生[せんせい]、そのことを{ご存[ぞん]じですか}。","note":"The teacher is the one who knows: honorific ご存じ. 存じる is for your own knowing."},
+    {"bad":"受付[うけつけ]の方[かた]が{申[もう]されました}。","good":"受付[うけつけ]の方[かた]が{おっしゃいました}。","note":"申す is humble; られる cannot make it honorific. Use おっしゃる."}],
+   "tip":"Put your finger on the doer before you open your mouth. You or yours: lower. Them: raise. Then reach for the special verb."},
+  {"id":"x-keigo-biz",
+   "rule":"At work the line is inside versus outside: to a client, everyone in your own company, your boss included, gets humble forms and no さん.",
+   "explain":"Ask in this order.\n\n1. Who is the listener? Inside your company, rank decides: your manager's actions are honorific (部長がおっしゃいました). Speaking to a client or caller, your whole company is your side.\n\n2. Whose action is it? A client's action: honorific (お越しになる, ご確認ください). Anyone of yours, including the president: humble and the bare surname: 田中はただいま外出しております, 部長の佐藤が伺います.\n\n3. Is no person acting? For things and facts use polite forms: ございます, でございます.\n\n4. One layer is enough. おっしゃられる and ご覧になられる stack two honorific forms; say おっしゃる, ご覧になる.\n\nFixed vocabulary goes with it: 弊社 'our company' against 御社 (spoken) and 貴社 (written) 'your company'; 承知いたしました, お世話になっております.",
+   "patterns":["To a client about my boss: [surname] は 〜ております / 〜いたします","To a client about the client: 〜でいらっしゃいます / お〜になります / ご〜ください","About a thing: 〜がございます / 〜でございます","弊社 (ours) ⇔ 御社・貴社 (yours)"],
+   "examples":[
+    {"jp":"申[もう]し訳[わけ]ございません。田中[たなか]はただいま{外出[がいしゅつ]しております}。","en":"I'm very sorry. Tanaka is out of the office at the moment."},
+    {"jp":"明日[あした]、部長[ぶちょう]の佐藤[さとう]が御社[おんしゃ]に{伺[うかが]います}。","en":"Tomorrow our manager, Sato, will visit your company."},
+    {"jp":"鈴木様[すずきさま]は何時[なんじ]ごろ{お越[こ]しになりますか}。","en":"Around what time will you be coming, Mr Suzuki?"},
+    {"jp":"添付[てんぷ]の資料[しりょう]を{ご確認[かくにん]ください}。","en":"Please check the attached documents."},
+    {"jp":"会議室[かいぎしつ]は三階[さんがい]に{ございます}。","en":"The meeting room is on the third floor."},
+    {"jp":"部長[ぶちょう]、先方[せんぽう]がそう{おっしゃっていました}。","en":"Sir, that is what the client said."}],
+   "contrast":[
+    {"vs":"尊敬語","note":"For the client's action, and for your boss only when you talk inside the company."},
+    {"vs":"謙譲語","note":"For anything your company does when you speak to outsiders, however senior the person: 社長が申しておりました."},
+    {"vs":"丁寧語","note":"For things and facts with no respected doer: 在庫がございます, こちらが新製品でございます."}],
+   "mistakes":[
+    {"bad":"お電話[でんわ]ありがとうございます。田中[たなか]部長[ぶちょう]は今[いま]、{いらっしゃいません}。","good":"お電話[でんわ]ありがとうございます。部長[ぶちょう]の田中[たなか]は今[いま]、席[せき]を{外[はず]しております}。","note":"To an outsider your own boss is your side: no title after the name, and humble おる, not honorific いらっしゃる."},
+    {"bad":"お客様[きゃくさま]が{おっしゃられました}。","good":"お客様[きゃくさま]が{おっしゃいました}。","note":"おっしゃる is already honorific; adding られる is double keigo."},
+    {"bad":"資料[しりょう]はもう{ご覧[らん]になられましたか}。","good":"資料[しりょう]はもう{ご覧[らん]になりましたか}。","note":"ご覧になる is already honorific; adding られる is double keigo."}],
+   "tip":"On the phone to a client, picture your whole office as 'me'. Everyone in it is lowered; only the caller is raised."}]}

@@ -1,0 +1,9 @@
+{"batch":"items-017","files":["items/tr-n2.jsonl"],"checked":47,"fixed":6,"deleted":1,"replaced":1,"issues":[
+ {"file":"items/tr-n2.jsonl","jp_before":"社員[しゃいん]の意識[いしき]を{高[たか]める|tr-n2}ために、毎月[まいつき]研修[けんしゅう]を行[おこな]っています。","problem":"Distractor 高めた is grammatical before ために (reason reading), so it is not plainly wrong.","action":"Replaced distractor 高めた with 高まらない."},
+ {"file":"items/tr-n2.jsonl","jp_before":"両国[りょうこく]の対立[たいりつ]が{深[ふか]まって|tr-n2}いて、話[はなし]し合[あ]いが進[すす]みません。","problem":"Wrong furigana: 話し合い written 話[はなし]し (reads はなしし).","action":"Corrected to 話[はな]し合[あ]い."},
+ {"file":"items/tr-n2.jsonl","jp_before":"用事[ようじ]が{済[す]んだ|tr-n2}ら、すぐ連絡[れんらく]します。","problem":"ら outside the slot made distractor 済ませる yield a malformed form (済ませるら); distractor 済まなかった tested polarity rather than transitivity.","action":"Slot now holds 済んだら; distractors 済ませたら, 済ませなかったら, 済まなかったら; why updated."},
+ {"file":"items/tr-n2.jsonl","jp_before":"食事[しょくじ]が{済[す]んだ|tr-n2}方[かた]から、順[じゅん]にお帰[かえ]りください。","problem":"English translation awkward ('please leave in turn').","action":"English changed to 'Please leave in order, starting with those who have finished their meal.'"},
+ {"file":"items/tr-n2.jsonl","jp_before":"面倒[めんどう]な書類[しょるい]を早[はや]めに{済[す]ませて|tr-n2}しまいたい。","problem":"書類を済ませる is a weak collocation (normally 書類を片付ける / 手続きを済ませる).","action":"Rewrote as カードの支払[しはら]いを早[はや]めに済ませてしまいたい。 with matching English and why."},
+ {"file":"items/tr-n2.jsonl","jp_before":"引[ひ]っ越[こ]しの前[まえ]に、いらない物[もの]を{片付[かたづ]けて|tr-n2}しまおう。","problem":"English 'get rid of' overstates 片付ける (clear away / put away).","action":"English changed to 'let's clear away the things we don't need.'"},
+ {"file":"items/tr-n2.jsonl","jp_before":"チョコレートが手[て]の中[なか]で{溶[と]けて|tr-n2}、べたべたになりました。","problem":"Near-duplicate of the ice / ice-cream 溶けて items; 溶ける vs 溶かす answers unbalanced (5 intransitive, 3 transitive).","action":"Deleted and replaced with transitive item チョコレートを電子[でんし]レンジで溶[と]かして、クッキーにかけました。"}
+]}

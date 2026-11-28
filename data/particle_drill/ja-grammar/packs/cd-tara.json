@@ -1,0 +1,20 @@
+[
+ {"id":"cd-tara-1","lv":4,
+  "tpl":"<place>に{着[つ]いたら|cd-tara}、<whom>に<req>。",
+  "en":"When you get <place>, please <req> <whom>.",
+  "f":0,"d":["着[つ]くと","着[つ]くなら","着[つ]いても"],
+  "why":"A request for after something is done takes たら ('once you have arrived'); と cannot lead into a request and なら would mean before arriving.",
+  "vars":{
+   "place":[["駅[えき]","to the station"],["空港[くうこう]","to the airport"],["ホテル","to the hotel"],["家[いえ]","home"],["向[む]こう","there"],["東京[とうきょう]","to Tokyo"],["大阪[おおさか]","to Osaka"],["会場[かいじょう]","to the venue"]],
+   "whom":[["私[わたし]","me"],["母[はは]","my mother"],["父[ちち]","my father"],["姉[あね]","my older sister"],["田中[たなか]さん","Mr. Tanaka"],["山田[やまだ]さん","Ms. Yamada"],["祖母[そぼ]","my grandmother"]],
+   "req":[["電話[でんわ]してください","call"],["連絡[れんらく]してください","get in touch with"],["メールしてください","email"],["メッセージを送[おく]ってください","send a message to"],["写真[しゃしん]を送[おく]ってください","send a photo to"],["電話[でんわ]をかけてください","ring"]]}},
+ {"id":"cd-tara-2","lv":4,
+  "tpl":"<prob><adv><who>に{相談[そうだん]したら/相談[そうだん]しては|cd-tara}どうですか。",
+  "en":"<prob> Why don't you talk to <who> about it <adv>?",
+  "f":0,"d":["相談[そうだん]すると","相談[そうだん]するなら","相談[そうだん]しても"],
+  "why":"A suggestion, 'why don't you ...?', is 〜たらどうですか; と, なら and ても cannot combine with どうですか this way.",
+  "vars":{
+   "prob":[["何[なに]か悩[なや]んでいるんですか。","Is something worrying you?"],["最近[さいきん]、元気[げんき]がないですね。","You've seemed down lately."],["一人[ひとり]で考[かんが]えても、答[こた]えは出[で]ませんよ。","Thinking about it on your own won't get you an answer."],["そんなに困[こま]っているんですか。","Are you really that stuck?"],["まだ迷[まよ]っているんですか。","Are you still undecided?"],["その問題[もんだい]、難[むずか]しそうですね。","That problem looks difficult."],["試験[しけん]のことが心配[しんぱい]なんですか。","Are you worried about the exam?"],["夜[よる]も眠[ねむ]れないほど悩[なや]んでいるんですか。","Is it worrying you so much that you can't sleep?"]],
+   "adv":[["まず","first"],["早[はや]めに","soon"],["今日中[きょうじゅう]に","today"],["今夜[こんや]","tonight"],["週末[しゅうまつ]に","at the weekend"],["明日[あした]","tomorrow"]],
+   "who":[["家族[かぞく]","your family"],["友達[ともだち]","a friend"],["田中[たなか]さん","Mr. Tanaka"],["ご両親[りょうしん]","your parents"],["お姉[ねえ]さん","your older sister"],["誰[だれ]か","someone"]]}}
+]

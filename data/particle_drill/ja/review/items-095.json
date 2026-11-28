@@ -1,0 +1,78 @@
+{
+ "batch": "items-095",
+ "files": [
+  "items/node-because.jsonl"
+ ],
+ "checked": 57,
+ "fixed": 11,
+ "deleted": 0,
+ "replaced": 0,
+ "issues": [
+  {
+   "file": "items/node-because.jsonl",
+   "jp_before": "風邪[かぜ]{を|o-object}ひいた{ので/から|node-because}、病院[びょういん]{に/へ|ni-destination}行[い]きました。",
+   "problem": "Distractor が: conjunctive が can be a neutral narrative/background connector here, so the sentence is not plainly wrong for the English.",
+   "action": "Replaced distractor が with なら (a conditional is ungrammatical with this past/factual main clause)."
+  },
+  {
+   "file": "items/node-because.jsonl",
+   "jp_before": "母[はは]{に/から|ni-source}もらった{ので/から|node-because}、このかばん{を|o-object}大切[たいせつ]に使[つか]っています。",
+   "problem": "Distractor が: conjunctive が can be a neutral narrative/background connector here, so the sentence is not plainly wrong for the English.",
+   "action": "Replaced distractor が with なら (a conditional is ungrammatical with this past/factual main clause)."
+  },
+  {
+   "file": "items/node-because.jsonl",
+   "jp_before": "財布[さいふ]{を|o-object}忘[わす]れた{ので/から|node-because}、友達[ともだち]{に/から|ni-source}お金[かね]{を|o-object}借[か]りました。",
+   "problem": "Distractor が: conjunctive が can be a neutral narrative/background connector here, so the sentence is not plainly wrong for the English.",
+   "action": "Replaced distractor が with なら (a conditional is ungrammatical with this past/factual main clause)."
+  },
+  {
+   "file": "items/node-because.jsonl",
+   "jp_before": "道[みち]{が|ga-subject}込[こ]んでいる{ので/から|node-because}、電車[でんしゃ]{で|de-means}行[い]きましょう。",
+   "problem": "Distractor けど: before a suggestion, invitation or announced action, prefatory けど (giving background) is acceptable, so it is not plainly wrong.",
+   "action": "Replaced distractor けど with と (と-conditional cannot take a volitional/invitation main clause)."
+  },
+  {
+   "file": "items/node-because.jsonl",
+   "jp_before": "暑[あつ]い{ので/から|node-because}、窓[まど]{を|o-object}開[あ]けます{ね|ne-agreement}。",
+   "problem": "Distractor けど: before a suggestion, invitation or announced action, prefatory けど (giving background) is acceptable, so it is not plainly wrong.",
+   "action": "Replaced distractor けど with と (と-conditional cannot take a volitional/invitation main clause)."
+  },
+  {
+   "file": "items/node-because.jsonl",
+   "jp_before": "もう遅[おそ]い{ので/から|node-because}、タクシー{で|de-means}帰[かえ]りません{か|ka-question}。",
+   "problem": "Distractor けど: before a suggestion, invitation or announced action, prefatory けど (giving background) is acceptable, so it is not plainly wrong.",
+   "action": "Replaced distractor けど with と (と-conditional cannot take a volitional/invitation main clause)."
+  },
+  {
+   "file": "items/node-because.jsonl",
+   "jp_before": "もうすぐ電車[でんしゃ]{が|ga-subject}来[く]る{ので/から|node-because}、急[いそ]ぎましょう{よ|yo-assertion}。",
+   "problem": "Distractor けど: before a suggestion, invitation or announced action, prefatory けど (giving background) is acceptable, so it is not plainly wrong.",
+   "action": "Replaced distractor けど with と (と-conditional cannot take a volitional/invitation main clause)."
+  },
+  {
+   "file": "items/node-because.jsonl",
+   "jp_before": "雨[あめ]{が|ga-subject}止[や]んだ{ので/から|node-because}、公園[こうえん]{を|o-path}散歩[さんぽ]しましょう。",
+   "problem": "Distractor けど: before a suggestion, invitation or announced action, prefatory けど (giving background) is acceptable, so it is not plainly wrong.",
+   "action": "Replaced distractor けど with と (と-conditional cannot take a volitional/invitation main clause)."
+  },
+  {
+   "file": "items/node-because.jsonl",
+   "jp_before": "日本語[にほんご]{が|ga-stative}まだ下手[へた]な{ので|node-because}、いつも英語[えいご]{で|de-means}話[はな]します。",
+   "problem": "Non-focus stative slot: は is equally natural here (no other topic in the sentence) but was not listed.",
+   "action": "Added は as an alternative: {が/は|ga-stative}."
+  },
+  {
+   "file": "items/node-because.jsonl",
+   "jp_before": "肉[にく]{が|ga-stative}嫌[きら]いな{ので|node-because}、いつも魚[さかな]{を|o-object}食[た]べます。",
+   "problem": "Non-focus stative slot: は is equally natural here (no other topic in the sentence) but was not listed.",
+   "action": "Added は as an alternative: {が/は|ga-stative}."
+  },
+  {
+   "file": "items/node-because.jsonl",
+   "jp_before": "彼[かれ]{は|wa-topic}経験[けいけん]{が|ga-existence}豊富[ほうふ]な{ので|node-because}、みんな{が/は|ga-subject}頼[たよ]りにしています。",
+   "problem": "経験が豊富 marks the subject of a na-adjective predicate, not existence.",
+   "action": "Changed skill id to ga-subject."
+  }
+ ]
+}

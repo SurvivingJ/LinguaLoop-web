@@ -1,0 +1,148 @@
+{
+ "group": "pt-nominal",
+ "intro": "All five skills fold a whole clause or an idea into a slot of a bigger sentence. の and こと turn a clause into a noun; かどうか and か wrap a question inside a statement; と and ように carry what someone said, thought or asked; という attaches content or a name to a noun; より, ほど and 一番 set things against each other. In every case ask: what kind of thing is the inner clause (an event, a fact, a question, a quotation, a request, a standard of comparison)? That decides the connector.",
+ "skills": [
+  {
+   "id": "pt-no-koto",
+   "rule": "の for something you perceive or that happens in front of you; こと for an abstract fact or idea, and always before です, できる, ある and verbs of telling or deciding.",
+   "explain": "Put a plain-form clause before の or こと and it becomes a noun: 本を読む → 本を読むのが好き. With many words either works (好き, 嫌い, 楽しい, 難しい, 忘れる, 知っている), and の is the everyday choice.\n\nこと is required where the clause is a fact or idea treated as a concept: before だ/です (趣味は写真を撮ることです), in the fixed patterns 〜ことができる, 〜たことがある, 〜ことにする, 〜ことになる, and with verbs of telling or deciding (話す, 伝える, 約束する, 決める). Plain 言う reports with と instead (see 〜と言う).\n\nの is required with verbs of perception and with actions that meet the event directly: 見る, 聞く, 見える, 聞こえる, 感じる, 待つ, 手伝う, 止める. You see an event happening, not an abstract fact. の is also the form of the focus sentence 〜のは X だ: 私が生まれたのは大阪です.",
+   "patterns": [
+    "[plain clause] の / こと が好きです",
+    "[plain clause] の を見る・聞く・待つ・手伝う",
+    "趣味は [plain clause] こと です",
+    "[dictionary form] こと ができる"
+   ],
+   "examples": [
+    {"jp": "絵[え]を描[か]く{の}が好[す]きです。", "en": "I like drawing pictures."},
+    {"jp": "私[わたし]の趣味[しゅみ]は映画[えいが]を見[み]る{こと}です。", "en": "My hobby is watching films."},
+    {"jp": "妹[いもうと]はピアノを弾[ひ]く{こと}ができます。", "en": "My younger sister can play the piano."},
+    {"jp": "子供[こども]たちが歌[うた]っている{の}が聞[き]こえます。", "en": "I can hear the children singing."},
+    {"jp": "駅[えき]の前[まえ]で友達[ともだち]が来[く]る{の}を待[ま]ちました。", "en": "I waited in front of the station for my friend to come."},
+    {"jp": "私[わたし]が生[う]まれた{の}は小[ちい]さい町[まち]です。", "en": "The place where I was born is a small town."}
+   ],
+   "contrast": [
+    {"vs": "もの", "note": "もの is a physical thing or a general truth (食べるもの 'something to eat'). It does not turn an action into 'doing X': 泳ぐものが好き means 'I like things that swim'."},
+    {"vs": "の ↔ こと", "note": "Seeing, hearing, waiting, helping: の. Being, being able, having done, telling, deciding: こと. Liking and finding easy or hard: either, の more casual."}
+   ],
+   "mistakes": [
+    {"bad": "趣味[しゅみ]は料理[りょうり]を作[つく]る{の}です。", "good": "趣味[しゅみ]は料理[りょうり]を作[つく]る{こと}です。", "note": "Before です, as a definition of what something is, use こと."},
+    {"bad": "日本語[にほんご]を話[はな]す{の}ができます。", "good": "日本語[にほんご]を話[はな]す{こと}ができます。", "note": "〜ことができる is a fixed pattern; の never replaces こと here."},
+    {"bad": "鳥[とり]が飛[と]んでいる{こと}を見[み]ました。", "good": "鳥[とり]が飛[と]んでいる{の}を見[み]ました。", "note": "You see an event, so the perception verb takes の."}
+   ],
+   "tip": "Could you point at it happening (see it, hear it, wait for it)? の. Is it a concept you define, can do, have done, or pass on (です, できる, ある, 伝える)? こと."
+  },
+  {
+   "id": "pt-kadouka",
+   "rule": "A yes/no question inside a sentence is plain form + かどうか; a question with a question word is plain form + か.",
+   "explain": "To say 'I don't know whether he is coming', put the plain form before かどうか: 彼が来るかどうか分かりません. The verbs that follow are typically 分かる, 知る, 聞く, 調べる, 決める, 覚えている and 教える. かどうか means 'whether or not', so it is only for yes/no questions.\n\nIf the inner question has a question word (誰, 何, いつ, どこ, どう, なぜ, いくら), use か alone and never かどうか: いつ来るか分かりません. In speech a yes/no question can also take bare か (来るか分からない), but かどうか is the clear, standard choice.\n\nInside the clause use the plain form, not です/ます. After a noun or na-adjective drop だ: 本当かどうか, 静かかどうか, 学生か. Do not confuse with と: 来ると聞いた reports an answer ('I heard he is coming'); 来るかどうか聞いた reports a question ('I asked whether he is coming').",
+   "patterns": [
+    "[plain clause] かどうか 分かりません / 聞きます",
+    "[question word ... plain clause] か 分かりません",
+    "[noun / na-adj] かどうか (no だ)"
+   ],
+   "examples": [
+    {"jp": "明日[あした]雨[あめ]が降[ふ]る{かどうか}分[わ]かりません。", "en": "I don't know whether it will rain tomorrow."},
+    {"jp": "会議[かいぎ]が何時[なんじ]に始[はじ]まる{か}教[おし]えてください。", "en": "Please tell me what time the meeting starts."},
+    {"jp": "この店[みせ]がカードを使[つか]える{かどうか}聞[き]いてみます。", "en": "I'll ask whether this shop takes cards."},
+    {"jp": "誰[だれ]が窓[まど]を割[わ]った{か}知[し]っていますか。", "en": "Do you know who broke the window?"},
+    {"jp": "その話[はなし]が本当[ほんとう]{かどうか}、まだ分[わ]からない。", "en": "I still don't know whether that story is true."}
+   ],
+   "contrast": [
+    {"vs": "か", "note": "With a question word (いつ, どこ, 誰, 何) use か alone. かどうか is only for whether-or-not questions."},
+    {"vs": "と", "note": "と quotes a statement: 来ると言った 'said he would come'. かどうか embeds an open question: 来るかどうか聞いた 'asked whether he would come'."}
+   ],
+   "mistakes": [
+    {"bad": "パーティーはどこでする{かどうか}知[し]りません。", "good": "パーティーはどこでする{か}知[し]りません。", "note": "どこ already makes it an open question; use か, not かどうか."},
+    {"bad": "それが本当[ほんとう]だ{かどうか}分[わ]かりません。", "good": "それが本当[ほんとう]{かどうか}分[わ]かりません。", "note": "After a noun or na-adjective, drop だ before かどうか."},
+    {"bad": "先生[せんせい]が来[き]ます{かどうか}聞[き]きました。", "good": "先生[せんせい]が来[く]る{かどうか}聞[き]きました。", "note": "The embedded clause is plain form; politeness goes on the main verb only."}
+   ],
+   "tip": "Is there a question word inside? Then か. Can the inner question be answered yes or no? Then かどうか."
+  },
+  {
+   "id": "pt-quote",
+   "rule": "と carries the content of what is said or thought; ように carries a request or instruction: 'told someone to do it'.",
+   "explain": "と marks a quotation. A direct quote keeps the original words in 「」: 「行きます」と言いました. An indirect quote uses the plain form: 行くと言いました 'said he would go'. 思う, 考える, 聞く 'hear', 書く and 答える all take と. After a noun or na-adjective add だ: 学生だと思う, 静かだと言っていた. と思う states the speaker's own opinion; for someone else's use と思っている or と言っている.\n\nWhen the reported speech is an instruction or request, use the dictionary form or ない form + ように with 言う, 頼む, 伝える, 注意する: 先生は早く来るように言いました 'The teacher told us to come early'. The minimal pair: 母は早く寝ると言った 'Mother said she would go to bed early' against 母は早く寝るように言った 'Mother told me to go to bed early'.\n\nことを言う only works with a noun-like content (変なことを言う 'say something strange'); it does not report a sentence.",
+   "patterns": [
+    "「[direct words]」と 言う",
+    "[plain clause] と 言う / 思う / 聞く",
+    "[noun / na-adj] だと 思う",
+    "[dict. / ない form] ように 言う / 頼む / 伝える"
+   ],
+   "examples": [
+    {"jp": "店員[てんいん]は「いらっしゃいませ」{と}言[い]いました。", "en": "The shop assistant said, 'Welcome.'"},
+    {"jp": "この映画[えいが]は面白[おもしろ]い{と}思[おも]います。", "en": "I think this film is interesting."},
+    {"jp": "田中[たなか]さんは明日[あした]休[やす]む{と}言[い]っていました。", "en": "Mr Tanaka said he would take tomorrow off."},
+    {"jp": "医者[いしゃ]にお酒[さけ]を飲[の]まない{ように}言[い]われました。", "en": "The doctor told me not to drink alcohol."},
+    {"jp": "部長[ぶちょう]に、資料[しりょう]を送[おく]る{ように}伝[つた]えてください。", "en": "Please tell the manager to send the documents."}
+   ],
+   "contrast": [
+    {"vs": "ように", "note": "と reports what someone stated, intended or thought. ように reports what they told someone else to do. 来ると言った 'said he'd come'; 来るように言った 'told him to come'."},
+    {"vs": "ことを", "note": "ことを言う needs a noun content (そのことを言った 'mentioned that matter'). To report a sentence, use と."}
+   ],
+   "mistakes": [
+    {"bad": "先生[せんせい]は宿題[しゅくだい]を出[だ]す{と}言[い]いました。", "good": "先生[せんせい]は宿題[しゅくだい]を出[だ]す{ように}言[い]いました。", "note": "For 'told us to hand in the homework', an instruction, use ように. With と it means the teacher announced that homework would be set."},
+    {"bad": "あの人[ひと]は学生[がくせい]{と}思[おも]います。", "good": "あの人[ひと]は学生[がくせい]だ{と}思[おも]います。", "note": "A noun or na-adjective needs だ before と思う."},
+    {"bad": "彼[かれ]は来年[らいねん]結婚[けっこん]する{ことを}言[い]いました。", "good": "彼[かれ]は来年[らいねん]結婚[けっこん]する{と}言[い]いました。", "note": "A reported statement is quoted with と."}
+   ],
+   "tip": "Turn it into English: 'said that ...' is と; 'told (someone) to ...' is ように."
+  },
+  {
+   "id": "pt-toiu",
+   "rule": "X という + noun = 'a noun called X' or 'the noun that X'; X というのは = 'X means / what X is'; X といっても = 'even if I say X, it is less than you think'.",
+   "explain": "という links a name or a content to a noun. With a name the listener may not know: さくらという店 'a shop called Sakura', 山田という人 'a person named Yamada'. With nouns of information (話, ニュース, うわさ, 意見, 意味, 気持ち, 連絡), a clause states their content: 来月店が閉まるというニュース 'the news that the shop will close next month'. A relative clause that is not the content of the noun takes no という: 私が読んだ本.\n\nX というのは picks out X as the thing to be defined or explained, usually finished with 〜のことだ or 〜ということだ: 「積読」というのは、買った本を読まずに置いておくことです.\n\nX といっても admits X, then cuts it down: 料理ができるといっても、簡単なものだけです 'I can cook, but only simple things'. It corrects the listener's likely expectation, unlike plain けど. In speech という and というのは shorten to って.",
+   "patterns": [
+    "[name] という [noun]",
+    "[plain clause] という 話・ニュース・意味",
+    "X というのは 〜のことです",
+    "[plain clause] といっても、〜"
+   ],
+   "examples": [
+    {"jp": "駅[えき]の前[まえ]に「さくら」{という}喫茶店[きっさてん]があります。", "en": "There is a café called Sakura in front of the station."},
+    {"jp": "山田[やまだ]さん{という}方[かた]から電話[でんわ]がありました。", "en": "There was a call from someone called Yamada."},
+    {"jp": "明日[あした]、雪[ゆき]が降[ふ]る{という}ニュースを見[み]ました。", "en": "I saw the news that it will snow tomorrow."},
+    {"jp": "「積読[つんどく]」{というのは}、買[か]った本[ほん]を読[よ]まずに置[お]いておくことです。", "en": "'Tsundoku' means buying books and leaving them unread."},
+    {"jp": "旅行[りょこう]{といっても}、隣[となり]の町[まち]に一泊[いっぱく]しただけです。", "en": "I say 'a trip', but I only stayed one night in the next town."}
+   ],
+   "contrast": [
+    {"vs": "というのは", "note": "という sits between X and a noun (Xという店). というのは ends the phrase and makes X the thing being defined or explained."},
+    {"vs": "といっても", "note": "といっても admits X and then plays it down. It is not a neutral 'but'; use けど when there is no expectation to correct."},
+    {"vs": "の", "note": "の cannot join a clause to its content noun: 雪が降るのニュース is wrong. Use という."}
+   ],
+   "mistakes": [
+    {"bad": "雨[あめ]が止[や]む{の}ニュースを聞[き]きました。", "good": "雨[あめ]が止[や]む{という}ニュースを聞[き]きました。", "note": "A clause giving the content of news, a story or a rumour joins the noun with という."},
+    {"bad": "田中[たなか]さん{の}人[ひと]が来[き]ています。", "good": "田中[たなか]さん{という}人[ひと]が来[き]ています。", "note": "'A person called Tanaka' is 田中さんという人; の would mean 'Tanaka's person'."},
+    {"bad": "日本[にほん]に住[す]んでいた{というのは}、一年[いちねん]だけです。", "good": "日本[にほん]に住[す]んでいた{といっても}、一年[いちねん]だけです。", "note": "'I did live in Japan, but only for a year' plays the claim down: といっても."}
+   ],
+   "tip": "Named or content-filled noun follows? という. Definition follows? というのは. A 'but only ...' follows? といっても."
+  },
+  {
+   "id": "pt-hikaku",
+   "rule": "Two things: A より B のほうが [adj]. 'Not as ... as': A は B ほど [adj in the negative]. Three or more: 〜の中で X が一番 [adj].",
+   "explain": "For two items, より marks the standard and のほうが marks the winner: 電車よりバスのほうが安い 'The bus is cheaper than the train'. Either half can stand alone: バスのほうが安い, バスは電車より安い. The matching question is AとBとどちらが〜ですか, answered with Aのほうが.\n\nほど also marks the standard, but only with a negative: 今年の夏は去年ほど暑くない 'This summer is not as hot as last year'. A positive after ほど is wrong (去年ほど暑いです). With a positive comparison use より. (ほど after a clause meaning 'to the point of', 泣くほど痛い, is a different use.) The pattern XほどYはない means 'nothing is as Y as X': 富士山ほど高い山はない.\n\nFor three or more, set the group with 〜の中で or 〜で and use 一番: 果物の中でいちごが一番好きです. The question uses 何, どれ, 誰, どこ, いつ + が一番, never どちら. ほうが never appears with 一番.",
+   "patterns": [
+    "A より B のほうが [adj]",
+    "A と B と どちらが [adj] ですか",
+    "A は B ほど [adj neg.]",
+    "[group] の中で X が 一番 [adj]"
+   ],
+   "examples": [
+    {"jp": "電車[でんしゃ]{より}バスのほうが安[やす]いです。", "en": "The bus is cheaper than the train."},
+    {"jp": "コーヒーと紅茶[こうちゃ]とどちらの{ほうが}好[す]きですか。", "en": "Which do you prefer, coffee or tea?"},
+    {"jp": "家族[かぞく]の中[なか]で父[ちち]が{一番[いちばん]}早[はや]く起[お]きます。", "en": "My father gets up earliest of anyone in my family."},
+    {"jp": "今年[ことし]の冬[ふゆ]は去年[きょねん]{ほど}寒[さむ]くないです。", "en": "This winter isn't as cold as last year."},
+    {"jp": "この町[まち]は、思[おも]っていた{ほど}静[しず]かじゃなかった。", "en": "This town wasn't as quiet as I had thought."},
+    {"jp": "母[はは]の料理[りょうり]{ほど}おいしいものはない。", "en": "Nothing is as delicious as my mother's cooking."}
+   ],
+   "contrast": [
+    {"vs": "より ↔ ほど", "note": "Both mark the standard. より goes with a positive ('more than'); ほど needs a negative ('not as ... as'). 兄より高い 'taller than my brother'; 兄ほど高くない 'not as tall as my brother'."},
+    {"vs": "ほうが ↔ 一番", "note": "ほうが picks one of two; 一番 picks one of three or more. どちら belongs to two, 何・どれ・誰 to a larger group."}
+   ],
+   "mistakes": [
+    {"bad": "東京[とうきょう]は大阪[おおさか]{ほど}大[おお]きいです。", "good": "東京[とうきょう]は大阪[おおさか]{より}大[おお]きいです。", "note": "ほど needs a negative; for 'bigger than' use より."},
+    {"bad": "スポーツの中[なか]でテニスの{ほうが}好[す]きです。", "good": "スポーツの中[なか]でテニスが{一番[いちばん]}好[す]きです。", "note": "Out of a whole group, the choice is 一番, not ほうが."},
+    {"bad": "季節[きせつ]の中[なか]でどちらが{一番[いちばん]}好[す]きですか。", "good": "季節[きせつ]の中[なか]でいつが{一番[いちばん]}好[す]きですか。", "note": "どちら asks about two things; for a group use いつ, 何, どれ or 誰."}
+   ],
+   "tip": "Count the items and check the polarity: two → より/ほうが; three or more → 一番; 'not as ... as' → ほど with a negative."
+  }
+ ]
+}

@@ -1,0 +1,29 @@
+[
+ {"id":"ni-change-1","lv":4,
+  "tpl":"<subj>{は|wa-topic}<adj>{に|ni-change}<verb>。",
+  "en":"<subj> <verb> <adj>.",
+  "f":1,"d":["を","が","で"],
+  "why":"A na-adjective or noun takes に before なる to mark the state something changes into.",
+  "vars":{
+   "subj":[["この町[まち]","This town"],["この辺[あた]り","This area"],["駅前[えきまえ]","The area in front of the station"],["商店街[しょうてんがい]","The shopping street"],["この公園[こうえん]","This park"],["川沿[かわぞ]い","The riverside"]],
+   "adj":[["静[しず]か","quiet"],["にぎやか","lively"],["有名[ゆうめい]","famous"],["安全[あんぜん]","safe"],["危険[きけん]","dangerous"],["人気[にんき]","popular"]],
+   "verb":[["なりました","has become"],["なってきました","has started to become"],["なるでしょう","will probably become"],["なるかもしれません","might become"],["なるはずです","is expected to become"],["なりそうです","looks set to become"]]}},
+ {"id":"ni-change-2","lv":5,
+  "tpl":"<who>{は|wa-topic}飲[の]み物[もの]{は|wa-contrast}<drink>{に|ni-change}<verb>。",
+  "en":"For a drink, <who> <verb> <drink>.",
+  "f":2,"d":["を","が","で"],
+  "why":"[choice]にする means 'decide on, go for': the thing chosen takes に.",
+  "vars":{
+   "who":[["田中[たなか]さん","Mr. Tanaka"],["兄[あに]","my older brother"],["母[はは]","my mother"],["鈴木[すずき]さん","Ms. Suzuki"],["父[ちち]","my father"],["姉[あね]","my older sister"],["友達[ともだち]","my friend"],["山田[やまだ]さん","Mr. Yamada"]],
+   "drink":[["コーヒー","coffee"],["紅茶[こうちゃ]","black tea"],["オレンジジュース","orange juice"],["緑茶[りょくちゃ]","green tea"],["ビール","beer"],["水[みず]","water"],["ワイン","wine"],["アイスティー","iced tea"]],
+   "verb":[["しました","went for"],["したそうです","apparently went for"],["するそうです","is apparently having"],["するでしょう","will probably have"],["するみたいです","seems to be having"],["するつもりです","is going to have"]]}},
+ {"id":"ni-change-3","lv":4,
+  "tpl":"<who>{は|wa-topic}髪[かみ]{を|o-object}<color>{に|ni-change}<verb>。",
+  "en":"<who> <verb> his hair <color>.",
+  "f":2,"d":["を","が","で"],
+  "why":"[X]を[Y]にする means 'make X into Y': the new colour takes に.",
+  "vars":{
+   "who":[["兄[あに]","My older brother"],["弟[おとうと]","My younger brother"],["父[ちち]","My father"],["息子[むすこ]","My son"],["夫[おっと]","My husband"],["田中[たなか]さん","Mr. Tanaka"],["鈴木[すずき]さん","Mr. Suzuki"],["山田[やまだ]さん","Mr. Yamada"]],
+   "color":[["茶色[ちゃいろ]","brown"],["黒[くろ]","black"],["金色[きんいろ]","blond"],["赤[あか]","red"],["青[あお]","blue"],["銀色[ぎんいろ]","silver"],["明[あか]るい茶色[ちゃいろ]","light brown"],["こげ茶色[ちゃいろ]","dark brown"]],
+   "verb":[["しました","dyed"],["したそうです","apparently dyed"],["したがっています","wants to dye"],["するつもりです","is planning to dye"],["するらしいです","is apparently going to dye"],["しませんでした","didn't dye"]]}}
+]

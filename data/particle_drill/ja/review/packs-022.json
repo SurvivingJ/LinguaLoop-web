@@ -1,0 +1,5 @@
+{"batch":"packs-022","files":["packs/x-trans-intrans.json","packs/x-o-ni.json"],"checked":7,"fixed":2,"deleted":0,
+ "issues":[
+  {"file":"packs/x-trans-intrans.json","pack":"x-trans-intrans-4","problem":"Non-focus slot トイレに行きました listed only に, but へ is equally natural for a destination.","action":"Changed the slot to {に/へ|ni-destination}."},
+  {"file":"packs/x-o-ni.json","pack":"x-o-ni-1","problem":"Verb values 手紙を書きました and メールを送りました make へ an equally natural alternative for the focus slot. This conflicts with the に-only answer shared by the other verbs.","action":"Replaced them with 挨拶しました (greeted) and 聞きました (asked). Both take only に, and を is plainly wrong with them. The pack still has 8 verbs and 448 combinations."}
+ ]}

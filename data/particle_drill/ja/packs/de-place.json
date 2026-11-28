@@ -1,0 +1,29 @@
+[
+ {"id":"de-place-1","lv":5,
+  "tpl":"<who>{は/が|wa-topic}<place>{で|de-place}<act>。",
+  "en":"<who> <act> <place>.",
+  "f":1,"d":["に","を","が"],
+  "why":"The place where an action is carried out takes で.",
+  "vars":{
+   "who":[["田中[たなか]さん","Mr. Tanaka"],["山田[やまだ]さん","Ms. Yamada"],["母[はは]","My mother"],["父[ちち]","My father"],["兄[あに]","My older brother"],["姉[あね]","My older sister"],["先生[せんせい]","The teacher"],["その学生[がくせい]","That student"]],
+   "place":[["駅[えき]","at the station"],["公園[こうえん]","in the park"],["喫茶店[きっさてん]","at a café"],["図書館[としょかん]","at the library"],["家[いえ]","at home"],["空港[くうこう]","at the airport"],["待合室[まちあいしつ]","in the waiting room"]],
+   "act":[["本[ほん]{を|o-object}読[よ]みました","read a book"],["友達[ともだち]{を|o-object}待[ま]ちました","waited for a friend"],["メール{を|o-object}書[か]きました","wrote an email"],["地図[ちず]{を|o-object}見[み]ました","looked at a map"],["音楽[おんがく]{を|o-object}聞[き]きました","listened to music"],["新聞[しんぶん]{を|o-object}読[よ]みました","read the newspaper"]]}},
+ {"id":"de-place-2","lv":5,
+  "tpl":"<who>{は|wa-topic}<place>{で|de-place}何[なに]{を|o-object}<verb>か。",
+  "en":"What did <who> <verb> in <place>?",
+  "f":1,"d":["に","を","が"],
+  "why":"Kyoto, Osaka and so on are where the eating or buying took place, so they take で.",
+  "vars":{
+   "who":[["田中[たなか]さん","Mr. Tanaka"],["山田[やまだ]さん","Ms. Yamada"],["お母[かあ]さん","your mother"],["お父[とう]さん","your father"],["お兄[にい]さん","your older brother"],["先生[せんせい]","the teacher"],["皆[みな]さん","everyone"]],
+   "place":[["京都[きょうと]","Kyoto"],["大阪[おおさか]","Osaka"],["東京[とうきょう]","Tokyo"],["北海道[ほっかいどう]","Hokkaido"],["沖縄[おきなわ]","Okinawa"],["奈良[なら]","Nara"],["神戸[こうべ]","Kobe"],["名古屋[なごや]","Nagoya"]],
+   "verb":[["食[た]べました","eat"],["買[か]いました","buy"],["見[み]ました","see"],["しました","do"],["飲[の]みました","drink"],["撮[と]りました","photograph"]]}},
+ {"id":"de-place-3","lv":4,
+  "tpl":"<who>{は|wa-topic}<place>{で|de-place}<act>{の|no-nominalizer}{が|ga-stative}好[す]きです。",
+  "en":"<who> likes <act> <place>.",
+  "f":1,"d":["に","を","が"],
+  "why":"The place where someone likes to do something is where the action happens, so it takes で.",
+  "vars":{
+   "who":[["弟[おとうと]","My younger brother"],["祖母[そぼ]","My grandmother"],["田中[たなか]さん","Mr. Tanaka"],["山田[やまだ]さん","Ms. Yamada"],["姉[あね]","My older sister"],["父[ちち]","My father"],["鈴木[すずき]さん","Mr. Suzuki"]],
+   "place":[["公園[こうえん]","in the park"],["庭[にわ]","in the garden"],["海[うみ]","at the beach"],["山[やま]","in the mountains"],["家[いえ]","at home"],["喫茶店[きっさてん]","in cafés"],["ベランダ","on the balcony"]],
+   "act":[["本[ほん]{を|o-object}読[よ]む","reading books"],["絵[え]{を|o-object}描[か]く","drawing pictures"],["写真[しゃしん]{を|o-object}撮[と]る","taking photos"],["音楽[おんがく]{を|o-object}聞[き]く","listening to music"],["昼[ひる]ご飯[はん]{を|o-object}食[た]べる","eating lunch"],["お茶[ちゃ]{を|o-object}飲[の]む","drinking tea"]]}}
+]

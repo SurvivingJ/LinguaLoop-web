@@ -1,0 +1,20 @@
+[
+ {"id":"cl-take-1","lv":4,
+  "tpl":"<who>は<when><med>を{飲[の]みました|cl-take}。",
+  "en":"<who> took <med> <when>.",
+  "f":0,"d":["取[と]りました","食[た]べました","浴[あ]びました"],
+  "why":"Medicine is swallowed, so Japanese says 薬を飲む; 薬を取る would only mean fetching it.",
+  "vars":{
+   "who":[["父[ちち]","My father"],["母[はは]","My mother"],["祖父[そふ]","My grandfather"],["田中[たなか]さん","Mr. Tanaka"],["弟[おとうと]","My younger brother"],["姉[あね]","My older sister"],["妻[つま]","My wife"],["鈴木[すずき]さん","Ms. Suzuki"]],
+   "when":[["寝[ね]る前[まえ]に","before bed"],["食後[しょくご]に","after the meal"],["朝[あさ]、","in the morning"],["昼[ひる]ご飯[はん]の後[あと]で","after lunch"],["夜[よる]、","at night"],["今朝[けさ]、","this morning"],["六時間[ろくじかん]ごとに","every six hours"]],
+   "med":[["薬[くすり]","medicine"],["風邪薬[かぜぐすり]","cold medicine"],["痛[いた]み止[ど]め","a painkiller"],["胃薬[いぐすり]","stomach medicine"],["粉薬[こなぐすり]","powdered medicine"],["ビタミン剤[ざい]","vitamin pills"],["熱[ねつ]の薬[くすり]","fever medicine"]]}},
+ {"id":"cl-take-2","lv":4,
+  "tpl":"<place>で<obj>の写真[しゃしん]を{撮[と]って|cl-take}<end>。",
+  "en":"<end> a photo of <obj> <place>?",
+  "f":0,"d":["浴[あ]びて","引[ひ]いて","受[う]けて"],
+  "why":"Taking a photo is 写真を撮る; 浴びる, 引く and 受ける go with other nouns that English also uses take with.",
+  "vars":{
+   "place":[["駅[えき]の前[まえ]","in front of the station"],["公園[こうえん]","in the park"],["桜[さくら]の木[き]の下[した]","under the cherry tree"],["橋[はし]の上[うえ]","on the bridge"],["庭[にわ]","in the garden"],["お城[しろ]の前[まえ]","in front of the castle"],["山[やま]の上[うえ]","at the top of the mountain"],["店[みせ]の前[まえ]","in front of the shop"]],
+   "obj":[["私[わたし]","me"],["私[わたし]たち","us"],["子供[こども]たち","the children"],["うちの犬[いぬ]","our dog"],["二人[ふたり]","the two of us"],["家族[かぞく]","my family"],["母[はは]と私[わたし]","my mother and me"]],
+   "end":[["くれませんか","Could you take"],["もらえますか","Can you take"],["いただけませんか","Could you please take"],["もらえませんか","Would you take"],["くださいませんか","Would you kindly take"],["くれますか","Will you take"]]}}
+]

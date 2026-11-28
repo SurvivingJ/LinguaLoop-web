@@ -1,0 +1,12 @@
+{"batch":"items-130","files":["items/ym-rendaku.jsonl"],"checked":45,"fixed":10,"deleted":0,"replaced":0,"issues":[
+{"file":"items/ym-rendaku.jsonl","jp_before":"今日[きょう]は{青空[あおぞら]|ym-rendaku}が広[ひろ]がっています。","problem":"English 'A blue sky is spread out today' is unnatural","action":"rewrote English"},
+{"file":"items/ym-rendaku.jsonl","jp_before":"お祭[まつ]りには{人々[ひとびと]|ym-rendaku}が大勢[おおぜい]集[あつ]まりました。","problem":"人々が大勢 is redundant and awkward","action":"reordered to 大勢の人々が集まりました"},
+{"file":"items/ym-rendaku.jsonl","jp_before":"忙[いそが]しい{日々[ひび]|ym-rendaku}が続[つづ]いています。","problem":"English 'Busy days are continuing' is unnatural","action":"rewrote English"},
+{"file":"items/ym-rendaku.jsonl","jp_before":"連絡[れんらく]を受[う]けて、{早速[さっそく]|ym-rendaku}部屋[へや]を掃除[そうじ]しました。","problem":"Odd context and redundant English; why wrongly derived さっ from さつ","action":"rewrote sentence (package arrived, opened it right away) and corrected why"},
+{"file":"items/ym-rendaku.jsonl","jp_before":"{窓口[まどぐち]|ym-rendaku}で住所[じゅうしょ]の変更[へんこう]を頼[たの]みました。","problem":"変更を頼みました is slightly unnatural and the English is awkward","action":"rewrote as 市役所の窓口で住所の変更をしました with new English"},
+{"file":"items/ym-rendaku.jsonl","jp_before":"祖母[そぼ]は{手作[てづく]り|ym-rendaku}のケーキを焼[や]いてくれました。","problem":"Distractor てずくり sounds identical to てづくり (kana spelling only, not a wrong reading)","action":"replaced with てさくり"},
+{"file":"items/ym-rendaku.jsonl","jp_before":"テストで{失敗[しっぱい]|ym-rendaku}して、とても悔[くや]しかったです。","problem":"'failed the test' misreads テストで失敗 (messed up on it)","action":"rewrote English"},
+{"file":"items/ym-rendaku.jsonl","jp_before":"{実際[じっさい]|ym-rendaku}に会[あ]ってみると、想像[そうぞう]と全然[ぜんぜん]違[ちが]いました。","problem":"English invented a gender ('him') not in the Japanese","action":"changed to 'them'"},
+{"file":"items/ym-rendaku.jsonl","jp_before":"{度々[たびたび]|ym-rendaku}すみませんが、もう一度[いちど]説明[せつめい]してください。","problem":"why claimed the second たび is voiced; たびたび is not voiced","action":"corrected why"},
+{"file":"items/ym-rendaku.jsonl","jp_before":"友達[ともだち]と{立[た]ち話[ばなし]|ym-rendaku}をしていて、電車[でんしゃ]に乗[の]り遅[おく]れました。","problem":"Awkward English","action":"rewrote English"}
+]}

@@ -1,0 +1,20 @@
+[
+{"id":"de-time-limit-1","lv":4,
+ "tpl":"<who>{は|wa-topic}<dur>{で|de-time-limit}<task>。",
+ "en":"<who> <task> in <dur>.",
+ "f":1,"d":["に","を","まで"],
+ "why":"The time it took to get something done is marked with で: in two hours.",
+ "vars":{
+  "who":[["田中[たなか]さん","Mr. Tanaka"],["母[はは]","My mother"],["兄[あに]","My older brother"],["山田[やまだ]さん","Ms. Yamada"],["鈴木[すずき]さん","Mr. Suzuki"],["姉[あね]","My older sister"],["佐藤[さとう]さん","Ms. Sato"],["弟[おとうと]","My younger brother"]],
+  "dur":[["一時間[いちじかん]","an hour"],["一時間半[いちじかんはん]","an hour and a half"],["二時間[にじかん]","two hours"],["二時間半[にじかんはん]","two and a half hours"],["三時間[さんじかん]","three hours"],["四時間[よじかん]","four hours"]],
+  "task":[["仕事[しごと]{を|o-object}終[お]わらせました","finished the work"],["部屋[へや]{を|o-object}片付[かたづ]けました","tidied the room"],["レポート{を|o-object}書[か]きました","wrote the report"],["家中[いえじゅう]{を|o-object}掃除[そうじ]しました","cleaned the whole house"],["この本[ほん]{を|o-object}読[よ]みました","read this book"],["会議[かいぎ]{の|no-possessive}資料[しりょう]{を|o-object}作[つく]りました","prepared the materials for the meeting"],["引[ひ]っ越[こ]し{の|no-possessive}荷造[にづく]り{を|o-object}しました","did the packing for the move"]]}},
+{"id":"de-time-limit-2","lv":4,
+ "tpl":"<from>{から|kara-from}<dest>{まで|made-until}<dur>{で|de-time-limit}行[い]けますか。",
+ "en":"Can I get from <from> to <dest> in <dur>?",
+ "f":2,"d":["を","まで","が"],
+ "why":"The time a trip needs is marked with で: in twenty minutes.",
+ "vars":{
+  "from":[["ここ","here"],["このホテル","this hotel"],["駅[えき]","the station"],["お宅[たく]","your house"],["会社[かいしゃ]","the office"],["学校[がっこう]","the school"]],
+  "dest":[["病院[びょういん]","the hospital"],["図書館[としょかん]","the library"],["美術館[びじゅつかん]","the art museum"],["市役所[しやくしょ]","city hall"],["公園[こうえん]","the park"],["デパート","the department store"],["動物園[どうぶつえん]","the zoo"],["郵便局[ゆうびんきょく]","the post office"]],
+  "dur":[["十分[じゅっぷん]","ten minutes"],["十五分[じゅうごふん]","fifteen minutes"],["二十分[にじゅっぷん]","twenty minutes"],["二十五分[にじゅうごふん]","twenty-five minutes"],["三十分[さんじゅっぷん]","thirty minutes"],["四十分[よんじゅっぷん]","forty minutes"]]}}
+]

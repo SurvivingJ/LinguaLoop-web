@@ -1,0 +1,20 @@
+[
+ {"id":"toki-when-1","lv":4,
+  "tpl":"<who>{は|wa-topic}<age>{とき/ころ|toki-when}、<memory>。",
+  "en":"<age>, <who> <memory>.",
+  "f":2,"d":["たら","と","まえに"],
+  "why":"Noun + の + とき sets the period of life something was true in: 'when (someone) was a child'.",
+  "vars":{
+   "who":[["父[ちち]","my father"],["母[はは]","my mother"],["兄[あに]","my older brother"],["姉[あね]","my older sister"],["田中[たなか]さん","Mr. Tanaka"],["鈴木[すずき]さん","Ms. Suzuki"],["祖父[そふ]","my grandfather"],["山田[やまだ]さん","Ms. Yamada"]],
+   "age":[["子[こ]ども{の|no-possessive}","As a child"],["小学生[しょうがくせい]{の|no-possessive}","In primary school"],["中学生[ちゅうがくせい]{の|no-possessive}","In junior high school"],["高校生[こうこうせい]{の|no-possessive}","In high school"],["大学生[だいがくせい]{の|no-possessive}","At university"],["学生[がくせい]{の|no-possessive}","As a student"],["二十歳[はたち]{の|no-possessive}","At twenty"]],
+   "memory":[["大阪[おおさか]{に|ni-location}住[す]んでいました","lived in Osaka"],["毎日[まいにち]テニス{を|o-object}していました","played tennis every day"],["ピアノ{を|o-object}習[なら]っていました","took piano lessons"],["犬[いぬ]{を|o-object}飼[か]っていました","had a dog"],["よく図書館[としょかん]{に/へ|ni-destination}通[かよ]っていました","often went to the library"],["毎朝[まいあさ]走[はし]っていました","went running every morning"],["ギター{を|o-object}弾[ひ]いていました","played the guitar"],["日記[にっき]{を|o-object}つけていました","kept a diary"]]}},
+ {"id":"toki-when-2","lv":4,
+  "tpl":"<name>、<trouble>{とき/場合[ばあい]|toki-when}{は/に|wa-topic}、<request>。",
+  "en":"<name>, when <trouble>, please <request>.",
+  "f":1,"d":["たら","と","まえに"],
+  "why":"A plain verb or adjective + とき names the situation in which the request applies: 'whenever that happens'.",
+  "vars":{
+   "name":[["田中[たなか]さん","Mr. Tanaka"],["鈴木[すずき]さん","Ms. Suzuki"],["山田[やまだ]さん","Ms. Yamada"],["皆[みな]さん","Everyone"],["佐藤[さとう]さん","Mr. Sato"],["木村[きむら]さん","Ms. Kimura"]],
+   "trouble":[["授業[じゅぎょう]{を|o-object}休[やす]む","you need to miss a class"],["分[わ]からないこと{が|ga-existence}ある","there is something you don't understand"],["具合[ぐあい]{が/の|ga-sub-clause}悪[わる]い","you feel unwell"],["気分[きぶん]{が/の|ga-sub-clause}悪[わる]くなった","you start to feel sick"],["鍵[かぎ]{を|o-object}なくした","you lose your key"],["質問[しつもん]{が/の|ga-sub-clause}ある","you have a question"],["手伝[てつだ]い{が/の|ga-sub-clause}必要[ひつよう]な","you need help"],["財布[さいふ]{を|o-object}落[お]とした","you lose your wallet"]],
+   "request":[["すぐ連絡[れんらく]してください","get in touch straight away"],["私[わたし]{に|ni-recipient}電話[でんわ]してください","give me a call"],["受付[うけつけ]{に/へ|ni-destination}行[い]ってください","go to reception"],["係[かかり]{の|no-possessive}人[ひと]{に|ni-recipient}言[い]ってください","tell a member of staff"],["事務所[じむしょ]{に/へ|ni-destination}来[き]てください","come to the office"],["先生[せんせい]{に|ni-recipient}相談[そうだん]してください","talk to the teacher"],["このアプリ{で|de-means}知[し]らせてください","let us know through this app"]]}}
+]

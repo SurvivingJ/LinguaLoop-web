@@ -1,0 +1,20 @@
+[
+ {"id":"ya-list-1","lv":5,
+  "tpl":"<who>{は/が|wa-topic}スーパー{で|de-place}<a>{や|ya-list}<b>{を|o-object}買[か]いました。",
+  "en":"<who> bought things like <a> and <b> at the supermarket.",
+  "f":2,"d":["と","か","も"],
+  "why":"The shopping list is only a sample (\"things like\"), so the items are joined with や, not the complete-list と.",
+  "vars":{
+   "who":[["田中[たなか]さん","Mr. Tanaka"],["山田[やまだ]さん","Ms. Yamada"],["母[はは]","My mother"],["父[ちち]","My father"],["姉[あね]","My older sister"],["兄[あに]","My older brother"],["祖母[そぼ]","My grandmother"]],
+   "a":[["りんご","apples"],["バナナ","bananas"],["みかん","mandarins"],["いちご","strawberries"],["ぶどう","grapes"],["もも","peaches"]],
+   "b":[["牛乳[ぎゅうにゅう]","milk"],["パン","bread"],["卵[たまご]","eggs"],["肉[にく]","meat"],["魚[さかな]","fish"],["チーズ","cheese"],["ヨーグルト","yogurt"]]}},
+ {"id":"ya-list-2","lv":5,
+  "tpl":"<who>{は|wa-topic}<a>{や|ya-list}<b>{が|ga-stative}好[す]きです。",
+  "en":"<who> likes things like <a> and <b>.",
+  "f":1,"d":["と","か","も"],
+  "why":"The two hobbies are examples from a longer list (\"things like\"), so they are joined with や.",
+  "vars":{
+   "who":[["田中[たなか]さん","Mr. Tanaka"],["山田[やまだ]さん","Ms. Yamada"],["弟[おとうと]","My younger brother"],["妹[いもうと]","My younger sister"],["兄[あに]","My older brother"],["姉[あね]","My older sister"],["父[ちち]","My father"],["母[はは]","My mother"]],
+   "a":[["テニス","tennis"],["野球[やきゅう]","baseball"],["水泳[すいえい]","swimming"],["スキー","skiing"],["バスケットボール","basketball"],["ゴルフ","golf"]],
+   "b":[["料理[りょうり]","cooking"],["映画[えいが]","films"],["音楽[おんがく]","music"],["読書[どくしょ]","reading"],["旅行[りょこう]","travelling"],["写真[しゃしん]","photography"],["釣[つ]り","fishing"]]}}
+]

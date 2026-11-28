@@ -1,0 +1,9 @@
+{"batch":"packs-037",
+ "files":["packs/aida-ni.json","packs/uchi-ni.json","packs/maeni-atode.json","packs/toki-when.json"],
+ "checked":6,
+ "fixed":2,
+ "deleted":0,
+ "issues":[
+  {"file":"packs/aida-ni.json","pack":"aida-ni-1","problem":"day values ゆうべ (last night) and 今朝 (this morning) clash with the absent values built on 昼寝 (a daytime nap), e.g. ゆうべ、子どもたちが昼寝している間に.","action":"Replaced ゆうべ and 今朝 with 土曜日 'On Saturday' and 日曜日 'On Sunday'."},
+  {"file":"packs/toki-when.json","pack":"toki-when-2","problem":"trouble value 電車に乗り遅れた ('you miss your train') reads oddly with several requests (go to reception, come to the office, talk to the teacher).","action":"Replaced with 授業を休む 'you need to miss a class', which fits every request."}
+ ]}

@@ -1,0 +1,20 @@
+[
+ {"id":"e-direction-1","lv":5,
+  "tpl":"<who>{は|wa-topic}<dir>{の|no-possessive}方[ほう]{へ/に|e-direction}<move>。",
+  "en":"<who> <move> towards <dir>.",
+  "f":2,"d":["で","が","と"],
+  "why":"へ points the movement in a direction; 方 (\"the side of\") shows it is a direction, not an exact goal.",
+  "vars":{
+   "who":[["田中[たなか]さん","Mr. Tanaka"],["父[ちち]","My father"],["兄[あに]","My older brother"],["鈴木[すずき]さん","Ms. Suzuki"],["先生[せんせい]","Our teacher"],["山田[やまだ]さん","Mr. Yamada"],["母[はは]","My mother"]],
+   "dir":[["駅[えき]","the station"],["海[うみ]","the sea"],["山[やま]","the mountains"],["川[かわ]","the river"],["公園[こうえん]","the park"],["町[まち]","the town"],["港[みなと]","the harbour"]],
+   "move":[["歩[ある]いて行[い]きました","walked"],["走[はし]って行[い]きました","ran"],["まっすぐ歩[ある]いて行[い]きました","walked straight"],["自転車[じてんしゃ]{で|de-means}行[い]きました","cycled"],["車[くるま]{で|de-means}行[い]きました","drove"],["ゆっくり歩[ある]いて行[い]きました","walked slowly"]]}},
+ {"id":"e-direction-2","lv":4,
+  "tpl":"<group>{は|wa-topic}<means>{で|de-means}<dest>{へ/に|e-direction}向[む]かいました。",
+  "en":"<group> headed for <dest> by <means>.",
+  "f":2,"d":["を","で","と"],
+  "why":"向かう names the place you are heading towards, and へ marks that direction (に also works).",
+  "vars":{
+   "group":[["家族[かぞく]","My family"],["田中[たなか]さん一家[いっか]","The Tanaka family"],["観光客[かんこうきゃく]たち","The tourists"],["選手[せんしゅ]たち","The players"],["学生[がくせい]たち","The students"],["兄[あに]","My older brother"],["祖父母[そふぼ]","My grandparents"]],
+   "means":[["バス","bus"],["電車[でんしゃ]","train"],["車[くるま]","car"],["新幹線[しんかんせん]","bullet train"],["夜行[やこう]バス","night bus"],["レンタカー","rental car"]],
+   "dest":[["大阪[おおさか]","Osaka"],["京都[きょうと]","Kyoto"],["名古屋[なごや]","Nagoya"],["横浜[よこはま]","Yokohama"],["神戸[こうべ]","Kobe"],["仙台[せんだい]","Sendai"],["金沢[かなざわ]","Kanazawa"]]}}
+]

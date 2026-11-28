@@ -1,0 +1,9 @@
+{"batch":"guides-018","files":["guides/cd-more.json","guides/x-cond.json"],"checked":5,"fixed":7,"deleted":0,"issues":[
+ {"file":"guides/cd-more.json","problem":"cd-volition mistake 授業が終われば、図書館へ行きましょう has different subjects in A and B (the guide's own stated exception), so the 'bad' sentence is not plainly wrong.","action":"Replaced with same-subject 日本に着けば、連絡してください ✗ / 着いたら ✓."},
+ {"file":"guides/cd-more.json","problem":"cd-regret explain claimed ならよかった is never used for regret; after nouns and な-adjectives it is common (休みならよかったのに).","action":"Restricted the ban to verb + なら and added the noun / な-adjective exception."},
+ {"file":"guides/cd-more.json","problem":"cd-regret contrast 'と / なら' said regret is built only on ば or たら, false for nouns (日曜日ならよかったのに).","action":"Limited the claim to verbs and noted the なら = ば-form of だ case."},
+ {"file":"guides/cd-more.json","problem":"cd-regret mistake note for 知ったら、教えました was vague about what the bad sentence means.","action":"Rewrote note: it reads as a real past sequence; counterfactual needs ていたら + のに."},
+ {"file":"guides/x-cond.json","problem":"Q3 said ば is out for any real past event; ば is fine for past habits (暇があれば本を読んだ), so mechanical use would mislead.","action":"Narrowed to a single past event and added the habit exception."},
+ {"file":"guides/x-cond.json","problem":"Contrast 'ば vs たら' used 終われば帰って as wrong; with a different subject (仕事が終われば帰っていい) ば is acceptable.","action":"Replaced with 着けば電話して ✗ / 着いたら電話して ✓."},
+ {"file":"guides/x-cond.json","problem":"Mistake 東京に行ったら、新幹線の切符を予約したほうがいい is not plainly wrong (booking a shinkansen once in Tokyo is a valid reading).","action":"Replaced with 海外に行ったら、出発前にパスポートを確認してね ✗ / 行くなら ✓, where 出発前 forces B before A."}
+]}

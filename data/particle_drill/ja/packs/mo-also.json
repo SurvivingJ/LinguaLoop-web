@@ -1,0 +1,29 @@
+[
+ {"id":"mo-also-1","lv":4,
+  "tpl":"<who>{も|mo-also}<when><event>。",
+  "en":"<who> also <event> <when>.",
+  "f":0,"d":["が","を","と"],
+  "why":"も after the person says they did the same thing as someone already mentioned.",
+  "vars":{
+   "who":[["母[はは]","My mother"],["父[ちち]","My father"],["田中[たなか]さん","Mr. Tanaka"],["鈴木[すずき]さん","Ms. Suzuki"],["兄[あに]","My older brother"],["妹[いもうと]","My younger sister"],["先生[せんせい]","The teacher"],["山田[やまだ]さん","Mr. Yamada"]],
+   "when":[["昨日[きのう]","yesterday"],["先週[せんしゅう]","last week"],["先月[せんげつ]","last month"],["去年[きょねん]","last year"],["今年[ことし]","this year"],["先週末[せんしゅうまつ]","last weekend"],["一昨年[おととし]","the year before last"]],
+   "event":[["パーティー{に|ni-destination}来[き]ました","came to the party"],["風邪[かぜ]{を|o-object}ひきました","caught a cold"],["その映画[えいが]{を|o-object}見[み]ました","saw that film"],["京都[きょうと]{に/へ|ni-destination}行[い]きました","went to Kyoto"],["引[ひ]っ越[こ]しました","moved house"],["車[くるま]{を|o-object}買[か]いました","bought a car"],["結婚[けっこん]しました","got married"],["富士山[ふじさん]{に|ni-destination}登[のぼ]りました","climbed Mount Fuji"]]}},
+ {"id":"mo-also-2","lv":4,
+  "tpl":"<who>{は|wa-topic}<food>{も|mo-also}<verb>。",
+  "en":"<who> <verb> <food> too.",
+  "f":1,"d":["を","が","と"],
+  "why":"も replaces を on the object to say this food was added to the others.",
+  "vars":{
+   "who":[["母[はは]","My mother"],["父[ちち]","My father"],["田中[たなか]さん","Mr. Tanaka"],["鈴木[すずき]さん","Ms. Suzuki"],["姉[あね]","My older sister"],["弟[おとうと]","My younger brother"],["祖母[そぼ]","My grandmother"],["山田[やまだ]さん","Mr. Yamada"]],
+   "food":[["サラダ","salad"],["ケーキ","cake"],["スープ","soup"],["パン","bread"],["カレー","curry"],["サンドイッチ","sandwiches"],["おにぎり","rice balls"],["デザート","dessert"]],
+   "verb":[["食[た]べました","ate"],["買[か]いました","bought"],["作[つく]りました","made"],["頼[たの]みました","ordered"],["出[だ]しました","served"],["選[えら]びました","chose"]]}},
+ {"id":"mo-also-3","lv":5,
+  "tpl":"<owner>{の|no-possessive}<item>{も|mo-also}<adj>です{か|ka-question}。",
+  "en":"Is <owner> <item> <adj> too?",
+  "f":1,"d":["を","と","で"],
+  "why":"も on the subject asks whether this thing shares the quality of the one already mentioned.",
+  "vars":{
+   "owner":[["田中[たなか]さん","Mr. Tanaka's"],["鈴木[すずき]さん","Ms. Suzuki's"],["山田[やまだ]さん","Mr. Yamada's"],["先生[せんせい]","the teacher's"],["お兄[にい]さん","your brother's"],["お母[かあ]さん","your mother's"]],
+   "item":[["かばん","bag"],["傘[かさ]","umbrella"],["時計[とけい]","watch"],["自転車[じてんしゃ]","bicycle"],["カメラ","camera"],["車[くるま]","car"],["パソコン","computer"],["スーツケース","suitcase"]],
+   "adj":[["新[あたら]しい","new"],["古[ふる]い","old"],["高[たか]い","expensive"],["安[やす]い","cheap"],["重[おも]い","heavy"],["軽[かる]い","light"],["大[おお]きい","big"],["小[ちい]さい","small"]]}}
+]

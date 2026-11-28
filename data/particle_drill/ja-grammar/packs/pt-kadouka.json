@@ -1,0 +1,20 @@
+[
+ {"id":"pt-kadouka-1","lv":4,
+  "tpl":"<place>で<prop>{かどうか/か|pt-kadouka}<main>。",
+  "en":"<main> whether you can <prop> at <place>.",
+  "f":0,"d":["と","ので","のに"],
+  "why":"A yes/no question folded into a sentence ('whether ...') ends in かどうか; と would report a statement, not a question.",
+  "vars":{
+   "place":[["そのレストラン","that restaurant"],["駅前[えきまえ]のカフェ","the café in front of the station"],["新[あたら]しいラーメン屋[や]","the new ramen shop"],["駅[えき]の近[ちか]くの居酒屋[いざかや]","the pub near the station"],["山田[やまだ]さんが言[い]っていた店[みせ]","the place Ms. Yamada mentioned"],["公園[こうえん]の中[なか]のカフェ","the café in the park"],["商店街[しょうてんがい]のうどん屋[や]","the udon restaurant on the shopping street"]],
+   "prop":[["カードが使[つか]える","pay by card"],["席[せき]の予約[よやく]ができる","book a table"],["たばこが吸[す]える","smoke"],["ランチが食[た]べられる","have lunch"],["外[そと]の席[せき]に座[すわ]れる","sit outside"],["インターネットが使[つか]える","use the internet"],["持[も]ち帰[かえ]りができる","get takeaway"]],
+   "main":[["分[わ]かりません","I don't know"],["調[しら]べてみます","I'll find out"],["確[たし]かめてください","Please check"],["教[おし]えてください","Please tell me"],["聞[き]いてみましょう","Let's ask"],["知[し]りたいです","I'd like to know"],["覚[おぼ]えていません","I don't remember"]]}},
+ {"id":"pt-kadouka-2","lv":4,
+  "tpl":"<q>{か/のか|pt-kadouka}<who>に<ask>。",
+  "en":"<ask> <who> <q>.",
+  "f":0,"d":["かどうか","と","ことを"],
+  "why":"A question with a question word (どこ, 何時, いくら ...) inside a sentence ends in plain か (or のか); かどうか is only for yes/no questions.",
+  "vars":{
+   "q":[["駅[えき]がどこにある","where the station is"],["次[つぎ]のバスが何時[なんじ]に来[く]る","what time the next bus comes"],["空港[くうこう]までどのぐらいかかる","how long it takes to get to the airport"],["タクシーだといくらぐらいかかる","roughly how much a taxi costs"],["一番[いちばん]近[ちか]いコンビニがどこにある","where the nearest convenience store is"],["どの電車[でんしゃ]に乗[の]ればいい","which train to take"],["美術館[びじゅつかん]が何時[なんじ]に閉[し]まる","what time the art museum closes"],["どこで切符[きっぷ]が買[か]える","where we can buy tickets"]],
+   "who":[["ホテルの人[ひと]","the hotel staff"],["受付[うけつけ]の人[ひと]","the receptionist"],["地元[じもと]の人[ひと]","a local"],["案内所[あんないじょ]の人[ひと]","the person at the information desk"],["ガイドさん","the guide"],["店員[てんいん]さん","the shop assistant"]],
+   "ask":[["聞[き]いてみます","I'll ask"],["聞[き]いてください","Please ask"],["聞[き]きましょう","Let's ask"],["聞[き]きました","I asked"],["聞[き]こうと思[おも]います","I'm thinking of asking"],["聞[き]いたほうがいいです","You should ask"],["聞[き]かなければなりません","We have to ask"]]}}
+]

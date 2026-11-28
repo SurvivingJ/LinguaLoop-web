@@ -1,0 +1,20 @@
+[
+ {"id":"to-reciprocal-1","lv":4,
+  "tpl":"<who>{は|wa-topic}<partner>{と|to-reciprocal}<act>。",
+  "en":"<who> <act> <partner>.",
+  "f":1,"d":["に","を","が"],
+  "why":"Actions that need two people, like marrying, quarrelling or breaking up, mark the other person with と.",
+  "vars":{
+   "who":[["兄[あに]","My older brother"],["弟[おとうと]","My younger brother"],["田中[たなか]さん","Mr. Tanaka"],["山田[やまだ]さん","Mr. Yamada"],["中村[なかむら]さん","Mr. Nakamura"],["いとこ","My cousin"]],
+   "partner":[["鈴木[すずき]さん","Ms. Suzuki"],["佐藤[さとう]さん","Ms. Sato"],["小林[こばやし]さん","Ms. Kobayashi"],["高橋[たかはし]さん","Ms. Takahashi"],["伊藤[いとう]さん","Ms. Ito"],["渡辺[わたなべ]さん","Ms. Watanabe"]],
+   "act":[["結婚[けっこん]しました","married"],["別[わか]れました","broke up with"],["喧嘩[けんか]しました","had a fight with"],["仲直[なかなお]りしました","made up with"],["付[つ]き合[あ]い始[はじ]めました","started going out with"],["握手[あくしゅ]しました","shook hands with"],["話[はな]し合[あ]いました","talked things over with"]]}},
+ {"id":"to-reciprocal-2","lv":4,
+  "tpl":"<owner>{の|no-possessive}<item>{は|wa-topic}私[わたし]{の|no-pronoun}{と|to-reciprocal}<rel>。",
+  "en":"<owner> <item> <rel> mine.",
+  "f":3,"d":["に","を","が"],
+  "why":"同じ and 違う compare two things, and the thing you compare with takes と.",
+  "vars":{
+   "owner":[["田中[たなか]さん","Mr. Tanaka's"],["鈴木[すずき]さん","Ms. Suzuki's"],["兄[あに]","My older brother's"],["母[はは]","My mother's"],["友達[ともだち]","My friend's"],["先生[せんせい]","The teacher's"]],
+   "item":[["かばん","bag"],["傘[かさ]","umbrella"],["時計[とけい]","watch"],["自転車[じてんしゃ]","bicycle"],["カメラ","camera"],["辞書[じしょ]","dictionary"],["財布[さいふ]","wallet"],["スマホ","smartphone"]],
+   "rel":[["同[おな]じです","is the same as"],["違[ちが]います","is different from"],["同[おな]じでした","was the same as"],["違[ちが]いました","was different from"],["全然[ぜんぜん]違[ちが]います","is completely different from"],["ほとんど同[おな]じです","is almost the same as"],["少[すこ]し違[ちが]います","is a little different from"]]}}
+]

@@ -1,0 +1,20 @@
+[
+ {"id":"mo-emphasis-1","lv":4,
+  "tpl":"<who>{は|wa-topic}<amount>{も|mo-emphasis}<act>。",
+  "en":"<who> <act> for <amount>.",
+  "f":1,"d":["を","で","が"],
+  "why":"も right after an amount stresses that it is a lot: 'a whole three hours'.",
+  "vars":{
+   "who":[["兄[あに]","My older brother"],["母[はは]","My mother"],["妹[いもうと]","My younger sister"],["友達[ともだち]","My friend"],["田中[たなか]さん","Mr. Tanaka"],["佐藤[さとう]さん","Ms. Sato"]],
+   "amount":[["二時間[にじかん]","two whole hours"],["三時間[さんじかん]","three whole hours"],["四時間[よじかん]","four whole hours"],["五時間[ごじかん]","five whole hours"],["六時間[ろくじかん]","six whole hours"],["七時間[ななじかん]","seven whole hours"]],
+   "act":[["待[ま]ちました","waited"],["歩[ある]きました","walked"],["並[なら]びました","queued"],["勉強[べんきょう]しました","studied"],["掃除[そうじ]しました","cleaned"],["運転[うんてん]しました","drove"],["練習[れんしゅう]しました","practised"]]}},
+ {"id":"mo-emphasis-2","lv":4,
+  "tpl":"<who>{は|wa-topic}<period>一度[いちど]{も|mo-emphasis}<act>。",
+  "en":"<who> didn't <act> even once <period>.",
+  "f":1,"d":["を","が","で"],
+  "why":"一度 + も with a negative verb means 'not even once'; も stresses the zero.",
+  "vars":{
+   "who":[["兄[あに]","My older brother"],["母[はは]","My mother"],["父[ちち]","My father"],["田中[たなか]さん","Mr. Tanaka"],["佐藤[さとう]さん","Ms. Sato"],["姉[あね]","My older sister"]],
+   "period":[["今年[ことし]","this year"],["去年[きょねん]","last year"],["先月[せんげつ]","last month"],["今月[こんげつ]","this month"],["この一年[いちねん]","in the past year"],["夏休[なつやす]み中[ちゅう]","during the summer holidays"]],
+   "act":[["ジム{に/へ|ni-destination}行[い]きませんでした","go to the gym"],["映画館[えいがかん]{に/へ|ni-destination}行[い]きませんでした","go to the cinema"],["風邪[かぜ]{を|o-object}ひきませんでした","catch a cold"],["部屋[へや]{を|o-object}掃除[そうじ]しませんでした","clean the room"],["お酒[さけ]{を|o-object}飲[の]みませんでした","drink alcohol"],["テレビ{を|o-object}見[み]ませんでした","watch TV"],["料理[りょうり]{を|o-object}しませんでした","cook"],["朝[あさ]ご飯[はん]{を|o-object}食[た]べませんでした","eat breakfast"]]}}
+]

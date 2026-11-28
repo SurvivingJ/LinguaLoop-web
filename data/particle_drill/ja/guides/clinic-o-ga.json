@@ -1,0 +1,130 @@
+{
+ "group": "clinic-o-ga",
+ "intro": "を marks the thing a verb acts on. が marks the thing a state is about. English blurs the two: 'I like cats' and 'I eat fish' look the same. In Japanese 好き is an adjective ('cats are likeable to me'), so cats are its subject and take が. Whether a noun takes を or が depends on the word that ends the sentence. Is it an action someone does to the noun? Or is it a state, or something that happens by itself?",
+ "skills": [
+  {
+   "id": "x-o-ga",
+   "rule": "Liking, skill, wanting, understanding and being able (好き, 上手, ほしい, わかる, できる) take が; a verb that someone does to the noun takes を.",
+   "explain": "Q1. Is the predicate an adjective of feeling or skill? These are 好き, 嫌い, 上手, 下手, 得意, 苦手 and ほしい. Then が, and を is wrong: 猫が好きです, 車がほしいです. The person who feels it takes は: 姉はピアノが上手です.\n\nQ2. Is it わかる, できる, 要る, ある, 見える or 聞こえる? These are states, so が: 日本語がわかります, テニスができます, 富士山が見えます.\n\nQ3. Is it a potential form (読める, 話せる, 食べられる)? が is the standard choice, and を is also common in speech. Keep both in mind for these.\n\nQ4. Is it a たい form (飲みたい)? Both を and が are correct. を is now the more common choice.\n\nQ5. Otherwise it is an ordinary action verb, so を: ピアノを弾きます. Note that 好き and ほしい have verb partners that take を: 好む ('prefer') and ほしがる ('show signs of wanting').",
+   "patterns": [
+    "[person] は [thing] が [好き / 嫌い / 上手 / 下手]",
+    "[thing] が [ほしい / わかる / できる / 要る]",
+    "[thing] を [action verb]",
+    "[thing] を / が [verb]-たい"
+   ],
+   "examples": [
+    {
+     "jp": "猫[ねこ]{が}好[す]きです。",
+     "en": "I like cats."
+    },
+    {
+     "jp": "新[あたら]しい靴[くつ]{が}ほしいです。",
+     "en": "I want new shoes."
+    },
+    {
+     "jp": "日本語[にほんご]{が}わかりますか。",
+     "en": "Do you understand Japanese?"
+    },
+    {
+     "jp": "姉[あね]はピアノ{が}上手[じょうず]です。",
+     "en": "My sister is good at the piano."
+    },
+    {
+     "jp": "姉[あね]は毎晩[まいばん]ピアノ{を}弾[ひ]きます。",
+     "en": "My sister plays the piano every evening."
+    }
+   ],
+   "contrast": [
+    {
+     "vs": "を",
+     "note": "を needs an action verb that does something to the noun. 好き, 上手 and ほしい are adjectives, and わかる and できる are states, so nothing is being acted on."
+    },
+    {
+     "vs": "が",
+     "note": "が with an action verb makes the noun the doer: 猫が食べます is 'the cat eats', not 'I eat the cat'. When a real action verb follows, the thing acted on takes を."
+    }
+   ],
+   "mistakes": [
+    {
+     "bad": "犬[いぬ]{を}好[す]きです。",
+     "good": "犬[いぬ]{が}好[す]きです。",
+     "note": "好き is an adjective; the thing liked is its subject, marked with が."
+    },
+    {
+     "bad": "日本語[にほんご]{を}わかります。",
+     "good": "日本語[にほんご]{が}わかります。",
+     "note": "わかる means 'is clear to me', so the thing understood takes が."
+    },
+    {
+     "bad": "車[くるま]{を}ほしいです。",
+     "good": "車[くるま]{が}ほしいです。",
+     "note": "ほしい is an adjective; the thing wanted takes が."
+    }
+   ],
+   "tip": "Does the sentence end in an adjective or a state (好き, ほしい, わかる, できる)? Then が. Does it end in an action verb? Then を."
+  },
+  {
+   "id": "x-trans-intrans",
+   "rule": "With a transitive verb (someone does it to X) X takes を; with its intransitive partner (X does it or it happens on its own) X takes が.",
+   "explain": "Japanese has many verb pairs: 開ける / 開く, 閉める / 閉まる, 始める / 始まる, 止める / 止まる, 消す / 消える, 出す / 出る, 入れる / 入る, 落とす / 落ちる, 壊す / 壊れる, 変える / 変わる. The particle follows from the verb you choose. ドアを開けた: someone opened the door. ドアが開いた: the door opened, and no doer is mentioned.\n\nTo tell them apart, look at the endings. In a pair, the -su verb is the transitive one: 出す, 消す, 落とす. An -aru verb is almost always the intransitive one: 始まる, 閉まる, 決まる. -eru goes either way: 開ける is transitive, but 消える is intransitive.\n\nStates follow the same split: 窓が開いている ('is open'), 窓が開けてある ('has been left open', usually が).\n\nOne trap: verbs of leaving or passing through take を for the place, even when they are intransitive: 家を出る, 橋を渡る. This を marks a route, not an object.",
+   "patterns": [
+    "[doer] が/は [X] を [transitive verb]",
+    "[X] が [intransitive verb]",
+    "[X] が [intransitive verb]-ている  (resulting state)"
+   ],
+   "examples": [
+    {
+     "jp": "ドア{を}開[あ]けてください。",
+     "en": "Please open the door."
+    },
+    {
+     "jp": "風[かぜ]でドア{が}開[あ]きました。",
+     "en": "The door blew open in the wind."
+    },
+    {
+     "jp": "九時[くじ]に会議[かいぎ]{を}始[はじ]めます。",
+     "en": "We'll start the meeting at nine."
+    },
+    {
+     "jp": "九時[くじ]に会議[かいぎ]{が}始[はじ]まります。",
+     "en": "The meeting starts at nine."
+    },
+    {
+     "jp": "寝[ね]る前[まえ]に電気[でんき]{を}消[け]してください。",
+     "en": "Please turn off the light before you go to bed."
+    },
+    {
+     "jp": "急[きゅう]に電気[でんき]{が}消[き]えました。",
+     "en": "The lights suddenly went out."
+    }
+   ],
+   "contrast": [
+    {
+     "vs": "を",
+     "note": "を goes with the transitive member: a doer acts on X (落とす, 'drop something'). With the intransitive member there is no object, so を is wrong (財布を落ちた)."
+    },
+    {
+     "vs": "が",
+     "note": "が goes with the intransitive member: X changes by itself (落ちる, 'fall'). With the transitive member, が would make X the doer."
+    },
+    {
+     "vs": "を (place)",
+     "note": "Intransitive motion verbs can still take を for the place that is left or crossed: 部屋を出る, 道を渡る. That is not an object, so it does not break the rule."
+    }
+   ],
+   "mistakes": [
+    {
+     "bad": "もうすぐ授業[じゅぎょう]{を}始[はじ]まります。",
+     "good": "もうすぐ授業[じゅぎょう]{が}始[はじ]まります。",
+     "note": "始まる is intransitive (the class starts), so the class is the subject: が."
+    },
+    {
+     "bad": "駅[えき]で財布[さいふ]{が}落[お]としました。",
+     "good": "駅[えき]で財布[さいふ]{を}落[お]としました。",
+     "note": "落とす is transitive ('I dropped it'), so the wallet is the object: を."
+    }
+   ],
+   "tip": "Can you add 'by someone' to the action? Then use を with the transitive verb. Does it just happen? Then use が with the intransitive verb. In a pair, -su is transitive and -aru is intransitive."
+  }
+ ]
+}

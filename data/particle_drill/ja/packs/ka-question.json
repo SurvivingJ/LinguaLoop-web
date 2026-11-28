@@ -1,0 +1,20 @@
+[
+ {"id":"ka-question-1","lv":5,
+  "tpl":"<who>{は|wa-topic}<when>何[なに]{を|o-object}<verb>{か|ka-question}。",
+  "en":"What did <who> <verb> <when>?",
+  "f":2,"d":["よ","ね","が"],
+  "why":"A polite question with a question word like 何 ends in か.",
+  "vars":{
+   "who":[["田中[たなか]さん","Mr. Tanaka"],["山田[やまだ]さん","Ms. Yamada"],["鈴木[すずき]さん","Mr. Suzuki"],["お母[かあ]さん","your mother"],["お父[とう]さん","your father"],["お兄[にい]さん","your older brother"],["お姉[ねえ]さん","your older sister"]],
+   "when":[["昨日[きのう]","yesterday"],["今朝[けさ]","this morning"],["先週[せんしゅう]","last week"],["週末[しゅうまつ]","at the weekend"],["おととい","the day before yesterday"],["今日[きょう]","today"]],
+   "verb":[["食[た]べました","eat"],["買[か]いました","buy"],["見[み]ました","watch"],["作[つく]りました","make"],["しました","do"],["読[よ]みました","read"]]}},
+ {"id":"ka-question-2","lv":5,
+  "tpl":"<name>、<when><act>{か|ka-question}。",
+  "en":"<name>, would you like to <act> <when>?",
+  "f":1,"d":["よ","ね","が"],
+  "why":"〜ませんか is a polite invitation: the question particle か turns the negative into \"won't you...?\".",
+  "vars":{
+   "name":[["田中[たなか]さん","Mr. Tanaka"],["山田[やまだ]さん","Ms. Yamada"],["鈴木[すずき]さん","Mr. Suzuki"],["佐藤[さとう]さん","Ms. Sato"],["高橋[たかはし]さん","Mr. Takahashi"],["伊藤[いとう]さん","Ms. Ito"]],
+   "when":[["明日[あした]","tomorrow"],["今晩[こんばん]","this evening"],["今週末[こんしゅうまつ]","this weekend"],["今度[こんど]","some time"],["来週[らいしゅう]","next week"],["あさって","the day after tomorrow"]],
+   "act":[["映画[えいが]{を|o-object}見[み]ません","see a film"],["食事[しょくじ]{を|o-object}しません","have a meal together"],["カラオケ{に/へ|ni-destination}行[い]きません","go to karaoke"],["買[か]い物[もの]{に|ni-purpose}行[い]きません","go shopping"],["公園[こうえん]{を|o-path}散歩[さんぽ]しません","take a walk in the park"],["ゲーム{を|o-object}しません","play video games"]]}}
+]

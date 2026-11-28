@@ -1,0 +1,17 @@
+{
+ "batch": "items-096",
+ "files": ["items/pt-aida.jsonl"],
+ "checked": 45,
+ "fixed": 7,
+ "deleted": 0,
+ "replaced": 0,
+ "issues": [
+  {"file": "items/pt-aida.jsonl", "jp_before": "子供[こども]が昼寝[ひるね]している{間[あいだ]に|pt-aida}、洗濯[せんたく]を済[す]ませました。", "problem": "うちに is equally natural with a ている clause and a task fitted into the time; not listed.", "action": "Added うちに as an alternative: {間に/うちに}."},
+  {"file": "items/pt-aida.jsonl", "jp_before": "子供[こども]が学校[がっこう]に行[い]っている{間[あいだ]に|pt-aida}、買[か]い物[もの]を全部[ぜんぶ]済[す]ませます。", "problem": "うちに is equally natural here (getting things done while the children are away); not listed.", "action": "Added うちに as an alternative: {間に/うちに}."},
+  {"file": "items/pt-aida.jsonl", "jp_before": "私[わたし]が電話[でんわ]している{間[あいだ]|pt-aida}、子供[こども]たちはおとなしく待[ま]っていました。", "problem": "Without ずっと, the distractor 間に is not plainly wrong; the context does not force the whole-period reading.", "action": "Added ずっと before おとなしく待っていました."},
+  {"file": "items/pt-aida.jsonl", "jp_before": "映画[えいが]を見[み]ている{間[あいだ]|pt-aida}、彼[かれ]は一度[いちど]も話[はな]しませんでした。", "problem": "A 一度も + negative clause is borderline with 間に too, so the distractor was not clearly wrong.", "action": "Rewrote the main clause as 彼はずっと黙っていました; updated en and why."},
+  {"file": "items/pt-aida.jsonl", "jp_before": "子供[こども]が小[ちい]さい{うちに|pt-aida}、家族[かぞく]でたくさん旅行[りょこう]しようと思[おも]っています。", "problem": "Distractor 間 is acceptable: repeated travel throughout the whole period while the children are small.", "action": "Rewrote it as a single trip (一度家族で海外旅行をしようと思っています) so that 間 (a continuing state) is wrong; updated en."},
+  {"file": "items/pt-aida.jsonl", "jp_before": "友達[ともだち]が買[か]い物[もの]をしている{間[あいだ]に|pt-aida}、私[わたし]はカフェで宿題[しゅくだい]を終[お]わらせました。", "problem": "The why says 'her shopping time' but the friend's gender is not given.", "action": "Changed why to 'the friend's shopping time'."},
+  {"file": "items/pt-aida.jsonl", "jp_before": "氷[こおり]が溶[と]けない{うちに|pt-aida}、早[はや]くジュースに入[い]れてください。", "problem": "The English 'put it in the juice' leaves the object unclear.", "action": "Changed en to 'Please put the ice in the juice quickly, before it melts.'"}
+ ]
+}

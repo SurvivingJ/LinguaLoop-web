@@ -1,0 +1,7 @@
+{"batch":"items-015","files":["items/o-departure.jsonl"],"checked":50,"fixed":5,"deleted":0,"replaced":0,"issues":[
+{"file":"items/o-departure.jsonl","jp_before":"五階[ごかい]{で|de-place}エレベーター{を/から|o-departure}降[お]りてください。","problem":"why claimed に would mean 'getting off onto' the elevator, which is not a real reading","action":"Rewrote why: を marks what you step out of with 降りる; に marks the vehicle you board with 乗る."},
+{"file":"items/o-departure.jsonl","jp_before":"あの店[みせ]{を/から|o-departure}出[で]て行[い]った人[ひと]{は/が|wa-topic}田中[たなか]さんです。","problem":"English added 'just', which is not in the Japanese","action":"Removed 'just' from en."},
+{"file":"items/o-departure.jsonl","jp_before":"先生[せんせい]{は/が|wa-topic}急[きゅう]に席[せき]{を/から|o-departure}立[た]ちました。","problem":"Distractor で (席で立つ 'stood up at the seat') is close to the given meaning; English 'from the seat' unnatural","action":"Replaced distractor で with と; en changed to 'got up from their seat'."},
+{"file":"items/o-departure.jsonl","jp_before":"息子[むすこ]{は|wa-topic}食[た]べ終[お]わる{と|to-conditional}すぐ席[せき]{を/から|o-departure}立[た]ちました。","problem":"Distractor で (席で立つ) is not plainly wrong","action":"Replaced distractor で with と."},
+{"file":"items/o-departure.jsonl","jp_before":"煙[けむり]{の|no-possessive}中[なか]、みんな{は|wa-topic}急[いそ]いでビル{を/から|o-departure}脱出[だっしゅつ]しました。","problem":"Non-focus slot: が is equally (more) natural after みんな in this narrative","action":"Slot changed to {は/が|wa-topic}."}
+]}

@@ -114,7 +114,7 @@ class FakeDb:
                     day['sub_misses'][sub] = day['sub_misses'].get(sub, 0) + n
             old, new = state['state'], t.get('state')
             merged = dict(old if new is None or old.get('l', 0) > new.get('l', 0) else new)
-            merged['u'] = min(4, max(old.get('u', 1), (new or {}).get('u', 1), t['stage']))
+            merged['u'] = min(7, max(old.get('u', 1), (new or {}).get('u', 1), t['stage']))
             state['state'], state['last_round_key'] = merged, p_round_key
             recorded += 1
         return {'success': True, 'recorded': recorded, 'replayed': replayed}
@@ -234,7 +234,7 @@ def _bad_bodies(topic):
         return dict(_body(topic), **over)
 
     return {
-        'wrong language': top(language_id=3),
+        'wrong language': top(language_id=2),
         'language as bool': top(language_id=True),
         'no round key': top(round_key=None),
         'round key not a uuid': top(round_key='abc'),
@@ -303,7 +303,7 @@ def test_ten_topics_are_accepted_and_cleaned(client, auth_headers, db, topic):
 
 def test_progress_validation(client, auth_headers, db):
     assert client.get(PROGRESS, headers=auth_headers).status_code == 400
-    assert client.get(f'{PROGRESS}?language_id=3', headers=auth_headers).status_code == 400
+    assert client.get(f'{PROGRESS}?language_id=2', headers=auth_headers).status_code == 400
     assert client.get(f'{PROGRESS}?language_id=1&days=0', headers=auth_headers).status_code == 400
     capped = j(client.get(f'{PROGRESS}?language_id=1&days=9999', headers=auth_headers))
     assert capped['days'] == 365 and capped['daily'] == [] and capped['states'] == {}

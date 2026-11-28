@@ -1,0 +1,128 @@
+/* Idiom trainer (/idiom-trainer/<lang>). Builds on particles.css (pd-*). */
+
+.it-idiom {
+  padding: 0 0.1em;
+  border-bottom: 2px solid var(--brand);
+  color: var(--brand);
+  font-weight: 600;
+}
+
+.it-hero__sub {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.9rem;
+  opacity: 0.85;
+}
+
+.it-sets {
+  display: grid;
+  gap: 8px;
+}
+
+.it-set {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.it-set__on {
+  flex: 1;
+  justify-content: flex-start;
+  gap: 0.6rem;
+  text-align: left;
+}
+
+.it-set__on small {
+  opacity: 0.75;
+}
+
+.it-set__go {
+  flex: none;
+  padding: 0.4rem 0.2rem;
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+  text-decoration: none;
+}
+
+.it-row .pd-skill__t {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.it-row .pd-skill__t small {
+  color: var(--ink-2);
+  font-size: 0.82rem;
+}
+
+.it-book {
+  margin-right: 0.4rem;
+  color: var(--brand);
+}
+
+.it-card {
+  padding-bottom: 1rem;
+}
+
+.it-card__t {
+  font-size: 2.2rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.it-card__r {
+  margin-top: 0.15rem;
+  color: var(--ink-2);
+}
+
+.it-card__mean {
+  margin: 0.8rem 0 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.it-card h3 {
+  margin: 1.1rem 0 0.3rem;
+  color: var(--ink-2);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.it-card p {
+  margin: 0 0 0.4rem;
+  line-height: 1.55;
+}
+
+.it-card__story {
+  padding-left: 0.8rem;
+  border-left: 3px solid var(--brand);
+}
+
+.it-card__src {
+  color: var(--ink-2);
+  font-size: 0.85rem;
+}
+
+.it-near {
+  margin: 0;
+  padding-left: 1.1rem;
+  line-height: 1.55;
+}
+
+.it-stem {
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.it-opt__r {
+  display: block;
+  color: var(--ink-2);
+  font-size: 0.78rem;
+  font-weight: 400;
+}
+
+.it-drill .pd-en {
+  min-height: 1.5em;
+}

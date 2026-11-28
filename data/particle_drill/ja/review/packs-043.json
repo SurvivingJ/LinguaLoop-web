@@ -1,0 +1,9 @@
+{"batch":"packs-043",
+ "files":["packs/nitsuite.json","packs/nitotte.json","packs/nitaishite.json","packs/toshite.json","packs/niyotte-means.json","packs/niyotte-depending.json"],
+ "checked":7,"fixed":4,"deleted":0,
+ "issues":[
+  {"file":"packs/nitsuite.json","pack":"nitsuite-1","problem":"act value 本を読みました gives 'Xについて本を読みました', which is stilted (natural form is 'Xについての本'); weak with several topics.","action":"Replaced with 考えました / 'thought about'."},
+  {"file":"packs/nitsuite.json","pack":"nitsuite-2","problem":"Sentence-final question particle か was not marked although ka-question exists in the catalog.","action":"Marked as {か|ka-question}; focus index unchanged (slot after focus)."},
+  {"file":"packs/nitaishite.json","pack":"nitaishite-1","problem":"とても親切です was glossed 'is always helpful to' (とても = very, not always).","action":"English changed to 'is very helpful to'."},
+  {"file":"packs/toshite.json","pack":"toshite-1","problem":"'Xとして現在働いています' has awkward placement of 現在 mid-predicate.","action":"Replaced with 働いています / 'works'."}
+ ]}

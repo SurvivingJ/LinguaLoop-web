@@ -1,0 +1,15 @@
+[
+ {"jp": "私[わたし]{は|wa-topic}毎朝[まいあさ]七時[しちじ]{に|ni-time}起[お]きます。", "plain": "私は毎朝七時に起きます。", "slots": [["は", [], "wa-topic"], ["に", [], "ni-time"]], "errors": 0},
+ {"jp": "駅[えき]{に/へ|ni-destination}行[い]きます。", "plain": "駅に行きます。", "slots": [["に", ["へ"], "ni-destination"]], "errors": 0},
+ {"jp": "{いけば|x-conditionals}分[わ]かります。", "plain": "いけば分かります。", "slots": [["いけば", [], "x-conditionals"]], "errors": 0},
+ {"jp": "食[た]べ物[もの]{が}好[す]きです。", "plain": "食べ物が好きです。", "slots": [["が", [], ""]], "errors": 0},
+ {"jp": "コーヒー{を|o-object}飲[の]みます。", "plain": "コーヒーを飲みます。", "slots": [["を", [], "o-object"]], "errors": 0},
+ {"jp": "時々[ときどき]映画[えいが]{を|o-object}見[み]ます。", "plain": "時々映画を見ます。", "slots": [["を", [], "o-object"]], "errors": 0},
+ {"jp": "親[おや]{に対[たい]して|nitaishite}失礼[しつれい]だ。", "plain": "親に対して失礼だ。", "slots": [["に対して", [], "nitaishite"]], "errors": 0},
+ {"jp": "一年[いちねん]{を通[つう]じて/を通[とお]して|wotooshite}暖[あたた]かい。", "plain": "一年を通じて暖かい。", "slots": [["を通じて", ["を通して"], "wotooshite"]], "errors": 0},
+ {"jp": "親[おや]{に対して|nitaishite}失礼[しつれい]だ。", "plain": "親に対して失礼だ。", "slots": [["に対して", [], "nitaishite"]], "errors": 1},
+ {"jp": "私は学生です。", "plain": "私は学生です。", "slots": [], "errors": 1},
+ {"jp": "本[ホン]{を|o-object}読[よ]む。", "plain": "本を読む。", "slots": [["を", [], "o-object"]], "errors": 1},
+ {"jp": "本[ほん]{wo|o-object}読[よ]む。", "plain": "本wo読む。", "slots": [["wo", [], "o-object"]], "errors": 1},
+ {"jp": "本[ほん]{を|O Object}読[よ]む。", "plain": "本を読む。", "slots": [["を", [], "O Object"]], "errors": 1}
+]

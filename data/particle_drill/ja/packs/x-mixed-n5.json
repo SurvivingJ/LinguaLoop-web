@@ -1,0 +1,700 @@
+[
+ {
+  "id": "x-mixed-n5-1",
+  "lv": 4,
+  "tpl": "<who>{は/が|wa-topic}<when><obj>{を|o-object}<verb>。",
+  "en": "<who> <verb> <obj> <when>.",
+  "f": 1,
+  "d": [
+   "が",
+   "に",
+   "で"
+  ],
+  "why": "The thing you buy or look for is the direct object of the verb, so it takes を.",
+  "vars": {
+   "who": [
+    [
+     "母[はは]",
+     "My mother"
+    ],
+    [
+     "父[ちち]",
+     "My father"
+    ],
+    [
+     "姉[あね]",
+     "My older sister"
+    ],
+    [
+     "田中[たなか]さん",
+     "Mr. Tanaka"
+    ],
+    [
+     "佐藤[さとう]さん",
+     "Ms. Sato"
+    ],
+    [
+     "山田[やまだ]さん",
+     "Mr. Yamada"
+    ]
+   ],
+   "when": [
+    [
+     "昨日[きのう]",
+     "yesterday"
+    ],
+    [
+     "今朝[けさ]",
+     "this morning"
+    ],
+    [
+     "先週[せんしゅう]",
+     "last week"
+    ],
+    [
+     "午後[ごご]",
+     "in the afternoon"
+    ],
+    [
+     "夕方[ゆうがた]",
+     "in the evening"
+    ],
+    [
+     "先月[せんげつ]",
+     "last month"
+    ]
+   ],
+   "obj": [
+    [
+     "パン",
+     "bread"
+    ],
+    [
+     "新[あたら]しい傘[かさ]",
+     "a new umbrella"
+    ],
+    [
+     "花[はな]",
+     "flowers"
+    ],
+    [
+     "切手[きって]",
+     "stamps"
+    ],
+    [
+     "卵[たまご]",
+     "eggs"
+    ],
+    [
+     "牛乳[ぎゅうにゅう]",
+     "milk"
+    ],
+    [
+     "雑誌[ざっし]",
+     "a magazine"
+    ],
+    [
+     "ノート",
+     "a notebook"
+    ]
+   ],
+   "verb": [
+    [
+     "買[か]いました",
+     "bought"
+    ],
+    [
+     "買[か]いませんでした",
+     "did not buy"
+    ],
+    [
+     "買[か]ってきました",
+     "went out and bought"
+    ],
+    [
+     "買[か]いに行[い]きました",
+     "went to buy"
+    ],
+    [
+     "買[か]い忘[わす]れました",
+     "forgot to buy"
+    ],
+    [
+     "探[さが]しました",
+     "looked for"
+    ]
+   ]
+  }
+ },
+ {
+  "id": "x-mixed-n5-2",
+  "lv": 5,
+  "tpl": "<who>{は/が|wa-topic}<when><place>{に/へ|ni-destination}<go>。",
+  "en": "<who> <go> <place> <when>.",
+  "f": 1,
+  "d": [
+   "で",
+   "と",
+   "が"
+  ],
+  "why": "The place someone goes to is a destination, so it takes に (or へ).",
+  "vars": {
+   "who": [
+    [
+     "母[はは]",
+     "My mother"
+    ],
+    [
+     "兄[あに]",
+     "My older brother"
+    ],
+    [
+     "祖父[そふ]",
+     "My grandfather"
+    ],
+    [
+     "田中[たなか]さん",
+     "Mr. Tanaka"
+    ],
+    [
+     "佐藤[さとう]さん",
+     "Ms. Sato"
+    ],
+    [
+     "鈴木[すずき]さん",
+     "Mr. Suzuki"
+    ]
+   ],
+   "when": [
+    [
+     "昨日[きのう]",
+     "yesterday"
+    ],
+    [
+     "今朝[けさ]",
+     "this morning"
+    ],
+    [
+     "先週[せんしゅう]",
+     "last week"
+    ],
+    [
+     "午後[ごご]",
+     "in the afternoon"
+    ],
+    [
+     "先月[せんげつ]",
+     "last month"
+    ],
+    [
+     "おととい",
+     "the day before yesterday"
+    ]
+   ],
+   "place": [
+    [
+     "銀行[ぎんこう]",
+     "the bank"
+    ],
+    [
+     "郵便局[ゆうびんきょく]",
+     "the post office"
+    ],
+    [
+     "病院[びょういん]",
+     "the hospital"
+    ],
+    [
+     "図書館[としょかん]",
+     "the library"
+    ],
+    [
+     "駅[えき]",
+     "the station"
+    ],
+    [
+     "デパート",
+     "the department store"
+    ],
+    [
+     "薬屋[くすりや]",
+     "the pharmacy"
+    ],
+    [
+     "本屋[ほんや]",
+     "the bookshop"
+    ]
+   ],
+   "go": [
+    [
+     "行[い]きました",
+     "went to"
+    ],
+    [
+     "行[い]きませんでした",
+     "did not go to"
+    ],
+    [
+     "歩[ある]いて行[い]きました",
+     "walked to"
+    ],
+    [
+     "タクシー{で|de-means}行[い]きました",
+     "took a taxi to"
+    ],
+    [
+     "自転車[じてんしゃ]{で|de-means}行[い]きました",
+     "cycled to"
+    ],
+    [
+     "バス{で|de-means}行[い]きました",
+     "took the bus to"
+    ]
+   ]
+  }
+ },
+ {
+  "id": "x-mixed-n5-3",
+  "lv": 5,
+  "tpl": "<who>{は/が|wa-topic}<vehicle>{で|de-means}<dest>{に/へ|ni-destination}<go>。",
+  "en": "<who> <go> <dest> <vehicle>.",
+  "f": 1,
+  "d": [
+   "に",
+   "を",
+   "と"
+  ],
+  "why": "A bus, train or car is the means of travel, so it takes で.",
+  "vars": {
+   "who": [
+    [
+     "父[ちち]",
+     "My father"
+    ],
+    [
+     "姉[あね]",
+     "My older sister"
+    ],
+    [
+     "弟[おとうと]",
+     "My younger brother"
+    ],
+    [
+     "田中[たなか]さん",
+     "Mr. Tanaka"
+    ],
+    [
+     "佐藤[さとう]さん",
+     "Ms. Sato"
+    ],
+    [
+     "山田[やまだ]さん",
+     "Mr. Yamada"
+    ],
+    [
+     "先生[せんせい]",
+     "The teacher"
+    ]
+   ],
+   "vehicle": [
+    [
+     "バス",
+     "by bus"
+    ],
+    [
+     "電車[でんしゃ]",
+     "by train"
+    ],
+    [
+     "タクシー",
+     "by taxi"
+    ],
+    [
+     "自転車[じてんしゃ]",
+     "by bicycle"
+    ],
+    [
+     "車[くるま]",
+     "by car"
+    ],
+    [
+     "地下鉄[ちかてつ]",
+     "by subway"
+    ]
+   ],
+   "dest": [
+    [
+     "駅[えき]",
+     "the station"
+    ],
+    [
+     "病院[びょういん]",
+     "the hospital"
+    ],
+    [
+     "会社[かいしゃ]",
+     "the office"
+    ],
+    [
+     "大学[だいがく]",
+     "the university"
+    ],
+    [
+     "図書館[としょかん]",
+     "the library"
+    ],
+    [
+     "銀行[ぎんこう]",
+     "the bank"
+    ],
+    [
+     "デパート",
+     "the department store"
+    ]
+   ],
+   "go": [
+    [
+     "行[い]きました",
+     "went to"
+    ],
+    [
+     "来[き]ました",
+     "came to"
+    ],
+    [
+     "行[い]きませんでした",
+     "did not go to"
+    ],
+    [
+     "急[いそ]いで行[い]きました",
+     "hurried to"
+    ],
+    [
+     "向[む]かいました",
+     "headed to"
+    ],
+    [
+     "行[い]くつもりです",
+     "plans to go to"
+    ]
+   ]
+  }
+ },
+ {
+  "id": "x-mixed-n5-4",
+  "lv": 4,
+  "tpl": "<who>{は/が|wa-topic}<partner>{と|to-with}<act>。",
+  "en": "<who> <act> with <partner>.",
+  "f": 1,
+  "d": [
+   "を",
+   "に",
+   "が"
+  ],
+  "why": "The person you do something together with takes と.",
+  "vars": {
+   "who": [
+    [
+     "山田[やまだ]さん",
+     "Mr. Yamada"
+    ],
+    [
+     "佐藤[さとう]さん",
+     "Ms. Sato"
+    ],
+    [
+     "鈴木[すずき]さん",
+     "Mr. Suzuki"
+    ],
+    [
+     "木村[きむら]さん",
+     "Ms. Kimura"
+    ],
+    [
+     "中村[なかむら]さん",
+     "Mr. Nakamura"
+    ],
+    [
+     "私[わたし]",
+     "I"
+    ]
+   ],
+   "partner": [
+    [
+     "友達[ともだち]",
+     "a friend"
+    ],
+    [
+     "田中[たなか]さん",
+     "Mr. Tanaka"
+    ],
+    [
+     "高橋[たかはし]さん",
+     "Ms. Takahashi"
+    ],
+    [
+     "先生[せんせい]",
+     "the teacher"
+    ],
+    [
+     "子供[こども]たち",
+     "the children"
+    ],
+    [
+     "留学生[りゅうがくせい]",
+     "an exchange student"
+    ]
+   ],
+   "act": [
+    [
+     "昼[ひる]ご飯[はん]{を|o-object}食[た]べました",
+     "had lunch"
+    ],
+    [
+     "テニス{を|o-object}しました",
+     "played tennis"
+    ],
+    [
+     "映画[えいが]{を|o-object}見[み]ました",
+     "watched a film"
+    ],
+    [
+     "散歩[さんぽ]しました",
+     "went for a walk"
+    ],
+    [
+     "買[か]い物[もの]{を|o-object}しました",
+     "went shopping"
+    ],
+    [
+     "晩[ばん]ご飯[はん]{を|o-object}作[つく]りました",
+     "cooked dinner"
+    ]
+   ]
+  }
+ },
+ {
+  "id": "x-mixed-n5-5",
+  "lv": 5,
+  "tpl": "<who>{は/が|wa-topic}<owner>{の|no-possessive}<thing>{を|o-object}<verb>。",
+  "en": "<who> <verb> <owner> <thing>.",
+  "f": 1,
+  "d": [
+   "が",
+   "を",
+   "で"
+  ],
+  "why": "The owner is joined to the thing they own with の.",
+  "vars": {
+   "who": [
+    [
+     "私[わたし]",
+     "I"
+    ],
+    [
+     "弟[おとうと]",
+     "My younger brother"
+    ],
+    [
+     "山田[やまだ]さん",
+     "Mr. Yamada"
+    ],
+    [
+     "佐藤[さとう]さん",
+     "Ms. Sato"
+    ],
+    [
+     "鈴木[すずき]さん",
+     "Mr. Suzuki"
+    ],
+    [
+     "木村[きむら]さん",
+     "Ms. Kimura"
+    ]
+   ],
+   "owner": [
+    [
+     "友達[ともだち]",
+     "a friend's"
+    ],
+    [
+     "姉[あね]",
+     "my older sister's"
+    ],
+    [
+     "兄[あに]",
+     "my older brother's"
+    ],
+    [
+     "父[ちち]",
+     "my father's"
+    ],
+    [
+     "先生[せんせい]",
+     "the teacher's"
+    ],
+    [
+     "田中[たなか]さん",
+     "Mr. Tanaka's"
+    ]
+   ],
+   "thing": [
+    [
+     "傘[かさ]",
+     "umbrella"
+    ],
+    [
+     "辞書[じしょ]",
+     "dictionary"
+    ],
+    [
+     "自転車[じてんしゃ]",
+     "bicycle"
+    ],
+    [
+     "ノート",
+     "notebook"
+    ],
+    [
+     "ペン",
+     "pen"
+    ],
+    [
+     "本[ほん]",
+     "book"
+    ],
+    [
+     "帽子[ぼうし]",
+     "hat"
+    ]
+   ],
+   "verb": [
+    [
+     "借[か]りました",
+     "borrowed"
+    ],
+    [
+     "使[つか]いました",
+     "used"
+    ],
+    [
+     "返[かえ]しました",
+     "returned"
+    ],
+    [
+     "持[も]ってきました",
+     "brought"
+    ],
+    [
+     "なくしました",
+     "lost"
+    ],
+    [
+     "探[さが]しました",
+     "looked for"
+    ]
+   ]
+  }
+ },
+ {
+  "id": "x-mixed-n5-6",
+  "lv": 5,
+  "tpl": "<who>{は|wa-topic}<thing>{が|ga-stative}<adj>。",
+  "en": "<who> <adj> <thing>.",
+  "f": 1,
+  "d": [
+   "に",
+   "で",
+   "の"
+  ],
+  "why": "With 好き, 嫌い, 上手 and 下手 the thing liked or done well is marked by が.",
+  "vars": {
+   "who": [
+    [
+     "姉[あね]",
+     "My older sister"
+    ],
+    [
+     "父[ちち]",
+     "My father"
+    ],
+    [
+     "弟[おとうと]",
+     "My younger brother"
+    ],
+    [
+     "田中[たなか]さん",
+     "Mr. Tanaka"
+    ],
+    [
+     "佐藤[さとう]さん",
+     "Ms. Sato"
+    ],
+    [
+     "山田[やまだ]さん",
+     "Mr. Yamada"
+    ]
+   ],
+   "thing": [
+    [
+     "テニス",
+     "tennis"
+    ],
+    [
+     "料理[りょうり]",
+     "cooking"
+    ],
+    [
+     "ピアノ",
+     "the piano"
+    ],
+    [
+     "英語[えいご]",
+     "English"
+    ],
+    [
+     "ダンス",
+     "dancing"
+    ],
+    [
+     "サッカー",
+     "football"
+    ],
+    [
+     "ギター",
+     "the guitar"
+    ],
+    [
+     "スキー",
+     "skiing"
+    ]
+   ],
+   "adj": [
+    [
+     "好[す]きです",
+     "likes"
+    ],
+    [
+     "大好[だいす]きです",
+     "loves"
+    ],
+    [
+     "嫌[きら]いです",
+     "dislikes"
+    ],
+    [
+     "上手[じょうず]です",
+     "is good at"
+    ],
+    [
+     "下手[へた]です",
+     "is bad at"
+    ],
+    [
+     "好[す]きでした",
+     "used to like"
+    ]
+   ]
+  }
+ }
+]

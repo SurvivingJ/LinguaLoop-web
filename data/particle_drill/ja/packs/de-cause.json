@@ -1,0 +1,20 @@
+[
+{"id":"de-cause-1","lv":3,
+ "tpl":"<who>{は|wa-topic}<cause>{で|de-cause}<result>。",
+ "en":"<who> <result> because of <cause>.",
+ "f":1,"d":["に","が","から"],
+ "why":"An illness or injury that causes what happens takes で.",
+ "vars":{
+  "who":[["田中[たなか]さん","Mr. Tanaka"],["父[ちち]","My father"],["部長[ぶちょう]","The manager"],["山田[やまだ]さん","Ms. Yamada"],["兄[あに]","My older brother"],["鈴木[すずき]さん","Mr. Suzuki"],["同僚[どうりょう]","My colleague"],["母[はは]","My mother"]],
+  "cause":[["風邪[かぜ]","a cold"],["熱[ねつ]","a fever"],["インフルエンザ","the flu"],["けが","an injury"],["病気[びょうき]","illness"],["ひどい頭痛[ずつう]","a bad headache"]],
+  "result":[["会社[かいしゃ]{を|o-object}休[やす]みました","took the day off work"],["早[はや]く帰[かえ]りました","went home early"],["旅行[りょこう]{を|o-object}キャンセルしました","cancelled the trip"],["病院[びょういん]{に/へ|ni-destination}行[い]きました","went to the doctor"],["一日中[いちにちじゅう]家[いえ]{に|ni-location}いました","stayed at home all day"],["会議[かいぎ]{を|o-object}休[やす]みました","missed the meeting"]]}},
+{"id":"de-cause-2","lv":3,
+ "tpl":"<when>{は|wa-topic}<event>{で|de-cause}<cons>。",
+ "en":"<when> <cons> because of <event>.",
+ "f":1,"d":["に","を","が"],
+ "why":"Weather that causes an event to happen takes で.",
+ "vars":{
+  "when":[["昨日[きのう]","Yesterday"],["おととい","The day before yesterday"],["今朝[けさ]","This morning"],["ゆうべ","Last night"],["先週[せんしゅう]","Last week"],["土曜日[どようび]","On Saturday"],["日曜日[にちようび]","On Sunday"]],
+  "event":[["大雨[おおあめ]","the heavy rain"],["台風[たいふう]","the typhoon"],["大雪[おおゆき]","the heavy snow"],["強[つよ]い風[かぜ]","the strong wind"],["雪[ゆき]","the snow"],["嵐[あらし]","the storm"]],
+  "cons":[["電車[でんしゃ]{が|ga-subject}止[と]まりました","the trains stopped"],["電車[でんしゃ]{が|ga-subject}遅[おく]れました","the trains were late"],["試合[しあい]{が|ga-subject}中止[ちゅうし]{に|ni-change}なりました","the match was cancelled"],["飛行機[ひこうき]{が|ga-subject}飛[と]びませんでした","the planes didn't fly"],["停電[ていでん]しました","there was a power cut"],["旅行[りょこう]{が|ga-subject}中止[ちゅうし]{に|ni-change}なりました","the trip was cancelled"]]}}
+]

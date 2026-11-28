@@ -1,0 +1,5 @@
+{"batch":"items-m50053","files":["items/womotte__m50.jsonl","items/niatte__m50.jsonl"],"checked":66,"fixed":3,"deleted":0,"replaced":0,"issues":[
+{"file":"items/womotte__m50.jsonl","jp_before":"駅長[えきちょう]{は|wa-topic}今年度[こんねんど]{をもって/で|womotte}定年[ていねん]{を|o-object}迎[むか]える。","problem":"今年度をもって定年を迎える is an unnatural collocation; をもって marks the cut-off of an act such as 退職, not reaching an age.","action":"Rewrote as 今年度末をもって定年退職する; updated English and why."},
+{"file":"items/womotte__m50.jsonl","jp_before":"四月[しがつ]一日[ついたち]{をもって|womotte}、バス{の|no-possessive}運賃[うんちん]{が|ga-subject}改定[かいてい]されます。","problem":"The why used an untranslated Japanese label (日付をもって) instead of a plain-English reason.","action":"Rewrote why in plain English."},
+{"file":"items/niatte__m50.jsonl","jp_before":"値上[ねあ]げ{が/の|ga-sub-clause}相次[あいつ]ぐ中[なか]{にあって/において|niatte}、消費者[しょうひしゃ]{の|no-possessive}財布[さいふ]{の|no-possessive}紐[ひも]{は|wa-topic}固[かた]くなっている。","problem":"Non-focus slot: が is just as natural for 財布の紐が固くなっている and was not listed.","action":"Slot changed to {は/が|wa-topic}."}
+]}

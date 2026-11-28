@@ -1,0 +1,15 @@
+{
+ "batch": "items-158",
+ "files": ["items/id-head.jsonl"],
+ "checked": 65,
+ "fixed": 5,
+ "deleted": 0,
+ "replaced": 0,
+ "issues": [
+  {"file": "items/id-head.jsonl", "jp_before": "医者[いしゃ]に「甘[あま]いものを控[ひか]えて」と言[い]われ、毎日[まいにち]ケーキを食[た]べている私[わたし]は{耳[みみ]が痛[いた]かった|id-head}。", "problem": "Near-duplicate of the other doctor's-warning 耳が痛い item (line 41).", "action": "Changed the speaker to the wife (妻) and updated the English."},
+  {"file": "items/id-head.jsonl", "jp_before": "彼女[かのじょ]は{口[くち]が堅[かた]い|id-head}ので、友達[ともだち]の相談[そうだん]を誰[だれ]にも言[い]わない。", "problem": "友達の相談を誰にも言わない is an unnatural collocation.", "action": "Rewrote as 友達から聞いた悩みを誰にも話さない; English adjusted."},
+  {"file": "items/id-head.jsonl", "jp_before": "娘[むすめ]が有名[ゆうめい]な大学[だいがく]に合格[ごうかく]して、母[はは]は{鼻[はな]が高[たか]い|id-head}。", "problem": "Kinship mismatch: 娘 is the speaker's daughter but 母 is the speaker's mother; English 'her mother' did not match the Japanese.", "action": "Changed 娘 to 妹; English now 'My younger sister ... my mother is proud.'"},
+  {"file": "items/id-head.jsonl", "jp_before": "「うちの部下[ぶか]が表彰[ひょうしょう]された」と、課長[かちょう]は{鼻[はな]が高[たか]く|id-head}なって話[はな]している。", "problem": "鼻が高くなって話す is unidiomatic (natural forms are 鼻を高くして / 鼻高々に).", "action": "Rewrote as 「…」と話す課長は、とても鼻が高そうだった with the slot 鼻が高そうだった; distractors in the same そうだった form; English adjusted."},
+  {"file": "items/id-head.jsonl", "jp_before": "子[こ]どもが親切[しんせつ]だと褒[ほ]められ、父親[ちちおや]は{鼻[はな]が高[たか]い|id-head}顔[かお]をしていた。", "problem": "鼻が高い顔 reads naturally as a literal 'face with a high nose'; unnatural for the idiom.", "action": "Rewrote the ending as 父親は鼻が高かった (slot 鼻が高かった); distractors in the past form; English adjusted."}
+ ]
+}

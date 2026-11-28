@@ -1,0 +1,20 @@
+[
+ {"id":"te-sequence-1","lv":5,
+  "tpl":"今朝[けさ]、<who>{は|wa-topic}<first>{て|te-sequence}、<then>。",
+  "en":"This morning <who> <first> and <then>.",
+  "f":2,"d":["で","と","から"],
+  "why":"The て-form joins two actions in the order they happened: first this, and then that.",
+  "vars":{
+   "who":[["父[ちち]","my father"],["母[はは]","my mother"],["兄[あに]","my older brother"],["姉[あね]","my older sister"],["夫[おっと]","my husband"],["妻[つま]","my wife"],["田中[たなか]さん","Mr. Tanaka"],["山田[やまだ]さん","Ms. Yamada"]],
+   "first":[["朝[あさ]ご飯[はん]{を|o-object}食[た]べ","had breakfast"],["シャワー{を|o-object}浴[あ]び","took a shower"],["天気予報[てんきよほう]{を|o-object}見[み]","checked the weather forecast"],["ニュース{を|o-object}見[み]","watched the news"],["窓[まど]{を|o-object}開[あ]け","opened the windows"],["部屋[へや]{を|o-object}掃除[そうじ]し","cleaned the room"],["お弁当[べんとう]{を|o-object}作[つく]っ","made a packed lunch"],["コーヒー{を|o-object}入[い]れ","made coffee"]],
+   "then":[["家[いえ]{を|o-departure}出[で]ました","left the house"],["会社[かいしゃ]{に/へ|ni-destination}行[い]きました","went to work"],["出[で]かけました","went out"],["仕事[しごと]{を|o-object}始[はじ]めました","started work"],["子供[こども]{を|o-object}起[お]こしました","woke the children"],["新聞[しんぶん]{を|o-object}読[よ]みました","read the newspaper"],["洗濯[せんたく]{を|o-object}しました","did the laundry"],["駅[えき]{に/へ|ni-destination}向[む]かいました","headed for the station"]]}},
+ {"id":"te-sequence-2","lv":5,
+  "tpl":"<when>{は|wa-topic}<act>{で|te-sequence}、<next>。",
+  "en":"<when> I <act> and <next>.",
+  "f":2,"d":["て","と","から"],
+  "why":"After verbs ending in む, ぶ, ぬ or ぐ, the linking て-form becomes で: first this, and then that.",
+  "vars":{
+   "when":[["昨日[きのう]","Yesterday"],["日曜日[にちようび]","On Sunday"],["土曜日[どようび]","On Saturday"],["金曜日[きんようび]","On Friday"],["先週末[せんしゅうまつ]","Last weekend"],["祝日[しゅくじつ]","On the public holiday"]],
+   "act":[["新聞[しんぶん]{を|o-object}読[よ]ん","read the newspaper"],["ビール{を|o-object}飲[の]ん","had a beer"],["お茶[ちゃ]{を|o-object}飲[の]ん","had some tea"],["子供[こども]{と|to-with}遊[あそ]ん","played with the children"],["薬[くすり]{を|o-object}飲[の]ん","took some medicine"],["プール{で|de-place}泳[およ]い","swam in the pool"],["小説[しょうせつ]{を|o-object}読[よ]ん","read a novel"],["洗濯物[せんたくもの]{を|o-object}畳[たた]ん","folded the laundry"]],
+   "next":[["早[はや]く寝[ね]ました","went to bed early"],["少[すこ]し休[やす]みました","rested for a while"],["晩[ばん]ご飯[はん]{を|o-object}食[た]べました","had dinner"],["テレビ{を|o-object}見[み]ました","watched TV"],["日記[にっき]{を|o-object}書[か]きました","wrote in my diary"],["シャワー{を|o-object}浴[あ]びました","took a shower"],["出[で]かけました","went out"],["昼寝[ひるね]{を|o-object}しました","took a nap"]]}}
+]

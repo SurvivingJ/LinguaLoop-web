@@ -1,0 +1,20 @@
+[
+ {"id":"ko-mo-1","lv":3,
+  "tpl":"<when><reason>、<act>。",
+  "en":"<when> <reason>, so <act>.",
+  "f":0,"d":["何[なに]か","誰[だれ]か","何[なん]でも"],
+  "why":"'Nobody' and 'nothing' with a negative verb are 誰も and 何も; 何か and 誰か do not make a negative statement, and 何でも means 'anything at all'.",
+  "vars":{
+   "when":[["昨日[きのう]は","Yesterday"],["日曜日[にちようび]は","On Sunday"],["週末[しゅうまつ]は","At the weekend"],["先週[せんしゅう]の土曜日[どようび]は","Last Saturday"],["一昨日[おととい]は","The day before yesterday"],["祝日[しゅくじつ]は","On the public holiday"],["午後[ごご]は","In the afternoon"]],
+   "reason":[["雨[あめ]がひどかったので","it rained heavily"],["台風[たいふう]が来[き]たので","a typhoon hit"],["雪[ゆき]がたくさん降[ふ]ったので","it snowed heavily"],["風[かぜ]がとても強[つよ]かったので","the wind was very strong"],["とても寒[さむ]かったので","it was freezing"],["道[みち]が凍[こお]っていたので","the roads were icy"]],
+   "act":[["{誰[だれ]も|ko-mo}来[き]ませんでした","nobody came"],["{誰[だれ]も|ko-mo}外[そと]に出[で]ませんでした","nobody went outside"],["{誰[だれ]も|ko-mo}公園[こうえん]にいませんでした","there was nobody in the park"],["{誰[だれ]も|ko-mo}練習[れんしゅう]に来[き]ませんでした","nobody came to practice"],["{何[なに]も|ko-mo}できませんでした","I couldn't do anything"],["{何[なに]も|ko-mo}することがありませんでした","there was nothing to do"],["{何[なに]も|ko-mo}しないで家[いえ]にいました","I stayed at home doing nothing"]]}},
+ {"id":"ko-mo-2","lv":4,
+  "tpl":"<place>を探[さが]しましたが、<item>は{どこにも|ko-mo}<neg>",
+  "en":"I searched <place>, but <neg> <item> anywhere.",
+  "f":0,"d":["どこかに","どこにでも","何[なに]も"],
+  "why":"'Not anywhere' with a negative verb is どこにも; どこかに and どこにでも do not go with a negative like this, and 何も means 'nothing'.",
+  "vars":{
+   "place":[["部屋中[へやじゅう]","my whole room"],["家中[いえじゅう]","the whole house"],["かばんの中[なか]","my bag"],["車[くるま]の中[なか]","the car"],["引[ひ]き出[だ]し","the drawers"],["ソファーの周[まわ]り","around the sofa"]],
+   "item":[["鍵[かぎ]","my keys"],["財布[さいふ]","my wallet"],["眼鏡[めがね]","my glasses"],["携帯[けいたい]","my phone"],["時計[とけい]","my watch"],["切符[きっぷ]","my ticket"],["イヤホン","my earphones"]],
+   "neg":[["見[み]つかりませんでした。","I couldn't find"],["見[み]つからなかったんです。","I just couldn't find"],["見[み]つかりません。","I can't find"],["見当[みあ]たりません。","I can't see"],["見当[みあ]たりませんでした。","I couldn't see"],["見[み]つからないんです。","I just can't find"]]}}
+]

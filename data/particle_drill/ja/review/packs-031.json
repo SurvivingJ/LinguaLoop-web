@@ -1,0 +1,8 @@
+{"batch":"packs-031",
+ "files":["packs/kara-because.json","packs/te-kara.json","packs/node-because.json"],
+ "checked":6,"fixed":3,"deleted":0,
+ "issues":[
+  {"file":"packs/kara-because.json","pack":"kara-because-2","problem":"Distractor けど is not plainly wrong before a request: prefatory けど (雨が降っているけど、窓を閉めてください) is natural spoken Japanese.","action":"Replaced けど with と (と cannot precede a request or volitional clause)."},
+  {"file":"packs/node-because.json","pack":"node-because-2","problem":"Distractor けど is not plainly wrong before a permission request: prefatory けど (頭が痛いけど、早めに帰ってもいいですか) is acceptable.","action":"Replaced けど with と."},
+  {"file":"packs/node-because.json","pack":"node-because-1","problem":"Non-focus topic slot after the day word could equally be が inside the ので clause (土曜日が休みなので).","action":"Listed the alternative: {は/が|wa-topic}."}
+ ]}

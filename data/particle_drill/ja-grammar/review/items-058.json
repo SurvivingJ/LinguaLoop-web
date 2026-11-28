@@ -1,0 +1,11 @@
+{"batch":"items-058","files":["items/x-adverb__1.jsonl"],"checked":43,"fixed":8,"deleted":0,"replaced":1,"issues":[
+{"file":"items/x-adverb__1.jsonl","jp_before":"母[はは]は料理[りょうり]が好[す]きだから、{きっと/たぶん|av-kitto}今夜[こんや]も何[なに]か作[つく]るでしょう。","problem":"たぶん ('probably') listed as alternative but the English says 'surely'.","action":"Removed たぶん from the alternatives."},
+{"file":"items/x-adverb__1.jsonl","jp_before":"息子[むすこ]は朝[あさ]{なかなか|av-nakanaka}起[お]きてくれません。","problem":"Near-duplicate of the item 赤ちゃんが夜なかなか寝てくれません (same なかなか + てくれません frame); distractor きっと is only a meaning shift with a negative.","action":"Replaced with a new av-nakanaka item: このジャムの瓶は、ふたがなかなか開きません。 with distractors ぜひ/もし/たとえ."},
+{"file":"items/x-adverb__1.jsonl","jp_before":"今度[こんど]の休[やす]みには、{ぜひ|av-zehi}うちに遊[あそ]びに来[き]てください。","problem":"Distractor きっと is acceptable with a request (きっと来てくださいね).","action":"Replaced distractor きっと with たとえ."},
+{"file":"items/x-adverb__1.jsonl","jp_before":"ぜひ祖父母[そふぼ]の家[いえ]に行[い]き{たいです|av-zehi}。","problem":"Distractor でしょう makes the ungrammatical 行きでしょう: not a well-formed option.","action":"Replaced でしょう with そうです (行きそうです, well-formed but wrong with ぜひ)."},
+{"file":"items/x-adverb__1.jsonl","jp_before":"どうも昨日[きのう]から風邪[かぜ]を{ひいたようだ|av-doumo}。","problem":"昨日から with the punctual ひいた is unnatural; English 'have had a cold since yesterday' did not match.","action":"Rewrote: 朝から頭が痛い。どうも風邪をひいたようだ。 with matching English."},
+{"file":"items/x-adverb__1.jsonl","jp_before":"姉[あね]は料理[りょうり]が{あまり|av-degree}得意[とくい]ではない。","problem":"Distractor とても is possible with a negative (とても得意ではない, 'really not good at').","action":"Replaced distractor とても with ぜひ."},
+{"file":"items/x-adverb__1.jsonl","jp_before":"弟[おとうと]は{まだ|av-mou-mada}宿題[しゅくだい]を終[お]わっていません。","problem":"宿題を終わる uses intransitive 終わる with を; non-standard.","action":"Changed to 宿題が終わっていません."},
+{"file":"items/x-adverb__1.jsonl","jp_before":"父[ちち]の帰[かえ]りは{ずいぶん/かなり|av-degree}遅[おそ]かった。","problem":"とても is equally natural here and is a member of the skill set.","action":"Added とても as an alternative."},
+{"file":"items/x-adverb__1.jsonl","jp_before":"明日[あした]の朝[あさ]は{たぶん/おそらく/きっと|av-kitto}雨[あめ]でしょう。","problem":"きっと ('surely') does not match the English 'probably'.","action":"Removed きっと from the alternatives."}
+]}

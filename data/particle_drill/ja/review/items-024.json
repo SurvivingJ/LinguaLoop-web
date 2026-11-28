@@ -1,0 +1,18 @@
+{"batch":"items-024","files":["items/ni-change.jsonl"],"checked":66,"fixed":16,"deleted":0,"replaced":0,"issues":[
+{"file":"items/ni-change.jsonl","jp_before":"色[いろ]{が|ga-subject}赤[あか]{から|kara-from}青[あお]{に|ni-change}変[か]わりました。","problem":"Distractor へ is natural with 変わる (赤から青へ変わる); subject slot also allows は.","action":"Made focus slot {に/へ}, replaced distractor へ with が, added は alternative."},
+{"file":"items/ni-change.jsonl","jp_before":"信号[しんごう]{が|ga-subject}青[あお]{に|ni-change}なっ{たら|tara-conditional}、渡[わた]りましょう。","problem":"Subject inside a たら clause is ga-sub-clause, not ga-subject.","action":"Changed skill id to ga-sub-clause."},
+{"file":"items/ni-change.jsonl","jp_before":"水[みず]{が|ga-subject}お湯[ゆ]{に|ni-change}なる{まで|made-until}、少[すこ]し待[ま]ちましょう。","problem":"Subject inside a まで clause is ga-sub-clause.","action":"Changed skill id to ga-sub-clause."},
+{"file":"items/ni-change.jsonl","jp_before":"弟[おとうと]{は|wa-topic}ピアノ{が|ga-subject}上手[じょうず]{に|ni-change}なりました。","problem":"が marking what one is good at (上手) is ga-stative.","action":"Changed skill id to ga-stative."},
+{"file":"items/ni-change.jsonl","jp_before":"日本語[にほんご]{が/は|ga-subject}上手[じょうず]{に|ni-change}なりました{ね|ne-agreement}。","problem":"が with 上手 is ga-stative.","action":"Changed skill id to ga-stative."},
+{"file":"items/ni-change.jsonl","jp_before":"氷[こおり]{を|o-object}水[みず]{に|ni-change}しました。","problem":"Unnatural sentence (one would say 氷を溶かしました).","action":"Rewrote as 朝[あさ]ご飯[はん]{を|o-object}パン{に|ni-change}しました。 / I switched my breakfast to bread."},
+{"file":"items/ni-change.jsonl","jp_before":"もうすぐ春[はる]{に|ni-change}なります{ね|ne-agreement}。","problem":"Near-duplicate of もうすぐ十二月になります and the other season items.","action":"Rewrote as もう十時[じゅうじ]{に|ni-change}なりました{よ|yo-assertion}。"},
+{"file":"items/ni-change.jsonl","jp_before":"飲[の]み物[もの]{は|wa-topic}コーヒー{に|ni-change}します。","problem":"Near-duplicate of 飲み物は何にしますか; too many food/drink choice items.","action":"Rewrote as 色[いろ]{は|wa-topic}青[あお]{に|ni-change}します。"},
+{"file":"items/ni-change.jsonl","jp_before":"今夜[こんや]{は|wa-topic}魚[さかな]{に|ni-change}します。","problem":"Another food choice; low variety.","action":"Rewrote as 旅行先[りょこうさき]{は|wa-topic}京都[きょうと]{に|ni-change}しました。"},
+{"file":"items/ni-change.jsonl","jp_before":"少[すこ]し体[からだ]{が|ga-subject}楽[らく]{に|ni-change}なりました。","problem":"Unnatural English 'My body feels a little easier now'.","action":"English changed to 'I feel a little better physically now.'"},
+{"file":"items/ni-change.jsonl","jp_before":"妹[いもうと]{は|wa-topic}歌手[かしゅ]{に|ni-change}なりたい{と|to-quote}思[おも]っています。","problem":"Awkward English 'thinks she wants'.","action":"English changed to 'is thinking she would like to become a singer.'"},
+{"file":"items/ni-change.jsonl","jp_before":"雨[あめ]{が|ga-subject}雪[ゆき]{に|ni-change}変[か]わりました。","problem":"Missing alternatives: は for the subject, へ with 変わる.","action":"Added {が/は} and {に/へ}."},
+{"file":"items/ni-change.jsonl","jp_before":"水[みず]{が|ga-subject}氷[こおり]{に|ni-change}なりました。","problem":"Subject slot equally natural with は.","action":"Added は alternative."},
+{"file":"items/ni-change.jsonl","jp_before":"小[ちい]さな村[むら]{が|ga-subject}大[おお]きな町[まち]{に|ni-change}なりました。","problem":"Subject slot equally natural with は.","action":"Added は alternative."},
+{"file":"items/ni-change.jsonl","jp_before":"森[もり]{が|ga-subject}畑[はたけ]{に|ni-change}なりました。","problem":"Subject slot equally natural with は.","action":"Added は alternative."},
+{"file":"items/ni-change.jsonl","jp_before":"試合[しあい]{が|ga-subject}中止[ちゅうし]{に|ni-change}なりました。","problem":"Subject slot equally natural with は.","action":"Added は alternative."}
+]}

@@ -1,0 +1,6 @@
+{"batch":"items-063","files":["items/x-o-ga__2.jsonl"],"checked":48,"fixed":3,"deleted":1,"replaced":1,"issues":[
+{"file":"items/x-o-ga__2.jsonl","jp_before":"私[わたし]{は|wa-topic}数学[すうがく]{が|ga-stative}好[す]きです。","problem":"English used British 'maths' while the file uses American spelling elsewhere ('soccer').","action":"Changed English to 'I like math.'"},
+{"file":"items/x-o-ga__2.jsonl","jp_before":"母[はは]{が|ga-subject}学校[がっこう]{に/へ|ni-destination}来[き]ました。","problem":"Focus slot: 母は学校に来ました is equally natural with the same English, but は was not listed as an alternative (other subject items in the file list it).","action":"Changed the slot to {が/は|ga-subject}."},
+{"file":"items/x-o-ga__2.jsonl","jp_before":"社員[しゃいん]{が|ga-subject}会議室[かいぎしつ]{に|ni-destination}集[あつ]まりました。","problem":"Focus slot: 社員は会議室に集まりました is equally natural for 'The employees gathered...', but は was not listed as an alternative.","action":"Changed the slot to {が/は|ga-subject}."},
+{"file":"items/x-o-ga__2.jsonl","jp_before":"駅[えき]{の|no-possessive}前[まえ]{に|ni-location}コンビニ{が|ga-existence}あります。","problem":"Near-duplicate of the 'school near the station' item, and あります was used a fifth time (more than three uses of one verb).","action":"Replaced it with a ga-existence item using いる: 図書館[としょかん]{に|ni-location}留学生[りゅうがくせい]{が|ga-existence}たくさんいます。"}
+]}

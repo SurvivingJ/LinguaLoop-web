@@ -1,0 +1,61 @@
+{
+ "batch": "items-044",
+ "files": [
+  "items/cn-sorenanoni.jsonl",
+  "items/cn-suruto.jsonl"
+ ],
+ "checked": 81,
+ "fixed": 8,
+ "deleted": 0,
+ "replaced": 0,
+ "issues": [
+  {
+   "file": "items/cn-sorenanoni.jsonl",
+   "jp_before": "約束[やくそく]の時間[じかん]に一時間[いちじかん]も待[ま]ちました。{それなのに|cn-sorenanoni}、彼[かれ]は来[き]ませんでした。",
+   "problem": "Factual result contrary to expectation: それでも is equally natural with the same English but was not listed.",
+   "action": "Added それでも as an alternative in the slot."
+  },
+  {
+   "file": "items/cn-sorenanoni.jsonl",
+   "jp_before": "昨日[きのう]は早[はや]く寝[ね]ました。{それなのに|cn-sorenanoni}、今朝[けさ]もとても眠[ねむ]いです。",
+   "problem": "Factual result contrary to expectation: それでも is equally natural with the same English but was not listed.",
+   "action": "Added それでも as an alternative in the slot."
+  },
+  {
+   "file": "items/cn-sorenanoni.jsonl",
+   "jp_before": "この靴[くつ]は高[たか]かったです。{それなのに|cn-sorenanoni}、一[いっ]か月[げつ]で壊[こわ]れてしまいました。",
+   "problem": "Factual result contrary to expectation: それでも is equally natural with the same English but was not listed.",
+   "action": "Added それでも as an alternative in the slot."
+  },
+  {
+   "file": "items/cn-sorenanoni.jsonl",
+   "jp_before": "毎日[まいにち]掃除[そうじ]しています。{それなのに|cn-sorenanoni}、部屋[へや]はすぐ汚[きたな]くなります。",
+   "problem": "Factual result contrary to expectation: それでも is equally natural with the same English but was not listed.",
+   "action": "Added それでも as an alternative in the slot."
+  },
+  {
+   "file": "items/cn-sorenanoni.jsonl",
+   "jp_before": "十分[じゅうぶん]に準備[じゅんび]しました。{それなのに|cn-sorenanoni}、試験[しけん]に落[お]ちてしまいました。",
+   "problem": "Factual result contrary to expectation: それでも is equally natural with the same English but was not listed.",
+   "action": "Added それでも as an alternative in the slot."
+  },
+  {
+   "file": "items/cn-sorenanoni.jsonl",
+   "jp_before": "部屋[へや]の掃除[そうじ]はしました。{それでも|cn-sorenanoni}、まだ変[へん]なにおいが残[のこ]っています。",
+   "problem": "それなのに is equally natural here (cleaned, yet the smell remains) but was not listed.",
+   "action": "Added それなのに as an alternative in the slot."
+  },
+  {
+   "file": "items/cn-suruto.jsonl",
+   "jp_before": "田舎[いなか]のおばあさんが一人暮[ひとりぐ]らしで心配[しんぱい]でした。{そこで|cn-suruto}、毎週[まいしゅう]電話[でんわ]をするようにしました。",
+   "problem": "Narrating about one's own grandmother calls for 祖母, not おばあさん.",
+   "action": "Replaced おばあさん with 祖母[そぼ]."
+  },
+  {
+   "file": "items/cn-suruto.jsonl",
+   "jp_before": "彼女[かのじょ]に「結婚[けっこん]してください」と言[い]いました。{すると|cn-suruto}、彼女[かのじょ]は黙[だま]ってうなずきました。",
+   "problem": "'why' assumed the speaker's gender ('after he spoke').",
+   "action": "Changed 'why' to say 'right after the proposal'."
+  }
+ ]
+}

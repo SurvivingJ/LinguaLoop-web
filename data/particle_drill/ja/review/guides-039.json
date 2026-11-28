@@ -1,0 +1,5 @@
+{"batch":"guides-039","files":["guides/wochuushinni.json","guides/karaniwa.json","guides/toshitemo.json"],"checked":6,"fixed":3,"deleted":0,"issues":[
+ {"file":"guides/wochuushinni.json","problem":"Compound particle written in kana inside braces ({をちゅうしんに}, {をちゅうしんとした}, {をちゅうしんで}, {をちゅうしんの}); AUTHORING requires kanji with furigana for compound particles normally written in kanji.","action":"Rewrote all 10 slots as {を中心[ちゅうしん]…}."},
+ {"file":"guides/wochuushinni.json","problem":"Example translates 田中さんを中心としたチーム as 'A team led by Tanaka'; を中心とした means centred on, not led by.","action":"Changed the English to 'A team built around Tanaka'."},
+ {"file":"guides/toshitemo.json","problem":"The mistake note for 雨が降っていたとしても、出かけた。 says 'You know it was raining', but the sentence gives no such context; the real signal is that bare 出かけた reports an actual event.","action":"Reworded the note to point to 出かけた as the reason it must be 'even though' (けど / のに)."}
+]}

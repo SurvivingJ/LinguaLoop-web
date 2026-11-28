@@ -1,0 +1,6 @@
+{"batch":"items-145","files":["items/cl-take.jsonl"],"checked":50,"fixed":4,"deleted":0,"replaced":0,"issues":[
+{"file":"items/cl-take.jsonl","jp_before":"母[はは]は毎朝[まいあさ]、ビタミンの薬[くすり]を{飲[の]んでいます|cl-take}。","problem":"ビタミンの薬 is unnatural (ビタミン剤 is the normal word); English 'vitamin pill' did not match.","action":"Rewrote as 血圧[けつあつ]の薬 'blood pressure medicine'; lv 5 -> 3 for 血圧."},
+{"file":"items/cl-take.jsonl","jp_before":"夜[よる]、友達[ともだち]に電話[でんわ]を{かけたい|cl-take}です。","problem":"English 'tonight' does not translate 夜 (that would be 今夜).","action":"English changed to 'I want to call my friend in the evening.'"},
+{"file":"items/cl-take.jsonl","jp_before":"汗[あせ]をかいたから、シャワーを{浴[あ]びて|cl-take}から寝[ね]ます。","problem":"Two から in a row (reason から + 浴びてから) is clumsy; English 'I've been sweating' slightly off.","action":"Changed reason から to ので; English 'I got sweaty, so ...'."},
+{"file":"items/cl-take.jsonl","jp_before":"弟[おとうと]は高校[こうこう]の試験[しけん]を{受[う]けた|cl-take}。","problem":"高校の試験 means 'a high-school exam', not 'the high school entrance exam' as the English says.","action":"Changed to 高校[こうこう]の入試[にゅうし]を (avoids duplicating line 44's 入学試験); why updated."}
+]}

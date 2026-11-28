@@ -1,0 +1,65 @@
+{
+ "group": "aida",
+ "intro": "あいだ and うちに both mark a stretch of time and place something inside it. あいだ is a neutral frame, a period with a start and an end. うちに adds the sense that the period is going to run out: act while you still can, or notice that something changed while it lasted.",
+ "skills": [
+  {
+   "id": "aida-ni",
+   "rule": "X あいだ + an ongoing action fills the whole period; X あいだに + a one-off event happens at some point inside it.",
+   "explain": "あいだ (間) marks a period: 夏休みの間, 母が寝ている間, 日本にいる間. Before it comes a noun + の, a verb in the ている or plain present form, or an adjective (静かな間, 若い間).\n\nWithout に, the main clause lasts for the whole period: a continuing action or state, often with ずっと or ている. 電車に乗っている間、ずっと本を読んでいた (I read the entire time I was on the train).\n\nWith に, the main clause is a single event that happens once, somewhere inside the period: 電車に乗っている間に、財布をなくした (at some point on the train, I lost my wallet).\n\nThe two clauses may have different subjects, which makes あいだ the tool when ながら cannot be used: 母が買い物をしている間に、部屋を掃除した.",
+   "patterns": [
+    "[noun] の あいだ(に)",
+    "[verb ている / plain present] あいだ(に)",
+    "[period] あいだ + action lasting the whole time",
+    "[period] あいだに + one-off event"
+   ],
+   "examples": [
+    {"jp": "夏休[なつやす]みの{あいだ}、ずっと国[くに]に帰[かえ]っていました。", "en": "I was back in my home country for the whole summer holiday."},
+    {"jp": "夏休[なつやす]みの{あいだに}、運転免許[うんてんめんきょ]を取[と]りました。", "en": "I got my driving licence during the summer holiday."},
+    {"jp": "電車[でんしゃ]に乗[の]っている{あいだ}、ずっと本[ほん]を読[よ]んでいました。", "en": "I read a book the whole time I was on the train."},
+    {"jp": "電車[でんしゃ]に乗[の]っている{あいだに}、財布[さいふ]をなくしました。", "en": "I lost my wallet while I was on the train."},
+    {"jp": "留守[るす]の{あいだに}、友達[ともだち]が来[き]たそうです。", "en": "Apparently a friend came by while I was out."},
+    {"jp": "母[はは]が買[か]い物[もの]をしている{あいだに}、部屋[へや]を掃除[そうじ]しました。", "en": "While my mother was out shopping, I cleaned the room."}
+   ],
+   "contrast": [
+    {"vs": "ながら", "note": "ながら needs one person doing both actions at once: 音楽を聞きながら勉強した. With two different people, use あいだ: 母が寝ている間、私は勉強した."},
+    {"vs": "までに", "note": "までに is a deadline, \"by\": 五時までに帰る (be back no later than five). あいだに is \"during\": the event falls inside the period, and まで alone is \"until\"."},
+    {"vs": "うちに", "note": "うちに adds that the period will end, or that a change crept in: 熱いうちに食べて. あいだに just places the event in time."}
+   ],
+   "mistakes": [
+    {"bad": "電車[でんしゃ]に乗[の]っている{あいだ}、財布[さいふ]をなくしました。", "good": "電車[でんしゃ]に乗[の]っている{あいだに}、財布[さいふ]をなくしました。", "note": "Losing a wallet happens in a moment, so it needs あいだに."},
+    {"bad": "先生[せんせい]が話[はな]している{あいだに}、ずっと寝[ね]ていました。", "good": "先生[せんせい]が話[はな]している{あいだ}、ずっと寝[ね]ていました。", "note": "ずっと fills the whole period, so drop the に."},
+    {"bad": "母[はは]が料理[りょうり]し{ながら}、私[わたし]は宿題[しゅくだい]をしました。", "good": "母[はは]が料理[りょうり]している{あいだ}、私[わたし]は宿題[しゅくだい]をしました。", "note": "Two different people: ながら fails, あいだ works."}
+   ],
+   "tip": "The whole time, ずっと → あいだ. One moment inside it → あいだに."
+  },
+  {
+   "id": "uchi-ni",
+   "rule": "X うちに Y: do Y while X still holds, before it ends; ないうちに means before X happens; ているうちに means a change crept in while X went on.",
+   "explain": "うちに marks a period that is going to run out, and the main clause is done before it does: 熱いうちに食べてください (eat it while it's hot; it will get cold). 若いうちに、いろいろな国へ行きたい. It follows an i-adjective (熱い), a na-adjective + な (元気な), a noun + の (学生の), or a verb in the ている or ない form, or a state verb such as いる: 日本にいるうちに.\n\nWith a negative, うちに means \"before X happens\": 暗くならないうちに帰ろう (let's go home before it gets dark). X is something you expect to happen by itself, and the tone is more urgent than 暗くなる前に. Never put ない before まえに; the negative goes with うちに.\n\nWith ている and a past main clause, うちに describes a change that came about without anyone planning it: 話しているうちに、仲良くなった (as we talked, we became friends).",
+   "patterns": [
+    "[i-adj / na-adj な / noun の] うちに [act now]",
+    "[verb ない-form] うちに [act before it happens]",
+    "[verb ている] うちに [unplanned change, past]"
+   ],
+   "examples": [
+    {"jp": "熱[あつ]い{うちに}食[た]べてください。", "en": "Please eat it while it's hot."},
+    {"jp": "若[わか]い{うちに}、いろいろな国[くに]へ行[い]きたいです。", "en": "I want to visit lots of countries while I'm young."},
+    {"jp": "学生[がくせい]の{うちに}、たくさん本[ほん]を読[よ]んでおきましょう。", "en": "Let's read plenty of books while we're still students."},
+    {"jp": "暗[くら]くならない{うちに}、家[いえ]に帰[かえ]りましょう。", "en": "Let's go home before it gets dark."},
+    {"jp": "忘[わす]れない{うちに}、メモしておきます。", "en": "I'll write it down before I forget."},
+    {"jp": "話[はな]している{うちに}、だんだん仲良[なかよ]くなりました。", "en": "As we talked, we gradually became friends."}
+   ],
+   "contrast": [
+    {"vs": "あいだに", "note": "あいだに is a neutral \"during\". 熱い間に食べて sounds wrong because only うちに carries \"before it's gone\"."},
+    {"vs": "まえに", "note": "まえに is a neutral \"before\" and takes the dictionary form: 暗くなる前に帰る. ないうちに says the same with urgency; まえに never takes the ない-form."},
+    {"vs": "ながら", "note": "ながら is two simultaneous actions by one person: 歩きながら考えた. ているうちに is a change that arrives as an activity goes on: 歩いているうちに疲れた."}
+   ],
+   "mistakes": [
+    {"bad": "暗[くら]くならない{まえに}帰[かえ]りましょう。", "good": "暗[くら]くならない{うちに}帰[かえ]りましょう。", "note": "The ない-form goes with うちに; with まえに it is 暗くなる前に."},
+    {"bad": "熱[あつ]い{あいだに}食[た]べてください。", "good": "熱[あつ]い{うちに}食[た]べてください。", "note": "\"While it's still hot, before it cools\" is うちに."},
+    {"bad": "学生[がくせい]{うちに}留学[りゅうがく]したいです。", "good": "学生[がくせい]の{うちに}留学[りゅうがく]したいです。", "note": "A noun needs の before うちに."}
+   ],
+   "tip": "Will the state run out, so act now? Or did something change while you weren't watching? Either way, うちに."
+  }
+ ]
+}

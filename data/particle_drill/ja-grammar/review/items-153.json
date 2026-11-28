@@ -1,0 +1,6 @@
+{"batch":"items-153","files":["items/cl-adj.jsonl"],"checked":55,"fixed":4,"deleted":0,"replaced":0,"issues":[
+{"file":"items/cl-adj.jsonl","jp_before":"このお茶[ちゃ]は{薄[うす]すぎる|cl-adj}ので、もう少[すこ]し入[い]れ直[なお]してください。","problem":"もう少し入れ直して is unnatural (\"re-brew a little\"); English awkward.","action":"Dropped もう少し; English now 'please make it again'."},
+{"file":"items/cl-adj.jsonl","jp_before":"台風[たいふう]が近[ちか]づいて、夜[よる]から風[かぜ]が{強[つよ]く|cl-adj}なりました。","problem":"English said 'from the evening' but 夜 means night.","action":"English changed to 'from nightfall'."},
+{"file":"items/cl-adj.jsonl","jp_before":"朝[あさ]、体温[たいおん]をはかったら、熱[ねつ]が{低[ひく]く|cl-adj}なっていました。","problem":"熱が低くなっていました is marked; a native says 熱が下がっていました for a fever going down.","action":"Rewrote as 朝は熱が{低かった}のに、夜になってまた上がりました, a contrast where 熱が低い is natural; distractors in the same form."},
+{"file":"items/cl-adj.jsonl","jp_before":"薬[くすり]を飲[の]んだので、熱[ねつ]は少[すこ]し{低[ひく]く|cl-adj}なりました。","problem":"Same issue: 熱が下がりました is the natural verb; 低くなりました is marked.","action":"Rewrote as a comparison: 今日は熱が昨日より{低い}です; distractors in the same form."}
+]}

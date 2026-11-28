@@ -1,0 +1,8 @@
+{"batch":"items-162","files":["items/x-idiom__2.jsonl"],"checked":45,"fixed":6,"deleted":0,"replaced":0,"issues":[
+{"file":"items/x-idiom__2.jsonl","jp_before":"新しい教室は明るくて広いので、みんなこの教室を気に入っています。","problem":"Clumsy repetition of 教室 in Japanese and English.","action":"Dropped この教室を; English now 'everyone likes it'."},
+{"file":"items/x-idiom__2.jsonl","jp_before":"明日は大事な面接があるので、朝から気が重いです。","problem":"Distractors 気が散る / 気が楽だ give malformed strings before です (気が散るです, 気が楽だです).","action":"Distractors changed to 気が短い, 気が楽, 気が早い (all well-formed with です, all wrong in meaning)."},
+{"file":"items/x-idiom__2.jsonl","jp_before":"新しい資料に会議の前に目を通しておいてください。","problem":"Awkward word order.","action":"Reordered to 会議の前に、新しい資料に目を通しておいてください。"},
+{"file":"items/x-idiom__2.jsonl","jp_before":"娘が学校の代表に選ばれて、母は鼻が高い。","problem":"'My daughter ... my mother is proud' is an odd scene (the grandmother); the natural pride is the parent's.","action":"Changed to 親として鼻が高い; English 'as her parent I'm proud'."},
+{"file":"items/x-idiom__2.jsonl","jp_before":"学食の薄い味のカレーは、口に合わなかった。","problem":"薄い味のカレー is unnatural phrasing.","action":"Changed to 味の薄いカレー."},
+{"file":"items/x-idiom__2.jsonl","jp_before":"工場が閉まって、五十人の社員が首になった。","problem":"閉まる means shutting for the day, not a permanent closure.","action":"Changed to 工場が閉鎖されて."}
+]}

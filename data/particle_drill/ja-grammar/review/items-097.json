@@ -1,0 +1,6 @@
+{"batch":"items-097","files":["items/pt-tabini.jsonl","items/pt-totan.jsonl"],"checked":84,"fixed":4,"deleted":0,"replaced":0,"issues":[
+{"file":"items/pt-tabini.jsonl","jp_before":"この道[みち]を通[とお]る{たびに|pt-tabini}、あのパン屋[や]のいい匂[にお]いがします。","problem":"English was unnatural ('I smell that bakery's good smell').","action":"Rewrote en: 'Every time I walk down this road, I can smell the lovely aroma from that bakery.'"},
+{"file":"items/pt-tabini.jsonl","jp_before":"洗濯[せんたく]する{ついでに|pt-tabini}、タオルも洗[あら]っておきました。","problem":"Washing towels is part of doing the laundry, so it is not a separate side task and ついでに reads oddly.","action":"Rewrote item: 洗濯物[せんたくもの]を干[ほ]す{ついでに|pt-tabini}、ベランダも掃除[そうじ]しました。 with new en and why."},
+{"file":"items/pt-totan.jsonl","jp_before":"辛[から]いソースを一口[ひとくち]{食[た]べたとたん|pt-totan}、汗[あせ]が出[で]ました。","problem":"Taking 'a bite of' sauce is odd in both Japanese and English.","action":"Changed ソース to カレー in jp and 'sauce' to 'curry' in en."},
+{"file":"items/pt-totan.jsonl","jp_before":"目[め]が{合[あ]ったとたん|pt-totan}、心臓[しんぞう]がどきどきしました。","problem":"Distractor 合うたびに makes a natural sentence ('my heart pounded every time our eyes met'), so the English is the only thing that rules it out.","action":"Replaced distractor 合[あ]うたびに with 合[あ]ううちに."}
+]}
