@@ -7378,3 +7378,11 @@ Owner: "Do we have any dual translation to prepare?" then "Just do the new Japan
 - **Upload:** `upload_sentence_references.py --apply`: 390 inserted, 390 activated, 0 deactivated. Active Japanese tests fully covered for en: 183.
 - **Not done:** 23 more Japanese tests created 2026-11-28 10:54–11:03 UTC, during this run, have no sentences yet; generation appeared still in progress. 10代 is rendered "in their 10s" because the number check does not accept "teens".
 - Pages created: 0. Pages updated: 1 (log).
+
+## [2026-11-28] fix + apply | Test f1fb217e repaired; number check accepts "teens" for 10代
+Owner: "1. Fix 3. Fix" (the corrupted Japanese transcript and the "in their 10s" references).
+- **f1fb217e ("ねるまえのおはなし"), LIVE-DB + R2:** `scripts/repair_test_f1fb217e.py`. Transcript is now the draft's sentences 1–2 (they match the questions' ねる前に) plus the corrected sentence 3 (安心). Rebuilt with the generator's own code: `vocab_token_map` (49 tokens), `vocab_sense_ids` 31 → 19 (11 junk, 就寝 and the typo's 心 out; 安心 105388 in), `furigana_payload` (5 questions), `pitch_payload`, `transcript_hash`. Audio cut from 36.9 s to 14.8 s at the sentence pauses (the clean takes of those three sentences; no TTS call; no Azure key in the container). Deleted the 11 `dim_vocabulary` rows made from the English note (Wait, a, the, stray, character…) and their 22 senses, after checking nothing else referenced them. Backups: `data/transcript_cleanup/2026-11-28/` (row + junk rows), R2 `backups/2026-11-28/` (old audio). Not changed: `passage_embedding`, `vocab_sense_stats` (generation record).
+- Then segmented (3 sentences) and referenced through `data/sentence_refs/ja/run_03`: 3 pass, uploaded and active.
+- **Number check:** `missing_numbers` now treats 10代 as carried by teens/teenage/teenager, and N代 / N年代 by twenties … nineties. Tests added in `tests/test_sentence_refs.py` (26 passed).
+- **Recheck `recheck-teens-2026-11-28`:** the three active references with "10s" (d71cadf7, e0400cd5 from run_02; 5d23154f from the pilot) re-reviewed blind and replaced: "Yuuki, a teenager", "A teenage boy", "as a teenager". 3 inserted, 3 deactivated.
+- Pages created: 0. Pages updated: 1 (log).
